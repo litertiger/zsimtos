@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select r.id,r.r_ok,r.r_type,r.rem_cus,r.payer,r.rem_date,r.bill_no,v1.vessel_name,\\
+\" +\
+  \"decode(vh.i_e_id,'I',v2.Lib_Vyg,v2.lob_vyg)vyg,r.created_on,r.created_by\\
+\" +\
+  \"from remitting r left join vbill_head vh on r.bill_no=vh.bill_no left join\\
+\" +\
+  \"vessel_visit v2 on v2.id=vh.vid left join vessel_voyage v1 on v1.id=v2.vid\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and (r.bill_no like '%\" + data.billno + \"%' or r.id like '%\" + data.billno + \"%')\\
+\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \"and r.REM_DATE>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\\
+\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \"and r.REM_DATE<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\\
+\";\
+if (nature == \"5\")\
+  sql += \" and r.PAYER_COD='\" + customcode + \"'\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

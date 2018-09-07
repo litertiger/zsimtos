@@ -1,0 +1,421 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "newNameBtn",
+        "tooltip": "添加新的键值项键名",
+        "text": "添加键名",
+        "iconCls": "db_form_add_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.setKey(true);"}
+      },
+      {
+       "configs": {
+        "itemId": "editNameBtn",
+        "tooltip": "修改选择的键值项键名",
+        "text": "修改键名",
+        "iconCls": "db_form_edit_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.setKey(false);"}
+      },
+      {
+       "configs": {
+        "itemId": "delNameBtn",
+        "handler": "app.delName",
+        "tooltip": "删除选择的键值项键名",
+        "text": "删除键名",
+        "iconCls": "db_form_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "item1",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "newBtn",
+        "handler": "app.addItem",
+        "tooltip": "添加新的子项 (Ctrl+E)",
+        "disabled": "true",
+        "text": "添加子项",
+        "iconCls": "record_add_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.addEdit(app.grid1, {\
+  KEY_NAME: app.KEY_NAME,\
+  TYPE: app.TYPE\
+});\
+app.setButtons(false);"}
+      },
+      {
+       "configs": {
+        "itemId": "delBtn",
+        "tooltip": "删除选择的子项",
+        "disabled": "true",
+        "text": "删除子项",
+        "iconCls": "record_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.remove(app.grid1);\
+app.setButtons(false);"}
+      },
+      {
+       "configs": {
+        "itemId": "saveBtn",
+        "tooltip": "保存对子项所有的更改 (Ctrl+S)",
+        "disabled": "true",
+        "text": "保存子项",
+        "iconCls": "save_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.save();"}
+      },
+      {
+       "configs": {
+        "itemId": "rejectBtn",
+        "tooltip": "撤消最后一次保存后的所有更改",
+        "disabled": "true",
+        "text": "撤消修改",
+        "iconCls": "undo_icon"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.confirm('确定要撤消对表格所做的所有更改吗？', function() {\
+  Wb.reject(app.grid1);\
+  app.setButtons(true);\
+});"}
+      },
+      {
+       "configs": {
+        "itemId": "item2",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "refreshBtn",
+        "tooltip": "刷新当前键名所有子项",
+        "disabled": "true",
+        "text": "刷新子项",
+        "iconCls": "refresh_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.list(app.KEY_NAME, app.TYPE);"}
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "tree1",
+      "split": "true",
+      "root": "{\
+  KEY_NAME: 'Root' //必须，设置路径需要\
+}",
+      "width": "200",
+      "displayField": "KEY_NAME",
+      "region": "west",
+      "title": "键名列表",
+      "tools": "Wb.getTreeTools({expand:false,collapse:false,search:true})",
+      "collapsible": "true",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "fields": "['KEY_NAME']",
+       "url": "m?xwl=dev/kve/get-tree"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "treestore"
+     }],
+     "type": "tree",
+     "events": {
+      "selectionchange": "var n = selected[0];\
+if (n)\
+  app.list(n.data.KEY_NAME, n.data.TYPE);",
+      "itemdblclick": "app.editNameBtn.fireEvent('click');"
+     }
+    },
+    {
+     "configs": {
+      "itemId": "grid1",
+      "editable": "true",
+      "pagingBar": "false",
+      "region": "center",
+      "title": "子项列表",
+      "loadColumns": "none",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "pageSize": "-1",
+       "sorters": "'K'",
+       "url": "m?xwl=dev/kve/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store",
+      "events": {"success": "if (app.TYPE == app.grid1.columnType)\
+  return;\
+var cols = Wb.getColumns(store);\
+cols.splice(5, 1); //删除TYPE列\
+cols.splice(1, 2); //删除KEY_ID,KEY_NAME列\
+cols[1].text = '键';\
+if (app.TYPE == '2') {\
+  cols[1].editor.xtype = 'numberfield';\
+  cols[1].editor.allowDecimal = false;\
+  cols[1].editor.hideTrigger = true;\
+}\
+cols[1].editor.listeners = {\
+  change: app.notifyChange\
+};\
+cols[1].width = 160;\
+cols[2].text = '值';\
+cols[2].editor.listeners = cols[1].editor.listeners;\
+cols[2].flex = 1;\
+app.grid1.columnType = app.TYPE;\
+app.grid1.reconfigure(null, cols);"}
+     }],
+     "type": "grid"
+    }
+   ],
+   "type": "viewport",
+   "events": {"afterrender": "new Ext.KeyNav({\
+  viewport: app.viewport1,\
+  E: {\
+    ctrl: true,\
+    fn: function() {\
+      if (!app.newBtn.disabled)\
+        app.newBtn.fireEvent('click');\
+    }\
+  },\
+  S: {\
+    ctrl: true,\
+    fn: app.save\
+  }\
+});"}
+  }],
+  "type": "module",
+  "events": {
+   "beforeunload": "if (!app.saveBtn.disabled)\
+  return '键值项已经被修改。';",
+   "initialize": "Wb.apply(app, {\
+  /**\
+   * 显示指定键名所有子项。\
+   * @param {String} name 键名称。\
+   * @param {String} type 类别，用于返回指定类型的数据。\
+   */\
+  list: function(name, type) {\
+    function load() {\
+      var store = app.grid1.store;\
+      app.KEY_NAME = name;\
+      app.TYPE = type;\
+      Wb.setTitle(app.grid1, name);\
+      store.removeAll();\
+      store.load({\
+        params: {\
+          KEY_NAME: name,\
+          TYPE: type\
+        },\
+        callback: function(a, b, succ) {\
+          app.newBtn.setDisabled(!succ);\
+          app.delBtn.setDisabled(!succ);\
+          if (succ && app.refreshBtn.disabled)\
+            app.refreshBtn.setDisabled(false);\
+        }\
+      });\
+    }\
+    if (app.saveBtn.disabled) {\
+      load();\
+    } else {\
+      Wb.choose('子项列表已经被修改，保存所做的更改吗？',\
+        function(btn) {\
+          if (btn == 'yes')\
+            app.save(function() {\
+              load();\
+            });\
+          else if (btn == 'no') {\
+            app.setButtons(true);\
+            load();\
+          }\
+        });\
+    }\
+  },\
+  save: function(callback) {\
+    if (!Wb.verifyGrid(app.grid1))\
+      return;\
+    //检查键名重复\
+    var k, isDup = false,\
+      keys = {},\
+      editing = Wb.findEditing(app.grid1);\
+    app.grid1.store.each(function(rec) {\
+      k = rec.data.K;\
+      if (keys[k]) {\
+        editing.startEdit(rec, 1);\
+        if (editing.activeEditor)\
+          editing.activeEditor.field.markInvalid('重复的键名');\
+        isDup = true;\
+        return false;\
+      } else {\
+        keys[k] = 1;\
+      }\
+    });\
+    if (isDup)\
+      return;\
+    //提交保存\
+    Wb.sync({\
+      grid: app.grid1,\
+      url: 'm?xwl=dev/kve/save',\
+      params: {\
+        KEY_NAME: app.KEY_NAME,\
+        TYPE: app.TYPE\
+      },\
+      message: '正在保存中...',\
+      success: function(resp) {\
+        Wb.syncCreate(app.grid1, Wb.decode(resp.responseText)); //把数据更新到新建记录并完成同步\
+        app.setButtons(true);\
+        Ext.callback(callback);\
+      }\
+    });\
+  },\
+  setButtons: function(disabled) {\
+    app.saveBtn.setDisabled(disabled);\
+    app.rejectBtn.setDisabled(disabled);\
+  },\
+  notifyChange: function() {\
+    app.setButtons(false);\
+  },\
+  setKey: function(isNew) {\
+    var win, rec = app.tree1.getSelection()[0];\
+    if (!isNew && !rec) {\
+      Wb.warn('请选择要修改的键名。');\
+      return;\
+    }\
+    win = Wb.prompt({\
+      title: isNew ? '添加键名' : '修改键名',\
+      iconCls: isNew ? 'db_form_add_icon' : 'db_form_edit_icon',\
+      items: [{\
+        fieldLabel: '名称',\
+        itemId: 'KEY_NAME',\
+        allowBlank: false\
+      }, {\
+        fieldLabel: '类别',\
+        itemId: 'TYPE',\
+        allowBlank: false,\
+        xtype: 'combo',\
+        value: 1,\
+        disabled: !isNew,\
+        forceSelection: true,\
+        saveKeyName: isNew ? 'sys.kve.type' : null,\
+        store: [\
+          [1, '字符'],\
+          [2, '数值']\
+        ]\
+      }],\
+      handler: function(values) {\
+        if (isNew) {\
+          Wb.request({\
+            url: 'm?xwl=dev/kve/add-keyname',\
+            params: values,\
+            success: function() {\
+              var treeStore = app.tree1.store;\
+              Wb.append(Wb.apply({\
+                leaf: true\
+              }, values), treeStore.getRootNode())[0].commit();\
+              treeStore.sort('KEY_NAME');\
+              win.hide();\
+            }\
+          });\
+        } else {\
+          Wb.request({\
+            url: 'm?xwl=dev/kve/update-keyname',\
+            params: Wb.apply({\
+              oldName: rec.data.KEY_NAME\
+            }, values),\
+            success: function() {\
+              Wb.update(rec, values);\
+              win.close();\
+              app.list(values.KEY_NAME, values.TYPE); //路径改变重新加载\
+            }\
+          });\
+        }\
+      }\
+    });\
+    if (!isNew)\
+      Wb.setValue(win, rec.data);\
+  },\
+  delName: function() {\
+    var sels = app.tree1.getSelection(),\
+      keyName;\
+    Wb.confirmDo(sels, function() {\
+      keyName = sels[0].data.KEY_NAME;\
+      Wb.request({\
+        url: 'm?xwl=dev/kve/del-keyname',\
+        params: {\
+          KEY_NAME: keyName\
+        },\
+        success: function(resp) {\
+          if (keyName == app.KEY_NAME)\
+            app.saveBtn.setDisabled(true);\
+          Wb.remove(app.tree1, sels);\
+        }\
+      });\
+    }, 'KEY_NAME');\
+  }\
+});"
+  }
+ }],
+ "roles": {},
+ "title": "键值编辑器",
+ "iconCls": "dp_icon",
+ "inframe": false,
+ "pageLink": ""
+}

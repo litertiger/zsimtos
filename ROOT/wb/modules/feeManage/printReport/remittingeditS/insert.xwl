@@ -1,0 +1,62 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var id = Wb.getRecords(app.run(\"select to_char(sysdate,'yyyyMMdd')||lpad(accounts_print_no.nextval,4,'0')id from dual\")); //生成ID\
+if (Wb.isEmpty(data.PAYER_COD)) {\
+  app.send({\
+    success: false,\
+    errmsg: \"提单没有付费方代码,数据异常\"\
+  });\
+  return;\
+}\
+var sql = \"insert into remitting(ID,REM_DATE,REM_CUS,PAYER,BILL_NO,\" +\
+  \"CREATED_BY,CREATED_ON,TENANCY_ID,REM_CUS_COD,PAYER_COD,R_TYPE)\" +\
+  \"values('\" + id[0].ID + \"',{?timestamp.REM_DATE?},{?REM_CUS?},{?PAYER?},{?BILL_NO?},\" +\
+  \"'\" + username + \"',sysdate,'\" + tenancyid + \"',{?REM_CUS_COD?},{?PAYER_COD?},{?R_TYPE?})\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+\
+var sqlitem = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK) \" +\
+  \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,0\" +\
+  \" from accounts_details where id in (\" + data.ids + \")\";\
+app.run(sqlitem);\
+\
+var atsql = \"select account_type from c_customer where code='\" + data.PAYER_COD + \"'\";\
+var custom = Wb.decode(DbUtil.getData(app.run(atsql, {\
+  jndi: 'jdbc/basecode'\
+}), request));\
+var account_type = 1;\
+if (!Wb.isEmpty(custom[0].ACCOUNT_TYPE))\
+  account_type = custom[0].ACCOUNT_TYPE;\
+\
+var sqlacitem = \"\";\
+sqlacitem = \"update accounts_details ad set remittingitem_id=(select id from remitting_item ri where ri.ad_id=ad.id),\" +\
+  \"payment_customer_code={?PAYER_COD?},payment_customer_nam={?PAYER?},IS_MANUAL=1,PAYMENT_TYPE=\" + account_type +\
+  \" where ad.id in (\" + data.ids + \")\";\
+app.run(sqlacitem);\
+app.send({\
+  success: true\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "基本添加记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,147 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var data = \"CAP0005\";\
+// var javaDate = new JavaDate();\
+// var d = DateUtil.format(javaDate, 'yyyyMMdd');;\
+// var s;\
+// var rs = app.run(\"select SEQ_WEIGHT_REC.nextVal from dual\");\
+// while (rs.next()) {\
+//   app.log(rs.getString('nextVal'));\
+//   data = data + d + rs.getString('nextVal');\
+//   s = rs.getString('nextVal');\
+// }\
+// var rs1 = Wb.getRecords(app.run(\"SELECT '\" + data + \"'+lpad('\" + s + \"',8,'0') FROM DUAL\"));\
+\
+var DomCrud = com.ag.task.Util.DomCrud;\
+var head = \"\",\
+  order = \"\",\
+  truck, idss, notes;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uuu'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  d = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uu'),\
+  pinTime = DateUtil.format(javaDate, 'yyyyMMdd');;\
+\
+var cdata = [];\
+var cntr = app.get('CNTR'),\
+  tenancyId = app.get('TENANCY_ID'),\
+  name = \"\",\
+  id = \"\";\
+\
+\
+//整船空箱申报\
+var vId = app.get('vId');\
+var formId = \"\";\
+app.log(vId);\
+if (vId != \"\" && vId != null) {\
+  var r = Wb.getRecords(app.run(\"select  'CAP0005'||'\" + pinTime + \"'||lpad(SEQ_WEIGHT_REC.nextVal,8,'0') form_id ,cntr_id from  VLOAD_LIST where vid='\" + vId + \"' AND E_F_ID='E' and I_E_ID='I' AND main_flag=1\"));\
+  for (var a = 0; a < r.length; a++) {\
+    if (a == r.length - 1) {\
+      id += \"'\" + r[a].CNTR_ID + \"'\";\
+      formId += \"'\" + r[a].FORM_ID + \"'\";\
+    } else {\
+      id += \"'\" + r[a].CNTR_ID + \"',\";\
+      formId += \"'\" + r[a].FORM_ID + \"',\";\
+    }\
+  }\
+  tenancyId = app.get('sys.TENANCY_ID');\
+}\
+\
+\
+//在场箱空箱申报\
+var s = app.get('ids');\
+if (s != null && s != \"\") {\
+  var ids = Wb.decode(s);\
+  if (ids.length == 0)\
+    id = \"''\";\
+  for (var i = 0; i < ids.length; i++) {\
+    if (i == ids.length - 1)\
+      id += \"'\" + ids[i].ID + \"'\";\
+    else\
+      id += \"'\" + ids[i].ID + \"',\";\
+  }\
+}\
+\
+// var ids = Wb.decode(app.get('ids')),\
+//   id = \"\";\
+\
+var username = app.get('sys.username'),ReadProperties=com.ag.util.ReadProperties;\
+if (tenancyId === 'XLG') {\
+  name = \"XLG\";\
+  path=ReadProperties.GetValueByKey(\"XLMQPUT\");\
+} else if (tenancyId === 'ZSG') {\
+  name = \"HY\";\
+  path=ReadProperties.GetValueByKey(\"ZSMQPUT\");\
+} else if (tenancyId === 'SWG') {\
+  name = \"SWG\";\
+  path=ReadProperties.GetValueByKey(\"SWMQPUT\");\
+}\
+\
+var rs = Wb.getRecords(app.run(\"select 'CAP0005'||'\" + pinTime + \"'||lpad(SEQ_WEIGHT_REC.nextVal,8,'0') form_id,TRUCKING_CO, ID, NOTES ,CNTR from  PORT_CNTR  where  id in (\" + id + \") and  TENANCY_ID='\" + tenancyId + \"' and send_edi!='1'\"));\
+for (var i = 0; i < rs.length; i++) {\
+  //组成数据\
+  cdata.push({\
+    FORM_ID: rs[i].FORM_ID,\
+    ID: rs[i].ID\
+  });\
+  //\
+  truck = rs[i].TRUCKING_CO;\
+  idss = rs[i].ID;\
+  notes = rs[i].NOTES;\
+  xml = \"\";\
+  head = \"\";\
+  order = \"\";\
+  var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"no\\\"?><Message xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\"><Head>\";\
+  head += '<MessageID>ZSENTERPRI_' + dateName + '<\/MessageID>';\
+  head += '<FunctionCode>2<\/FunctionCode>';\
+  head += '<MessageType>CAP0005<\/MessageType>';\
+  head += '<SenderID>ZSENTERPRI<\/SenderID>';\
+  head += '<ReceiverID/>';\
+  head += '<SendTime>' + dateName + '<\/SendTime>';\
+  head += '<Version>1.0<\/Version><\/Head>';\
+  xml += head;\
+  order += \"<Declaration>\";\
+  order += \"<INFO_HEAD>\";\
+  order += \"<URM_NO>\" + rs[i].FORM_ID + \"<\/URM_NO>\";\
+  order += \"<URM_TYPE>KX<\/URM_TYPE>\";\
+  order += \"<IC_CARD_NO/>\";\
+  order += \"<CAR_NO/>\";\
+  order += \"<CONTA_ID>\" + rs[i].CNTR + \"<\/CONTA_ID>\";\
+  order += \"<DECLARE_USER>\" + username + \"<\/DECLARE_USER>\";\
+  order += \"<DECLARE_TIME>\" + d + \"<\/DECLARE_TIME>\";\
+  order += \"<DECLARE_CODE>\" + name + \"<\/DECLARE_CODE>\";\
+  order += \"<DECLARE_NAME>\" + name + \"<\/DECLARE_NAME>\";\
+  order += \"<OPERATE_CODE>\" + name + \"<\/OPERATE_CODE>\";\
+  order += \"<OPERATE_NAME>\" + name + \"<\/OPERATE_NAME>\";\
+  order += \"<REMARK/>\";\
+  order += \"<\/INFO_HEAD>\";\
+  order += \"<\/Declaration>\";\
+  order += \"<\/Message>\";\
+  xml += order;\
+  app.log(xml);\
+  var a = DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0005_CUSTOMS_\" + dateName+i,path );\
+\
+}\
+// app.run(\"update PORT_CNTR SET send_edi='1',FORM_ID= where id in(\" + id + \")\");\
+app.run(\"update PORT_CNTR set SEND_EDI='1',FORM_ID={?FORM_ID?} WHERE ID={?ID?} \", {\
+  arrayData: new org.json.JSONArray(Wb.encode(cdata))\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

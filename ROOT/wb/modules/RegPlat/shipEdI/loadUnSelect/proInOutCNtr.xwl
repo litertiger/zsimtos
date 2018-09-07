@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var  sql=\" select cursor(select nvl(WEIGHT,0) WEIGHT,ID,BILL_NO,GsizeToISO95(CNTR_SIZE,CNTR_TYPE) CNTR_ISO,\\\
+CNTR,IN_OUT_TYPE,to_char(IN_OUT_TIME,'yyyyMMddHH24MIss') IN_OUT_TIME,decode(I_E_ID,'E','2','I','3') I_E_ID,\\\
+DECODE(E_F_ID,'E','4','F','5','P','7','9') E_F_ID,nvl(SEAL_NO,'') SEAL_NO from IN_OUT_EDI a where a.E_F_ID=IN_OUT_EDI.E_F_ID \\\
+and a.IN_OUT_TYPE=IN_OUT_EDI.IN_OUT_TYPE AND COSCO = 1   and ID='\"+data.ID+\"' order by cntr asc) b,E_F_ID,IN_OUT_TYPE,TENANCY_ID \\\
+from IN_OUT_EDI where COSCO=1  and ID='\"+data.ID+\"'  group by E_F_ID,IN_OUT_TYPE,TENANCY_ID  \";\
+\
+app.log(sql);\
+ request.setAttribute(\"suffix\",\"txt\");\
+var  GateEdiSend=com.ag.task.edi.ShipTo.GateEdiSend;\
+var gateEdiSend=new GateEdiSend();\
+gateEdiSend.executeSend(sql,false,request,response);\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "SWB": 1
+ },
+ "title": "进出门报文生成",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

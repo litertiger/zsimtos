@@ -1,0 +1,655 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "itemId": "editwin",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 8'\
+}",
+     "width": "560",
+     "bodyPadding": "4 0 4 0"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "BILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "提单号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"blur": "if (text.getValue().length > 6) {\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/H986Edit/selectBill',\
+    params: {\
+      BILL_NO: app.BILL_NO.getValue(),\
+      CNTR: app.CNTR.getValue()\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText).rows[0];\
+      app.GOODS_NOTES.setValue(rs.GOODS_NOTES);\
+      app.VESSEL_NAME.setValue(rs.VESSEL_NAME);\
+      app.SEAL_NO.setValue(rs.SEAL_NO);\
+      app.WEIGHT.setValue(rs.WEIGHT);\
+      app.CNTR_SIZE.setValue(rs.CNTR_SIZE);\
+      app.SHIPPER.setValue(rs.SHIPPER);\
+\
+      app.CNTR_SIZE.setValue(rs.CNTR_SIZE);\
+\
+\
+      Wb.loadComboAdd(app.SHIPPER_COD, [{\
+          \"ID\": rs.SHIPPER_COD,\
+          \"CNAME\": rs.SHIPPER\
+        }],\
+        function() {\
+          app.SHIPPER_COD.setValue(rs.SHIPPER_COD);\
+\
+        });\
+\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "labelAlign": "right",
+       "fieldLabel": "箱号",
+       "isUpperCase": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {"itemId": "store"},
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "text",
+      "events": {"blur": "if (text.getValue().length > 6) {\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/H986Edit/selectCntr',\
+    params: {CNTR:text.value},\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText).rows[0];\
+      console.info(rs);\
+      app.BILL_NO.setValue(rs.BILL_NO);\
+//       app.I_E_ID.setValue(rs.I_E_ID);\
+//       app.E_F_ID.setValue(rs.E_F_ID);\
+//       app.TRADE_ID.setValue(rs.TRADE_ID);\
+      app.WEIGHT.setValue(rs.WEIGHT);\
+      app.CNTR_SIZE.setValue(rs.CNTR_SIZE);\
+      app.SHIPPER.setValue(rs.SHIPPER);\
+//       app.GOODS_NOTES.setValue(rs.GOODS_NOTES);\
+//       app.VESSEL_NAME.setValue(rs.VESSEL_NAME);\
+      app.SEAL_NO.setValue(rs.SEAL_NO);\
+      app.NOTES.setValue(rs.NOTES);\
+    }\
+  });\
+//   Wb.request({\
+//     url: 'm?xwl=MiscellJob/H986Edit/selectBill',\
+//     params: {\
+//       BILL_NO: app.BILL_NO.getValue(),\
+//       CNTR: app.CNTR.getValue()\
+//     },\
+//     success: function(resp) {\
+//       var rs = Wb.decode(resp.responseText).rows[0];\
+//       app.GOODS_NOTES.setValue(rs.GOODS_NOTES);\
+//       app.VESSEL_NAME.setValue(rs.VESSEL_NAME);\
+//       app.SEAL_NO.setValue(rs.SEAL_NO);\
+//       app.WEIGHT.setValue(rs.WEIGHT);\
+//       app.CNTR_SIZE.setValue(rs.CNTR_SIZE);\
+//       app.SHIPPER.setValue(rs.SHIPPER);\
+\
+//       app.CNTR_SIZE.setValue(rs.CNTR_SIZE);\
+\
+\
+//       Wb.loadComboAdd(app.SHIPPER_COD, [{\
+//           \"ID\": rs.SHIPPER_COD,\
+//           \"CNAME\": rs.SHIPPER\
+//         }],\
+//         function() {\
+//           app.SHIPPER_COD.setValue(rs.SHIPPER_COD);\
+\
+//         });\
+\
+//     }\
+//   });\
+  \
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_SIZE",
+       "labelAlign": "right",
+       "fieldLabel": "尺寸"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "GOODS_NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "货名"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "tagConfigs": " matchFieldWidth:false",
+       "itemId": "SHIPPER_COD",
+       "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+       "labelAlign": "right",
+       "fieldLabel": "货主",
+       "displayField": "CNAME",
+       "listConfig": "{width:450}",
+       "valueField": "ID",
+       "queryDelay": "500",
+       "anyMatch": "true"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/common/client/clientSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo",
+      "events": {"select": "app.SHIPPER.setValue(records[0].data.CNAME);"}
+     },
+     {
+      "configs": {
+       "itemId": "WEIGHT",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "重量"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "SIGNERCFS09",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "仓管员签名"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SHIPPER",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "VESSEL_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "船名",
+       "isUpperCase": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SEAL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "铅封号",
+       "isUpperCase": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "tagConfigs": "{colspan:2}",
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "500"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "frame": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "grid1",
+        "editable": "true",
+        "region": "center"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {"itemId": "tbar"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "times",
+            "labelAlign": "right",
+            "fieldLabel": "时间",
+            "width": "140",
+            "labelWidth": "40"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "date"
+          },
+          {
+           "configs": {
+            "itemId": "seekBtn",
+            "text": "查找",
+            "iconCls": "seek_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.grid1.store.load({\
+\tout:app.tbar\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "addBtn",
+            "text": "新增",
+            "iconCls": "record_add_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '新增');\
+win.mon(win, 'ok', function() {\
+  var values = Wb.getValue(win);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/H986Edit/insert',\
+    params: values,\
+    success: function(resp) {\
+      Wb.info('成功');\
+      app.seekBtn.fireEvent('click');\
+      win.close();\
+    }\
+  });\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "editBtn",
+            "text": "修改",
+            "iconCls": "record_edit_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rows = app.grid1.getSelection();\
+\
+if (rows.length<1) {\
+  Wb.warn(\"请选择一条记录！\");\
+  return;\
+}\
+\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, '修改');\
+Wb.setValue(win, rows[0].data);\
+Wb.loadComboAdd(app.SHIPPER_COD, [{\
+    \"ID\": rows[0].data.SHIPPER_COD,\
+    \"CNAME\": rows[0].data.SHIPPER\
+  }],\
+  function() {\
+    app.SHIPPER_COD.setValue(rows[0].data.SHIPPER_COD);\
+\
+  });\
+\
+\
+\
+win.mon(win, 'ok', function() {\
+  var values = Wb.getValue(win);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/H986Edit/update',\
+    params: values,\
+    success: function(resp) {\
+      Wb.info('成功');\
+      win.close();\
+      app.seekBtn.fireEvent('click');\
+    }\
+  });\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "delBtn",
+            "text": "删除",
+            "iconCls": "record_delete_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rows = app.grid1.getSelection();\
+if(rows.length<1){\
+  Wb.warn('请选择一条数据！');\
+  return;\
+}\
+Wb.del(app.grid1, {\
+  url: 'm?xwl=MiscellJob/H986Edit/delete',\
+  titleField: 'BILL_NO'\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "threeBtn",
+            "text": "打印",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "// var AF1 = document.getElementById(opt);\
+// var whereSql = encodeURI(\" and trunc(CREATED_ON)=TO_DATE('\"+app.times.getRawValue()+\"','yyyy-MM-dd') \");\
+// AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";ee333e=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+\
+// // console.log('行数'+AF1.func(\"GetRows\"));\
+// var row=AF1.func(\"GetRows\");\
+// var rows=20-AF1.func(\"GetRows\");\
+// console.log(row);\
+// console.log(rows);\
+// AF1.func(\"InsertRows\",\"\"+(row-3)+\",\\r\\
+ \"+rows+\" \\r\\
+ false\");\
+// AF1.func(\"Calc\", \"\");\
+// AF1.func(\"callfunc\", \"18\");\
+\
+\
+\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and trunc(CREATED_ON)=TO_DATE('\"+app.times.getRawValue()+\"','yyyy-MM-dd') \");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";ee333e=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"\");\
+// console.log('行数'+AF1.func(\"GetRows\"));\
+var row=AF1.func(\"GetRows\");\
+var rows=20-AF1.func(\"GetRows\")+6;\
+console.log(row);\
+console.log(rows);\
+AF1.func(\"InsertRows\",\"\"+(row-3)+\",\\r\\
+ \"+rows+\" \\r\\
+ false\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+          },
+          {
+           "configs": {"itemId": "item1"},
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var code1='\"a\" + 2'; //表达式 \
+var code2='{a:2}'; //语句 \
+var code3=\"[\\\"CE\\\",\\\"AG\\\"]\";\
+alert(eval(code1)); //->'a2' \
+alert(eval(code2)); //->undefined \
+alert(eval(code3));\
+// alert(eval('(' + code2 + ')')); //->[object Object] \
+\
+"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=MiscellJob/H986Edit/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "operation.params.TIMES=app.times.getValue();"}
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "VESSEL_NAME214",
+            "dataIndex": "VESSEL_NAME",
+            "width": "80",
+            "text": "船名"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BILL_NO1251",
+            "dataIndex": "BILL_NO",
+            "width": "120",
+            "text": "提单号"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR12",
+            "dataIndex": "CNTR",
+            "width": "120",
+            "text": "箱号"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_SIZE121",
+            "dataIndex": "CNTR_SIZE",
+            "width": "50",
+            "text": "尺寸"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "GOODS_NOTES122",
+            "dataIndex": "GOODS_NOTES",
+            "width": "100",
+            "text": "货名"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SEAL_NO123",
+            "dataIndex": "SEAL_NO",
+            "width": "130",
+            "text": "铅封号"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SHIPPER124",
+            "dataIndex": "SHIPPER",
+            "width": "180",
+            "text": "货主"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "WEIGHT89",
+            "dataIndex": "WEIGHT",
+            "width": "60",
+            "text": "货重",
+            "align": "right"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NOTES891",
+            "dataIndex": "NOTES",
+            "width": "60",
+            "text": "备注"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid"
+      },
+      {
+       "configs": {
+        "border": "false",
+        "layout": "border",
+        "itemId": "panelPrint",
+        "weight": "0",
+        "region": "south",
+        "height": "0"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.times.setValue(new Date());\
+\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/cntr/threeH986B.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+\
+",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "ZSSCIMP": 1,
+  "truck": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "H986过机",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

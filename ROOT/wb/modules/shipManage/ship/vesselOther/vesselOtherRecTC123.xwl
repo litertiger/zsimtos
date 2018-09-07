@@ -1,0 +1,446 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "form",
+    "itemId": "editWin",
+    "dialog": "true",
+    "createInstance": "false",
+    "closeAction": "hide",
+    "width": "914",
+    "height": "420"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "@{type:'table',columns:3}",
+      "itemId": "panel1",
+      "defaults": "{\
+  labelWidth: 100,\
+  width: 280,\
+  margin: '4 8 4 8'\
+}",
+      "width": "902",
+      "height": "100",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "ID",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "@Str.ID",
+        "width": "200",
+        "x": " 0",
+        "y": " 8",
+        "labelWidth": "80"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "VESSEL_VISTI_ID",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "@Str.VOYAGE_NO",
+        "width": "200",
+        "x": " 400",
+        "y": " 98",
+        "labelWidth": "80",
+        "disabled": "true",
+        "maxLength": "36"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "SHIP_ITEM_COD",
+        "labelAlign": "right",
+        "pickList": "[\
+  ['1','拆加固'],['2','打加固'],['3','卸危险品指导员'],['4','装危险品指导员']\
+  ,['5','卸超限指导员'],['6','装超限指导员'],['7','卸大件指导员']\
+  ,['8','装大件指导员'],['9','进口普工待时'],['10','进口技工待时'],['11','出口普工待时'],['12','出口技工待时']\
+]\
+\
+\
+\t\
+\t\
+\t\
+\t\
+\t\
+\t\
+\t\
+\t\
+\t\
+",
+        "fieldLabel": "作业代码",
+        "keyName": "SHIP_ITEM_COD"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "BEG_WORK_TIME",
+        "labelAlign": "right",
+        "fieldLabel": "起始作业记录"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "datetime"
+      },
+      {
+       "configs": {
+        "itemId": "END_WORK_TIME",
+        "labelAlign": "right",
+        "fieldLabel": "结束作业时间"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "datetime"
+      },
+      {
+       "configs": {
+        "allowDecimals": "true",
+        "itemId": "WORK_NUM",
+        "labelAlign": "right",
+        "maxValue": "999999999",
+        "fieldLabel": "作业数量"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "DIRECT_NUM",
+        "labelAlign": "right",
+        "maxValue": "999",
+        "fieldLabel": "指导员数"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "TECH_WORKER",
+        "labelAlign": "right",
+        "maxValue": "999",
+        "fieldLabel": "技工人数"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "GEN_WORKER",
+        "labelAlign": "right",
+        "maxValue": "999",
+        "fieldLabel": "普工人数"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      }
+     ],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "itemId": "grid1",
+      "disabled": "false",
+      "region": "center",
+      "multiSelect": "true",
+      "height": "253"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "editBtn",
+          "hidden": "true",
+          "tooltip": "修改选择的记录",
+          "text": "@Str.modify",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(Wb.format(Str.selectRecord, Str.modify));\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle(Str.modify + ' - ' + app.selRec.data.VESSEL_VISTI_ID);\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "item2",
+          "text": "@Str.save",
+          "iconCls": "save_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var values = Wb.getValue(app.panel1);\
+if (!Wb.verify(app.panel1))\
+  return false;\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=shipManage/ship/vesselotherrecedit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      app.grid1.store.load();\
+      app.newBtn.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=shipManage/ship/vesselotherrecedit/insert',\
+    out: app.panel1,\
+    success: function(resp) {\
+      app.grid1.store.load();\
+      app.newBtn.fireEvent('click');\
+    }\
+  });\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "tooltip": "删除选择的记录",
+          "text": "@Str.del",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=shipManage/ship/vesselotherrecedit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      app.grid1.store.load();\
+      app.newBtn.fireEvent('click');\
+    }\
+  });\
+}, 'SHIP_ITEM_COD');"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "newBtn",
+          "text": "重置",
+          "iconCls": "redo_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var v = app.VESSEL_VISTI_ID.getValue();\
+Wb.reset(app.editWin);\
+app.VESSEL_VISTI_ID.setValue(v);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "sorters": "'ID'",
+        "url": "m?xwl=shipManage/ship/vesselotherrecedit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store",
+       "events": {"beforeload": "operation.params = {\
+  VESSEL_VISTI_ID: app.VESSEL_VISTI_ID.getValue(),\
+  TYPE: '1,2,3,4,5,6,7,8,9,10,11,12,'\
+};"}
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "ID99",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "@Str.ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SHIP_ITEM_COD99",
+          "dataIndex": "SHIP_ITEM_COD",
+          "keyName": "SHIP_ITEM_COD",
+          "width": "100",
+          "text": "作业代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "WORK_NUM99",
+          "dataIndex": "WORK_NUM",
+          "width": "80",
+          "text": "作业数量"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "BEG_WORK_TIM99",
+          "dataIndex": "BEG_WORK_TIME",
+          "width": "120",
+          "format": "Y-m-d H:i",
+          "text": "起始作业记录"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "END_WORK_TIM99",
+          "dataIndex": "END_WORK_TIME",
+          "width": "120",
+          "format": "Y-m-d H:i",
+          "text": "结束作业时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "DIRECT_NUM99",
+          "dataIndex": "DIRECT_NUM",
+          "width": "100",
+          "text": "指导员数"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "TECH_WORKER9944",
+          "dataIndex": "TECH_WORKER",
+          "width": "100",
+          "text": "技工人数"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "GEN_WORKER99",
+          "dataIndex": "GEN_WORKER",
+          "width": "100",
+          "text": "普工人数"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "LOADING_HATCH99",
+          "dataIndex": "LOADING_HATCH",
+          "width": "100",
+          "text": "开关舱块数"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemclick": "app.selRec = record.data;\
+app.editWin.setTitle(Str.modify + ' - ' + record.data.VESSEL_VISTI_ID);\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, record.data);\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+    }
+   ],
+   "type": "window"
+  }],
+  "type": "module",
+  "events": {"initialize": "var  opeType;"}
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "SWB": 1
+ },
+ "title": "其他杂作业",
+ "iconCls": "trash_icon",
+ "inframe": true,
+ "pageLink": ""
+}

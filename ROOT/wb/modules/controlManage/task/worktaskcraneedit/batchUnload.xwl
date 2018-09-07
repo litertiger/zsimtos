@@ -1,0 +1,81 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var ship = '';\
+var result = app.run(\"select v.itrade_id,t.carrier_call  from task t,vessel_visit v where t.carrier_call=v.id and t.id={?id?} and t.task_type='VIN'\");\
+if (result && result.next()) {\
+  if (result.getInt('itrade_id') !== 2)\
+    throw '当前只能批量确认内贸船';\
+  app.set('ship', ship = result.getString('carrier_call'));\
+} else\
+  throw '未找到相应卸船任务';\
+var result = app.run(\"select berth_code from vessel_visit where id={?ship?} and tenancy_id={?sys.TENANCY_ID?}\");\
+if (result && result.next())\
+  pos = result.getString('berth_code');\
+if (!pos)\
+  throw '尚未指定泊位';\
+app.set('pos', pos);\
+app.run(\"update port_cntr set yard_position={?pos?},phase='ACT',in_port_time=sysdate,updated_by={?sys.username?},updated_on=sysdate \\\
+where id in(select cntr_id from move_list where e_f_id='E' and phase in ('PLN','SND') and queue_id={?id?} and move_type='MOV') \\\
+and e_f_id='E' and phase='ADV'\", {\
+  transaction: \"start\"\
+});\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on) \\\
+        select id,'MOVE_LIST','TDIS',{?sys.username?},sysdate from move_list m\\\
+        where e_f_id='E' and phase in ('PLN','SND') and move_type='MOV' \\\
+        and from_pos_typ='V' and carrier_call={?ship?} \\\
+        and exists(select 1 from port_cntr where id=m.cntr_id and phase='ACT' and e_f_id='E')\");\
+result = app.run(\"update move_list m set phase='TMP',updated_by={?sys.username?},updated_on=sysdate where e_f_id='E' and phase in ('PLN','SND') \\\
+and from_pos_typ='V' and carrier_call={?ship?} and move_type='MOV' and exists(select 1 from port_cntr where id=m.cntr_id and phase='ACT' and e_f_id='E')\", {\
+  transaction: \"commit\"\
+});\
+\
+if (result > 0) {\
+  var mess = \"ship.\" + ship;\
+\
+  //发送消息\
+  var RabbitClient = com.ag.util.RabbitClient;\
+  var client = new RabbitClient();\
+  try {\
+    if (!(client.open() && client.routeSend(\"ex_instruction\", mess, {\
+        info: {\
+          type: \"disc\",\
+          action: \"batch\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"hanset\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: app.get('id')\
+        }\
+      }))) throw '指令确认成功，但发送消息超时';\
+  } catch (e) {\
+    throw '异常';\
+  } finally {\
+    client.close();\
+  }\
+}\
+app.send('批量卸船操作成功');"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "吉柜批量卸船",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

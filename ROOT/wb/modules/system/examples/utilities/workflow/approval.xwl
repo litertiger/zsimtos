@@ -1,0 +1,251 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "description": "本示例仅用于演示目的，实际业务中审批角色可以同当前用户的职位直接关联。\
+流程流转到[报销到账]节点时，在系统控制台显示当前用户报销到账的通知，实际业务中可以执行自动银行转账和邮件通知到账的操作。\
+流程流转过程中的历史数据可以保存到单独的表中以作进一步处理。"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "roleLabel",
+        "text": "角色切换："
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "radiogroup1",
+        "width": "300"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "radio1",
+          "boxLabel": "部门经理审批",
+          "checked": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "radio"
+        },
+        {
+         "configs": {
+          "itemId": "radio2",
+          "boxLabel": "上级经理审批"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "radio"
+        },
+        {
+         "configs": {
+          "itemId": "radio3",
+          "boxLabel": "财务审核处理"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "radio"
+        }
+       ],
+       "type": "radiogroup",
+       "events": {"change": "app.listStore.load();"}
+      },
+      {
+       "configs": {
+        "itemId": "item1",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "approveBtn",
+        "text": "同意",
+        "iconCls": "ok_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.approve(false); //app.approve方法在module.initialize中定义"}
+      },
+      {
+       "configs": {
+        "itemId": "rejectBtn",
+        "text": "拒绝",
+        "iconCls": "cancel_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.approve(true); //app.approve方法在module.initialize中定义"}
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "grid1",
+      "region": "center",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "remoteSort": "true",
+       "normalName": "listStore",
+       "autoLoad": "true",
+       "sorters": "{property:'MODIFY_DATE',direction:'DESC'}",
+       "url": "m?xwl=system/examples/utilities/workflow/approval/select-list"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store",
+      "events": {"beforeload": "operation.params = {\
+  ACTIVE_NODE: app['radio' + (app.radiogroup1.getValue() + 1)].boxLabel\
+};"}
+     }],
+     "type": "grid",
+     "events": {"selectionchange": "var rec = selected[0];\
+if (rec) {\
+  Wb.request({\
+    url: 'm?xwl=system/examples/utilities/workflow/fee-apply/select-items',\
+    params: rec.data,\
+    success: function(resp) {\
+      Wb.setValue(app.applyGrid, Wb.decode(resp.responseText));\
+    }\
+  });\
+} else\
+  app.applyStore.removeAll();"}
+    },
+    {
+     "configs": {
+      "submitSelect": "false",
+      "itemId": "applyGrid",
+      "split": "true",
+      "editable": "true",
+      "pagingBar": "false",
+      "region": "south",
+      "multiSelect": "true",
+      "height": "200"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "normalName": "applyStore",
+        "fields": "['name', 'fee', 'remark']"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "rowCol",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "nameCol",
+          "dataIndex": "name",
+          "flex": "1",
+          "text": "项目名称"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "feeCol",
+          "dataIndex": "fee",
+          "text": "金额"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "remarkCol",
+          "dataIndex": "remark",
+          "text": "备注"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"initialize": "app.approve = function(reject) {\
+  var sels = app.grid1.getSelection();\
+  if (!sels.length) {\
+    Wb.warn('请选择至少一条记录。');\
+    return;\
+  }\
+  var promptWin = Wb.promptText('审批' + (reject ? '拒绝' : '同意') + '意见 - ' + sels.length + ' 项', function(value, win) {\
+    Wb.request({\
+      url: 'm?xwl=system/examples/utilities/workflow/approval/approve',\
+      out: app.grid1,\
+      params: {\
+        comment: value,\
+        reject: reject\
+      },\
+      success: function(resp) {\
+        Wb.remove(app.grid1); //移除已经审批的记录，可以根据需要把审批的数据在后台审批时另存到单独的历史数据表中。\
+        win.close();\
+      }\
+    });\
+  }, {\
+    value: reject ? '拒绝' : '同意',\
+    allowBlank: false\
+  });\
+  promptWin.down('#text').focus(true, true);\
+};"}
+ }],
+ "roles": {"default": 1},
+ "title": "报销审批",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

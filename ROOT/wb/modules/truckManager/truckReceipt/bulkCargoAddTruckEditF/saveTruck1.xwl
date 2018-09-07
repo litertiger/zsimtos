@@ -1,0 +1,120 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var tenancyId = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+var id, idc = [],\
+  idu = [],\
+  idd = [],\
+  rec = Wb.decode(request.getParameter('create'));\
+reu = Wb.decode(request.getParameter('update'));\
+red = Wb.decode(request.getParameter('destroy'));\
+var data = [];\
+Wb.each(rec, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  idc.push({\
+    ID: id,\
+    BILL_NO: app.get('BILL_NO'),\
+    PID: rec.PID,\
+    PIECES: rec.PIECES,\
+    WEIGHT: rec.WEIGHT,\
+    TRUCK: rec.TRUCK,\
+    TRUCK_NO: rec.TRUCK_NO,\
+    TRAY: rec.TRAY,\
+    DRIVER: rec.DRIVER\
+  });\
+  pid = rec.PID;\
+});\
+Wb.each(reu, function(rec) {\
+  idu.push({\
+    ID: rec.ID,\
+    WEIGHT: rec.WEIGHT,\
+    PIECES: rec.PIECES,\
+    PID: rec.PID,\
+    BILL_NO: app.get('BILL_NO'),\
+    TRUCK: rec.TRUCK,\
+    TRUCK_NO: rec.TRUCK_NO,\
+    TRAY: rec.TRAY,\
+    DRIVER: rec.DRIVER\
+  });\
+});\
+Wb.each(red, function(rec) {\
+  idd.push({\
+    ID: rec.ID\
+  });\
+});\
+data.push({\
+  create: rec,\
+  update: reu,\
+  ids: idc\
+});\
+if (idd.length > 0) {\
+  app.run(\"delete from BLUK_TRUCK_D where pid={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd))\
+  });\
+  app.run(\"delete from BLUK_APPLY_TRUCK WHERE TID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd))\
+  });\
+}\
+request.setAttribute('create', Wb.encode(rec)); //重置create记录\
+app.update({\
+  tableName: 'BLUK_TRUCK_M',\
+  whereFields: 'ID'\
+});\
+app.send(data); //把id列表发送到客户端以同步到表格\
+if (idc.length > 0 && idu.length == 0) {\
+  app.run(\"insert into BLUK_TRUCK_D(ID, PID, WEIGHT, PIECES, TENANCY_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE,BILL_NO)\" +\
+    \"VALUES(sys_guid(),{?ID?},{?WEIGHT?},{?PIECES?},'\" + tenancyId + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',{?BILL_NO?})\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idc))\
+    });\
+  var rs = app.run(\"SELECT ID FROM BLUK_TRUCK_M WHERE PID='\" + pid + \"'\");\
+  while (rs.next()) {\
+    app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)VALUES('\" + pid + \"','\" + rs.getString('ID') + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate)\");\
+  }\
+}\
+if (idc.length > 0 && idu.length > 0) {\
+  app.run(\"insert into BLUK_TRUCK_D(ID, PID, WEIGHT, PIECES, TENANCY_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE,BILL_NO)\" +\
+    \"values(sys_guid(),{?ID?},{?WEIGHT?},{?PIECES?},'\" + tenancyId + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',{?BILL_NO?})\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idc))\
+    });\
+  app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)values('\" + pid + \"',{?ID?},'\" + username + \"',sysdate,'\" + username + \"',sysdate)\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idc))\
+  });\
+  app.run(\"update BLUK_TRUCK_D set WEIGHT={?WEIGHT?},PIECES={?PIECES?} WHERE PID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idu))\
+  });\
+}\
+app.log(idu);\
+if (idu.length > 0) {\
+  app.run(\"update BLUK_TRUCK_D set WEIGHT={?WEIGHT?},PIECES={?PIECES?} WHERE PID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idu))\
+  });\
+//   var map=new HashMap();\
+//   Wb.each(idu, function(rec) {\
+//     if(rec.TRUCK!='' && rec.TRAY!='' && rec.DRIVER!=''){\
+//     /**散货拖车费*/\
+//     map.put(\"rpId\", rec.ID);\
+//     var sp=Wb.newClass(\"dubboForBulkCar\").call(request, map);\
+//       app.log(new JSONObject(sp));\
+//     }\
+//   });\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "check": 1,
+  "xlcd": 1
+ },
+ "title": "保存车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

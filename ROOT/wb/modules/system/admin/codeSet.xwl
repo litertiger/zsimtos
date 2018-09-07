@@ -1,0 +1,474 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "Win",
+     "dialog": "true",
+     "width": "270",
+     "height": "150"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "panel1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "S_CODE",
+        "labelAlign": "right",
+        "fieldLabel": "表名",
+        "readOnly": "true",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "keyName",
+        "labelAlign": "right",
+        "fieldLabel": "字段名",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "editWin",
+     "closeAction": "hide",
+     "width": "465",
+     "height": "368"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "TABLE_NAME",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "地址超出最大长度",
+       "fieldLabel": "表名",
+       "x": "-8",
+       "width": "200",
+       "y": "12",
+       "labelWidth": "80",
+       "maxLength": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "JNDI",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "传真超出最大长度",
+       "fieldLabel": "JNDI",
+       "x": "192",
+       "width": "200",
+       "y": "12",
+       "labelWidth": "80",
+       "maxLength": "24",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTE",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "备注",
+       "x": "-8",
+       "width": "400",
+       "y": "224",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "maxLength": "128",
+       "height": "81"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "KV_SQL",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "kvSql",
+       "x": "-8",
+       "width": "400",
+       "y": "40",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "maxLength": "300",
+       "height": "89"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "COD_SQL",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "codSql",
+       "x": "-8",
+       "width": "400",
+       "y": "128",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "maxLength": "800",
+       "height": "97"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/admin/codeSet/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.findBtn.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/admin/codeSet/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+        var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+     \
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.findBtn.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "名称代码",
+          "labelWidth": "60"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findBtn",
+          "text": "查找",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({   out:app.grid1 });"}
+        },
+        {
+         "configs": {
+          "itemId": "newBtn",
+          "tooltip": "添加新的记录 (Ctrl+E)",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.reset(app.editWin);\
+app.editWin.setTitle('添加');\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "editBtn",
+          "tooltip": "修改选择的记录",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle('修改 - 租户');\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "tooltip": "删除选择的记录",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/admin/codeSet/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'CODE_SET');"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "reloadBtn",
+          "text": "加载数据",
+          "iconCls": "refresh_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要刷新的记录。');\
+  return;\
+}\
+\
+//alert(rec.data.TABLE_NAME == 'S_CODE');\
+if (rec.data.TABLE_NAME == 'S_CODE') {\
+  var win = new Ext.window.Window(app._Win);\
+  win.show();\
+  win.setIconCls('record_edit_icon');\
+  Wb.setTitle(win, '刷新表');\
+  app.S_CODE.setValue(rec.data.TABLE_NAME);\
+  //窗口每次动态生成,方法在窗口销毁时自动销毁\
+  win.mon(win, 'ok', function() {\
+    Wb.request({\
+      url: 'm?xwl=system/admin/codeSet/load',\
+      params: {\
+        tableName: rec.data.TABLE_NAME,\
+        keyName: app.keyName.getValue()\
+      },\
+      success: function(resp) {\
+        win.close(); //根据closeAction属性，默认为销毁\
+      }\
+    });\
+  });\
+\
+}\
+if (rec.data.TABLE_NAME != 'S_CODE') {\
+  Wb.request({\
+    url: 'm?xwl=system/admin/codeSet/load',\
+    params: {\
+      tableName: rec.data.TABLE_NAME\
+    },\
+    success: function(resp) {\
+\
+    }\
+  });\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "reloadBtn1",
+          "text": "刷新数据",
+          "iconCls": "refresh_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "\
+  Wb.request({\
+    url: 'm?xwl=system/admin/loadRedis',\
+    params: {\
+      tableName: rec.data.TABLE_NAME\
+    },\
+    success: function(resp) {\
+\
+    }\
+  });\
+"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "sorters": "'ID'",
+        "url": "m?xwl=system/admin/codeSet/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "row",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "id",
+          "hidden": "true",
+          "dataIndex": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "tableName",
+          "dataIndex": "TABLE_NAME",
+          "text": "表名"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "kvsql",
+          "dataIndex": "KV_SQL",
+          "flex": "1",
+          "width": "600",
+          "text": "kv数据库"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "codsql",
+          "dataIndex": "COD_SQL",
+          "width": "600",
+          "text": "代码数据库"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "jndi",
+          "dataIndex": "JNDI",
+          "text": "JNDI接口"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "note",
+          "dataIndex": "NOTE",
+          "flex": "1",
+          "text": "备注"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "缓存设置",
+ "iconCls": "shape_align_bottom_icon",
+ "inframe": false,
+ "pageLink": ""
+}

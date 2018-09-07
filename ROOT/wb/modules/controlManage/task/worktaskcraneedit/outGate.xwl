@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select id,cntr,cntr_id,work_type,in_car,f_address from receipt\\\
+   where id={?id?} or id={?id2?}\");\
+\
+var data = Wb.getRecords(result);\
+if (data.length > 0) {\
+  Wb.each(data, function(r) {\
+    app.set(\"rid\", r.ID);\
+    app.set(\"jinchu\", \"chu\");\
+    app.execute(\"m?xwl=receiptInout/gate/gateinedit/gatecheck_two\");\
+    var check = app.get(\"check2\");\
+    if (!check.success) {\
+      throw check.error;\
+    }\
+  });\
+\
+  app.set('receipts', Wb.encode(data));\
+  app.execute('m?xwl=receiptInout/gate/gateoutedit/operDoorTi');\
+  app.send({\
+    success: true\
+  });\
+} else\
+  throw '未找到相关设备交接单';"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "快速出闸",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

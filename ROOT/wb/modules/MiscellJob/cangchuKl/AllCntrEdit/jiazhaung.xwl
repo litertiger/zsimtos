@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// //1、更新下bluk_goods表2、inout3、作业票\
+// app.run(\"select 1 from vbill_head_e where kl=1 and ID={?BILL_ID?}\",{errorText:\"未放行！\"});\
+\
+// app.run(\"update bluk_goods set QUTY=QUTY-{?IPIECES?},OUTQUTY=OUTQUTY+{?IPIECES?},OUTTIME=sysdate where CFSBILL_ID=(select CFSBILL_ID from BLUK_BILL WHERE CFSBILL_ID={?CFSBILL_ID?})\");\
+\
+// app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID)\\\
+// VALUES((select ID from BLUK_BILL WHERE CFSBILL_ID={?CFSBILL_ID?}),'1',{?IPIECES?},'','','',{?BILL_ID?})\");\
+\
+\
+//1、更新下bluk_goods表2、inout3、作业票\
+app.run(\"select 1 from vbill_head_e where kl=1 and ID={?BILL_ID?}\",{errorText:\"未放行！\"});\
+\
+app.run(\"update bluk_bill set pieces=pieces-to_number({?IPIECES?}) where CFSBILL_ID={?CFSBILL_ID?}\");\
+app.run(\"update bluk_goods set QUTY=QUTY-to_number({?IPIECES?}),OUTQUTY=OUTQUTY+to_number({?IPIECES?}),OUTTIME=sysdate where CFSBILL_ID=(select CFSBILL_ID from BLUK_BILL WHERE CFSBILL_ID={?CFSBILL_ID?})\");\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID,CNTR,SIGNERCFS,STORE_TIME,TENANCY_ID,VOLUME,WEIGHT)\\\
+VALUES((select ID from BLUK_BILL WHERE CFSBILL_ID={?CFSBILL_ID?}),'1',{?IPIECES?},'','','',{?BILL_ID?},{?CNTR?},{?sys.dispname?},sysdate,{?sys.TENANCY_ID?},{?VOLUME?},{?WEIGHT?})\");\
+\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        select sys_guid(),SHIPPER,BILL_ID,sysdate,{?timestamp.WORKDATE?},'',{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'','' from BLUK_GOODS where BILL_ID={?BILL_ID?} AND BILL_NO={?BILL_NO?}\");\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

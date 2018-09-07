@@ -1,0 +1,289 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "writeCardWin",
+    "dialog": "true",
+    "title": "写卡"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {"itemId": "panel1"},
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "type",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "业务类型",
+       "displayField": "V",
+       "readOnly": "false",
+       "labelWidth": "120",
+       "valueField": "K"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo",
+      "events": {"change": "var info = app.cardType[newValue];\
+if (!info)\
+  return;\
+//清空动态控件面板\
+var p2 = combo.findParentByType('panel').nextNode();\
+p2.removeAll();\
+\
+//添加必输项\
+if (info.need)\
+  Ext.Object.getKeys(info.need).map(function(k) {\
+    p2.add(new Ext.form.TextField({\
+      appScope: app,\
+      xtype: \"textfield\",\
+      itemId: k,\
+      fieldLabel: info.need[k],\
+      allowBlank: false,\
+      labelAlign: \"right\",\
+      labelWidth: 120,\
+      maxLength: k === 'billno' ? 32 : 16\
+    }));\
+  });\
+//添加可选项\
+if (info.option)\
+  Ext.Object.getKeys(info.option).map(function(k) {\
+    p2.add(new Ext.form.TextField({\
+      appScope: app,\
+      xtype: \"textfield\",\
+      itemId: k,\
+      fieldLabel: info.option[k],\
+      labelAlign: \"right\",\
+      labelWidth: 120,\
+      maxLength: 16\
+    }));\
+  });\
+//设置读卡信息\
+if (app.cardInfo) {\
+  Wb.setValue(app.panel2, app.cardInfo);\
+  if (newValue == 'TG')\
+    Wb.setValue(app.panel2, {\
+      billno: ''\
+    });\
+}"}
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {"itemId": "panel2"},
+     "expanded": true,
+     "children": [],
+     "type": "panel"
+    }
+   ],
+   "type": "window",
+   "events": {
+    "beforeshow": "if (app.cardInfo)\
+  delete app.cardInfo;\
+if (win.HANDLE_ID)\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/worktaskcraneedit/cardInfo',\
+    params: {\
+      handle_id: win.HANDLE_ID\
+    },\
+    success: function(resp) {\
+      var ret = Wb.decode(resp.responseText);\
+      if (!ret.success) {\
+        //Wb.error(\"获取写卡信息失败\");\
+        return;\
+      }\
+      app.cardInfo = ret.info;\
+      Wb.setValue(win, ret.info);\
+    }\
+  });",
+    "ok": "var val = Wb.getValue(win);\
+delete val['%type'];\
+Ext.data.JsonP.request({\
+  url: \"http://127.0.0.1:81/writeCard\",\
+  callbackKey: \"webletcallback\",\
+  timeout: 3000,\
+  params: val,\
+  success: function(data) {\
+    if (data.version != 'V2017.8.21') {\
+      Wb.info(\"<font color='#FF0000' size=3>写卡组件版本不正确,请按如下步骤更新:<\/font>,<br>1、请在确定后下载并解压安装包card.zip<br>2、双击解压目录中的install.bat安装写卡驱动服务<br>3、请在安装成功后重试写卡功能!<br><font color='#FF0000' size=3>注意事项：<\/font><br>安装服务时如360等安全软件报警<font color='#FF0000' size=3>请选择允许<\/font>\", function() {\
+        Wb.download(\"ctgraph/card.zip\", null, false, \"GET\");\
+      });\
+      return;\
+    }\
+    if (data.success) {\
+      Wb.tip(\"写入成功\", false, true);\
+      Wb.request({\
+        url: 'm?xwl=controlManage/task/worktaskcraneedit/cardOk',\
+        params: {\
+          id: win.HANDLE_ID\
+        },\
+        success: function(resp) {\
+          var ret = Wb.decode(resp.responseText);\
+          if (!ret.success) {\
+            Wb.error(\"保存写卡标志失败\");\
+            return;\
+          }\
+        }\
+      });\
+      win.close();\
+    } else\
+      Wb.error(data.error, null, null, \"写卡失败\");\
+  },\
+  failure: function() {\
+    Wb.info(\"<font color='#FF0000' size=3>尚未安装写卡组件,请按如下步骤安装:<\/font>,<br>1、请在确定后下载并解压安装包card.zip<br>2、双击解压目录中的install.bat安装写卡驱动服务<br>3、请在安装成功后重试写卡功能!<br><font color='#FF0000' size=3>注意事项：<\/font><br>安装服务时如360等安全软件报警<font color='#FF0000' size=3>请选择允许<\/font>\", function() {\
+      Wb.download(\"ctgraph/card.zip\", null, false, \"GET\");\
+    });\
+  }\
+});"
+   }
+  }],
+  "type": "module",
+  "events": {"finalize": "app.cardType = {\
+  IZ: {\
+    text: \"进口重柜\",\
+    need: {\
+      cntr1: \"集装箱号1\"\
+    },\
+    option: {\
+      cntr2: \"集装箱号2\"\
+    }\
+  },\
+  ZG: {\
+    text: \"转关车辆（出场）\",\
+    need: {\
+      plate: \"车牌号\",\
+      custno: \"车辆海关编号\"\
+    },\
+    option: {\
+      cntr1: \"集装箱号1\",\
+      cntr2: \"集装箱号2\"\
+    }\
+  },\
+  JS: {\
+    text: \"进口散货（拼柜）\",\
+    need: {\
+      billno: \"散货出闸申报单号\",\
+      plate: \"车牌号\"\
+    }\
+  },\
+  DS: {\
+    text: \"大宗散货分批出场\",\
+    need: {\
+      billno: \"申报单号\",\
+      plate: \"车牌号\"\
+    }\
+  },\
+  KC: {\
+    text: \"空车出场\",\
+    need: {\
+      plate: \"车牌号\"\
+    }\
+  },\
+  KX: {\
+    text: \"空箱出场\",\
+    need: {\
+      cntr1: \"集装箱号1\"\
+    },\
+    option: {\
+      cntr2: \"集装箱号2\"\
+    }\
+  },\
+  TG: {\
+    text: \"退货出场\",\
+    need: {\
+      billno: \"申报单号\",\
+      plate: \"车牌号\"\
+    },\
+    option: {\
+      cntr1: \"集装箱号1\",\
+      cntr2: \"集装箱号2\"\
+    }\
+  },\
+  DB: {\
+    text: \"港区调拨\",\
+    need: {\
+      billno: \"调拨单号\",\
+      plate: \"车牌号\",\
+      cntr1: \"集装箱号1\"\
+    },\
+    option: {\
+      cntr2: \"集装箱号2\"\
+    }\
+  },\
+  XZ: {\
+    text: \"行政车卡\",\
+    need: {\
+      plate: \"车牌号\"\
+    }\
+  },\
+  TB: {\
+    text: \"特别放行卡\",\
+    need: {\
+      plate: \"车牌号\"\
+    }\
+  }\
+};\
+var type = app.writeCardWin.queryById(\"type\");\
+type.bindStore({\
+  data: Ext.Object.getKeys(app.cardType).map(function(k) {\
+    return {\
+      K: k,\
+      V: app.cardType[k].text\
+    };\
+  }),\
+  fields: ['K', 'V'],\
+  type: 'store'\
+});\
+var ok = app.writeCardWin.down('#okButton');\
+if(ok)\
+  ok.setText('写卡');\
+var cnl = app.writeCardWin.down('#cancelButton');\
+if(cnl)\
+  cnl.setText('关闭');\
+var t = app.writeCardWin.down(\"toolbar\");\
+t.insert(0, {\
+  text: '读卡',\
+  iconCls: 'check_out_icon',\
+  itemId: 'readButton',\
+  handler: function() {\
+    Ext.data.JsonP.request({\
+      url: \"http://127.0.0.1:81/readCard\",\
+      callbackKey: \"webletcallback\",\
+      timeout: 3000,\
+      success: function(data) {\
+        if (data.version != 'V2017.8.21') {\
+          Wb.info(\"<font color='#FF0000' size=3>写卡组件版本不正确,请按如下步骤更新:<\/font>,<br>1、请在确定后下载并解压安装包card.zip<br>2、双击解压目录中的install.bat安装写卡驱动服务<br>3、请在安装成功后重试写卡功能!<br><font color='#FF0000' size=3>注意事项：<\/font><br>安装服务时如360等安全软件报警<font color='#FF0000' size=3>请选择允许<\/font>\", function() {\
+            Wb.download(\"ctgraph/card.zip\", null, false, \"GET\");\
+          });\
+          return;\
+        }\
+        if (data.success) {\
+          app.cardInfo = data.data;\
+          Wb.setValue(app.writeCardWin, app.cardInfo);\
+        } else\
+          Wb.error(data.error, null, null, \"读卡失败\");\
+      },\
+      failure: function() {\
+        Wb.info(\"<font color='#FF0000' size=3>尚未安装读卡组件,请按如下步骤安装:<\/font>,<br>1、请在确定后下载并解压安装包card.zip<br>2、双击解压目录中的install.bat安装写卡驱动服务<br>3、请在安装成功后重试写卡功能!<br><font color='#FF0000' size=3>注意事项：<\/font><br>安装服务时如360等安全软件报警<font color='#FF0000' size=3>请选择允许<\/font>\", function() {\
+          Wb.download(\"ctgraph/card.zip\", null, false, \"GET\");\
+        });\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "写卡窗口",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

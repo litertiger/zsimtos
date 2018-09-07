@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select tv.ID,tv.TENANCY_ID,tv.IN_DRIVER_ID,tv.GATEIN_TIME_T,tv.GATEOUT_TIME_T,tv.CREATED_BY,tv.CREATED_ON,\" +\
+  \"tv.UPDATED_BY,tv.UPDATED_ON,tv.GATEIN_NO_T,tv.GATEOUT_NO_T,tv.IN_CAR,tv.IN_CAMPI,tv.OUT_CAMPI,tv.IN_DRIVER_NAME,\" +\
+  \"tv.IN_TRUCK_HP,tv.IN_TRAY_NO,tv.OUT_TRAY_NO,tv.GATEOUT_TIME_S,tv.GATEIN_TIME_S,tv.GATEIN_NO_S,tv.GATEOUT_NO_S,tv.PHASE \" +\
+  \" from truck_visit tv left join truck_receipt tr on tv.id=tr.tvid left join receipt r on r.id=tr.rpid left join \" +\
+  \" c_truck ck on tv.in_car = ck.truck_no and TV.TENANCY_ID = CK.TENANCY_ID \" +\
+  \" where tv.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and r.cntr like '%\" + data.cntr + \"%'\";\
+if (!Wb.isEmpty(data.incar))\
+  sql += \" and (tv.in_car like '%\" + data.incar + \"%' or tv.IN_TRUCK_HP like '%\" + data.incar + \"%')\";\
+if (!Wb.isEmpty(data.phase))\
+  sql += \" and tv.phase='\" + data.phase + \"'\";\
+if (!Wb.isEmpty(data.date))\
+  sql += \" and trunc(tv.created_on)=to_date('\" + data.date + \"','yyyy-mm-dd')\";\
+if (nature == \"5\")\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+if (!Wb.isEmpty(data.ismy)) //查询车辆是否私有或外来车辆\
+  sql += \" and ck.ismy ='\" + data.ismy + \"'\";\
+sql += \" group by tv.ID,tv.TENANCY_ID,tv.IN_DRIVER_ID,tv.GATEIN_TIME_T,tv.GATEOUT_TIME_T,tv.CREATED_BY,tv.CREATED_ON,\" +\
+  \"tv.UPDATED_BY,tv.UPDATED_ON,tv.GATEIN_NO_T,tv.GATEOUT_NO_T,tv.IN_CAR,tv.IN_CAMPI,tv.OUT_CAMPI,tv.IN_DRIVER_NAME,\" +\
+  \"tv.IN_TRUCK_HP,tv.IN_TRAY_NO,tv.OUT_TRAY_NO,tv.GATEOUT_TIME_S,tv.GATEIN_TIME_S,tv.GATEIN_NO_S,tv.GATEOUT_NO_S,tv.PHASE\" +\
+  \" order by tv.created_on desc\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "基础查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

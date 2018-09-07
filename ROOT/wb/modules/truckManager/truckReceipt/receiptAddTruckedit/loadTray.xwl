@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select tray_no,tray_nam from c_tray where (tray_no like '%'||{?query?}||'%' or tray_nam like '%'||{?query?}||'%')\" +\
+  \" and ISINTERNAL='1' and TENANCY_ID='\" + tenancyid + \"'\";\
+// if (nature == \"5\" || nature == \"6\")\
+//   sql += \" and ismy=5\";\
+sql += \" order by sys.utl_match.edit_distance_similarity(tray_no,{?query?}) desc\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "加载拖卡",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

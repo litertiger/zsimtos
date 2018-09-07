@@ -1,0 +1,189 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "minHeight": "250",
+     "itemId": "loginWnd",
+     "resizable": "false",
+     "width": "270",
+     "title": "登录单一窗口",
+     "height": "350"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "panel1",
+       "width": "260",
+       "height": "240"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "swy",
+         "allowBlank": "false",
+         "fieldLabel": "用户",
+         "value": "zsgywb"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "swm2",
+         "allowBlank": "false",
+         "fieldLabel": "密码",
+         "inputType": "password",
+         "value": "ywb85598324"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "verifyCode",
+         "allowBlank": "false",
+         "fieldLabel": "验证码"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "vcode",
+         "stretch": "true",
+         "width": "250",
+         "height": "100"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "image"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "button1",
+       "width": "260",
+       "text": "登录",
+       "height": "80"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "button",
+      "events": {"click": "var val = Wb.getValue(app.loginWnd);\
+for (var key in val)\
+  singleWindow[key].value = val[key];\
+singleWindow.document.forms[0].submit.click();\
+var timer = setInterval(function() {\
+  if (singleWindow.$) {\
+    clearInterval(timer);\
+    app.loginWnd.close();\
+    return;\
+  }\
+  if (singleWindow.errorMsg.style.visibility == 'visible') {\
+    clearInterval(timer);\
+    Wb.error(singleWindow.errorMsg.innerText);\
+    var timer1 = setInterval(function() {\
+      if (!(singleWindow.vcode && singleWindow.vcode.complete))\
+        return;\
+      var c = singleWindow.document.createElement('canvas');\
+      var d = c.getContext('2d');\
+      d.drawImage(singleWindow.vcode, 0, 0, 250, 100);\
+      var dataUrl = c.toDataURL();\
+      app.vcode.setSrc(dataUrl);\
+      clearInterval(timer1);\
+    }, 100);\
+  }\
+}, 100);"}
+     }
+    ],
+    "type": "window",
+    "events": {"show": "var timer = setInterval(function() {\
+  if (!(singleWindow.vcode && singleWindow.vcode.complete))\
+    return;\
+  var c = singleWindow.document.createElement('canvas');\
+  var d = c.getContext('2d');\
+  d.drawImage(singleWindow.vcode, 0, 0, 250, 100);\
+  var dataUrl = c.toDataURL();\
+  app.vcode.setSrc(dataUrl);\
+  clearInterval(timer);\
+}, 100);"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "panel1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {"itemId": "toolbar1"},
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "item1",
+         "text": "测试"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "function relogin(result) {\
+  if (typeof result == 'string' && result.match(/<form.*?action\\s*=\\s*(\"|')\\/cas\\/login/)) {\
+    singleWindow.location.reload();\
+    app.loginWnd.show();\
+  }\
+}\
+if (!singleWindow.$)\
+  return app.loginWnd.show();\
+singleWindow.$.ajax({\
+  url: \"/mft/biz/manifestArrivalHead!getPagingByAjax.action?page=1&rows=30&_=1511492328207\",\
+  async: true,\
+  success: function(result) {\
+    relogin(result);\
+    Wb.info(JSON.stringify(result));\
+  }\
+});"}
+       }],
+       "type": "toolbar"
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "containerOfSingleWindow",
+       "html": "<iframe name='singleWindow' id='singleWindow' src=\"http://dec.singlewindow.gd.cn/mft/base/main.action\"  width=\"0\" height=\"0\"><\/iframe>",
+       "region": "south"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel",
+      "events": {"afterrender": "app.loginWnd.show();"}
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "单一窗口接口",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

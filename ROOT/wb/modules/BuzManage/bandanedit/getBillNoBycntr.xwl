@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select vl.bill_no from vload_list vl,port_cntr p,vbill_head b\" +\
+  \" where p.id=vl.cntr_id and p.i_e_id=vl.i_e_id and b.id=vl.bill_id\" +\
+  \" and b.main_flag=1 and vl.tenancy_id='\" + tenancyid + \"' and\" +\
+  \" vl.cntr_id in(select id from port_cntr where tenancy_id='\" + tenancyid + \"' and cntr like '%\" + data.cntr + \"%' and trade_id='1')\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "根据箱号获得提单号",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

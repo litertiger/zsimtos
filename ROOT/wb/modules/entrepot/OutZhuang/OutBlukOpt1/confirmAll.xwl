@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var dispname = app.get('sys.dispname');\
+var rs = Wb.getRecords(app.run(\"select vbill_head.ID from vbill_head,vbill_head_e where vbill_head.id=vbill_head_e.id and vid={?VID?} AND cntr_id={?CNTR_ID?}\"));\
+var ids = \"\";\
+var datas = new Array();\
+for (var i = 0; i<rs.length; i++) {\
+  if (i == rs.length - 1) {\
+    ids = \"'\" + rs[i].ID + \"'\";\
+  } else {\
+    ids = \"'\" + rs[i].ID + \"',\";\
+  }\
+  datas.push({\
+    BILL_ID: rs[i].ID\
+  });\
+}\
+if (rs.length == 0) {\
+  ids = \"''\";\
+}\
+app.log(ids);\
+app.run(\"select 1 from VBILL_HEAD_E where IS_ALLOW_BLUK =1 AND ID in(\" + ids + \")\", {\
+  errorText: \"不能装箱\"\
+});\
+app.run(\"select 1 from VBILL_HEAD_E where IS_LOAD_CNTR =1 AND ID in(\" + ids + \")\", {\
+  errorText: \"已经确认装箱出库！\"\
+});\
+app.run(\"update BLUK_BILL  set  LCL_ID = (select ID FROM BLUK_PLAN WHERE VID={?VID?} and CNTR_ID={?CNTR_ID?} AND VANNINGDV='E'),TASKSTATUS='END' WHERE BILL_ID={?BILL_ID?}\", {\
+  arrayData: new org.json.JSONArray(Wb.encode(datas))\
+});\
+app.run(\"update BLUK_GOODS set OUTQUTY=INQUTY,QUTY=0,location='',OUTTIME=SYSDATE where BILL_ID={?BILL_ID?}\", {\
+  arrayData: new org.json.JSONArray(Wb.encode(datas))\
+});\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,BILL_NO,STORE_TIME,VOLUME,WEIGHT,SIGNERCFS) \" +\
+  \"select ID, '1', OUTQUTY,BILL_NO,SYSDATE,VOLUME,WEIGHT,'\"+dispname+\"' from BLUK_GOODS where BILL_ID={?BILL_ID?}  \", {\
+  arrayData: new org.json.JSONArray(Wb.encode(datas))\
+});\
+app.run(\"update VBILL_HEAD_E set IS_LOAD_CNTR=1,KEEPER_NAME='\"+dispname+\"' where ID={?BILL_ID?}\", {\
+  arrayData: new org.json.JSONArray(Wb.encode(datas))\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSJJ": 1,
+  "ZSOUIMP": 1
+ },
+ "title": "确认全部入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

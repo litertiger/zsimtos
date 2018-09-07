@@ -1,0 +1,87 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var dispname = app.get(\"sys.dispname\");\
+var sh = Wb.getRecords(app.run(\"select sh from receipt where id='\" + data.RID + \"'\"));\
+if (sh[0].SH == \"1\")\
+  throw \"设备交接单已审核,不能修改\";\
+if (Wb.isEmpty(data.S_ADRESS))\
+  throw \"交货地址不能为空\";\
+if (tenancyid == \"ZSG\") {\
+  if (data.SHIPPER_WAY == \"1\") { //码头承运\
+    if (data.PT_TYPE != \"1\" && data.PT_TYPE != \"2\")\
+      throw \"错误:码头承运,但车辆性质不是公司车队自有车或公司车队租用外来车\";\
+    if (Wb.isEmpty(data.SHIP_CONSIGN_COD))\
+      throw \"错误:码头承运,货主不能为空\";\
+  } else { //驳船承运\
+    if (data.CAR_TEAM == \"HYLY\" && data.PT_TYPE != \"4\" && customcode == \"CK\")\
+      throw \"错误:驳船承运,码头车队,车辆性质必须为船公司租用码头车\";\
+    if (data.CAR_TEAM != \"HYLY\" && data.PT_TYPE != \"3\" && data.PT_TYPE != \"5\")\
+      throw \"错误:驳船承运,非码头车队,车辆性质必须为船公司自有车或船公司租用外来车\";\
+  }\
+}\
+app.run(\"update receipt set S_ADRESS='\" + data.S_ADRESS + \"',GATEOUT_TIME_T={?timestamp.GATEOUT_TIME_T?},\" +\
+  \"FEI_ADDDRESS=(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id='\" + data.S_ADRESS + \"'),\" +\
+  \"IN_CAR='\" + data.IN_CAR + \"',IN_CAR_HP='\" + data.IN_CAR_HP + \"',\" +\
+  \"IN_CAMPI='\" + data.IN_CAMPI + \"',IN_TRAY_NO='\" + data.IN_TRAY_NO + \"',\" +\
+  \"IN_DRIVER_ID='\" + data.IN_DRIVER_ID + \"',IN_DRIVER_NAME='\" + data.IN_DRIVER_NAME + \"',\" +\
+  \"OUT_CAR='\" + data.OUT_CAR + \"',OUT_CAR_HP='\" + data.OUT_CAR_HP + \"',\" +\
+  \"OUT_CAMPI='\" + data.OUT_CAMPI + \"',OUT_TRAY_NO='\" + data.OUT_TRAY_NO + \"',\" +\
+  \"OUT_DRIVER_ID='\" + data.OUT_DRIVER_ID + \"',OUT_DRIVER_NAME='\" + data.OUT_DRIVER_NAME + \"',\" +\
+  \"CAR_TEAM='\" + data.CAR_TEAM + \"',PT_TYPE='\" + data.PT_TYPE + \"',SHIPPER_WAY='\" + data.SHIPPER_WAY + \"',\" +\
+  \"SHIP_CONSIGN_COD='\" + data.SHIP_CONSIGN_COD + \"',SHIPPER_CONSIGNEE='\" + data.SHIPPER_CONSIGNEE + \"',\" +\
+  \"SHIPPER_COD=decode(i_e_id,'I',SHIPPER_COD,'\" + data.SHIP_CONSIGN_COD + \"'),\" +\
+  \"SHIPPER=decode(i_e_id,'I',SHIPPER,'\" + data.SHIPPER_CONSIGNEE + \"'),\" +\
+  \"CONSIGNEE_COD=decode(i_e_id,'E',CONSIGNEE_COD,'\" + data.SHIP_CONSIGN_COD + \"'),\" +\
+  \"CONSIGNEE=decode(i_e_id,'E',CONSIGNEE,'\" + data.SHIPPER_CONSIGNEE + \"'),work_type='\" + data.WORK_TYPE + \"'\" +\
+  \" where ID='\" + data.RID + \"'\", {\
+    transaction: 'start'\
+  });\
+app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改设备交接单功能,箱:'||'\" + data.CNTR + \"'||',派车人:'||'\" + dispname + \"'\" +\
+  \"||',地址:'||(select name from c_address where id='\" + data.S_ADRESS + \"' and tenancy_id='\" + tenancyid + \"')\" +\
+  \"||',区域:'||(select areaname from c_area where id=(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id='\" + data.S_ADRESS + \"'))\" +\
+  \"||',车队:'||(select name from c_customer where code='\" + data.CAR_TEAM + \"')\" +\
+  \"||',承运方式:'||decode('\" + data.SHIPPER_WAY + \"','1','码头承运','3','驳船承运')\" +\
+  \"||',车辆性质:'||decode('\" + data.PT_TYPE + \"','1','公司车队自有车','2','公司车队租用外来车','3','船公司自有车','4','船公司租用车','5','船公司租用外来车')\" +\
+  \"||',去程车:'||'\" + data.IN_CAR + \"'||',去程拖卡:'||'\" + data.IN_CAMPI + \"'||',去程司机:'||'\" + data.IN_DRIVER_ID + \"'\" +\
+  \"||',回程车:'||'\" + data.OUT_CAR + \"'||',回程拖卡:'||'\" + data.OUT_CAMPI + \"'||',回程司机:'||'\" + data.OUT_DRIVER_ID + \"'\" +\
+  \"||',货主:'||'\" + data.SHIPPER_CONSIGNEE + \"'||',作业方式:'||'\" + data.WORK_TYPE + \"',sysdate)\");\
+\
+var acccus = Wb.getRecords(app.run(\"select f_get_defPayer('\" + data.RID + \"')fee from dual\"));\
+app.run(\"update receipt set ACCOUNT_CUSTOMER_CODE='\" + acccus[0].FEE.split(\"@\")[0] + \"',\" +\
+  \"ACCOUNT_CUSTOMER='\" + acccus[0].FEE.split(\"@\")[1] + \"' where id='\" + data.RID + \"'\", {\
+    transaction: 'commit'\
+  });\
+\
+app.run(\"update receipt set id=id where 1=2\", {\
+  transaction: 'commit'\
+});\
+app.log(\"调用计费\");\
+var map = new HashMap();\
+map.put(\"rpId\", data.RID);\
+Wb.newClass(\"dubboForReceipt\").call(request, map);\
+\
+app.send({\
+  success: true\
+});",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

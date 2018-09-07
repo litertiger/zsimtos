@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \" and tenancy_id='\" + tenancyid + \"'\";\
+// if (!Wb.isEmpty(data.txtBILL_NO))\
+//   sql += \" and r.BILL_NO='\" + data.txtBILL_NO + \"'\";\
+// if (!Wb.isEmpty(data.cboREM_CUS_COD))\
+//   sql += \" and r.REM_CUS_COD='\" + data.cboREM_CUS_COD + \"'\";\
+// if (!Wb.isEmpty(data.sdate))\
+//   sql += \" and r.REM_DATE>=to_timestamp('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+// if (!Wb.isEmpty(data.edate))\
+//   sql += \" and r.REM_DATE<to_timestamp('\" + data.edate.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+// if (!Wb.isEmpty(data.rtype))\
+//   sql += \"and r.r_type = {?rtype?}\";\
+// if (nature == \"5\")\
+//   sql += \" and (r.REM_CUS_COD='\" + customcode + \"' or r.PAYER_COD='\" + customcode + \"')\";\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and BILL_NO='\" + data.billNo + \"'\";\
+if (!Wb.isEmpty(data.hz))\
+  sql += \" and PAYMENT_CUSTOMER_code='\" + data.hz + \"'\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and JOB_FINISH_DATE>=to_timestamp('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and JOB_FINISH_DATE<to_timestamp('\" + data.edate.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select PRINTNO,PRINTPHASE,ACCOUNT_CUSTOMER_NAM,PAYMENT_CUSTOMER_NAM,BILL_NO,CREATED_BY,CREATED_ON,bill_type,PAYMENT_CUSTOMER_CODE,ACCOUNT_CUSTOMER_CODE \
+,I_E_ID,TRADE_ID,CNTR_OPERATOR_COD\
+from accounts_details where 1=1  \
+and  PRINTPHASE>0 and PRINTPHASE is not null\
+and bill_type='S' \
+{#sql#} \
+group by PRINTNO,PRINTPHASE,ACCOUNT_CUSTOMER_NAM,PAYMENT_CUSTOMER_NAM,BILL_NO,CREATED_BY,CREATED_ON,bill_type,\
+PAYMENT_CUSTOMER_CODE,ACCOUNT_CUSTOMER_CODE,I_E_ID,TRADE_ID,CNTR_OPERATOR_COD"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

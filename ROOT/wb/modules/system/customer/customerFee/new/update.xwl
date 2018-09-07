@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var rs = app.run(\"select * from C_CUSTOMER_CONTACT where C_ID={?C_ID?}\",{jndi: 'jdbc/basecode'});\
+if (rs.next()) {\
+  app.send(1);\
+} else {\
+  var orgId = app.get(\"sys.ORG_ID\"),\
+    username = app.get(\"sys.username\"),\
+    tenancyId = app.get(\"sys.TENANCY_ID\"),\
+    shipNam = app.get(\"shipNam\");\
+  var id = SysUtil.getId();\
+  var result = app.run(\"select TENANCY_ID,ID,ORG_NAME,SHORT_COD from AUTH_ORGANIZATION where TENANCY_ID in ('ZSG','XLG','SWG') and ORG_NAME in ('中山港','小榄港','神湾港') \");\
+  while (result.next()) {\
+    var tenId = result.getString('TENANCY_ID');\
+    var OrId = result.getString('ID');\
+    var orgNam = result.getString('ORG_NAME');\
+    var shortCod = result.getString('SHORT_COD');\
+\
+    if (tenId === tenancyId) {\
+      app.run(\"INSERT INTO C_CUSTOMER_CONTACT\" +\
+        \"(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,O_SHORT_COD, DEFAULT_PROTOCOL,\" +\
+        \"EMPTY_PRICE_TYPE,MIN_CONTAINER,PROTOCOL_ABLETIME,PAY_TYPE,\" +\
+        \"ACCOUNT_TYPE,RESERVE_PRICE)VALUES(SYS_GUID(),{?C_ID?},'\" + tenId + \"','\" + OrId + \"','\" + orgNam + \"','\" + shortCod + \"',\" +\
+        \"{?DEFAULT_PROTOCOL?},\" +\
+        \"{?EMPTY_PRICE_TYPE?},{?MIN_CONTAINER?},{?PROTOCOL_ABLETIME?},{?PAY_TYPE?},{?ACCOUNT_TYPE?},{?RESERVE_PRICE?})\", {\
+          jndi: 'jdbc/basecode'\
+        });\
+    } else {\
+      app.run(\"INSERT INTO C_CUSTOMER_CONTACT\" +\
+        \"(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,O_SHORT_COD, DEFAULT_PROTOCOL,\" +\
+        \"EMPTY_PRICE_TYPE,MIN_CONTAINER,PROTOCOL_ABLETIME,PAY_TYPE,\" +\
+        \"ACCOUNT_TYPE,RESERVE_PRICE)VALUES(SYS_GUID(),{?C_ID?},'\" + tenId + \"','\" + OrId + \"','\" + orgNam + \"','\" + shortCod + \"',\" +\
+        \"'',\" +\
+        \"'','','','','','')\", {\
+          jndi: 'jdbc/basecode'\
+        });\
+    }\
+  }\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

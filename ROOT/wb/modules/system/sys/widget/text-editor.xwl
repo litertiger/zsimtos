@@ -1,0 +1,417 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "title": "{#fileName#}"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "border": "false",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "border": "false",
+     "itemId": "panel1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "isConfig": "true",
+      "itemId": "tbar"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "saveBtn",
+        "tooltip": "保存当前打开的文件 (Ctrl+S)",
+        "disabled": "true",
+        "text": "保存",
+        "iconCls": "save_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.saveFile();"}
+      },
+      {
+       "configs": {
+        "itemId": "item1",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "pathText",
+        "flex": "1",
+        "readOnly": "true",
+        "selectOnFocus": "true",
+        "value": "{#file#}"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "charsetBtn",
+        "tooltip": "设置当前使用的字符编码",
+        "text": "编码"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.setCharset();"}
+      },
+      {
+       "configs": {
+        "itemId": "item2",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "cursorLbl",
+        "xtype": "tbtext",
+        "style": "text-align:right",
+        "text": "1 : 1"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "item3",
+        "text": " "
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      }
+     ],
+     "type": "toolbar"
+    }],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "app.openFile();"}
+  }],
+  "type": "module",
+  "events": {
+   "beforeunload": "if (app.isModified)\
+  return '\u201c' + Wb.getFilename(app.path) + '\u201d 已经被修改。';",
+   "initialize": "Wb.apply(app, {\
+  path: \"{#file#}\", //使用外部参数\
+  saveFile: function(callback, noConfirm) {\
+    if (!app.isModified) {\
+      Ext.callback(callback);\
+      return;\
+    }\
+    var content, charset, data = [];\
+    content = app.editor.getValue();\
+    charset = app.charsetBtn.text;\
+    if (charset == '[系统默认]')\
+      charset = null;\
+    data.push({\
+      file: app.path,\
+      lastModified: app.lastModified,\
+      content: content,\
+      charset: charset\
+    });\
+    Wb.request({\
+      url: 'm?xwl=system/sys/widget/text-editor/save',\
+      jsonData: data,\
+      params: {\
+        noConfirm: Wb.getBool(noConfirm, false)\
+      },\
+      showError: false,\
+      success: function(resp) {\
+        var respObj = Wb.decode(resp.responseText),\
+          index = 0;\
+        app.editor.savedText = app.editor.getValue();\
+        app.lastModified = Wb.strToDate(respObj[0]);\
+        app.unModified();\
+        Ext.callback(callback);\
+      },\
+      failure: function(resp) {\
+        var msg = resp.responseText,\
+          errMsg = Wb.getError(msg, 101);\
+        if (errMsg) {\
+          Wb.confirm(errMsg, function() {\
+            app.saveFile(callback, true);\
+          });\
+        } else\
+          Wb.except(resp);\
+      }\
+    });\
+  },\
+  unModified: function() {\
+    app.isModified = false;\
+    Wb.unModified(contextOwner);\
+    app.saveBtn.setDisabled(true);\
+  },\
+  setModified: function() {\
+    app.isModified = true;\
+    Wb.setModified(contextOwner);\
+    app.saveBtn.setDisabled(false);\
+  },\
+  setCharset: function() {\
+    Wb.prompt({\
+      title: '设置编码',\
+      items: {\
+        fieldLabel: '编码格式',\
+        itemId: 'charset',\
+        xtype: 'combo',\
+        value: app.charsetBtn.text,\
+        allowBlank: false,\
+        store: ['[系统默认]', 'utf-8', 'gbk']\
+      },\
+      handler: function(values, win) {\
+        if (values.charset == app.charsetBtn.text) {\
+          win.close();\
+          return;\
+        }\
+        Wb.request({\
+          url: 'm?xwl=system/sys/widget/text-editor/open',\
+          params: Ext.apply({\
+            type: 1,\
+            fileNames: Wb.encode([app.path])\
+          }, values),\
+          success: function(resp) {\
+            var obj = Wb.decode(resp.responseText)[0];\
+            app.charsetBtn.setText(values.charset);\
+            app.lastModified = Wb.strToDate(obj.lastModified);\
+            app.editor.setValue(obj.content);\
+            win.close();\
+            app.editor.focus();\
+          }\
+        });\
+      }\
+    });\
+  },\
+  openFile: function() {\
+    function render() {\
+      Wb.request({\
+        url: 'm?xwl=system/sys/widget/text-editor/open',\
+        params: {\
+          type: 1,\
+          fileNames: [app.path]\
+        },\
+        success: function(resp) {\
+          app.doOpen(Wb.decode(resp.responseText)[0]);\
+        }\
+      });\
+    }\
+    if (window.CodeMirror)\
+      render();\
+    else {\
+      Wb.addLink(['wb/libs/cm/cmirror.css', 'wb/libs/cm/cmirror.js'],\
+        render\
+      );\
+    }\
+  },\
+  doOpen: function(content) {\
+    var config, extConfig, isImage, fileExt;\
+    fileExt = Wb.extractFileExt(content.file).toLowerCase();\
+    isImage = Wb.indexOf(['gif', 'jpg', 'png', 'bmp'], fileExt) != -1;\
+    app.panel1.update('<textarea><\/textarea>');\
+    app.charsetBtn.setText(isImage ? 'Base64' : content.charset);\
+    app.charsetBtn.setDisabled(isImage);\
+    app.lastModified = Wb.strToDate(content.lastModified);\
+    if (contextOwner) {\
+      contextOwner.confirmDisabled = true; //禁止关闭tab页时系统的beforeunload提示\
+      contextOwner.mon(contextOwner, {\
+        beforeclose: function(card) {\
+          if (app.isModified) {\
+            Wb.choose('\"' + Wb.getFilename(app.path) + '\" 已经被修改，保存所做的更改吗？',\
+              function(btn) {\
+                if (btn == 'yes')\
+                  app.saveFile(function() {\
+                    card.close();\
+                  });\
+                else if (btn == 'no') {\
+                  app.isModified = false;\
+                  card.close();\
+                }\
+              });\
+            return false;\
+          }\
+        },\
+        activate: function(me) {\
+          if (me.lastScrollInfo)\
+            app.editor.scrollTo(me.lastScrollInfo.left, me.lastScrollInfo.top);\
+          setTimeout(function() {\
+            app.editor.focus();\
+          }, 10);\
+        },\
+        beforedeactivate: function(me) {\
+          me.lastScrollInfo = app.editor.getScrollInfo();\
+        }\
+      });\
+    }\
+    config = {\
+      lineNumbers: true,\
+      mode: 'text/javascript',\
+      theme: Wb.editTheme,\
+      extraKeys: {\
+        'Ctrl-/': 'toggleComment',\
+        'Ctrl-,': function(doc) {\
+          if (doc.modifyCursor)\
+            doc.setCursor(doc.modifyCursor);\
+        },\
+        'Ctrl-S': function() {\
+          app.saveFile();\
+        },\
+        'Shift-Ctrl-F': function(doc) {\
+          if (doc.options.readOnly)\
+            return;\
+          var cursor = doc.getCursor(),\
+            scroll = doc.getScrollInfo();\
+          doc.autoFormatRange({\
+            line: 0,\
+            ch: 0\
+          }, {\
+            line: Number.MAX_VALUE,\
+            ch: Number.MAX_VALUE\
+          });\
+          doc.scrollTo(scroll.left, scroll.top);\
+          doc.setCursor(cursor);\
+        }\
+      }\
+    };\
+    switch (fileExt) {\
+      case 'js':\
+      case 'ss':\
+        config.highlightSelectionMatches = {\
+          showToken: /\\w/\
+        };\
+        config.extraKeys['Alt-/'] = 'autocomplete';\
+        config.extraKeys['.'] = function(doc) {\
+          if (doc.options.readOnly)\
+            return;\
+          doc.replaceSelection('.');\
+          if (doc.hintTimer)\
+            clearTimeout(doc.hintTimer);\
+          doc.hintTimer = setTimeout(function() {\
+            CodeMirror.showHint(doc);\
+          }, 100);\
+        };\
+        extConfig = {\
+          mode: {\
+            name: 'text/javascript',\
+            globalVars: true\
+          },\
+          gutters: ['CodeMirror-lint-markers'],\
+          lint: true,\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'css':\
+        extConfig = {\
+          mode: 'text/css',\
+          gutters: ['CodeMirror-lint-markers'],\
+          lint: true,\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'java':\
+        config.highlightSelectionMatches = {\
+          showToken: /\\w/\
+        };\
+        extConfig = {\
+          mode: 'text/x-java',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'xml':\
+        extConfig = {\
+          mode: 'application/xml',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'html':\
+      case 'htm':\
+        extConfig = {\
+          mode: 'htmlmixed',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'jsp':\
+      case 'jspx':\
+        config.highlightSelectionMatches = {\
+          showToken: /\\w/\
+        };\
+        extConfig = {\
+          mode: 'application/x-jsp',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'json':\
+      case 'xwl':\
+      case 'expjson':\
+        extConfig = {\
+          mode: 'application/json',\
+          gutters: ['CodeMirror-lint-markers'],\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'sql':\
+        extConfig = {\
+          mode: 'text/x-sql',\
+          matchBrackets: true\
+        };\
+        break;\
+      default:\
+        extConfig = {\
+          mode: 'text/plain'\
+        };\
+    }\
+    Ext.apply(config, extConfig);\
+    app.editor = CodeMirror.fromTextArea(app.panel1.el.down('textarea', true), config);\
+    app.editor.savedText = content.content;\
+    app.editor.on('cursorActivity', function(doc) {\
+      var cur = doc.getCursor();\
+      doc.lastCursor = cur;\
+      app.cursorLbl.setText((cur.line + 1) + ' : ' + (cur.ch + 1));\
+    });\
+    app.adjustEditorSize(app.panel1, app.panel1.getWidth(), app.panel1.getHeight());\
+    app.panel1.mon(app.panel1, 'resize', app.adjustEditorSize);\
+    setTimeout(function() {\
+      app.editor.setValue(content.content);\
+      app.editor.clearHistory();\
+      app.editor.on('change', function(doc) {\
+        doc.modifyCursor = Ext.apply({}, doc.lastCursor);\
+        if (!app.isModified && doc.savedText !== doc.getValue()) {\
+          app.setModified();\
+        }\
+      });\
+      app.editor.focus();\
+    }, 10);\
+  },\
+  adjustEditorSize: function(panel, width, height) {\
+    if (app.editor && !panel.destroying) {\
+      Ext.fly(app.editor.getScrollerElement()).setHeight(height - app.tbar.getHeight());\
+      app.editor.refresh();\
+    }\
+  }\
+});"
+  }
+ }],
+ "roles": {"default": 1},
+ "title": "文本编辑器",
+ "iconCls": "textarea_icon",
+ "inframe": false,
+ "pageLink": ""
+}

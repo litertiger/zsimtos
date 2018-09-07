@@ -1,0 +1,89 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+
+<div id="Tag60"/>
+<Table cols=2 border=0 width=100%>
+<col width=60%>
+<col width=40%>
+<tr height=91><td class="noline"/><td class="noline"><img src='image/devsh.jpg'></td></tr>
+</table>
+<h3>　<font color=#3366ff>公共内容</font></h3><hr color=#2266ee size=1>
+　　Supcan TreeList和Supcan Report有一些公共的内容，例如表达式，Report中的单元格与单元格之间的逻辑关系、TreeList的列与列之间的逻辑关系都可以用表达式来描述。<br>
+　　Supcan具有完备的表达式高速解析功能、并内置了六十多个常用的计算函数。<br>
+
+
+<div id="Tag601"/><br><br><br>
+　　<font style='font-size:15pt'>1.表达式</font><hr color=#2266ee size=1>
+　　Supcan的表达式分二种：关系表达式和格式掩码.<br>
+　　所谓“关系表达式”就是如前所述的单元格与单元格之间的计算关系、列与列之间的计算关系、小计/合计运算逻辑；而“格式掩码”则是单元格用于描述自身显示的特殊的表达式.<br>
+<br>
+　　Supcan Report的表达式在单元格内直接输入，举例如下:<br>
+<pre class='cpp'>
+ //支持函数的多层嵌套
+ =sum(203.12, 200.1, min(20, 22) * 20)
+ 
+ //A3、B4、 B5表示单元格
+ =average(A3, B4, if(B5>2, 3, 4))
+ 
+ //A3至C4的矩形区域内所有单元格
+ =sum(A3:C4)</pre>
+<br>
+　　Supcan Treelist的表达式可以在其XML描述文件中直接定义，举例如下:<br>
+<pre class='xml'>
+  //表示p2列与price列的关系
+ &lt;express&gt;p2=if(price!=100, price-100, price)&lt;/express&gt;
+ 
+ //total、price、num列的关系
+ &lt;express&gt;total=round(price * num, 4)&lt;/express&gt;
+ 
+ //num@origin表示num列的原始数据(和修改后内容无关)
+ &lt;express&gt;total2=round(price * num@origin, 4)&lt;/express&gt;</pre>
+<br>
+　　格式掩码和关系表达式相比，没有什么大的差别，它还可以包含"textColor="的文字颜色分句，如果是Treelist，还可以有左侧图片、右侧图片分句，举例如下:<br>
+<pre class='cpp'>
+ //数字以人民币显示
+ =RMB(data)
+ 
+ //日期型数据以中国银行格式显示
+ =ChineseBankDate(data)
+ 
+ //日期型数据以指定格式显示
+ =FormatDate(data, 'DD/MM/YYYY')
+ 
+ //布尔型数据以“是”/“否”显示
+ =if(data, '是', '否')
+ 
+ //数据乘以1000，然后在后面跟随“吨”(数据本身未变)
+ =data *1000 + '吨'
+ 
+ //textColor=...是文字颜色
+ ='$'+data; textColor=if(data>100,'#0000ff', red)
+ 
+ //Treelist的右侧图片: rightImage，图片URL根据当前行的productID列内容算出：
+ ='产品:'+data+ '，图样：'; rightImage=if(productID=1, 'fruit.jpg', if(product=2, '../meta/office.ico', 'ele.png'))</pre>
+<br>
+
+　　表达式书写规则如下：<br>
+<table width=98% class='ruleTable' border=1 align=center callspacing=8 cellpadding=10><tr><td>
+1.加、减、乘、除分别以+、-、*、/表示;<br>
+2.支持“&gt;”、“&lt;”、“=”(或“==”)、“&gt;=”、“&lt;=”、“!=”(或“&lt;&gt;”)比较逻辑运算;<br>
+3.支持“and”(或“&&”)、“or”(或“||”)、“not”(或“!”)与或非逻辑运算;<br>
+4.运算优先级：括号 &gt; 乘除 &gt; 加减 &gt; 比较逻辑运算 &gt; 与或非逻辑运算;<br>
+5.与或非运算优先级：非 &gt; 与 &gt; 或;<br>
+6.允许数字和串混合计算;<br>
+7.支持串的大小比较运算;<br>
+8.不支持位运算;<br>
+9.纯数字不支持嵌入千位符(,逗号);<br>
+</td></tr></table>
+
+
+
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

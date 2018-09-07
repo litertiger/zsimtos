@@ -1,0 +1,177 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+ 	cooper(id);
+ }
+ function onLoadPage( )
+ {
+  if($isFirefox) cooper('');
+ } 
+ function cooper(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 3) return;
+   id='';
+  }
+ 
+  if(id == 'AF' || id=='') {
+   AF.func("Build", "treelist/freeform9.xml");
+   window.setTimeout("scrollFlow()", 500, "javascript");
+  }
+  if(id == 'AF2' || id=='')
+    AF2.func("Build", "treelist/freeform9-2.xml");
+ }
+
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id=='AF' && (Event=='ImageClicked' || Event=='ImageDblClicked')) {
+   var s = "txt2 \r\n ID号:"+p1+", 资料名称："+p2;
+   if(Event=='ImageDblClicked') s += '(事件：鼠标双击)';
+   AF.func("setValue", s);
+  }
+ }
+ function OnSelStyle(value)
+ {
+  AF.func("setObjectProp", "flow \r\n style \r\n" + value);
+ }
+ function OnSelAlpha(value)
+ {
+  AF.func("setObjectProp", "flow \r\n alpha \r\n" + value);
+ }
+ function OnSelPercent(value)
+ {
+  AF.func("setObjectProp", "flow \r\n shadowHeightPercent \r\n" + value);
+ }
+ function scrollFlow()
+ {
+  AF.func("scroll", "flow \r\n 50");
+ }
+
+
+
+
+ //高级应用
+ function advance()
+ {
+  //更改背景色
+  AF.func("setProp", "bgColor \r\n #ffffff");
+  //更改ImageFlow样式和宽度
+  AF.func("setObjectProp", "flow \r\n style \r\n horz");
+  AF.func("setObjectProp", "flow \r\n x1 \r\n 10%");
+  AF.func("setObjectProp", "flow \r\n x2 \r\n 90%");
+
+  //添加一个矩形Path
+  var path="<path id='path1'><rect x='0' y='0' width='100%' height='100%'></rect></path>";
+  AF.func("addPath", path);
+
+  //在ImageFlow的背面增加一个平铺的Img
+  var s = "image \r\n src=res/back1.jpg;x=flow.left;y=flow.top;width=flow.width;height=flow.height;arrange=tile; pathid=path1; \r\n flow";
+  AF.func("addObject", s);
+
+  //左阴影
+  AF.func("addObject", "Rect \r\n id=rcLeft; x=flow.left;y=flow.top;width=10; height=flow.height; pathid=path1; thick=0; ");
+  AF.func("setObjectProp", "rcLeft \r\n Filter \r\n start.color=#000000; start.alpha=255; end.alpha=0; start.x=0; start.y=0; end.x=100%; end.y=0");
+
+  //上阴影
+  AF.func("addObject", "Rect \r\n id=rcTop; x==flow.left;y=flow.top;width=flow.width; height=8; pathid=path1; thick=0; ");
+  AF.func("setObjectProp", "rcTop  \r\n Filter \r\n start.color=#000000; start.alpha=255; end.alpha=0; start.x=0; start.y=0; end.x=0%; end.y=100%");
+ }
+</script>
+</head>
+
+<body onLoad='onLoadPage( )' vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.可用鼠标直接拖扔，让其流动；也拽动下方的滚动条(鼠标滑过时显示)；<br>
+<b>2</b>. 该例子中有140多幅图，是采用多线程、异步加载的；</td></tr>
+</table>
+
+<table cols=2 border=0>
+<col valign=top width=150>
+<col valign=top width=700>
+<tr height=380>
+<td><br>
+<br>显示样式：<br><select onchange="OnSelStyle(this.value)"><option value="ipod" selected="selected">ipod Like</option><option value="horz">水平图像流 </option></select><br>
+<br>倒影Alpha(透明度)：<br><select onchange="OnSelAlpha(this.value)"><option value="0">0</option><option value="30">30</option><option value="50">50</option><option value="70" selected="selected">70</option><option value="90">90</option><option value="110">110</option><option value="130">130</option><option value="150">150</option><option value="170">170</option><option value="190">190</option><option value="210">210</option><option value="230">230</option></select><br>
+<br>倒影高度(百分比)：<br><select onchange="OnSelPercent(this.value)"><option value="0">0</option><option value="6">6</option><option value="18" selected="selected">18</option><option value="24">24</option><option value="32">32</option></select><br>
+</td>
+<td align=center height=380>
+	<script>insertFreeForm('AF', '')</script>
+</td></tr></table>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.ImageFlow 图片下载的默认策略：只下载当前位置左、右各 50 幅，所以哪怕有最多的图片，也不可能永无休止地下载；<br>
+<b>2</b>.可查看创建Freeform的<a href="treelist/freeform9.xml" target=_blank>XML描述文件</a>；<br>
+<b>3</b>.其中的 ImageFlow 控件加载了和图片相关的<a href="treelistdata/music.xml" target=_blank>XML数据</a>，其中有一部分图片的URL采用了<a href="doc/dev/pub.htm#Tag605" target=_blank>图片扩展URL的写法<a>；<br>
+<b>4</b>.注意ImageFlow是没有背景属性的，直接采用了Freeform中的上下文背景;<br>
+<b>5</b>.源码分析：页面的鼠标点击事件如下：<br>
+<pre class='cpp'>
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(Event=='ImageClicked' || Event=='ImageDblClicked') {
+   var s = "txt2 \r\n ID号:"+p1+", 资料名称："+p2;
+   if(Event=='ImageDblClicked') s += '(事件：鼠标双击)';
+   AF.func("setValue", s);
+  }
+ }
+</pre>
+<br>
+<b>6</b>.不太常用的高级功能：<br>
+可动态更改属性、动态添加Path(渲染路径)，请执行<input type=button onClick='advance()' value=' 下陷效果 '>，看看上面的Freeform有什么变化。该效果的js如下：<br>
+<pre class='cpp' maxchars=110>
+function advance()
+{
+ //更改背景色
+ AF.func("setProp", "bgColor \r\n #ffffff");
+ 
+ //更改ImageFlow样式、宽度
+ AF.func("setObjectProp", "flow \r\n style \r\n horz");
+ AF.func("setObjectProp", "flow \r\n x1 \r\n 10%");
+ AF.func("setObjectProp", "flow \r\n x2 \r\n 90%");
+ 
+ //添加一个矩形Path，下面都会用到
+ var path="&lt;path id='path1'&gt;&lt;rect x='0' y='0' width='100%' height='100%'/&gt; &lt;/path&gt;";
+ AF.func("addPath", path);
+ 
+ //在ImageFlow的背面增加一个平铺的Img
+ var s = "image \r\n src=res/back1.jpg;x=flow.left;y=flow.top; width=flow.width; height=flow.height; arrange=tile; pathid=path1; \r\n flow";
+ AF.func("addObject", s);
+ 
+ //增加左阴影 (线性渐变)
+ AF.func("addObject", "Rect \r\n id=rcLeft; x=flow.left;y=flow.top;width=10; height=flow.height; pathid=path1; thick=0; ");
+ AF.func("setObjectProp", "rcLeft \r\n Filter \r\n start.color=#000000; start.alpha=255; end.alpha=0; start.x=0; start.y=0; end.x=100%; end.y=0");
+ 
+ //增加上阴影 (线性渐变)
+ AF.func("addObject", "Rect \r\n id=rcTop; x==flow.left;y=flow.top; width=flow.width; height=8; pathid=path1; thick=0; ");
+ AF.func("setObjectProp", "rcTop  \r\n Filter \r\n start.color=#000000; start.alpha=255; end.alpha=0; start.x=0; start.y=0; end.x=0%; end.y=100%");
+}
+</pre>
+当然，如果你决定采用这种样式，可以直接写进Freeform的XML描述文件，不必写这js了。<br><br>
+<b>7</b>.这是滚动条采用Digital形式的例子，实现常见的幻灯片形式：
+</td></tr></table>
+<div style="position:relative;width:516">
+	<script>insertFreeForm('AF2', '', 180)</script>
+</div>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,449 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "itemId": "winedit",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 70,\
+  width: 270,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "width": "590",
+     "height": "130"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "INVOICE_AMOUNT",
+       "allowBlank": "false",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "发票金额"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "RECEIPTS_AMOUNT",
+       "allowBlank": "false",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "交接金额"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "PAY_LATER_AMOUNT",
+       "allowBlank": "false",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "挂账金额"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "REMARK",
+       "labelAlign": "right",
+       "fieldLabel": "备注"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "if (app.isedit) {\
+  Wb.request({\
+    url: \"m?xwl=BuzManage/moneydaypayedit/update\",\
+    out: app.winedit,\
+    success: function(resp) {\
+      app.winedit.close();\
+      app.gridcds.store.load();\
+    }\
+  });\
+} else {\
+  Wb.request({\
+    url: \"m?xwl=BuzManage/moneydaypayedit/insert\",\
+    out: app.winedit,\
+    success: function(resp) {\
+      app.winedit.close();\
+      app.gridcds.store.load();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "border": "false",
+      "itemId": "panelGrid"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "gridcds",
+       "disabled": "false"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "sdate",
+           "labelAlign": "right",
+           "fieldLabel": "开始日期",
+           "labelWidth": "60",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "edate",
+           "labelAlign": "right",
+           "fieldLabel": "结束日期",
+           "labelWidth": "60",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "searchBtn",
+           "text": "@Str.find",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.gridcds.store.load({\
+  out: app.tbar\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "item1",
+           "text": "-"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "addBtn",
+           "text": "@Str.add",
+           "iconCls": "record_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var win = new Ext.window.Window(app._winedit);\
+win.show();\
+app.isedit = false;"}
+         },
+         {
+          "configs": {
+           "itemId": "editBtn",
+           "text": "@Str.modify",
+           "iconCls": "record_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.gridcds.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(Wb.format(Str.selectRecord, Str.modify));\
+  return;\
+}\
+app.isedit = true;\
+app.selRec = sels[0];\
+var win = new Ext.window.Window(app._winedit);\
+Wb.setValue(win, app.selRec.data);\
+win.show();"}
+         },
+         {
+          "configs": {
+           "itemId": "delBtn",
+           "tooltip": "删除选择的记录",
+           "text": "@Str.del",
+           "iconCls": "record_delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.gridcds.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择要删除的记录\");\
+  return;\
+}\
+Wb.confirm(\"确定删除\", function() {\
+  Wb.request({\
+    url: 'm?xwl=BuzManage/moneydaypayedit/delete',\
+    params: {\
+      ID: sels[0].data.ID\
+    },\
+    success: function() {\
+      app.gridcds.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "fhBtn",
+           "text": "复核",
+           "iconCls": "check_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.gridcds.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择要复核的记录\");\
+  return;\
+}\
+Wb.request({\
+  url: 'm?xwl=BuzManage/moneydaypayedit/fhsj',\
+  params: {\
+    ID: sels[0].data.ID,\
+    fhsj: \"fh\"\
+  },\
+  success: function() {\
+    app.gridcds.store.load({\
+      out: app.tbar\
+    });\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "sjBtn",
+           "text": "审计",
+           "iconCls": "check_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.gridcds.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择要审计的记录\");\
+  return;\
+}\
+Wb.request({\
+  url: 'm?xwl=BuzManage/moneydaypayedit/fhsj',\
+  params: {\
+    ID: sels[0].data.ID,\
+    fhsj: \"sj\"\
+  },\
+  success: function() {\
+    app.gridcds.store.load({\
+      out: app.tbar\
+    });\
+  }\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=BuzManage/moneydaypayedit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colINVOICE_AMOUNT",
+           "dataIndex": "INVOICE_AMOUNT",
+           "width": "80",
+           "text": "发票金额"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colRECEIPTS_AMOUNT",
+           "dataIndex": "RECEIPTS_AMOUNT",
+           "width": "80",
+           "text": "交接金额"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colPAY_LATER_AMOUNT",
+           "dataIndex": "PAY_LATER_AMOUNT",
+           "width": "80",
+           "text": "挂账金额"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCREATED_BY",
+           "dataIndex": "CREATED_BY",
+           "width": "80",
+           "text": "录入人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCREATED_ON",
+           "dataIndex": "CREATED_ON",
+           "width": "120",
+           "text": "录入时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCHECK_MAN",
+           "dataIndex": "CHECK_MAN",
+           "width": "80",
+           "text": "复核人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCHECK_TIME",
+           "dataIndex": "CHECK_TIME",
+           "width": "120",
+           "text": "复核时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colAUDIT_MAN",
+           "dataIndex": "AUDIT_MAN",
+           "width": "80",
+           "text": "审计人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colAUDIT_TIME",
+           "dataIndex": "AUDIT_TIME",
+           "width": "120",
+           "text": "审计时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colREMARK",
+           "dataIndex": "REMARK",
+           "width": "180",
+           "text": "备注"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+     }],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {"finalize": "app.sdate.setValue(new Date());\
+app.edate.setValue(new Date());"}
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "现金日结",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,145 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var message= new com.ag.edi.EdiWebService;\
+// var hashMap = new HashMap();\
+// hashMap.put('message', 'value');\
+// app.send(message.invokeRemoteFuc(hashMap));\
+\
+// head  报文头   Declaration 报文体 RepresentativePerson 申报地海关代码 ExitCustomsOffice 运输工具离境段\
+//Agent 运输工具企业端 Carrier 承运人 BorderTransportMeans 运输工具段 \
+//Consignment 提运单段\
+var head, Declaration, RepresentativePerson, ExitCustomsOffice, Agent, Carrier, BorderTransportMeans, Consignment, xml = \"\",\
+  voyageNo,\
+  cShipName, eShipName, eta, callSign, shipCod, atd,\
+  hscod, ieId = app.get(\"ieId\"),\
+  vId = app.get(\"vId\");\
+xml += '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>';\
+xml += '<Manifest xmlns=\"urn:Declaration:datamodel:standard:CN:MT4101:1\">';\
+var javaDate = new JavaDate();\
+var dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu');\
+var dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmm');\
+var tenancyId = app.get(\"sys.TENANCY_ID\"),\
+  hsCod;\
+var hsCod = '442010',\
+  port = '442001',\
+  hgCod, bahm = \"5721618120004\";\
+\
+\
+if (tenancyId === 'ZSG') {\
+  hscod = '442010';\
+  port = \"442001\";\
+  hgCod = '5721';\
+} else if (tenancyId === 'XLG') {\
+  hscod = '442020';\
+  port = '442006';\
+  hgCod = '5727';\
+\
+} else {\
+  hscod = '442050';\
+  port = '442007';\
+  hgCod = '5728';\
+\
+}\
+Head = \"  <Head> <MessageID>CN_MT4101_1p1_\" + hgCod + \"_\" + dateName + \"<\/MessageID>\" +\
+  \" <FunctionCode>2<\/FunctionCode>\" +\
+  \" <MessageType>MT4101<\/MessageType>\" +\
+  \" <SenderID>6020190358598_SW44000020170509<\/SenderID>\" +\
+  \" <ReceiverID>EPORT<\/ReceiverID>\" +\
+  \" <SendTime>\" + dateName1 + \"<\/SendTime>\" +\
+  \" <Version>1.0<\/Version><\/Head>\";\
+\
+\
+xml += Head;\
+\
+var rs = app.run(\"select VESSEL_CODE,decode('\" + ieId + \"','I',LIB_VYG, LOB_VYG) voyageNo, sysdate NOW,nvl(ATA,ETA)-1 ATD ,nvl(ATA,ETA) ETA,nvl(ATD,ETD) ETD, c.CALL_SIGN,\" +\
+  \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"' and D.TENANCY_ID='\" + tenancyId + \"'\");\
+if (rs.next()) {\
+  voyageNo = rs.getString(\"VOYAGENO\");\
+  cShipName = rs.getString(\"VESSEL_NAME\");\
+  eShipName = rs.getString(\"E_NAME\");\
+  eta = rs.getString(\"ETA\");\
+  atd = rs.getString(\"ATD\");\
+  callSign = rs.getString(\"CALL_SIGN\");\
+  shipCod = rs.getString(\"VESSEL_CODE\");\
+}\
+\
+xml += \"<Declaration>   <Carrier> <ID>\" + shipCod + \"<\/ID> <\/Carrier>\";\
+\
+\
+\
+//BorderTransportMeans运输工具段 \
+xml += \" <BorderTransportMeans><JourneyID>\" + voyageNo + \"<\/JourneyID>\" +\
+  \" <TypeCode>1<\/TypeCode>\" +\
+  \" <ID>\" + callSign + \"<\/ID>\" +\
+  \" <Name>\" + eShipName + \"<\/Name>   \" +\
+  \" <UnloadingLocation>\" +\
+  \" <\/UnloadingLocation><\/BorderTransportMeans>\";\
+\
+\
+//Consignment 提单\
+var rsCntr = app.run(\"select   cursor(select CNTR,CNTR_ISO ,SEAL_NO ,decode(E_F_ID ,'E','4','5') E_F_ID from  VLOAD_LIST D where  M.ID=D.BILL_ID  and d.phase<>'9' ) CUR ,\" +\
+  \" ID, BILL_NO, SHIPPER, SHIPPER_COD  ,CONSIGNEE,CONSIGNEE_COD,CNTR_OPERATOR,CONSIGNEE ,POL,POD,  SPOD,GOODS_NOTES ,PIECES , \" +\
+  \" PKG ,VOLUME,MARKS ,WEIGHT,NOTIFIER,BILL_TYPE ,LOADING_TIME,PAYER\" +\
+  \" from  VBILL_HEAD M  where  M.VID='\" + vId + \"' and m.phase<>'9'    and  ((zf_id=1 and  main_flag=0) or zf_id=0)  order by bill_no asc\");\
+var i = 0,\
+  goodsNotes;\
+var cntrs = \"\",\
+  cntrMessage = \"\";\
+while (rsCntr.next()) {\
+  var rm = rsCntr.getObject(1);\
+  while (rm.next()) {\
+    cntrs += \"<TransportEquipment>\" + //集装箱信息\
+      \"<EquipmentIdentification>\" +\
+      \"<ID>\" + rm.getString(\"CNTR\") + \"<\/ID>\" +\
+      \"<\/EquipmentIdentification>\" +\
+      \"<CharacteristicCode>\" + rm.getString(\"CNTR_ISO\") + \"<\/CharacteristicCode>\" +\
+      \"<SupplierPartyTypeCode>2<\/SupplierPartyTypeCode>\" +\
+      \"<FullnessCode>\" + rm.getString('E_F_ID') + \"<\/FullnessCode>\" +\
+      '<SealID AgencyCode=\"SH\">' + rm.getString('SEAL_NO') + '<\/SealID>' +\
+      \"<\/TransportEquipment>\";\
+  }\
+  xml += \" <Consignment>\" +\
+    \"<TransportContractDocument>\" +\
+    \"<ID>\" + rsCntr.getString(\"BILL_NO\") + \"<\/ID>\" + // 提单号码\
+    \"<\/TransportContractDocument>\" +\
+    \"<LoadingLocation>\" +\
+    \"<ID>CNZSG<\/ID>\" + //装货地  \
+    \"<LoadingDate>\" + atd + \"<\/LoadingDate>\" + //装货时间\
+    \"<\/LoadingLocation>\" +\
+    \"<CustomsStatusCode>004<\/CustomsStatusCode>\" + //货物海关状态    \
+    \"<ConsignmentPackaging>\" +\
+    \"<QuantityQuantity>\" + rsCntr.getString(\"PIECES\") + \"<\/QuantityQuantity>\" + //件数\
+    \"<TypeCode>CT<\/TypeCode>\" + //包装\
+    \"<\/ConsignmentPackaging>\" +\
+    \"<TotalGrossMassMeasure>\" + rsCntr.getString(\"WEIGHT\") + \"<\/TotalGrossMassMeasure>\" + //重量\
+    cntrs +\
+    \"<ConsignmentItem>\" + //商品信息 \
+    \"<Commodity>\" +\
+    \"<CargoDescription>\" + rsCntr.getString(\"GOODS_NOTES\") + \"<\/CargoDescription>\" +\
+    \"<\/Commodity>\" +\
+    \"<\/ConsignmentItem>\" +\
+    \"<\/Consignment>\";\
+}\
+\
+xml += \"<CiqInformation><OrgCode>\" + hsCod + \"<\/OrgCode><QuayCode>\" + port + \"<\/QuayCode><\/CiqInformation><\/Declaration><\/Manifest>\";\
+var StaticHttpclientCall = com.ag.util.StaticHttpclientCall;\
+var message = StaticHttpclientCall.doPostSoap(xml, \"CN_MT4101_\" + dateName);\
+app.send(message);\
+app.log(xml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlswbqt": 1
+ },
+ "title": "出口装载报文",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,83 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var nature = request.getSession().getAttribute('sys.NATURE'), //2码头5驳船\
+  TENANCY_ID = request.getSession().getAttribute('sys.TENANCY_ID'),\
+  CREATEUSER = request.getSession().getAttribute('sys.username');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+app.log(nature);\
+\
+// if (nature === '5') {\
+//   CREATEUSER = CREATEUSER.substring(2);\
+// }\
+app.log(CREATEUSER);\
+\
+\
+var sql = \"\";\
+if (!Wb.isEmpty(data.name1)) {\
+  sql += \"  and  c1.NAME like '%'||{?name1?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.code1)) {\
+  sql += \"  and  c1.CODE like '%'||{?code1?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.gov_code)) {\
+  sql += \"  and  c1.GOV_CODE like '%'||{?gov_code?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.createtime1)) {\
+  sql += \" and c1.CREATETIME > {?TIMESTAMP.createtime1?}\";\
+}\
+if (!Wb.isEmpty(data.createtime2)) {\
+  var dat = data.createtime2.substring(0, 10);\
+  //app.log(dat);\
+  sql += \" and c1.CREATETIME < to_date('\";\
+  sql += dat;\
+  sql += \" 23:59:59','yyyy-mm-dd HH24:MI:SS')\";\
+}\
+// if (nature == '2' || nature == '5') //码头\
+//   sql += \" and  c1.TENANCY_ID='\" + TENANCY_ID + \"'\";\
+// else if (nature == '3'||nature=='4'||nature=='1') //驳船\
+//   sql += \" and  c1.CREATEUSER='\" + CREATEUSER + \"'\";\
+if (nature == '5') {\
+  sql += \" and c1.CREATEUSER  like '%'||'\" + CREATEUSER + \"'\tand c1.STATE_FLAG not in('2')\";\
+} else {\
+  sql += \"  and c1.STATE_FLAG not in('0','3','2')\";\
+}\
+\
+\
+\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "SELECT c1.*,c2.GOV_CODE BCODE,2 STATE_FLAGB\
+FROM C_ORG_CUSTOMER c1 left join C_CUSTOMER c2 on c1.GOV_CODE=c2.GOV_CODE\
+where c1.C_TYPE in ('3','4') \
+{#whereSql#}\
+order by decode(c1.STATE_FLAG,'3',0,'0',1,'1',2,'2',3) asc,c1.C_TYPE ASC,c1.CREATETIME DESC\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcxjb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

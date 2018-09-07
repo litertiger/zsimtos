@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get(\"sys.username\");\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create')),\
+  upds = Wb.decode(request.getParameter('update')),\
+  dels = Wb.decode(request.getParameter('destroy'));\
+app.log(recs);\
+app.log(upds);\
+app.log(dels);\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'TRUCK_STATION',\
+  whereFields: 'ID',\
+  uniqueUpdate: true,\
+  transaction: 'start'\
+});\
+if (!Wb.isEmpty(recs) || !Wb.isEmpty(upds))\
+  app.run(\"update receipt set duo_add=1 where id='\" + data.rid + \"'\");\
+\
+Wb.each(recs, function(rec) {\
+  app.run(\"insert into accounts_details(id,tenancy_id,BUSSINESS_CODE,CUSTOMER_ID,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER_NAM,\" +\
+    \"PAYMENT_CUSTOMER_CODE,PAYMENT_CUSTOMER_NAM,CNTR_OPERATOR_COD,AMOUNT,ACTUAL_JOB_COUNT,\" +\
+    \"BILL_NO,CNTR,FEE_LIST_ID,PAYMENT_TYPE,PAY_FLAG,CREATED_BY,CREATED_ON,IS_MANUAL,TRADE_ID,I_E_ID,UNIT_ID,INVOICE_TYPE,FEE_GROUP_ID)\" +\
+    \" select sys_guid(),'\" + tenancyid + \"','\" + data.rid + \"',SHIP_CONSIGN_COD,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER,\" +\
+    \"ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER,CNTR_OPERATOR_COD,\" + rec.AMOUNT + \",\" + rec.KM + \",\" +\
+    \"BILL_NO,CNTR,(select id from C_BASE_CHARGING_ITEM where description like '%多地加装%' and tenancy_id='\" + tenancyid + \"' and rownum=1),2,0,\" +\
+    \"'\" + username + \"',sysdate,1,trade_id,I_E_ID,\" +\
+    \"(select UNIT from C_BASE_CHARGING_ITEM where description like '%多地加装%' and tenancy_id='\" + tenancyid + \"' and rownum=1),\" +\
+    \"(select INVOICE_TYPE from C_BASE_CHARGING_ITEM where description like '%多地加装%' and tenancy_id='\" + tenancyid + \"' and rownum=1),\" +\
+    \"(select CATEGORY_ID from C_BASE_CHARGING_ITEM where description like '%多地加装%' and tenancy_id='\" + tenancyid + \"' and rownum=1)\" +\
+    \" from receipt where id='\" + data.rid + \"' and tenancy_id='\" + tenancyid + \"'\");\
+});\
+Wb.each(upds, function(upd) {\
+  app.run(\"update accounts_details set amount=\" + upd.AMOUNT + \" where id='\" + upd.AID + \"'\");\
+});\
+Wb.each(dels, function(del) {\
+  app.run(\"delete from accounts_details where id='\" + del.AID + \"'\");\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "保存多地装卸",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

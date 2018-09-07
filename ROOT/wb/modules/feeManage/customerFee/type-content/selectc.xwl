@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\";\
+var data = app.get();\
+var a;\
+var id;\
+var ids=SysUtil.getId();\
+var res=app.run(\"select * from C_WECHAT_CONDITION where SUBSCRIB ={?MSGID?}\",{jndi:'jdbc/basecode'});\
+while(res.next()){\
+\ta=res.getString(\"SUBSCRIB\");\
+}\
+var result=app.run(\"select WECHATID,MSGID from C_WECHAT_SUBSCRIB where WECHATID={?WECHATID?} and MSGID={?MSGID?}\",{jndi:'jdbc/basecode'});\
+  app.log(a);\
+\
+if(a!=null){\
+  if(!result.next()){\
+\tsql=\"insert into C_WECHAT_SUBSCRIB (ID, WECHATID, MSGID, ENABLED) values ('\"+ids+\"',{?WECHATID?},{?MSGID?},{?ENABLED?})\";\
+  }else{\
+   sql=\"update C_WECHAT_SUBSCRIB set WECHATID={?WECHATID?} where WECHATID={?WECHATID?} and MSGID={?MSGID?}\";\
+  }\
+}else{\
+\tsql=\"delete from C_WECHAT_SUBSCRIB where WECHATID={?WECHATID?} and MSGID={?MSGID?}\";\
+}\
+\
+\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

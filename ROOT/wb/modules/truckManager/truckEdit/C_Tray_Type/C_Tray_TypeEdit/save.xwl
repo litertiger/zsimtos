@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "\
+var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ACCEPT_ID = id;\
+  ids.push({\
+    ACCEPT_ID: id\
+  });\
+});\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'C_TRAY_TYPE',\
+  jndi:'jdbc/basecode'\
+});\
+app.send(ids); //把id列表发送到客户端以同步到表格\
+\
+/*\
+var recs = Wb.decode(request.getParameter('create'));\
+Wb.each(recs, function(rec) {\
+  rec.ID = SysUtil.getId();\
+});\
+request.setAttribute('create', Wb.encode(recs));\
+app.update({\
+  tableName: 'C_TRAY_TYPE',jndi:'jdbc/basecode'\
+\
+});\
+app.send(recs);\
+*/",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "method1",
+    "method": "com.ag.util.CodeUtil.setCodeBuffer"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "method"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "xlcd": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

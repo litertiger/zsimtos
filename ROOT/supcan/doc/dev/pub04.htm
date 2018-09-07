@@ -1,0 +1,37 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+　　<font style='font-size:15pt'>4.XML/JSON异常包</font><hr color=#2266ee size=1>
+　　Treelist、Report组件通过Http Request向服务器索取数据，如果服务器遇到异常，通常返回的Http状态码为非200，组件将直接抛出该异常页面。在Web Service规范中，如果服务器能捕捉到异常(try / catch)，通常会采用SOAP协议中的fault包返回，使得客户端能比较友好地显示异常信息。<br>
+　　Supcan组件对非Web Service的普通XML/JSON格式的数据响应包也提供了类似的扩展支持，只要XML/JSON包符合如下格式(我们称之为 <b><font color='red'>SoapLike 异常包</font></b>，即格式参考自SOAP)，客户端就能弹出用户能接受的错误信息:<br>
+<pre class='xml'>
+ &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+ &lt;fault&gt;
+ 　　　&lt;faultcode&gt;错误代码&lt;/faultcode&gt;　　//或&lt;code&gt;
+ 　　　&lt;faultstring&gt;错误&lt;/faultstring&gt;
+ 　　　&lt;detail&gt;详细描述&lt;/detail&gt;
+ 　　　&lt;reason&gt;错误原因&lt;/reason&gt;
+ 　　　&lt;faultactor&gt;错误角色&lt;/faultactor&gt;
+ &lt;/fault&gt;</pre>
+　　在&lt;fault&gt;下，至少要有上述5种元素中的一种，Supcan组件就把这个包当作异常包看待，并以友好的提示弹出该信息。<br>
+<br>
+　　比如，返回串：<br>
+<pre class='xml'>
+ &lt;Fault&gt;&lt;FaultString&gt;不严重的异常&lt;/FaultString&gt;&lt;detail&gt;服务器过于繁忙, 请稍候再访问.&lt;/detail&gt;&lt;/Fault&gt;</pre>
+　　其界面表现为：<br>
+<center><img src="image/soaperr.png"/></center>
+<br>
+　　也支持JSON格式，例如:<br>
+<pre class='cpp'>
+ {"Fault": {"faultCode":"3001", "detail": "服务繁忙"}}</pre>
+<br>
+　　在Treelist的"18.分页方案(一)"演示页中，后端源码中有一段模拟拒绝服务的SoapLike XML串，可参考这段C#源码(在技术分析区中).<br>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

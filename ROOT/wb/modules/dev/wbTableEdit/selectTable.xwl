@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "query1",
+     "sql": "INSERT INTO wb_table\
+            (field_id, table_name, field_name, disp_text, allow_blank,\
+             field_size, decimal_precision, TYPE, maxlength ,MAXLENGTHTEXT, MAXVALUE,MAXTEXT,ORDERNO)\
+   SELECT sys_guid(), user_tab_columns.table_name, \
+          user_tab_columns.column_name,comments,   DECODE (NULLABLE, 'Y', '1', '0'),data_length, \
+data_scale,\
+(CASE  WHEN data_type='VARCHAR2' or data_type='NVARCHAR2' or data_type='char' THEN 'text'\
+WHEN data_type='NUMBER' THEN 'number'\
+WHEN data_type='DATE' or data_type='TIMESTAMP' THEN 'datetime'\
+WHEN data_type='CHAR' THEN 'check'\
+ELSE 'text' END), data_length,comments||'超出最大长度',\
+          data_precision*10-1, decode(nvl(data_precision,99999),99999,null,comments||'超出最大长度')  MAXTEXT, \
+user_tab_columns.column_id\
+     FROM user_tab_columns, user_col_comments\
+    WHERE user_tab_columns.table_name = user_col_comments.table_name\
+      AND user_tab_columns.column_name = user_col_comments.column_name\
+      AND user_tab_columns.table_name = {?TABLE_NAME?} \
+      and  not exists(  select  1 from   wb_table  where  TABLE_NAME = {?TABLE_NAME?})\
+order by user_tab_columns.column_id\
+\
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "dataprovider1",
+     "sql": "SELECT  *\
+    FROM WB_TABLE\
+   WHERE TABLE_NAME = {?TABLE_NAME?}\
+ORDER BY  ORDERNO\
+ "
+    },
+    "expanded": false,
+    "children": [],
+    "type": "dataprovider"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "表列查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

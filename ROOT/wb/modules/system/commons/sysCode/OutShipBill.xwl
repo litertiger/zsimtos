@@ -1,0 +1,4153 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "winsss",
+     "dialog": "true",
+     "createInstance": "false",
+     "closeAction": "hide",
+     "width": "666",
+     "title": "@Str.SelectVessel",
+     "defaultFocus": "xwl1",
+     "modal": "true",
+     "height": "352"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1",
+      "width": "633",
+      "x": "0",
+      "y": "0",
+      "height": "288"
+     },
+     "expanded": false,
+     "children": [{
+      "configs": {
+       "itemId": "xwl1",
+       "file": "m?xwl=system/common/chooseShip"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "xwl"
+     }],
+     "type": "panel"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {"itemId": "toolbar2"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "item11",
+       "flex": "1"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "@Str.last",
+       "iconCls": "first_icon"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "item",
+      "events": {"click": "\
+\
+var rowIn=app.grid1.store.indexOf(app.grid1.getSelection()[0]);\
+if(rowIn===0)\
+{\
+   Wb.info('已经达到TOP,不能选择上一条了！');\
+\treturn ;\
+}\
+\
+app.grid1.getSelectionModel().select(rowIn-1);\
+win.close();\
+app.editMenu.fireEvent(\"click\");\
+\
+\
+\
+\
+"}
+     },
+     {
+      "configs": {
+       "itemId": "item2",
+       "text": "@Str.next",
+       "iconCls": "last_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "\
+var coun=app.grid1.store.getCount();\
+var rowIn=app.grid1.store.indexOf(app.grid1.getSelection()[0]);\
+if(coun===(rowIn+1))\
+{\
+   Wb.info('已经达到底部,不能选择下一条了！');\
+\treturn ;\
+}\
+\
+app.grid1.getSelectionModel().select(rowIn+1);\
+win.close();\
+app.editMenu.fireEvent(\"click\");\
+\
+\
+\
+"}
+     },
+     {
+      "configs": {
+       "itemId": "item3",
+       "text": "@Str.save",
+       "iconCls": "save_all_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verify(app.BillWin)) {\
+    Wb.info(\"信息不合法！\");\
+    return;\
+}\
+var url = \"\";\
+if (optype == 'insert') url = \"m?xwl=ShipAgency/outShipBillSelect/insertBill\";\
+else if (optype == 'modify') url = \"m?xwl=ShipAgency/outShipBillSelect/updateBill\";\
+var rec = app.grid1.getSelection()[0];\
+var values = Wb.getValue([app.fieldset1, app.fieldset2, app.toolbar1]);\
+Wb.request({\
+    url: url,\
+    params: values,\
+    success: function(resp) {\
+         \
+        if (optype == 'insert') Wb.add(app.grid1, values); //同步在客户端表格中添加\
+        if (optype == 'modify') Wb.update(rec, values); //同步在客户端表格中更新\
+       optype='modify';\
+      app.saveCargoBtn.fireEvent(\"click\");\
+      app.saveCntrBtn.fireEvent(\"click\");\
+    }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "item4",
+       "text": "@Str.cancel",
+       "iconCls": "cancel_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "\
+win.close();"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "BillWin",
+     "width": "1000",
+     "autoScroll": "true",
+     "height": "600",
+     "bbar": "app.toolbar2"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "panel1",
+      "autoScroll": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "fieldset1",
+        "collapsible": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "layout": "absolute",
+         "itemId": "billNew",
+         "width": "978",
+         "height": "512"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "BILL_NBR",
+           "fieldLabel": "@Str.BLNo",
+           "width": "201",
+           "x": "8",
+           "y": "8",
+           "labelWidth": "80",
+           "maxLength": "30",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "tagConfigs": " matchFieldWidth:false",
+           "allowBlank": "false",
+           "itemId": "TRUST_COD",
+           "fieldLabel": "@Str.Drawee",
+           "width": "201",
+           "x": "224",
+           "displayField": "@Str.NAME",
+           "y": "8",
+           "labelWidth": "80",
+           "listConfig": "{width:250}",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{trustid:'C',trusttyp:'B'}",
+            "url": "m?xwl=system/common/trustSelect/trustSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "RECEIV_PLACE_STR",
+           "fieldLabel": "@Str.PlaceofReceipt",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "pageSize": "15",
+           "y": "8",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "pageSize": "15",
+            "url": "m?xwl=system/common/portSelect/ProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo",
+          "events": {"select": "\
+\
+app.RECEIV_PLACE_COD.setValue(combo.getValue());\
+app.RECEIV_PLACE_STR.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "START_PORT_NAM",
+           "fieldLabel": "@Str.PortofDeparture",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "pageSize": "15",
+           "y": "40",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "pageSize": "15",
+            "url": "m?xwl=system/common/portSelect/ProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo",
+          "events": {"select": "app.START_PORT_COD.setValue(combo.getValue());\
+app.START_PORT_NAM.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "TRANS_MOD_COD",
+           "width": "121",
+           "x": "92",
+           "displayField": "@Str.NAME",
+           "y": "40",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'TRANS_MOD_COD',order:' order by  SYS_COD'}",
+            "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "tagConfigs": " matchFieldWidth:false",
+           "itemId": "CARRIER_COD",
+           "pickList": "{width:250}",
+           "fieldLabel": "@Str.Operator",
+           "width": "201",
+           "x": "224",
+           "displayField": "@Str.NAME",
+           "y": "40",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{trustid:'S',trusttyp:'C'}",
+            "url": "m?xwl=system/common/trustSelect/trustSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_OUT_ID",
+           "fieldLabel": "@Str.MarkofIssue",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.NAME",
+           "y": "40",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'BILL_OUT_ID',order:' order by  SYS_COD'}",
+            "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "E_SHIPPER_NAM",
+           "fieldLabel": "@Str.Shipper",
+           "width": "417",
+           "x": "8",
+           "y": "72",
+           "labelWidth": "80",
+           "maxLength": "800",
+           "height": "98"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "DISCHRG_PORT_NAM",
+           "fieldLabel": "@Str.PortofDischarge",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "y": "104",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=system/common/portSelect/shipProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "operation.params={shipNo:app.shipNo.getValue()};"}
+          }],
+          "type": "combo",
+          "events": {"select": "app.DISCHRG_PORT_COD.setValue(combo.getValue());\
+app.DISCHRG_PORT_NAM.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "LOAD_PORT_NAM",
+           "fieldLabel": "@Str.PortofLoading",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "y": "72",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=system/common/portSelect/shipProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "operation.params={shipNo:app.shipNo.getValue()};"}
+          }],
+          "type": "combo",
+          "events": {"select": "app.LOAD_PORT_COD.setValue(combo.getValue());\
+app.LOAD_PORT_NAM.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "RECEIV_PLACE_COD",
+           "width": "80",
+           "x": "864",
+           "y": "8",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "START_PORT_COD",
+           "width": "80",
+           "x": "864",
+           "y": "40",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "LOAD_PORT_COD",
+           "width": "80",
+           "x": "864",
+           "y": "72",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "DISCHRG_PORT_COD",
+           "width": "80",
+           "x": "864",
+           "y": "104",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "TRANS_PORT_COD",
+           "width": "80",
+           "x": "864",
+           "y": "168",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "SHIPPER_ADD_STR",
+           "fieldLabel": "@Str.ShipperAddress",
+           "width": "417",
+           "x": "8",
+           "y": "136",
+           "labelWidth": "80",
+           "maxLength": "800",
+           "height": "100"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "itemId": "TRANS_PORT_NAM",
+           "fieldLabel": "@Str.PortofTransshipment",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "pageSize": "15",
+           "y": "168",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "pageSize": "15",
+            "url": "m?xwl=system/common/portSelect/ProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo",
+          "events": {"select": "app.TRANS_PORT_COD.setValue(combo.getValue());\
+app.TRANS_PORT_NAM.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "DEST_PORT_NAM",
+           "fieldLabel": "@Str.PortofDestination",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "y": "136",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=system/common/portSelect/shipProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "operation.params={shipNo:app.shipNo.getValue()};"}
+          }],
+          "type": "combo",
+          "events": {"select": "app.DEST_PORT_COD.setValue(combo.getValue());\
+app.DEST_PORT_NAM.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "DEST_PORT_COD",
+           "width": "80",
+           "x": "864",
+           "y": "136",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "E_CONSIGNEE_NAM",
+           "fieldLabel": "@Str.Consignee",
+           "width": "417",
+           "x": "8",
+           "y": "200",
+           "labelWidth": "80",
+           "maxLength": "800",
+           "height": "102"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "DR_TYPE_ID",
+           "fieldLabel": "@Str.LoadingDischargingClause",
+           "keyName": "C_DR_TYPE",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.VNAME",
+           "y": "72",
+           "labelWidth": "80",
+           "valueField": "K",
+           "height": "22"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "DELIVERY_PLACE_STR",
+           "fieldLabel": "@Str.PlaceofDelivery",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "pageSize": "15",
+           "y": "200",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "pageSize": "15",
+            "url": "m?xwl=system/common/portSelect/ProtCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo",
+          "events": {"select": "app.DELIVERY_PLACE_COD.setValue(combo.getValue());\
+app.DELIVERY_PLACE_STR.setValue(combo.getRawValue());\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "DELIVERY_PLACE_COD",
+           "width": "80",
+           "x": "864",
+           "y": "200",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "CONSIGNEE_ADD_STR",
+           "fieldLabel": "@Str.ConsigneeAddress",
+           "width": "417",
+           "x": "8",
+           "y": "264",
+           "labelWidth": "80",
+           "maxLength": "800",
+           "height": "104"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "itemId": "LOAD_TERMS_COD",
+           "fieldLabel": "@Str.LoadingMode",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.NAME",
+           "y": "136",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'LOAD_TERMS_COD',order:' order by  SYS_COD'}",
+            "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "PAY_WAY_ID",
+           "fieldLabel": "@Str.PaymentTerm",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.NAME",
+           "y": "104",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'PAY_WAY_ID',order:' order by  SYS_COD'}",
+            "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "SHARE_NO",
+           "width": "80",
+           "x": "864",
+           "y": "264",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "E_NOTIFY_NAM",
+           "fieldLabel": "@Str.NotifyParty",
+           "width": "417",
+           "x": "8",
+           "y": "336",
+           "labelWidth": "80",
+           "maxLength": "800",
+           "height": "106"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "allowBlank": "false",
+           "itemId": "TRADE_ID",
+           "fieldLabel": "@Str.TradeMode",
+           "keyName": "TRADE_ID",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.VNAME",
+           "y": "200",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "TRADE_TERMS_ID",
+           "fieldLabel": "@Str.TradeClause",
+           "keyName": "TRADE_TERMS_ID",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.VNAME",
+           "y": "168",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "FRT_ADD_STR11",
+           "fieldLabel": "@Str.Surcharge",
+           "width": "201",
+           "x": "440",
+           "y": "336",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "NOTIFY_ADD_STR",
+           "fieldLabel": "@Str.NotifyPartyAddress",
+           "width": "417",
+           "x": "8",
+           "y": "408",
+           "labelWidth": "80",
+           "maxLength": "800",
+           "height": "108"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "itemId": "WORK_PLACE_COD",
+           "fieldLabel": "@Str.landingplace",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.NAME",
+           "y": "232",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{portCod:'{#sys.portcod#}'}",
+            "url": "m?xwl=system/common/portSelect/workPlaceCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_ID2",
+           "fieldLabel": "@Str.BLNature",
+           "width": "201",
+           "x": "440",
+           "y": "8",
+           "labelWidth": "80",
+           "disabled": "true",
+           "value": "普通",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "tagConfigs": "{\
+  getValue: function() {\
+   \
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+  \
+}",
+           "itemId": "TRANSFER_ID",
+           "boxLabel": "@Str.Transshipment",
+           "width": "80",
+           "x": "8",
+           "y": "40",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "check",
+          "events": {"change": "if(this.checked)\
+   app.TRANS_MOD_COD.enable();\
+else\
+  app.TRANS_MOD_COD.disable();"}
+         },
+         {
+          "configs": {
+           "tagConfigs": "{\
+  getValue: function() {\
+   \
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+ \
+}",
+           "itemId": "SHARE_ID",
+           "boxLabel": "@Str.LCL",
+           "width": "80",
+           "x": "864",
+           "y": "232",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "check"
+         },
+         {
+          "configs": {
+           "tagConfigs": "{\
+  getValue: function() {\
+   \
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+ \
+}",
+           "itemId": "CNTR_EF_ID",
+           "boxLabel": "@Str.EmptyContainerBL",
+           "width": "80",
+           "x": "864",
+           "y": "296",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "check"
+         },
+         {
+          "configs": {
+           "tagConfigs": "{\
+  getValue: function() {\
+   \
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+ \
+}",
+           "itemId": "BILLMAIN_ID",
+           "boxLabel": "@Str.PrimaryMFIdCode",
+           "width": "96",
+           "x": "864",
+           "y": "336",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "check"
+         },
+         {
+          "configs": {
+           "tagConfigs": "{\
+  getValue: function() {\
+   \
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+ \
+}",
+           "itemId": "CONFIRM_ID",
+           "boxLabel": "@Str.BookingConfirm",
+           "hidden": "true",
+           "width": "80",
+           "x": "864",
+           "y": "368",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "check"
+         },
+         {
+          "configs": {
+           "itemId": "CUSTOM_STATUS_COD",
+           "fieldLabel": "@Str.CustomsStatus",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.NAME",
+           "y": "264",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'CUSTOM_STATUS_COD',order:' order by  SYS_COD'}",
+            "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "CUSTOM_COD",
+           "fieldLabel": "@Str.CustomsDeclaration",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "y": "232",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=system/common/portSelect/customPortCod"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "HANDL_INSTRUCT_COD",
+           "fieldLabel": "@Str.OperationOrder",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.NAME",
+           "y": "264",
+           "labelWidth": "80",
+           "valueField": "COD",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'LOAD_TERMS_COD',order:' order by  SYS_COD'}",
+            "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "HDS_STATUS",
+           "fieldLabel": "@Str.ServiceStatus",
+           "keyName": "HDS_STATUS",
+           "width": "200",
+           "x": "656",
+           "displayField": "@Str.VNAME",
+           "y": "296",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "HDS_SERVICE",
+           "fieldLabel": "@Str.ValueAddedService",
+           "keyName": "HDS_SERVICE",
+           "width": "201",
+           "x": "440",
+           "displayField": "@Str.VNAME",
+           "y": "296",
+           "labelWidth": "80",
+           "valueField": "K",
+           "height": "22"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "VERSION_COD",
+           "fieldLabel": "@Str.AgreementCode",
+           "width": "200",
+           "x": "656",
+           "y": "336",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "ASSOCIATED_BILL_NBR",
+           "fieldLabel": "@Str.SeparateBLNo",
+           "width": "200",
+           "x": "656",
+           "y": "368",
+           "labelWidth": "80",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "NOTE",
+           "fieldLabel": "@Str.Remark",
+           "width": "241",
+           "x": "440",
+           "y": "408",
+           "labelWidth": "80",
+           "height": "108"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "itemId": "CHANGE_NOTE",
+           "fieldLabel": "@Str.SpecialContainerRemark",
+           "width": "248",
+           "x": "696",
+           "y": "408",
+           "labelWidth": "80",
+           "height": "110"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "textarea"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_STATE_ID",
+           "fieldLabel": "@Str.CommodityStatus",
+           "width": "201",
+           "x": "440",
+           "y": "368",
+           "labelWidth": "80",
+           "disabled": "true",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_NO",
+           "width": "241",
+           "x": "40",
+           "y": "512",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "panel"
+       }],
+       "type": "fieldset"
+      },
+      {
+       "configs": {
+        "itemId": "fieldset2",
+        "hidden": "true",
+        "collapsed": "true",
+        "title": "新舱单",
+        "collapsible": "true"
+       },
+       "expanded": false,
+       "children": [{
+        "configs": {"itemId": "tab1"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "layout": "absolute",
+           "itemId": "csnpanel",
+           "width": "864",
+           "title": "发货人",
+           "height": "136"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "tagConfigs": " matchFieldWidth:false ,listConfig:{width:250}",
+             "itemId": "CSN_S_COD",
+             "fieldLabel": "发货人",
+             "width": "200",
+             "x": "8",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "pickComp",
+              "height": "250"
+             },
+             "expanded": false,
+             "children": [
+              {
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "params": "{trustid:'S',trusttyp:'O'}",
+                "url": "m?xwl=system/common/trustSelect/cTrustSoSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              },
+              {
+               "configs": {"itemId": "columns"},
+               "expanded": true,
+               "children": [
+                {
+                 "configs": {
+                  "itemId": "numCol",
+                  "xtype": "rownumberer"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "trustItem",
+                  "dataIndex": "TRUST_COD",
+                  "width": "100",
+                  "text": "代码"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "cNameCol",
+                  "dataIndex": "C_TRUST_NAM",
+                  "text": "中文名"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "emailCol",
+                  "dataIndex": "E_TRUST_NAM",
+                  "flex": "1",
+                  "text": "英文名"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                }
+               ],
+               "type": "array"
+              }
+             ],
+             "type": "grid",
+             "events": {"itemclick": "var picker = this.ownerCmp;\
+app.CSN_S_COD.setValue(record.data.TRUST_COD);\t\t\
+app.SHIPPER_COD.setValue(record.data.TRUST_COD);\
+app.SHIPPER_CITY_NAM.setValue(record.data.CITY_COD);\
+app.SHIPPER_SUB_ENTITY_COD.setValue(record.data.PROVINCE_COD);\
+app.SHIPPER_SUB_ENTITY_NAM.setValue(record.data.PROVINCE_NAM);\
+app.SHIPPER_POST_COD.setValue(record.data.POSTALCODE);\
+app.SHIPPER_COUNTRY_COD.setValue(record.data.COUNTRY_COD);\
+app.SHIPPER_TE_STR.setValue(record.data.TELE_NO);\
+app.SHIPPER_EM_STR.setValue(record.data.EMAIL);\
+app.SHIPPER_FX_STR.setValue(record.data.FAX_NO);\
+picker.collapse();"}
+            }],
+            "type": "picker"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_COD",
+             "fieldLabel": "发货人代码",
+             "width": "201",
+             "x": "216",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_CITY_NAM",
+             "fieldLabel": "城市名称",
+             "width": "200",
+             "x": "432",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_SUB_ENTITY_COD",
+             "fieldLabel": "省市代码",
+             "width": "200",
+             "x": "648",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_TE_STR",
+             "fieldLabel": "联系电话",
+             "width": "200",
+             "x": "648",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_COUNTRY_COD",
+             "fieldLabel": "国家代码",
+             "width": "200",
+             "x": "432",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_POST_COD",
+             "fieldLabel": "邮政编码",
+             "width": "201",
+             "x": "216",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_EM_STR",
+             "fieldLabel": "联系邮箱",
+             "width": "200",
+             "x": "8",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_FX_STR",
+             "fieldLabel": "联系传真",
+             "width": "201",
+             "x": "216",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER_SUB_ENTITY_NAM",
+             "fieldLabel": "省市名称",
+             "width": "200",
+             "x": "8",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "absolute",
+           "itemId": "csncpanel",
+           "width": "864",
+           "title": "收货人",
+           "height": "176"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "tagConfigs": " matchFieldWidth:false ,listConfig:{width:250}",
+             "itemId": "CSN_C_COD",
+             "fieldLabel": "发货人",
+             "width": "200",
+             "x": "8",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "pickComp",
+              "height": "250"
+             },
+             "expanded": false,
+             "children": [
+              {
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "params": "{trustid:'S',trusttyp:'O'}",
+                "url": "m?xwl=system/common/trustSelect/cTrustSoSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              },
+              {
+               "configs": {"itemId": "columns"},
+               "expanded": true,
+               "children": [
+                {
+                 "configs": {
+                  "itemId": "numCol",
+                  "xtype": "rownumberer"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "trustItem",
+                  "dataIndex": "TRUST_COD",
+                  "width": "100",
+                  "text": "代码"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "cNameCol",
+                  "dataIndex": "C_TRUST_NAM",
+                  "text": "中文名"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "emailCol",
+                  "dataIndex": "E_TRUST_NAM",
+                  "flex": "1",
+                  "text": "英文名"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                }
+               ],
+               "type": "array"
+              }
+             ],
+             "type": "grid",
+             "events": {"itemclick": "var picker = this.ownerCmp;\
+app.CSN_C_COD.setValue(record.data.TRUST_COD);\t\t\
+app.CONSIGNEE_COD.setValue(record.data.TRUST_COD);\
+app.CONSIGNEE_CITY_NAM.setValue(record.data.CITY_COD);\
+app.CONSIGNEE_SUB_ENTITY_COD.setValue(record.data.PROVINCE_COD);\
+app.CONSIGNEE_SUB_ENTITY_NAM.setValue(record.data.PROVINCE_NAM);\
+app.CONSIGNEE_POST_COD.setValue(record.data.POSTALCODE);\
+app.CONSIGNEE_COUNTRY_COD.setValue(record.data.COUNTRY_COD);\
+app.CONSIGNEE_TE_STR.setValue(record.data.TELE_NO);\
+app.CONSIGNEE_EM_STR.setValue(record.data.EMAIL);\
+app.CONSIGNEE_FX_STR.setValue(record.data.FAX_NO);\
+app.CONSIGNEE_CONTACT_TE_STR.setValue(record.data.TELE_NO);\
+app.CONSIGNEE_CONTACT_EM_STR.setValue(record.data.EMAIL);\
+app.CONSIGNEE_CONTACT_FX_STR.setValue(record.data.EMAIL);\
+picker.collapse();"}
+            }],
+            "type": "picker"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_COD",
+             "fieldLabel": "收货人代码",
+             "width": "201",
+             "x": "224",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_CITY_NAM",
+             "fieldLabel": "城市名称",
+             "width": "200",
+             "x": "440",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_SUB_ENTITY_COD",
+             "fieldLabel": "省市代码",
+             "width": "200",
+             "x": "656",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_TE_STR",
+             "fieldLabel": "联系电话",
+             "width": "200",
+             "x": "440",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_COUNTRY_COD",
+             "fieldLabel": "国家代码",
+             "width": "200",
+             "x": "440",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_POST_COD",
+             "fieldLabel": "邮政编码",
+             "width": "201",
+             "x": "224",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_EM_STR",
+             "fieldLabel": "联系邮箱",
+             "width": "200",
+             "x": "8",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_FX_STR",
+             "fieldLabel": "联系传真",
+             "width": "200",
+             "x": "8",
+             "y": "104",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_SUB_ENTITY_NAM",
+             "fieldLabel": "省市名称",
+             "width": "200",
+             "x": "8",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_CONTACT_NAM",
+             "fieldLabel": "具体名称",
+             "width": "200",
+             "x": "656",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_CONTACT_TE_STR",
+             "fieldLabel": "具体电话",
+             "width": "200",
+             "x": "656",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_CONTACT_EM_STR",
+             "fieldLabel": "具体邮箱",
+             "width": "201",
+             "x": "224",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE_CONTACT_FX_STR",
+             "fieldLabel": "具体传真",
+             "width": "201",
+             "x": "224",
+             "y": "104",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "absolute",
+           "itemId": "csnnpanel",
+           "width": "864",
+           "title": "通知方信息",
+           "height": "136"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "tagConfigs": " matchFieldWidth:false ,listConfig:{width:250}",
+             "itemId": "CSN_N_COD",
+             "fieldLabel": "发货人",
+             "width": "200",
+             "x": "8",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "pickComp",
+              "height": "250"
+             },
+             "expanded": false,
+             "children": [
+              {
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "params": "{trustid:'S',trusttyp:'O'}",
+                "url": "m?xwl=system/common/trustSelect/cTrustSoSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              },
+              {
+               "configs": {"itemId": "columns"},
+               "expanded": true,
+               "children": [
+                {
+                 "configs": {
+                  "itemId": "numCol",
+                  "xtype": "rownumberer"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "trustItem",
+                  "dataIndex": "TRUST_COD",
+                  "width": "100",
+                  "text": "代码"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "cNameCol",
+                  "dataIndex": "C_TRUST_NAM",
+                  "text": "中文名"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                },
+                {
+                 "configs": {
+                  "itemId": "emailCol",
+                  "dataIndex": "E_TRUST_NAM",
+                  "flex": "1",
+                  "text": "英文名"
+                 },
+                 "expanded": false,
+                 "children": [],
+                 "type": "column"
+                }
+               ],
+               "type": "array"
+              }
+             ],
+             "type": "grid",
+             "events": {"itemclick": "var picker = this.ownerCmp;\
+app.CSN_N_COD.setValue(record.data.TRUST_COD);\t\t\
+app.NOTIFY_COD.setValue(record.data.TRUST_COD);\
+app.NOTIFY_CITY_NAM.setValue(record.data.CITY_COD);\
+app.NOTIFY_SUB_ENTITY_COD.setValue(record.data.PROVINCE_COD);\
+app.NOTIFY_SUB_ENTITY_NAM.setValue(record.data.PROVINCE_NAM);\
+app.NOTIFY_POST_COD.setValue(record.data.POSTALCODE);\
+app.NOTIFY_COUNTRY_COD.setValue(record.data.COUNTRY_COD);\
+app.NOTIFY_TE_STR.setValue(record.data.TELE_NO);\
+app.NOTIFY_EM_STR.setValue(record.data.EMAIL);\
+app.NOTIFY_FX_STR.setValue(record.data.FAX_NO);\
+picker.collapse();"}
+            }],
+            "type": "picker"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_COD",
+             "fieldLabel": "通知方代码",
+             "width": "201",
+             "x": "216",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_CITY_NAM",
+             "fieldLabel": "城市名称",
+             "width": "200",
+             "x": "424",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_SUB_ENTITY_COD",
+             "fieldLabel": "省市代码",
+             "width": "200",
+             "x": "632",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_TE_STR",
+             "fieldLabel": "联系电话",
+             "width": "200",
+             "x": "632",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_COUNTRY_COD",
+             "fieldLabel": "国家代码",
+             "width": "200",
+             "x": "424",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_POST_COD",
+             "fieldLabel": "邮政编码",
+             "width": "201",
+             "x": "216",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_EM_STR",
+             "fieldLabel": "联系邮箱",
+             "width": "200",
+             "x": "8",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_FX_STR",
+             "fieldLabel": "联系传真",
+             "width": "201",
+             "x": "216",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "NOTIFY_SUB_ENTITY_NAM",
+             "fieldLabel": "省市名称",
+             "width": "200",
+             "x": "8",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "absolute",
+           "itemId": "transpanel",
+           "width": "864",
+           "title": "中间承运人",
+           "height": "72"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "TRANS_TE_STR",
+             "fieldLabel": "联系电话",
+             "width": "201",
+             "x": "216",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "TRANS_EM_STR",
+             "fieldLabel": "联系邮箱",
+             "width": "200",
+             "x": "424",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "TRANS_FX_STR",
+             "fieldLabel": "联系邮箱",
+             "width": "200",
+             "x": "632",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "TRANS_TRUST_COD",
+             "fieldLabel": "中间承运人",
+             "width": "200",
+             "x": "8",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "absolute",
+           "itemId": "deliverpanel",
+           "width": "864",
+           "title": "交付目的地地址",
+           "height": "104"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "DELIVERY_COUNTRY_COD",
+             "fieldLabel": "国家代码",
+             "width": "200",
+             "x": "424",
+             "displayField": "CNAME",
+             "y": "40",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "url": "m?xwl=system/common/portSelect/countryCod"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "DELIVERY_ADD_STR",
+             "fieldLabel": "目的地地址",
+             "width": "409",
+             "x": "8",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "DELIVERY_CITY_NAM",
+             "fieldLabel": "城市名称",
+             "width": "200",
+             "x": "424",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "DELIVERY_SUB_ENTITY_COD",
+             "fieldLabel": "省市代码",
+             "width": "200",
+             "x": "632",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "DELIVERY_POST_COD",
+             "fieldLabel": "邮政编码",
+             "width": "201",
+             "x": "216",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "DELIVERY_SUB_ENTITY_NAM",
+             "fieldLabel": "省市名称",
+             "width": "200",
+             "x": "8",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "absolute",
+           "itemId": "changepanel",
+           "width": "864",
+           "title": "更改方式",
+           "height": "136"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "CHANGE_REASON_ONE",
+             "fieldLabel": "更改原因一",
+             "width": "200",
+             "x": "8",
+             "displayField": "ENAME",
+             "y": "8",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "params": "{fldId:'C_CUSTOM_CHANGE_REAS',order:' order by  SYS_COD'}",
+              "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "SHARE_COD",
+             "fieldLabel": "拼箱人",
+             "width": "200",
+             "x": "632",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "PRE_CUSTOM_BILL_NBR",
+             "fieldLabel": "前一海关单证号",
+             "width": "201",
+             "x": "216",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "32"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "CHANGE_REASON_TWO",
+             "fieldLabel": "更改原因二",
+             "width": "201",
+             "x": "216",
+             "displayField": "ENAME",
+             "y": "8",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "params": "{fldId:'C_CUSTOM_CHANGE_REAS',order:' order by  SYS_COD'}",
+              "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "CHANGE_REASON_THR",
+             "fieldLabel": "更改原因三",
+             "width": "200",
+             "x": "424",
+             "displayField": "ENAME",
+             "y": "8",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "params": "{fldId:'C_CUSTOM_CHANGE_REAS',order:' order by  SYS_COD'}",
+              "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "SIGN_PLACE_COD",
+             "fieldLabel": "签发地点",
+             "width": "200",
+             "x": "632",
+             "displayField": "ENAME",
+             "y": "8",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "url": "m?xwl=system/common/portSelect/shipProtCod"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store",
+             "events": {"beforeload": "operation.params={shipNo:app.shipNo.getValue()};"}
+            }],
+            "type": "combo",
+            "events": {"select": "app.SIGN_PLACE_STR.setValue(combo.getRawValue());\
+app.SIGN_PLACE_COD.setValue(combo.getValue());"}
+           },
+           {
+            "configs": {
+             "itemId": "SIGN_PLACE_STR",
+             "width": "120",
+             "x": "992",
+             "y": "8",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "SIGN_BILL_DTE",
+             "fieldLabel": "签发日期",
+             "width": "200",
+             "x": "8",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "datetime"
+           },
+           {
+            "configs": {
+             "itemId": "QUAR_MODE_STR",
+             "fieldLabel": "检疫方式",
+             "width": "201",
+             "x": "216",
+             "displayField": "ENAME",
+             "y": "40",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "params": "{fldId:'QUARANTINE_COD',order:' order by  SYS_COD'}",
+              "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "EX_RATE_NUM",
+             "fieldLabel": "汇率",
+             "width": "200",
+             "x": "424",
+             "y": "40",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           },
+           {
+            "configs": {
+             "itemId": "COIN_KIND_COD",
+             "fieldLabel": "币种",
+             "width": "200",
+             "x": "8",
+             "displayField": "ENAME",
+             "y": "72",
+             "labelWidth": "80",
+             "valueField": "COD",
+             "height": "22"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "url": "m?xwl=system/common/sysCodselect/cCoinKind"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "PAY_TOTAL_NUM",
+             "fieldLabel": "货内金额",
+             "width": "200",
+             "x": "424",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           },
+           {
+            "configs": {
+             "itemId": "PRE_CUSTOM_TYPE_COD",
+             "fieldLabel": "前一海关单证类型",
+             "width": "200",
+             "x": "632",
+             "y": "72",
+             "labelWidth": "80",
+             "height": "32"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "panel"
+         }
+        ],
+        "type": "tab"
+       }],
+       "type": "fieldset"
+      },
+      {
+       "configs": {
+        "itemId": "fieldset3",
+        "collapsed": "false",
+        "title": "@Str.CommodityInfo",
+        "collapsible": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "layout": "fit",
+         "itemId": "panel1",
+         "height": "200"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "cargoGrid",
+          "editable": "true",
+          "multiSelect": "true"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "false",
+            "url": "m?xwl=ShipAgency/outShipBillSelect/shipBillCargoSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "tbar"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "newBtn",
+              "tooltip": "添加新的记录",
+              "text": "@Str.add",
+              "iconCls": "record_add_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "//Wb.addEdit(app.cargoGrid); //更多选项可使用Wb.add方法\
+//alert(app.BILL_NO.getValue());\
+//var rec = app.grid1.getSelection()[0];\
+//rec.data.BILL_NO='2';\
+var i =app.cargoGrid.getStore().getCount();\
+Wb.add(app.cargoGrid, {BILL_NO:app.BILL_NO.getValue(),SEQ_NO:i+1,\
+        USERID:'{#sys.userid#}',TENTANTID:'{#sys.tentantid#}',DEPT_COD:'{#sys.deptcod#}'}, \"last\", 1, false);\
+\t\t\t\t"}
+            },
+            {
+             "configs": {
+              "itemId": "delBtn",
+              "tooltip": "删除选择的记录",
+              "text": "@Str.del",
+              "iconCls": "record_delete_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "Wb.remove(app.cargoGrid);"}
+            },
+            {
+             "configs": {
+              "itemId": "item1",
+              "text": "-"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item"
+            },
+            {
+             "configs": {
+              "itemId": "saveCargoBtn",
+              "tooltip": "保存所有的更改",
+              "text": "@Str.save",
+              "iconCls": "save_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "if (!Wb.verifyGrid(app.cargoGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.cargoGrid,\
+  url: 'm?xwl=ShipAgency/outShipBillSelect/saveCargo',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.cargoGrid, Wb.decode(resp.responseText));\
+  }\
+});\
+\
+\
+\
+   "}
+            }
+           ],
+           "type": "toolbar"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "rowNumCol",
+              "xtype": "rownumberer",
+              "text": "@Str.No"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "stringCol1",
+              "dataIndex": "MARKS_STR",
+              "width": "150",
+              "text": "@Str.Mark"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxLength": "800",
+               "height": "150"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "textarea"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "numCols",
+              "dataIndex": "E_CARGO_NAM",
+              "text": "@Str.CargoDescription"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxLength": "2000",
+               "height": "150"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "textarea"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "boolCol",
+              "dataIndex": "CARGO_KIND_COD",
+              "width": "80",
+              "text": "@Str.CargoCode"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "@Str.NAME",
+               "valueField": "COD"
+              },
+              "expanded": false,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{fldId:'CARGO_KIND_COD',order:' order by  SYS_COD'}",
+                "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "datetimeCol",
+              "dataIndex": "PIECE_NUM",
+              "width": "60",
+              "text": "@Str.Pkgs"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "minValue": "0",
+               "maxValue": "100000"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "datetimeCol1",
+              "dataIndex": "GWEIGHT_TON",
+              "width": "60",
+              "text": "@Str.Weight"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "allowDecimals": "true",
+               "itemId": "editor",
+               "minValue": "0",
+               "maxValue": "100000"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "datetimeCol2",
+              "dataIndex": "GVOL_NUM",
+              "width": "60",
+              "text": "@Str.Measurement"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "allowDecimals": "true",
+               "itemId": "editor",
+               "minValue": "0",
+               "maxValue": "100000"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "datetimeCol3",
+              "dataIndex": "NWEIGHT_TON",
+              "width": "60",
+              "text": "@Str.GrossWeightWith"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "allowDecimals": "true",
+               "itemId": "editor",
+               "minValue": "0",
+               "maxValue": "100000"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "clobCol",
+              "dataIndex": "PACKAGE_COD",
+              "flex": "1",
+              "width": "120",
+              "text": "@Str.PackageCode"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "@Str.NAME",
+               "valueField": "COD"
+              },
+              "expanded": false,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=system/common/sysCodselect/cPackageSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {"select": "var  rec=app.cargoGrid.getSelection()[0];\
+rec.set(\"PACKAGE_COD\",combo.getValue());\
+rec.set(\"PACKAGE_STR\",combo.getRawValue());\
+\
+\
+"}
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column1",
+              "dataIndex": "PACKAGE_STR",
+              "width": "70",
+              "text": "@Str.Package"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxLength": "20"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column11",
+              "dataIndex": "CARGO_HS_COD",
+              "width": "100",
+              "text": "@Str.HSCode"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "vtype": "alphanum",
+               "maxLength": "6"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column12",
+              "dataIndex": "DANG_CLASS_NAM",
+              "width": "70",
+              "text": "@Str.Class"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxLength": "10"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column13",
+              "dataIndex": "DANG_LABLE_STR",
+              "width": "70",
+              "text": "@Str.DangerousCargoLabel"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column14",
+              "dataIndex": "ERR_COD",
+              "width": "70",
+              "text": "@Str.AccidentCode"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column15",
+              "dataIndex": "DANG_TECH_NAM",
+              "width": "70",
+              "text": "@Str.Property"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column16",
+              "dataIndex": "DANG_CONTACTSTR",
+              "width": "70",
+              "text": "@Str.EmergencyAddress"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column17",
+              "dataIndex": "DANG_FLASH_POINT",
+              "width": "40",
+              "text": "@Str.FlashPoint"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18",
+              "dataIndex": "DANG_UN_NO",
+              "width": "80",
+              "text": "@Str.UnNo"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column181",
+              "dataIndex": "DANG_PAGE_NO",
+              "width": "70",
+              "text": "@Str.Pages"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column182",
+              "dataIndex": "DANG_EMS_NO",
+              "width": "80",
+              "text": "@Str.EmergencyMeasure"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column183",
+              "dataIndex": "DANG_MFAG_NO",
+              "width": "80",
+              "text": "@Str.FirstAidGuide"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column184",
+              "dataIndex": "MIN_TEMP_NUM",
+              "width": "70",
+              "text": "@Str.MinTemp"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column185",
+              "dataIndex": "MAX_TEMP_NUM",
+              "width": "70",
+              "text": "@Str.MaxTemp"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column186",
+              "dataIndex": "SUB_DANG_CLASS_NAM",
+              "width": "50",
+              "text": "@Str.SubsidiaryRisk"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column187",
+              "dataIndex": "DANG_CLASS_STR",
+              "width": "70",
+              "text": "@Str.ClassDescribe"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column188",
+              "dataIndex": "DANGER_TE_STR",
+              "width": "80",
+              "text": "@Str.Telephone"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column189",
+              "dataIndex": "DANGER_FX_STR",
+              "width": "80",
+              "text": "@Str.Fax"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column1810",
+              "dataIndex": "ORIGIN_COUNTRY_COD",
+              "width": "50",
+              "text": "@Str.Origin"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column1811",
+              "dataIndex": "CARGO_UNIQUE_NBR",
+              "width": "70",
+              "text": "@Str.ShippingOrderNo"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18111",
+              "dataIndex": "TEMP_ID",
+              "width": "70",
+              "text": "@Str.TemperatureType"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "keyName": "TEMP_ID"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18112",
+              "dataIndex": "SET_TEMP_NUM",
+              "width": "70",
+              "text": "@Str.SetTemperature"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18113",
+              "dataIndex": "DANGER_CONTACT_NAM",
+              "width": "70",
+              "text": "@Str.Contact"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18114",
+              "dataIndex": "DANGER_EM_STR",
+              "width": "80",
+              "text": "@Str.email"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18115",
+              "dataIndex": "VAN_ID",
+              "width": "40",
+              "text": "@Str.AirVents"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18118",
+              "dataIndex": "SPCL_TECH_STR",
+              "width": "70",
+              "text": "@Str.SpecialRequirements"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxLength": "35",
+               "height": "150"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "textarea"
+             }],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid"
+        }],
+        "type": "panel"
+       }],
+       "type": "fieldset"
+      },
+      {
+       "configs": {
+        "itemId": "fieldset4",
+        "collapsed": "false",
+        "title": "@Str.ContainerInfo",
+        "collapsible": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "layout": "fit",
+         "itemId": "panel1",
+         "height": "200"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "cntrGrid",
+          "editable": "true",
+          "multiSelect": "true"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "false",
+            "url": "m?xwl=ShipAgency/outShipBillSelect/shipBillCntrSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "tbar"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "newBtn",
+              "tooltip": "添加新的记录",
+              "text": "@Str.add",
+              "iconCls": "record_add_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "Wb.add(app.cntrGrid, {BILL_NO:app.BILL_NO.getValue(),SHIP_NO:app.shipNo.getValue(),BILL_NBR:app.BILL_NBR.getValue(),\
+        USERID:'{#sys.userid#}',TENTANTID:'{#sys.tentantid#}',DEPT_COD:'{#sys.deptcod#}',PORT_ID:'0'}, \"last\", 1, false);\
+\t\t\t\t"}
+            },
+            {
+             "configs": {
+              "itemId": "delBtn",
+              "tooltip": "删除选择的记录",
+              "text": "@Str.del",
+              "iconCls": "record_delete_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "Wb.remove(app.cntrGrid);"}
+            },
+            {
+             "configs": {
+              "itemId": "item1",
+              "text": "-"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item"
+            },
+            {
+             "configs": {
+              "itemId": "saveCntrBtn",
+              "tooltip": "保存所有的更改",
+              "text": "@Str.save",
+              "iconCls": "save_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "if (!Wb.verifyGrid(app.cntrGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.cntrGrid,\
+  url: 'm?xwl=ShipAgency/outShipBillSelect/saveCntr',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.cntrGrid, Wb.decode(resp.responseText));\
+  }\
+});\
+\
+\
+\
+\
+\
+   "}
+            }
+           ],
+           "type": "toolbar"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "rowNumCol",
+              "xtype": "rownumberer",
+              "text": "@Str.No"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column19",
+              "dataIndex": "CNTR_NO",
+              "width": "100",
+              "text": "@Str.ContainerNo"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "vtype": "alphanum",
+               "maxLength": "11"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "clobCol",
+              "dataIndex": "CNTR_SIZE",
+              "width": "80",
+              "text": "@Str.ContainerSize"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=system/common/cntrselect/cntrSize"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column11",
+              "dataIndex": "CNTR_TYPE",
+              "width": "60",
+              "text": "@Str.ContainerType"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{type:'1'}",
+                "url": "m?xwl=system/common/cntrselect/cntrType"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column12",
+              "dataIndex": "CNTR_EF_ID",
+              "width": "40",
+              "text": "@Str.EmptyFull"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "keyName": "CNTR_EF_ID",
+               "displayField": "@Str.VNAME"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column13",
+              "dataIndex": "SEAL_NO",
+              "width": "70",
+              "text": "@Str.SealNo"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxLength": "22"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column14",
+              "dataIndex": "PIECE_NUM",
+              "width": "40",
+              "text": "@Str.Pkgs"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "maxValue": "99999"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column15",
+              "dataIndex": "PACK_NAM_STR",
+              "width": "70",
+              "text": "@Str.Package"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{fldId:'C_PACKAGE',order:' order by  SYS_COD'}",
+                "url": "m?xwl=system/common/sysCodselect/cPackageSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column16",
+              "dataIndex": "WEIGHT_TON",
+              "width": "70",
+              "text": "@Str.Weight"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "allowDecimals": "true",
+               "itemId": "editor",
+               "decimalPrecision": "2",
+               "maxLength": "1000000"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column17",
+              "dataIndex": "CNTR_TARE_KGS",
+              "width": "55",
+              "text": "@Str.ContainerTareWeight"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "allowDecimals": "true",
+               "itemId": "editor",
+               "maxValue": "999999",
+               "decimalPrecision": "2"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column18",
+              "dataIndex": "VOLUME_NUM",
+              "width": "40",
+              "text": "@Str.Measurement"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "allowDecimals": "true",
+               "itemId": "editor",
+               "maxValue": "9999999",
+               "decimalPrecision": "3"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column181",
+              "dataIndex": "STOWAGE_LOC",
+              "width": "70",
+              "text": "@Str.StowLocation"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "vtype": "alphanum",
+               "maxLength": "7"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column182",
+              "dataIndex": "SOC_ID",
+              "width": "80",
+              "text": "@Str.SOC"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{fldId:'SOC_ID',order:' order by  SYS_COD'}",
+                "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column183",
+              "dataIndex": "SEAL_KIND_COD",
+              "width": "80",
+              "text": "@Str.SealType"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{fldId:'SEAL_KIND_COD',order:' order by  SYS_COD'}",
+                "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column184",
+              "dataIndex": "SEALER_COD",
+              "width": "70",
+              "text": "@Str.ExecuterSeal"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{fldId:'SEALER_COD',order:' order by  SYS_COD'}",
+                "url": "m?xwl=system/common/sysCodselect/sysCodSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column185",
+              "dataIndex": "FEE_CNTR_TYPE_COD",
+              "width": "70",
+              "text": "@Str.ChargingCntrType"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=system/common/cntrselect/cntrType"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column186",
+              "dataIndex": "CNTR_OWNER_COD",
+              "width": "100",
+              "text": "@Str.ContainerOwner"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "COD",
+               "valueField": "COD",
+               "maxLength": "10"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "params": "{trustid:'S',trusttyp:'I'}",
+                "url": "m?xwl=system/common/trustSelect/trustSelect"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid"
+        }],
+        "type": "panel"
+       }],
+       "type": "fieldset"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "toolbar1",
+       "region": "north"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "chooseShip",
+         "text": "@Str.SelectVessel",
+         "iconCls": "settings1_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "\
+\
+var win = new Ext.window.Window(app._winsss); //app._win指向配置对象而非实例\
+win.show();\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "shipNo",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "shipNam",
+         "fieldLabel": "@Str.VesselName",
+         "width": "120",
+         "labelWidth": "40",
+         "disabled": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "voyage",
+         "fieldLabel": "@Str.VoyageNo",
+         "width": "120",
+         "labelWidth": "40",
+         "disabled": "true"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "billNbr",
+         "fieldLabel": "@Str.BLNo",
+         "width": "140",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "bingS",
+         "hidden": "true",
+         "pickList": "[\
+['1','并单前'],['2','并单后']\
+]",
+         "width": "80",
+         "displayField": "NAME",
+         "valueField": "ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cargostate",
+         "hidden": "true",
+         "pickList": "[\
+['','全部'] ,['1','已装船'],['2','已放关'],['3','已进站'],['4','已放箱'],['5','已订舱']\
+]",
+         "width": "120",
+         "displayField": "NAME",
+         "valueField": "ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "seekMenu",
+         "text": "@Str.find",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if(app.shipNo.getValue()==''){\
+  Wb.info(Str.pleaseSelectVessel);\
+  return ;\
+}\
+app.grid1.store.load({\
+  out: app.toolbar1\
+});\
+\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "addMenu",
+         "text": "@Str.add",
+         "iconCls": "add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if(app.shipNo.getValue()==''){\
+ Wb.info(Str.pleaseSelectVessel);\
+  return ;\
+}\
+win = new Ext.window.Window(app._BillWin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, Str.add);\
+ app.TRANS_MOD_COD.disable();\
+app.TRADE_ID.setValue(0);\
+Wb.request({\
+  url: 'm?xwl=ShipAgency/outShipBillSelect/getSeqNO',\
+  params: {},\
+  success: function(resp) {\
+   var s= Wb.decode(resp.responseText);\
+   app.BILL_NO.setValue(s.rows[0].ID);\
+    optype='insert';\
+  }\
+});\
+\
+\
+app.cargoGrid.store.load({\
+  out: app.BILL_NO\
+});\
+app.cntrGrid.store.load({\
+  out: app.BILL_NO\
+});\
+\
+\
+\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "editMenu",
+         "text": "@Str.modify",
+         "iconCls": "record_edit_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "\
+\
+\
+var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn(Wb.format(Str.selectRecord,Str.modify));\
+ \
+  return;\
+}\
+ win = new Ext.window.Window(app._BillWin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, Str.modify);\
+Wb.setValue(win, rec.data); //把记录数据应用到窗口\
+app.TRADE_ID.setValue(0);\
+optype='modify';\
+app.cargoGrid.store.load({\
+  out: app.BILL_NO\
+});\
+app.cntrGrid.store.load({\
+  out: app.BILL_NO\
+});\
+\
+\
+app.TRUST_COD.store.load();\
+app.RECEIV_PLACE_STR.store.load();\
+app.START_PORT_NAM.store.load();\
+app.TRANS_MOD_COD.store.load();\
+app.CARRIER_COD.store.load();\
+app.BILL_OUT_ID.store.load();\
+app.DISCHRG_PORT_NAM.store.load();\
+app.LOAD_PORT_NAM.store.load();\
+app.TRANS_PORT_NAM.store.load();\
+app.DEST_PORT_NAM.store.load();\
+app.DELIVERY_PLACE_STR.store.load();\
+app.LOAD_TERMS_COD.store.load();\
+app.PAY_WAY_ID.store.load();\
+app.WORK_PLACE_COD.store.load();\
+app.CUSTOM_STATUS_COD.store.load();\
+app.CUSTOM_COD.store.load();\
+app.HANDL_INSTRUCT_COD.store.load();"}
+       },
+       {
+        "configs": {
+         "itemId": "delMenu",
+         "text": "@Str.del",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.del(app.grid1, {\
+  url: 'm?xwl=ShipAgency/outShipBillSelect/deleteBill',\
+  titleField: 'BILL_NBR'\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "importMenu",
+         "text": "@Str.InputData",
+         "iconCls": "import_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if(app.shipNo.getValue()==''){\
+  Wb.info(\"请先选船！\");\
+  return ;\
+}\
+Wb.request({\
+  url: 'm?xwl=ShipAgency/outShipBillSelect/getSeqNO',\
+  params: {shipNo:app.shipNo.getValue()},\
+  success: function(resp) {\
+    var d=Wb.decode(resp.responseText);\
+ alert(d.rows[0].ID);\
+   \
+\
+    Wb.info(\"导入成功\");\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "portId",
+         "hidden": "true",
+         "value": "0"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "grid1",
+       "editable": "true",
+       "region": "center",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "pageSize": "100",
+         "url": "m?xwl=ShipAgency/outShipBillSelect/shipBillSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer",
+           "width": "40",
+           "text": "@Str.No"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column12",
+           "dataIndex": "BILL_NBR",
+           "width": "100",
+           "text": "@Str.BLNo"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column13",
+           "dataIndex": "CARRIER_COD",
+           "width": "70",
+           "text": "@Str.Operator"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column14",
+           "dataIndex": "BILL_ID",
+           "width": "60",
+           "text": "@Str.BLNature"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column15",
+           "dataIndex": "TRANS_MOD_COD",
+           "width": "60",
+           "text": "@Str.Transshipment"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column16",
+           "dataIndex": "HDS_SERVICE",
+           "width": "60",
+           "text": "@Str.ValueAddedService"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column17",
+           "dataIndex": "HDS_STATUS",
+           "width": "100",
+           "text": "@Str.ServiceStatus"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column2",
+           "dataIndex": "BILL_OUT_ID",
+           "width": "100",
+           "text": "@Str.MarkofIssue"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column21",
+           "hidden": "true",
+           "dataIndex": "BILL_STATE_ID",
+           "width": "100",
+           "text": "@Str.ShipperStatus"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column22",
+           "hidden": "true",
+           "dataIndex": "CONFIRM_ID",
+           "width": "60",
+           "text": "@Str.BookingStatus"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column23",
+           "dataIndex": "PAY_WAY_ID",
+           "width": "60",
+           "text": "@Str.PaymentTerm"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column24",
+           "dataIndex": "TRUST_COD",
+           "width": "80",
+           "text": "@Str.Payment"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column25",
+           "dataIndex": "DISCHRG_PORT_NAM",
+           "width": "100",
+           "text": "@Str.Discharge"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column26",
+           "dataIndex": "DEST_PORT_COD",
+           "width": "80",
+           "text": "@Str.Destination"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "app.editMenu.fireEvent('click');"}
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.xwl1.portId.setValue(\"0\");",
+   "initialize": "var optype, win;\
+Wb.apply(app, {\
+  /**\
+   * 获取所有模块的权限数据。\
+   */\
+  setShipMes:function(rec)\
+  {\
+   app.shipNo.setValue(rec.data.SHIP_NO);\
+   app.shipNam.setValue(rec.data.E_SHIP_NAM);\
+   app.voyage.setValue(rec.data.VOYAGE_NO);\
+\
+  app.winsss.hide();\
+  }\
+});"
+  }
+ }],
+ "roles": {"default": 1},
+ "title": "出口舱单维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,36 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var  whereSql=\" select  * from CNTR_POUND_EDI where TENANCY_ID='\"+tenancyid+\"'  \";\
+\
+ whereSql+=\"  and   WEIGHT_TIME>trunc({?timestamp.begdate?})  and  WEIGHT_TIME<trunc({?timestamp.enddate?})+0.9999\";\
+\
+\
+  if(!Wb.isEmpty(data.cntr))\
+     whereSql+=\" and  cntr='\"+data.cntr+\"'\";\
+\
+ if(!Wb.isEmpty(data.billNo))\
+     whereSql+=\" and  BILL_NO like '%\"+data.billNo+\"%'\";\
+\
+    var result = Wb.getRecords(app.run(whereSql));\
+    app.send(result);\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "SWB": 1
+ },
+ "title": "过磅查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

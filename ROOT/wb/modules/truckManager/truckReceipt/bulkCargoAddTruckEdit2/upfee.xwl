@@ -1,0 +1,28 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var map = new HashMap();\
+var data = Wb.decode(app.get('ids'));\
+for (var i = 0; i < data.length; i++) {\
+  app.log(data[i].ID);\
+  map.put(\"rpId\", data[i].ID);\
+  var sp = Wb.newClass(\"dubboForBulkCar\").call(request, map);\
+  app.log(new JSONObject(sp));\
+  app.run(\"insert into BULK_LOG(ID,NOTES,CFSBILL_ID,CREATED_ON,CREATED_BY,TYPE)VALUES(SYS_GUID(),'\"+new JSONObject(sp)+\"','\"+data[i].ID+\"',sysdate,{?sys.username?},'散货派车')\");\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlcd": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

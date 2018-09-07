@@ -1,0 +1,266 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"select 1 from BLUK_APPLY_TRUCK where id in(\" + app.get('atid') + \")\", {\
+  errorText: \"已派车！\"\
+});\
+var username = app.get('sys.username'),\
+  tenancyId = app.get('sys.TENANCY_ID');\
+var data = app.get();\
+var ids = app.get('ids');\
+var is = Wb.decode(ids);\
+var num = app.get('num');\
+var bill_no = \"\",\
+  id = \"\",\
+  goods = \"\",\
+  pieces = 0,\
+  weight = 0,\
+  shipper = \"\";\
+if (data.conflag == 1) {\
+  app.log(\"合并的情况\");\
+  app.log(\"1车多票=====================================\");\
+  for (var i = 0; i < is.length; i++) {\
+    bill_no += is[i].BILL_NO + \",\";\
+    id += is[i].ID + \",\";\
+    goods += is[i].GOOD_NOTES + \",\";\
+    pieces += is[i].PIECES;\
+    weight += is[i].WEIGHT;\
+    shipper += is[i].SHIPPER + \",\";\
+  }\
+  app.log(id);\
+\
+  app.log(id.slice(0, id.length - 1));\
+  id = id.slice(0, id.length - 1);\
+  bill_no = bill_no.slice(0, bill_no.length - 1);\
+  goods = goods.slice(0, goods.length - 1);\
+  shipper = shipper.slice(0, shipper.length - 1);\
+  var tid = SysUtil.getId();\
+\
+  app.run(\"insert into BLUK_TRUCK_M(ID, PID, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT, PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME, CON_FLAG)\" +\
+    \"values('\" + tid + \"','\" + id + \"','','','','','\" + weight + \"','\" + pieces + \"','','','','\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0,1)\");\
+  app.run(\"insert into BLUK_TRUCK_D(ID, PID, BILL_NO, WEIGHT, PIECES, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME)\" +\
+    \"values(sys_guid(),'\" + tid + \"',{?BILL_NO?},{?WEIGHT?},{?PIECES?},'\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0)\", {\
+      arrayData: new org.json.JSONArray(ids)\
+    });\
+  app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)values({?ID?},'\" + tid + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate)\", {\
+    arrayData: new org.json.JSONArray(ids)\
+  });\
+} else {\
+  app.log(\"1票多车=====================================\");\
+  //多批次的话，平均求\
+  var average = 0,\
+    remain = 0,\
+    pa = 0,\
+    pr = 0;\
+  app.log(is);\
+  var check = /^[0-9]*[1-9][0-9]*$/;\
+  for (var i = 0; i < is.length; i++) {\
+    bill_no += is[i].BILL_NO;\
+    id += is[i].ID;\
+    goods += is[i].GOOD_NOTES;\
+    pieces += is[i].PIECES;\
+    weight += is[i].WEIGHT;\
+    shipper += is[i].SHIPPER;\
+  }\
+  //求平均\
+  //第一步，除以票数，判断是否为整数\
+  average = weight / num;\
+  //第二步，如果不是整数，取其整数部分\
+  //   app.log(check.test(average));\
+  if (!check.test(average)) {\
+    average = Math.floor(average);\
+  }\
+  //第三步，整数部分乘以（票数-1），让所有的重量-这部分得到的就是剩余的重量\
+  remain = weight - (average * (num - 1));\
+  //每件重量\
+  var perWeight = Math.floor(weight / pieces);\
+  //件数=====================================================\
+  pa = pieces / num;\
+  //   if (!check.test(pa)) {\
+  //     pa = Math.floor(pa);\
+  //   }\
+  if (!check.test(pa)) {\
+    pa = Math.floor(pa) + 1;\
+  }\
+  pr = pieces - (pa * (num - 1));\
+  //执行语句\
+  for (var i = 0; i < num; i++) {\
+    var a = 0,\
+      b = 0;\
+    var tid = SysUtil.getId();\
+    if (i == num - 1) {\
+      b = pr;\
+      a = weight - (pieces - b) * perWeight;\
+    } else {\
+      a = pa * perWeight;\
+      b = pa;\
+    }\
+    app.run(\"insert into BLUK_TRUCK_M(ID, PID, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT, PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME, CON_FLAG)\" +\
+      \"values('\" + tid + \"',{?ID?},'','','','',\" + a + \",\" + b + \",'','','','\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0,0)\", {\
+        arrayData: new org.json.JSONArray(ids)\
+      });\
+    app.run(\"insert into BLUK_TRUCK_D(ID, PID, BILL_NO, WEIGHT, PIECES, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME)\" +\
+      \"values(SYS_GUID(),'\" + tid + \"',{?BILL_NO?},\" + a + \",\" + b + \",'\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0)\", {\
+        arrayData: new org.json.JSONArray(ids)\
+      });\
+    app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)values({?ID?},'\" + tid + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate)\", {\
+      arrayData: new org.json.JSONArray(ids)\
+    });\
+  }\
+\
+}\
+app.run(\"update BLUK_APPLY_D set PHASE='EXE' where id in(\" + app.get('atid') + \")\");\
+app.run(\"update BLUK_APPLY_M set PHASE='EXE' where id in(SELECT P_ID FROM BLUK_APPLY_D WHERE id in(\" + app.get('atid') + \") AND NOT EXISTS(SELECT 1 FROM BLUK_APPLY_D WHERE PHASE='PLN'))\");\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// app.run(\"select 1 from BLUK_APPLY_TRUCK where id in(\" + app.get('atid') + \")\", {\
+//   errorText: \"已派车！\"\
+// });\
+// var username = app.get('sys.username'),\
+//   tenancyId = app.get('sys.TENANCY_ID');\
+// var data = app.get();\
+// var ids = app.get('ids');\
+// var is = Wb.decode(ids);\
+// var num = app.get('num');\
+// var bill_no = \"\",\
+//   id = \"\",\
+//   goods = \"\",\
+//   pieces = 0,\
+//   weight = 0,\
+//   shipper = \"\";\
+// if (num == 1) {\
+//   app.log(\"合并的情况\");\
+//   for (var i = 0; i < is.length; i++) {\
+//     bill_no += is[i].BILL_NO + \",\";\
+//     id += is[i].ID + \",\";\
+//     goods += is[i].GOOD_NOTES + \",\";\
+//     pieces += is[i].PIECES;\
+//     weight += is[i].WEIGHT;\
+//     shipper += is[i].SHIPPER + \",\";\
+//   }\
+//   app.log(id);\
+\
+//   app.log(id.slice(0, id.length - 1));\
+//   id = id.slice(0, id.length - 1);\
+//   bill_no = bill_no.slice(0, bill_no.length - 1);\
+//   goods = goods.slice(0, goods.length - 1);\
+//   shipper = shipper.slice(0, shipper.length - 1);\
+//   var tid = SysUtil.getId();\
+\
+//   app.run(\"insert into BLUK_TRUCK_M(ID, PID, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT, PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME, CON_FLAG)\" +\
+//     \"values('\" + tid + \"','\" + id + \"','','','','','\" + weight + \"','\" + pieces + \"','','','','\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0,1)\");\
+//   app.run(\"insert into BLUK_TRUCK_D(ID, PID, BILL_NO, WEIGHT, PIECES, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME)\" +\
+//     \"values(sys_guid(),'\" + tid + \"',{?BILL_NO?},{?WEIGHT?},{?PIECES?},'\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0)\", {\
+//       arrayData: new org.json.JSONArray(ids)\
+//     });\
+//   app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)values({?ID?},'\" + tid + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate)\", {\
+//     arrayData: new org.json.JSONArray(ids)\
+//   });\
+// } else if (num > 1) {\
+//   //多批次的话，平均求\
+//   var average = 0,\
+//     remain = 0,\
+//     pa = 0,\
+//     pr = 0;\
+//   app.log(is);\
+//   var check = /^[0-9]*[1-9][0-9]*$/;\
+//   for (var i = 0; i < is.length; i++) {\
+//     bill_no += is[i].BILL_NO;\
+//     id += is[i].ID;\
+//     goods += is[i].GOOD_NOTES;\
+//     pieces += is[i].PIECES;\
+//     weight += is[i].WEIGHT;\
+//     shipper += is[i].SHIPPER;\
+//   }\
+//   //求平均\
+//   //第一步，除以票数，判断是否为整数\
+//   average = weight / num;\
+//   //第二步，如果不是整数，取其整数部分\
+//   //   app.log(check.test(average));\
+//   if (!check.test(average)) {\
+//     average = Math.floor(average);\
+//   }\
+//   //第三步，整数部分乘以（票数-1），让所有的重量-这部分得到的就是剩余的重量\
+//   remain = weight - (average * (num - 1));\
+//   //每件重量\
+//   var perWeight = Math.floor(weight / pieces);\
+//   //件数=====================================================\
+//   pa = pieces / num;\
+//   //   if (!check.test(pa)) {\
+//   //     pa = Math.floor(pa);\
+//   //   }\
+//   if (!check.test(pa)) {\
+//     pa = Math.floor(pa) + 1;\
+//   }\
+//   pr = pieces - (pa * (num - 1));\
+//   //执行语句\
+//   for (var i = 0; i < num; i++) {\
+//     var a = 0,\
+//       b = 0;\
+//     var tid = SysUtil.getId();\
+//     if (i == num - 1) {\
+//       b = pr;\
+//       a = weight - (pieces - b) * perWeight;\
+//     } else {\
+//       a = pa * perWeight;\
+//       b = pa;\
+//     }\
+//     app.run(\"insert into BLUK_TRUCK_M(ID, PID, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT, PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME, CON_FLAG)\" +\
+//       \"values('\" + tid + \"',{?ID?},'','','','',\" + a + \",\" + b + \",'','','','\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0,0)\", {\
+//         arrayData: new org.json.JSONArray(ids)\
+//       });\
+//     app.run(\"insert into BLUK_TRUCK_D(ID, PID, BILL_NO, WEIGHT, PIECES, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, VOLUME)\" +\
+//       \"values(SYS_GUID(),'\" + tid + \"',{?BILL_NO?},\" + a + \",\" + b + \",'\" + tenancyId + \"','','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN',0)\", {\
+//         arrayData: new org.json.JSONArray(ids)\
+//       });\
+//     app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)values({?ID?},'\" + tid + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate)\", {\
+//       arrayData: new org.json.JSONArray(ids)\
+//     });\
+//   }\
+\
+// }\
+// app.run(\"update BLUK_APPLY_D set PHASE='EXE' where id in(\" + app.get('atid') + \")\");\
+// app.run(\"update BLUK_APPLY_M set PHASE='EXE' where id in(SELECT P_ID FROM BLUK_APPLY_D WHERE id in(\" + app.get('atid') + \") AND NOT EXISTS(SELECT 1 FROM BLUK_APPLY_D WHERE PHASE='PLN'))\");\
+\
+\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlcd": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

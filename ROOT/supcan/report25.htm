@@ -1,0 +1,61 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("SetSource", "reportdata/datacenter.xml");
+  AF.func("Build", "report/center7.xml");
+  AF.func("SetCellData", "B1 \r\n 9");
+ }
+</script>
+</head>
+
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请点击工具条中的“重新计算”( <img src='res/calc.bmp'> )按钮，以加载数据源数据；<br><b>2</b>.点击工具条中的“打印预览”( <img src='res/preview.bmp'> )按钮，预览打印效果.<br>
+<b>3</b>.从数据源填数的方式和以往的演示截然不同，数据源的每一行对应到报表中是多行，实现原理请参见下方“技术分析区”.</td>
+</tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<div style="position:relative;width:86%;height:460px">
+	<script>insertReport('AF', '')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.实现数据源区块填充的规则为：<b>datarow( )函数所在行有跨行的单元格组合</b>, 并选择了“数据源以区块方式填充”.<br>
+下图为此报表的分析, A1:A9是组合的，而dataRow( )函数在A1单元格中；<br>
+<center><img src='res/illu35.png'></center><br>
+备注1: dataRow( )不一定要出现在A1单元格，只要出现在1到9行的任一单元格就行；<br>
+备注2: 如果 dataRow( ) 所在行有不止一列有跨行合并，那么以从左到右第一个合并为准。<br>
+<br>
+<b>2</b>.在区块填充时，dataRow( )函数的行为将改变：<font color=red>只是生成行区块, 不再填入数据</font>;<br>
+<br>
+<b>3</b>.区块内的设计完全是自由的，可以从工具箱数据源的“单个数据”拖入，拖入后生成的函数也和以往不一样，如图：<br>
+<center><img src='res/illu36.png'></center><br>
+请关注生成的公式中的第二个参数： datarowNumber( )，其含义为行号，也就是说填入区的数据是随行号而改变的.<br>
+<br>
+<b>4</b>.区块中的计算公式仍支持“@”宏，请查看G6、I6、D7单元格的计算公式.<br>
+<br>
+<b>5</b>.请观察打印预览效果：区块肯定是连续打印的，即区块内不会被分页.<br>
+
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

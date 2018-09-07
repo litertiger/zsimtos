@@ -1,0 +1,34 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var username=app.get(\"sys.username\"),TENANCY_ID=app.get(\"sys.TENANCY_ID\"),rs;\
+var  idArray=new Array();\
+app.run(\"update BLUK_BILL set IPIECES={?IPIECES?}, TASKSTATUS='FIN',LOCATION={?LOCATION?},CFS_ID={?CFS_ID?} where CFSBILL_ID={?CFSBILL_ID?}\",{\
+ transaction: 'start'\
+});\
+app.run(\"insert into BLUK_GOODS(CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, \"+\
+      \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\"+\
+       \"   select CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, sysdate, '', LOCATION, CFS_ID, \"+\
+    \"    WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\"+username+\"', '\"+username+\"' from BLUK_BILL\"+\
+   \"     where BILL_ID={?BILL_ID?} and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?})\");\
+// app.run(\"update BLUK_PLAN set TASKSTATUS='FIN' where ID={?ID?} and not exists(select 1 from BLUK_BILL where  TASKSTATUS<>'FIN' and LCL_ID={?ID?})\");\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1
+ },
+ "title": "更新入库信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

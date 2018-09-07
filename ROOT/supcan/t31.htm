@@ -1,0 +1,139 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/t20.xml");
+  AF.func("Load", 'treelistdata/data.txt');
+  AF.func("OpenFreeformBar","treelist/query2.xml");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(Event=="ButtonClicked") {
+   if(p1 == "btn3") {
+    AF.func("PrintPreview", "");
+    return;
+   }
+   
+   if(p1 == "close1" || p1=="close2") {
+    AF.func("tBar.SetObjectProp", "layout1,layout2,mirror \r\n visible \r\n 0");
+    return;
+   }
+   if(p1=="ok1" || p1=="ok2") {
+    var xml = AF.func("tBar.Export", "includeHide=false;includeEmpty=false");
+    //查询条件保存到本地Cache
+    AF.func("SaveCache", "top" + p1 + "\r\n" + xml + "\r\n Persist=File");
+    AF.func("MessageBoxFloat", AF.func("toJSON", xml + "\r\n recordset"));
+    return;
+   }
+  
+   if(p1 == "btn1") {
+    AF.func("tBar.SetObjectProp", "layout2 \r\n visible \r\n 0");
+    AF.func("tBar.SetObjectProp", "mirror, layout1 \r\n visible \r\n 1");
+    //从本地Cache读取初始值
+    var cache = AF.func("ReadCache", "topok1");
+    if(cache != "") AF.func("tBar.Load", cache + "\r\n useLast=true");
+   }
+   else if(p1 == "btn2") {
+    AF.func("tBar.SetObjectProp", "layout1 \r\n visible \r\n 0");
+    AF.func("tBar.SetObjectProp", "mirror, layout2 \r\n visible \r\n 1");
+    //从本地Cache读取初始值
+    var cache = AF.func("ReadCache", "topok2");
+    if(cache != "") AF.func("tBar.Load", cache + "\r\n useLast=true");
+   }
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.这个工具条其实就是freeformBar，和上例中的“查询区”属于同一个范畴;<br>
+<b>2</b>.按钮都是freeform中的按钮，触发的也全部是freeform的事件，通过即时更改 TableLayout 的 “Visible” 属性实现freeform的重新展现;<br>
+<b>3</b>.本例将查询条件存入本地Cache了，请输入查询条件按“确认”按钮后，关闭浏览器，再进入，观察查询条件;<br>
+<b>4</b>.真实的查询请参考演示页 "30.FreeformBar".
+</td>
+</tr>
+<tr height=8><td colspan=2></td></tr>
+</table>
+
+<div style="position:relative;width:97%;height:360px">
+	<script>insertTreeList('AF', 'borderColor=#7f9db9')</script>
+</div>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.采用了上一个demo页中的Treelist，但是没有采用其内定的FreeformBar，而是在OpenFreeformBar( )函数中指向另一个：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ AF.func("Build", "treelist/t20.xml");
+ AF.func("Load", 'treelistdata/data.txt');
+ AF.func("OpenFreeformBar","treelist/query2.xml");  //立即开启FreeformBar, 使用query2.xml作为Freeform
+}</pre>
+<br>
+<b>2</b>.上面的XML中引用的 <a href='treelist/query2.xml' target=_blank>query2.xml</a> 是一个标准的freeform(自由表头)，它包含了多个TableLayout. query2.xml是用<b>表单设计器</b>设计出来的，请详见"自由表头"部分的demo页“16.Freeform设计器”;<br>
+<br>
+<b>3</b>.js源码分析如下:<br>
+<pre class='cpp'>
+//Supcan事件
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event=="ButtonClicked") {
+  if(p1 == "btn3") {  //打印预览按钮
+   AF.func("PrintPreview", "");
+   return;
+  }
+  
+  if(p1 == "close1" || p1=="close2") {
+   //关闭：调用freeform的扩展函数SetObjectProp( )，让用于条件输入的TableLayout隐藏
+   AF.func("tBar.SetObjectProp", "layout1,layout2,mirror \r\n visible \r\n 0");
+   return;
+  }
+  if(p1=="ok1" || p1=="ok2") {
+   //确认：调用freeform的扩展函数Export( )，取得查询条件的XML串
+   var xml = AF.func("tBar.Export", "includeHide=false;includeEmpty=false");
+   //查询条件保存到本地Cache
+   AF.func("SaveCache", "top" + p1 + "\r\n" + xml + "\r\n Persist=File");
+   //如果需要json格式： 执行全局函数 toJSON
+   AF.func("MessageBoxFloat", AF.func("toJSON", xml + "\r\n recordset"));
+   return;
+  }
+  
+  //打开不同的条件查询框：让部分TableLayout隐藏、另一部分显示
+  if(p1 == "btn1") {
+   AF.func("tBar.SetObjectProp", "layout2 \r\n visible \r\n 0");
+   AF.func("tBar.SetObjectProp", "mirror, layout1 \r\n visible \r\n 1");
+   //从本地Cache读取初始值
+   var cache = AF.func("ReadCache", "topok1");
+   if(cache != "") AF.func("tBar.Load", cache + "\r\n useLast=true");  //useLast=true表示部分替换(初始日期部分)
+  }
+  else if(p1 == "btn2") {
+   AF.func("tBar.SetObjectProp", "layout1 \r\n visible \r\n 0");
+   AF.func("tBar.SetObjectProp", "mirror, layout2 \r\n visible \r\n 1");
+   //从本地Cache读取初始值
+   var cache = AF.func("ReadCache", "topok2");
+   if(cache != "") AF.func("tBar.Load", cache + "\r\n useLast=true");  //useLast=true表示部分替换(初始货重部分)
+  }
+ }
+}</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

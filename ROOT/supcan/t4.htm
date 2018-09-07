@@ -1,0 +1,74 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/t8.xml");
+ }
+ function Retrieve()
+ {
+  var url = document.getElementById("source").value;
+  AF.func("Load", url);
+ }
+</script>
+</head>
+
+<body topmargin=4 vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td align=left>　演示了图片列、多行编辑、显示掩码(容量、售价、库存量处)、字体、经渲染的背景图等功能.　</td>
+</tr>
+<tr height=26><td colspan=2 align=center>填入的XML数据(相对URL): <input id='source' type=edit size=20 value="treelistdata/car.xml"> <input type=button value=" 取数 " onClick="Retrieve()"></td></tr>
+</table>
+
+<div style="position:relative;width:100%">
+	<script>insertTreeList('AF', '', 400)</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.创建本Treelist的XML描述文档如下:<br>
+<pre class='xml' maxchars='160'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;TreeList&gt;
+//允许编辑，指定行高，背景图旋转315度、透明度12、平铺(tile)
+&lt;Properties editAble="true" rowHeight="65"&gt;
+ &lt;BackGround picture="../res/treelistsh.jpg" rotate="315" alpha="12" arrange="tile" bgColor="#dfdfdf"/&gt;
+&lt;/Properties&gt;
+
+//指定使用Verdana字体
+&lt;Fonts&gt;&lt;Font faceName="Verdana" /&gt;&lt;/Fonts&gt;
+
+&lt;Cols&gt;
+ &lt;Col name="TradeMark" width="130"&gt;厂商&lt;/Col&gt;
+ &lt;Col name="Category"  width="100"&gt;分类&lt;/Col&gt;
+ &lt;Col name="Model"     width="200"&gt;型号&lt;/Col&gt;
+ &lt;Col name="picture"   width="250" isImage="true" extentRows="1"&gt;图片&lt;/Col&gt;  //图片列
+ &lt;Col name="other"     width="240" extentRows="1" vAlign="top" edittype="multiLineEdit"&gt;其它参数&lt;/Col&gt;
+ &lt;Col name="Capacity"  width="100" datatype="decimal" atLayer="1" displayMask="data+'升'"&gt;容量&lt;/Col&gt;
+ &lt;Col name="automatic" width="90"  datatype="boolean" atLayer="1" edittype="checkbox"&gt;自动档&lt;/Col&gt;
+ //使用了表达式：displayMask(显示掩码)
+ &lt;Col name="price"     width="120" datatype="decimal" atLayer="1" isThousandSeparat="true" displayMask="data+'美元';textColor=if(data〉50000,red,black)"&gt;售价&lt;/Col&gt;
+ &lt;Col name="inStock"   width="120" datatype="int"     atLayer="1" displayMask="data+'辆'"&gt;库存量&lt;/Col&gt;
+&lt;/Cols&gt;
+&lt;/TreeList&gt;</pre>
+注：这是上面的XML引用的背景图：<br><center><img src='res/treelistsh.jpg'></center><br>
+<b>2</b>.本例填入了<a href="treelistdata/car.xml" target=_blank>XML格式的数据</a>；<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

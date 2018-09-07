@@ -1,0 +1,84 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF1' || id=='') {
+    AF1.func("Build", "treelist/orders1.xml");
+    AF1.func("Load", "treelistdata/orders.txt");
+  }
+  if(id == 'AF2' || id=='') {
+    AF2.func("Build", "treelist/orders2.xml");
+    AF2.func("Load", "treelistdata/orders.txt");
+  }  
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=4 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>表一和表二填入了<b>相同的数据</b>，请注意表中红色的“客户”列，表一是没有任何引用的纯TreeList，“客户”列内容就是客户代码； 而表二的“客户”列嵌套引用了1个外部TreeList，实现了类似主-外键关联的列展示。</td>
+</tr>
+</table>
+
+<b>表一</b>
+<div style="position:relative;width:793">
+	<script>insertTreeList('AF1', '', '180px')</script>
+</div>
+<br>
+<b>表二</b>
+<div style="position:relative;width:793">
+	<script>insertTreeList('AF2', 'Border=single', '180px')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.表一和表二加载的数据是一样的，差别在于XML描述文档，请打开<a href="treelist/orders1.xml" target=_blank>表一的XML描述文件</a> 和 <a href="treelist/orders2.xml" target=_blank>表二的XML描述文件</a>;<br>
+<b>2</b>.比较其差异, 会发现表二的CustomerID(客户)列引用了一个外部的Treelist: <a href="treelist/customer.xml" target=_blank>customer.xml</a>；<br>
+<b>3</b>.这是类似复用主-外键视图的<a href="t6_1.htm" target=_blank>原理图</a>；<br>
+<b>4</b>.源码分析：本页面中和Treelist有关的js源码如下:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ if(id=='AF1') {
+  AF1.func("Build", "treelist/orders1.xml");
+  AF1.func("Load", "treelistdata/orders.txt");
+ }
+ else if(id=='AF2') {
+  AF2.func("Build", "treelist/orders2.xml");
+  AF2.func("Load", "treelistdata/orders.txt");
+ }
+}</pre>
+<b>5</b>.另外，这2个XML模版中都设定了 alternateColor, 即斑马线色:<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+ &lt;TreeList&gt;
+  &lt;Properties key="OrderID" curSelColor="#000000" bgColor="#eefdff" <font color=red>alternateColor</font>="#ccffcc"/&gt;
+  &lt;Fonts&gt;
+  ...</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,98 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var ids = app.get('ids');\
+if (ids) {\
+  ids = Wb.decode(ids);\
+  app.set('id', ids = ids.join(\"','\"));\
+}\
+var result = app.run(\"select * from(\\\
+select r.id rid,p.id pid,{?truck?} in_car,r.in_campi,r.in_driver_id,\\\
+  r.cntr,r.cntr_size,r.cntr_type,\\\
+  r.scale_weight,r.work_type,p.weight,r.vid,r.cntr_id,null gitype,p.release_id,\\\
+  r.gatein_no_t,r.gatein_time_t,r.oog_id,p.dang_id,r.reef_id,p.on_power,p.reqs_power,p.bundl_id,r.category_id,\\\
+  r.notes,r.cntr_iso,r.e_f_id,v.bill_no,p.cntr_owner,r.cntr_operator,r.pod,r.spod,r.door_direction,\\\
+  r.cmdy_code,r.gros_weight,r.spec_stow,r.seal_no,r.seal_no2,r.driverlicense,r.outcarteam,r.cargo_wt,r.truck_com,\\\
+  r.trade_id,r.i_e_id,nvl(p.yard_position,nvl(v2.berth_code,v2.o_berth_code)) yard_position,r.temp_set,r.imdg,\\\
+  p.weight cntr_weight,row_number() over(partition by r.id order by v.created_on desc) my_row_id\\\
+  from receipt r ,port_cntr p,vload_list v,vessel_visit v2 \\\
+  where r.cntr_id=p.id(+) and p.id=v.cntr_id(+) and p.i_e_id=v.i_e_id(+) and v.vid=v2.id(+)\\\
+  and r.phase in ('PLN','EXE','GET') and r.work_type not in('FOFI','YOYI')\\\
+  and r.id in ('\" + ids + \"') and (v.id is null or v.main_flag=1)\\\
+) where my_row_id=1\");\
+\
+\
+var data = Wb.getRecords(result);\
+\
+if (data && data.length) {\
+  app.set(\"cntr\", data[0].CNTR);\
+  app.set(\"jinchu\", \"jin\");\
+  app.set('type', 'TI');\
+  app.execute(\"m?xwl=receiptInout/gate/gateinedit/gatecheck\");\
+  var check = app.get(\"check1\");\
+  if (!check.success) {\
+    throw check.errstr;\
+  } else {\
+    check = app.get(\"check2\");\
+    if (!check.success) {\
+      throw check.errstr;\
+    }\
+  }\
+  if (data.length > 1) {\
+    app.set(\"CNTR\", data[1].CNTR);\
+    app.execute(\"m?xwl=receiptInout/gate/gateinedit/gatecheck\");\
+    var check = app.get(\"check1\");\
+    if (!check.success) {\
+      throw check.errstr;\
+    } else {\
+      check = app.get(\"check2\");\
+      if (!check.success) {\
+        throw check.errstr;\
+      }\
+    }\
+  }\
+  app.set('cntrsdata', Wb.encode(data));\
+  app.execute('m?xwl=receiptInout/gate/gateinedit/operDoorTi');\
+  result = app.get('result');\
+  if (result && result.success) {\
+    result = app.run(\" select r.in_car,i.cntr,\\\
+(select carrier_call from move_list where cntr_id=i.cntr_id and move_type='MOV' and phase in('PLN','SND','TMP') and from_pos_typ='V') ship \\\
+from move_list i,receipt r where  i.handle_id=r.id and i.from_pos_typ='G' and i.move_type='DRG' and i.phase='SND' and r.phase='GET'\\\
+and r.id in ('\" + ids + \"')\");\
+    if (result)\
+      while (result.next()) //船到柜自动完成上车确认\
+      {\
+        app.set('cntr', result.getString('cntr'));\
+        app.set('ship', result.getString('ship'));\
+        app.set('truck', result.getString('in_car'));\
+        app.set('mach', '');\
+        app.set('funId', 'SAVE_UNLOAD');\
+        app.execute(\"m?xwl=controlManage/handset/appFun\");\
+      }\
+  }\
+} else\
+  throw '未找到提箱设备交接单';"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "快速入闸",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

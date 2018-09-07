@@ -1,0 +1,143 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username');\
+var nature = app.get(\"sys.NATURE\");\
+var trade = data.TRADE_ID;\
+app.log(data.POD);\
+var fcntr = 0;\
+if (trade == \"1\" || nature != \"5\") {\
+  fcntr = 1;\
+}\
+var ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and phase<>'PLN' and phase<>'FIN'\"));\
+if (ckrow.length > 0) {\
+  app.send({\
+    ok: false,\
+    msg: \"设备交接单已经作业,不能修改\"\
+  });\
+  return;\
+}\
+ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and phase='FIN'\"));\
+if (ckrow.length > 0) {\
+  app.send({\
+    ok: false,\
+    msg: \"设备交接单已经完成,不能修改\"\
+  });\
+  return;\
+}\
+ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and F_CNTR=1 and trade_id='2'\"));\
+if (ckrow.length > 0) {\
+  app.send({\
+    ok: false,\
+    msg: \"设备交接单已经放箱,不能修改\"\
+  });\
+  return;\
+}\
+app.run(\"update RECEIPT set VID={?VID?},DRIVER_ID={?DRIVER_ID?},ORDER_ID={?ORDER_ID?},CNTR={?CNTR?},\" +\
+  \"CNTR_REQ={?CNTR_REQ?},CATEGORY_ID={?CATEGORY_ID?},TRADE_ID={?TRADE_ID?},I_E_ID={?I_E_ID?},E_F_ID={?E_F_ID?},\" +\
+  \"CNTR_ISO={?CNTR_ISO?},CNTR_SIZE={?CNTR_SIZE?},CNTR_TYPE={?CNTR_TYPE?},CNTR_HIGHT={?numeric.CNTR_HIGHT?},\" +\
+  \"CNTR_LENGTH={?numeric.CNTR_LENGTH?},CNTR_OWNER={?CNTR_OWNER?},CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?},\" +\
+  \"CONSIGNEE={?CONSIGNEE?},CONSIGNEE_COD={?CONSIGNEE_COD?},SHIPPER_COD={?SHIPPER_COD?},SHIPPER={?SHIPPER?},\" +\
+  \"SEAL_NO={?SEAL_NO?},SEAL_NO2={?SEAL_NO2?},SEAL_NO3={?SEAL_NO3?},SEAL_NO4={?SEAL_NO4?},IMDG={?IMDG?},\" +\
+  \"UNDG={?UNDG?},IMDG2={?IMDG2?},UNDG2={?UNDG2?},IMDG3={?IMDG3?},UNDG3={?UNDG3?},IMDG4={?IMDG4?},UNDG4={?UNDG4?},\" +\
+  \"TEMP_SET={?TEMP_SET?},TEMP_MIN={?TEMP_MIN?},TEMP_MAX={?TEMP_MAX?},REEF_ID={?numeric.REEF_ID?},\" +\
+  \"HUMIDITY_LEVEL={?HUMIDITY_LEVEL?},OVERHEIGHT={?numeric.OVERHEIGHT?},OVERFRONT={?numeric.OVERFRONT?},\" +\
+  \"OVERBACK={?numeric.OVERBACK?},OVERLEFT={?numeric.OVERLEFT?},OVERRIGHT={?numeric.OVERRIGHT?},\" +\
+  \"OOG_ID={?numeric.OOG_ID?},SPEC_STOW={?SPEC_STOW?},SPEC_STOW2={?SPEC_STOW2?},SPEC_STOW3={?SPEC_STOW3?},\" +\
+  \"GROS_WEIGHT={?numeric.GROS_WEIGHT?},NET_WEIGHT={?numeric.NET_WEIGHT?},SCALE_WEIGHT={?numeric.SCALE_WEIGHT?},\" +\
+  \"DAMAGE={?DAMAGE?},TOOL_NO={?TOOL_NO?},POD={?POD?},POL={?POL?},SPOD={?SPOD?},RELEASE_NO={?RELEASE_NO?},\" +\
+  \"BILL_NO={?BILL_NO?},DOOR_DIRECTION={?DOOR_DIRECTION?},POS_ONTRUCK={?POS_ONTRUCK?},PLAN_POSITION={?PLAN_POSITION?},\" +\
+  \"WORK_TYPE={?WORK_TYPE?},TROUBLE_STATUS={?TROUBLE_STATUS?},CANCEL_CODE={?numeric.CANCEL_CODE?},\" +\
+  \"CANCEL_REASON={?numeric.CANCEL_REASON?},IS_CONFIRM={?numeric.IS_CONFIRM?},CMDY_CODE={?CMDY_CODE?},\" +\
+  \"BULK_BL={?BULK_BL?},BULK_DO={?BULK_DO?},BULK_QTY={?numeric.BULK_QTY?},BULK_WEIGHT={?numeric.BULK_WEIGHT?},\" +\
+  \"BULK_VOLUME={?numeric.BULK_VOLUME?},BULK_PIECES={?numeric.BULK_PIECES?},WORK_TIME={?timestamp.WORK_TIME?},\" +\
+  \"COM_TIME={?timestamp.COM_TIME?},UPDATED_BY='\" + username + \"',UPDATED_ON=sysdate,T_ADDRESS={?T_ADDRESS?},\" +\
+  \"F_ADDRESS={?F_ADDRESS?},NOTES={?NOTES?},T_ADRESS={?T_ADRESS?},S_ADRESS={?S_ADRESS?},PLAN_STIME={?timestamp.PLAN_STIME?},\" +\
+  \"PT_TYPE={?SHIPPER_WAY?},SHIPPER_WAY={?SHIPPER_WAY?},BILL_ID={?BILL_ID?},CNTR_OPERATOR={?CNTR_OPERATOR?},\" +\
+  \"ACCOUNT_CUSTOMER_CODE={?ACCOUNT_CUSTOMER_CODE?},\" +\
+  \"FEI_ADDDRESS=(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id={?S_ADRESS?}),\" +\
+  \"CNTR_OWNER_COD={?CNTR_OWNER_COD?},\" +\
+  \"SHIP_ORDER={?SHIP_ORDER?},MBILL_NO={?MBILL_NO?},CONTRACT_MAN={?CONTRACT_MAN?},CONTRACT_PHONE={?CONTRACT_PHONE?},\" +\
+  \"ACCOUNT_CUSTOMER={?ACCOUNT_CUSTOMER?},YZC_ON={?timestamp.YZC_ON?},CARGO_TYPE={?CARGO_TYPE?},HZ_COD={?HZ_COD?},\" +\
+  \"HZ={?HZ?},CARGO_WT={?CARGO_WT?},CKCNTR={?CKCNTR?},SHIP_CONSIGN_COD={?SHIP_CONSIGN_COD?},\" +\
+  \"SHIPPER_CONSIGNEE={?SHIPPER_CONSIGNEE?},IS_XJ={?IS_XJ?},TKADDRESS={?TKADDRESS?},CAR_TEAM={?CAR_TEAM?},F_CNTR=\" + fcntr + \",\" +\
+  \"F_ON=(case \" + fcntr + \" when 1 then sysdate end),F_BY=(case \" + fcntr + \" when 1 then '\" + username + \"' end)\" +\
+  \" where ID={?ID?}\", {\
+    transaction: 'start'\
+  });\
+\
+var acccus = Wb.getRecords(app.run(\"select f_get_defPayer('\" + data.ID + \"')fee from dual\"));\
+app.run(\"update receipt set ACCOUNT_CUSTOMER_CODE='\" + acccus[0].FEE.split(\"@\")[0] + \"',\" +\
+  \"ACCOUNT_CUSTOMER='\" + acccus[0].FEE.split(\"@\")[1] + \"' where id='\" + data.ID + \"'\", {\
+    transaction: 'commit'\
+  });\
+app.send({\
+  ok: true\
+});\
+//=========================发送消息========================\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_receipt\", \"#\", {\
+      info: {\
+        type: \"receipt\",\
+        action: \"update\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"receipt\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: data.ID\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "serverscript1",
+    "script": "var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var data = app.get();\
+\
+if (!Wb.isEmpty(data.CONTRACT_PHONE) && data.I_E_ID == 'I') {\
+  request.setAttribute(\"billNo\", data.BILL_NO);\
+  request.setAttribute(\"cntr\", data.CNTR);\
+  request.setAttribute(\"phone\", data.CONTRACT_PHONE);\
+  app.execute(\"m?xwl=app/onlineEdit/sendMesage\");\
+}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "serverscript"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

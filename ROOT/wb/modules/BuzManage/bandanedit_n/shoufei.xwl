@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+\
+if (data.st == \"shou\") {\
+  var sql = \"update buz_order_item set pay_on=sysdate,pay_by='\" + username + \"',PAY_FLAG=1 where id in (\" + data.ids + \")\";\
+  app.run(sql, {\
+    transaction: 'start'\
+  });\
+  var sql = \"update accounts_details set PAY_FLAG=1,SETTLE_STATUS=2 where bill_no='\" + data.billno + \"' and PAYMENT_TYPE=1\" +\
+    \" and (cntr in (\" + data.cntrs + \") or cntr is null)\";\
+  app.run(sql);\
+  //===掉接口\
+  //出错throw \"回滚吧我的代码\";\
+}\
+if (data.st == \"tui\") {\
+  var sql = \"update buz_order_item set pay_on='',pay_by='',PAY_FLAG=0 where id in (\" + data.ids + \")\";\
+  app.run(sql, {\
+    transaction: 'start'\
+  });\
+  var sql = \"update accounts_details set PAY_FLAG=0 where bill_no='\" + data.billno + \"' and PAYMENT_TYPE=1\" +\
+    \" and (cntr in (\" + data.cntrs + \") or cntr is null)\";\
+  app.run(sql, {\
+    transaction: 'commit'\
+  });\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "收费确认",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

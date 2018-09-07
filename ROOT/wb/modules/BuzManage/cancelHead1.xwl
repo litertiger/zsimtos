@@ -1,0 +1,416 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "itemId": "panel1",
+     "region": "center"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "SETTLEMENT_CODE",
+         "labelAlign": "right",
+         "fieldLabel": "发票/提单号",
+         "width": "200",
+         "isUpperCase": "true",
+         "labelWidth": "80"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent(\"click\");"}
+       },
+       {
+        "configs": {
+         "pageSize": "50",
+         "selectOnTab": "true",
+         "isUpperCase": "true",
+         "labelWidth": "60",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "PAYMENT_CUSTOMER_ID",
+         "labelAlign": "right",
+         "fieldLabel": "发票抬头",
+         "x": "8",
+         "width": "200",
+         "y": "40",
+         "displayField": "CNAME",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "sdate",
+         "labelAlign": "right",
+         "fieldLabel": "开票日期",
+         "width": "180",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "labelAlign": "right",
+         "fieldLabel": "结束日期",
+         "width": "180",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "INVOICE_STATUS",
+         "labelAlign": "right",
+         "pickList": "[ [0,'已取消'], [1,'已开票'], [2,'已作废']]",
+         "fieldLabel": "开票状态",
+         "width": "150",
+         "labelWidth": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "searchBtn",
+         "text": "@Str.find",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var values = Wb.getValue(app.tbar);\
+app.invoice_grid.store.load({params : values});"}
+       },
+       {
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "取消收费",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "\
+var rec = app.invoice_grid.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要删除的记录');\
+  return;\
+}\
+var url = \"m?xwl=BuzManage/cancelHead/cancelHeadSql\";\
+\
+\
+Ext.Msg.confirm('系统提示','确定要取消收费吗？',\
+      function(btn){\
+        if(btn=='yes'){\
+          Wb.request({\
+  \t\t\turl: url,\
+  \t\t\tparams: {headId:rec.data.ID},\
+  \t\t\tsuccess: function(resp) {\
+                var values = Wb.getValue(app.tbar);\
+    \t\t\tapp.invoice_grid.store.load({params : values});\
+    \t\t    app.customWin.hide();\
+  \t\t\t}\
+\t\t});\t\t\t\t\t\
+        }\
+      }, this);\
+\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "deleteBtn",
+         "text": "作废发票",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "\
+var rec = app.invoice_grid.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要删除的记录');\
+  return;\
+}\
+var url = \"m?xwl=BuzManage/cancelHead/deleteHead\";\
+\
+\
+Ext.Msg.confirm('系统提示','确定要作废发票号吗？',\
+      function(btn){\
+        if(btn=='yes'){\
+          Wb.request({\
+  \t\t\turl: url,\
+  \t\t\tparams: {headId:rec.data.ID},\
+  \t\t\tsuccess: function(resp) {\
+                var values = Wb.getValue(app.tbar);\
+    \t\t\tapp.invoice_grid.store.load({params : values});\
+    \t\t    app.customWin.hide();\
+  \t\t\t}\
+\t\t});\t\t\t\t\t\
+        }\
+      }, this);\
+\
+"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "invoice_grid",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=BuzManage/cancelHead/queryHeadByCondition1"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {
+         "itemId": "viewConfig",
+         "getRowClass": "//Wb预定义行背景色种类：wb_red_row, wb_green_row, wb_blue_row, wb_yellow_row, wb_hotpink_row, wb_gold_row, wb_bisque_row, wb_aqua_row\
+//样式在style.css中预定义，如果需要动态加载css文件请参考m?xwl=system/examples/basic/link/dynamic-link示例\
+var cls, ns = record.get('INVOICE_STATUS');\
+if (ns == 2)\
+  cls = \"wb_red_row\";\
+else if (ns === 0)\
+  cls = \"wb_yellow_row\";\
+else\
+  cls = \"\";\
+return cls;"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tableview"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_PAYMENT_CUSTOMER_ID",
+           "renderer": "return Wb.getCustomerByCode(value);",
+           "dataIndex": "PAYMENT_CUSTOMER_ID",
+           "text": "发票抬头"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_SETTLEMENT_CODE",
+           "dataIndex": "SETTLEMENT_CODE",
+           "text": "发票号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_PAYMENT_TYPE",
+           "renderer": "if(value==0){\
+  return \"现金\";\
+}\
+if(value==1){\
+  return \"转账\";\
+}\
+",
+           "dataIndex": "PAYMENT_TYPE",
+           "text": "付费类型"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_INVOICE_STATUS",
+           "renderer": "if(value==0){\
+  return \"已取消\";\
+}\
+if(value==1){\
+  return \"已开票\";\
+}\
+if(value==2){\
+  return \"已作废\";\
+}\
+",
+           "dataIndex": "INVOICE_STATUS",
+           "text": "开票状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_TOTAL_AMOUNT",
+           "dataIndex": "TOTAL_AMOUNT",
+           "text": "开票金额"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_INVOICE_TYPE",
+           "renderer": "if(value==2){\
+  return \"普票\";\
+}\
+if(value==0){\
+  return \"专票\";\
+}",
+           "dataIndex": "INVOICE_TYPE",
+           "text": "发票类别"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_BILL_NO",
+           "dataIndex": "BILL_NO",
+           "text": "提单号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_SETTLE_BY",
+           "dataIndex": "SETTLE_BY",
+           "text": "收费人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_SETTLE_ON",
+           "dataIndex": "SETTLE_ON",
+           "format": "y-m-d h:m:s",
+           "text": "收费时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_DELETE_BY",
+           "dataIndex": "DELETE_BY",
+           "text": "作废人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_DELETE_ON",
+           "dataIndex": "DELETE_ON",
+           "format": "y-m-d h:m:s",
+           "text": "作废时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"finalize": "// app.sdate.setValue(new Date());\
+// app.edate.setValue(new Date());"}
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "发票作废",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

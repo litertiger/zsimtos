@@ -1,0 +1,2918 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbarSc",
+     "enableOverflow": "true",
+     "hidden": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "cname",
+       "labelAlign": "right",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findScBtn",
+       "text": "@Str.find",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.gridSc.store.load({\
+  out: app.tbarSc\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "SWIN_VID",
+       "hidden": "true",
+       "fieldLabel": "船舶ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "tbarResume",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveResumeBtn",
+       "text": "保存",
+       "iconCls": "record_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var values = Wb.getValue(app.resumeWin);\
+\
+//true为修改\
+if (app.resumeEdit) {\
+  //必填项非空判断\
+  if (app.START_TIME.getValue() === null || app.START_TIME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.END_TIME.getValue() === null || app.END_TIME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.WORKING_PLAC.getValue() === null || app.WORKING_PLAC.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.RE_DUTY.getValue() === null || app.RE_DUTY.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.WITNESS.getValue() === null || app.WITNESS.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.TEL.getValue() === null || app.TEL.getValue() === \"\") {\
+    return;\
+  }\
+  var sel = app.gridResume.getSelection()[0];\
+  //操作完成设置为新增状态\
+   Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_resume/update',\
+    params: Wb.applyIf(values, Wb.getData(sel, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(sel, values);\
+      //编辑完成,重reload列表数据\
+      app.gridResume.store.load({\
+        params: {\
+          REID: app.CREW_REID.getValue()\
+        }\
+      });\
+    }\
+  });\
+  //重置控件内容\
+  app.RES_ID.reset();\
+  app.START_TIME.reset();\
+  app.END_TIME.reset();\
+  app.WORKING_PLAC.reset();\
+  app.RE_DUTY.reset();\
+  app.WITNESS.reset();\
+  app.TEL.reset();\
+  \
+  //操作完成设置为新增状态\
+  app.resumeEdit = false;\
+} else { //false为新增\
+  //必填项非空判断\
+  console.log('开始新增');\
+  if (app.START_TIME.getValue() === null || app.START_TIME.getValue() === \"\") {\
+    console.log('开始时间未通过');\
+    return;\
+  }\
+  if (app.END_TIME.getValue() === null || app.END_TIME.getValue() === \"\") {\
+    console.log('结束时间未通过');\
+    return;\
+  }\
+  if (app.WORKING_PLAC.getValue() === null || app.WORKING_PLAC.getValue() === \"\") {\
+    console.log('单位未通过');\
+    return;\
+  }\
+  if (app.RE_DUTY.getValue() === null || app.RE_DUTY.getValue() === \"\") {\
+    console.log('专业未通过');\
+    return;\
+  }\
+  if (app.WITNESS.getValue() === null || app.WITNESS.getValue() === \"\") {\
+    console.log('证明人未通过');\
+    return;\
+  }\
+  if (app.TEL.getValue() === null || app.TEL.getValue() === \"\") {\
+    console.log('电话未通过');\
+    return;\
+  }\
+  console.log('----');\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_resume/insert',\
+    out: app.resumeWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+      Wb.add(app.gridResume, Wb.apply(Wb.decode(resp.responseText), values));\
+      //新增完成,重reload列表数据\
+      app.gridResume.store.load({\
+        params: {\
+          REID: app.CREW_REID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.RES_ID.reset();\
+      app.START_TIME.reset();\
+      app.END_TIME.reset();\
+      app.WORKING_PLAC.reset();\
+      app.RE_DUTY.reset();\
+      app.WITNESS.reset();\
+      app.TEL.reset();\
+      //操作完成设置为新增状态\
+      app.resumeEdit = false;\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delResumeBtn",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridResume.getSelection(); //获取选中行\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_resume/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.gridResume, sels);\
+      //删除完成,reload列表数据\
+      app.gridResume.store.load({\
+        params: {\
+          REID: app.CREW_REID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.RES_ID.reset();\
+      app.START_TIME.reset();\
+      app.END_TIME.reset();\
+      app.WORKING_PLAC.reset();\
+      app.RE_DUTY.reset();\
+      app.WITNESS.reset();\
+      app.TEL.reset();\
+      //操作完成设置为新增状态\
+      app.resumeEdit = false;\
+    }\
+  });\
+} ,'NAME');"}
+     },
+     {
+      "configs": {
+       "itemId": "redoResumeBtn",
+       "text": "重置",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": " //重置控件内容\
+  app.RES_ID.reset();\
+  app.START_TIME.reset();\
+  app.END_TIME.reset();\
+  app.WORKING_PLAC.reset();\
+  app.RE_DUTY.reset();\
+  app.WITNESS.reset();\
+  app.TEL.reset();\
+ //操作完成设置为新增状态\
+ app.resumeEdit = false;\
+ //reload列表,确保失去焦点行\
+ app.gridResume.store.load({\
+   params: {\
+     REID: app.CREW_REID.getValue()\
+   }\
+ });"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "tbarContract",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveContractBtn",
+       "text": "保存",
+       "iconCls": "record_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var values = Wb.getValue(app.contractWin);\
+\
+//true为修改\
+if (app.contractEdit) {\
+  //必填项非空判断\
+  if (app.CON_NAME.getValue() === null || app.CON_NAME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_AGE.getValue() === null || app.CON_AGE.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.C_CONTRACT.getValue() === null || app.C_CONTRACT.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_ADDRESS.getValue() === null || app.CON_ADDRESS.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_HOME.getValue() === null || app.CON_HOME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_TEL.getValue() === null || app.CON_TEL.getValue() === \"\") {\
+    return;\
+  }\
+  var sel = app.gridContract.getSelection()[0];\
+  //操作完成设置为新增状态\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_contract/update',\
+    params: Wb.applyIf(values, Wb.getData(sel, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(sel, values);\
+      //编辑完成,重reload列表数据\
+      app.gridContract.store.load({\
+        params: {\
+          COID: app.CREW_COID.getValue()\
+        }\
+      });\
+    }\
+  });\
+  //重置控件内容\
+  app.CON_ID.reset();\
+  app.CON_NAME.reset();\
+  app.CON_AGE.reset();\
+  app.C_CONTRACT.reset();\
+  app.CON_ADDRESS.reset();\
+  app.CON_HOME.reset();\
+  app.CON_TEL.reset();\
+  //操作完成设置为新增状态\
+  app.contractEdit = false;\
+} else { //false为新增\
+  //必填项非空判断\
+ if (app.CON_NAME.getValue() === null || app.CON_NAME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_AGE.getValue() === null || app.CON_AGE.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.C_CONTRACT.getValue() === null || app.C_CONTRACT.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_ADDRESS.getValue() === null || app.CON_ADDRESS.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_HOME.getValue() === null || app.CON_HOME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.CON_TEL.getValue() === null || app.CON_TEL.getValue() === \"\") {\
+    return;\
+  }\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_contract/insert',\
+    out: app.contractWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+      Wb.add(app.gridContract, Wb.apply(Wb.decode(resp.responseText), values));\
+      //新增完成,重reload列表数据\
+      app.gridContract.store.load({\
+        params: {\
+          COID: app.CREW_COID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+  app.CON_ID.reset();\
+  app.CON_NAME.reset();\
+  app.CON_AGE.reset();\
+  app.C_CONTRACT.reset();\
+  app.CON_ADDRESS.reset();\
+  app.CON_HOME.reset();\
+  app.CON_TEL.reset();\
+      //操作完成设置为新增状态\
+      app.contractEdit = false;\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delContractBtn",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridContract.getSelection(); //获取选中行\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_contract/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.gridContract, sels);\
+      //删除完成,reload列表数据\
+      app.gridContract.store.load({\
+        params: {\
+          COID: app.CREW_COID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.CON_ID.reset();\
+  app.CON_NAME.reset();\
+  app.CON_AGE.reset();\
+  app.C_CONTRACT.reset();\
+  app.CON_ADDRESS.reset();\
+  app.CON_HOME.reset();\
+  app.CON_TEL.reset();\
+      //操作完成设置为新增状态\
+      app.contractEdit = false;\
+    }\
+  });\
+}, 'RNAME');"}
+     },
+     {
+      "configs": {
+       "itemId": "redoContractBtn",
+       "text": "重置",
+       "iconCls": "redo_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "//重置控件内容\
+ app.CON_ID.reset();\
+  app.CON_NAME.reset();\
+  app.CON_AGE.reset();\
+  app.C_CONTRACT.reset();\
+  app.CON_ADDRESS.reset();\
+  app.CON_HOME.reset();\
+  app.CON_TEL.reset();\
+//操作完成设置为新增状态\
+app.contractEdit = false;\
+//reload列表,确保失去焦点行\
+app.gridContract.store.load({\
+  params: {\
+    COID: app.CREW_COID.getValue()\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "tbarCret",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveCretButten",
+       "text": "保存",
+       "iconCls": "db_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var values = Wb.getValue(app.cretWin);\
+var newName = '';\
+//true为修改\
+if (app.cretDeit) {\
+  //判断是否选择附件\
+  console.log('修改操作文件名:' + app.cretFile.getValue());\
+  if (app.cretFile.getValue() !== '') {\
+    //获取完整时间戳,精确到毫秒级\
+    var timestamp = new Date().getTime();\
+    //组织新的文件名称,时间戳+后缀名\
+    newName = timestamp + (app.cretFile.getValue().substring(app.cretFile.getValue().lastIndexOf('.'), app.cretFile.getValue().length));\
+    //设置隐藏文本内容,将路径+文件名传到SQL作为参数\
+    app.CRETLJ.setValue('wb/crewImage/' + newName);\
+    console.log('修改操作文件名new:' + app.CRETLJ.getValue());\
+  }\
+  var values = Wb.getValue(app.cretWin);\
+  var sel = app.gridCret.getSelection()[0];\
+  //操作完成设置为新增状态\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/updata',\
+    params: Wb.applyIf(values, Wb.getData(sel, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //编辑完成,重reload列表数据\
+      app.gridCret.store.load({\
+        params: {\
+          CID: app.CREW_CTID.getValue()\
+        }\
+      });\
+      //=============上传附件部分==============\
+      if (app.cretFile.getValue() !== '') {\
+        console.log('进入上传==确认包含文件');\
+        if (!Wb.verify(app.cretForm)) { //验证值是否合法\
+          return;\
+        }\
+        console.log('进入上传==确认文件通过');\
+        console.log('进入上传==' + newName);\
+        Wb.upload({\
+          form: app.cretForm, //上传的表单控件，必选项\
+          showProgress: true, //显示上传进度条\
+          url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/cretPhoto',\
+          //out:[panel1, grid1],以控件列表的方式上传指定控件值\
+          //showMask: false,上传过程不显示mask\
+          //message: '正在上传中...',\
+          //mask: app.form1, //mask遮盖对象，未指定默认为全屏，前1.5秒透明遮盖。\
+          params: { //以json对象表达的参数列表\
+            foo: 'bar',\
+            num: 123,\
+            date: new Date(),\
+            newname: newName //把新的文件名传到upload组件\
+          },\
+          //上传成功之后的回调方法\
+          success: function(form, action, value) {\
+            //value为服务器返回的值，action.response.responseText为服务器返回的原始值\
+            //Wb.info('');\
+            //重置控件内容\
+            Wb.reset(app.panelCret);\
+            //操作完成设置为新增状态\
+            app.cretDeit = false;\
+          }\
+        });\
+      }\
+      //============上传附件结束============\
+      if (app.cretFile.getValue() === '') {\
+        //重置控件内容\
+        Wb.reset(app.panelCret);\
+        //操作完成设置为新增状态\
+        app.cretDeit = false;\
+      }\
+    }\
+  });\
+} else { //false为新增\
+\
+  //判断是否选择附件\
+  console.log('添加操作文件名:' + app.cretFile.getValue());\
+  if (app.cretFile.getValue() !== '') {\
+    //获取完整时间戳,精确到毫秒级\
+    var timestamp = new Date().getTime();\
+    //组织新的文件名称,时间戳+后缀名\
+    newName = timestamp + (app.cretFile.getValue().substring(app.cretFile.getValue().lastIndexOf('.'), app.cretFile.getValue().length));\
+    //设置隐藏文本内容,将路径+文件名传到SQL作为参数\
+    app.CRETLJ.setValue('wb/crewImage/' + newName);\
+    console.log('添加操作文件名new:' + app.CRETLJ.getValue());\
+  }\
+  var values = Wb.getValue(app.cretWin);\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/insert',\
+    out: app.cretWin,\
+    success: function(resp) {\
+      //新增完成,重reload列表数据\
+      app.gridCret.store.load({\
+        params: {\
+          CID: app.CREW_CTID.getValue()\
+        }\
+      });\
+      //=============上传附件部分==============\
+      if (app.cretFile.getValue() !== '') {\
+        console.log('进入上传==确认包含文件');\
+        if (!Wb.verify(app.cretForm)) { //验证值是否合法\
+          return;\
+        }\
+        console.log('进入上传==确认文件通过');\
+        console.log('进入上传==' + newName);\
+        Wb.upload({\
+          form: app.cretForm, //上传的表单控件，必选项\
+          showProgress: true, //显示上传进度条\
+          url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/cretPhoto',\
+          //out:[panel1, grid1],以控件列表的方式上传指定控件值\
+          //showMask: false,上传过程不显示mask\
+          //message: '正在上传中...',\
+          //mask: app.form1, //mask遮盖对象，未指定默认为全屏，前1.5秒透明遮盖。\
+          params: { //以json对象表达的参数列表\
+            foo: 'bar',\
+            num: 123,\
+            date: new Date(),\
+            newname: newName //把新的文件名传到upload组件\
+          },\
+          //上传成功之后的回调方法\
+          success: function(form, action, value) {\
+            //value为服务器返回的值，action.response.responseText为服务器返回的原始值\
+            //Wb.info('');\
+            //重置控件内容\
+            Wb.reset(app.panelCret);\
+            //操作完成设置为新增状态\
+            app.cretDeit = false;\
+          }\
+        });\
+      }\
+      //============上传附件结束============\
+      if (app.cretFile.getValue() === '') {\
+        //重置控件内容\
+        Wb.reset(app.panelCret);\
+        //操作完成设置为新增状态\
+        app.cretDeit = false;\
+      }\
+    }\
+  });\
+\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delCretButten",
+       "text": "删除",
+       "iconCls": "application_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridCret.getSelection(); //获取选中行\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.gridCret, sels);\
+      //删除完成,reload列表数据\
+      app.gridCret.store.load({\
+        params: {\
+         CID: app.CREW_CTID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+  app.CRETID.reset();\
+  app.C_CRET_ID.reset();\
+  app.GET_TIME.reset();\
+  app.NEXT_TIME.reset();\
+  app.CRETLJ.reset();\
+  app.cretFile.reset();\
+      //操作完成设置为新增状态\
+      app.cretDeit = false;\
+    }\
+  });\
+}, 'NAME');"}
+     },
+     {
+      "configs": {
+       "itemId": "redoCretBtn",
+       "text": "重置",
+       "iconCls": "redo_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "//重置控件内容\
+var ceid = app.CREW_CTID.getValue();\
+Wb.reset(app.panelCret);\
+app.CREW_CTID.setValue(ceid);\
+//操作完成设置为新增状态\
+app.cretDeit = false;\
+//reload列表,确保失去焦点行\
+app.gridCret.store.load({\
+  params: {\
+    CID: app.CREW_CTID.getValue()\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "imgWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "panelImg",
+      "autoScroll": "true",
+      "bbar": "app.tbarImg",
+      "height": "442"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "image1",
+       "width": "706"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "image"
+     }],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+\
+      Wb.add(app.gridVessel, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "itemId": "scWin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "720",
+     "y": "60",
+     "height": "220"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelSc",
+      "height": "160"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "gridSc",
+       "tbar": "app.tbarSc",
+       "disabled": "false"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=shipManage/gaship/crewData/crewMeans/shipCrewEdit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID(隐藏)"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "C_V_ID1",
+           "hidden": "true",
+           "dataIndex": "C_V_ID",
+           "text": "船舶ID(隐藏)"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "VESSEL_NAME1",
+           "dataIndex": "VESSEL_NAME",
+           "text": "船名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "C_C_ID1",
+           "hidden": "true",
+           "dataIndex": "C_C_ID",
+           "text": "船员ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "NAME1",
+           "dataIndex": "NAME",
+           "text": "船员姓名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "DUTY1",
+           "dataIndex": "DUTY",
+           "text": "职务"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CALL_IN1",
+           "dataIndex": "CALL_IN",
+           "format": "Y-m-d",
+           "text": "调入日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CALL_OUT1",
+           "dataIndex": "CALL_OUT",
+           "format": "Y-m-d",
+           "text": "调出日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }],
+     "type": "panel"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "cretWin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "850",
+     "height": "520"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "baseParams": "{abc:123}",
+      "border": "false",
+      "layout": "fit",
+      "itemId": "cretForm",
+      "padding": "0 0 0 0",
+      "margin": "0 0 0 0",
+      "height": "460"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "border",
+       "border": "false",
+       "itemId": "panelCform",
+       "padding": "0 0 0 0",
+       "margin": "0 0 0 0",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "layout": "@{type:'table',columns:3}",
+         "border": "false",
+         "itemId": "panelCret",
+         "defaults": "{\
+  labelWidth: 70,\
+  width: 260,\
+  margin: '8 8 0 8'\
+}",
+         "region": "north",
+         "frame": "true",
+         "height": "110"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "CRETID",
+           "hidden": "true",
+           "labelAlign": "right",
+           "fieldLabel": "ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "CREW_CTID",
+           "hidden": "true",
+           "labelAlign": "right",
+           "fieldLabel": "船员ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "CRETLJ",
+           "hidden": "true",
+           "labelAlign": "right",
+           "fieldLabel": "路径"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "C_CRET_ID",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "证书",
+           "displayField": "NAME",
+           "valueField": "ID"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/crew_cretSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "C_CODE",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "证书号码"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "GET_TIME",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "获取时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "NEXT_TIME",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "截止时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "FZJG",
+           "labelAlign": "right",
+           "fieldLabel": "发证机构"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "SRZS",
+           "labelAlign": "right",
+           "fieldLabel": "适任证书"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "ZCLB",
+           "labelAlign": "right",
+           "fieldLabel": "注册类别"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "LB",
+           "labelAlign": "right",
+           "pickList": "[\
+  [\"LB1\", \"类别一\"],\
+  [\"LB2\", \"类别二\"]\
+]",
+           "fieldLabel": "类别"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "cretFile",
+           "labelAlign": "right",
+           "fieldLabel": "照片"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "file"
+         }
+        ],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "itemId": "gridCret",
+         "tbar": "app.tbarCret",
+         "disabled": "false",
+         "region": "center",
+         "title": "船员资料",
+         "multiSelect": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=shipManage/gaship/crewData/crewMeans/crew_certification/cretSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "cretId",
+             "hidden": "true",
+             "dataIndex": "ID",
+             "text": "船员ID"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "row",
+             "xtype": "rownumberer",
+             "width": "50",
+             "text": "序号",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "crewId",
+             "hidden": "true",
+             "dataIndex": "C_C_ID",
+             "text": "船员ID",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "crewName",
+             "dataIndex": "CNAME",
+             "text": "船员姓名"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "crewcertificateId",
+             "hidden": "true",
+             "dataIndex": "C_CE_ID",
+             "text": "证书ID"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "cretName",
+             "dataIndex": "NAME",
+             "text": "证书"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "cCode",
+             "dataIndex": "C_CODE",
+             "text": "证书号码"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "get_tiime",
+             "dataIndex": "GET_TIME",
+             "format": "Y-m-d",
+             "text": "获取时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "next_time",
+             "dataIndex": "NEXT_TIME",
+             "format": "Y-m-d",
+             "text": "截止时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colFZJG",
+             "dataIndex": "FZJG",
+             "text": "发证机构"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colSRZS",
+             "dataIndex": "SRZS",
+             "text": "适任证书"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colZCLB",
+             "dataIndex": "ZCLB",
+             "text": "注册类别"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colLB",
+             "renderer": "if (value == \"LB1\")\
+  return \"类别一\";\
+if (value == \"LB2\")\
+  return \"类别二\";",
+             "dataIndex": "LB",
+             "text": "类别"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "photo",
+             "hidden": "true",
+             "dataIndex": "PHOTO",
+             "text": "照片"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "actionColumns",
+             "xtype": "actioncolumn",
+             "dataIndex": "OPTION",
+             "width": "40",
+             "text": "照片",
+             "align": "center"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {"itemId": "items"},
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "showPhoto",
+               "handler": "app.imgWin.setTitle('图片');\
+app.imgWin.setIconCls('zoom_icon');\
+app.imgWin.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+//显示图片\
+app.imgWin.show();\
+//重置图片\
+app.image1.setSrc('');\
+//设置图片地址\
+app.image1.setSrc(record.data.PHOTO);",
+               "tooltip": "查看图片",
+               "iconCls": "zoom_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             }],
+             "type": "array"
+            }],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid",
+        "events": {"itemclick": "app.cretDeit = true; //设置为编辑状态\
+//控件赋值\
+console.log(record.data);\
+Wb.setValue(app.panelCret, record.data);\
+app.CRETID.setValue(record.data.ID);\
+app.CRETLJ.setValue(record.data.PHOTO);\
+app.C_CRET_ID.setValue(record.data.C_CE_ID);"}
+       }
+      ],
+      "type": "panel"
+     }],
+     "type": "form"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "contractWin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:2}",
+       "itemId": "panelContract",
+       "defaults": "{\
+  labelWidth: 110,\
+  width: 320,\
+  margin: '4 8 4 8'\
+}",
+       "autoScroll": "true",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "CON_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CON_NAME",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>名字",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CON_AGE",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>年龄",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "C_CONTRACT",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>关系",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CON_ADDRESS",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>单位",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CON_HOME",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>住址",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CON_TEL",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>电话",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CREW_COID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "船员ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panelContract1",
+       "frame": "true",
+       "height": "374"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "gridContract",
+        "tbar": "app.tbarContract",
+        "disabled": "false"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=shipManage/gaship/crewData/crewMeans/crew_contract/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "conId",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "ID(隐藏)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "crewName",
+            "dataIndex": "NAME",
+            "text": "船员名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "conRname",
+            "dataIndex": "RNAME",
+            "text": "联系人名字"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "conAge",
+            "dataIndex": "AGE",
+            "text": "年龄"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "conC",
+            "dataIndex": "CONTRACT",
+            "text": "关系"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "conAddress",
+            "dataIndex": "ADDRESS",
+            "text": "单位"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "conHome",
+            "dataIndex": "HOME",
+            "text": "住址"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "conTel",
+            "dataIndex": "TEL",
+            "text": "电话"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "crewID",
+            "hidden": "true",
+            "dataIndex": "CREW_ID",
+            "text": "船员ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.contractEdit = true; //设置为编辑状态\
+//控件赋值\
+app.CON_ID.setValue(record.data.ID);\
+app.CON_NAME.setValue(record.data.RNAME);\
+app.CON_AGE.setValue(record.data.AGE);\
+app.C_CONTRACT.setValue(record.data.CONTRACT);\
+app.CON_ADDRESS.setValue(record.data.ADDRESS);\
+app.CON_HOME.setValue(record.data.HOME);\
+app.CON_TEL.setValue(record.data.TEL);\
+"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "resumeWin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:2}",
+       "itemId": "panelResume",
+       "defaults": "{\
+  labelWidth: 110,\
+  width: 320,\
+  margin: '4 8 4 8'\
+}",
+       "autoScroll": "true",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "RES_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "START_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>起始时间",
+         "format": "Y-m-d",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "END_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>结束时间",
+         "format": "Y-m-d",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "WORKING_PLAC",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>工作学习单位",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "RE_DUTY",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>专业",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "WITNESS",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>证明人",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TEL",
+         "allowDecimals": "false",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>电话",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "CREW_REID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "船员ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panelResume1",
+       "frame": "true",
+       "height": "313"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "gridResume",
+        "tbar": "app.tbarResume",
+        "disabled": "false"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=shipManage/gaship/crewData/crewMeans/crew_resume/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "res_ID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "crew_ID",
+            "hidden": "true",
+            "dataIndex": "CREW_ID",
+            "text": "船员ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "crew_name",
+            "dataIndex": "NAME",
+            "text": "船员名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "start_time",
+            "dataIndex": "START_TIME",
+            "format": "Y-m-d",
+            "text": "起始时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "end_time",
+            "dataIndex": "END_TIME",
+            "format": "Y-m-d",
+            "text": "结束时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "working_plac",
+            "dataIndex": "WORKING_PLAC",
+            "text": "工作学习单位"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "duty",
+            "dataIndex": "DUTY",
+            "text": "专业"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "witness",
+            "dataIndex": "WITNESS",
+            "text": "证明人"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "tel",
+            "dataIndex": "TEL",
+            "text": "电话"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.resumeEdit = true; //设置为编辑状态\
+//控件赋值\
+app.RES_ID.setValue(record.data.ID);\
+app.START_TIME.setValue(record.data.START_TIME);\
+app.END_TIME.setValue(record.data.END_TIME);\
+app.WORKING_PLAC.setValue(record.data.WORKING_PLAC);\
+app.RE_DUTY.setValue(record.data.DUTY);\
+app.WITNESS.setValue(record.data.WITNESS);\
+app.TEL.setValue(record.data.TEL);\
+\
+  "}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "Win",
+     "dialog": "true",
+     "width": "520",
+     "height": "500"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "baseParams": "{abc:123}",
+      "border": "false",
+      "itemId": "crewForm",
+      "padding": "0 0 0 0",
+      "margin": "0 0 0 0",
+      "width": "520",
+      "height": "560"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "absolute",
+       "itemId": "panel1",
+       "split": "true",
+       "width": "520",
+       "region": "west",
+       "autoScroll": "true",
+       "height": "440",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "ID",
+         "hidden": "true",
+         "fieldLabel": "主键",
+         "x": "-8",
+         "width": "208",
+         "y": "376",
+         "labelWidth": "180",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CREWLJ",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "文件路径",
+         "x": "96",
+         "width": "240",
+         "y": "432",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "NAME",
+         "allowBlank": "false",
+         "fieldLabel": "名字",
+         "x": "24",
+         "width": "208",
+         "y": "8",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "PRE_NAME",
+         "fieldLabel": "曾用名",
+         "x": "272",
+         "width": "208",
+         "y": "8",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "SEX",
+         "pickList": "[\
+  ['男','男'],['女','女']\
+]",
+         "fieldLabel": "性别",
+         "x": "24",
+         "width": "208",
+         "y": "40",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "BIRTHDAY",
+         "fieldLabel": "出生日期",
+         "x": "272",
+         "width": "208",
+         "y": "40",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "PASSPORTID",
+         "fieldLabel": "身份证",
+         "x": "24",
+         "width": "208",
+         "y": "72",
+         "labelWidth": "60",
+         "height": "24"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CYZH",
+         "allowBlank": "false",
+         "fieldLabel": "海员证号",
+         "x": "262",
+         "width": "218",
+         "y": "72",
+         "labelWidth": "70",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "NATION",
+         "fieldLabel": "民族",
+         "width": "208",
+         "x": "272",
+         "keyName": "nation",
+         "y": "104",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "TALL",
+         "fieldLabel": "身高",
+         "x": "24",
+         "width": "192",
+         "y": "104",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CM",
+         "x": "216",
+         "width": "120",
+         "y": "104",
+         "text": "  CM",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "itemId": "EDUCATION",
+         "pickList": "[\
+  ['1','研究生'],['2','本科'],['3','专科'],['4','中专'],['5','职高'],['6','高中'],['7','初中'],['8','小学'],['9','其他']\
+]",
+         "fieldLabel": "学历",
+         "width": "208",
+         "x": "272",
+         "keyName": "edu",
+         "y": "136",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "TELPHONE",
+         "fieldLabel": "<font color='red'>*<\/font>电话",
+         "x": "24",
+         "width": "208",
+         "y": "136",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "DUTY",
+         "fieldLabel": "职务",
+         "x": "272",
+         "width": "208",
+         "keyName": "SHIP_DUTY",
+         "y": "168",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "POLITICAL",
+         "fieldLabel": "政治面貌",
+         "width": "208",
+         "x": "24",
+         "keyName": "political_face",
+         "y": "168",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "PROFESSION",
+         "fieldLabel": "专业职称",
+         "x": "272",
+         "width": "208",
+         "y": "200",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "MARRIED",
+         "pickList": "[\
+  ['1','是'],['0','否']\
+]",
+         "fieldLabel": "婚否",
+         "x": "24",
+         "width": "208",
+         "y": "200",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "SKILL",
+         "fieldLabel": "特长",
+         "x": "272",
+         "width": "208",
+         "y": "232",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "ORIGINAL_PLAC",
+         "fieldLabel": "籍贯",
+         "x": "24",
+         "width": "208",
+         "y": "232",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "FOREIGN_LEVEL",
+         "fieldLabel": "外语水平",
+         "width": "208",
+         "x": "24",
+         "keyName": "english_level",
+         "y": "264",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "HOME_ADDRESS",
+         "fieldLabel": "住址",
+         "x": "272",
+         "width": "208",
+         "y": "264",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "tagConfigs": "{\
+  colspan: 2\
+}",
+         "itemId": "crewphoto",
+         "fieldLabel": "照片",
+         "x": "24",
+         "width": "456",
+         "y": "296",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "file"
+       },
+       {
+        "configs": {
+         "tagConfigs": "{\
+  colspan: 2\
+}",
+         "itemId": "NOTES",
+         "fieldLabel": "备注",
+         "width": "464",
+         "x": "24",
+         "y": "328",
+         "labelWidth": "60",
+         "height": "96"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "textarea"
+       },
+       {
+        "configs": {
+         "itemId": "OPERATOR",
+         "hidden": "true",
+         "fieldLabel": "操作员",
+         "x": "232",
+         "width": "208",
+         "y": "376",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "OPER_TIME",
+         "hidden": "true",
+         "fieldLabel": "操作时间",
+         "x": "32",
+         "width": "208",
+         "y": "384",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "CHAGER",
+         "hidden": "true",
+         "fieldLabel": "更改人",
+         "x": "40",
+         "width": "208",
+         "y": "376",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CHANGE_TIME",
+         "hidden": "true",
+         "fieldLabel": "更改时间",
+         "x": "240",
+         "width": "208",
+         "y": "376",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       }
+      ],
+      "type": "panel"
+     }],
+     "type": "form"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "border": "true",
+      "layout": "fit",
+      "itemId": "panel1"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {"itemId": "grid1"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=shipManage/gaship/crewData/crewMeans/crewSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "name",
+           "labelAlign": "right",
+           "emptyText": "名字、海员证、身份证",
+           "fieldLabel": "姓名",
+           "labelWidth": "45"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "findButton",
+           "text": "查找",
+           "iconCls": "seek_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "app.grid1.store.load({\
+  out:app.tbar\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "addButton",
+           "text": "添加",
+           "iconCls": "record_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "var win = new Ext.window.Window(app._Win); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '添加');\
+var newName = '';\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  console.log('操作文件名:' + app.crewphoto.getValue());\
+  if (app.crewphoto.getValue() !== '') {\
+    //获取完整时间戳,精确到毫秒级\
+    var timestamp = new Date().getTime();\
+    //组织新的文件名称,时间戳+后缀名\
+    newName = timestamp + (app.crewphoto.getValue().substring(app.crewphoto.getValue().lastIndexOf('.'), app.crewphoto.getValue().length));\
+    //设置隐藏文本内容,将路径+文件名传到SQL作为参数\
+    app.CREWLJ.setValue('wb\\\\crewImage' + newName);\
+    console.log('操作文件名new:' + app.CREWLJ.getValue());\
+  }\
+  var values = Wb.getValue([win, app.tbar]);\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crewInsert',\
+    params: values,\
+    success: function(resp) {\
+      Wb.apply(values, Wb.decode(resp.responseText));\
+      Wb.add(app.grid1, values); //同步在客户端表格中添加\
+      //win.close(); //根据closeAction属性，默认为销毁\
+      app.findButton.fireEvent('click'); //自动刷新\
+    }\
+  });\
+  //=============上传附件部分==============\
+  //文件上传必须使用form控件,form控件可以嵌套在任何容器中，包括panel,window和viewport等。\
+  //上传数据。此方法采用multipart/form-data编码上传数据，因此后台必须通过request.getAttribute(itemId)获取指定控件数据\
+  if (app.crewphoto.getValue() !== '') {\
+    console.log('进入上传==确认包含文件');\
+    if (!Wb.verify(app.crewForm)) { //验证值是否合法\
+      return;\
+    }\
+    console.log('进入上传==确认文件通过');\
+    console.log('进入上传==' + newName);\
+    Wb.upload({\
+      form: app.crewForm, //上传的表单控件，必选项\
+      showProgress: true, //显示上传进度条\
+      url: 'm?xwl=shipManage/gaship/crewData/crewMeans/uploadCrew',\
+      //out:[panel1, grid1],以控件列表的方式上传指定控件值\
+      //showMask: false,上传过程不显示mask\
+      //message: '正在上传中...',\
+      //mask: app.form1, //mask遮盖对象，未指定默认为全屏，前1.5秒透明遮盖。\
+      params: { //以json对象表达的参数列表\
+        foo: 'bar',\
+        num: 123,\
+        date: new Date(),\
+        newname: newName //把新的文件名传到upload组件\
+      },\
+      //上传成功之后的回调方法\
+      success: function(form, action, value) {\
+        //value为服务器返回的值，action.response.responseText为服务器返回的原始值\
+        //Wb.info('');\
+        //隐藏对话框，在模块关闭时自动销毁对话框\
+        console.log('1.上传完成销毁窗体');\
+        win.close();\
+      }\
+    });\
+  }\
+  //============上传附件结束============\
+  if (app.crewphoto.getValue() === '') {\
+    //隐藏对话框，在模块关闭时自动销毁对话框\
+    console.log('2.文件清空销毁窗体');\
+    win.close();\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "editbutton",
+           "text": "修改",
+           "iconCls": "record_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+var win = new Ext.window.Window(app._Win); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, '修改');\
+Wb.setValue(win, rec.data); //把记录数据应用到窗口\
+//app.NAME1.setValue(rec.data.NAME);\
+var newName = '';\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  console.log('操作文件名:' + app.crewphoto.getValue());\
+  if (app.crewphoto.getValue() !== '') {\
+    //获取完整时间戳,精确到毫秒级\
+    var timestamp = new Date().getTime();\
+    //组织新的文件名称,时间戳+后缀名\
+    newName = timestamp + (app.crewphoto.getValue().substring(app.crewphoto.getValue().lastIndexOf('.'), app.crewphoto.getValue().length));\
+    //设置隐藏文本内容,将路径+文件名传到SQL作为参数\
+    app.CREWLJ.setValue('wb\\\\crewImage' + newName);\
+    console.log('操作文件名new:' + app.CREWLJ.getValue());\
+  }\
+  var values = Wb.applyIf(Wb.getValue(win), Wb.getData(rec, true)); //Wb.getData用于获取记录中的原始值，见Wb.getData方法\
+  Wb.request({\
+    url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crewUpdata',\
+    params: values,\
+    success: function(resp) {\
+      Wb.update(rec, values); //同步在客户端表格中更新\
+      //       win.close(); //根据closeAction属性，默认为销毁\
+      app.findButton.fireEvent('click'); //自动刷新\
+    }\
+  });\
+  if (app.crewphoto.getValue() !== '') {\
+    console.log('进入上传==确认包含文件');\
+    if (!Wb.verify(app.crewForm)) { //验证值是否合法\
+      return;\
+    }\
+    console.log('进入上传==确认文件通过');\
+    console.log('进入上传==' + newName);\
+    Wb.upload({\
+      form: app.crewForm, //上传的表单控件，必选项\
+      showProgress: true, //显示上传进度条\
+      url: 'm?xwl=shipManage/gaship/crewData/crewMeans/uploadCrew',\
+      //out:[panel1, grid1],以控件列表的方式上传指定控件值\
+      //showMask: false,上传过程不显示mask\
+      //message: '正在上传中...',\
+      //mask: app.form1, //mask遮盖对象，未指定默认为全屏，前1.5秒透明遮盖。\
+      params: { //以json对象表达的参数列表\
+        foo: 'bar',\
+        num: 123,\
+        date: new Date(),\
+        newname: newName //把新的文件名传到upload组件\
+      },\
+      //上传成功之后的回调方法\
+      success: function(form, action, value) {\
+        //value为服务器返回的值，action.response.responseText为服务器返回的原始值\
+        //Wb.info('');\
+        //隐藏对话框，在模块关闭时自动销毁对话框\
+        console.log('1.上传完成销毁窗体');\
+        win.close();\
+      }\
+    });\
+  }\
+  //============上传附件结束============\
+  if (app.crewphoto.getValue() === '') {\
+    //隐藏对话框，在模块关闭时自动销毁对话框\
+    console.log('2.文件清空销毁窗体');\
+    win.close();\
+  }\
+\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "delButton",
+           "text": "删除",
+           "iconCls": "record_delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "Wb.del(app.grid1, {\
+  url: 'm?xwl=shipManage/gaship/crewData/crewMeans/crewDel',\
+  titleField: 'NAME'\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "id",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "主键"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "row",
+           "xtype": "rownumberer",
+           "width": "50",
+           "text": "序号",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "name",
+           "dataIndex": "NAME",
+           "text": "姓名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "pre_name",
+           "dataIndex": "PRE_NAME",
+           "text": "曾用名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "sex",
+           "renderer": "if(value=='男'){\
+  return '男';\
+}\
+if(value == '女'){\
+  return '女';\
+}",
+           "dataIndex": "SEX",
+           "text": "性别"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "birthday",
+           "dataIndex": "BIRTHDAY",
+           "text": "出生日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCYZH",
+           "dataIndex": "CYZH",
+           "text": "海员证号码"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "passportid",
+           "dataIndex": "PASSPORTID",
+           "width": "150",
+           "text": "身份证号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "nation",
+           "dataIndex": "NATION",
+           "keyName": "nation",
+           "text": "民族"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "tall",
+           "dataIndex": "TALL",
+           "text": "身高"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "education",
+           "dataIndex": "EDUCATION",
+           "keyName": "edu",
+           "text": "学历"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "telphone",
+           "dataIndex": "TELPHONE",
+           "text": "电话"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "duty",
+           "dataIndex": "DUTY",
+           "keyName": "SHIP_DUTY",
+           "text": "职务"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "political",
+           "dataIndex": "POLITICAL",
+           "keyName": "political_face",
+           "text": "政治面貌"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "profession",
+           "dataIndex": "PROFESSION",
+           "text": "专业职称"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "married",
+           "renderer": "if(value=='1'){\
+  return '是';\
+}\
+if(value == '0'){\
+  return '否';\
+}",
+           "dataIndex": "MARRIED",
+           "text": "婚否"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "skill",
+           "dataIndex": "SKILL",
+           "text": "特长"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "original_plac",
+           "dataIndex": "ORIGINAL_PLAC",
+           "text": "籍贯"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "foreign_level",
+           "dataIndex": "FOREIGN_LEVEL",
+           "keyName": "english_level",
+           "text": "外语水平"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "home_address",
+           "dataIndex": "HOME_ADDRESS",
+           "text": "住址"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "photo",
+           "dataIndex": "PHOTO",
+           "text": "照片"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "operator",
+           "dataIndex": "OPERATOR",
+           "text": "操作员"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "oper_time",
+           "dataIndex": "OPER_TIME",
+           "text": "操作时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "chager",
+           "dataIndex": "CHAGER",
+           "text": "更改人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "change_time",
+           "dataIndex": "CHANGE_TIME",
+           "text": "更改时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "notes",
+           "dataIndex": "NOTES",
+           "text": "备注"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {
+         "itemId": "popupMenu",
+         "normalName": "menu1"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "crew_certification",
+           "text": "船员证书维护",
+           "iconCls": "page_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu1.selectRow.data; //获取选中的行,selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._cretWin);\
+Wb.reset(app.cretWin); //窗体内容重置\
+win.setTitle('船员证书维护 - ' + rowData.NAME);\
+win.setIconCls('record_edit_icon');\
+app.cretDeit = false; //设置窗体打开默认状态为新增状态\
+win.show();\
+win.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+app.CREW_CTID.setValue(rowData.ID); //向窗体传递主表ID\
+//app.CZS.store.load(); //加载证书列表\
+app.gridCret.store.load({\
+  params: {\
+    CID: rowData.ID\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "crew_contract",
+           "text": "联系人维护",
+           "iconCls": "user_group_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu1.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._contractWin);\
+win.setTitle('联系人维护 - ' + rowData.NAME);\
+win.setIconCls('record_edit_icon');\
+app.contractEdit = false; //设置窗体打开默认状态为新增状态\
+win.show();\
+win.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+app.CREW_COID.setValue(rowData.ID); //向窗体传递主表ID\
+app.gridContract.store.load({\
+  params: {\
+    COID: rowData.ID\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "crew_resume",
+           "text": "履历维护",
+           "iconCls": "table_cell_alignment_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu1.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._resumeWin); //app._win指向配置对象而非实例\
+win.setTitle(\"履历维护 - \" + rowData.NAME);\
+win.setIconCls('record_add_icon');\
+win.show();\
+win.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+app.resumeEdit = false; //设置窗体打开默认状态为新增状态\
+app.CREW_REID.setValue(rowData.ID); //向窗体传递主表ID\
+app.gridResume.store.load({\
+  params: {\
+    REID: rowData.ID\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "crew_ship",
+           "text": "登船记录",
+           "iconCls": "aim_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu1.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._scWin); //app._win指向配置对象而非实例\
+win.setTitle(\"船员履历 - \" + rowData.NAME);\
+win.setIconCls('record_add_icon');\
+win.show();\
+win.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+app.SWIN_VID.setValue(rowData.ID); //向窗体传递主表ID\
+app.gridSc.store.load({\
+  out: app.tbarSc\
+});"}
+         }
+        ],
+        "type": "menu",
+        "events": {"show": "\
+var rows = app.grid1.getSelection();\
+app.crew_certification.setDisabled(rows.length != 1);\
+app.crew_contract.setDisabled(rows.length != 1);\
+app.crew_resume.setDisabled(rows.length != 1);\
+app.crew_ship.setDisabled(rows.length != 1);\
+\
+menu.selectRow = rows[0];"}
+       }
+      ],
+      "type": "grid"
+     }],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "ZSG_GA": 1
+ },
+ "title": "船员信息维护",
+ "iconCls": "user_suit_icon",
+ "inframe": false,
+ "pageLink": ""
+}

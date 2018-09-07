@@ -1,0 +1,82 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get(\"sys.username\");\
+var sdate = data.sdate;\
+var edate = data.edate;\
+app.run(\"delete from T_RPT_JTG_6 where report_date>=to_date('\" + sdate + \"','yyyy-mm-dd') and report_date<=to_date('\" + edate + \"','yyyy-mm-dd')\", {\
+  transaction: 'start'\
+});\
+//初始化非集装箱货类\
+app.run(\"insert into T_RPT_JTG_6\\
+\" +\
+  \"select sys_guid(),trunc(eta),sum(decode(cmdy_code,'0100',weight,0))/1000,sum(decode(cmdy_code,'0200',weight,0))/1000,\\
+\" +\
+  \"(sum(decode(cmdy_code,'0300',weight,0))+sum(decode(cmdy_code,'0301',weight,0)))/1000,sum(decode(cmdy_code,'0301',weight,0))/1000,\\
+\" +\
+  \"(sum(decode(cmdy_code,'0400',weight,0))+sum(decode(cmdy_code,'0401',weight,0)))/1000,sum(decode(cmdy_code,'0401',weight,0))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'0500',weight,0))/1000,sum(decode(cmdy_code,'0600',weight,0))/1000,\\
+\" +\
+  \"(sum(decode(cmdy_code,'0700',weight,0))+sum(decode(cmdy_code,'0701',weight,0)))/1000,sum(decode(cmdy_code,'0701',weight,0))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'0800',weight,0))/1000,sum(decode(cmdy_code,'0900',weight,0))/1000,sum(decode(cmdy_code,'1000',weight,0))/1000,\\
+\" +\
+  \"(sum(decode(cmdy_code,'1100',weight,0))+sum(decode(cmdy_code,'1101',weight,0))+sum(decode(cmdy_code,'1102',weight,0))+sum(decode(cmdy_code,'1103',weight,0))+sum(decode(cmdy_code,'1104',weight,0)))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'1101',weight,0))/1000,sum(decode(cmdy_code,'1102',weight,0))/1000,sum(decode(cmdy_code,'1103',weight,0))/1000,sum(decode(cmdy_code,'1104',weight,0))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'1200',weight,0))/1000,\\
+\" +\
+  \"(sum(decode(cmdy_code,'1300',weight,0))+sum(decode(cmdy_code,'1301',weight,0)))/1000,sum(decode(cmdy_code,'1301',weight,0))/1000,sum(decode(cmdy_code,'1302',weight,0))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'1400',weight,0))/1000,\\
+\" +\
+  \"(sum(decode(cmdy_code,'1500',weight,0))+sum(decode(cmdy_code,'1501',weight,0))+sum(decode(cmdy_code,'1502',weight,0)))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'1501',weight,0))/1000,sum(decode(cmdy_code,'1502',weight,0))/1000,\\
+\" +\
+  \"sum(decode(cmdy_code,'1600',weight,0))/1000,\\
+\" +\
+  \"sum(case when cmdy_code='1700' and bill_type='S' then weight else 0 end)/1000,\\
+\" +\
+  \"sum(case when cmdy_code='1700' and bill_type not in('S','E') then weight else 0 end)/1000,\\
+\" +\
+  \"'\" + username + \"',sysdate,'','',s.trade_id,s.sh_line_cod,s.tenancy_id,s.i_e_id from v_ship_bill s\\
+\" +\
+  \"where trunc(s.eta)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(s.eta)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by trunc(s.eta),s.sh_line_cod,s.trade_id,s.tenancy_id,s.i_e_id\");\
+\
+//初始化集装箱皮重\
+app.run(\"update t_rpt_jtg_6 j6 set C1701=C1701+(\\
+\" +\
+  \"select c.cw from t_rpt_jtg_6 j left join\\
+\" +\
+  \"(select sum(decode(cntr_siz_cod,'20',2,0))+sum(decode(cntr_siz_cod,'40',4,0))+sum(decode(cntr_siz_cod,'45',4.5,0))cw,\\
+\" +\
+  \"tenancy_id,trade_id,i_e_id,trunc(bill_date)bill_date,sh_line_cod from t_sas_ship_thruput\\
+\" +\
+  \"where trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by tenancy_id,trade_id,i_e_id,trunc(bill_date),sh_line_cod)c\\
+\" +\
+  \"on j.report_date=c.bill_date and j.tenancy_id=c.tenancy_id and j.trade_id=c.trade_id and j.i_e_id=c.i_e_id and j.sh_line_cod=c.sh_line_cod\\
+\" +\
+  \"where j.id=j6.id)\");\
+//初始化其它+集装箱皮重\
+app.run(\"update t_rpt_jtg_6 j6 set c1700=c1700+c1701\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "交统港6表数据初始化",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

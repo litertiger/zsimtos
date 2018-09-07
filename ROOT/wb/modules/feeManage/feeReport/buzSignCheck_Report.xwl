@@ -1,0 +1,344 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "dockedItems"},
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "tbarGrid",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "sdate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "开始时间",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "edate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "结束时间",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "cboWORK_TYPE",
+          "labelAlign": "right",
+          "pickList": "[\
+  [\"SYFN\", \"签到未收费\"],\
+  [\"SYFY\", \"签到已收费\"],\
+  [\"SNFY\", \"未签到已收费\"],\
+  [\"SNFN\", \"未签到未收费\"]\
+]",
+          "emptyText": "筛选条件",
+          "width": "100",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "ieId",
+          "emptyText": "进出口",
+          "keyName": "I_E_ID",
+          "width": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "tradeId",
+          "emptyText": "内外贸",
+          "pickList": "[\
+  ['1', '外贸'],\
+  ['2', '内贸']\
+]",
+          "width": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "billType",
+          "emptyText": "包装类型",
+          "keyName": "BILL_TYPE",
+          "width": "75"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "tagConfigs": " matchFieldWidth:false",
+          "emptyText": "船公司",
+          "pageSize": "50",
+          "selectOnTab": "true",
+          "labelWidth": "50",
+          "listConfig": "{width:450}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "hideTrigger": "true",
+          "itemId": "CNTR_OPERATOR_COD",
+          "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+          "labelAlign": "right",
+          "width": "220",
+          "x": "200",
+          "y": "67",
+          "displayField": "CNAME",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "params": "{fldId:'AG'}",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "notHU",
+          "boxLabel": "非华晖"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check"
+        },
+        {
+         "configs": {
+          "itemId": "selBtn",
+          "text": "查询",
+          "iconCls": "search_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+AF1.func(\"SeparateView\", \"2 \\r\\
+ 0\"); //前3行上下分屏\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var feeids = \"\";\
+var feegroup = \"\";\
+\
+var sql = \" AND C.TENANCY_ID='\" + tenancyid + \"' \" +\
+  \" and C.created_on>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and C.created_on<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+\
+if (!Wb.isEmpty(app.ieId.getValue())) {\
+  sql += \" and C.I_E_ID='\" + app.ieId.getValue() + \"'\t\";\
+}\
+if (!Wb.isEmpty(app.CNTR_OPERATOR_COD.getValue())) {\
+  sql += \" and C.CNTR_OPERATOR_COD='\" + app.CNTR_OPERATOR_COD.getValue() + \"'\t\";\
+}\
+if (!Wb.isEmpty(app.tradeId.getValue())) {\
+  sql += \" and C.trade_id='\" + app.tradeId.getValue() + \"'\t\";\
+}\
+if (!Wb.isEmpty(app.billType.getValue())) {\
+  sql += \" and C.BILL_TYPE='\" + app.billType.getValue() + \"'\t\";\
+}\
+if (app.notHU.getValue() == '1') {\
+  sql += \" and C.CNTR_OPERATOR_COD<>'HU'\t\";\
+}\
+\
+if (!Wb.isEmpty(app.cboWORK_TYPE.getValue())) {\
+  if (app.cboWORK_TYPE.getValue() == 'SYFN') {\
+    //签到未收费\
+    sql += \" and E.QD_ON IS not NULL AND f_moneyfee(c.bill_no) = 0\" +\
+      \" and (select count(*) from remitting_item ri,remitting r where r.id=ri.c_id and bill_no=c.bill_no)=0\";\
+  } else if (app.cboWORK_TYPE.getValue() == 'SYFY') {\
+    //签到已收费\
+    sql += \" and E.QD_ON IS not NULL AND (f_moneyfee(c.bill_no) = 1\" +\
+      \" or (select count(*) from remitting_item ri,remitting r where r.id=ri.c_id and bill_no=c.bill_no)<>0)\";\
+  } else if (app.cboWORK_TYPE.getValue() == 'SNFY') {\
+    //未签到已收费\
+    sql += \" and E.QD_ON IS NULL AND (f_moneyfee(c.bill_no) = 1\" +\
+      \" or (select count(*) from remitting_item ri,remitting r where r.id=ri.c_id and bill_no=c.bill_no)<>0)\";\
+  } else if (app.cboWORK_TYPE.getValue() == 'SNFN') {\
+    //未签到未收费\
+    sql += \" and E.QD_ON IS NULL AND f_moneyfee(c.bill_no) = 0\" +\
+      \" and (select count(*) from remitting_item ri,remitting r where r.id=ri.c_id and bill_no=c.bill_no)=0\";\
+  }\
+}\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */ // if (!Wb.isEmpty(app.cboMoney.getValue())) {\
+//   if (app.cboMoney.getValue() == \"1\")\
+//     sql += \" and AD.BUSSINESS_CODE is not null\";\
+//   if (app.cboMoney.getValue() == \"2\")\
+//     sql += \" and AD.BUSSINESS_CODE is null\";\
+// }\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "array"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/fee/buzCheck.xml?' + 'version0.9');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&v0.2\");\
+  }\
+};\
+/**\
+  * 文档注释。\
+  *\
+  * Example:\
+  *\
+  *     var foo = bar();\
+  *\
+  * @param {type} name1 必须参数说明。\
+  * @param {type} [name2] 可选参数说明。\
+  * @return {type} 返回值说明。\
+  */\
+var today = new Date();\
+var year = today.getFullYear();\
+var month = today.getMonth() + 1;\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);\
+app.tradeId.setValue(\"1\");",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "现金签到状况报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //租户id\
+\
+if (data.type == \"NUL\") {\
+  app.run(\"update truck_visit set phase='FIN',out_campi='',out_tray_no='' where id='\" + data.tvid + \"'\", {\
+    transaction: 'start'\
+  });\
+  app.run(\"update c_truck set TRAY_NO='' where TRUCK_NO='\" + data.shuaicar + \"'\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+}\
+if (data.type == \"OTH\") {\
+  app.run(\"update receipt set OUT_CAR='\" + data.shuaicar + \"',OUT_CAR_HP='\" + data.shuaicarhp + \"',\" +\
+    \"separate_address='\" + data.address + \"',OUT_DRIVER_ID='\" + data.shuaidriver + \"',OUT_DRIVER_NAME='\" + data.shuaidrivername + \"'\" +\
+    \" where id='\" + data.rid + \"'\", {\
+      transaction: 'start'\
+    });\
+  app.run(\"update c_truck set TRAY_NO='\" + data.jian + \"' where TRUCK_NO='\" + data.shuaicar + \"'\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+}\
+var receipts = Wb.getRecords(app.run(\"select phase from receipt\" +\
+  \" where id in(select rpid from truck_receipt where tvid='\" + data.tvid + \"')\"));\
+if (receipts[0].PHASE == \"OUT\")\
+  app.run(\"update receipt set OUT_CAR='',OUT_CAR_HP='',OUT_DRIVER_ID='',OUT_DRIVER_NAME=''\" +\
+    \" where id in (select rpid from truck_receipt where tvid='\" + data.tvid + \"')\");\
+app.run(\"insert into truck_separate_trailor(id,pre_visit_id,trailor_id,separate_time,\" +\
+  \"created_by,created_on,tenancy_id,separate_type,separate_address)\" +\
+  \" values(sys_guid(),'\" + data.tvid + \"','\" + data.shuaitray + \"',{?date.stime?},\" +\
+  \"'\" + username + \"',sysdate,'\" + tenancyid + \"','\" + data.type + \"','\" + data.address + \"')\", {\
+    transaction: 'commit'\
+  });"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "甩卡操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

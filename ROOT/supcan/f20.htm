@@ -1,0 +1,130 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF' || id=='') {
+   AF.func("Build", "treelist/tab.xml");
+   //树列表: 立即加载数据
+   AF.func("tab1.T.Load", "treelistdata/data60.tsv-ex.txt");
+  }
+  if(id == 'AF2' || id=='') {
+   AF2.func("Build", "treelist/tab2.xml");
+  }
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id == 'AF' &&  Event == "SelChanged" && p3=="Cht" && p4=="0") {
+    //统计图: 首次显示
+    AF.func("Tab1.cht.Load", "treelistdata/chartdata.xml \r\n mode=asynch");
+  }
+ }
+ function insert()
+ {
+  AF.func("InsertTab", "Tab1 \r\n 0 \r\n type=WebBrowser; id=abc; text=我是IE浏览器; url=http://weather.news.sina.com.cn/weather/news/");
+  AF.func("SetCurSel", "Tab1 \r\n 0");
+ }
+ function changePos()
+ {
+  var pos = AF2.func("getObjProp", "Tab1 \r\n position");
+  AF2.func("setObjProp", "Tab1 \r\n position \r\n" + (pos == "top" ? "bottom":"top"));
+  AF2.func("setObjProp", "Tab1 \r\n backColor\r\n" + (pos == "top" ? "#faffff":"#e5eaff"));
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.选项卡(Tab)内含多个页签，每个页签内包含了一个大粒度组件.</td></tr>
+</table>
+
+<div style="position:relative;width:80%">
+	<script>insertFreeForm('AF', '', '350px')</script>
+</div>
+<br>
+<input type=button value=" 动态插入选项卡 " onClick="insert()">
+<br>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>2</b>.另一种样式的选项卡.</td></tr>
+</table>
+
+<div style="position:relative;width:900px">
+	<script>insertFreeForm('AF2', '', 150)</script>
+</div>
+<br>
+<input type="button" value=" 页签在下(上)方 " onClick="changePos()">
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.上面的2个Freeform例子， 分别是根据<a href="treelist/tab.xml" target=_blank>XML描述文件1</a>、<a href="treelist/tab2.xml" target=_blank>XML描述文件2</a>创建的；<br>
+<b>2</b>.源码分析：<br>
+<pre class='cpp'>
+//都使用了扩展用法
+var countForFirefox=0;
+function OnReady(id)
+{
+ if($isFirefox) {
+  countForFirefox++;
+  if(countForFirefox != 2) return;
+  id='';
+ }
+ 
+ if(id == 'AF' || id=='') {
+  AF.func("Build", "treelist/tab.xml");
+  //树列表: 立即加载数据
+  AF.func("tab1.T.Load", "treelistdata/data60.tsv-ex.txt");
+ }
+ if(id == 'AF2' || id=='') {
+  AF2.func("Build", "treelist/tab2.xml");
+ }
+}
+ 
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF' && Event == "SelChanged" && p3=="cht" && p4=="0") {
+  //统计图: 首次显示
+  AF.func("Tab1.cht.Load", "treelistdata/chartdata.xml \r\n mode=asynch");
+ }
+}
+ 
+//按钮执行的js:
+function insert()
+{
+ //插入新选项卡
+ AF.func("InsertTab", "Tab1 \r\n 0 \r\n type=treelist; id=abc; text=ababs; url=treelist/t1.xml");
+ //将当前页切换到新的位置
+ AF.func("SetCurSel", "Tab1 \r\n 0");
+}</pre>
+</td></tr></table>
+<table border=0 cols=2 border=0 width=97%>
+<tr valign=top><td align=right><img src='res/boy.gif'></td><td align=left>使用够简单吧！</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

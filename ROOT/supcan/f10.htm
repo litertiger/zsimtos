@@ -1,0 +1,100 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF' || id=='') {
+	AF.func("Build", "treelist/multiform.xml");
+	AF.func("Load", "treelistdata/phones.xml");
+  }
+  if(id == 'AF2' || id=='') {
+	AF2.func("Build", "treelist/person_treelist.xml");
+	AF2.func("Load", "treelistdata/person.xml");
+  }
+ }
+function enableEdit()
+{
+	AF.func("SetProp", "editAble \r\n true");
+	AF.func("SetProp", "deleteRowAble \r\n true");
+	AF.func("SetProp", "addRowAble \r\n true");
+	var curRow = AF.func("GetCurrentRow", "");
+	if(curRow != "") AF.func("SelectCell", curRow + "\r\n brand \r\n true");
+}
+function commit()
+{
+  var xml = AF.func("GetChangedXML", "level=1");
+  if(xml==null || xml=="")
+   AF.func("MessageBoxFloat", "请先作增、删、改操作!	");
+  else if(xml!="0") {
+   xml = xml.replace(/\r\n/g, "\\r\\n");
+   AF.func("MessageBoxFloat", xml + "\r\n center=true;hold=8");
+  }
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff leftmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>Treelist直接采用Freeform来显示其每一行，相当于Treelist嵌入了Freeform.<br>
+</td></tr>
+</table>
+
+<div style="position:relative;width:600px">
+	<script>insertTreeList('AF', '', 406)</script>
+</div>
+<br>
+可以让其<input type=button value=" 支持修改 " onClick="enableEdit()">， 在修改后可以执行<input type=button value="  提交  " onClick="commit()">，查看生成的提交XML.
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.外部是一个Treelist, OnReady( )js如下:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ ...
+ AF.func("Build", "treelist/multiform.xml");
+ AF.func("Load", "treelistdata/phones.xml");
+ ...
+}</pre>
+<br>
+<b>2</b>.请查看Treelist的<a href="treelist/multiform.xml" target=_blank>XML描述文件</a>、Freeform的<a href="treelist/formrecord.xml" target=_blank>XML描述文件</a>，嵌入Freeform的关键在于Treelist的如下行:<br>
+<pre class='xml'>
+&lt;Properties rowHeight="250" Freeform="formrecord.xml" .../&gt;</pre>
+只要将 Treelist中的&lt;col name="?" &gt;和 Freeform中的&lt;text id="?"&gt;相匹配就行(也支持&lt;input&gt;、&lt;image&gt;对象)。<br>
+<br>
+<b>3</b>.请查看Treelist填入的<a href="treelistdata/phones.xml" target=_blank>XML数据</a>;<br>
+<br>
+<b>4</b>.本例中图片是通过&lt;Express&gt;表达式动态算出其URL的，当然，也支持将图片URL作为一个数据列定义;<br>
+<br>
+<b>5</b>.其中的图片是在需要显示时才即时下载的，所以哪怕有几千幅图也不会一次性下载。不过本例使用了<a href="doc/dev/pub.htm#Tag605" target=_blank>图片扩展URL的写法<a>，zip包一次性下载.<br>
+<br>
+<b>6</b>.像人事档案比较适合采用这种模式：
+</td></tr></table>
+<div style="position:relative;width:650px">
+	<script>insertTreeList('AF2', '', 302)</script>
+</div>
+
+<br>
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

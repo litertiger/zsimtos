@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"\";\
+if (data.I_O == \"jin\")\
+  sql = \"select to_number(REVERSE(substr(REVERSE(ib_vyg),1,3)),'999') jnum from vessel_voyage\" +\
+  \" where ib_vyg like '\" + tenancyid + \"'||'J%' and to_date(REVERSE(substr(REVERSE(ib_vyg),4,6)),'yymmdd')=trunc(sysdate)\" +\
+  \" and tenancy_id='\" + tenancyid + \"' order by to_number(REVERSE(substr(REVERSE(ib_vyg),1,3)),'999') desc\";\
+if (data.I_O == \"chu\")\
+  sql = \"select to_number(REVERSE(substr(REVERSE(ob_vyg),1,3)),'999') cnum from vessel_voyage\" +\
+  \" where ob_vyg like '\" + tenancyid + \"'||'C%' and to_date(REVERSE(substr(REVERSE(ob_vyg),4,6)),'yymmdd')=trunc(sysdate)\" +\
+  \" and tenancy_id='\" + tenancyid + \"' order by to_number(REVERSE(substr(REVERSE(ob_vyg),1,3)),'999') desc\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "航次查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

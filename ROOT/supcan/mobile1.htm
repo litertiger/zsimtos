@@ -1,0 +1,94 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var dtlst=null;
+function OnReady(id)
+{
+ AF.func("Build", "report/report1.xml");
+ //Enable 上传按钮
+ obj = document.getElementById("btn1");
+ obj.disabled=false;
+}
+
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+  if(Event == "ButtonClicked") {
+   if(p1 == 'Close') {
+    //关闭二维码对话框
+    AF.func("closeInnerDialog", "");
+    //Enable 上传按钮
+    var obj = document.getElementById("btn1");
+    obj.disabled=false;
+   }
+  }
+}
+
+//报表上传到服务器
+function tomobile(srv)
+{
+ var dt = new Date();
+ if(dtlst != null) {
+  var sp=dt.getTime() - dtlst.getTime();
+  if(sp < 5000) {
+    alert("您发布太频繁了，稍休息几秒钟再试吧");
+    return;
+  }
+ }
+ dtlst = dt;
+
+ if(srv == 1)
+  srv = "http://www.supcan.cn/dotnet/rs.aspx";
+ else
+  srv = "http://demodev.eicp.net/supcan/dotnet/rs.aspx";
+
+ //另存报表到临时文件
+ var filename=AF.func("CacheDirUtility", "isCreateTempFile=true;ext=xml");
+ AF.func("callfunc", "1074\r\n" + filename);
+ var kb = AF.func("FileUtility", "getKB\r\n" + filename);
+ if(kb > 500) {
+  alert("上传失败:  您的报表尺寸太大(" +kb+ "k), 测试版发布的报表不能超过500k! ");
+  return;
+ }
+
+ //文件上传，并获得新的URL
+ var ret = AF.func("HttpPostLocalFile", srv+ "?func=simple \r\n" + filename + "\r\n isEcho=false");
+ if(ret == "" || ret=="0") {
+  alert("上传失败! ");
+  return;
+ }
+ if(ret.substr(0, 7) != "http://") {
+  alert("服务器返回错误: " + ret);
+  return;
+ }
+
+ //后继处理: disable按钮、在非模式对话框中显示二维码
+ var obj = document.getElementById("btn1");
+ obj.disabled=true;
+ AF.func("SetDialogFreeForm", "treelist/qr1.xml");
+ AF.func("SetDialogPara", "width=500;height=300;ExtWidth=0;");
+ AF.func("OpenInnerDialog", "{'URL':'" +ret+ "', 'QR':'" +ret+ "'}");
+}
+</script>
+</head>
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+	<td align=center><img src='res/how.bmp'></td>
+	<td><b>Step 1</b>. 请任意涂鸦、修改;<br><b>Step 2</b>. 将这个报表发布到服务器, 您的ipad、手机就能浏览了：  <input type=button id="btn1" disabled="disabled" value=" 发布到服务器 " onClick="tomobile(1)"></td>
+</tr>
+</table><br>
+
+<div style="position:relative;width:99%;height:500px">
+	<script>insertReport('AF', '')</script>
+</div>
+
+</center>
+</body>
+</html>

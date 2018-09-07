@@ -1,0 +1,62 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get(\"sys.username\");\
+var map = new HashMap();\
+var cntrdata = Wb.decode(data.cntrdata);\
+\
+if (data.mth == \"find\") {\
+  map.put(\"billNo\", data.bill_no);\
+  map.put(\"cntr\", data.CNTR);\
+  map.put(\"itemId\", data.FEE_LIST_ID);\
+  var result = Wb.newClass(\"dubboForShip\").findFeeByItemId(request, map);\
+  app.send(result);\
+}\
+if (data.mth == \"call\") {\
+  map.put(\"billNo\", data.bill_no);\
+  map.put(\"cntr\", data.cntr);\
+  map.put(\"planTime\", data.planTime.substring(0, 10));\
+  map.put(\"lclId\", data.lclId);\
+  var result = Wb.newClass(\"dubboForCargoStore\").call(request, map);\
+}\
+if (!Wb.isEmpty(data.ids)) {\
+  var sql = \"update buz_order_item set yjt_time={?TIMESTAMP.planTime?} where id in (\" + data.ids + \")\";\
+  app.run(sql);\
+}\
+\
+var kg = Wb.getRecords(app.run(\"select sys_value from s_code where sys_category='BD_DC' and sys_key='ONOFF'\", {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (kg[0].SYS_VALUE == \"ON\")\
+  if (!Wb.isEmpty(cntrdata)) { //堆存\
+    Wb.each(cntrdata, function(cntr) {\
+      app.log(\"gxw=========\"+cntr.I_E_ID);\
+\
+      if (cntr.I_E_ID == \"I\") {\
+        request.setAttribute(\"cntrId\", cntr.CNTR_ID);\
+        request.setAttribute(\"moveType\", \"QD\");\
+        request.setAttribute(\"efId\", cntr.E_F_ID);\
+        request.setAttribute(\"ytDate\", data.planTime);\
+        app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+        app.run(\"insert into aaa(CAP_XML,create_on) values ('办单预提生成堆存,箱:'||'\" + cntr.CNTR + \"'||',操作人:'||'\" + username + \"',sysdate)\");\
+      }\
+    });\
+  }"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "添加费用补算堆存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

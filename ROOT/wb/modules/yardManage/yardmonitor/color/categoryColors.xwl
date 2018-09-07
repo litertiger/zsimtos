@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "function findRow(r) {\
+  if (r.KEY === key) {\
+    row = r;\
+    return true;\
+  }\
+  return false;\
+}\
+\
+var result = app.run(\"select code,sql,jndi from c_palette_category where id={?id?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+if (result && result.next()) {\
+  var code = result.getString(\"code\");\
+  var jndi = result.getString(\"jndi\");\
+  var sql = result.getString(\"sql\");\
+  if (!sql) {\
+    jndi = \"jdbc/basecode\";\
+    sql = \"select sys_key key,sys_value name from s_code where sys_category='\" + code + \"'\";\
+  }\
+  var values = app.run(sql, {\
+    jndi: jndi\
+  });\
+  if (values) {\
+    var set = Ag.getResultSet(values);\
+    colors = app.run(\"select key,color from(select key,color,row_number() over(partition by key order by tenancy_id) num from c_palette_color where category_id={?id?}) where num = 1\", {\
+      jndi: \"jdbc/basecode\"\
+    });\
+    if (colors) {\
+      set.metaData.fields.push(\"COLOR\");\
+      var mapColor = Ag.getResultObj(colors);\
+      Wb.each(set.rows,function(row){row.COLOR = mapColor[row.KEY];});\
+    }\
+    app.send(set);\
+  }\
+  app.send(sql);\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "yard": 1,
+  "HSEDI": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "颜色分类",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

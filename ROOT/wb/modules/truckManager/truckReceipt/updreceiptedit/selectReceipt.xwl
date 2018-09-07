@@ -1,0 +1,65 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var allcntr = (data.txtCNTR_NO_R.split(\",\"));\
+var sql = \"select r.*,p.yard_position,case r.I_E_ID when 'I' then r.RECEIVER when 'E' then r.SHIPPER end pig\" +\
+  \" from RECEIPT r left join port_cntr p on r.cntr_id=p.id\" +\
+  \" where r.tenancy_id='\" + tenancyid + \"' and r.work_type not in('YOYI','FOFI')\";\
+if (data.txtnotime == \"0\")\
+  sql += \" and r.PLAN_STIME is not null\";\
+if (!Wb.isEmpty(data.tbpdate))\
+  sql += \" and trunc(r.PLAN_STIME)=trunc(to_date('\" + data.tbpdate.substring(0, 10) + \"','yyyy-MM-dd'))\";\
+if (!Wb.isEmpty(data.tbPHASE)) {\
+  if (data.tbPHASE == \"PLN\")\
+    sql += \" and r.PHASE in('PLN','EXE','GET','OUT','RTN')\";\
+  else\
+    sql += \" and r.PHASE='\" + data.tbPHASE + \"'\";\
+}\
+if (!Wb.isEmpty(data.tbI_E_ID))\
+  sql += \" and r.I_E_ID='\" + data.tbI_E_ID + \"'\";\
+if (nature != \"5\" && nature != \"6\")\
+  sql += \" and r.PT_TYPE is not null\";\
+if (nature == \"5\" || nature == \"6\")\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+if (!Wb.isEmpty(data.txtCNTR_NO_R)) {\
+  sql += \" and(1=2\";\
+  Wb.each(allcntr, function(cntr) {\
+    if (!Wb.isEmpty(cntr))\
+      sql += \" or r.cntr like '%\" + cntr + \"%'\";\
+  });\
+  sql += \")\";\
+}\
+sql += \" order by r.in_car desc,r.created_on desc\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "DHSHIP": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "查询设备交接单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

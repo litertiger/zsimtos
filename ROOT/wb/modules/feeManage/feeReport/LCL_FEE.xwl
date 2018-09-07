@@ -1,0 +1,320 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "dockedItems"},
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "tbarGrid",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "sdate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "开始时间",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "edate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "结束时间",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "cboWORK_TYPE",
+          "hidden": "true",
+          "labelAlign": "right",
+          "pickList": "[\
+  [\"SYFN\", \"签到未收费\"],\
+  [\"SYFY\", \"签到已收费\"],\
+  [\"SNFY\", \"未签到已收费\"],\
+  [\"SNFN\", \"未签到未收费\"]\
+]",
+          "emptyText": "筛选条件",
+          "width": "100",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "cboI_E_ID",
+          "labelAlign": "right",
+          "emptyText": "进出口",
+          "width": "100",
+          "keyName": "I_E_ID",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "cboCNTR_SIZE",
+          "labelAlign": "right",
+          "emptyText": "尺寸",
+          "pickList": "[\
+  ['20', '20'],\
+  ['40', '40'],\
+  ['45', '45']\
+]",
+          "width": "80",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "tagConfigs": "matchFieldWidth: false",
+          "hideTrigger": "true",
+          "itemId": "CNTR_OPERATOR_COD",
+          "labelAlign": "right",
+          "emptyText": "船公司",
+          "displayField": "CNAME",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{\
+  width: 250\
+}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "params": "{fldId:'AG'}",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "checkJ",
+          "boxLabel": "夹柜",
+          "hidden": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check"
+        },
+        {
+         "configs": {
+          "itemId": "selBtn",
+          "text": "查询",
+          "iconCls": "search_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+//AF1.func(\"SeparateView\", \"1 \\r\\
+ 0\"); //前3行上下分屏\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var feeids = \"\";\
+var feegroup = \"\";\
+\
+// var sql = \" AND A.TENANCY_ID='\" + tenancyid + \"' \" +\
+//   \" and c.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//   \" and c.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+var sql = \" AND A.TENANCY_ID='\" + tenancyid + \"' \" +\
+  \" and (select eta from vessel_visit where id=a.vid)>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and (select eta from vessel_visit where id=a.vid)<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(app.cboI_E_ID.getValue())) {\
+  sql += \" and a.I_E_ID='\" + app.cboI_E_ID.getValue() + \"'\";\
+}\
+if (!Wb.isEmpty(app.cboCNTR_SIZE.getValue())) {\
+  sql += \" and B.CNTR_SIZE='\" + app.cboCNTR_SIZE.getValue() + \"'\";\
+}\
+if (!Wb.isEmpty(app.CNTR_OPERATOR_COD.getValue())) {\
+  sql += \" and a.CNTR_OPERATOR_COD='\" + app.CNTR_OPERATOR_COD.getValue() + \"'\";\
+}\
+if ('{#sys.NATURE#}' == 5) {\
+  sql += \" and a.CNTR_OPERATOR_COD='\" + '{#sys.GOV_CODE#}' + \"'\";\
+}\
+if (app.checkJ.getValue() == '1')\
+  sql += \" and b.lcl_id=1 and b.main_flag=1 and b.Split_Id=1\";\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */ // if (!Wb.isEmpty(app.cboMoney.getValue())) {\
+//   if (app.cboMoney.getValue() == \"1\")\
+//     sql += \" and AD.BUSSINESS_CODE is not null\";\
+//   if (app.cboMoney.getValue() == \"2\")\
+//     sql += \" and AD.BUSSINESS_CODE is null\";\
+// }\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");\
+\
+//求柜数\
+Wb.request({\
+  url: 'm?xwl=feeManage/FerryReport/billshowedit/queryCntrNum',\
+  params: {\
+    sdate: app.sdate.getValue(),\
+    edate: app.edate.getValue(),\
+    CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+    cntrSizeType: app.cboCNTR_SIZE.getValue(),\
+    ieId: app.cboI_E_ID.getValue()\
+  },\
+  success: function(resp) {\
+    var rs = Wb.decode(resp.responseText);\
+//     app.labeltext.setText(\"拼柜20尺箱量:\" + (rs[0].C20 == null ? \"0\" : rs[0].C20) + \"\t\t40尺箱量:\" + (rs[0].C40 == null ? \"0\" : rs[0].C40) + \"\t\t45尺箱量:\" + (rs[0].C45 == null ? \"0\" : rs[0].C45));\
+      app.labeltext.setText(\"拼柜 20尺:\" + (rs[0].C20 == null ? \"0\" : rs[0].C20) + \"\t\t40尺:\" + (rs[0].C40 == null ? \"0\" : rs[0].C40) + \"\t\t45尺:\" + (rs[0].C45 == null ? \"0\" : rs[0].C45));\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "labeltext",
+          "style": "white-space:pre;"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "label"
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "array"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    //末行不参与过滤\
+    m.func(\"Build\", '/supcan/report/fee/lcl_fee.xml?' + 'version1.4');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&v0.32\");\
+  }\
+};\
+/**\
+  * 文档注释。\
+  *\
+  * Example:\
+  *\
+  *     var foo = bar();\
+  *\
+  * @param {type} name1 必须参数说明。\
+  * @param {type} [name2] 可选参数说明。\
+  * @return {type} 返回值说明。\
+  */\
+var today = new Date();\
+var year = today.getFullYear();\
+var month = today.getMonth() + 1;\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "拼柜费统计表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,334 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editwin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "272",
+     "height": "132"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "CMDY_CODE",
+       "labelAlign": "right",
+       "fieldLabel": "货物代码",
+       "width": "240",
+       "x": "8",
+       "y": "8",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "pickComp",
+        "rootVisible": "false",
+        "height": "300"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=QgReport/cargoTypeChangeEdit/tree-select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "treestore",
+        "events": {"beforeload": "// operation.params.pid = operation.node.data.ID;\
+operation.params={pid:operation.node.isRoot()?'-1':operation.node.data.ID};\
+// var node = operation.node;\
+// operation.params={parentDept:node.isRoot() ? -1 : operation.node.data.DEPT_ID};"}
+       }],
+       "type": "tree",
+       "events": {"itemclick": "if (record.isLeaf()) {\
+  var picker = this.ownerCmp;\
+  picker.setValue(Wb.getSection(record.getPath('text'), '/', 2));\
+  picker.collapse();\
+  app.pickComp.store.load({\
+    params: {\
+      pid: record.data.ID\
+    }\
+  });\
+}\
+app.CMDY_CODE.setValue(record.data.ID);\
+app.NAME.setValue(record.data.text);\
+  var picker = this.ownerCmp;\
+\
+  picker.collapse();"}
+      }],
+      "type": "picker"
+     },
+     {
+      "configs": {
+       "itemId": "NAME",
+       "labelAlign": "right",
+       "fieldLabel": "名称",
+       "x": "8",
+       "width": "240",
+       "y": "40",
+       "labelWidth": "60",
+       "disabled": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editwin1",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "272",
+     "height": "100"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "CMDY_CODE1",
+      "labelAlign": "right",
+      "fieldLabel": "货物代码",
+      "x": "8",
+      "width": "240",
+      "keyName": "C_CARGO_KIND",
+      "y": "8",
+      "labelWidth": "60",
+      "height": "22"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "combo"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "toolbar1",
+     "height": "30"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "names",
+       "labelAlign": "right",
+       "fieldLabel": "提单号",
+       "width": "200",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"specialkey": "// app.seekMenu.fireEvent('click');"}
+     },
+     {
+      "configs": {
+       "itemId": "sdate",
+       "labelAlign": "right",
+       "fieldLabel": "开始时间",
+       "width": "170",
+       "labelWidth": "70"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "edate",
+       "labelAlign": "right",
+       "fieldLabel": "结束时间",
+       "width": "170",
+       "labelWidth": "70"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "ieId",
+       "labelAlign": "right",
+       "pickList": "[[\"I\",'进口'],[\"E\",'出口'],[\"0\",'进出口']]",
+       "fieldLabel": "进出口",
+       "width": "120",
+       "labelWidth": "60",
+       "value": "0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "tradeId",
+       "labelAlign": "right",
+       "fieldLabel": "内外贸",
+       "keyName": "TRADE_ID",
+       "width": "130",
+       "labelWidth": "60",
+       "value": "1"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "seekMenu",
+       "text": "查找",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var AF1 = document.getElementById(opt);\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=QgReport/cargoTypeChangeEdit/select11\", {\
+  names: app.names.getValue(),\
+  sdate: app.sdate.getValue(),\
+  edate: app.edate.getValue(),\
+  ieId: app.ieId.getValue(),\
+  tradeId: app.tradeId.getValue()\
+}));"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "hidden": "true",
+       "tooltip": "保存一条记录",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.grid11)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid11,\
+  url: 'm?xwl=shipBIlla/ShipBillReport/cntrOwnerChangeEdit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid11, Wb.decode(resp.responseText));\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "updateBtn",
+       "tooltip": "修改一条记录",
+       "text": "修改",
+       "iconCls": "record_edit_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var ID = Wb.getSupcanMelu(AF1, \"ID\", true);\
+if (Wb.isEmpty(ID)) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+var sel=ID;\
+var datas=new Array();\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, '修改货物代码');\
+var ids = \"\";\
+for (var i = 0; i < sel.length; i++) {\
+  if (i == sel.length - 1)\
+    ids += \"'\" + sel[i]+ \"'\";\
+  else\
+    ids += \"'\" + sel[i]+ \"',\";\
+ \
+}\
+app.CMDY_CODE.focus();\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  Wb.request({\
+    url: 'm?xwl=QgReport/cargoTypeChangeEdit/update1',\
+    out: win,\
+    params: {\
+      ids: ids\
+     \
+    },\
+    success: function(resp) {\
+      \
+         AF1 = document.getElementById(opt);\
+        Wb.setSupcanMelu(AF1, \"CMDY_CODE\", app.CMDY_CODE.getValue());\
+      win.close();\
+//       app.seekMenu.fireEvent('click');\
+    }\
+  });\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1",
+      "tbar": "app.toolbar1",
+      "title": "舱单明细",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "panel"
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "\
+\
+var mt1 = bldStr(\"BCV1.TreeList\", opt, \"\", \"99%\");\
+app.panel1.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.sdate.setValue(new Date());\
+app.edate.setValue(new Date());\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+ \
+  if (id == opt) {\
+      AF1 = document.getElementById(opt);\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bill/billCargo.xml?331112133324');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"EnableMenu\", \" curselMode \\r\\
+ true\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "提单货类修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

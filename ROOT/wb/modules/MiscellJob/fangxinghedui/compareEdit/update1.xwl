@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// //舱单海关核对功能的前提是：海关放行\
+// var rs = app.run(\"select 1 from vbill_head where BILL_NO={?BILL_NO?}\");\
+// if (!rs.next()) {\
+//   app.send(\"运单不存在！\");\
+// } else {\
+//   app.run(\"select 1 from vbill_head,vessel_visit where vbill_head.vid=vessel_visit.id and BILL_NO={?BILL_NO?} and to_date(substr(VOYAGE_NO,0,6),'yy-MM-dd')!=trunc(sysdate)\", {\
+//     errorText: \"运单不符！\"\
+//   });\
+//   // app.run(\"select 1 from VBILL_HEAD_E where REALSE_COMPARE=1 and ID=(select ID from vbill_head where BILL_NO={?BILL_NO?} and RELEASE_ID=1)\",{\
+//   // \terrorText:\"舱单已核对！\"\
+//   // });\
+//   app.run(\"update VBILL_HEAD_E set REALSE_COMPARE=1,REVIEW_DATE=sysdate,BILL_REVIEWER={?sys.dispname?} where ID=(select ID from vbill_head where BILL_NO={?BILL_NO?} and RELEASE_ID=1)\");\
+// }\
+\
+\
+//舱单海关核对功能的前提是：海关放行\
+var rs = app.run(\"select 1 from vbill_head where BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} AND TRADE_ID={?TRADE_ID?} AND BILL_TYPE={?BILL_TYPE?} and phase<>'9'\");\
+var rs1 = app.run(\"SELECT 1 FROM vbill_head, vessel_visit WHERE vbill_head.vid = vessel_visit.id and \"+\
+\"  BILL_NO = {?BILL_NO?} and  trunc(decode(vbill_head.I_E_ID,'I',nvl(ata,eta),'E',nvl(atd,etd)))=trunc(sysdate) AND I_E_ID={?I_E_ID?} AND TRADE_ID={?TRADE_ID?} AND BILL_TYPE={?BILL_TYPE?} and vbill_head.phase<>'9'\");\
+if (!rs.next()) {\
+  app.send(\"运单不存在！\");\
+} else if (!rs1.next()) {\
+  app.send(\"运单不符！\");\
+} else {\
+//   app.run(\"update VBILL_HEAD_E set REALSE_COMPARE=1,REVIEW_DATE=sysdate,BILL_REVIEWER={?sys.dispname?} where ID=(select ID from vbill_head where BILL_NO={?BILL_NO?} and RELEASE_ID=1)\");\
+//   app.run(\"update VBILL_HEAD_E set REALSE_COMPARE=1,REVIEW_DATE=sysdate,BILL_REVIEWER={?sys.dispname?} where ID=(select ID from vbill_head where BILL_NO={?BILL_NO?} and phase<>'9')\");\
+  \
+    app.run(\"update VBILL_HEAD_E set REALSE_COMPARE=1,REVIEW_DATE=sysdate,BILL_REVIEWER={?sys.dispname?} where ID=(select ID from vbill_head where BILL_NO={?BILL_NO?} and phase<>'9' AND NOT EXISTS(SELECT 1 FROM VESSEL_VISIT WHERE ID = VBILL_HEAD.VID AND NOT EXISTS( SELECT 1  FROM VESSEL_VOYAGE WHERE     ID = VESSEL_VISIT.VID AND VESSEL_NAME <> '暂存区')\t)\t)\");\
+\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSJJ": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

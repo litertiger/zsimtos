@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select ad.fee_list_id,bi.DESCRIPTION,'RMB'RMB,sum(ad.ACTUAL_JOB_COUNT)ACTUAL_JOB_COUNT,\" +\
+  \"sum(ad.AMOUNT)AMOUNT,ad.printphase,ad.printno,ad.rate \" +\
+  \" from accounts_details ad left join c_base_charging_item bi on ad.fee_list_id=bi.id\" +\
+  \" where ad.bill_no='\" + data.billno + \"' and ad.PAYMENT_TYPE=2\";\
+if (nature == \"5\")\
+  sql += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+sql += \" group by ad.fee_list_id,bi.DESCRIPTION,ad.printphase,ad.printno,ad.rate\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "DHSHIP": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

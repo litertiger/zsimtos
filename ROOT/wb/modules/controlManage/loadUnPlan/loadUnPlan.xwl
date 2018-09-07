@@ -1,0 +1,796 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "center",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1",
+      "region": "center",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid1",
+       "editable": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=controlManage/loadUnPlan/loadUnPlan/selectLoadUnPlan"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store",
+        "events": {"beforeload": "operation.params={shipDate:app.shipDate.getValue()};"}
+       },
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "shipDate",
+           "labelAlign": "right",
+           "fieldLabel": "船期",
+           "width": "150",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date",
+          "events": {"select": "app.grid1.store.load({\
+  params:{shipDate:app.shipDate.getValue()} \
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "genButton",
+           "text": "生成",
+           "iconCls": "check_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "Wb.request({\
+    url: 'm?xwl=controlManage/loadUnPlan/loadUnPlan/insertLoadUnPlan', \
+    params: {shipDate: app.shipDate.getValue()},\
+    success: function(resp) {\
+      app.grid1.store.load({\
+        params:{shipDate:app.shipDate.getValue()} \
+      });\
+    }\
+  });"}
+         },
+         {
+          "configs": {
+           "itemId": "addButton",
+           "text": "新增",
+           "iconCls": "db_form_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "Wb.addEdit(app.grid1,{CREATED_BY:'{#sys.username#}',CREATED_ON:new Date(),ETA:new Date()});"}
+         },
+         {
+          "configs": {
+           "itemId": "saveButton",
+           "text": "保存",
+           "iconCls": "save_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid1,\
+  url: 'm?xwl=controlManage/loadUnPlan/loadUnPlan/saveLoadUnPlan',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+    //如果需要同时同步新建的和修改的记录可以使用以下方法：\
+    //var data=Wb.decode(resp.responseText);//假设需要同步新建的和修改的记录分别放在data对象的create和update属性中\
+    //Wb.syncCreate(app.grid1,data.create,false);//false默认不commitChanges\
+    //Wb.syncUpdate(app.grid1,data.update);//syncUpdate后执行commitChanges\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "delButton",
+           "text": "删除",
+           "iconCls": "delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "Wb.del(app.grid1, {\
+  url: 'm?xwl=controlManage/loadUnPlan/loadUnPlan/delLoadUnPlan',\
+  titleField: 'VESSEL_NAME'\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "delButton1",
+           "text": "审核",
+           "iconCls": "ok_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "Wb.request({\
+  url: 'm?xwl=controlManage/loadUnPlan/loadUnPlan/exam',\
+  params:{shipDate:app.shipDate.getValue()} ,\
+  success: function(resp) {Wb.info(\"成功\");}\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "selBtn",
+           "text": "打印",
+           "iconCls": "printer_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var AF2 = document.getElementById(opt);\
+var tenancyid = '{#sys.TENANCY_ID#}';\
+var whereSql = encodeURI(\" and nvl(eta,etd)>=to_date('\" + app.shipDate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and nvl(eta,etd)<=to_date('\" + app.shipDate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
+\
+AF2.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF2.func(\"SetCellData\", \"<data K2='\" + Wb.format(app.shipDate.getValue(), 'Y年m月d日') + \"'/>\");\
+AF2.func(\"Calc\", \"\");\
+AF2.func(\"callfunc\", \"18\");"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "id",
+           "hidden": "true",
+           "dataIndex": "ID"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "row",
+           "xtype": "rownumberer",
+           "text": "序号",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "berthCod1",
+           "renderer": "if (value==\"\")\
+  return '未审核';\
+else \
+  return '已审核';\
+",
+           "dataIndex": "EXAM_BY",
+           "width": "50",
+           "text": "审核",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "ETA125",
+           "dataIndex": "ETA",
+           "width": "120",
+           "text": "到港时间"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "datetime"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "berthCod",
+           "dataIndex": "BERTH_COD",
+           "width": "50",
+           "text": "泊位",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "pickList": "[\
+  ['5#', '5号码头'],\
+  ['10#', '10号码头'],\
+  ['11#', '11号码头'],\
+  ['12#', '12号码头'],\
+  ['13#', '13号码头'],\
+  ['14#', '14号码头'],\
+  ['15#', '15号码头'],\
+  ['17#', '17号码头'],\
+  ['18#', '18号码头']\
+]"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "combo"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "vid",
+           "hidden": "true",
+           "dataIndex": "VID"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "vesselName",
+           "dataIndex": "VESSEL_NAME",
+           "width": "70",
+           "text": "船名",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "tagConfigs": "matchFieldWidth:false",
+            "itemId": "editor",
+            "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+     <td  >\
+        名称\
+      <\/td>\
+      <td style='display: block;overflow: hidden;width: 0; height: 0;'> \
+        代码\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td>\
+       {VESSEL_NAME}\
+      <\/td>\
+      <td  style='display: block;overflow: hidden;width: 0; height: 0;'>\
+        {ID}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+            "displayField": "VESSEL_NAME",
+            "listConfig": "{width:70}",
+            "valueField": "VESSEL_NAME"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "store",
+             "url": "m?xwl=controlManage/loadUnPlan/loadUnPlan/selectVessel"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "store"
+           }],
+           "type": "combo",
+           "events": {"select": "var rec = app.grid1.getSelection()[0];\
+var vid = records[0].data.ID;\
+rec.set('VID',vid);\
+\
+"}
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "cargoName",
+           "dataIndex": "CARGO_NAME",
+           "width": "80",
+           "text": "货名",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "pickList": "[\
+  ['货柜', '货柜'],\
+  ['卷钢', '卷钢'],\
+  ['拼柜', '拼柜']\
+]"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "combo"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "spec",
+           "dataIndex": "SPEC",
+           "width": "80",
+           "text": "规格",
+           "autoWrap": "true",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "value": "重20:,重40:,重45:\
+吉20:,吉40:,吉45:",
+            "height": "100"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "textarea"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "pieces1",
+           "dataIndex": "PIECES",
+           "width": "70",
+           "text": "计划件数",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "height": "100"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "textarea"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "weight",
+           "dataIndex": "WEIGHT",
+           "width": "70",
+           "text": "计划重量(吨)",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "height": "100"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "textarea"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "consign",
+           "dataIndex": "CONSIGN",
+           "text": "托运单位",
+           "autoWrap": "true",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "pickList": "[\
+  ['中转', '中转'],\
+  ['中远海', '中远海'],\
+  ['颖图', '颖图'],\
+  ['信风', '信风'],\
+  ['向盈', '向盈'],\
+  ['金信', '金信'],\
+  ['华晖', '华晖'],\
+  ['合德', '合德'],\
+  ['东辉', '东辉'],\
+  ['德宝', '德宝']\
+]",
+            "multiSelect": "true"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "combo"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "consign1",
+           "hidden": "true",
+           "dataIndex": "CONSIGN",
+           "keyName": "AG_CUSTOMER",
+           "text": "托运单位",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "displayField": "CNAME",
+            "valueField": "ID"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "store",
+             "params": "{fldId:\"AG\"}",
+             "url": "m?xwl=controlManage/loadUnPlan/loadUnPlan/clientSelect"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "store"
+           }],
+           "type": "combo"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "workPlan",
+           "text": "作业安排",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "workWay",
+             "renderer": "if(value=='I'){\
+  return '卸';\
+}\
+if(value =='E'){\
+  return '装';\
+}",
+             "dataIndex": "WORK_WAY",
+             "width": "50",
+             "text": "方式",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "pickList": "[\
+  ['I','卸'],['E','装']\
+]"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "workTime",
+             "dataIndex": "WORK_TIME",
+             "width": "120",
+             "format": "H:i",
+             "text": "完工时间",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "time"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "operaNote",
+             "dataIndex": "OPERA_NOTE",
+             "text": "操作要求",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "pickList": "[\
+  ['码头卸船', '码头卸船'],\
+  ['码头装船', '码头装船'],\
+  ['仓内上车', '仓内上车'],\
+  ['拆柜装车', '拆柜装车'],\
+  ['卸船入仓', '卸船入仓']\
+]"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "crane",
+             "renderer": "\
+var s=value.split(\",\");\
+var st=\"\";\
+for(var i=0;i<s.length;i++){\
+  if(s.length==1 || i==s.length-1){\
+  \tst+=Wb.kv(s[i],metaData.column.keyItems);\
+  }else\
+\tst+=Wb.kv(s[i],metaData.column.keyItems)+\",\"; \
+}\
+return st;",
+             "dataIndex": "CRANE",
+             "keyName": "C_MACHINE",
+             "text": "吊机",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "NAME",
+              "valueField": "ID",
+              "multiSelect": "true"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "url": "m?xwl=controlManage/loadUnPlan/loadUnPlan/getMWorkOnDuty"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "truck",
+             "renderer": "var s=value.split(\",\");\
+var st=\"\";\
+for(var i=0;i<s.length;i++){\
+  if(s.length==1 || i==s.length-1){\
+  \tst+=Wb.kv(s[i],metaData.column.keyItems);\
+  }else\
+\tst+=Wb.kv(s[i],metaData.column.keyItems)+\",\"; \
+}\
+return st;",
+             "dataIndex": "TRUCK",
+             "keyName": "C_TRUCK",
+             "text": "拖头",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "NAME",
+              "valueField": "ID",
+              "multiSelect": "true"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "url": "m?xwl=controlManage/loadUnPlan/loadUnPlan/getTWorkOnDuty"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "team",
+             "renderer": "var s=value.split(\",\");\
+var st=\"\";\
+for(var i=0;i<s.length;i++){\
+  if(s.length==1 || i==s.length-1){\
+  \tst+=Wb.kv(s[i],metaData.column.keyItems);\
+  }else\
+\tst+=Wb.kv(s[i],metaData.column.keyItems)+\",\"; \
+}\
+return st;",
+             "dataIndex": "TEAM",
+             "keyName": "C_EMPLOYEE_TEAM",
+             "text": "配班",
+             "titleAlign": "center"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "pickList": "[\
+  ['A班', 'A班'],\
+  ['B班', 'B班'],\
+  ['司机', '司机']\
+]",
+              "multiSelect": "true"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "mNum",
+             "dataIndex": "M_NUM",
+             "width": "50",
+             "text": "人数",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            }],
+            "type": "column"
+           }
+          ],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "note",
+           "dataIndex": "NOTE",
+           "text": "备注",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "height": "100"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "textarea"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "createdBy",
+           "hidden": "true",
+           "dataIndex": "CREATED_BY"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "createdOn",
+           "hidden": "true",
+           "dataIndex": "CREATED_ON"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "eta",
+           "hidden": "true",
+           "dataIndex": "ETA"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "app.editButton.fireEvent('click');"}
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "layout": "absolute",
+      "border": "false",
+      "itemId": "panelAcc",
+      "width": "0",
+      "region": "center",
+      "height": "0"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport",
+   "events": {
+    "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);",
+    "destroy": "delete  window[\"init\" + opt];\
+"
+   }
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "app.shipDate.setValue(new Date());\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bluk/laodUnPlan.xml?date=e33333');\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&1133\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+\
+",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "装卸计划表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,74 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),goods=app.get(\"goods\"),nature=app.get(\"sys.NATURE\"),bulkType=app.get(\"bulkType\"), govCode=app.get(\"sys.GOV_CODE\");; //租户id\
+\
+\
+\
+var sql=\"SELECT vh.id,vh.bill_type, vh.RELEASE_ID,vhe.REALSE_COMPARE REALSE_COMPARE2, vhe.REALSE_COMPARE,vh.bill_no,vh.CNTR_OPERATOR_COD,(select cntr from vload_list where bill_id=vh.id and vh.bill_type='P') CNTR,\"+\
+     \"  DECODE ({?ieId?},  'I', vh.CONSIGNEE,  'E', vh.SHIPPER) good_owner,\"+\
+     \"  DECODE ({?ieId?},  'I', vh.SHIPPER,  'E', vh.CONSIGNEE) good_geter,\"+\
+    \" GOODS_NOTES,vh.pieces,vh.WEIGHT,vh.volume,\"+\
+     \"  NVL ( (  SELECT COUNT (0) FROM vload_list WHERE cntr_size = '20' AND bill_id = vh.id  GROUP BY cntr_size, bill_no),0) teu20,\"+\
+     \"  NVL ( (  SELECT COUNT (0) FROM vload_list WHERE cntr_size = '40' AND bill_id = vh.id GROUP BY cntr_size, bill_no),0) teu40,\"+\
+     \"  NVL ( (  SELECT COUNT (0) FROM vload_list WHERE cntr_size = '45' AND bill_id = vh.id GROUP BY cntr_size, bill_no),0) teu45,\"+\
+     \"  NVL ( (SELECT COUNT (0) FROM vload_list WHERE bill_id = vh.id),0) teu,vh.phase,v.vessel_name,\"+\
+     \"  NVL ( (  SELECT COUNT (0) FROM vbill_head WHERE vid = vv.id GROUP BY vid),0) bill_num,\"+\
+     \"  NVL ((  SELECT SUM (NVL (REALSE_COMPARE, 0)) FROM vbill_head_e, vbill_head WHERE vbill_head_e.id = vh.id AND vbill_head_e.id = vbill_head.id GROUP BY vbill_head.vid), 0) hd_num,REVIEW_DATE,BILL_REVIEWER \"+\
+  \" FROM vbill_head vh,vbill_head_e vhe, vessel_visit vv, vessel_voyage v WHERE     vhe.id(+) = vh.id \"+\
+   \"    AND vv.id = vh.vid  \"+\
+   \"    AND vv.vid = v.id  \"+\
+    \"   AND (    {?TIMESTAMP.sdate?} >=  \"+\
+   \"                TO_DATE (TO_CHAR (ETA, 'yyyyMMdd'), 'yyyyMMdd')  \"+\
+   \"         AND {?TIMESTAMP.sdate?} <=  \"+\
+    \"               TO_DATE (TO_CHAR (ETA, 'yyyyMMdd'), 'yyyyMMdd') + 0.99999)  \"+\
+    \"   AND vh.trade_id ={?tradeId?}\t\"+\
+    \"   AND vh.i_e_id = {?ieId?}\t\"+\
+    \"   AND VH.TENANCY_ID = {?sys.TENANCY_ID?}\t\"+\
+    \"  and ( vh.main_flag=1 or  vh.bill_type='P')\t\"+\
+    \"   and vh.phase='2'\t\";\
+\
+\
+if(!Wb.isEmpty(data.type)&& !Wb.isEmpty(data.goodsName)){\
+  if(data.type==='5'){\
+//   \tsql+=\" and vh.BILL_NO like '%'||{?goodsName?}||'%'\";\
+    sql+=\" and vh.BILL_NO ={?goodsName?}\";\
+  }\
+}\
+\
+\
+if(data.type=='4' && !Wb.isEmpty(data.ship)){\
+\tsql+=\" and VH.CNTR_OPERATOR_COD like '%'||{?ship?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.billType)){\
+\tsql+=\" and vh.bill_type={?billType?}\";\
+}\
+\
+if(data.hd=='1'){\
+\tsql+=\" and vhe.REALSE_COMPARE=1\";\
+}else if(data.hd=='0'){\
+\tsql+=\" and vhe.REALSE_COMPARE=0\";\
+}\
+\
+app.send(Wb.getRecords(app.run(sql)));\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSJJ": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,107 @@
+﻿<%@ Page Language="C#" %>
+<%@ Import namespace="System" %>
+<%@ Import namespace="System.IO" %>
+<%@ Import namespace="System.Data" %>
+<%@ Import namespace="System.Data.OleDb" %>
+<%@ Import namespace="System.Threading" %>
+<script language="C#" runat="server">
+	static int m_LastTickCount;
+	public void Page_Load(Object sender, EventArgs e) {
+		const string FILEDB = "access.mdb";
+
+		//简单的拒绝服务方案：使用了SoapLink异常包
+		String sSleep = Request.QueryString["sleep"];
+		if(sSleep != null) {
+			int now = Environment.TickCount;
+			if(m_LastTickCount>0 && now - m_LastTickCount < 800) {	//请求间隔在800毫秒内：不响应
+				m_LastTickCount = now;
+				Response.Write("<Fault><FaultString>不严重的异常</FaultString>");
+				Response.Write("<detail>服务器过于繁忙, 请稍候再访问.</detail></Fault>");
+				Response.End();
+				Thread.Sleep(1000);  //延缓1秒钟响应
+				return;
+			}
+			m_LastTickCount = now;
+		}
+		
+		//参数：SQL
+		String Where = Request.QueryString["Where"];
+		String OrderBy = Request.QueryString["OrderBy"];
+		String SQL = "";
+		if(Where != null) SQL += " Where " + Where;
+		if(OrderBy != null) {
+			String os="";
+			String []  arr = OrderBy.Split(',');
+			foreach(String s in arr) {
+				String state = s.Trim();
+				int off = state.IndexOf(' ');
+				if(off>0) {
+					String ad = state.Substring(off+1, 1);
+					state = state.Substring(0, off);
+					if(ad=="a" || ad=="A")
+						state += " asc";
+					else
+						state += " desc";
+				}
+
+				if(os!="") os += ",";
+				os += state;
+			}
+			SQL += " order by " + os;
+		}
+
+		//参数：开始行与读取行数
+		int nStart = -1;
+		int nPage = -1;
+		int nRows = 100;
+		String Rows = Request.QueryString["Rows"];
+		String Page = Request.QueryString["page"];
+		String StartRow = Request.QueryString["startRow"];
+		if(Rows!=null) nRows = Int32.Parse(Rows);
+		if(StartRow!=null) nStart = Int32.Parse(StartRow);
+		if(Page!=null) nPage = Int32.Parse(Page);
+		if(nStart < 0) nStart = nPage * nRows;
+		if(nStart < 0) nStart = 0;		
+
+		//数据库
+		{
+			String mdbPath = Server.MapPath(FILEDB);
+			OleDbConnection conn = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + mdbPath + ";");
+			OleDbDataAdapter adapter = new OleDbDataAdapter("select * from test" + SQL, conn);
+			DataTable dt = new DataTable();
+			adapter.Fill(dt);
+
+			//column
+			int cols = dt.Columns.Count;
+			String [] arrCol = new String[cols];
+			for(int i=0; i<cols; i++)
+				arrCol[i] = dt.Columns[i].ColumnName;
+
+			//read-write
+			String s;
+			Int32 rows = dt.Rows.Count;
+			Response.Write("<root>");
+			Response.Write("<table totalrows=\"" +rows.ToString()+ "\">");
+			for(int row = nStart; row<rows; row++) {
+				if(row - nStart >= nRows) break;
+				Response.Write("<row>");
+				DataRow dr = dt.Rows[row];
+				for(int i=0; i<cols; i++) {
+					Response.Write("<" + arrCol[i] + ">");
+					s = dr[i].ToString();
+					s = s.Replace("&", "&amp;");
+					Response.Write(s);
+					Response.Write("</" + arrCol[i] + ">");
+				}
+				Response.Write("</row>");
+			}
+			Response.Write("</table>");
+			Response.Write("</root>");
+		}
+
+		//End
+		Response.ContentType ="text/xml";
+		Response.CacheControl="no-cache";
+		Response.End();
+	}
+</script>

@@ -1,0 +1,88 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\"?><Message><Head>\";\
+var head = \"\",\
+  order = \"\";\
+var DomCrud = com.ag.task.Util.DomCrud;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uuu'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  d = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uu');;\
+var weightNo, transportId, voyageNo, ieId, pbillNo, cntr, cntrType, weightTime, weightInfo, tenancyId, infoType, id;\
+//根据计划去找过磅记录表找过磅时间等记录,根据计划表的cntr_id和租户再就是进出口，去记录表查数据，有可能有多条记录，取日期靠后的一条数据\
+var rs = app.run(\"select b.BILL_NO,a.id pids,b.GROSSWT,a.INFO_TYPE,a.cntr_id,a.I_E_ID,a.tenancy_id,b.CNTR,b.id,b.bill_no,b.WEIGHT_TYPE,b.VID,b.VOYAGE_NO,b.CNTR_TYPE,b.WEIGHTIME,a.P_BILL_NO from cntr_weight_pln a,cntr_weight_rec b WHERE a.appli_company = '1' AND a.edi_send = '0' and a.I_E_ID='I' and a.cntr_id=b.cntr_id and rownum=1 order by  a.WEIGHTIME desc\");\
+while (rs.next()) {\
+\
+  weightNo = rs.getString('ID');\
+  transportId = rs.getString('VID');\
+  voyageNo = rs.getString('VOYAGE_NO');\
+  ieId = rs.getString('I_E_ID');\
+  pbillNo = rs.getString('BILL_NO');\
+  cntr = rs.getString('CNTR');\
+  cntrType = rs.getString('CNTR_TYPE');\
+  weightTime = rs.getString('WEIGHTIME');\
+    tenancyId = rs.getString('TENANCY_ID');\
+  infoType = rs.getString('INFO_TYPE');\
+  weightInfo = rs.getString('GROSSWT');\
+  id = rs.getString('PIDS');\
+  if (pbillNo === null) {\
+    pbillNo = \"\";\
+  }\
+  head += '<MessageID>1b2a7cf67ab3808a33475b896b4aeee0<\/MessageID>';\
+  head += '<FunctionCode>2<\/FunctionCode>';\
+  head += '<MessageType>CAP0033<\/MessageType>';\
+  head += '<SenderID>\"' + tenancyId + '\"<\/SenderID>';\
+  head += '<ReceiverID>GBCUSTOMS<\/ReceiverID>';\
+  head += '<SendTime>' + dateName + '<\/SendTime>';\
+  head += '<Version>1.0<\/Version><\/Head>';\
+  xml += head;\
+  order += \"<Declaration>\";\
+\
+  order += \"<Info>\";\
+  order += \"<WEIGH_NO>\" + weightNo + \"<\/WEIGH_NO>\";\
+  //   order += \"<TRANSPORT_ID>\" + transportId + \"<\/TRANSPORT_ID>\";\
+  //   order += \"<VOYAGE_NO>\" + voyageNo + \"<\/VOYAGE_NO>\";\
+  order += \"<TRANSPORT_ID/>\";\
+  order += \"<VOYAGE_NO/>\";\
+  order += \"<I_E_FLAG>\" + ieId + \"<\/I_E_FLAG>\";\
+  order += \"<P_BILL_NO>\" + pbillNo + \"<\/P_BILL_NO>\";\
+  order += \"<BILL_NO/>\";\
+  order += \"<CONTA_ID>\" + cntr + \"<\/CONTA_ID>\";\
+  order += \"<CONTA_TYPE>\" + cntrType + \"<\/CONTA_TYPE>\";\
+  order += \"<WEIGHT_TIME>\" + weightTime + \"<\/WEIGHT_TIME>\";\
+  order += \"<WEIGHT_INFO>\" + weightInfo + \"<\/WEIGHT_INFO>\";\
+  order += \"<SEND_TIME>\" + dateText + \"<\/SEND_TIME>\";\
+  order += \"<RE_WT_CMD_DATE/>\";\
+  order += \"<RE_WEIGHT_INFO/>\";\
+  order += \"<RE_WEIGHT_TIME/>\";\
+  order += \"<RE_SEND_TIME/>\";\
+  order += \"<DOCK_CODE>\" + tenancyId + \"<\/DOCK_CODE>\";\
+  order += \"<INFO_TYPE>\" + infoType + \"<\/INFO_TYPE>\";\
+  order += \"<TURN_NO/>\";\
+  order += \"<REMARK/>\";\
+  order += \"<\/Info>\";\
+  order += \"<\/Declaration>\";\
+  order += \"<\/Message>\";\
+  xml += order;\
+  DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0033_CUSTOMS_\" + dateName);\
+  app.run(\"update cntr_weight_pln set edi_send='1' where ID='\" + id + \"'\");\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "进口过磅",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

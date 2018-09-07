@@ -1,0 +1,400 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var agshort = com.wb.common.KVBuffer.getMap('AG_SHORT', 'JT');\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var carList = com.wb.common.KVBuffer.getMap('C_TRUCK', tenancyid);\
+var tuList = com.wb.common.KVBuffer.getMap('TU_CUSTOMER', tenancyid);\
+var ptList = com.wb.common.KVBuffer.getMap('PT_TYPE', 'JT');\
+var wkList = com.wb.common.KVBuffer.getMap('WORK_WAY', 'JT');\
+var portList = com.wb.common.KVBuffer.getMap('C_PORT', 'JT');\
+var addressList = com.wb.common.KVBuffer.getMap('C_ADDRESS', tenancyid);\
+var driverList = com.wb.common.KVBuffer.getMap('C_DRIVER', tenancyid);\
+\
+\
+app.log(app.get());\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var data = app.get();\
+var feeids = '',\
+  notes = \"外贸整柜拖运费\";\
+var begdate = (new JavaDate()).getTime();\
+// var rows = app.get(\"rows\")==null?100:app.get(\"startRow\"),\
+//   startRow = app.get(\"startRow\")==null?1:app.get(\"startRow\"),\
+//   selsql = app.get(\"selsql\");\
+var rows = app.get(\"rows\"),\
+  startRow = app.get(\"startRow\"),\
+  selsql = app.get(\"selsql\");\
+if (selsql == null) {\
+  selsql = '';\
+}\
+if (startRow == '@startrow') {\
+  app.log(\"=============================\");\
+  startRow = 10;\
+}\
+if (rows == '@rows') {\
+  rows = 10;\
+}\
+var URLDecoder = java.net.URLDecoder;\
+var decodesql = app.get('decodesql');\
+if (decodesql != null)\
+  decodesql = URLDecoder.decode(app.get(\"decodesql\"), \"utf-8\");\
+else\
+  decodesql = \"\";\
+var beginPage = startRow,\
+  endPage = Number(startRow) + Number(rows),\
+  num = 50;\
+var sqlnum = app.run(\"SELECT COUNT(sum(1)) num \" +\
+  \" FROM RECEIPT R LEFT JOIN ACCOUNTS_DETAILS ad ON R.ID = AD.BUSSINESS_CODE LEFT JOIN c_address a ON r.s_adress = a.id\" +\
+  \" LEFT JOIN VLOAD_LIST VH ON VH.CNTR_ID=R.CNTR_ID AND VH.I_E_ID=R.I_E_ID\" +\
+  \"   WHERE     R.TENANCY_ID = '\" + tenancyid + \"' AND R.WORK_TYPE <> 'YOYI' AND ad.BUSSINESS_CODE IS NOT NULL \" + selsql + \" GROUP BY R.CNTR_ID\");\
+while (sqlnum.next()) {\
+  num = sqlnum.getString(\"NUM\");\
+}\
+app.log(startRow + \"====\" + rows);\
+\
+//费用\
+var mad = '';\
+var feesql = \"select i.id,i.description NAME,i.item_code,i.item_group\" +\
+  \" from c_fee_report fr left join c_fee_report_contact c on fr.id=c.report_id\" +\
+  \" left join c_base_charging_item i on i.id=c.item_id\" +\
+  \" where fr.type='0' and fr.tenancy_id='\" + tenancyid + \"' and fr.notes='\" + notes + \"' \" +\
+  \"ORDER BY decode(ITEM_CODE,'ZSG_RE13',1,'ZSG_RE06',2,'ZSG_RE07',3,'ZSG_RE09',4,'ZSG_RE05'\" +\
+  \",5,'ZSG_RE11',6,'ZSG_RE03',7,'ZSG_RE12',8,'ZSG_RE02',9,'ZSG_RE01',10,'ZCCSF472',11) ASC\";\
+var result = Wb.getRecords(app.run(feesql));\
+\
+// while (result.next()) {\
+//   mad += \"<'\" + fee.ITEM_CODE + \"'>\" + result.getString('NAME') + \"<\/'\" + fee.ITEM_CODE + \"'>\";\
+//   feeids += \"'\" + result.getString('ID') + \"',\";\
+// }\
+for (var i = 0; i < result.length; i++) {\
+  mad += \"<\" + result[i].ITEM_CODE + \">\" + result[i].NAME + \"<\/\" + result[i].ITEM_CODE + \">\";\
+  feeids += \"'\" + result[i].ID + \"',\";\
+}\
+feeids = feeids.substring(0, feeids.length - 1);\
+//费用结束\
+app.log('feeids==' + feeids);\
+app.log(mad);\
+\
+var sql = \"\";\
+if (rows != '99999') {\
+  var sql = \"SELECT * FROM (SELECT DECODE(EMPTY_DRIVING_FLAG,'0','非空跑','1','空跑') EMPTY_DRIVING_FLAG,A.ID,CNTR_OPERATOR_COD,IN_CAR,IN_CAR_HP,IN_TRAY_NO,NOTES,\" +\
+    \"PT_TYPE,\" +\
+    \"   GATEOUT_TIME_T,CNTR,CNTR_SIZE,WORK_TYPE,SHIPPER_CONSIGNEE,S_ADRESS,CMDY_CODE,SEAL_NO,SHIP_ORDER,IN_DRIVER_NAME,OUT_DRIVER_NAME,OUT_CAR,OUT_CAR_HP,\" +\
+    \"   GATEIN_TIME_S,POL,POD,distance,zbdistance,BILL_NO,ACCOUNT_CUSTOMER_CODE,MANUAL_NODES,ACCOUNT_CUSTOMER_NAM,PAYMENT_CUSTOMER_CODE,PAYMENT_CUSTOMER_NAM,\" +\
+    \"  TO_CHAR(CREATED_ON,'YYYY-MM-DD') CREATED_ON,CAR_TEAM,ZSG_RE13,ZSG_RE06,ZSG_RE07,ZSG_RE09,ZSG_RE05,ZSG_RE11,ZSG_RE03,ZSG_RE12,ZSG_RE02,ZSG_RE01,ZCCSF472,\" +\
+    \"  DECODE (A.I_E_ID,  'I', '进口',  'E', '出口') I_E_ID,\" +\
+    \"            DECODE (A.E_F_I,  'F', '重柜',  'E', '吉柜') E_F_I,\" +\
+    \"            DECODE (A.TRADE_ID,  '1', '外贸',  '2', '内贸') TRADE_ID,\" +\
+    \"             DECODE (A.E_F_C,  'F', '重柜',  'E', '吉柜') E_F_C,P_TYPE,\t\" +\
+    \"              ROWNUM RN FROM(\tSELECT EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR, R.IN_CAR IN_CAR_HP,R.IN_TRAY_NO, R.NOTES, R.PT_TYPE,  R.GATEOUT_TIME_T,\" +\
+    \"  R.CNTR, R.CNTR_SIZE, R.WORK_TYPE, R.SHIPPER_CONSIGNEE, R.S_ADRESS,   VH.GOODS_NOTES CMDY_CODE, R.SEAL_NO, R.SHIP_ORDER,R.IN_DRIVER_ID IN_DRIVER_NAME,\" +\
+    \" R.OUT_DRIVER_ID OUT_DRIVER_NAME,R.OUT_CAR, R.OUT_CAR OUT_CAR_HP, R.GATEIN_TIME_S, VH.POL, VH.POD, a.distance,\" +\
+    \"     a.distance * 2 zbdistance, R.TRADE_ID,\" +\
+    \" (SELECT max(BILL_NO) FROM VLOAD_LIST  VL WHERE R.CNTR_ID=VL.CNTR_ID AND R.I_E_ID=VL.I_E_ID) BILL_NO,\" +\
+    \"     NVL (AD.ACCOUNT_CUSTOMER_CODE, r.ACCOUNT_CUSTOMER_CODE)\" +\
+    \"        ACCOUNT_CUSTOMER_CODE,\" +\
+    \"     wm_concat (DISTINCT MANUAL_NODES) MANUAL_NODES,\" +\
+    \"     NVL (AD.ACCOUNT_CUSTOMER_NAM, r.ACCOUNT_CUSTOMER) ACCOUNT_CUSTOMER_NAM,\" +\
+    \"     AD.PAYMENT_CUSTOMER_CODE,\" +\
+    \"     AD.PAYMENT_CUSTOMER_NAM, \" +\
+    \"     f_get_mdate (R.CNTR_ID, R.I_E_ID, R.WORK_TYPE) CREATED_ON, R.I_E_ID, R.CAR_TEAM,\" +\
+    \"     SUM (\" +\
+    \"        CASE\" +\
+    \"           WHEN ad.FEE_LIST_ID = 'c7592353553349bfa008a30fcb840653'\" +\
+    \"           THEN\" +\
+    \"              ad.AMOUNT\" +\
+    \"        END)\" +\
+    \"       ZSG_RE13,\" +\
+    \"    SUM (\" +\
+    \"       CASE\" +\
+    \"          WHEN ad.FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9'\" +\
+    \"          THEN\" +\
+    \"             ad.AMOUNT\" +\
+    \"       END)\" +\
+    \"       ZSG_RE06,\" +\
+    \"    SUM (\" +\
+    \"       CASE\" +\
+    \"          WHEN ad.FEE_LIST_ID = '9a29e9f7784646d395fd3af3b3c21377'\" +\
+    \"          THEN\" +\
+    \"             ad.AMOUNT\" +\
+    \"       END)\" +\
+    \"       ZSG_RE07,\" +\
+    \"    SUM (\" +\
+    \"       CASE\" +\
+    \"              WHEN ad.FEE_LIST_ID = 'ab7001972c564366a449ecdd5b364e90'\" +\
+    \"              THEN\" +\
+    \"                  ad.AMOUNT\" +\
+    \"            END)\" +\
+    \"            ZSG_RE09,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '022201' THEN ad.AMOUNT END)\" +\
+    \"            ZSG_RE05,\" +\
+    \"         SUM (\" +\
+    \"            CASE\" +\
+    \"               WHEN ad.FEE_LIST_ID = '7ab6a08042944c348e6a2dbdcfb241b3'\" +\
+    \"               THEN\" +\
+    \"                  ad.rate\" +\
+    \"            END)\" +\
+    \"            ZSG_RE11,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0222' THEN ad.AMOUNT END) ZSG_RE03,\" +\
+    \"         SUM (\" +\
+    \"            CASE\" +\
+    \"               WHEN ad.FEE_LIST_ID = '497d472d16dd4c9e99dee45bbacc6961'\" +\
+    \"               THEN\" +\
+    \"                  ad.AMOUNT\" +\
+    \"            END)\" +\
+    \"            ZSG_RE12,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0213' THEN ad.AMOUNT END) ZSG_RE02,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0211' THEN ad.AMOUNT END) ZSG_RE01,\" +\
+    \"         SUM (\" +\
+    \"            CASE\" +\
+    \"              WHEN ad.FEE_LIST_ID = '4f11957a1546427e9f360f2ac8dd0033'\" +\
+    \"               THEN\" +\
+    \"                 ad.AMOUNT\" +\
+    \"            END) ZCCSF472, \" +\
+    \"         CASE\" +\
+    \"            WHEN R.WORK_TYPE IN ('EOFI', 'EOEI', 'EOTC') THEN 'E'\" +\
+    \"            WHEN R.WORK_TYPE IN ('FOFI', 'FOTC', 'FOEI') THEN 'F'\" +\
+    \"         END\" +\
+    \"            E_F_C,\" +\
+    \"         CASE\" +\
+    \"            WHEN R.WORK_TYPE IN ('EOFI', 'FOFI', 'FITC') THEN 'F'\" +\
+    \"            WHEN R.WORK_TYPE IN ('EOEI', 'FOEI', 'EITC') THEN 'E'\" +\
+    \"         END\" +\
+    \"            E_F_I,\" +\
+    \"         CASE\" +\
+    \"            WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+    \"                    AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+    \"            THEN\" +\
+    \"               R.WORK_TYPE\" +\
+    \"            WHEN     R.WORK_TYPE IN ('EOEI')\" +\
+    \"                 AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+    \"            THEN\" +\
+    \"              R.WORK_TYPE\" +\
+    \"           WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+    \"               AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+    \"               AND SHIP_CONSIGN_SAME = 1\" +\
+    \"         THEN\" +\
+    \"           '重出重回(超重)'\" +\
+    \"       WHEN nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+    \"       AND R.WORK_TYPE not IN ('FOFI')\" +\
+    \"     THEN '超重'  \" +\
+    \" END P_TYPE\" +\
+    \"    FROM RECEIPT R LEFT JOIN ACCOUNTS_DETAILS ad ON R.ID = AD.BUSSINESS_CODE LEFT JOIN c_address a ON r.s_adress = a.id\" +\
+    \" LEFT JOIN VLOAD_LIST VH ON VH.CNTR_ID=R.CNTR_ID AND VH.I_E_ID=R.I_E_ID\" +\
+    \"   WHERE     R.TENANCY_ID = '\" + tenancyid + \"' AND R.WORK_TYPE <> 'YOYI' AND ad.BUSSINESS_CODE IS NOT NULL\" +\
+    //     \" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+    //     \" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')and ad.FEE_LIST_ID in(\" + feeids + \")\" +\
+    \"  and ad.FEE_LIST_ID in(\" + feeids + \")\" +\
+    \"\" + selsql + \"   GROUP BY EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR,R.IN_TRAY_NO,R.NOTES,R.PT_TYPE,R.GATEOUT_TIME_T,R.CNTR,\" +\
+    \"R.CNTR_SIZE,R.WORK_TYPE,R.SHIPPER_CONSIGNEE,R.S_ADRESS,R.BILL_NO,VH.GOODS_NOTES,R.SEAL_NO,R.SHIP_ORDER,\" +\
+    \"R.IN_DRIVER_ID,R.OUT_DRIVER_ID,R.OUT_CAR,R.GATEIN_TIME_S,VH.POL,VH.POD,R.S_ADRESS,R.TRADE_ID,\" +\
+    \"ad.ACCOUNT_CUSTOMER_CODE,ad.ACCOUNT_CUSTOMER_NAM,ad.PAYMENT_CUSTOMER_CODE,ad.PAYMENT_CUSTOMER_NAM,\" +\
+    \"r.ACCOUNT_CUSTOMER_CODE,r.ACCOUNT_CUSTOMER,R.CNTR_ID,R.I_E_ID,R.CAR_TEAM,a.distance,R.SHIP_CONSIGN_SAME order by GATEOUT_TIME_T asc) A \" +\
+    \"WHERE ROWNUM <= \" + endPage + \")WHERE RN >  \" + beginPage;\
+}\
+if (rows == '99999') {\
+  app.log('9999');\
+  var sql = \"SELECT EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR, R.IN_CAR IN_CAR_HP,R.IN_TRAY_NO, R.NOTES, R.PT_TYPE,  R.GATEOUT_TIME_T,\" +\
+    \"  R.CNTR, R.CNTR_SIZE, R.WORK_TYPE, R.SHIPPER_CONSIGNEE, R.S_ADRESS,   VH.GOODS_NOTES CMDY_CODE, R.SEAL_NO, R.SHIP_ORDER,R.IN_DRIVER_ID IN_DRIVER_NAME,\" +\
+    \" R.OUT_DRIVER_ID OUT_DRIVER_NAME,R.OUT_CAR, R.OUT_CAR OUT_CAR_HP, R.GATEIN_TIME_S, VH.POL, VH.POD, a.distance,\" +\
+    \"     a.distance * 2 zbdistance, R.TRADE_ID,\" +\
+    \" (SELECT max(BILL_NO) FROM VLOAD_LIST  VL WHERE R.CNTR_ID=VL.CNTR_ID AND R.I_E_ID=VL.I_E_ID) BILL_NO,\" +\
+    \"     NVL (AD.ACCOUNT_CUSTOMER_CODE, r.ACCOUNT_CUSTOMER_CODE)\" +\
+    \"        ACCOUNT_CUSTOMER_CODE,\" +\
+    \"     wm_concat (DISTINCT MANUAL_NODES) MANUAL_NODES,\" +\
+    \"     NVL (AD.ACCOUNT_CUSTOMER_NAM, r.ACCOUNT_CUSTOMER) ACCOUNT_CUSTOMER_NAM,\" +\
+    \"     AD.PAYMENT_CUSTOMER_CODE,\" +\
+    \"     AD.PAYMENT_CUSTOMER_NAM, R.WORK_TYPE,\" +\
+    \"     f_get_mdate (R.CNTR_ID, R.I_E_ID, R.WORK_TYPE) CREATED_ON, R.I_E_ID, R.CAR_TEAM,\" +\
+    \"     SUM (\" +\
+    \"        CASE\" +\
+    \"           WHEN ad.FEE_LIST_ID = 'c7592353553349bfa008a30fcb840653'\" +\
+    \"           THEN\" +\
+    \"              ad.AMOUNT\" +\
+    \"        END)\" +\
+    \"       ZSG_RE13,\" +\
+    \"    SUM (\" +\
+    \"       CASE\" +\
+    \"          WHEN ad.FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9'\" +\
+    \"          THEN\" +\
+    \"             ad.AMOUNT\" +\
+    \"       END)\" +\
+    \"       ZSG_RE06,\" +\
+    \"    SUM (\" +\
+    \"       CASE\" +\
+    \"          WHEN ad.FEE_LIST_ID = '9a29e9f7784646d395fd3af3b3c21377'\" +\
+    \"          THEN\" +\
+    \"             ad.AMOUNT\" +\
+    \"       END)\" +\
+    \"       ZSG_RE07,\" +\
+    \"    SUM (\" +\
+    \"       CASE\" +\
+    \"              WHEN ad.FEE_LIST_ID = 'ab7001972c564366a449ecdd5b364e90'\" +\
+    \"              THEN\" +\
+    \"                  ad.AMOUNT\" +\
+    \"            END)\" +\
+    \"            ZSG_RE09,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '022201' THEN ad.AMOUNT END)\" +\
+    \"            ZSG_RE05,\" +\
+    \"         SUM (\" +\
+    \"            CASE\" +\
+    \"               WHEN ad.FEE_LIST_ID = '7ab6a08042944c348e6a2dbdcfb241b3'\" +\
+    \"               THEN\" +\
+    \"                  ad.rate\" +\
+    \"            END)\" +\
+    \"            ZSG_RE11,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0222' THEN ad.AMOUNT END) ZSG_RE03,\" +\
+    \"         SUM (\" +\
+    \"            CASE\" +\
+    \"               WHEN ad.FEE_LIST_ID = '497d472d16dd4c9e99dee45bbacc6961'\" +\
+    \"               THEN\" +\
+    \"                  ad.AMOUNT\" +\
+    \"            END)\" +\
+    \"            ZSG_RE12,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0213' THEN ad.AMOUNT END) ZSG_RE02,\" +\
+    \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0211' THEN ad.AMOUNT END) ZSG_RE01,\" +\
+    \"         SUM (\" +\
+    \"            CASE\" +\
+    \"              WHEN ad.FEE_LIST_ID = '4f11957a1546427e9f360f2ac8dd0033'\" +\
+    \"               THEN\" +\
+    \"                 ad.AMOUNT\" +\
+    \"            END) ZCCSF472, \" +\
+    \"         CASE\" +\
+    \"            WHEN R.WORK_TYPE IN ('EOFI', 'EOEI', 'EOTC') THEN 'E'\" +\
+    \"            WHEN R.WORK_TYPE IN ('FOFI', 'FOTC', 'FOEI') THEN 'F'\" +\
+    \"         END\" +\
+    \"            E_F_C,\" +\
+    \"         CASE\" +\
+    \"            WHEN R.WORK_TYPE IN ('EOFI', 'FOFI', 'FITC') THEN 'F'\" +\
+    \"            WHEN R.WORK_TYPE IN ('EOEI', 'FOEI', 'EITC') THEN 'E'\" +\
+    \"         END\" +\
+    \"            E_F_I,\" +\
+    \"         CASE\" +\
+    \"            WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+    \"                    AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+    \"            THEN\" +\
+    \"               R.WORK_TYPE\" +\
+    \"            WHEN     R.WORK_TYPE IN ('EOEI')\" +\
+    \"                 AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+    \"            THEN\" +\
+    \"              R.WORK_TYPE\" +\
+    \"           WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+    \"               AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+    \"               AND SHIP_CONSIGN_SAME = 1\" +\
+    \"         THEN\" +\
+    \"           '重出重回(超重)'\" +\
+    \"       WHEN nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+    \"       AND R.WORK_TYPE not IN ('FOFI')\" +\
+    \"     THEN '超重'  \" +\
+    \" END P_TYPE\" +\
+    \"    FROM RECEIPT R LEFT JOIN ACCOUNTS_DETAILS ad ON R.ID = AD.BUSSINESS_CODE LEFT JOIN c_address a ON r.s_adress = a.id\" +\
+    \" LEFT JOIN VLOAD_LIST VH ON VH.CNTR_ID=R.CNTR_ID AND VH.I_E_ID=R.I_E_ID and VH.MAIN_FLAG='1'\" +\
+    \"   WHERE     R.TENANCY_ID = '\" + tenancyid + \"' AND R.WORK_TYPE <> 'YOYI' AND ad.BUSSINESS_CODE IS NOT NULL\" +\
+    \" and ad.FEE_LIST_ID in(\" + feeids + \")\" +\
+    //     \"\" + selsql + decodesql + \"  GROUP BY EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR,R.IN_TRAY_NO,R.NOTES,R.PT_TYPE,R.GATEOUT_TIME_T,R.CNTR,\" +\
+    \"\" + selsql + \"  GROUP BY EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR,R.IN_TRAY_NO,R.NOTES,R.PT_TYPE,R.GATEOUT_TIME_T,R.CNTR,\" +\
+    \"R.CNTR_SIZE,R.WORK_TYPE,R.SHIPPER_CONSIGNEE,R.S_ADRESS,R.BILL_NO,VH.GOODS_NOTES,R.SEAL_NO,R.SHIP_ORDER,\" +\
+    \"R.IN_DRIVER_ID,R.OUT_DRIVER_ID,R.OUT_CAR,R.GATEIN_TIME_S,VH.POL,VH.POD,R.S_ADRESS,R.TRADE_ID,\" +\
+    \"ad.ACCOUNT_CUSTOMER_CODE,ad.ACCOUNT_CUSTOMER_NAM,ad.PAYMENT_CUSTOMER_CODE,ad.PAYMENT_CUSTOMER_NAM,\" +\
+    \"r.ACCOUNT_CUSTOMER_CODE,r.ACCOUNT_CUSTOMER,R.CNTR_ID,R.I_E_ID,R.CAR_TEAM,a.distance,R.SHIP_CONSIGN_SAME order by GATEOUT_TIME_T asc\";\
+}\
+\
+\
+//\
+var rs = app.run(sql);\
+var xml = \"<root><table totalrows='\" + num + \"'>\";\
+while (rs.next()) {\
+  xml += \"<row>\";\
+  if (agshort.get(rs.getString(\"CNTR_OPERATOR_COD\")) != null)\
+    xml += \"<CNTR_OPERATOR_COD>\" + agshort.get(rs.getString(\"CNTR_OPERATOR_COD\")) + \"<\/CNTR_OPERATOR_COD>\";\
+  else\
+    xml += \"<CNTR_OPERATOR_COD><\/CNTR_OPERATOR_COD>\";\
+  xml += \"<IN_CAR>\" + rs.getString(\"IN_CAR\") + \"<\/IN_CAR>\";\
+  if (carList.get(rs.getString(\"IN_CAR_HP\")) != null)\
+    xml += \"<IN_CAR_HP>\" + carList.get(rs.getString(\"IN_CAR_HP\")) + \"<\/IN_CAR_HP>\";\
+  else\
+    xml += \"<IN_CAR_HP><\/IN_CAR_HP>\";\
+  if (tuList.get(rs.getString(\"CAR_TEAM\")) != null)\
+    xml += \"<CAR_TEAM>\" + tuList.get(rs.getString(\"CAR_TEAM\")) + \"<\/CAR_TEAM>\";\
+  else\
+    xml += \"<CAR_TEAM><\/CAR_TEAM>\";\
+  xml += \"<IN_TRAY_NO>\" + rs.getString(\"IN_TRAY_NO\") + \"<\/IN_TRAY_NO>\";\
+  xml += \"<NOTES>\" + rs.getString(\"NOTES\") + \"<\/NOTES>\";\
+  if (ptList.get(rs.getString(\"PT_TYPE\")) != null)\
+    xml += \"<PT_TYPE>\" + ptList.get(rs.getString(\"PT_TYPE\")) + \"<\/PT_TYPE>\";\
+  else\
+    xml += \"<PT_TYPE><\/PT_TYPE>\";\
+  xml += \"<GATEOUT_TIME_T>\" + rs.getString(\"GATEOUT_TIME_T\") + \"<\/GATEOUT_TIME_T>\";\
+  xml += \"<CNTR>\" + rs.getString(\"CNTR\") + \"<\/CNTR>\";\
+  xml += \"<I_E_ID>\" + rs.getString(\"I_E_ID\") + \"<\/I_E_ID>\";\
+  xml += \"<CNTR_SIZE>\" + rs.getString(\"CNTR_SIZE\") + \"<\/CNTR_SIZE>\";\
+  if (wkList.get(rs.getString(\"WORK_TYPE\")) != null)\
+    xml += \"<WORK_TYPE>\" + wkList.get(rs.getString(\"WORK_TYPE\")) + \"<\/WORK_TYPE>\";\
+  else\
+    xml += \"<WORK_TYPE><\/WORK_TYPE>\";\
+  xml += \"<E_F_C>\" + rs.getString(\"E_F_C\") + \"<\/E_F_C>\";\
+  xml += \"<E_F_I>\" + rs.getString(\"E_F_I\") + \"<\/E_F_I>\";\
+  xml += \"<SHIPPER_CONSIGNEE>\" + rs.getString(\"SHIPPER_CONSIGNEE\") + \"<\/SHIPPER_CONSIGNEE>\";\
+  xml += \"<ACCOUNT_CUSTOMER_NAM>\" + rs.getString(\"ACCOUNT_CUSTOMER_NAM\") + \"<\/ACCOUNT_CUSTOMER_NAM>\";\
+  xml += \"<PAYMENT_CUSTOMER_NAM>\" + rs.getString(\"PAYMENT_CUSTOMER_NAM\") + \"<\/PAYMENT_CUSTOMER_NAM>\";\
+  if (addressList.get(rs.getString(\"S_ADRESS\")) != null)\
+    xml += \"<S_ADRESS>\" + addressList.get(rs.getString(\"S_ADRESS\")) + \"<\/S_ADRESS>\";\
+  else\
+    xml += \"<S_ADRESS><\/S_ADRESS>\";\
+  xml += \"<DISTANCE>\" + rs.getString(\"DISTANCE\") + \"<\/DISTANCE>\";\
+  xml += \"<P_TYPE>\" + rs.getString(\"P_TYPE\") + \"<\/P_TYPE>\";\
+\
+  //费用xml\
+  //   xml += mad;\
+  for (var i = 0; i < result.length; i++) {\
+    xml += \"<\" + result[i].ITEM_CODE + \">\" + rs.getString(\"\" + result[i].ITEM_CODE + \"\") + \"<\/\" + result[i].ITEM_CODE + \">\";\
+  }\
+\
+  xml += \"<MANUAL_NODES>\" + rs.getString(\"MANUAL_NODES\") + \"<\/MANUAL_NODES>\";\
+  xml += \"<EMPTY_DRIVING_FLAG>\" + rs.getString(\"EMPTY_DRIVING_FLAG\") + \"<\/EMPTY_DRIVING_FLAG>\";\
+  xml += \"<BILL_NO>\" + rs.getString(\"BILL_NO\") + \"<\/BILL_NO>\";\
+  xml += \"<CMDY_CODE>\" + rs.getString(\"CMDY_CODE\") + \"<\/CMDY_CODE>\";\
+  xml += \"<SEAL_NO>\" + rs.getString(\"SEAL_NO\") + \"<\/SEAL_NO>\";\
+  xml += \"<CREATED_ON>\" + rs.getString(\"CREATED_ON\") + \"<\/CREATED_ON>\";\
+  xml += \"<SHIP_ORDER>\" + rs.getString(\"SHIP_ORDER\") + \"<\/SHIP_ORDER>\";\
+  xml += \"<ZBDISTANCE>\" + rs.getString(\"ZBDISTANCE\") + \"<\/ZBDISTANCE>\";\
+  if (driverList.get(rs.getString(\"IN_DRIVER_NAME\")) != null)\
+    xml += \"<IN_DRIVER_NAME>\" + driverList.get(rs.getString(\"IN_DRIVER_NAME\")) + \"<\/IN_DRIVER_NAME>\";\
+  else\
+    xml += \"<IN_DRIVER_NAME><\/IN_DRIVER_NAME>\";\
+  if (driverList.get(rs.getString(\"OUT_DRIVER_NAME\")) != null)\
+    xml += \"<OUT_DRIVER_NAME>\" + driverList.get(rs.getString(\"OUT_DRIVER_NAME\")) + \"<\/OUT_DRIVER_NAME>\";\
+  else\
+    xml += \"<OUT_DRIVER_NAME><\/OUT_DRIVER_NAME>\";\
+  xml += \"<OUT_CAR>\" + rs.getString(\"OUT_CAR\") + \"<\/OUT_CAR>\";\
+  xml += \"<OUT_CAR_HP>\" + rs.getString(\"OUT_CAR_HP\") + \"<\/OUT_CAR_HP>\";\
+  xml += \"<TRADE_ID>\" + rs.getString(\"TRADE_ID\") + \"<\/TRADE_ID>\";\
+  xml += \"<GATEIN_TIME_S>\" + rs.getString(\"GATEIN_TIME_S\") + \"<\/GATEIN_TIME_S>\";\
+  if (portList.get(rs.getString(\"POL\")) != null)\
+    xml += \"<POL>\" + portList.get(rs.getString(\"POL\")) + \"<\/POL>\";\
+  else\
+    xml += \"<POL><\/POL>\";\
+  if (portList.get(rs.getString(\"POD\")) != null)\
+    xml += \"<POD>\" + portList.get(rs.getString(\"POD\")) + \"<\/POD>\";\
+  else\
+    xml += \"<POD><\/POD>\";\
+  xml += \"<\/row>\";\
+\
+}\
+var enddate = (new JavaDate()).getTime();\
+// app.log(enddate - begdate);\
+// app.log(xml);\
+app.send(xml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "excel版本查找",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

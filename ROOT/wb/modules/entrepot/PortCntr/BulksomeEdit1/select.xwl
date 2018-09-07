@@ -1,0 +1,89 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),goods=app.get(\"goods\"),nature=app.get(\"sys.NATURE\"),bulkType=app.get(\"bulkType\"), govCode=app.get(\"sys.GOV_CODE\");; //租户id\
+\
+// var sql = \"SELECT null OUTNUM,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, CNTR_OPERATOR\"+\
+//       \"  FROM BLUK_GOODS where  1=1 and QUTY<>0\";\
+// if(!Wb.isEmpty(data.type)&& !Wb.isEmpty(data.goodsName)){\
+//   if(data.type==='0'){\
+//   \tsql+=\" and CFS_ID||LOCATION like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='1'){\
+//   \tsql+=\" and LOCATION like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='2'){\
+//   \tsql+=\" and GOODS like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='3'){\
+//   \tsql+=\" and SHIPPER like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='4'){\
+//   \tsql+=\" and SHIPPER like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='5'){\
+//   \tsql+=\" and BILL_NO like '%'||{?goodsName?}||'%'\";\
+//   }\
+// }\
+\
+var sql = \"SELECT a.ID,null OUTNUM,a.BILL_ID,a.trade_id, a.GOODS, a.IMPEXP, a.SHIPPER, a.UNIT, a.INQUTY, a.OUTQUTY, a.QUTY, a.INTIME, a.OUTTIME, a.LOCATION, a.CFS_ID, a.WEIGHT, a.CFSBILLNO, a.VOLUME, a.CFSBILL_ID, a.TENANCY_ID, a.UPDATED_ON, a.CREATED_ON, a.CREATED_BY, a.UPDATED_BY, a.BILL_NO, a.CNTR_OPERATOR,b.RELEASE_ID\"+\
+      \"  FROM BLUK_GOODS a,VBILL_HEAD b where  1=1 and QUTY<>0 and a.BILL_ID=b.ID and a.trade_id='2'\";\
+var sql = \"  SELECT SUM (a.weight),SUM (A.VOLUME),wm_concat (a.ID),NULL OUTNUM,a.BILL_ID,a.GOODS,a.TRADE_ID,a.IMPEXP, \\\
+         wm_concat (a.SHIPPER),SUM (a.INQUTY),SUM (a.OUTQUTY),SUM (a.QUTY), \\\
+         wm_concat (TO_CHAR (a.INTIME, 'yyyy-MM-dd HH24:mm:ss')), \\\
+         wm_concat (TO_CHAR (a.OUTTIME, 'yyyy-MM-dd HH24:mm:ss')), \\\
+         a.LOCATION,a.CFS_ID,SUM (a.WEIGHT),wm_concat (a.CFSBILLNO),SUM (a.VOLUME),wm_concat (a.CFSBILL_ID),\\\
+         a.TENANCY_ID,a.BILL_NO,a.CNTR_OPERATOR,B.CNTR_OPERATOR_COD,b.RELEASE_ID \\\
+    FROM BLUK_GOODS a, VBILL_HEAD b WHERE 1 = 1 AND QUTY <> 0 AND a.BILL_ID = b.ID(+) AND a.TRADE_ID = '2' and a.TENANCY_ID={?sys.TENANCY_ID?}\";\
+\
+if(!Wb.isEmpty(data.type)&& !Wb.isEmpty(data.goodsName)){\
+  if(data.type==='0'){\
+  \tsql+=\" and a.CFS_ID||a.LOCATION like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='1'){\
+  \tsql+=\" and a.LOCATION like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='2'){\
+  \tsql+=\" and a.GOODS like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='3'){\
+    \
+    \
+  \tsql+=\" and a.SHIPPER like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='4'){\
+  \tsql+=\" and b.CNTR_OPERATOR_COD like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='5'){\
+  \tsql+=\" and a.BILL_NO like '%'||{?goodsName?}||'%'\";\
+  }\
+}\
+\
+if(data.type=='6' && !Wb.isEmpty(data.dates)){\
+\tsql+=\" and trunc(a.INTIME)= to_date('\"+data.dates+\"','yyyy-MM-dd')\";\
+}else if(data.type=='7' && !Wb.isEmpty(data.dates)){\
+\tsql+=\" and trunc(a.OUTTIME)= to_date('\"+data.dates+\"','yyyy-MM-dd')\";\
+}\
+\
+if(data.type=='4' && !Wb.isEmpty(data.ship)){\
+\tsql+=\" and b.CNTR_OPERATOR like '%'||{?ship?}||'%'\";\
+}\
+\
+if(data.type=='8' && !Wb.isEmpty(data.ieId)){\
+\tsql+=\" and b.I_E_ID ='\"+data.ieId+\"'\t\";\
+}\
+\
+if(!Wb.isEmpty(data.cfsId)){\
+\tsql+=\" and a.CFS_ID={?cfsId?}\";\
+}\
+\
+sql+=\" GROUP BY a.BILL_NO,a.bill_id,a.GOODS,a.TRADE_ID,a.IMPEXP,a.LOCATION,a.CFS_ID,a.TENANCY_ID,a.CNTR_OPERATOR,B.CNTR_OPERATOR_COD,b.RELEASE_ID\";\
+app.send(Wb.getRecords(app.run(sql)));\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

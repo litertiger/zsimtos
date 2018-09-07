@@ -1,0 +1,204 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var tenancyId = app.get('sys.TENANCY_ID');\
+var sql = \"\";\
+var data = app.get();\
+// sql = \"SELECT RECEIPT.id,RECEIPT.CNTR_OPERATOR_COD,RECEIPT.TRADE_ID,\" +\
+//   \"       RECEIPT.IN_CAR,\" +\
+// //   \"       CASE WHEN T.CAR_TEAM=RECEIPT.CAR_TEAM THEN RECEIPT.CAR_TEAM ELSE T.CAR_TEAM END CAR_TEAM,\" +\
+//   \"\t\t\tRECEIPT.CAR_TEAM,T.CAR_TEAM SCAR_TEAM,\"+\
+//   \"       RECEIPT.PT_TYPE,\" +\
+//   \"       to_char(GATEOUT_TIME_T,'yyyy-MM-dd') GATEOUT_TIME_T,\" +\
+//   \"       RECEIPT.CNTR,\" +\
+//   \"       RECEIPT.CNTR_SIZE,\" +\
+//   \"       RECEIPT.WORK_TYPE,\" +\
+//   \"       RECEIPT.SHIPPER_CONSIGNEE,\" +\
+//   \"       RECEIPT.S_ADRESS,\" +\
+//   \"       SUM(CASE\" +\
+//   \"          WHEN FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9' THEN AMOUNT\" +\
+//   \"       END)\" +\
+//   \"          TYFEE,\" +\
+//   \"       SUM(DECODE (FEE_LIST_ID, '9a29e9f7784646d395fd3af3b3c21377', AMOUNT, ''))\" +\
+//   \"          RYFEE,\" +\
+//   \"       SUM(case when FEE_LIST_ID='7ab6a08042944c348e6a2dbdcfb241b3' THEN CONTRACT_RATE END) QNTYFEE,\" +\
+//   \"       '' YFEE,\" +\
+//   \"      ROUND(fee_jcwf(receipt.ID)) SFEE,\" +\
+//   \"       NVL(T.NOTES,case when ACCOUNTS_DETAILS.CUSTOMER_ID in('000001','000805') then '包干'||SUM(CASE WHEN FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9' THEN AMOUNT END) \" +\
+//   \"       WHEN ACCOUNTS_DETAILS.CUSTOMER_ID in('001231','001541','JWLWJ') THEN '包干'||DECODE(RECEIPT.CNTR_SIZE,'20','524','40','660')\" +\
+//   \"WHEN ACCOUNTS_DETAILS.CUSTOMER_ID in('001994','ZSSMZZKD','001040','WDDQ','HXDZF') THEN '包干'||DECODE(RECEIPT.CNTR_SIZE,'20',0,'40','300')\" +\
+//   \"WHEN ACCOUNTS_DETAILS.CUSTOMER_ID in ('GDTCL','000050','000074','000497','000013','000036','000514','000038','002103','001954','000220','000302','000046','000242') /*AND RECEIPT.CNTR_OPERATOR_COD='HU'*/ THEN '旧价'\" +\
+//   \"     when RECEIPT.CAR_TEAM = 'SAT' then '运费50%'  end )NOTES,\" +\
+//   \"   fee_preferenceType(RECEIPT.ID) P_TYPE,\" +\
+//   \"       DECODE(EMPTY_DRIVING_FLAG,'0','非空跑','空跑') EMPTY_DRIVING_FLAG,DISTANCE,NVL(T.SG_FEE,'') SGFEE,NVL(T.ALL_FEE,'') TZFEE\" +\
+//   \"  FROM RECEIPT\" +\
+//   \"       LEFT JOIN ACCOUNTS_DETAILS\" +\
+//   \"          ON RECEIPT.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE\" +\
+//   \"          LEFT JOIN c_address a ON RECEIPT.s_adress = a.id left join T_RPT_TRUCK_OUT_PAY t on t.id=receipt.id\" +\
+//   \" WHERE     1 = 1\" +\
+//   \"       AND FEE_LIST_ID IN\" +\
+//   \"              ('fbba1752c5f044218fe8838b705169b9',\" +\
+//   \"               '9a29e9f7784646d395fd3af3b3c21377',\" +\
+//   \"               '7ab6a08042944c348e6a2dbdcfb241b3')\" +\
+//   \"       AND RECEIPT.PT_TYPE = '2' \"+data.whereSql+\"\" +\
+//   \"GROUP BY RECEIPT.CNTR_OPERATOR_COD,\" +\
+//   \"       RECEIPT.IN_CAR,\" +\
+//   \"       RECEIPT.CAR_TEAM,\" +\
+//   \"       RECEIPT.PT_TYPE,\" +\
+//   \"       RECEIPT.GATEOUT_TIME_T,\" +\
+//   \"       RECEIPT.CNTR,\" +\
+//   \"       RECEIPT.CNTR_SIZE,\" +\
+//   \"       RECEIPT.WORK_TYPE,\" +\
+//   \"       RECEIPT.SHIPPER_CONSIGNEE,\" +\
+//   \"       RECEIPT.S_ADRESS,ACCOUNTS_DETAILS.CUSTOMER_ID,EMPTY_DRIVING_FLAG,SHIP_CONSIGN_SAME,RECEIPT.id,a.DISTANCE,RECEIPT.TRADE_ID,T.SG_FEE,T.ALL_FEE,t.NOTES,T.CAR_TEAM\" +\
+//   \" union  \" +\
+//   \"       SELECT RECEIPT.id,RECEIPT.CNTR_OPERATOR_COD,RECEIPT.TRADE_ID,\" +\
+//   \"       RECEIPT.IN_CAR,\" +\
+// //   \"       CASE WHEN T.CAR_TEAM=RECEIPT.CAR_TEAM THEN RECEIPT.CAR_TEAM ELSE T.CAR_TEAM END CAR_TEAM,\" +\
+//     \"\t\t\tRECEIPT.CAR_TEAM,T.CAR_TEAM SCAR_TEAM,\"+\
+//   \"       RECEIPT.PT_TYPE,\" +\
+//   \"       to_char(GATEOUT_TIME_T,'yyyy-MM-dd') GATEOUT_TIME_T,\" +\
+//   \"       RECEIPT.CNTR,\" +\
+//   \"       RECEIPT.CNTR_SIZE,\" +\
+//   \"       RECEIPT.WORK_TYPE,\" +\
+//   \"       SHIPPER_CONSIGNEE,\" +\
+//   \"       RECEIPT.S_ADRESS,\" +\
+//   \"       SUM(CASE\" +\
+//   \"          WHEN FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9' THEN AMOUNT\" +\
+//   \"       END)\" +\
+//   \"          TYFEE,\" +\
+//   \"       SUM(DECODE (FEE_LIST_ID, '9a29e9f7784646d395fd3af3b3c21377', AMOUNT, ''))\" +\
+//   \"          RYFEE,\" +\
+//   \"       SUM(case when FEE_LIST_ID='7ab6a08042944c348e6a2dbdcfb241b3' THEN CONTRACT_RATE END) QNTYFEE,\" +\
+//   \"       '' YFEE,\" +\
+//   \"      ROUND(case when ACCOUNTS_DETAILS.CUSTOMER_ID IN('000613','000742','000623','000597','1111') and substr(OUT_CAR,0,1)!='5' then DECODE(RECEIPT.CNTR_SIZE,'20',460,'40',520)*0.5 end  ) SFEE,\" +\
+//   \"       nvl(t.NOTES,'运费50%') NOTES,\" +\
+//   \"   fee_preferenceType(RECEIPT.ID) P_TYPE,\" +\
+//   \"       DECODE(EMPTY_DRIVING_FLAG,'0','非空跑','空跑') EMPTY_DRIVING_FLAG,DISTANCE,NVL(T.SG_FEE,'') SGFEE,NVL(T.ALL_FEE,'') TZFEE\" +\
+//   \"  FROM RECEIPT\" +\
+//   \"       LEFT JOIN ACCOUNTS_DETAILS\" +\
+//   \"          ON RECEIPT.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE\" +\
+//   \"          LEFT JOIN c_address a ON RECEIPT.s_adress = a.id left join T_RPT_TRUCK_OUT_PAY t on t.id=receipt.id\" +\
+//   \" WHERE     1 = 1\" +\
+//   \"       AND FEE_LIST_ID IN\" +\
+//   \"              ('fbba1752c5f044218fe8838b705169b9',\" +\
+//   \"               '9a29e9f7784646d395fd3af3b3c21377',\" +\
+//   \"               '7ab6a08042944c348e6a2dbdcfb241b3')\" +\
+//   \"       AND RECEIPT.PT_TYPE in ('1','2') and RECEIPT.CAR_TEAM in('SAT','HYLY') \"+data.whereSql2+\"\" +\
+//   \"and ACCOUNTS_DETAILS.CUSTOMER_ID IN('000613','000742','000623','000597','1111')\" +\
+//   \"GROUP BY RECEIPT.CNTR_OPERATOR_COD,\" +\
+//   \"       RECEIPT.IN_CAR,\" +\
+//   \"       RECEIPT.CAR_TEAM,\" +\
+//   \"       RECEIPT.PT_TYPE,\" +\
+//   \"       GATEOUT_TIME_T,\" +\
+//   \"       RECEIPT.CNTR,\" +\
+//   \"       RECEIPT.CNTR_SIZE,\" +\
+//   \"       RECEIPT.WORK_TYPE,\" +\
+//   \"       RECEIPT.SHIPPER_CONSIGNEE,\" +\
+//   \"       RECEIPT.S_ADRESS,ACCOUNTS_DETAILS.CUSTOMER_ID,EMPTY_DRIVING_FLAG,SHIP_CONSIGN_SAME,RECEIPT.id,a.DISTANCE,OUT_CAR,RECEIPT.TRADE_ID,T.SG_FEE,T.ALL_FEE,t.NOTES,T.CAR_TEAM\";\
+sql = \"SELECT * FROM(SELECT DISTINCT RECEIPT.id,RECEIPT.CNTR_OPERATOR_COD,RECEIPT.TRADE_ID,\" +\
+  \"       RECEIPT.IN_CAR,\" +\
+//   \"       CASE WHEN T.CAR_TEAM=RECEIPT.CAR_TEAM THEN RECEIPT.CAR_TEAM ELSE T.CAR_TEAM END CAR_TEAM,\" +\
+  \"\t\t\tRECEIPT.CAR_TEAM,T.CAR_TEAM SCAR_TEAM,\"+\
+  \"       RECEIPT.PT_TYPE,\" +\
+  \"       to_char(GATEOUT_TIME_T,'yyyy-MM-dd') GATEOUT_TIME_T,\" +\
+  \"       RECEIPT.CNTR,\" +\
+  \"       RECEIPT.CNTR_SIZE,\" +\
+  \"       RECEIPT.WORK_TYPE,\" +\
+  \"       RECEIPT.SHIPPER_CONSIGNEE,\" +\
+  \"       RECEIPT.S_ADRESS,\" +\
+  \"       SUM(CASE\" +\
+  \"          WHEN FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9' THEN AMOUNT\" +\
+  \"       END)\" +\
+  \"          TYFEE,\" +\
+  \"       SUM(DECODE (FEE_LIST_ID, '9a29e9f7784646d395fd3af3b3c21377', AMOUNT, ''))\" +\
+  \"          RYFEE,\" +\
+  \"       SUM(case when FEE_LIST_ID='7ab6a08042944c348e6a2dbdcfb241b3' THEN CONTRACT_RATE END) QNTYFEE,\" +\
+  \"       '' YFEE,\" +\
+  \"      ROUND(fee_jcwf(receipt.ID)) SFEE,\" +\
+  \"       NVL(T.NOTES,case when ACCOUNTS_DETAILS.CUSTOMER_ID in('000001','000805') then '包干'||SUM(CASE WHEN FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9' THEN AMOUNT END) \" +\
+  \"       WHEN ACCOUNTS_DETAILS.CUSTOMER_ID in('001231','001541','JWLWJ') THEN '包干'||DECODE(RECEIPT.CNTR_SIZE,'20','524','40','660')\" +\
+  \"WHEN ACCOUNTS_DETAILS.CUSTOMER_ID in('001994','ZSSMZZKD','001040','WDDQ','HXDZF') THEN '包干'||DECODE(RECEIPT.CNTR_SIZE,'20',0,'40','300')\" +\
+  \"WHEN ACCOUNTS_DETAILS.CUSTOMER_ID in ('GDTCL','000050','000074','000497','000013','000036','000514','000038','002103','001954','000220','000302','000046','000242') /*AND RECEIPT.CNTR_OPERATOR_COD='HU'*/ THEN '旧价'\" +\
+  \"     when RECEIPT.CAR_TEAM = 'SAT' then '运费50%'  end )NOTES,\" +\
+  \"   fee_preferenceType(RECEIPT.ID) P_TYPE,\" +\
+  \"       DECODE(EMPTY_DRIVING_FLAG,'0','非空跑','空跑') EMPTY_DRIVING_FLAG,DISTANCE,NVL(T.SG_FEE,'') SGFEE,NVL(T.ALL_FEE,'') TZFEE,OUT_CAR,to_char(GATEIN_TIME_S,'yyyy-MM-dd') GATEIN_TIME_S\" +\
+  \"  FROM RECEIPT\" +\
+  \"       LEFT JOIN ACCOUNTS_DETAILS\" +\
+  \"          ON RECEIPT.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE\" +\
+  \"          LEFT JOIN c_address a ON RECEIPT.s_adress = a.id left join T_RPT_TRUCK_OUT_PAY t on t.id=receipt.id\" +\
+  \" WHERE     1 = 1 AND RECEIPT.CAR_TEAM NOT IN('MHJT')\" +\
+  \"       AND FEE_LIST_ID IN\" +\
+  \"              ('fbba1752c5f044218fe8838b705169b9',\" +\
+  \"               '9a29e9f7784646d395fd3af3b3c21377',\" +\
+  \"               '7ab6a08042944c348e6a2dbdcfb241b3')\" +\
+  \"       AND RECEIPT.PT_TYPE = '2' \"+data.whereSql+\"\" +\
+  \"GROUP BY RECEIPT.CNTR_OPERATOR_COD,\" +\
+  \"       RECEIPT.IN_CAR,\" +\
+  \"       RECEIPT.CAR_TEAM,\" +\
+  \"       RECEIPT.PT_TYPE,\" +\
+  \"       RECEIPT.GATEOUT_TIME_T,\" +\
+  \"       RECEIPT.CNTR,\" +\
+  \"       RECEIPT.CNTR_SIZE,\" +\
+  \"       RECEIPT.WORK_TYPE,\" +\
+  \"       RECEIPT.SHIPPER_CONSIGNEE,\" +\
+  \"       RECEIPT.S_ADRESS,ACCOUNTS_DETAILS.CUSTOMER_ID,EMPTY_DRIVING_FLAG,SHIP_CONSIGN_SAME,RECEIPT.id,a.DISTANCE,RECEIPT.TRADE_ID,T.SG_FEE,T.ALL_FEE,t.NOTES,T.CAR_TEAM,OUT_CAR,GATEIN_TIME_S\" +\
+  \" union all  \" +\
+  \"       SELECT DISTINCT RECEIPT.id,RECEIPT.CNTR_OPERATOR_COD,RECEIPT.TRADE_ID,\" +\
+  \"       RECEIPT.IN_CAR,\" +\
+//   \"       CASE WHEN T.CAR_TEAM=RECEIPT.CAR_TEAM THEN RECEIPT.CAR_TEAM ELSE T.CAR_TEAM END CAR_TEAM,\" +\
+    \"\t\t\tRECEIPT.CAR_TEAM,T.CAR_TEAM SCAR_TEAM,\"+\
+  \"       RECEIPT.PT_TYPE,\" +\
+  \"       to_char(GATEOUT_TIME_T,'yyyy-MM-dd') GATEOUT_TIME_T,\" +\
+  \"       RECEIPT.CNTR,\" +\
+  \"       RECEIPT.CNTR_SIZE,\" +\
+  \"       RECEIPT.WORK_TYPE,\" +\
+  \"       SHIPPER_CONSIGNEE,\" +\
+  \"       RECEIPT.S_ADRESS,\" +\
+  \"       SUM(CASE\" +\
+  \"          WHEN FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9' THEN AMOUNT\" +\
+  \"       END)\" +\
+  \"          TYFEE,\" +\
+  \"       SUM(DECODE (FEE_LIST_ID, '9a29e9f7784646d395fd3af3b3c21377', AMOUNT, ''))\" +\
+  \"          RYFEE,\" +\
+  \"       SUM(case when FEE_LIST_ID='7ab6a08042944c348e6a2dbdcfb241b3' THEN CONTRACT_RATE END) QNTYFEE,\" +\
+  \"       '' YFEE,\" +\
+  \"      ROUND(case when ACCOUNTS_DETAILS.CUSTOMER_ID IN('000613','000742','000623','000597','1111') and substr(OUT_CAR,0,1)!='5' then DECODE(RECEIPT.CNTR_SIZE,'20',460,'40',520,'45',520)*0.5 end  ) SFEE,\" +\
+  \"       nvl(t.NOTES,'运费50%') NOTES,\" +\
+  \"   fee_preferenceType(RECEIPT.ID) P_TYPE,\" +\
+  \"       DECODE(EMPTY_DRIVING_FLAG,'0','非空跑','空跑') EMPTY_DRIVING_FLAG,DISTANCE,NVL(T.SG_FEE,'') SGFEE,NVL(T.ALL_FEE,'') TZFEE,OUT_CAR,to_char(GATEIN_TIME_S,'yyyy-MM-dd') GATEIN_TIME_S\" +\
+  \"  FROM RECEIPT\" +\
+  \"       LEFT JOIN ACCOUNTS_DETAILS\" +\
+  \"          ON RECEIPT.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE\" +\
+  \"          LEFT JOIN c_address a ON RECEIPT.s_adress = a.id left join T_RPT_TRUCK_OUT_PAY t on t.id=receipt.id\" +\
+  \" WHERE     1 = 1\" +\
+  \"       AND FEE_LIST_ID IN\" +\
+  \"              ('fbba1752c5f044218fe8838b705169b9',\" +\
+  \"               '9a29e9f7784646d395fd3af3b3c21377',\" +\
+  \"               '7ab6a08042944c348e6a2dbdcfb241b3')\" +\
+  \"       AND RECEIPT.PT_TYPE in ('1','2') and RECEIPT.CAR_TEAM in('SAT','HYLY') \"+data.whereSql2+\"\" +\
+  \"and ACCOUNTS_DETAILS.CUSTOMER_ID IN('000613','000742','000623','000597','1111')\" +\
+  \"GROUP BY RECEIPT.CNTR_OPERATOR_COD,\" +\
+  \"       RECEIPT.IN_CAR,\" +\
+  \"       RECEIPT.CAR_TEAM,\" +\
+  \"       RECEIPT.PT_TYPE,\" +\
+  \"       GATEOUT_TIME_T,\" +\
+  \"       RECEIPT.CNTR,\" +\
+  \"       RECEIPT.CNTR_SIZE,\" +\
+  \"       RECEIPT.WORK_TYPE,\" +\
+  \"       RECEIPT.SHIPPER_CONSIGNEE,\" +\
+  \"       RECEIPT.S_ADRESS,ACCOUNTS_DETAILS.CUSTOMER_ID,EMPTY_DRIVING_FLAG,SHIP_CONSIGN_SAME,RECEIPT.id,a.DISTANCE,OUT_CAR,RECEIPT.TRADE_ID,T.SG_FEE,T.ALL_FEE,t.NOTES,T.CAR_TEAM,OUT_CAR,GATEIN_TIME_S) WHERE SFEE IS NOT NULL\";\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

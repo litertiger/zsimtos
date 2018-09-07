@@ -1,0 +1,56 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverMethod": "com.ag.aohao.EarlyWarning.getShipYjSql"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "query1",
+     "errorText": "证书不存在不能审核证书,请先维护证书",
+     "sql": "select 1 from dual where not  exists(\
+select  1 from C_SHIP_CERTIFICATION a ,C_CERTIFICATE b where  C_V_ID={?VESSEL_NAME?} \
+  and C_CE_ID=b.ID  and  b.CODE={?Certificate?} and state='0')"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query2",
+     "sql": "update C_SHIP_CERTIFICATION set GET_TIME={?TIMESTAMP.GET_TIME?}, NEXT_TIME={?TIMESTAMP.NEXT_TIME?}\
+where  C_V_ID={?VESSEL_NAME?}  and C_CE_ID=(select ID  from C_CERTIFICATE where CODE={?Certificate?}  ) and state='0' \
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query3",
+     "sql": "\
+insert into C_SHIP_CERTIFICATION (ID,C_V_ID,C_CE_ID,GET_TIME,STATE )\
+values({?sys.id?},{?VESSEL_NAME?},(select ID  from C_CERTIFICATE where CODE={?Certificate?} ),{?TIMESTAMP.GET_TIME?},'1')"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "ZSG_GA": 1
+ },
+ "title": "修改证书时间",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

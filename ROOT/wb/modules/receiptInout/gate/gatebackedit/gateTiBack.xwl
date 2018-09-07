@@ -1,0 +1,156 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var dispname = app.get('sys.dispname');\
+// var receipts = Wb.decode(data.receipts);\
+sql = \"select r.*,'ti' TS from receipt r where phase='GET' and id in(select HANDLE_ID from move_list where move_type='MOV'\" +\
+  \" and phase='SND' and tenancy_id='\" + tenancyid + \"' and carrier_call in(select tr.tvid from receipt r1\" +\
+  \" left join truck_receipt tr on r1.id=tr.rpid\" +\
+  \" where r1.tenancy_id='\" + tenancyid + \"' and r1.phase='GET' and tr.fetchtype='GO'\" +\
+  \" and tr.cntr='\" + data.cntr + \"'))\";\
+var receipts = Wb.getRecords(app.run(sql));\
+if (receipts.length < 1)\
+  throw \"没有找到箱子,只有提箱进门的箱子能取消进门\";\
+\
+//还原设备交接单\
+if (receipts[0].NO_CNTR == \"0\" || Wb.isEmpty(receipts[0].NO_CNTR)) //正常设备交接单\
+  app.run(\"update receipt set phase='EXE',GATEIN_TIME_T='',GATEIN_NO_T='',GATEOUT_TIME_T='',GATEOUT_NO_T=''\" +\
+  \" where id={?ID?}\", {\
+    arrayData: Wb.encode(receipts),\
+    transaction: 'start'\
+  });\
+if (receipts[0].NO_CNTR == \"1\") { //不定箱号设备交接单\
+  app.run(\"update receipt set phase='EXE',GATEIN_TIME_T='',GATEIN_NO_T='',GATEOUT_TIME_T='',GATEOUT_NO_T='',\" +\
+    \"CNTR='',CNTR_ID='' where id={?ID?}\", {\
+      arrayData: Wb.encode(receipts),\
+      transaction: 'start'\
+    });\
+}\
+//还原在场箱\
+app.run(\"update port_cntr set PRE_TAK_ID=0 where id={?CNTR_ID?}\", {\
+  arrayData: Wb.encode(receipts)\
+});\
+//删除truck_visit\
+app.run(\"delete from truck_visit where id in(select tvid from truck_receipt where rpid={?ID?} and FETCHTYPE='GO')\", {\
+  arrayData: Wb.encode(receipts)\
+});\
+app.run(\"delete from truck_receipt where rpid={?ID?} and FETCHTYPE='GO'\", {\
+  arrayData: Wb.encode(receipts)\
+});\
+var mid = Wb.getRecords(app.run(\"select id from move_list where move_type='MOV'\" +\
+  \" and phase='SND' and tenancy_id='\" + tenancyid + \"' and HANDLE_ID='\" + receipts[0].ID + \"'\"));\
+var mz = Wb.getRecords(app.run(\"select id,FROM_POS from move_list where move_type='LOD'\" +\
+  \" and TRCLASS1='YC' and tenancy_id='\" + tenancyid + \"' and queue_id='\" + mid[0].ID + \"'\"));\
+var mid2, mz2;\
+if (receipts.length > 1) {\
+  mid2 = Wb.getRecords(app.run(\"select id from move_list where move_type='MOV'\" +\
+    \" and phase='SND' and tenancy_id='\" + tenancyid + \"' and HANDLE_ID='\" + receipts[1].ID + \"'\"));\
+  mz2 = Wb.getRecords(app.run(\"select id,FROM_POS from move_list where move_type='LOD'\" +\
+    \" and TRCLASS1='YC' and tenancy_id='\" + tenancyid + \"' and queue_id='\" + mid2[0].ID + \"'\"));\
+}\
+//删除未完成的指令\
+app.run(\"delete from move_list where queue_id in(select id from move_list where move_type='MOV'\" +\
+  \" and phase='SND' and tenancy_id='\" + tenancyid + \"' and HANDLE_ID={?ID?})\", {\
+    arrayData: Wb.encode(receipts)\
+  });\
+app.run(\"delete from move_list where move_type='MOV'\" +\
+  \" and phase='SND' and tenancy_id='\" + tenancyid + \"' and HANDLE_ID={?ID?}\", {\
+    arrayData: Wb.encode(receipts),\
+    transaction: 'commit'\
+  });\
+app.run(\"insert into aaa(CAP_XML,create_on) values('提箱闸口退回,箱:'||{?CNTR?}||',修改人:'||'\" + dispname + \"',sysdate)\", {\
+  arrayData: Wb.encode(receipts)\
+});\
+app.send({\
+  success: true\
+});\
+var client = new RabbitClient();\
+var gate = \"\";\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+      info: {\
+        type: \"load\",\
+        action: \"delete\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"gatectrl\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: mid[0].ID\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"cy.\" + mz[0].FROM_POS, {\
+      info: {\
+        type: \"disc\",\
+        action: \"delete\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"gatectrl\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: mz[0].ID\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  };\
+  if (receipts.length > 1) {\
+    if (!(client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+        info: {\
+          type: \"load\",\
+          action: \"delete\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: mid2[0].ID\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"cy.\" + mz2[0].FROM_POS, {\
+        info: {\
+          type: \"disc\",\
+          action: \"delete\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: mz2[0].ID\
+        }\
+      }))) return {\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    };\
+  }\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "提箱回滚操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

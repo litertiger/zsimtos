@@ -1,0 +1,649 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbar",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "text": "@Str.save",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var values = Wb.getValue(app.panelForm);\
+if (!Wb.verify(app.panelForm))\
+  return false;\
+\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/work/truckSendwork/update',\
+    params: values,\
+    success: function() {\
+      app.gridSendwork.store.load({\
+        out: app.tbar\
+      });\
+      app.resetBtn.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/work/truckSendwork/insert',\
+    out: app.panelForm,\
+    success: function(resp) {\
+      app.gridSendwork.store.load({\
+        out: app.tbar\
+      });\
+      app.resetBtn.fireEvent('click');\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delBtn",
+       "tooltip": "删除选择的记录",
+       "text": "@Str.del",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridSendwork.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/work/truckSendwork/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      app.gridSendwork.store.load({\
+        out: app.tbar\
+      });\
+      app.resetBtn.fireEvent('click');\
+    }\
+  });\
+}, 'CNTR_NO');"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "resetBtn",
+       "tooltip": "添加新的记录 (Ctrl+E)",
+       "text": "重置",
+       "iconCls": "redo_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var tid = app.TENANCY_ID.getValue();\
+var writedate = app.WORK_DATE.getValue();\
+var seldate = app.selDate.getValue();\
+Wb.reset(app.panelForm);\
+app.TENANCY_ID.setValue(tid);\
+app.WORK_DATE.setValue(writedate);\
+app.selDate.setValue(seldate);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "selDate",
+       "labelAlign": "right",
+       "emptyText": "派工时间",
+       "format": "Y-m-d"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "searchBtn",
+       "text": "@Str.find",
+       "iconCls": "search_icon"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.gridSendwork.store.load({\
+  out: app.tbar\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "importExcelBtn",
+       "text": "导入Excel",
+       "iconCls": "file_xls_icon"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.excelWin.setTitle('导入Excel');\
+app.excelWin.setIconCls('file_xls_icon');\
+app.excelWin.show();\
+Wb.reset(app.excelWin);"}
+     },
+     {
+      "configs": {
+       "itemId": "txtdriverid",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "txttruckid",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "txttrayid",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "excelWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "300",
+     "height": "95"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "form1"},
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "fit",
+       "itemId": "panelE",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "importFile",
+        "labelAlign": "right",
+        "fieldLabel": "选择文件",
+        "width": "659",
+        "labelWidth": "60",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "file"
+      }],
+      "type": "panel"
+     }],
+     "type": "form"
+    }],
+    "type": "window",
+    "events": {"ok": "app.form1.submit({\
+  url: \"m?xwl=controlManage/work/truckSendwork/importExcel\",\
+  success: function(resp) {\
+\
+  }\
+});\
+app.excelWin.close();"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:4}",
+       "itemId": "panelForm",
+       "defaults": "{\
+  labelWidth: 70,\
+  width: 260,\
+  margin: '20 8 0 8'\
+}",
+       "tbar": "app.tbar",
+       "region": "north",
+       "height": "98"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TENANCY_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "租户"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TRUCK_ID",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>车辆",
+         "displayField": "PLAT_NO",
+         "valueField": "ID"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=controlManage/work/truckSendwork/loadTruck"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "operation.params = {\
+  txttruckid: app.txttruckid.getValue()\
+};"}
+        }],
+        "type": "combo",
+        "events": {"change": "if (!Wb.isEmpty(newValue)) {\
+  if (combo.getRawValue().indexOf(\"(\") != -1)\
+    app.TRUCK_HP.setValue(combo.getRawValue().substring(0, combo.getRawValue().indexOf(\"(\")));\
+  else\
+    app.TRUCK_HP.setValue(combo.getRawValue());\
+} else {\
+  app.TRUCK_HP.reset();\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "TRUCK_HP",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "车牌"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TRAY_ID",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>拖卡",
+         "displayField": "TRAY_NO",
+         "valueField": "ID"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=controlManage/work/truckSendwork/loadTray"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "operation.params = {\
+  txttrayid: app.txttrayid.getValue()\
+};"}
+        }],
+        "type": "combo",
+        "events": {"change": "if (!Wb.isEmpty(newValue)) {\
+  if (combo.getRawValue().indexOf(\"(\") != -1)\
+    app.TRAY_NO.setValue(combo.getRawValue().substring(0, combo.getRawValue().indexOf(\"(\")));\
+  else\
+    app.TRAY_NO.setValue(combo.getRawValue());\
+} else {\
+  app.TRAY_NO.reset();\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "TRAY_NO",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "拖卡号"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "DRIVER_ID",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>司机",
+         "displayField": "EMPNAME",
+         "valueField": "ID"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=controlManage/work/truckSendwork/loadDriver"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "operation.params = {\
+  txtdriverid: app.txtdriverid.getValue()\
+};"}
+        }],
+        "type": "combo",
+        "events": {"change": "if (!Wb.isEmpty(newValue)) {\
+  if (combo.getRawValue().indexOf(\"(\") != -1)\
+    app.DRIVER_NAME.setValue(combo.getRawValue().substring(0, combo.getRawValue().indexOf(\"(\")));\
+  else\
+    app.DRIVER_NAME.setValue(combo.getRawValue());\
+} else {\
+  app.DRIVER_NAME.reset();\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "DRIVER_NAME",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "司机名"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "WORK_DATE",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>派工时间",
+         "format": "Y-m-d"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "gridSendwork",
+       "disabled": "false",
+       "region": "center",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "sorters": "'ID'",
+         "url": "m?xwl=controlManage/work/truckSendwork/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTENANCY_ID",
+           "hidden": "true",
+           "dataIndex": "TENANCY_ID",
+           "text": "租户"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTRUCK_HP",
+           "dataIndex": "TRUCK_HP",
+           "text": "车辆"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTRUCK_ID",
+           "hidden": "true",
+           "dataIndex": "TRUCK_ID",
+           "text": "车辆ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTRUCK_PHASE",
+           "renderer": "if (value == '0') {\
+  return \"等待\";\
+}\
+if (value == '1') {\
+  return \"发车\";\
+}\
+if (value == '2') {\
+  return \"返回\";\
+}\
+if (value == '3') {\
+  return \"甩卡\";\
+}\
+if (value == '4') {\
+  return \"接卡\";\
+}\
+if (value == '5') {\
+  return \"空车回\";\
+}",
+           "dataIndex": "TRUCK_PHASE",
+           "text": "车辆状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTRAY_NO",
+           "dataIndex": "TRAY_NO",
+           "text": "拖卡"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTRAY_ID",
+           "hidden": "true",
+           "dataIndex": "TRAY_ID",
+           "text": "拖卡ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTRAY_PHASE",
+           "renderer": "if (value == '0') {\
+  return \"挂车\";\
+}\
+if (value == '1') {\
+  return \"出场\";\
+}\
+if (value == '2') {\
+  return \"返回\";\
+}\
+if (value == '3') {\
+  return \"甩卡\";\
+}\
+if (value == '4') {\
+  return \"接卡\";\
+}",
+           "dataIndex": "TRAY_PHASE",
+           "text": "拖卡状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDRIVER_NAME",
+           "dataIndex": "DRIVER_NAME",
+           "text": "司机"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDRIVER_ID",
+           "hidden": "true",
+           "dataIndex": "DRIVER_ID",
+           "text": "司机ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDRIVER_PHASE",
+           "renderer": "if (value == '0') {\
+  return \"待工\";\
+}\
+if (value == '1') {\
+  return \"驾驶\";\
+}",
+           "dataIndex": "DRIVER_PHASE",
+           "text": "司机状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colWORK_DATE",
+           "dataIndex": "WORK_DATE",
+           "format": "Y-m-d",
+           "text": "派工时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "app.selRec = record.data;\
+app.txtdriverid.setValue(record.data.DRIVER_ID);\
+app.txttruckid.setValue(record.data.TRUCK_ID);\
+app.txttrayid.setValue(record.data.TRAY_ID);\
+app.DRIVER_ID.store.load();\
+app.TRUCK_ID.store.load();\
+app.TRAY_ID.store.load();\
+Wb.setValue(app.panelForm, record.data);\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {"finalize": "app.TENANCY_ID.setValue('{#sys.TENANCY_ID#}');\
+app.WORK_DATE.setValue(new Date());\
+app.selDate.setValue(new Date());\
+// app.txtCNTR_NO.addListener(\"specialkey\", function(field, e) {\
+//   if (e.getKey() == e.ENTER)\
+//     app.searchBtn.fireEvent('click');\
+// });\
+app.gridSendwork.store.load({\
+  out: app.tbar\
+});"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "派工单",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

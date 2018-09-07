@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \" and a.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.createBegin)) {\
+  sql += \" and e.SETTLE_ON > to_timestamp('\" + data.createBegin + \"','yyyy-MM-dd HH24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.createEnd)) {\
+  sql += \" and e.SETTLE_ON < to_timestamp('\" + data.createEnd.substring(0, 10) + \" 23:59:59.999','yyyy-MM-dd HH24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.wbUser)) {\
+  sql += \" and e.SETTLE_BY={?wbUser?}\";\
+}\
+if(!Wb.isEmpty(data.tradeId)){\
+\tsql+=\" and a.TRADE_ID={?tradeId?}\";\
+}\
+if(!Wb.isEmpty(data.billType)){\
+\tsql+=\" and a.BILL_TYPE={?billType?}\";\
+}\
+if(!Wb.isEmpty(data.feeListId)){\
+\tsql+=\" and a.FEE_LIST_ID={?feeListId?}\";\
+}\
+if(!Wb.isEmpty(data.cntrs)){\
+\tsql+=\" and a.CNTR={?cntrs?}\";\
+}\
+\
+var invoiceSql = \"\" +\
+  \" SELECT a.CUSTOMER_ID,a.FEE_LIST_ID,a.I_E_ID,a.AMOUNT,a.SETTLEMENT_CODE,a.ACCOUNT_CUSTOMER_CODE,a.BILL_NO,to_char(a.SETTLE_ON,'yyyy-MM-dd') SETTLE_ON,a.CNTR_OPERATOR_COD,\" +\
+  \" e.INVOICE_TYPE INVOICE_TYPE_HEAD,e.INVOICE_STATUS,c.INVOICE_TYPE INVOICE_TYPE_BODY,a.ACTUAL_JOB_COUNT,'RMB' CURRENCY,a.RATE,(select DISPLAY_NAME from wb_user where user_name= a.SETTLE_BY) SETTLE_BY,a.BILL_TYPE,\" +\
+  \" a.CNTR,a.DWELL_DAYS\" +\
+//   \"\t(select count(SETTLEMENT_CODE) from ACCOUNTS_DETAILS where ACCOUNTS_DETAILS.id=a.id group by SETTLEMENT_CODE) a\"+\
+  \" FROM ACCOUNTS_DETAILS a, C_SETTLEMENT_DETAIL b,\" +\
+  \" C_SETTLEMENT_BODY c,C_SETTLEMENT_HEAD_CONTACT d,C_SETTLEMENT_HEAD e\" +\
+  \" WHERE a.id=b.DETAILS_ID AND b.BODY_ID=c.ID AND c.id=d.BODY_ID AND d.HEAD_ID = e.id\" +\
+  \" AND a.PAYMENT_TYPE=1 AND a.PAY_FLAG=1 \" + sql;\
+\
+var obj = Wb.getRecords(app.run(\
+  invoiceSql, {\
+    jndi: 'default'\
+  }));\
+//delete obj.metaData;\
+app.send(obj);\
+",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,487 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "winBooking",
+    "dialog": "true",
+    "closeAction": "destroy",
+    "width": "734",
+    "height": "420"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "fit",
+     "itemId": "panel1",
+     "padding": "0 0 0 0",
+     "margin": "0 0 0 0",
+     "defaults": "{\
+  labelWidth: 120,\
+  width: 320,\
+  margin: '4 8 4 8'\
+}",
+     "width": "722",
+     "frame": "true"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "padding": "0 0 0 0",
+      "margin": "0 0 0 0",
+      "editable": "true",
+      "disabled": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "addBtn",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.addEdit(app.grid1, {\
+  ID: Wb.guid(),\
+  VOYAGE_ID: app.VID.getValue()\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "removeBtn",
+          "text": "移除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.remove(app.grid1);"}
+        },
+        {
+         "configs": {
+          "itemId": "saveBtn",
+          "text": "保存",
+          "iconCls": "save_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+var znum = 0; //装量\
+var xnum = 0; //卸量\
+var store = app.grid1.getStore();\
+for (var i = 0; i < store.data.items.length; i++) {\
+  if (store.data.items[i].data.ZX == \"Z\")\
+    znum += store.data.items[i].data.E20 + store.data.items[i].data.F20 + store.data.items[i].data.E40 +\
+    store.data.items[i].data.F40 + store.data.items[i].data.E45 + store.data.items[i].data.F45;\
+  if (store.data.items[i].data.ZX == \"X\")\
+    xnum += store.data.items[i].data.E20 + store.data.items[i].data.F20 + store.data.items[i].data.E40 +\
+    store.data.items[i].data.F40 + store.data.items[i].data.E45 + store.data.items[i].data.F45;\
+}\
+Wb.request({\
+  url: \"m?xwl=shipManage/ship/vesselBookingEdit/selectTEU\",\
+  params: {\
+    vid: app.VID.getValue()\
+  },\
+  success: function(resp) {\
+    var teu = Wb.decode(resp.responseText);\
+    if (teu.rows[0].TEU < znum && teu.rows[0].TEU >= xnum) {\
+      Wb.warn(\"装船箱量大于船最大箱量!!!\");\
+    }\
+    if (teu.rows[0].TEU >= znum && teu.rows[0].TEU < xnum) {\
+      Wb.warn(\"卸船箱量大于船最大箱量!!!\");\
+    }\
+    if (teu.rows[0].TEU < znum && teu.rows[0].TEU < xnum) {\
+      Wb.warn(\"装船箱量大于船最大箱量!!!卸船箱量大于船最大箱量!!!\");\
+    }\
+    Wb.sync({\
+      grid: app.grid1,\
+      url: \"m?xwl=shipManage/ship/vesselBookingEdit/save\",\
+      params: {\
+        vid: app.VID.getValue()\
+      },\
+      message: '正在保存中...',\
+      success: function(resp) {\
+        app.grid1.store.load({\
+          params: {\
+            VOYAGE_ID: app.VID.getValue()\
+          }\
+        });\
+      }\
+    });\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "VID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "VID",
+          "labelWidth": "40"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "sorters": "'ID'",
+        "url": "m?xwl=shipManage/ship/vesselBookingEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store",
+       "events": {"beforeload": "operation.params = {\
+  VOYAGE_ID: app.VID.getValue()\
+};"}
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colVID",
+          "hidden": "true",
+          "dataIndex": "VID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTENANCY_ID",
+          "renderer": "if (value == \"ZSG\")\
+  return \"中山港\";\
+if (value == \"XLG\")\
+  return \"小榄港\";\
+if (value == \"SWG\")\
+  return \"神湾港\";",
+          "dataIndex": "TENANCY_ID",
+          "width": "80",
+          "text": "<font color='red'>*<\/font>码头"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowBlank": "false",
+           "pickList": "[\
+  [\"ZSG\", \"中山港\"],\
+  [\"XLG\", \"小榄港\"],\
+  [\"SWG\", \"神湾港\"]\
+]",
+           "displayField": "TNAME",
+           "valueField": "TENANCY_ID"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=shipManage/ship/vesselBookingEdit/selectMT"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "operation.params = {\
+  vid: app.VID.getValue()\
+};"}
+          }],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colZX",
+          "renderer": "if (value == \"Z\")\
+  return \"装船\";\
+if (value == \"X\")\
+  return \"卸船\";",
+          "dataIndex": "ZX",
+          "width": "80",
+          "text": "<font color='red'>*<\/font>装卸船"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowBlank": "false",
+           "pickList": "[\
+  [\"Z\", \"装船\"],\
+  [\"X\", \"卸船\"]\
+]"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colF20",
+          "dataIndex": "F20",
+          "width": "80",
+          "text": "20尺重箱"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowDecimals": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colF40",
+          "dataIndex": "F40",
+          "width": "80",
+          "text": "40尺重箱"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowDecimals": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colF45",
+          "dataIndex": "F45",
+          "width": "80",
+          "text": "45尺重箱"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowDecimals": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colE20",
+          "dataIndex": "E20",
+          "width": "80",
+          "text": "20尺吉箱"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowDecimals": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colE40",
+          "dataIndex": "E40",
+          "width": "80",
+          "text": "40尺吉箱"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowDecimals": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colE45",
+          "dataIndex": "E45",
+          "width": "80",
+          "text": "45尺吉箱"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowDecimals": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "panel"
+   }],
+   "type": "window",
+   "events": {"ok": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+var znum = 0; //装量\
+var xnum = 0; //卸量\
+var store = app.grid1.getStore();\
+for (var i = 0; i < store.data.items.length; i++) {\
+  if (store.data.items[i].data.ZX == \"Z\")\
+    znum += store.data.items[i].data.E20 + store.data.items[i].data.F20 + store.data.items[i].data.E40 +\
+    store.data.items[i].data.F40 + store.data.items[i].data.E45 + store.data.items[i].data.F45;\
+  if (store.data.items[i].data.ZX == \"X\")\
+    xnum += store.data.items[i].data.E20 + store.data.items[i].data.F20 + store.data.items[i].data.E40 +\
+    store.data.items[i].data.F40 + store.data.items[i].data.E45 + store.data.items[i].data.F45;\
+}\
+Wb.request({\
+  url: \"m?xwl=shipManage/ship/vesselBookingEdit/selectTEU\",\
+  params: {\
+    vid: app.VID.getValue()\
+  },\
+  success: function(resp) {\
+    var teu = Wb.decode(resp.responseText);\
+    if (teu.rows[0].TEU < znum && teu.rows[0].TEU >= xnum) {\
+      Wb.warn(\"装船箱量大于船最大箱量!!!\");\
+      Wb.sync({\
+        grid: app.grid1,\
+        url: \"m?xwl=shipManage/ship/vesselBookingEdit/save\",\
+        message: '正在保存中...',\
+        success: function(resp) {\
+          app.grid1.store.load({\
+            params: {\
+              VOYAGE_ID: app.VID.getValue()\
+            }\
+          });\
+        }\
+      });\
+    } else if (teu.rows[0].TEU >= znum && teu.rows[0].TEU < xnum) {\
+      Wb.warn(\"卸船箱量大于船最大箱量!!!\");\
+      Wb.sync({\
+        grid: app.grid1,\
+        url: \"m?xwl=shipManage/ship/vesselBookingEdit/save\",\
+        message: '正在保存中...',\
+        success: function(resp) {\
+          app.grid1.store.load({\
+            params: {\
+              VOYAGE_ID: app.VID.getValue()\
+            }\
+          });\
+        }\
+      });\
+    } else if (teu.rows[0].TEU < znum && teu.rows[0].TEU < xnum) {\
+      Wb.warn(\"装船箱量大于船最大箱量!!!卸船箱量大于船最大箱量!!!\");\
+      Wb.sync({\
+        grid: app.grid1,\
+        url: \"m?xwl=shipManage/ship/vesselBookingEdit/save\",\
+        message: '正在保存中...',\
+        success: function(resp) {\
+          app.grid1.store.load({\
+            params: {\
+              VOYAGE_ID: app.VID.getValue()\
+            }\
+          });\
+        }\
+      });\
+    } else {\
+      Wb.sync({\
+        grid: app.grid1,\
+        url: \"m?xwl=shipManage/ship/vesselBookingEdit/save\",\
+        message: '正在保存中...',\
+        success: function(resp) {\
+          app.winBooking.close();\
+        }\
+      });\
+    }\
+  }\
+});"}
+  }],
+  "type": "module",
+  "events": {"initialize": "var  opeType;"}
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "码头装卸量",
+ "iconCls": "trash_icon",
+ "inframe": false,
+ "pageLink": ""
+}

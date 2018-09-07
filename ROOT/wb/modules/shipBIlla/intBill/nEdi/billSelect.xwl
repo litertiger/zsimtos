@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var sql=' 1=1 ', data=app.get(), nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\");\
+\
+sql = '  ';\
+if (!Wb.isEmpty(data.CNTR_NO)) {\
+  sql += '  and ID in ( select BILL_ID from VLOAD_LIST where CNTR={?CNTR_NO?}  and  VID={?shipNo?}   and I_E_ID={?ieId?} )';\
+} \
+app.log(nature);\
+if(nature=='5')//表示驳船\
+  sql+=\" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\"+govCode+\"' \";\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "dictTableNames": "WB_USER",
+    "sql": "SELECT vbill_head.*,\
+       (SELECT   wm_concat (cntr_size || '*' || COUNT (1))\
+            FROM vload_list\
+           WHERE vload_list.bill_id = vbill_head.ID\
+        GROUP BY cntr_size) CNTRNUMS\
+  FROM vbill_head where VID={?shipNo?} and I_E_ID={?ieId?} {#whereSql#} {#moreSql#} and   TENANCY_ID='{#sys.TENANCY_ID#}' and trade_id='2'\
+and phase='9'"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "提单信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

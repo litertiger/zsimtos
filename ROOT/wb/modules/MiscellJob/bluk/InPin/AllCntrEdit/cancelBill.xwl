@@ -1,0 +1,33 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var lclid;\
+var rs=app.run(\"select BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, WEIGHT,\"+\
+               \"CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY from BLUK_GOODS \"+\
+               \"where BILL_ID={?BILL_ID?}\");\
+while(rs.next()){\
+\tlclid=rs.getString('BILL_ID');\
+}\
+\
+app.run(\"delete from BLUK_GOODS where BILL_ID={?BILL_ID?}\",{ transaction: 'start'});\
+app.run(\"update BLUK_BILL set TASKSTATUS='EXE',LOCATION='',CFS_ID='',IPIECES='',CFSTIME='' where BILL_ID={?BILL_ID?}\");\
+app.run(\"update BLUK_PLAN set TASKSTATUS='EXE' where ID={?IDS?}\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "取消按照单确认入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

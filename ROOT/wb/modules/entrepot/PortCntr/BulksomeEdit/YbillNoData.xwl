@@ -1,0 +1,29 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var dispname = app.get('sys.dispname');\
+app.log(dispname);\
+var rs = app.run(\"select 1 from BLUK_GOODS where BILL_NO={?YBILL_NO?}  and TYPE='P'\");\
+if (rs && rs.next()) {\
+  app.run(\"update BLUK_GOODS SET WEIGHT={?NWEIGHT?},VOLUME={?NVOLUME?} WHERE BILL_NO={?YBILL_NO?} and TYPE='P'\", {\
+    transaction: 'start'\
+  });\
+  app.run(\"update BLUK_BILL SET WEIGHT={?NWEIGHT?},VOLUME={?NVOLUME?} WHERE BILL_NO={?YBILL_NO?} AND TYPE='P'\");\
+  app.run(\"update BLUK_INOUT SET WEIGHT={?NWEIGHT?},VOLUME={?NVOLUME?} WHERE BILL_NO={?YBILL_NO?}\");\
+  app.run(\"insert into BULK_LOG(ID,NOTES,CFSBILL_ID,CREATED_ON,CREATED_BY,TYPE)VALUES(SYS_GUID(),'\" + dispname + \"修改了重量体积',{?YID?},sysdate,{?sys.username?},'外贸库存')\", {\
+    transaction: 'commit'\
+  });\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "修改异常提单的重量体积",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

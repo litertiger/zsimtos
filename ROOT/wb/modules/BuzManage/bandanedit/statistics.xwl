@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+// var sql = \"select b.bill_id,b.bill_no,b.qd_by,b.qd_on,b.bd_by,b.bd_on,b.I_E_ID,b.cntr_operator_cod,b.LCL_ID,\" +\
+//   \"decode(b.I_E_ID,'I',b.receiver,b.shipper)shipper,b.goods_notes,b.BILL_TYPE,\" +\
+//   \"nvl((select weight from vbill_head where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"' and phase<>'9'),0) weight,\" +\
+//   \"nvl((select PIECES from vbill_head where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"' and phase<>'9'),0) PIECES,\" +\
+//   \"nvl((select sum(INQUTY) INQUTY from bluk_goods where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"'),0) INQUTY,\" +\
+//   \"nvl(sum(decode(bi.cntr_size,'20',1)),0)cntr20,\" +\
+//   \"nvl(sum(decode(bi.cntr_size,'40',1)),0)cntr40,\" +\
+//   \"nvl(sum(decode(bi.cntr_size,'45',1)),0)cntr45,\" +\
+//   \"nvl(sum(decode(bi.cntr_size,'20',1,'40',1,'45',1)),0)cntrnum\" +\
+//   \" from buz_order b left join buz_order_item bi on b.id=bi.order_id\" +\
+//   \" where b.bill_no='\" + data.bill_no + \"' and b.tenancy_id='\" + tenancyid + \"' and b.trade_id='1'\" +\
+//   \" group by b.bill_id,b.receiver,b.shipper,b.cntr_operator_cod,b.goods_notes,b.BILL_TYPE,b.bill_no,b.I_E_ID,b.qd_by,b.qd_on,b.bd_by,b.bd_on,b.LCL_ID\";\
+\
+var sql = \"select vh.id bill_id,decode(vh.i_e_id,'I',vh.consignee,vh.shipper)shipper,vh.bill_no,b.qd_by,b.qd_on,b.bd_by,b.bd_on,\\
+\" +\
+  \"vh.I_E_ID,vh.cntr_operator_cod,vh.LCL_ID,vh.goods_notes,vh.BILL_TYPE,\\
+\" +\
+  \"sum(decode(vl.cntr_size,'20',1,0))cntr20,\\
+\" +\
+  \"sum(decode(vl.cntr_size,'40',1,0))cntr40,\\
+\" +\
+  \"sum(decode(vl.cntr_size,'45',1,0))cntr45,count(vl.cntr_size)cntrnum,\\
+\" +\
+  \"nvl((select weight from vbill_head where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"' and phase<>'9'),0) weight,\\
+\" +\
+  \"nvl((select PIECES from vbill_head where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"' and phase<>'9'),0) PIECES,\\
+\" +\
+  \"nvl((select sum(INQUTY) INQUTY from bluk_goods where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"'),0) INQUTY\\
+\" +\
+  \"from vbill_head vh left join vload_list vl on vh.id=vl.bill_id left join buz_order b on b.bill_no=vh.bill_no\\
+\" +\
+  \"where vh.tenancy_id='\" + tenancyid + \"' and ((vh.main_flag=1 and vh.zf_id=1) or nvl(vh.zf_id,0)=0) and vh.bill_no='\" + data.bill_no + \"'\\
+\" +\
+  \"group by vh.id,decode(vh.i_e_id,'I',vh.consignee,vh.shipper),vh.bill_no,b.qd_by,b.qd_on,b.bd_by,b.bd_on,\\
+\" +\
+  \"vh.I_E_ID,vh.cntr_operator_cod,vh.LCL_ID,vh.goods_notes,vh.BILL_TYPE\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "箱数量统计",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,52 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var sql = \"\";\
+if (data.ptype == \"1\") {\
+  var pay = Wb.getRecords(app.run(\"select id from accounts_details where bill_no='\" + data.billno + \"' and pay_flag=1\"));\
+  if (pay.length > 0) {\
+    app.send({\
+      msg: \"提单:\" + data.billno + \"已经有箱子交费,不能转换费用\",\
+      res: false\
+    });\
+    return;\
+  }\
+  //月结转现金\
+  sql = \"update accounts_details set PAYMENT_TYPE=1,IS_MANUAL=1,MONTH_MONEY_FLAG=1 where id in(\" + data.aid + \")\";\
+}\
+if (data.ptype == \"2\") {\
+  var pay = Wb.getRecords(app.run(\"select id from accounts_details where id in(\" + data.aid + \") and pay_flag=1\"));\
+  if (pay.length > 0) {\
+    app.send({\
+      msg: \"已经有部分箱子交费,不能转换费用\",\
+      res: false\
+    });\
+    return;\
+  }\
+  //现金转月结\
+  sql = \"update accounts_details set PAYMENT_TYPE=2,IS_MANUAL=1,MONTH_MONEY_FLAG=0 where id in(\" + data.aid + \")\";\
+}\
+app.run(sql);\
+app.send({\
+  res: true\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "现金月结互转",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

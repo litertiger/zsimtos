@@ -1,0 +1,108 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "if (!Ag.funUpdateMap)\
+  Ag.funUpdateMap = {};\
+var ret = {};\
+if (!app.get('sys.username'))\
+  return app.send({\
+    success: false,\
+    errstr: 'loginRequiered'\
+  });\
+var funId = app.get(\"funId\"); //取功能Id参数\
+if (!funId) {\
+  app.send({\
+    success: false,\
+    errstr: '功能ID不能为空！'\
+  });\
+  return;\
+}\
+//从数据库读取功能Id参数\
+result = app.run(\"select typ,js,updated_on from app_script where id={?funId?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+\
+if (!result.next()) {\
+  app.send({\
+    success: false,\
+    errstr: '功能ID:' + funId + '不存在！'\
+  });\
+  return;\
+}\
+var time = result.getString('updated_on');\
+if (Ag.funUpdateMap[funId] != time) {\
+  com.wb.common.ScriptBuffer.remove(funId); //删除缓存\
+  Ag.funUpdateMap[funId] = time;\
+  //app.log('清除缓存：' + funId);\
+  //app.log(Ag.funUpdateMap);\
+}\
+var js = result.getString('js');\
+if (!js) {\
+  app.send({\
+    success: false,\
+    errstr: '功能ID:' + funId + '的脚本不能为空！'\
+  });\
+  return;\
+}\
+\
+var type = result.getString('typ');\
+try {\
+  var result = com.wb.common.ScriptBuffer.run(funId, js, request, response, \"AppFun.\" + funId); //执行数据库里的脚本\
+  switch (type) {\
+    case \"MAP\":\
+      ret = Ag.getResultObj(result);\
+      break;\
+    case \"RECORD\":\
+      ret = Ag.getResultArray(result);\
+      break;\
+    case 'INT':\
+      ret.success = result > 0;\
+      break;\
+    case 'OBJECT':\
+      ret = result;\
+      break;\
+    default:\
+      ret = {\
+        success: false,\
+        errstr: '功能类型不合法'\
+      };\
+      break;\
+  }\
+} catch (e) {\
+  var result = /ORA-\\d+:\\s(.*)\\
+/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  result = /ScriptException:\\s(.*)\\sin/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+  throw e;\
+}\
+\
+app.send(ret);",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "应用功能",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

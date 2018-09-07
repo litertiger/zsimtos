@@ -1,0 +1,36 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+\
+var sql = \"select e.empno,e.empname,d.beg_work_tim,d.end_work_tim\" +\
+  \" from c_employee e left join work_on_duty d on e.empno=d.resource_id\" +\
+  \" where (e.org_type='5' or e.org_type='6') and d.overtime=1\" +\
+  \" and d.beg_work_tim>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and d.beg_work_tim<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') order by d.beg_work_tim desc\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

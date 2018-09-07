@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get(),RID;\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var sql = \"SELECT ID,car_team, bill_no, ship_order, cntr, cntr_size, cntr_type, e_f_id,\\\
+       cargo_type, in_tray_no\\\
+  FROM receipt\\\
+ WHERE trade_id = '2' and tenancy_id='\" + tenancyid + \"' and  CREATED_ON>={?timestamp.begdate?}\\\
+ and CREATED_ON<={?timestamp.enddate?}+1  \";\
+\
+var rs=app.run(sql);\
+var map = new HashMap();\
+while(rs.next()){\
+RID= rs.getString(\"ID\");\
+map.put(\"rpId\", RID);\
+  \
+Wb.newClass(\"dubboForReceipt\").call(request,map);\
+}\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "内贸计费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,474 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "dialog": "true",
+     "itemId": "editwin",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 8'\
+}",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "568",
+     "bodyPadding": "4 0 4 0",
+     "height": "190"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "箱号/提单"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  if (app.CNTR.getValue().length > 4) {\
+    Wb.request({\
+      url: 'm?xwl=controlManage/APPLY/backApplyEdit/selectPortCntr',\
+      params: {\
+        CNTR: app.CNTR.getValue(),\
+        TYPE: app.TYPE.getValue()\
+      },\
+      success: function(resp) {\
+        var rs = Wb.decode(resp.responseText);\
+        if (rs.rows.length < 1) {\
+          Wb.warn(\"没有找到箱子或没有出口舱单\");\
+          return;\
+        }\
+        app.CNTR.setValue(rs.rows[0].CNTR);\
+        app.CNTR_OPERATOR.setValue(rs.rows[0].CNTR_OPERATOR);\
+        app.CNTR_OPERATOR_COD.setValue(rs.rows[0].CNTR_OPERATOR_COD);\
+        app.CNTR_OWNER.setValue(rs.rows[0].CNTR_OWNER);\
+        app.CNTR_ID.setValue(rs.rows[0].ID);\
+        app.SHIP_CONSIGN_COD.setValue(rs.rows[0].SHIP_CONSIGN_COD);\
+        app.SHIPPER_CONSIGNEE.setValue(rs.rows[0].SHIPPER_CONSIGNEE);\
+      }\
+    });\
+  }\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "箱号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TYPE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "pickList": "[\
+  [\"I\", \"进口退运\"],\
+  [\"E\", \"出口退运\"]\
+]",
+       "fieldLabel": "退运类型",
+       "forceSelection": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR",
+       "labelAlign": "right",
+       "fieldLabel": "驳船公司"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR_COD",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OWNER",
+       "labelAlign": "right",
+       "fieldLabel": "箱主"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PHASE",
+       "hidden": "true",
+       "labelAlign": "right",
+       "pickList": "[\
+  [\"PLN\", \"计划\"],\
+  [\"SND\", \"激活\"],\
+  [\"EXE\", \"执行\"],\
+  [\"FIN\", \"完成\"]\
+]",
+       "fieldLabel": "状态",
+       "disabled": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "SHIP_CONSIGN_COD",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SHIPPER_CONSIGNEE",
+       "labelAlign": "right",
+       "fieldLabel": "货主"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTE",
+       "labelAlign": "right",
+       "fieldLabel": "备注"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (Wb.isEmpty(app.CNTR_ID.getValue())) {\
+  Wb.warn(\"输入箱号后请回车确认\");\
+  return;\
+}\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/backApplyEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/backApplyEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=controlManage/APPLY/backApplyEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "row",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR",
+          "dataIndex": "CNTR",
+          "text": "箱号",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR_OPERATOR",
+          "dataIndex": "CNTR_OPERATOR",
+          "width": "120",
+          "text": "驳船公司",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTYPE",
+          "renderer": "if (value == 'I')\
+  return '进口退运';\
+if (value == 'E')\
+  return '出口退运';",
+          "dataIndex": "TYPE",
+          "width": "120",
+          "text": "类型",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR_OWNER",
+          "dataIndex": "CNTR_OWNER",
+          "text": "箱主",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPHASE",
+          "renderer": "if(value=='PLN'){\
+\treturn '计划';\
+}else if(value=='SND'){\
+\treturn '激活';\
+}else if(value=='EXE'){\
+\treturn '执行';\
+}else if(value=='FIN'){\
+\treturn '完成';\
+}",
+          "dataIndex": "PHASE",
+          "text": "状态",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colNOTE",
+          "dataIndex": "NOTE",
+          "text": "备注",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSHIPPER_CONSIGNEE",
+          "dataIndex": "SHIPPER_CONSIGNEE",
+          "text": "货主",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      },
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "箱号",
+          "isUpperCase": "true",
+          "labelWidth": "40"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findmenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+        },
+        {
+         "configs": {
+          "itemId": "addmenu",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.editwin.setTitle('添加 - 退运申请 ');\
+app.editwin.setIconCls('record_add_icon');\
+app.PHASE.setValue('PLN');\
+app.editwin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+app.TYPE.setValue(\"E\");"}
+        },
+        {
+         "configs": {
+          "itemId": "modifymenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin.setTitle('修改 - ' + app.selRec.data.CNTR);\
+app.editwin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin, app.selRec.data);\
+app.ID.setDisabled(true);\
+app.editwin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "deletemenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要删除的记录。');\
+  return;\
+}\
+Wb.confirm(\"删除\" + sels[0].data.CNTR + \"退运申请\", function() {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/backApplyEdit/delete',\
+    params: {\
+      ID: sels[0].data.ID\
+    },\
+    success: function() {\
+      app.grid1.store.load();\
+    }\
+  });\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "sendEdi",
+          "text": "发送报文",
+          "iconCls": "object_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        }
+       ],
+       "type": "toolbar"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "退运申请",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

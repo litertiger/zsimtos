@@ -1,0 +1,45 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<div id="Tag1">
+<br>
+<p class="sz1">附录三. supcan.xml</p><hr color=#2266ee size=1>
+<p class="sz1">1.关于 supcan.xml</p>
+　　硕正组件内部有大量的可配置的属性, 以硕正树列表 (Treelist) 为例, 假如您需要用硕正树列表去开发, 您就需要去了解树列表的 XML 书写规则, 包括 XML 规范中所有属性配置项的作用、使用方法、以及默认值等等。<br><br>
+　　大部分属性选项都有默认值的, 正是因为有了这些默认值, 使您不必面面俱到地去亲自书写它们。尽管绝大部分默认值都是合理的, 仍然有一些配置项存在争议, 或者在不同场景和领域下应该采用别的值作为默认值。<br>
+<br>
+　　于是, supcan.xml 应运而生, 它的目的就是用于存放这些有争议的、或者需要能被开发者修改的默认值的.<br>
+<br>
+　　supcan.xml 文件位于服务器端 binary 目录, 它属于可选的部署文件, 即使删除它也不影响硕正组件的正常运行。<br>
+　　binary 目录下还有一个名为 “supcan(带注释).xml” 的文件, 该文件相当于是 supcan.xml 的配套使用说明, 里面有每一项配置的说明、可用的值、以及现有的默认值。<br>
+<br>
+　　如果您需要修改其中的某一项, 请从 “supcan(带注释).xml” 中整行复制到 supcan.xml 中, 然后在 supcan.xml 中去修改, 须注意, 该项在 XML 树中的节点 (树杈) 位置不能变, 但同一个节点下的前后次序是无所谓的.<br>
+<br>
+　　硕正套件从服务器下载 supcan.xml 的时机是：浏览器<b>进程</b>中第一个硕正组件实例被创建时.<br>
+　　“supcan(带注释).xml” 文件是不会被下载的.<br>
+<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">您修改了这个文件后, 浏览器必须重启才能生效</p>
+<br>
+<div id="Tag2">
+<br>
+<p class="sz1">2.几项重要的配置</p>
+<b>1.&lt;root&gt; \ &lt;global&gt; \ &lt;dateformat&gt;<br>
+和&lt;root&gt; \ &lt;global&gt; \ &lt;datetimeformat&gt;</b><br>
+　　硕正套件的日期显示默认是采用诸如 "2006.03.22" 这样的格式的, 在树列表的 GetChangedXML( ) 函数生成的提交文本中, 日期也是采用这样的格式, 如果您是 Java 开发者, 后端日期解析可能会遇到麻烦, 所以您可以将该选项配置成 “%Y-%m-%d” , 这样所有和日期有关的显示、生成的文本, 全部是 "2016-03-22" 这种格式了.<br>
+<br>
+<b>2.&lt;root&gt; \ &lt;global&gt; \ &lt;httpSRTimeOut&gt;</b><br>
+　　HTTP 连接通常有超时问题, 发出 http 请求后超过一定时间没有收到服务器的响应, 浏览器通常会将该请求丢弃, 然而在企业应用中经常有超长时间的响应, 比如数据库查询特别费时、服务器程序本身就比较慢等等情况。<br>
+　　如果您有超过 30 秒的合法响应, 建议修改此项, 加大这个数字, 单位是秒<br>
+<br>
+<b>3.&lt;root&gt; \ &lt;global&gt; \ &lt;maxParallelHttpTasks&gt;</b><br>
+　　硕正套件内部有些 http 访问默认是异步, 比如树列表下拉数据的初次加载。 硕正套件内部有一个 http 连接池, 异步 http 都是通过池中的线程排队访问的, 池的大小默认是 2 线程, 假如您的树列表中有好几个列是设计成下拉、而服务器的性能又比较宽裕的话, 不妨加大池的线程数, 比如设成 3、4, 客户端响应性能会有所改善、不那么容易卡.<br>
+<br>
+<b>4.&lt;root&gt; \ &lt;global&gt; \ &lt;httpCache&gt;</b><br>
+　　硕正套件的 http 访问, 是否采用 IE 的缓存，还是绕过缓存, 在此可以很方便地配置。 但我们不建议直接设成 "NoCache", 因为尽管缓存有时显得那么讨厌, 但对避免重复加载、提升性能方面还是很有益处的。<br>
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

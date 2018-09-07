@@ -1,0 +1,81 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">15.XML提交格式规范</p><hr color=#2266ee size=1>
+　　硕正树列表具备增删改功能，在表格中，原始内容、用户交互操作导致的修改内容分别被保持在不同的缓存中，通过函数 <a href="treelist10.htm#TagFuncTableGetChangedXML" target=_blank>GetChangedXML( )</a>，就能取得完整的增删改信息。其原理图如下：<br>
+<center><img src="image/buffer.png"/></center>
+　　<a href="treelist10.htm#TagFuncTableGetChangedXML" target=_blank>GetChangedXML( )</a> 函数返回的是一个XML/JSON串，通常使用 Ajax 将其提交到服务器，由应用服务器对其做相应的处理，提交到数据库。<br>
+　　<a href="treelist10.htm#TagFuncTableGetChangedXML" target=_blank>GetChangedXML( )</a> 函数中，level 参数是重要的参数，含义是 “提交级别”，分如下4种：<br>
+　　级别0：生成当前全部、最新内容(不包括修改前的原始内容);<br>
+　　级别1：仅生成被修改过的单元格的内容(包括原始内容);<br>
+　　级别2：在级别1的基础上，增加被修改过单元的整行内容;<br>
+　　级别3，内容包含所有行、所有列、修改前后的内容.<br>
+<br>
+　　级别0最常用，并且XML规范最简单，如下所示：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;!-- id在XML描述文件中定义 --&gt;
+&lt;table id="?" level="0" 自定义属性="?" &gt;
+　&lt;row&gt;
+　　　&lt;!-- 列名处为真实的列名 --&gt;
+　　　&lt;列名&gt;Text&lt;/列名&gt;
+　　　...
+　&lt;/row&gt;
+　&lt;row ...&gt;
+　　　...
+　&lt;/row&gt;
+　...
+&lt;/table&gt;</pre>
+<br>
+　　级别1、2、3的内容规定如下：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;!-- id、key在XML描述文件中定义 --&gt;
+&lt;table id="?" key="?" level="?" 自定义属性="?" &gt;
+
+　&lt;!-- 区域1: 被修改的行 --&gt;
+　&lt;modifiedRow&gt;
+　　&lt;!-- key为该行key列的原始值(被修改前), rowNumber为行号 --&gt;
+　　&lt;row key="?" rowNumber="?"&gt;
+　　　&lt;!-- 列名处为真实的列名, origin为原始值(被修改前)，isModified仅用于级别2和级别3, Text处为修改后的值 --&gt;
+　　　&lt;列名 origin="?" isModified="false"&gt;Text&lt;/列名&gt;
+　　　...
+　　&lt;/row&gt;
+　　...
+　&lt;/modifiedRow&gt;
+ 
+　&lt;!-- 区域2: 新增行 --&gt;
+　&lt;newRow&gt;
+　　&lt;!-- key为该行key列处输入的值, rowNumber为行号 --&gt;
+　　&lt;row key="?" rowNumber="?"&gt;
+　　　&lt;!-- 列名处为真实的列名, Text处为输入的内容 --&gt;
+　　　&lt;列名&gt;Text&lt;/列名&gt;
+　　　...
+　　&lt;/row&gt;
+　　...
+　&lt;/newRow&gt;
+ 
+　&lt;!-- 区域3: 被删除的行 --&gt;
+　&lt;deletedRow&gt;
+　　&lt;!-- key为该行key列的原始值(被修改前) --&gt;
+　　&lt;row key="?"&gt;&lt;/row&gt;
+　　...
+　&lt;/deletedRow&gt;
+ 
+　&lt;!-- 区域4: 未修改过的行(仅用于级别3 时) --&gt;
+　&lt;notModifiedRow&gt;
+　　&lt;!-- 略，和区域1相比只是少了"Origin"属性 --&gt;
+　&lt;/notModifiedRow&gt;
+
+&lt;/table&gt;</pre>
+　　GetChangedXML 函数有 returnFormat 选项参数, 允许返回的是 JSON 格式, JSON 格式在 Level=1 时是诸如 "<a href="returnjson.txt" target=_blank>JSON返回串示例</a>" 这样的.<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">警告：应用服务器端开发的程序不应过于依赖级别 1/2/3 中的 origin 的内容(被修改前)，因为需要考虑并发.</p>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

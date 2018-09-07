@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var yearMoth=app.get(\"yearMoth\");\
+if(yearMoth>='201805'){\
+app.run(\"delete from  cntr_his_num where YEARMONTH={?yearMoth?} \");\
+app.run(\"insert into cntr_his_num (YEARMONTH, TRADE_ID, CNTR_OPERATOR_COD, IC20, IC40, IC45, IP20, IP40, \\\
+      IP45, IE20, IE40, IE45, OC20, OC40, OC45, OP20, OP40, OP45, OE20, OE40, OE45,TENANCY_ID)\\\
+      select {?yearMoth?},  vh.trade_id, vh.CNTR_OPERATOR_COD,\\\
+      sum(case when bill_type='C' and vl.cntr_size='20' and vl.I_E_ID='I' then 1 else 0 end )  IC20,\\\
+      sum(case when bill_type='C' and vl.cntr_size='40' and vl.I_E_ID='I' then 1 else 0 end )  IC40,\\\
+      sum(case when bill_type='C' and vl.cntr_size='45' and vl.I_E_ID='I' then 1 else 0 end )  IC45,\\\
+      sum(case when bill_type='P' and vl.cntr_size='20' and vl.I_E_ID='I' then 1 else 0 end )  IP20,\\\
+      sum(case when bill_type='P' and vl.cntr_size='40' and vl.I_E_ID='I' then 1 else 0 end )  IP40,\\\
+      sum(case when bill_type='P' and vl.cntr_size='45' and vl.I_E_ID='I' then 1 else 0 end )  IP45,\\\
+      sum(case when bill_type='E' and vl.cntr_size='20' and vl.I_E_ID='I' then 1 else 0 end )  IE20,\\\
+      sum(case when bill_type='E' and vl.cntr_size='40' and vl.I_E_ID='I' then 1 else 0 end )  IE40,\\\
+      sum(case when bill_type='E' and vl.cntr_size='45' and vl.I_E_ID='I' then 1 else 0 end )  IE45,\\\
+      sum(case when bill_type='C' and vl.cntr_size='20' and vl.I_E_ID='E' then 1 else 0 end )  OC20,\\\
+      sum(case when bill_type='C' and vl.cntr_size='40' and vl.I_E_ID='E' then 1 else 0 end )  OC40,\\\
+      sum(case when bill_type='C' and vl.cntr_size='45' and vl.I_E_ID='E' then 1 else 0 end )  OC45,\\\
+      sum(case when bill_type='P' and vl.cntr_size='20' and vl.I_E_ID='E' then 1 else 0 end )  OP20,\\\
+      sum(case when bill_type='P' and vl.cntr_size='40' and vl.I_E_ID='E' then 1 else 0 end )  OP40,\\\
+      sum(case when bill_type='P' and vl.cntr_size='45' and vl.I_E_ID='E' then 1 else 0 end )  OP45,\\\
+      sum(case when bill_type='E' and vl.cntr_size='20' and vl.I_E_ID='E' then 1 else 0 end )  OE20,\\\
+      sum(case when bill_type='E' and vl.cntr_size='40' and vl.I_E_ID='E' then 1 else 0 end )  OE40,\\\
+      sum(case when bill_type='E' and vl.cntr_size='45' and vl.I_E_ID='E' then 1 else 0 end )  OE45,'\"+tenancyid+\"'\\\
+      from  VBILL_HEAD vh,VESSEL_VISIT vv,VESSEL_VOYAGE vo,\\\
+      VLOAD_LIST vl  where  vh.ID=vl.BILL_ID and  vv.VID=vo.ID and vh.VID=vv.ID and  vl.phase<>'9'\\\
+      and  to_char(vv.eta,'yyyymm')={?yearMoth?} and to_char(vv.eta,'yyyymm')>'201804'  \\\
+      and decode(vl.I_E_ID,'I', IS_SD,OS_SD)='1'  and vl.main_flag=1 and  vh.tenancy_id='\"+tenancyid+\"' \\\
+      group  by vh.CNTR_OPERATOR_COD,vh.trade_id\");\
+app.run(\"call P_CNTR_HIS_NUM_PRO({?yearMoth?},'\"+tenancyid+\"')\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSGGB": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "每日箱量同步",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

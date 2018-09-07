@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select ad.ID,ad.BILL_NO,ad.AMOUNT,ad.ACTUAL_JOB_COUNT,\" +\
+  \"ad.PAYMENT_TYPE,ad.PAY_FLAG,ad.CNTR,ad.CNTR_SIZE||ad.CNTR_TYPE CNTR_TYPE,\" +\
+  \"bci.DESCRIPTION FEI_ESCRIPTION,bi.DESCRIPTION,\" +\
+  \"ad.ACCOUNT_CUSTOMER_NAM,ad.PAYMENT_CUSTOMER_NAM,r.PAYER,ad.REMITTINGITEM_ID\" +\
+  \" from accounts_details ad left join remitting_item ri on ad.remittingitem_id=ri.id\" +\
+  \" left join remitting r on ri.c_id=r.id\" +\
+  \" left join C_BASE_INVOICE bi on bi.id=ad.INVOICE_TYPE\" +\
+  \" left join C_BASE_CHARGING_ITEM bci on bci.id=ad.FEE_LIST_ID\" +\
+  \" where ad.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.billno)) {\
+  sql += \" and ad.BILL_NO='\" + data.billno + \"'\";\
+} else {\
+  sql += \" and 1=2\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "费用查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,421 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "viewport1"},
+   "expanded": true,
+   "children": [
+    {
+     "configs": {"itemId": "pt"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "派车",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {"itemId": "ID"},
+       "expanded": false,
+       "children": [],
+       "type": "thidden"
+      },
+      {
+       "configs": {
+        "itemId": "BILL_NO",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "提单号"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.reset();",
+        "action": "var bill = app.BILL_NO.getValue();\
+if (!bill || bill.length < 4)\
+  return Wb.error('至少录入4位数字');\
+app.listBill.store.reload({\
+  params: {\
+    query: bill,\
+    byp: \"BILL_NO\"\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1)\
+        app.viewport1.setActiveItem(app.selectByBill);\
+      else\
+        Wb.setValue(app.pt, records[0].data);\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "CNTR",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "箱号"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.reset();",
+        "action": "var cntr = app.CNTR.getValue();\
+if (!cntr || cntr.length < 7)\
+  return Wb.error('至少录入7位箱号');\
+app.listCntr.store.reload({\
+  params: {\
+    query: cntr,\
+    byp: \"CNTR\"\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1)\
+        app.viewport1.setActiveItem(app.selectByCntr);\
+      else\
+        Wb.setValue(app.pt, records[0].data);\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "SHIPPER_WAY",
+        "options": " [{\
+   value: 1,\
+   text: '码头承运'\
+ }, {\
+   value: 3,\
+   text: '驳船承运'\
+ }]",
+        "label": "承运方式"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "tselect"
+      },
+      {
+       "configs": {
+        "itemId": "S_ADRESS",
+        "displayField": "NAME",
+        "label": "交货地址",
+        "valueField": "ID",
+        "value": "ID"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=receiptInout/receipt/receiptedit/selectADRESS"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tselect"
+      },
+      {
+       "configs": {
+        "itemId": "IN_CAR",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "车号",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext",
+       "events": {"change": "app.OUT_CAR.setValue(newValue);"}
+      },
+      {
+       "configs": {
+        "itemId": "IN_CAMPI",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "拖卡号",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext",
+       "events": {"change": "app.OUT_CAMPI.setValue(newValue);"}
+      },
+      {
+       "configs": {
+        "itemId": "IN_DRIVER_ID",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "司机",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext",
+       "events": {"change": "app.OUT_DRIVER_ID.setValue(newValue);"}
+      },
+      {
+       "configs": {
+        "itemId": "OUT_CAR",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "回程车号",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "OUT_CAMPI",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "回程拖卡",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "OUT_DRIVER_ID",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "回程司机",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "fieldset1"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "button1",
+          "style": "width:50%",
+          "text": "派车",
+          "iconCls": "ok_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "var id = app.ID.getValue();\
+if (!id)\
+  return Wb.error('没有找到设备交接单');\
+if (!Wb.verify(app.pt))\
+  return;\
+\
+Wb.request({\
+  url: 'm?xwl=app/phoneptedit/paichep',\
+  out: app.pt,\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.success) {\
+      Wb.info('办理成功');\
+      app.reset();\
+    }\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "button111",
+          "style": "width:50%",
+          "text": "取消派车",
+          "iconCls": "delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "var id = app.ID.getValue();\
+if (!id)\
+  return Wb.error('没有找到设备交接单');\
+\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/receiptAddTruckedit/quxiao',\
+  out: app.pt,\
+  success: function(resp) {\
+    Wb.info('办理成功');\
+    app.reset();\
+  }\
+});"}
+        }
+       ],
+       "type": "tfieldset"
+      },
+      {
+       "configs": {
+        "itemId": "scrollable",
+        "direction": "auto"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tscroller"
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectByBill",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择提单",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.pt);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "listBill",
+        "itemTpl": "{BILL_NO}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=app/phoneptedit/getReceipt"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore",
+        "events": {"beforeload": "var id = Ext.data.Connection.requestId + 1;\
+setTimeout(function() {\
+  var r = Ext.Ajax.requests[id];\
+  if (r && r.options)\
+    r.options.failure = function(resp) {\
+      Wb.error(resp.responseText);\
+    };\
+}, 0);\
+options.aaa = 'bbb';"}
+       }],
+       "type": "tlist",
+       "events": {"select": "app.viewport1.setActiveItem(app.pt);\
+Wb.setValue(app.pt, record.data);"}
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectByCntr",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择箱号",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.container1);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "listCntr",
+        "itemTpl": "{CNTR} {?E_F_ID?} {?CNTR_SIZE?}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=app/phoneptedit/getReceipt"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore",
+        "events": {"beforeload": "var id = Ext.data.Connection.requestId + 1;\
+setTimeout(function() {\
+  var r = Ext.Ajax.requests[id];\
+  if (r && r.options)\
+    r.options.failure = function(resp) {\
+      Wb.error(resp.responseText);\
+    };\
+}, 0);\
+options.aaa = 'bbb';"}
+       }],
+       "type": "tlist",
+       "events": {"select": "app.viewport1.setActiveItem(app.pt);\
+Wb.setValue(app.pt, record.data);"}
+      }
+     ],
+     "type": "tcontainer"
+    }
+   ],
+   "type": "tviewport"
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  //生成进口海关呼号\
+  reset: function() {\
+    app.ID.setValue(\"\");\
+    app.BILL_NO.setValue(\"\");\
+    app.CNTR.setValue(\"\");\
+    app.IN_CAR.setValue(\"\");\
+    app.IN_CAMPI.setValue(\"\");\
+    app.IN_DRIVER_ID.setValue(\"\");\
+    app.OUT_CAR.setValue(\"\");\
+    app.OUT_CAMPI.setValue(\"\");\
+    app.OUT_DRIVER_ID.setValue(\"\");\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "派车",
+ "iconCls": "boxs_icon",
+ "inframe": true,
+ "pageLink": ""
+}

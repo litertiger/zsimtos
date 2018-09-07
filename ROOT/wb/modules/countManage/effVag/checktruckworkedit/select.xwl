@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+// app.log(data);\
+var tenancyid=app.get('sys.TENANCY_ID');\
+var sql=\"\";\
+if (!Wb.isEmpty(data.sdate)) {\
+  sql += \" and trunc(plan_stime)>= trunc( {?timestamp.sdate?})\";\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  sql += \" and trunc(plan_stime)<= trunc( {?timestamp.edate?})\";\
+}\
+if (!Wb.isEmpty(data.billNo)) {\
+  sql += \" and bill_no like '%\"+data.billNo+\"%'\";\
+}\
+if (!Wb.isEmpty(data.driver)) {\
+  sql += \" and replace(driver,' ','') like '%\"+data.driver+\"%'\";\
+}\
+if (!Wb.isEmpty(data.checkFlag)) {\
+  sql += \" and nvl(pkg_object_status_charge.getcheckflag (bluk_truck_work.tenancy_id,'JJ',bluk_truck_work.id),0) ='\"+data.checkFlag+\"'\";\
+}\
+sql += \" and bluk_truck_work.tenancy_id='\"+tenancyid+\"'\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select bluk_truck_work.id,nvl(pkg_object_status_charge.getcheckflag(bluk_truck_work.tenancy_id,'JJ',bluk_truck_work.id),0) checkflag,to_char(plan_stime,'YYYY-MM-DD') plan_stime,bill_no,c_address.name s_adress,fei_adddress,truck,truck_no,driver,amount,pieces,volume,weight,c_customer.name shipper from bluk_truck_work,c_address,c_customer WHERE bluk_truck_work.s_adress=c_address.id(+) and bluk_truck_work.shipper_cod=c_customer.code(+) and check_flag='1' {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "JCB": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

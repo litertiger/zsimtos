@@ -1,0 +1,148 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/orders1.xml");
+  AF.func("SetProp", "rowHeight \r\n 25");
+  AF.func("SetColProp", "orderDate \r\n width \r\n 100");
+  AF.func("SetColProp", "Freight \r\n width \r\n 100");
+  AF.func("SetColProp", "shipCity \r\n width \r\n 200");
+  AF.func("SetColProp", "passCity \r\n width \r\n 200");
+  AF.func("Load", "treelistdata/orders.txt");
+ }
+
+ function ref_customer()
+ {
+  AF.func("AddDroplist", "id=customer; treelist=customer.xml; DataCol=customerid; DisplayCol=companyname");
+  AF.func("SetColProp", "CustomerID \r\n edittype   \r\n droptreelist");
+  AF.func("SetColProp", "CustomerID \r\n droplistID \r\n customer");
+ }
+ function seteditable()
+ {
+  AF.func("SetProp", "editable \r\n true");
+ }
+ function setsort()
+ {
+  AF.func("SetProp", "sort \r\n ShipCity,OrderDate");
+ }
+ function showPanel()
+ {
+  AF.func("SetProp", "isShowSortPanel \r\n true");
+ }
+ function seperate()
+ {
+  AF.func("SetProp", "seperateBar \r\n 2");
+ }
+ function buttonimg()
+ {
+  AF.func("SetColProp", "CustomerID \r\n buttonImg \r\n buttons.zip#302.ico");
+ }
+ function nogrid()
+ {
+  AF.func("SetProp", "isShowGridVert \r\n false");
+ }
+ function dybackcolor()
+ {
+  AF.func("SetProp", "displaymask \r\n backColor=if(freight>100, #334455, transparent)");
+ }
+ function cellsProp()
+ {
+  AF.func("SelectRow", "0");
+  AF.func("SetcellFontIndex", "2 \r\n Country \r\n 3");
+  AF.func("SetcellBackColor", "2 \r\n Country \r\n red");
+
+  AF.func("SetcellFontIndex", "4 \r\n CustomerID \r\n 3");
+  AF.func("SetcellBackColor", "4 \r\n CustomerID \r\n blue");
+
+  AF.func("SetcellFontIndex", "6 \r\n CustomerID \r\n 3");
+  AF.func("SetcellBackColor", "6 \r\n CustomerID \r\n black");
+  AF.func("SetcellTextColor", "6 \r\n CustomerID \r\n white");
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=4 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.“客户”显示的是客户代码，可动态引用外部Treelist(相当于引用主键的View、也即字典表),　同时观察“客户”列的变化 → <input type="button" value = " 引用 " onClick="ref_customer()"><br>
+<b>2</b>.表格目前仅用于查看，可改为可编辑 → <input type="button" value = " 编辑 " onClick="seteditable()">,　修改“客户”的下拉按钮样式 → <input type="button" value = " 替换 " onClick="buttonimg()">， 不显示垂直表格线 → <input type="button" value = " 不显示 " onClick="nogrid()"><br>
+<b>3</b>.按城市、日期排序 → <input type="button" value = " 排序 " onClick="setsort()">,　可显示多重排序区 → <input type="button" value = " 显示排序区 " onClick="showPanel()">,　将订单号、国家冻结在左侧 → <input type="button" value = " 分屏 " onClick="seperate()"><br>
+<b>4</b>.货重&gt;100的行以深色显示 →　<input type="button" value = " 动态背景色 " onClick="dybackcolor()">,　修改若干单元格的字体、颜色 → <input type="button" value = " 单元格属性 " onClick="cellsProp()"><br>
+</td></tr>
+</table>
+
+<br>
+<div style="position:relative;width:830px;height:350px">
+	<script>insertTreeList('AF', '')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.可查看创建该TreeList的<a href="treelist/orders1.xml" target=_blank>XML描述文件</a>；<br>
+<b>2</b>.可查看被引用的“客户”的TreeList的<a href="treelist/customer.xml" target=_blank>XML描述文件</a>；<br>
+<b>3</b>.源码分析：按钮分别执行如下js：<br>
+<pre class='cpp'>
+function ref_customer() //改成引用外部Treelist
+{
+ AF.func("AddDroplist", "id=customer; treelist=customer.xml; DataCol=customerid; DisplayCol=companyname");
+ AF.func("SetColProp", "CustomerID \r\n edittype   \r\n droptreelist");
+ AF.func("SetColProp", "CustomerID \r\n droplistID \r\n customer");
+}
+function seteditable()  //切换到可编辑状态
+{
+ AF.func("SetProp", "editable \r\n true");
+}
+function buttonimg()  //修改下拉按钮图标
+{
+ AF.func("SetColProp", "CustomerID \r\n buttonImg \r\n buttons.zip#302.ico");
+}
+function setsort() //排序
+{
+ AF.func("SetProp", "sort \r\n OrderDate,ShipCity");
+}
+function showPanel() //显示排序区
+{
+ AF.func("SetProp", "isShowSortPanel \r\n true");
+}
+function seperate()  //冻结
+{
+ AF.func("SetProp", "seperateBar \r\n 1");  //第一列冻结
+}
+function dybackcolor()  //动态更改行的背景色
+{
+ //transparent表示透明，即无背景色
+ AF.func("SetProp", "displaymask \r\n backColor=if(freight>100, #334455, transparent)");
+}
+function cellsProp()  //更改个别单元格的属性
+{
+ AF.func("SelectRow", "0");
+ AF.func("SetcellFontIndex", "2 \r\n Country \r\n 3");
+ AF.func("SetcellBackColor", "2 \r\n Country \r\n red");
+
+ AF.func("SetcellFontIndex", "3 \r\n Freight \r\n 3");
+ AF.func("SetcellBackColor", "3 \r\n Freight \r\n blue");
+
+ AF.func("SetcellFontIndex", "4 \r\n CustomerID \r\n 3");
+ AF.func("SetcellBackColor", "4 \r\n CustomerID \r\n blue");
+}</pre>
+</td></tr></table>
+<table border=0 cols=2 border=0 width=97%>
+<tr valign=top><td align=right><img src='res/boy.gif'></td><td align=left>使用够简单吧！</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

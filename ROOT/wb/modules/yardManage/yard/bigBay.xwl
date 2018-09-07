@@ -1,0 +1,121 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "createFrame": "true"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "bayMap",
+      "width": "100",
+      "html": "<div id='cyMapDiv' style=\"height:100%;width:100%\"><\/div>",
+      "title": "贝图",
+      "region": "center"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "panel",
+     "events": {"afterrender": "var CyBayMap = window.CyBayMap || (window.exports ? window.exports.CyBayMap : null);\
+if (CyBayMap)\
+  return creatCyBayMap();\
+\
+Wb.addLink([\"/ctgraph/assets/js/cyMap.min.js\"], function() {\
+  creatCyBayMap();\
+});\
+\
+function creatCyBayMap() {\
+  var info = \"{#bay#}\";\
+  var arr = info.split(\"|\");\
+  var CyBayMap = window.CyBayMap || (window.exports ? window.exports.CyBayMap : null);\
+  var cyMap = new CyBayMap(app.bayMap.el.down(\"#cyMapDiv\",true), 700, 450, \"cyMap\");\
+  app.switchBay(arr && arr[0] || 'A1' , arr && arr.length > 1 && arr[1] || '01');\
+  app.cyMap = cyMap;\
+  //右击箱位时的回调\
+  cyMap.onSlotContext = function(cntr) {\
+    Wb.run({\
+      url: 'm?xwl=controlManage/portcntr/control-module',\
+      params: {\
+        CNTR: cntr.no\
+      },\
+      success: function(appnew) {\
+        if (app.cntrInfoWnd)\
+          app.cntrInfoWnd.close();\
+        app.cntrInfoWnd = new Ext.window.Window(appnew._cntrWin);\
+        // win.setPosition(\"100\",\"400\");\
+\
+        app.cntrInfoWnd.show();\
+      }\
+    });\
+  };\
+}"}
+    }],
+    "type": "viewport"
+   },
+   {
+    "configs": {
+     "itemId": "xwl1",
+     "file": "m?xwl=system/common/rabbitMq"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "xwl"
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "app.switchBay = function(areaNo, bayNo, pos) {\
+  Wb.request({\
+    url: \"m?xwl=yardManage/yardCtrl/bayInfo\",\
+    params: {\
+      areaNo: areaNo,\
+      bayNo: bayNo\
+    },\
+    success: function(res) {\
+      var info = Wb.decode(res.responseText);\
+      if (pos)\
+        info.selPos = pos;\
+      app.cyMap.bayInfo = info;\
+      app.xwl1.unsubscribe('/exchange/ex_portcntr/cy.' + app.lastAreaNo + \".\" + app.lastBayNo + '.#');\
+      app.lastAreaNo = areaNo;\
+      app.lastBayNo = bayNo;\
+      app.xwl1.subscribe('/exchange/ex_portcntr/cy.' + app.lastAreaNo + \".\" + app.lastBayNo + '.#', function(d) {\
+        var msg = d.body;\
+        switch (msg.info.action) {\
+          case 'create':\
+          case 'update':\
+            Wb.request({\
+              url: \"m?xwl=yardManage/yardCtrl/getCntr\",\
+              params: msg.data,\
+              success: function(res) {\
+                app.cyMap.removeCntr(msg.data.cntr);\
+                var row = Wb.decode(res.responseText);\
+                app.cyMap.addCntr(row);\
+              }\
+            });\
+            break;\
+          case 'delete':\
+            app.cyMap.removeCntr(msg.data.cntr);\
+            break;\
+          default:\
+            console.log(msg);\
+            break;\
+        }\
+      });\
+    }\
+  });\
+};"}
+ }],
+ "roles": {"ZSYARD": 1},
+ "title": "大贝图",
+ "iconCls": "console_icon",
+ "inframe": false,
+ "pageLink": ""
+}

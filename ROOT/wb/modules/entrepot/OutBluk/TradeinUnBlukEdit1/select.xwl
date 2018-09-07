@@ -1,0 +1,102 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql=\"\";\
+var data=app.get();\
+\
+if(!Wb.isEmpty(data.goodsNotes)){\
+\tsql+=\" and GOODS_NOTES like '%'||{?goodsNotes?}||'%'\";\
+}\
+// if(!Wb.isEmpty(data.devTime)){\
+// \tsql+=\" and trunc(DEV_TIME) =trunc( {?timestamp.devTime?})\";\
+// }\
+\
+if(!Wb.isEmpty(data.devTime)){\
+ \tsql+=\" and DEV_TIME >= {?timestamp.devTime?}\";\
+}\
+\
+if(!Wb.isEmpty(data.endTime)){\
+ \tsql+=\" and DEV_TIME <= {?timestamp.endTime?}\";\
+}\
+\
+if(!Wb.isEmpty(data.shipper)){\
+\tsql+=\" and SHIPPER_COD like '%'||{?shipper?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.orderNo)){\
+\tsql+=\" and ORDER_NO like '%'||{?orderNo?}||'%'\";\
+}\
+\
+\
+\
+request.setAttribute('sql',sql);\
+\
+//  SELECT A.* ,ACCOUNTS_DETAILS.*,(select TEAM_NAME from C_EMPLOYEE_TEAM where HAND_CODE=WORK_BILL.DEPT_ID) DEPT_ID,WORK_BILL.TYPE\
+//     FROM DEV_CNTR A,\
+//     (select BUSSINESS_CODE,wm_concat(C_BASE_CHARGING_ITEM.DESCRIPTION||':'||ACCOUNTS_DETAILS.AMOUNT) as fee_desc from \
+//     ACCOUNTS_DETAILS,C_BASE_CHARGING_ITEM \
+//     where ACCOUNTS_DETAILS.FEE_LIST_ID=C_BASE_CHARGING_ITEM.ID(+) GROUP  BY BUSSINESS_CODE  ) ACCOUNTS_DETAILS,WORK_BILL\
+//    WHERE     1 = 1\
+//          AND A.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE(+) AND A.BILL_ID=WORK_BILL.BILL_ID(+) {sql} order by phase desc, DEV_TIME desc\
+\
+\
+\
+\
+//   SELECT A.*,\
+//          (SELECT wm_concat (\
+//                        C_BASE_CHARGING_ITEM.DESCRIPTION\
+//                     || ':'\
+//                     || ACCOUNTS_DETAILS.AMOUNT)\
+//                     AS fee_desc\
+//             FROM ACCOUNTS_DETAILS, C_BASE_CHARGING_ITEM\
+//            WHERE     ACCOUNTS_DETAILS.FEE_LIST_ID = C_BASE_CHARGING_ITEM.ID(+)\
+//                  AND A.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE(+)) fee_desc,\
+//                  (SELECT TEAM_NAME\
+//             FROM C_EMPLOYEE_TEAM WHERE HAND_CODE=(select DEPT_ID from WORK_BILL where A.ID = WORK_BILL.HANDLE_ID(+))) DEPT_ID,\
+//             (select TYPE from WORK_BILL where A.BILL_ID = WORK_BILL.BILL_ID(+)) TYPE\
+//     FROM DEV_CNTR A\
+//    WHERE 1 = 1 {sql}\
+// ORDER BY phase DESC, DEV_TIME DESC"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "/* Formatted on 2018/4/29 21:47:59 (QP5 v5.227.12220.39754) */\
+  SELECT A.*,(SELECT MAX(CONTRACT_RATE) FROM ACCOUNTS_DETAILS WHERE A.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE(+)) CONTRACT_RATE,\
+  (SELECT SUM(ACTUAL_JOB_COUNT) FROM ACCOUNTS_DETAILS WHERE A.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE(+)) ACTUAL_JOB_COUNT,\
+         (SELECT wm_concat (\
+                       C_BASE_CHARGING_ITEM.DESCRIPTION\
+                    || ':'\
+                    || sum(ACCOUNTS_DETAILS.AMOUNT))\
+                    AS fee_desc\
+            FROM ACCOUNTS_DETAILS, C_BASE_CHARGING_ITEM\
+           WHERE     ACCOUNTS_DETAILS.FEE_LIST_ID = C_BASE_CHARGING_ITEM.ID(+)\
+                 AND A.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE(+) group by DESCRIPTION) fee_desc,\
+                 (SELECT TEAM_NAME\
+            FROM C_EMPLOYEE_TEAM WHERE HAND_CODE=(select DEPT_ID from WORK_BILL where A.ID = WORK_BILL.HANDLE_ID(+))) DEPT_ID,\
+            (select TYPE from WORK_BILL where A.BILL_ID = WORK_BILL.BILL_ID(+)) TYPE\
+    FROM DEV_CNTR A\
+   WHERE 1 = 1 {#sql#}\
+ORDER BY phase DESC, DEV_TIME DESC"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

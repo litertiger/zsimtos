@@ -1,0 +1,174 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var toPos = app.get(\"to_pos\");\
+if (!toPos)\
+  throw \"目标位置不能为空！\";\
+if (toPos.length < 2)\
+  throw \"目标位置至少要录入2位场号！\";\
+\
+var toYard = toPos.substr(0, 2);\
+var moves = Wb.decode(app.get(\"moves\"));\
+var result = app.run(\"select count(0) from move_list m,port_cntr p where m.cntr_id=p.id and p.e_f_id='F' and m.id in('\" + moves.join(\"','\") + \"')\");\
+if (result && result.next() && result.getInt(1) > 0) {\
+  result = app.run(\"select count(0) from c_cy_area where category in('O','J') and cy_area_no=substr({?to_pos?},1,2) and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next() && result.getInt(1) == 1)\
+    throw '重柜不能进入吉柜堆存场';\
+}\
+\
+result = app.run(\"select f_check_plac(cntr,{?to_pos?},tenancy_id) from move_list where f_check_plac(cntr,{?to_pos?},tenancy_id)<>'99' and id in('\" + moves.join(\"','\") + \"')\");\
+if (result && result.next()) {\
+  throw result.getString(1);\
+}\
+\
+\
+var cntrYards = Ag.getResultObj(app.run(\"select id ,substr(from_pos,1,2) from move_list where id in('\" + moves.join(\"','\") + \"')\"));\
+if (!cntrYards)\
+  throw \"获得箱位失败！\";\
+\
+var y2ys = Ag.getYardCfsMap(app);\
+if (!y2ys)\
+  throw \"获得箱位所在场区失败！\";\
+var toCfs = y2ys[toYard] || 'JGQ';\
+app.run(\"update port_cntr set id=id where 1=2\", {\
+  transaction: \"start\"\
+});\
+var rs = moves.map(function(id) {\
+  var fromCfs = y2ys[cntrYards[id]] || 'JGQ';\
+  var row = {\
+    id: id,\
+    y2y: fromCfs === toCfs ? 0 : 1\
+  };\
+  return row;\
+});\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on,bus_data) \\\
+        values({?id?},'MOVE_LIST','MTO',{?sys.username?},sysdate,{?to_pos?})\", {\
+  arrayData: rs\
+});\
+app.run(\"update move_list set to_pos={?to_pos?},y2y_id={?y2y?},updated_on=sysdate,updated_by={?sys.username?} \\\
+where (id={?id?} or (queue_id={?id?} and to_pos_typ in('B','V') and phase not in ('FIN','CNL')))\\\
+and (nvl(transporter5,'@')<>'ROR' or {?y2y?}='0')\", {\
+  arrayData: rs\
+});\
+\
+app.run(\"update port_cntr set id=id where 1=2\", {\
+  transaction: \"commit\"\
+});\
+\
+var taskId = app.get(\"taskId\"),\
+  username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"),\
+  type = app.get('type'); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+var mess;\
+switch (type) {\
+  case 'GOUT':\
+  case 'GIN':\
+    mess = 'gate.#';\
+    break;\
+  case 'VIN':\
+  case 'VOUT':\
+    mess = 'ship.' + ship;\
+    break;\
+  case 'MOVE':\
+    mess = 'cy.#';\
+    break;\
+}\
+var sqlCntrs = '';\
+//发送消息\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (moves.length > 5) //批量修改，发送批量消息，防止多消息刷新页面卡死\
+  {\
+    if (!(client.open() && client.routeSend(\"ex_instruction\", mess, {\
+        info: {\
+          type: type,\
+          action: \"batch\",\
+          senduser: username,\
+          sendmodule: \"taskManager\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: taskId\
+        }\
+      }))) return {\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    };\
+  } else //发送单个消息\
+  {\
+    var trucks = Ag.getResultObj(app.run(\"select id ,transporter1 from move_list where id in('\" + moves.join(\"','\") + \"') and phase='EXE'\"));\
+    if (client.open()) {\
+      for (var i in moves) {\
+        result = app.run(\"select transporter1 from move_list where id='\" + moves[i] + \"'\");\
+        if (!(client.routeSend(\"ex_instruction\", mess, {\
+            info: {\
+              type: type,\
+              action: \"update\",\
+              senduser: username,\
+              sendmodule: \"taskManager\",\
+              sendtime: (new Date()).getTime()\
+            },\
+            data: {\
+              id: moves[i]\
+            }\
+          }) && (mess == 'cy.#' ? true : client.routeSend(\"ex_instruction\", 'cy.#', {\
+            info: {\
+              type: type,\
+              action: \"update\",\
+              senduser: username,\
+              sendmodule: \"taskManager\",\
+              sendtime: (new Date()).getTime()\
+            },\
+            data: {\
+              id: moves[i]\
+            }\
+          })) && (trucks && trucks[moves[i]] ? client.routeSend(\"ex_instruction\", 'truck.' + trucks[moves[i]], {\
+            info: {\
+              type: type,\
+              action: \"update\",\
+              senduser: username,\
+              sendmodule: \"taskManager\",\
+              sendtime: (new Date()).getTime()\
+            },\
+            data: {\
+              id: moves[i]\
+            }\
+          }) : true))) return {\
+          success: false,\
+          errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+        };\
+      }\
+    }\
+  }\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "修改目的场位",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

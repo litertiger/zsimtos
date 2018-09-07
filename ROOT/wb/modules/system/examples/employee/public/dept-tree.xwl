@@ -1,0 +1,83 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "tree1",
+    "split": "true",
+    "width": "200",
+    "viewConfig": "app.treeViewConfig",
+    "region": "west",
+    "title": "部门",
+    "iconCls": "org_icon",
+    "tools": "Wb.getTreeTools()",
+    "rootVisible": "false"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "store",
+     "url": "m?xwl=system/examples/employee/public/get-dept-tree"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "treestore",
+    "events": {
+     "load": "Wb.selFirst(app.tree1); //首次加载时选择首个节点",
+     "beforeload": "var node = operation.node;\
+operation.params.parentDept = node.isRoot() ? -1 : operation.node.data.DEPT_ID;"
+    }
+   }],
+   "type": "tree",
+   "events": {"selectionchange": "if (contextOwner) {\
+  contextOwner.selDept = selected[0];\
+  if (contextOwner.loadData)\
+    contextOwner.loadData();\
+}"}
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  /**\
+   * tree1配置拖放事件，允许grid数据拖动到tree以调整人员所属部门。\
+   */\
+  treeViewConfig: {\
+    plugins: {\
+      ptype: 'treeviewdragdrop',\
+      ddGroup: 'dept',\
+      enableDrag: false\
+    },\
+    listeners: {\
+      beforedrop: function(node, data, om, dp, dh) {\
+        dh.wait = true;\
+        dh.cancelDrop();\
+        Wb.request({\
+          url: 'm?xwl=system/examples/employee/edit/change-dept',\
+          params: {\
+            newDeptId: om.data.DEPT_ID,\
+            recs: Wb.getData(data.records)\
+          },\
+          success: function() {\
+            //停止删除store记录时触发的app.setModified方法\
+            if (contextOwner) {\
+              contextOwner.suspendSetModified = true;\
+              Wb.remove(contextOwner.grid1);\
+              contextOwner.suspendSetModified = false;\
+            }\
+          }\
+        });\
+      },\
+      nodedragover: function(node, dp, data) {\
+        return dp == 'append' && app.selectDeptNode != node;\
+      }\
+    }\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "部门树组件",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

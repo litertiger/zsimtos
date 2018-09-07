@@ -1,0 +1,80 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var returnFmt = "xml";
+function OnReady(id)
+{
+  AF.func("Build", "treelist/orders.xml \r\n CurSelMode=Excel");
+  AF.func("Load", "treelistdata/orders.txt");
+  AF.func("SetProp", "isHighLightModified \r\n true");
+  AF.func("SetProp", "isHighLightNewRow \r\n true");
+}
+
+function postModify(level)
+{
+  var s = AF.func("GetChangedXML", "level=" + level + "; returnFormat=" + returnFmt);
+  if(s == "0") {    //返回 0 , 表示失败
+    return;
+  }
+  if(s==null || s=="") {
+    AF.func("MessageBoxFloat", "请先作增、删、改操作!	");
+    return;
+  }
+  //正常返回
+  if(s.length>2000) {
+    s = s.substr(0, 2000);
+    s += "\r\n(以下略)";
+  }
+  s = s.replace(/\r\n/g, "\\r\\n");
+  AF.func("MessageBoxFloat", s + "\r\n center=true;hold=120");
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=4 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>Treelist提供了四种生成XML (或JSON) 提交文档的方案, 可根据服务器端的开发需要而选择.</td></tr>
+</table>
+
+<br>
+<div style="position:relative;width:930;height:250px">
+	<script>insertTreeList('AF', '')</script>
+</div>
+<div style="position:relative;width:930; text-align:left">
+  返回数据格式: &nbsp;<input type="radio" name="rf" onClick="javascript:(returnFmt='xml')" checked="checked">XML格式</input> &nbsp;&nbsp; <input type="radio" name="rf" onClick="javascript:(returnFmt='json')">JSON格式</input>
+
+</div>
+<table cols=2 border=0>
+<col>
+<col width=120 align=center>
+<tr height=4><td/><td/></tr>
+<tr><td>级别0：提交全部、最新的内容(不包括原始数据);</td><td align=center><input id="btn0" type=button value=" 模拟提交 " onClick="postModify(0)"></td></tr>
+<tr><td>级别1：仅提交修改过的单元内容(包括原始数据)、删除、新增的内容，所生成的XML/JSON包最小;</td><td align=center><input id="btn1" type=button value=" 模拟提交 " onClick="postModify(1)"></td></tr>
+<tr><td>级别2：在级别1的基础上，增加了被修改过的单元所在行的整行原始数据;</td><td align=center><input id="btn2" type=button value=" 模拟提交 " onClick="postModify(2)"></td></tr>
+<tr><td>级别3：提交所有内容，包括原始数据;</td><td align=center><input id="btn3" type=button value=" 模拟提交 " onClick="postModify(3)"></td></tr>
+</table>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.“提交级别”在上面已经解释清楚了，如果不明白，可以进一步查阅开发文档；<br>
+<b>2</b>.可查看<a href='t22_1.htm' target=_blank>原理图</a>；<br>
+<b>3</b>.强烈建议：服务器端的开发不要过分依赖“原始数据”，因为在提交时，“原始数据”和数据库中的数据可能已经不一致(并发)!<br>
+</td></tr></table>
+
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

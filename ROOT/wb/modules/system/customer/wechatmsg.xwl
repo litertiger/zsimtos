@@ -1,0 +1,765 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelWest",
+      "split": "true",
+      "width": "500",
+      "region": "west",
+      "title": "类型",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid1",
+       "multiSelect": "false"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "tbar",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "cancelBtn",
+           "tooltip": "取消一条记录",
+           "text": "取消",
+           "iconCls": "cancel_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "// Wb.request({\
+//   url: 'm?xwl=system/customer/wechatmsg/cancel',\
+//   params: {\
+//     WECHATID:app.GOV_CODE.getValue()\
+//   },\
+//   success: function(resp) {}\
+// });\
+\
+// app.grid1.setSelection(1);\
+\
+\
+"}
+         },
+         {
+          "configs": {"itemId": "tttt"},
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "aaa",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=system/customer/wechatmsg/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "subscribe",
+           "xtype": "checkcolumn",
+           "dataIndex": "STATE",
+           "width": "40",
+           "disabled": "true",
+           "text": "订阅"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "id1",
+           "hidden": "true",
+           "dataIndex": "ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "messageCode",
+           "dataIndex": "MESSAGECODE",
+           "text": "消息代码"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "wlMsgDescription",
+           "dataIndex": "WLMSGDESCRIPTION",
+           "text": "消息中文内容"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "wlmessageContent",
+           "dataIndex": "WLMESSAGECONTENT",
+           "flex": "1",
+           "text": "消息多语言内容"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "cancel",
+           "renderer": "if(value===1){\
+return '<button type=\"button\" onclick=\"console.log(app);var newapp=app.activeScope.xwl2;console.log(app); newapp.canceldelete();\">取消<\/a>';\
+ }\
+else\
+{\
+  return \"\";\
+}\
+\
+",
+           "dataIndex": "STATE",
+           "tooltip": "取消授权",
+           "text": "取消",
+           "align": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {
+       "itemclick": "//关系表一条数据\
+// Wb.request({\
+//     url: 'm?xwl=system/customer/wechatmsg/edit/insert',\
+//     params: {\
+//     \tWECHATID:app.ID.getValue(),\
+// //      MSGID:app.tttt.getValue(),\
+//       \tMSGID:record.data.ID,\
+//         ENABLED:'1'\
+//     },\
+//     success: function(resp) {\
+//     //得到关系表id\
+//       Wb.request({\
+//   \t\turl: 'm?xwl=system/customer/wechatmsg/edit/queryId',\
+//   \t\tparams: {\
+// //   \t\t\tMSGID:app.tttt.getValue(),\
+//           \tMSGID:record.data.ID,\
+//     \t\tWECHATID:app.ID.getValue()\
+//   \t\t},\
+//   \t\tsuccess: function(resp) {\
+//   \t\t\tvar result=Wb.decode(resp.responseText);\
+//     \t\tWb.each(result.rows, function(rec) {\
+//       \t\t\tapp.aaa.setValue(rec.ID);\
+//               app.grid11.store.load({\
+//               \tparams:{subscribe:app.aaa.getValue()}\
+//               });\
+//     \t\t});\
+//         }\
+//         });\
+      \
+//     }\
+//   });\
+\
+Wb.reset(app.aaa);\
+Wb.request({\
+  url: 'm?xwl=system/customer/wechatmsg/edit/queryId',\
+  params: {MSGID:record.data.ID,WECHATID:app.ID.getValue()},\
+  success: function(resp) {\
+  \tvar result=Wb.decode(resp.responseText);\
+    Wb.each(result.rows, function(rec) {\
+      app.aaa.setValue(rec.ID);\
+      });\
+    if(app.aaa.getValue()===\"\"){\
+     \tapp.aaa.setValue(Wb.guid());\
+    }   \
+    console.log(\"look----\"+app.aaa.getValue());\
+     app.grid11.store.load({\
+        params:{subscribe:app.aaa.getValue()}\
+        });\
+    \
+    \
+  }\
+});\
+\
+\
+// app.grid11.store.load({\
+//    params:{subscribe:app.aaa.getValue()}\
+// });\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// app.grid11.store.load({\
+//   params: {\
+//     subscribe: record.data.ID\
+//   }\
+// });\
+// var pageLink = {\
+//   url: 'm?xwl=system/customer/customer',\
+//   title: '',\
+//   iconCls: '',\
+//   inframe: false,\
+//   params: {\
+//     WID: record.data.ID\
+//   }\
+// };\
+// Wb.open(pageLink);\
+\
+// var id=app.grid1.getSelection()[0];\
+//   console.log(id);\
+// alert(app.tttt.getValue()+\"===\");\
+// app.grid11.store.load({\
+//   params: {\
+//     subscribe: app.tttt.getValue()\
+//   }\
+// });\
+\
+// Wb.request({\
+//   url: 'm?xwl=system/customer/wechatmsg/subscrib/queryId',\
+//   params: {\
+//   \tMSGID:app.tttt.getValue(),\
+//     WECHATID:app.ID.getValue()\
+//   },\
+//   success: function(resp) {\
+//   \tvar result=Wb.decode(resp.responseText);\
+//     Wb.each(result.rows, function(rec) {\
+//        alert(1);\
+//         });\
+//   }\
+// });",
+       "beforeselect": "// alert(record.get('ID'));\
+app.tttt.setValue(record.get('ID'));\
+\
+\
+//app.aaa.getValue()\
+// app.grid11.store.load({\
+// \tparams:{\
+//     \tsubscribe:app.aaa.getValue()\
+//     }\
+// });\
+\
+\
+"
+      }
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelCenter",
+      "region": "center",
+      "title": "条件"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid11",
+       "editable": "true",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=system/customer/wechatmsg/condition/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "id",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "编号",
+           "align": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "row",
+           "xtype": "rownumberer",
+           "align": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "subscrib",
+           "hidden": "true",
+           "dataIndex": "SUBSCRIB",
+           "width": "40",
+           "text": "订阅"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "field",
+           "hidden": "true",
+           "dataIndex": "FIELD",
+           "text": "字段名",
+           "align": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "fieldcolumn",
+           "dataIndex": "FIELD",
+           "keyName": "C_BASE_DICT",
+           "text": "字段名",
+           "align": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "displayField": "CNAME",
+            "valueField": "ID"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "store",
+             "autoLoad": "true",
+             "params": "{fldId:'C_BASE_DICT'}",
+             "url": "m?xwl=system/common/codeSelect"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "store"
+           }],
+           "type": "combo",
+           "events": {"select": "// var rec = app.feeRitemGrid.getSelection()[0];\
+// rec.set('COMNAME1',records[0].data.COMNAME1);"}
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "opr",
+           "dataIndex": "OPR",
+           "text": "操作符",
+           "align": "center"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "val",
+           "dataIndex": "VAL",
+           "text": "值",
+           "align": "center"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "addbtn",
+           "text": "添加",
+           "iconCls": "application_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length == 0) {\
+  Wb.warn('请选择 1 条记录。');\
+  return;\
+}\
+// var id= SysUtil.getId();\
+// app.rec.setValue(1);\
+// alert(app.rec.getValue());\
+// Wb.addEdit(app.grid11,{ID:'{#sys.id#}',SUBSCRIB:sels[0].data.ID}); //更多选项可使用Wb.add方法\
+// Wb.addEdit(app.grid11,{ID:'{#sys.id#}',SUBSCRIB:app.tttt.getValue()});\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+Wb.addEdit(app.grid11,{ID:'{#sys.id#}',SUBSCRIB:app.aaa.getValue(),OPR:'='});\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "delbtn",
+           "text": "删除",
+           "iconCls": "application_delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.grid11.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条记录。');\
+  return;\
+}\
+app.rec.setValue(0);\
+Wb.remove(app.grid11);\
+// Wb.request({\
+//   url: 'm?xwl=system/customer/customer/type-content/deleteCondition',\
+//   params: {ID:sels[0].data.ID},\
+//   success: function(resp) {\
+// //   \talert(sels[0].data.ID);\
+//   }\
+// });"}
+         },
+         {
+          "configs": {
+           "itemId": "savebtn",
+           "tooltip": "添加完全部再保存",
+           "text": "保存",
+           "iconCls": "save_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (!Wb.verifyGrid(app.grid11))\
+  return;\
+var sels = app.grid1.getSelection();\
+// if (sels.length != 1) {\
+//   Wb.warn('请选择 1 条记录。');\
+//   return;\
+// }\
+// console.log(app.contextOwner.ID.getValue());\
+// alert(app.contextOwner.isEdit);\
+Wb.request({\
+  url: 'm?xwl=system/customer/customer/customerLinkEdit/insert',\
+  params: {\
+    ID: app.contextOwner.ID.getValue(),\
+    C_ID: app.contextOwner.C_ID.getValue(),\
+    GOV_CODE: app.contextOwner.GOV_CODE.getValue(),\
+    ORG_ID: app.contextOwner.ORG_ID.getValue(),\
+    TENANCY_ID: app.contextOwner.TENANCY_ID.getValue(),\
+    CUS_NAME: app.contextOwner.CUS_NAME_LINK.getValue(),\
+    EMAIL: app.contextOwner.EMAIL.getValue(),\
+    LINK_NAME: app.contextOwner.LINK_NAME.getValue(),\
+    TEL: app.contextOwner.TEL.getValue(),\
+    WECHATMSG_TYPE: app.contextOwner.WECHATMSG_TYPE.getValue(),\
+    A: app.contextOwner.isEdit,\
+    B: app.rec.getValue()\
+  },\
+  success: function(resp) {\
+    app.rec.setValue(false);\
+  }\
+});\
+\
+\
+if (sels.length == 1) {\
+\
+\
+\
+\
+  // 关系表一条数据\
+  Wb.request({\
+    url: 'm?xwl=system/customer/wechatmsg/edit/insert',\
+    params: {\
+      WECHATID: app.ID.getValue(),\
+      MSGID: sels[0].data.ID,\
+      ENABLED: '1',\
+      ID: app.aaa.getValue()\
+    },\
+    success: function(resp) {\
+\
+\
+\
+    }\
+  });\
+\
+  Wb.sync({\
+    grid: app.grid11,\
+    url: 'm?xwl=system/customer/wechatmsg/condition/save',\
+    message: '正在保存中...',\
+    success: function(resp) {\
+      Wb.syncCreate(app.grid11, Wb.decode(resp.responseText));\
+      //     app.grid1.store.load({\
+      //     \tparams:{\
+      //           WECHATID:app.ID.getValue()\
+      //         }\
+      //     });\
+      //     app.grid11.store.load({\
+      //     \tout:app.panelCenter\
+      //     });\
+      sels[0].set('STATE', '1');\
+      sels[0].commit();\
+    }\
+  });\
+\
+\
+\
+\
+\
+\
+\
+}\
+// Wb.request({\
+//   url: 'm?xwl=system/customer/wechatmsg/subscrib/selectCondition',\
+//   params: {SUBSCRIB:app.aaa.getValue()},\
+//   success: function(resp) {\
+//   \tvar result=Wb.decode(resp.responseText);\
+//     console.log(result);\
+//     Wb.each(result.rows, function(rec) {\
+// //        alert(rec.ID+\"save\");\
+// //       var id=rec.ID;\
+//     }); \
+//     if(result.rows.length===0){\
+//     \tWb.confirm(\"没有输入任何数据，是否删除\");\
+//       Wb.request({\
+//         url: 'm?xwl=system/customer/wechatmsg/subscrib/deleteSub',\
+//         params: {\
+//         \tWECHATID:app.ID.getValue(),\
+//         \tMSGID:app.tttt.getValue()\
+//         },\
+//         success: function(resp) {}\
+//       });\
+//     }\
+//   }\
+// });\
+\
+// Wb.request({\
+//     \turl: 'm?xwl=system/customer/customer/type-content/selectc',\
+//     \tparams: {\
+//  \t\t  WECHATID:app.ID.getValue(),\
+//           MSGID:sels[0].data.ID,\
+//           ENABLED:'1'\
+//     \t},\
+//     \tsuccess: function(resp) {}\
+//   \t\t});\
+\
+\
+// Wb.request({\
+//     \turl: 'm?xwl=system/customer/customer/type-content/selectc',\
+//     \tparams: {\
+//  \t\t  WECHATID:app.ID.getValue(),\
+//           MSGID:app.tttt.getValue(),\
+//           ENABLED:'1'\
+//     \t},\
+//     \tsuccess: function(resp) {}\
+//   \t\t});\
+\
+\
+// Wb.request({\
+//   url: 'm?xwl=system/customer/wechatmsg/edit/querySub',\
+//   params: {SUBSCRIB:app.aaa.getValue(),ID:sels[0].data.ID},\
+//   success: function(resp) {\
+// // \tapp.grid1.store.load({\
+// //     \tout:app.panelWest\
+// //     });\
+//     app.grid1.store.load({\
+//     \tparams:{\
+//           WECHATID:app.ID.getValue()\
+//         }\
+//     });\
+//   }\
+// });\
+\
+\
+// app.contextOwner.customerlinkwin.close();\
+app.contextOwner.grid11.store.load({\
+  params: {\
+    c: app.contextOwner.recordGovcode.getValue()\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "rec",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "GOV_CODE",
+           "hidden": "true"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "ID",
+           "hidden": "true"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "a",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "falseid",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "toolbar"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "\
+"}
+     }],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  canceldelete: function() {\
+    var sels = app.grid1.getSelection();\
+    if (sels.length == 0) {\
+      Wb.warn('请选择 1 条记录。');\
+      return;\
+    }\
+    Wb.request({\
+      url: 'm?xwl=system/customer/wechatmsg/edit/delete',\
+      params: {\
+        WECHATID: app.ID.getValue(),\
+        MSGID: sels[0].data.ID,\
+        ENABLED: '1',\
+        SUBSCRIB: app.aaa.getValue()\
+      },\
+      success: function(resp) {\
+        app.grid1.store.load({\
+          params: {\
+            WECHATID: app.ID.getValue()\
+          }\
+        });\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {"SWB": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

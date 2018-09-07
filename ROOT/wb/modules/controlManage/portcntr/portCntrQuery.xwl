@@ -1,0 +1,321 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId(),\
+  nature:request.getSession().getAttribute('sys.NATURE'),\
+  govCode:request.getSession().getAttribute('sys.GOV_CODE')\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "date1",
+         "labelAlign": "right",
+         "fieldLabel": "时间",
+         "width": "160",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "label1",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "itemId": "date2",
+         "width": "100"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "txtcntr",
+         "labelAlign": "right",
+         "fieldLabel": "箱号",
+         "width": "150",
+         "isUpperCase": "true",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "app.selBtn.fireEvent('click');"}
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+         "fieldLabel": "内外贸",
+         "width": "120",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "ieId",
+         "labelAlign": "right",
+         "fieldLabel": "进出口",
+         "width": "120",
+         "keyName": "I_E_ID",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "hideTrigger": "true",
+         "itemId": "CNTR_OPERATOR_COD",
+         "labelAlign": "right",
+         "fieldLabel": "船公司",
+         "displayField": "CNAME",
+         "enterKeyTriggerClick": "true",
+         "labelWidth": "50",
+         "listConfig": "{\
+  width: 250\
+}",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "params": "{fldId:'AG'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "hideTrigger": "true",
+         "itemId": "CNTR_OWNER",
+         "labelAlign": "right",
+         "fieldLabel": "箱主",
+         "displayField": "CNAME",
+         "enterKeyTriggerClick": "true",
+         "labelWidth": "50",
+         "listConfig": "{\
+  width: 250\
+}",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "params": "{fldId:'CM'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbar))\
+  return;\
+var AF1 = document.getElementById(opt);\
+var whereSql = \"\";\
+\
+// whereSql += \" and created_on>=to_date('\" + app.begdate.getRawValue() + \" 00:00:00','yyyy-MM-dd HH24:MI:SS') and created_on<=to_date('\" + app.enddate.getRawValue() + \" 23:59:59','yyyy-MM-dd HH24:MI:SS')\";\
+\
+whereSql+=\" and TENANCY_ID='{#sys.TENANCY_ID#}'\";\
+if ('{#nature#}' == '5') {\
+  whereSql += \" and CNTR_OPERATOR_COD='\"+'{#govCode#}'+\"'\";\
+}\
+// Wb.info(whereSql);\
+\
+if (!Wb.isEmpty(app.date1.getValue()) && \t!Wb.isEmpty(app.date2.getValue()))\
+  whereSql += \" and IN_PORT_TIME>=TO_DATE('\" + app.date1.getRawValue() + \" 00:00:00','YYYY-MM-DD HH24:MI:SS') \"+\
+    \" and IN_PORT_TIME<=TO_DATE('\" + app.date2.getRawValue() + \" 23:59:59','YYYY-MM-DD HH24:MI:SS')\";\
+\
+if (!Wb.isEmpty(app.ieId.getValue()))\
+  whereSql += \" and I_E_ID='\" + app.ieId.getValue() + \"'\";\
+if (!Wb.isEmpty(app.tradeId.getValue()))\
+  whereSql += \" and TRADE_ID='\" + app.tradeId.getValue() + \"'\";\
+if (!Wb.isEmpty(app.txtcntr.getValue()))\
+  whereSql += encodeURI(\" and cntr like '%\" + app.txtcntr.getValue() + \"%'\");\
+if (!Wb.isEmpty(app.CNTR_OPERATOR_COD.getValue()))\
+  whereSql += \" and CNTR_OPERATOR_COD ='\" + app.CNTR_OPERATOR_COD.getValue() + \"'\";\
+if (!Wb.isEmpty(app.CNTR_OWNER.getValue()))\
+  whereSql += \" and CNTR_OWNER_COD = '\" + app.CNTR_OWNER.getValue() + \"'\";\
+\
+\
+\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"range=current\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    //     m.func(\"Build\", '/supcan/report/fee_report/PORTCNTR_REPORT.xml?' + 'V1.0');\
+    m.func(\"Build\", '/supcan/report/report/PORTCNTR_REPORT.xml?' + 'V1.0');\
+    m.func(\"callfunc\", \"4\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+    m.func(\"SetCurrentWorksheet\", \"0\");\
+    m.func(\"SeparateView\", \"2 \\r\\
+ 0\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  if (Event != \"HyperLink\")\
+    return;\
+  console.log(\"=============================1\");\
+  if (Event == \"HyperLink\" && p4 == 'HID') {\
+    console.log(\"=============================2\");\
+    var AF = document.getElementById(opt);\
+    var sheetIndex = AF.func(\"GetCurrentWorksheet\", \"\");\
+    if (sheetIndex == 0) { //第一个工作表的事件\
+      //过滤 \"科目代码\" 超链接以外的事件\
+      if (p4 != \"HID\") return;\
+      var arr = p3;\
+      console.log(\"p3:\" + p3);\
+      AF.func(\"SetCurrentWorkSheet\", \"1\");\
+      //切换到第二个工作表：明细表\
+      var whereSql = \" and id='\" + arr + \"'\";\
+      AF.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+      //动态设置参数：科目代码\
+      //仅计算本工作表\
+      var whereSql1 = \" and p.id='\" + arr + \"'\";\
+      AF.func(\"SetParas\", \"ds3 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+      AF.func(\"calc\", \"\");\
+    }\
+  }\
+\
+  //   if (Event != \"Clicked\") return;\
+  //   var AF = document.getElementById(opt);\
+  //   var sheetIndex = AF.func(\"GetCurrentWorksheet\", \"\");\
+  //   if (sheetIndex == 0) { //第一个工作表的事件\
+  //     //过滤 \"科目代码\" 超链接以外的事件\
+  //     if (p4 != \"HID\") return;\
+  //     var arr = p3;\
+  //     //切换到第二个工作表：明细表\
+  //     AF.func(\"SetCurrentWorkSheet\", \"1\");\
+  //     var whereSql = \" and   CNTR_ID='\" + arr + \"' and TENANCY_ID='{#sys.TENANCY_ID#}'\";\
+  //     AF.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \" ;eeee=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+  //     //动态设置参数：科目代码\
+  //     //仅计算本工作表\
+  //     AF.func(\"calc\", \"range=current\");\
+  //   }\
+};\
+\
+app.date1.setValue(new Date());\
+app.date2.setValue(new Date());",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlcxjb": 1,
+  "JCB": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "JTCWB": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "在场箱查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

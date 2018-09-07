@@ -1,0 +1,101 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var username = app.get('sys.username'),\
+  tenancyId = app.get('sys.TENANCY_ID');\
+var data = app.get(),\
+  cntr = '',\
+  size = '',\
+  type = '';\
+//手动添加费用\
+// var title = '{\"billNo\": \"' + data.BILL_NO + '\",' +\
+//   '\"paymentCustomerCode\": \"\",' +\
+//   '  \"cntrOperatorCod\": \"\",' +\
+//   '\"customerId\": \"' + data.SHIPPER_COD + '\",' +\
+//   ' \"iEId\":  \"\",' +\
+//   ' \"tradeId\": \"\",' +\
+//   '\"goodsNotes\": \"' + data.GOODS_NOTES + '\",' +\
+//   '\"cntrType\": \"' + data.CARGO_TYPE + '\",' +\
+//   '\"billType\": \"\",' +\
+//   ' \"jobFinishDate\": \"\",' +\
+//   ' \"paymentType\": \"1\",' +\
+//   ' \"notes\": \"\",';\
+\
+var s = Wb.decode(data.ss);\
+var bodyData = s.create;\
+app.log(bodyData);\
+var feeBody = '\"feeBody\":[';\
+if (bodyData.length > 0) {\
+  for (var i = 0; i < bodyData.length; i++) {\
+    app.log(bodyData[i]);\
+    //      feeBody += '{\"feeListId\":  \"' + bodyData[i].FEE_LIST_ID + '\",' +\
+    //             '\"paymentCustomerCode\": \"' + bodyData[i].PAYMENT_CUSTOMER_CODE + '\",' +\
+    //       '  \"cntr\": \"' + bodyData[i].CNTR + '\",' +\
+    //             '  \"BUSSINESS_CODE\": \"' + bodyData[i].BUSSINESS_CODE + '\",' +\
+    //             '  \"cntrOperatorCod\": \"' + bodyData[i].CNTR_OPERATOR_COD + '\",' +\
+    //       '  \"cntrSize\": \"' + bodyData[i].CNTR_SIZE + '\",' +\
+    //             '\"cntrType\": \"' + bodyData[i].CNTR_TYPE + '\",' +\
+    //       ' \"contractRate\": \"' + bodyData[i].AMOUNT + '\",' +\
+    //       ' \"actualJobCount\": \"' + bodyData[i].ACTUAL_JOB_COUNT + '\",' +\
+    //       ' \"contractAddRate\": \"100\",' +\
+    //       ' \"dwellDays\": \"1\",' +\
+    //       ' \"notes\": \"' + bodyData[i].NOTES + '\",' +\
+    //       ' \"amount\": \"' + bodyData[i].AMOUNT + '\"},';\
+    var title = '{\"billNo\": \"' + data.BILL_NO + '\",' +\
+      '\"paymentCustomerCode\": \"' + bodyData[i].PAYMENT_CUSTOMER_CODE + '\",' +\
+      '  \"cntrOperatorCod\": \"' + bodyData[i].CNTR_OPERATOR_COD + '\",' +\
+      '\"customerId\": \"' + data.SHIPPER_COD + '\",' +\
+      ' \"iEId\":  \"\",' +\
+      ' \"tradeId\": \"' + bodyData[i].TRADE_ID + '\",' +\
+      '\"goodsNotes\": \"' + data.GOODS_NOTES + '\",' +\
+      '\"cntrType\": \"' + data.CARGO_TYPE + '\",' +\
+      '\"billType\": \"' + bodyData[i].BILL_TYPE + '\",' +\
+      ' \"jobFinishDate\": \"\",' +\
+      ' \"paymentType\": \"1\",' +\
+      ' \"notes\": \"\",';\
+    feeBody += '{\"feeListId\":  \"' + bodyData[i].FEE_LIST_ID + '\",' +\
+      //       '\"paymentCustomerCode\": \"' + bodyData[i].PAYMENT_CUSTOMER_CODE + '\",' +\
+      '  \"cntr\": \"' + bodyData[i].CNTR + '\",' +\
+      '  \"BUSSINESS_CODE\": \"' + bodyData[i].BUSSINESS_CODE + '\",' +\
+      //       '  \"cntrOperatorCod\": \"' + bodyData[i].CNTR_OPERATOR_COD + '\",' +\
+      '  \"cntrSize\": \"' + bodyData[i].CNTR_SIZE + '\",' +\
+      //       '\"cntrType\": \"' + bodyData[i].CNTR_TYPE + '\",' +\
+      ' \"contractRate\": \"' + bodyData[i].AMOUNT + '\",' +\
+      ' \"actualJobCount\": \"' + bodyData[i].ACTUAL_JOB_COUNT + '\",' +\
+      ' \"contractAddRate\": \"100\",' +\
+      ' \"dwellDays\": \"1\",' +\
+      ' \"notes\": \"' + bodyData[i].NOTES + '\",' +\
+      ' \"amount\": \"' + bodyData[i].AMOUNT + '\"},';\
+  }\
+  feeBody = feeBody.substring(0, feeBody.length - 1);\
+  feeBody += ']';\
+}\
+var resultFee = title + feeBody + '}';\
+\
+app.log(resultFee);\
+Wb.newClass(\"accountDetailService\").addManualFees(request, resultFee);\
+// app.run(\"insert into BULK_LOG(ID,NOTES,CFSBILL_ID,CREATED_ON,CREATED_BY,TYPE)VALUES(SYS_GUID(),'\" + new JSONObject(sp) + \"',sys_guid(),sysdate,{?sys.username?},'散货缴费通知单添加费用')\");\
+//整柜拆箱计划\
+app.run(\"insert  into DEV_CNTR (ID,BILL_ID, BILL_NO, CNTR, GOODS_NOTES, CNTR_SIZE, CNTR_TYPE, SHIPPER, SHIPPER_COD, CNTR_OPERATOR_COD, TENANCY_ID, TRUCK_COD, NOTE, CREATED_BY, CREATED_ON, \" +\
+  \"UPDATED_BY, UPDATED_ON, PHASE, DEV_TYPE,PIECES, WEIGHT, VOLUME,DEV_TIME,CARGO_TYPE,LINK_NAME) values({?ID?},{?BILL_ID?}, {?BILL_NO?}, {?CNTR?}, {?GOODS_NOTES?}, {?CNTR_SIZE?}, {?CNTR_TYPE?}, {?SHIPPER?}, {?SHIPPER_COD?}, {?CNTR_OPERATOR_COD?}, '\" + tenancyId + \"', {?TRUCK_COD?}, {?NOTE?}, '\" + username + \"',\" +\
+  \" sysdate, '\" + username + \"', sysdate, 'PLN', {?DEV_TYPE?},{?PIECES?}, {?WEIGHT?}, {?VOLUME?},{?timestamp.DEV_TIME?},{?CARGO_TYPE?},{?LINK_NAME?}) \");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "新增",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

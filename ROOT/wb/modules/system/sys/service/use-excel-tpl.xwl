@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var filename = app.get('filename'),\
+  exportName = app.get('exportFilename') || filename,\
+  sheetIndex = app.has('sheetIndex') ? app.getInt('sheetIndex') : -1,\
+  excelFolder = new File(Base.path, 'wb/system/excel'),\
+  file = new File(excelFolder, filename);\
+\
+//仅允许访问system/excel目录下的文件作为模板\
+if (!FileUtil.isAncestor(excelFolder, file))\
+  SysUtil.accessDenied();\
+exportName = FileUtil.getFilename(exportName);\
+if (!exportName.toLowerCase().endsWith('.xlsx'))\
+  exportName += '.xlsx';\
+response.setHeader('content-type', 'application/force-download');\
+response.setHeader('content-disposition', 'attachment;' + WebUtil.encodeFilename(request, exportName));\
+Wb.getExcel(new JSONObject(app.get('params')), file, response.getOutputStream(), sheetIndex);\
+response.flushBuffer();",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "basic": 1
+ },
+ "title": "使用模板生成Excel",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

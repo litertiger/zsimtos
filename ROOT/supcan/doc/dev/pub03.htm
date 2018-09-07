@@ -1,0 +1,137 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+　　<font style='font-size:15pt'>3.宏</font><hr color=#2266ee size=1>
+<br><b>1.TreeList中的宏</b><br>
+<br>
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th align="right">宏</th><th align="left">@origin</th></tr>
+<tr><td align=right>含义:</td><td>取修改前的原始值</td></tr>
+<tr><td align=right>示例:</td><td>
+<pre class='xml'>
+ //计算列表达式:
+ &lt;express&gt;total2=round(price * num@origin, 4)&lt;/express&gt;
+ //num@origin表示num列的原始数据</pre>
+</td></tr></table><br>
+
+
+<br>
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th align="right">宏</th><th align="left">@parent</th></tr>
+<tr><td align=right>含义:</td><td>用于下拉Treelist的过滤表达式中，取父Treelist的当前行、指定列的内容</td></tr>
+<tr><td align=right>示例:</td><td>
+
+<pre class='cpp'>
+ //对city列的下拉执行过滤:
+ AF.func("Filter", "province=prov@parent\r\ncity");
+ //prov@parent表示取父Treelist的当前行、prov列的内容
+ //“父”是相对于下拉Treelist而言</pre>
+</td></tr></table><br>
+
+
+
+<br>
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th align="right">宏</th><th align="left">@sum　@sumdim　@average(或@ave)　@max　@min　@first　@last　@rows　@parentSum</th></tr>
+<tr><td align=right>含义:</td><td>用于Treelist的小计、合计表达式中，分别表示:<br>
+
+<table cols=2 border=0 width="100%"><col width="50%"><col width="50%"><tr>
+<td class="noline">
+<b>@sum</b> - 求和<br>
+<b>@sumdim</b> - 数组(以某个字符作为分隔)求和<br>
+<b>@parentSum</b> - 求小计中, 树的上一层的合计<br>
+<b>@average</b> 或 <b>@ave</b> - 求平均值<br>
+<b>@rows</b> - 行数
+</td>
+<td class="noline">
+<b>@max</b> - 最大值<br>
+<b>@min</b> - 最小值<br>
+<b>@first</b> - 首行值<br>
+<b>@last</b> - 末行值<br>
+</td></tr></table>
+
+</td>
+</tr>
+<tr><td align=right>示例:</td><td>
+
+<pre class='xml'>
+ //某列的小计表达式:
+ &lt;col name="price" subtotalExpress="='均价: '+@ave" /&gt;
+ 
+ //复杂一点的:
+ &lt;col name="pct" subtotalExpress="='占比例: '+ percent(@sum / @parentSum, 2)" /&gt;
+  
+ &lt;col name="price" subtotalExpress="='方差: '+js('delta', @max, @min)" /&gt;</pre>
+</td></tr></table><br>
+
+
+<br>
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th align="right">宏</th><th align="left">@TreeLevel</th></tr>
+<tr><td align=right>含义:</td><td>1.表示树的级次;<br>2.如果用于Treelist的小计表达式，则表示小计的分类级次(返回0表示非小计行，1表示最外层).</td></tr>
+<tr><td align=right>示例:</td><td>
+
+<pre class='xml'>
+//某列的小计表达式:
+&lt;col name="price" subtotalExpress="=if(@TreeLevel==1, '总计: '+@sum, '小计: '+@sum)" /&gt;</pre>
+</td></tr></table><br>
+
+
+
+<br>
+<b>2.Report中的宏</b><br>
+<br>
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th align="right">宏</th><th align="left">@单元名</th></tr>
+<tr><td align=right>含义:</td><td>该宏很重要，表示数据源填充区内、总行数不确定时的动态单元名，常用于求合计</td></tr>
+<tr><td align=right>示例:</td><td>
+<pre class='cpp'>
+ //B列求和:
+ =sum(B4:@B4)
+ //@B4是取第四行、第二列单元格的内容，由于行是动态填充，所以
+ //取数后公式中的该单元格名将被自动改为B5, B6, B7...</pre>
+</td></tr></table><br>
+
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th align="right">宏</th><th align="left">@sheet</th></tr>
+<tr><td align=right>含义:</td><td>取其它工作表数据，一般写在单元名后面</td></tr>
+<tr><td align=right>示例:</td><td>
+<pre class='cpp'>
+ //取第一个工作表的B4单元格内容
+ =B4@sheet1
+ 
+ //取第一个工作表的B4单元格内容和第三个工作表的K8单元格内容之和
+ =B4@sheet1 + K8@sheet3
+ 
+ //取第三个工作表的B3:D8矩形区域内的所有单元格内容之和
+ =sum(B4:D8@sheet3)</pre>
+</td></tr></table><br>
+
+
+<table width=98% cols=2 border=1 align="center">
+<col width=90><col>
+<tr><th>宏</th><th align="left">@Alias</th></tr>
+<tr><td align=right>含义:</td><td>取某个别名的单元</td></tr>
+<tr><td align=right>示例:</td><td>
+<pre class='cpp'>
+ //取别名为“Price”的单元格内容
+ =@AliasPrice
+ 
+ //取第二个工作表、别名为“Sales”的单元格内容
+ =@sheet2@AliasSales</pre>
+</td></tr></table><br>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

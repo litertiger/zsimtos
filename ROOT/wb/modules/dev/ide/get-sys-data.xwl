@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "\
+var sysData = {},\
+  wbItems = [],\
+  appItems = [],\
+  jndiList = [];\
+  agItems = [];\
+\
+Wb.each(Wb, function(name) {\
+  wbItems.push(name);\
+});\
+Wb.each(app, function(name) {\
+  appItems.push(name);\
+});\
+Wb.each(Ag, function(name) {\
+  agItems.push(name);\
+});\
+\
+jndiList = Object.keys(Wb.readJson(new File(Base.path, 'wb/system/var.json')).sys.jndi);\
+Wb.apply(sysData, {\
+  iconData: com.wb.interact.IDE.getIconList(),\
+  cmPickList: {\
+    request: SysUtil.getObjectMembers(request),\
+    response: SysUtil.getObjectMembers(response),\
+    Wb: wbItems,\
+    app: appItems,\
+    Ag:agItems\
+  },\
+  versionType: Var.getString('sys.app.versionType'),\
+  jndiList: jndiList\
+});\
+com.wb.common.ScriptBuffer.globalMembers.forEach(function(item) {\
+  if (item != 'Wb' && item != \"Ag\")\
+    sysData.cmPickList[item] = SysUtil.getClassMembers(this[item]['class']);\
+});\
+app.send(sysData);",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "获取系统数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

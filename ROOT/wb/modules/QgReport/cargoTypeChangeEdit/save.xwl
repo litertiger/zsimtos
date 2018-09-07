@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],username=app.get('sys.username'),\
+  recs = Wb.decode(request.getParameter('create'));\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+\
+var recss = Wb.decode(request.getParameter('update')),\
+  datas = [];\
+Wb.each(recss,function(rec){\
+  datas.push({\
+\tID:rec.ID,\
+    CNTR_OWNER:rec.CNTR_OWNER\
+  });\
+});\
+app.run(\"update VLOAD_LIST set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID={?ID?}\",{arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+app.run(\"update RECEIPT set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID={?ID?}\",{arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+app.run(\"insert into PORT_CNTR_LOG(CNTR_ID, CNTR, MESSAGE, UPDATED_ON, UPDATED_BY) \\\
+        select ID, CNTR, 'shipBIlla/ShipBillReport/cntrOwnerChangeEdit/save 箱主变更'||CNTR_OWNER_COD||{?CNTR_OWNER_COD?}, sysdate, '\"+username+\"' from port_cntr where ID={?ID?} \",\
+        {arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+\
+\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'PORT_CNTR'\
+});\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

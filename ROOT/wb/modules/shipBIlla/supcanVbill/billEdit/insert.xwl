@@ -1,0 +1,129 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, updateDate, id = SysUtil.getId(),\
+data = app.get();\
+app.run('select 1 from VBILL_HEAD where BILL_NO={?BILL_NO?}', {\
+    errorText: '提单号码 \"' + data.BILL_NO + '\" 已经存在。'\
+});\
+var recs1, data = Wb.decode(app.get('data'));\
+var username = app.get(\"sys.username\");\
+var TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+var LCL_ID = app.get(\"LCL_ID\");\
+var shipNo = app.get(\"shipNo\");\
+var MAIN_FLAG = app.get(\"MAIN_FLAG\");\
+var CNTR = \"''\";\
+\
+//拼箱状态增加判断是否是第一次录入\
+if (LCL_ID == '1') {\
+    recs1 = data[0].create;\
+    Wb.each(recs1,\
+    function(rec) {\
+        CNTR += \",'\" + rec.CNTR + \"'\";\
+    });\
+    var rs = app.run(\"select 1 from VLOAD_LIST where CNTR in (\" + CNTR + \") and VID={?shipNo?} and I_E_ID={?I_E_ID?}\");\
+    if (rs.next()) { //判断箱是否存在，不存在表示MAIN_FLAG=1表示是主单\
+        MAIN_FLAG = 0;\
+        //  app.run(\"update VBILL_HEAD set BILL_TYPE='P' where BILL_NO  ={?P_BILLNO?} and VID={?shipNo?} and I_E_ID={?I_E_ID?} )\" , {transaction: 'start'});\
+        //  app.run(\"update VLOAD_LIST set LCL_ID=1 where  CNTR in (\" + CNTR + \") and VID={?shipNo?} and I_E_ID={?I_E_ID?}\");\
+    } else MAIN_FLAG = 1;\
+}\
+var BILL_TYPE = app.get(\"BILL_TYPE\");\
+//更新提单表\
+app.run(\"insert into VBILL_HEAD (PRE_SPOD, PRE_ETD, PRE_CUTOFF, PRE_RECEIV_DATE, PRE_CLOSING, PRE_BOOKING_DATE, PRE_IMO, PRE_DELIVERY, PRE_ETA, CNTR_OWNER, CNTR_OWNER_COD,ID,VID,TENANCY_ID,I_E_ID,MBILL_NO,BILL_NO,SHIP_ORDER,SEQ_NO,QUANTITY,BILL_TYPE,ORDER_NO,TRADE_ID,LINE,CNTR_OPERATOR,\" + \"SHIPPER,CONSIGNEE,RECEIVER,PAYER,TFEE_PAYER,SCALEFEE_PAYER,TRUCKFEE_PAYER,SENDER,FORWARDER,CONTRACT_MAN,CONTRACT_TEL,CONTRACT_PHONE,CONTRACT_FAX,\" + \"NOTIFIER,NOTIFIER_TEL,NOTIFIER_PHONE,NOTIFIER_FAX,COLINE,TRUCK_CO,DELV_TERM,LOADING_TIME,POD,POL,SPOD,CMDY_CODE,TRANS_TYPE,TRANS_ID,MAIN_FLAG,\" + \"RELEASE_ID,EXIT_CUSTOM_ID,FEE_ID,WGO_ID,PRE_VESSEL,PRE_VOYAGE_NO,TRANS_VOYAGE_NO,PRE_POL,PRE_POD,PHASE,NOTES,UPDATED_ON,CREATED_ON,GOODS_NOTES,\" + \"PIECES,WEIGHT,VOLUME,MARKS,PKG,TEMP_SET,IMDG,UNDG,CARGO_TYPE,CREATED_BY,UPDATED_BY,P_BILLNO,FEE_TYPE,VESSEL_NAME,VOYAGE_NO,LINE_COD, CNTR_OPERATOR_COD, SHIPPER_COD, CONSIGNEE_COD, RECEIVER_COD, PAYER_COD, TFEE_PAYER_COD, SCALEFEE_PAYER_COD, TRUCKFEE_PAYER_COD, FORWARDER_COD, NOTIFIER_COD,LCL_ID,CONTRACT_ADDRESS, NOTIFIER_ADDRESS) \" + \"values ({?PRE_SPOD?}, {?TIMESTAMP.PRE_ETD?}, {?TIMESTAMP.PRE_CUTOFF?}, {?TIMESTAMP.PRE_RECEIV_DATE?}, {?TIMESTAMP.PRE_CLOSING?}, {?TIMESTAMP.PRE_BOOKING_DATE?}, {?PRE_IMO?}, {?PRE_DELIVERY?}, {?TIMESTAMP.PRE_ETA?}, {?CNTR_OWNER?}, {?CNTR_OWNER_COD?},{?ID?},{?shipNo?},'\" + TENANCY_ID + \"',{?I_E_ID?},{?MBILL_NO?},{?BILL_NO?},{?SHIP_ORDER?},2,{?numeric.QUANTITY?},{?BILL_TYPE?},\" + \"{?ORDER_NO?},{?TRADE_ID?},{?LINE?},{?CNTR_OPERATOR?},{?SHIPPER?},{?CONSIGNEE?},{?RECEIVER?},{?PAYER?},{?TFEE_PAYER?},{?SCALEFEE_PAYER?},\" + \"{?TRUCKFEE_PAYER?},{?SENDER?},{?FORWARDER?},{?CONTRACT_MAN?},{?CONTRACT_TEL?},{?CONTRACT_PHONE?},{?CONTRACT_FAX?},{?NOTIFIER?},{?NOTIFIER_TEL?},\" + \"{?NOTIFIER_PHONE?},{?NOTIFIER_FAX?},{?COLINE?},{?TRUCK_CO?},{?DELV_TERM?},{?timestamp.LOADING_TIME?},{?POD?},{?POL?},{?SPOD?},{?CMDY_CODE?},\" + \"{?TRANS_TYPE?},nvl({?numeric.TRANS_ID?},0),\" + MAIN_FLAG + \",nvl({?numeric.RELEASE_ID?},0),nvl({?numeric.EXIT_CUSTOM_ID?},0),nvl({?numeric.FEE_ID?},0),\" + \"nvl({?numeric.WGO_ID?},0),{?PRE_VESSEL?},{?PRE_VOYAGE_NO?},{?TRANS_VOYAGE_NO?},{?PRE_POL?},{?PRE_POD?},{?PHASE?},{?NOTES?},sysdate,\" + \"sysdate,{?GOODS_NOTES?},{?numeric.PIECES?},{?numeric.WEIGHT?},{?numeric.VOLUME?},{?MARKS?},{?PKG?},{?TEMP_SET?},\" + \"{?IMDG?},{?UNDG?},{?CARGO_TYPE?},'\" + username + \"','\" + username + \"',{?P_BILLNO?},nvl({?numeric.FEE_TYPE?},0),{?VESSEL_NAME?},{?voyageNo?},\" + \"{?LINE_COD?},{?CNTR_OPERATOR_COD?},{?SHIPPER_COD?},{?CONSIGNEE_COD?},{?RECEIVER_COD?},{?PAYER_COD?},{?TFEE_PAYER_COD?},{?SCALEFEE_PAYER_COD?},{?TRUCKFEE_PAYER_COD?},{?FORWARDER_COD?},{?NOTIFIER_COD?},nvl({?numeric.LCL_ID?},0),{?CONTRACT_ADDRESS?}, {?NOTIFIER_ADDRESS?})\", {\
+    transaction: 'start'\
+});\
+//更新箱\
+recs1 = data[0].create;\
+Wb.each(recs1,\
+function(rec) {\
+    if (rec.I_E_ID == 'I') {rec.I_DSHIP_NO = shipNo;rec.PHASE='0';}\
+    else rec.E_DSHIP_NO = shipNo;\
+    rec.MAIN_FLAG = MAIN_FLAG;\
+    rec.VOAYGE_NO = app.get(\"voyageNo\");\
+    rec.PHASE = \"0\";\
+    //rec.BILL_ID =  id;\
+});\
+createDate = Wb.encode(recs1);\
+//request.setAttribute('create', Wb.encode(createDate));\
+recs1 = data[0].update;\
+Wb.each(recs1,\
+function(rec) {\
+    if (rec.I_E_ID == 'I') rec.I_DSHIP_NO = shipNo;\
+    else rec.E_DSHIP_NO = shipNo;\
+    rec.MAIN_FLAG = MAIN_FLAG;\
+\
+});\
+updateDate = Wb.encode(recs1);\
+\
+app.set({\
+    create: createDate,\
+    update: updateDate,\
+    destroy: Wb.encode(data[0].destroy)\
+});\
+app.update({\
+    tableName: 'VLOAD_LIST',\
+    whereFields: 'ID'\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+app.log(\"LCL_ID===\"+LCL_ID);\
+app.log(\"MAIN_FLAG====\"+MAIN_FLAG);\
+if (LCL_ID != 1 || (LCL_ID == 1 && MAIN_FLAG == 1)) {\
+    if (app.get(\"I_E_ID\") == 'E') //出口只更新 船号\
+    app.run(\"update port_cntr  set  E_DSHIP_NO='\" + shipNo + \"' ,SPEC_STOW=(select max(SPEC_STOW)  from  VLOAD_LIST  where CNTR_ID=port_cntr.ID) where TENANCY_ID='\" + TENANCY_ID + \"' and  ID in (select CNTR_ID  from  VLOAD_LIST where  BILL_ID={?ID?} )\");\
+    else {\
+        recs1 = data[0].update;\
+        Wb.each(recs1,\
+        function(rec) {\
+            rec.ID = rec.CNTR_ID;\
+        });\
+        updateDate = Wb.encode(recs1);\
+        recs1 = data[0].create;\
+        Wb.each(recs1,\
+        function(rec) {\
+            rec.PHASE = \"ADV\";\
+        });\
+        createDate = Wb.encode(recs1);\
+        app.set({\
+            create: createDate,\
+            update: updateDate,\
+            destroy: Wb.encode(data[0].destroy)\
+        });\
+        app.update({\
+            tableName: 'PORT_CNTR',\
+            whereFields: 'CNTR'\
+        });\
+    }\
+} //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+//更新CNTR_ID\
+//app.run(\"update VLOAD_LIST  set   CNTR_ID=(select  ID from  port_cntr where VLOAD_LIST.CNTR=port_cntr.CNTR)   where BILL_ID={?ID?} \");\
+app.log(createDate);\
+app.send({\
+    ID: id,\
+    create: createDate\
+});",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "添加",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

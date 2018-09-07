@@ -1,0 +1,80 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">3.Load的数据格式</p><hr color=#2266ee size=1>
+　　Chart组件除了用AddSeries( )函数设置数据，也可以用Load( )函数一次性加载数据，数据的格式必须是XML或JSON格式，比如:<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;root&gt;
+ &lt;serieses&gt;
+  &lt;series name="一季度"&gt;
+   &lt;北京市&gt;3,902.0&lt;/北京市&gt;
+   &lt;沈阳市&gt;1,080.0&lt;/沈阳市&gt;
+   &lt;西宁市&gt;4,380.0&lt;/西宁市&gt;
+   &lt;合肥市&gt;0.0&lt;/合肥市&gt;
+  &lt;/series&gt;
+  &lt;series name="二季度"&gt;
+   &lt;北京市&gt;902.0&lt;/北京市&gt;
+   &lt;沈阳市&gt;80.0&lt;/沈阳市&gt;
+   &lt;西宁市&gt;380.0&lt;/西宁市&gt;
+   &lt;合肥市&gt;&lt;/合肥市&gt;
+  &lt;/series&gt;
+ &lt;/serieses&gt;
+&lt;/root&gt;</pre>
+　　该例子有2个系列，数据项ID是城市.  如果采用JSON格式，则应该是类似这样的：<br>
+<pre class='xml'>
+[
+ {"series":"一季度", "data":{"北京市":3902, "沈阳市":1080, "合肥市":0.0} },
+ {"series":"二季度", "data":{"北京市":1902, "沈阳市":80, "合肥市":null} }
+]</pre>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">对于折线图、曲线图、区域图, 如果您把 isDrawZero 创建参数设成 2，那么数据的零和空值是有区分的，比如上面的“合肥市”</p>
+<br>
+<br>
+　　这例子比较简单，更复杂的例子请看 <a href="chartdata.xml" target=_blank>chartdata.xml</a>. <br>
+　　XML数据的书写规则如下：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;root&gt;
+ &lt;!-- Properties是可选的节点，用于设定统计图的外观  --&gt;
+ &lt;!-- Chart、Caption这些属性即本文档“1.创建实例”中的创建参数  --&gt;
+ &lt;properties Chart="bar" Caption="上半年各市销售额(万元)"&gt;
+  &lt;!-- itemtext定义了各个数据项ID在统计图上的显示文字  --&gt;
+  &lt;itemtext&gt;
+   &lt;city1&gt;北京市&lt;/city1&gt;
+   &lt;city2&gt;沈阳市&lt;/city2&gt;
+   &lt;city3&gt;西宁市&lt;/city3&gt;
+  &lt;/itemtext&gt;
+ &lt;/properties&gt;
+ &lt;!-- 下面是纯数据， 注意，由于在Properties中定义了数据项的显示文字，所以数据项ID没有采用中文  --&gt;
+ &lt;serieses&gt;
+  &lt;series name="一季度"&gt;  //name是系列名
+   &lt;city1&gt;3902&lt;/city1&gt;
+   &lt;city2&gt;1080&lt;/city2&gt;
+   &lt;city3&gt;4380&lt;/city3&gt;
+  &lt;/series&gt;
+  &lt;series name="二季度" chart="line"&gt;  //混搭
+   &lt;city1&gt;902&lt;/city1&gt;
+   &lt;city2&gt;80&lt;/city2&gt;
+   &lt;city3&gt;380&lt;/city3&gt;
+  &lt;/series&gt;
+ &lt;/serieses&gt;
+&lt;/root&gt;</pre>
+<br>
+　　如果采用JSON, 则应该类似如下：<br>
+<pre class='xml'>
+{"properties": {"chart":"bar", "Caption":"上半年各市销售额(万元)", "itemtext": {"city1":"合肥市", "city2":"哈尔滨市"} } },
+{"serieses":
+ [
+  {"series":"一季度", "data": {"city1":3902, "city2":3902} },
+  {"series":"二季度", "data": {"city1":3112, "city2":5000}, "chart":"line" }
+ ]
+}</pre>
+<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

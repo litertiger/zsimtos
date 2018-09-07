@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var data = app.get();\
+// var tenancyid = app.get(\"sys.TENANCY_ID\");\
+// var sql = \"SELECT car_team, bill_no, ship_order, cntr, cntr_size, cntr_type, e_f_id,\\\
+//        cargo_type, in_tray_no\\\
+//   FROM receipt\\\
+//  WHERE trade_id = '2' and tenancy_id='\" + tenancyid + \"' and  CREATED_ON>={?timestamp.begdate?}\\\
+//  and CREATED_ON<={?timestamp.enddate?}   \";\
+\
+// app.send(Wb.getRecords(app.run(sql)));\
+//B.ID = '' \
+\
+var data = app.get();\
+var sdate=app.get('sdate')+' 00:00:00';\
+var edate=app.get('edate')+' 23:59:59';\
+\
+var sql=\"\";\
+var orderId=data.orderId;\
+app.log(data);\
+// if(!Wb.isEmpty(data.sdate)&&!Wb.isEmpty(data.edate)){\
+// \tsql+=\" and b.BD_ON between to_date('\"+sdate+\"','yyyy-MM-dd HH24:MI:SS') and to_date('\"+edate+\"','yyyy-MM-dd HH24:MI:SS')\";\
+// }\
+// if(!Wb.isEmpty(data.sdate)&&Wb.isEmpty(data.edate)){\
+// \tsql+=\" and trunc(b.BD_ON)=trunc({?timestamp.sdate?}) \";\t\
+// }\
+if(!Wb.isEmpty(orderId)){\
+   sql+= \" AND B.ID='\"+orderId+\"' \";\
+}\
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "totalSql": "SELECT count(1)\
+  FROM BUZ_ORDER B \
+ WHERE  B.ONLINE_ID = 1  and  b.bill_no like '%'||{?billNo?}||'%' and b.tenancy_id='{#sys.TENANCY_ID#}'  {#sql#}",
+    "sql": "SELECT B.ID, v.CONSIGNEE, v.CONSIGNEE_COD, v.SHIPPER, v.SHIPPER_COD, v.POD, v.TRADE_ID, v.I_E_ID,\
+        B.BILL_NO, v.BILL_TYPE, BILL_ID,v.PIECES, v.WEIGHT, v.VOLUME,v.GOODS_NOTES,\
+      BOOKING_NO, v.RELEASE_ID, ESTIMATE_TIME, LATEST_TIME,\
+       EARLIEST_TIME,b.BD_BY ,b.BD_ON,B.PAY_BY ,B.QD_BY,  B.QD_ON \
+  FROM BUZ_ORDER B ,vbill_head v\
+ WHERE   b.BILL_ID=v.ID and   B.ONLINE_ID = 1  and  b.bill_no like '%'||{?billNo?}||'%' and b.tenancy_id='{#sys.TENANCY_ID#}'  {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "待处理列表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

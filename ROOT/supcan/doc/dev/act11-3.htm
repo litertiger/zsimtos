@@ -1,0 +1,104 @@
+<HTML>
+<head><title>11.3 OnReady 触发问题</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>11.3 OnReady 触发问题</p><hr color=#2266ee size=1>
+<p class='sz3'>11.3.1 基本原理</p>
+　　在页面中, 硕正控件的创建过程是异步的, 所谓异步, 就是你无法预知、要求控件什么时候创建好, 但是当硕正控件被成功创建后，它是会触发 OnReady 事件的，用程序的角度看，相当于硕正控件反向调用了页面的 OnReady 函数。控件通过调用 OnReady 函数通知页面：我已经被创建了，您可以在该事件中书写初始语句了，比如打开报表模板、加载数据等等。<br>
+<br>
+　　硕正控件必须触发过 OnReady 事件后才是可用的。如果您在控件触发该事件前调用函数如 AF.func("print", ""), 控件是没有反应的, 不会有任何动作.<br>
+<br>
+　　一种想当然的错误 js 脚本如下：<br>
+<pre class='cpp'>
+ insertReport('AF', 'rebar=none');
+ AF.func("build", "../test/myreport.xml");
+ ...</pre>
+　　insertReport( )执行完后，不等于控件已经创建好, 下面的 AF.func( ) 函数偶尔可能会执行成功, 但极有可能是执行失败的.<br>
+<br>
+<br>
+<p class='sz3'>11.3.2 多个控件的触发机制</p>
+　　如果页面中包含了多个硕正插件, 那么每个插件都会触发一遍 OnReady, 例如下面的html片段，就表示包含了2个紧挨着的控件，其 id 分别为 AF1、AF2: <br>
+<pre class='xml'>
+&lt;div style="position:relative;width:96%;height:400px"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&gt;insertReport('AF1', '')&lt;/script&gt;
+&lt;/div&gt;
+&lt;div style="position:relative;width:96%;height:400px"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&gt;insertReport('AF2', '')&lt;/script&gt;
+&lt;/div&gt;</pre>
+　　AF1、AF2将先后被页面创建，并将分别触发 OnReady 事件, 也就是说页面中的 OnReady(id) 函数将一共被执行 2 遍。<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注意: 控件未必是按照从上到下的次序创建的，也就是说你无法预测 OnReady( id ) 函数中 id 参数是先出现 AF1 还是 AF2！</p>
+<br>
+　　您的 OnReady 函数中，应该增加 id 的条件判断语句，按类似如下的格式书写:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ if(id == 'AF1')
+  AF1.func("build", "../xml/report1.xml");
+ else if(id == 'AF2')
+  AF2.func("build", "../xmlres/genrpt.aspx?n=133");
+}</pre>
+　　如下写法是错误的，有严重的逻辑问题，初学者很容易犯这个错误:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+  AF1.func("build", "../xml/report1.xml");
+  AF2.func("build", "../xmlres/genrpt.aspx?n=133");
+}</pre>
+<br>
+<p class='sz3'>11.3.3 IE 的触发机制</p>
+　　在不同的浏览器下，控件的创建时机是不一样的，在 IE 浏览器下，控件的创建时机是：控件首次出现在可视区域时。举个例子，假如您的页面很长，控件隐藏在页面的下方，需要拖拽右侧滚动条才能让控件显示：<br>
+<center><img src='image/act2.jpg'/></center>
+　　控件一开始是不被创建的，直到您拖拽滚动条，让控件出现在浏览器窗口的可视区域的一瞬间，它才被创建、并触发 OnReady 事件的！<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">仅 IE 浏览器是这样的，Chrome、Firefox 浏览器不存在这个问题，不管控件是不是在可视区域，都将被快速创建.</p>
+<br>
+<br>
+<p class='sz3'>11.3.4 Firefox的触发机制</p>
+　　考察一下这段典型的 OnReady( ) 事件代码:<br>
+<pre class='cpp'>
+function OnReady(id) {
+ AF.func("Build", "../test/myreport.xml");
+}</pre>
+　　控件反向调用(即触发)这段代码时, 必须要具备一个前提:<br>
+　　　　<b>AF 作为 js 对象, 它本身已经被页面注册了, 或者已经被浏览器解析到页面的 DOM 树中了.</b><br>
+　　一般情况下, 这个条件都是具备的, 即 AF 这个 js 对象已经存在。然而, 我们发现，在Firefox 在 30 版及后续的版本中，经常会发生这样的现象：当OnReady( )触发时, 页面 DOM 中尚未包含这个名为 "AF" 的 js 对象!<br>
+　　并且, 页面越复杂、网速越慢, 这种意外出现得越频繁.<br>
+<br>
+　　为了解决这个问题, 页面的 OnReady 机制必须加以修正, 例如可以写成这样:<br>
+<pre class='cpp'>
+var countFF = 0;  //计数器
+function cooper()
+{
+ countFF++;
+ if(countFF != 2) return;
+ AF.func("Build", "../test/myreport.xml");
+}
+function OnReady(id)
+{
+ cooper();
+}
+$(document).ready( )
+{
+ cooper();
+}</pre>
+　　您看懂了吗?  jquery 的 $(document).ready( ) 事件是发生在 DOM 对象全部注册成功时的, 这样就能保证前面提到的前提能满足.<br>
+　　如果您没有使用 jquery, 那么可以试试用 &lt;body onload="cooper()"&gt; 代替之.<br>
+<br>
+<br>
+　　如果您的页面中有多个控件, 那就要修改计数器的控制了, 假如页面中有 2 个硕正控件, cooper( )函数应该写成这样：<br>
+<pre class='cpp'>
+function cooper()
+{
+ countFF++;
+ if(countFF != 3) return;  //注: cooper( )一共会被调用 3 次
+ AF1.func("Build", "../test/myreport1.xml");
+ AF2.func("Build", "../test/myreport2.xml");
+}</pre>
+　　这种写法能兼容其它浏览器。<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var sql=\"\";\
+\
+if(!Wb.isEmpty(data.empType)){\
+\tsql+=\" and work_type = {?empType?}\";\
+}\
+// app.log(data.worker);\
+if(data.worker=='true'){\
+sql+=\" and work_type = '4'\";\
+}\
+\
+if(data.driver=='true'){\
+sql+=\" and work_type = '1' and org_type<>6\";\
+}\
+\
+if(data.outDriver=='true'){\
+\tsql+=\" and work_type = '1' and org_type=6\";\
+}\
+\
+if(!Wb.isEmpty(data.name)){\
+\tsql+=\" and EMPNAME like '%'||{?name?}||'%'\";\
+}\
+\
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "SELECT ID,EMPNAME,POCKETTEL,NOTE,decode(work_type,'4','工人','1','司机','') work_type,work_group,duty\
+FROM C_EMPLOYEE where TENANCY_ID='{#sys.TENANCY_ID#}' and work_group is null {#sql#} \
+order by work_group,empname"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "得到人员信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

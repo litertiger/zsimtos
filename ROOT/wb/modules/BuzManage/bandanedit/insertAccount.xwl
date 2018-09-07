@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //生成ID\
+var sql = \"insert into accounts_details(id,tenancy_id,CUSTOMER_ID,CUSTOMER_NAM,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER_NAM,\" +\
+  \"PAYMENT_CUSTOMER_CODE,PAYMENT_CUSTOMER_NAM,CNTR_OPERATOR_COD,AMOUNT,ACTUAL_JOB_COUNT,BILL_NO,CNTR,FEE_LIST_ID,\" +\
+  \"PAYMENT_TYPE,PAY_FLAG,INVOICE_TYPE,CREATED_BY,CREATED_ON,IS_MANUAL,DWELL_DAYS,TRADE_ID,cntr_size,cntr_type,RATE,i_e_id)\" +\
+  \"values(sys_guid(),'\" + tenancyid + \"','\" + data.CUSTOMER_ID + \"','\" + data.CUSTOMER_NAM + \"',\" +\
+  \"'\" + data.ACCOUNT_CUSTOMER_CODE + \"','\" + data.ACCOUNT_CUSTOMER_NAM + \"',\" +\
+  \"'\" + data.PAYMENT_CUSTOMER_CODE + \"','\" + data.PAYMENT_CUSTOMER_NAM + \"',\" +\
+  \"'\" + data.CNTR_OPERATOR_COD + \"',\" + data.AMOUNT + \",\" + data.ACTUAL_JOB_COUNT + \",\" +\
+  \"'\" + data.billno + \"','\" + data.cntr + \"','\" + data.FEE_LIST_ID + \"',\" + data.PAYMENT_TYPE + \",0,\" +\
+  \"(select bi.id from c_base_charging_item fm left join c_base_invoice bi on bi.id=fm.invoice_type\" +\
+  \" where fm.id='\" + data.FEE_LIST_ID + \"'),'\" + username + \"',sysdate,1,\" + data.DWELLDAYS + \",'1',\" +\
+  \"'\" + data.cntr_size + \"','\" + data.cntr_type + \"',\" + data.RATE + \",'\" + data.i_e_id + \"')\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+// if (!Wb.isEmpty(data.cntr))\
+//   app.run(\"update buz_order_item set pay_on='',pay_by='',PAY_FLAG=0\" +\
+//     \" where tenancy_id='\" + tenancyid + \"' and bill_no='\" + data.billno + \"' and cntr='\" + data.cntr + \"'\");\
+// else\
+//   app.run(\"update buz_order set pay_on='',pay_by='',PAY_FLAG=0\" +\
+//     \" where tenancy_id='\" + tenancyid + \"' and bill_no='\" + data.billno + \"'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "添加费用明细",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,605 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "bbar"},
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "lblhj",
+      "text": "合计金额:0"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "label"
+    }],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "xwl2",
+       "file": "m?xwl=system/common/rabbitMq"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "xwl"
+     },
+     {
+      "configs": {
+       "itemId": "grid1",
+       "popupMenu": "app.popupMenu",
+       "disabled": "false",
+       "region": "center",
+       "multiSelect": "true",
+       "bbar": "app.bbar"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "tbar",
+         "enableOverflow": "true",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "sdate",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "开始日期",
+           "width": "170",
+           "labelWidth": "70"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "edate",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "结束日期",
+           "width": "170",
+           "labelWidth": "70"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "cboTRADE_ID",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "内外贸",
+           "keyName": "TRADE_ID",
+           "width": "120",
+           "labelWidth": "60",
+           "forceSelection": "false"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "tagConfigs": "matchFieldWidth: false",
+           "allowBlank": "false",
+           "enterKeyTriggerClick": "true",
+           "labelWidth": "60",
+           "listConfig": "{\
+  width: 250\
+}",
+           "valueField": "ID",
+           "queryDelay": "500",
+           "hideTrigger": "true",
+           "itemId": "CNTR_OPERATOR_COD",
+           "labelAlign": "right",
+           "fieldLabel": "船公司",
+           "displayField": "CNAME",
+           "forceSelection": "true"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "pageSize": "-1",
+            "params": "{fldId:'AG'}",
+            "url": "m?xwl=system/common/client/clientSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR",
+           "emptyText": "箱号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "searchBtn",
+           "text": "@Str.find",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.grid1.store.load({\
+  params: {\
+    sdate: app.sdate.getRawValue(),\
+    edate: app.edate.getRawValue(),\
+    CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+    CNTR: app.CNTR.getValue()\
+  },\
+  callback: function(records, operation, success) {\
+    //     var num = 0;\
+    //     Wb.each(records, function(rec) {\
+    //       num += rec.data.AMOUNT*100;\
+    //     });\
+    //     app.lblhj.setText(\"合计金额:\" + num/100);\
+    Wb.request({\
+      url: 'm?xwl=feeManage/feeReport/edcedit/sumTotal',\
+      params: {\
+        sdate: app.sdate.getRawValue(),\
+        edate: app.edate.getRawValue(),\
+        CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+        CNTR: app.CNTR.getValue()\
+      },\
+      success: function(resp) {\
+        app.lblhj.setText(\"合计金额:\" + resp.responseText / 100);\
+      }\
+    });\
+  }\
+});\
+\
+\
+\
+// app.grid1.store.load({\
+//   params: {\
+//     sdate: app.sdate.getRawValue(),\
+//     edate: app.edate.getRawValue(),\
+//     CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+//     CNTR: app.CNTR.getValue()\
+//   },\
+//   callback: function(records, operation, success) {\
+// //     console.log(records);\
+//     //js求和，要把小数点分开\
+//     var num = 0;\
+//     var znum = 0;\
+//     var xnum = 0;\
+//     var s = \"\",\
+//       ss = [];\
+//     Wb.each(records, function(rec) {\
+//       //     \tnum+=rec.data.AMOUNT;\
+//       znum += Math.floor(rec.data.AMOUNT);\
+//       //       znum+=parseInt(rec.data.AMOUNT);\
+// //       console.log(rec.data.AMOUNT);\
+//       s = rec.data.AMOUNT+\"\";\
+//       if (s.indexOf('.') != -1) {\
+//         ss = s.split('.');\
+//         console.log(ss[1]);\
+//         xnum += ss[1];\
+//       }\
+//     });\
+//     app.lblhj.setText(\"合计金额:\" + (znum + xnum * 0.01));\
+//   }\
+// });"}
+         },
+         {
+          "configs": {
+           "itemId": "btnJF",
+           "text": "计费",
+           "iconCls": "write_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (!Wb.verify(app.tbar))\
+  return;\
+Wb.request({\
+  url: \"m?xwl=feeManage/feeReport/edcedit/getReat\",\
+  params: {\
+    CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+    sdate: app.sdate.getRawValue(),\
+    edate: app.edate.getRawValue(),\
+    tradeid: app.cboTRADE_ID.getValue()\
+  },\
+  success: function(resp) {}\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "item1",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "printBtn",
+           "hidden": "true",
+           "text": "打印",
+           "iconCls": "printer_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "// var sels = app.grid1.getSelection();\
+// if (sels.length < 1) {\
+//   Wb.warn(\"请选择航次\");\
+//   return;\
+// }\
+// var data = sels[0].data;\
+// if (data.I_E == \"I\") {\
+//   Wb.warn(\"请选择有出口的航次\");\
+//   return;\
+// }\
+// var tenancyid = \"{#sys.TENANCY_ID#}\";\
+// var AF1 = document.getElementById(opt);\
+// var whereSql = encodeURI(\" and v2.tenancy_id='\" + tenancyid + \"' and v2.id='\" + data.BID + \"'\");\
+// var whereSql1 = encodeURI(\" and vh.tenancy_id='\" + tenancyid + \"' and vh.vid='\" + data.BID + \"'\");\
+// AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + Math.round(Math.random() * 100));\
+// AF1.func(\"Calc\", \"\");\
+// AF1.func(\"callfunc\", \"18\");"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=feeManage/feeReport/edcedit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colROWNUM",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR_OPERATOR_COD",
+           "dataIndex": "CNTR_OPERATOR_COD",
+           "keyName": "AG_SHORT",
+           "text": "船公司"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_IN_BILL_NO",
+           "dataIndex": "IN_BILL_NO",
+           "text": "进口提单号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_OUT_BILL_NO",
+           "dataIndex": "OUT_BILL_NO",
+           "text": "出口提单号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR",
+           "dataIndex": "CNTR",
+           "text": "箱号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR_SIZE",
+           "dataIndex": "CNTR_SIZE",
+           "width": "40",
+           "text": "尺寸"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colE_F_ID",
+           "renderer": "if (value == \"E\")\
+  return \"吉柜\";\
+if (value == \"F\")\
+  return \"重柜\";",
+           "dataIndex": "BEF",
+           "width": "80",
+           "text": "进口状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colI_TIME111",
+           "dataIndex": "I_TIME",
+           "width": "120",
+           "text": "进口时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colIN_TIME11",
+           "dataIndex": "YJT_TIME",
+           "width": "120",
+           "text": "预提时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colOUT_TIME",
+           "dataIndex": "O_TIME",
+           "width": "120",
+           "text": "出口时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSETTLE_TIME_ON",
+           "dataIndex": "SETTLE_TIME_ON",
+           "width": "120",
+           "text": "开始计费日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSETTLE_TIME_END",
+           "dataIndex": "SETTLE_TIME_END",
+           "width": "120",
+           "text": "结束计费日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "col_OUT_E_F_ID",
+           "renderer": "if (value == \"E\")\
+  return \"吉柜\";\
+else if (value == \"F\")\
+  return \"重柜\";\
+else\
+  return \"未知\";",
+           "dataIndex": "OUT_E_F_ID",
+           "width": "80",
+           "text": "出口状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSETTLE_DAYS",
+           "dataIndex": "SETTLE_DAYS",
+           "width": "80",
+           "text": "总堆存天"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDERATE_DAYS",
+           "dataIndex": "DERATE_DAYS",
+           "width": "80",
+           "text": "减免天数"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDWELL_DAYS",
+           "dataIndex": "DWELL_DAYS",
+           "width": "80",
+           "text": "计费天数"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "text": "计费标箱天"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colAMOUNT",
+           "dataIndex": "AMOUNT",
+           "width": "70",
+           "text": "金额"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colBBILL_NO",
+           "hidden": "true",
+           "dataIndex": "BBILL_NO",
+           "width": "120",
+           "text": "进口提单号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCBILL_NO",
+           "hidden": "true",
+           "dataIndex": "CBILL_NO",
+           "width": "120",
+           "text": "出口提单号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR_OWNER",
+           "hidden": "true",
+           "dataIndex": "CNTR_OWNER",
+           "text": "箱主"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCUSTOMER_ID",
+           "renderer": "return Wb.getCustomerByCode(value);",
+           "hidden": "true",
+           "dataIndex": "CUSTOMER_ID",
+           "text": "货主"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSHIPPER",
+           "renderer": "return Wb.getCustomerByCode(value);",
+           "hidden": "true",
+           "dataIndex": "SHIPPER",
+           "text": "收货人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colGOODS_NOTES",
+           "hidden": "true",
+           "dataIndex": "GOODS_NOTES",
+           "text": "货物名称"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+     },
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "panelPrintE",
+       "width": "0",
+       "region": "south",
+       "height": "0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrintE.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.sdate.setValue(new Date());\
+app.edate.setValue(new Date());\
+// app.searchBtn.fireEvent(\"click\");\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/print/GA_E.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {"JCB": 1},
+ "title": "外贸吉柜堆存费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

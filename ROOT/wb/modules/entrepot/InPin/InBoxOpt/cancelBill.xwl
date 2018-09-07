@@ -1,0 +1,34 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var lclid;\
+var TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+//判断是否签到\
+app.run(\"select 1 from buz_order where BILL_ID={?BILL_ID?} and QD_BY is not null and QD_ON is not null\",{errorText:\"已签到不能取消入库！\"});\
+var rs=app.run(\"select BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, WEIGHT,\"+\
+               \"CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY from BLUK_GOODS \"+\
+               \"where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+while(rs.next()){\
+\tlclid=rs.getString('BILL_ID');\
+}\
+\
+app.run(\"delete from BLUK_GOODS where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\",{ transaction: 'start'});\
+app.run(\"update BLUK_BILL set TASKSTATUS='EXE',LOCATION='',CFS_ID='',IPIECES='',CFSTIME='',SIGNERCFS='' where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+app.run(\"update BLUK_PLAN set TASKSTATUS='EXE' where ID={?IDS?} and TENANCY_ID='\"+TENANCY_ID+\"'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "取消按照单确认入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

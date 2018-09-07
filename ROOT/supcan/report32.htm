@@ -1,0 +1,59 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ AF.func("Build", "report/xmlsheet32.xml");
+}
+</script>
+</head>
+
+<body topmargin=4>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.这是另一种简单的查询条件和具体展现相互分离的报表;<br>
+<b>2</b>: 查询页也可以作为封面索引页使用，超链接可执行跳转.</td>
+</tr></table>
+
+<div style="position:relative;width:98%;height:480px">
+	<script>insertReport('AF', 'separatebar=40%')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1. “开始查询” 超链接是这样设置的：</b><br>
+<center><img src='doc/dev/image/report24.png'></center>
+<br><br>
+<b>2. 第二个工作表的查询参数来自第一个工作表, 其公式设置如下：</b><br>
+<center><img src='res/illu58.png'></center>
+　　datarow 的二个查询参数分别为 refData('E6', 1) 和 refData('E7', 1) 函数，这里为什么不用 ref( ) 函数或者直接用 "E6@Sheet1" 这样呢？ 因为该工作表的属性设置如下：<br>
+<center><img src='doc/dev/image/report26.png'></center>
+　　引用的是显示内容，比如第一个工作表的国家处显示是 “芬兰”, 但单元格的数据却是 "Finland"， 所以用 ref( ) 或 E6@Sheet1 得到的内容是 "芬兰", 就不正确了.<br>
+　　为什么要把选项设成 “引用显示内容” 呢? 请看 C3 单元格, 它的公式是 "=E6@Sheet1", 这个单元格希望显示的却是 "芬兰", 而不想显示 "Finland"!<br>
+<br>
+　　从这个例子可以看出, 有的地方希望引用单元格的原始数据、而有的地方又希望引用单元格的显示内容, 那么你必须选择使用 ref( )、refData( )、refText( ) 函数, 区别对待.<br>
+<br>
+<b>3. 另一种引用方案</b><br>
+　　1.将 “属性” 对话框的 “引用其它单元格” , 切换成默认的 “引用原始内容(即纯数据)”;<br>
+　　2.将 C3 单元格的公式改成 "=refText('E6', 1)";<br>
+　　3.将 B5 单元格的公式改成 "=datarow('ds1', E6@Sheet1, E7@Sheet1)" 或 "=datarow('ds1', ref('E6', 1), ref('E7', 1))";<br>
+　　你将会看到同样的结果.<br>
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

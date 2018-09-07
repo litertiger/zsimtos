@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var tenancyId=app.get('sys.TENANCY_ID');\
+var sql=\"\";\
+if(tenancyId=='ZSG'){\
+\tsql=\" AND CE.WORK_GROUP='971ba42b-3d54-47bd-af9b-070db2246c74'\";\
+}else if(tenancyId=='XLG'){\
+\tsql=\"\";\
+}else if(tenancyId=='SWG'){\
+\tsql=\"\";\
+}\
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT CE.ID,CET.TEAM_NAME,EMPNAME,POCKETTEL,CE.NOTE,work_group,job,CE.EMPNO,CE.WORK_GROUP   \
+FROM C_EMPLOYEE_TEAM CET,C_EMPLOYEE CE WHERE CET.ID = CE.WORK_GROUP\
+{#sql#}\
+AND CE.TENANCY_ID='{#sys.TENANCY_ID#}'\
+AND NOT EXISTS (SELECT 1\
+                FROM work_task_crane,WORK_ON_DUTY\
+                WHERE WORK_ON_DUTY.ID=work_task_crane.DUTY_ID AND CE.EMPNO=WORK_ON_DUTY.RESOURCE_ID AND WORK_ON_DUTY.GROUPING=CET.ID and TASK_ID={?taskId?})\
+ ORDER BY CE.work_group,empname"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "查找",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

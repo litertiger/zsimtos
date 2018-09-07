@@ -1,0 +1,67 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data =app.get();\
+var sql = \"\";\
+if (!Wb.isEmpty(data.billNo)) {\
+  sql += \"  and  a.BILL_NO like '%'||{?billNo?}||'%'      \";\
+}\
+if (!Wb.isEmpty(data.truck)) {\
+  sql += \"  and  TRUCK like '%'||{?truck?}||'%'     \";\
+}\
+if (!Wb.isEmpty(data.goods)) {\
+  sql += \"  and  GOOD_NOTES like '%'||{?goods?}||'%'     \";\
+}\
+if (!Wb.isEmpty(data.isGate)) {\
+  if(data.isGate==='0'){\
+  \t sql += \"  and  a.PHASE='OUT'     \";\
+  }else if(data.isGate==='1'){\
+  \tsql += \"  and  a.PHASE='EXE' \";\
+  }else if(data.isGate==='2'){\
+  \tsql+=\" and a.PHASE='FIN'\";\
+  }\
+  \
+}\
+// if (!Wb.isEmpty(data.createtime2)) {\
+//   var dat = data.createtime2.substring(0, 10);\
+//   //app.log(dat);\
+//   sql += \" and CREATETIME < to_date('\";\
+//   sql += dat;\
+//   sql += \" 23:59:59','yyyy-mm-dd HH24:MI:SS')\";\
+// }\
+// if (nature == '2') //码头\
+//   sql += \" and  TENANCY_ID='\" + TENANCY_ID + \"'\";\
+// //else if (nature == '3'||nature=='4'||nature=='1') //驳船\
+//   //sql += \" and  CREATEUSER='\" + CREATEUSER + \"'\";\
+// else if(nature=='5'){\
+// \tsql += \" and  b.TENANCY_ID='\" + TENANCY_ID + \"' AND b.ORG_ID='\"+ORG_ID+\"'\";\
+// }\
+\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select a.*,b.GOOD_NOTES,b.SHIPPER from BLUK_TRUCK a left join BLUK_APPLY b on a.PID=b.ID WHERE 1=1{#sql#} "
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

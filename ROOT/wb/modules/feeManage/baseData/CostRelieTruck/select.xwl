@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get();\
+sql = '';\
+if (!Wb.isEmpty(data.FEE_ITEM)) {\
+  sql += ' AND ITEM_NAME LIKE \\'%\\'||{?FEE_ITEM?}||\\'%\\'';\
+}\
+if (!Wb.isEmpty(data.C_NAME)) {\
+  sql += ' AND SHIPPER LIKE \\'%\\'||{?C_NAME?}||\\'%\\'';\
+}\
+\
+if(!Wb.isEmpty(data.sdate)){\
+  sql += ' AND BEGDATE >= TO_DATE({?sdate?}||\\' 00:00:00\\',\\'YYYY-MM-DD hh24:MI:ss\\')';\
+}\
+if(!Wb.isEmpty(data.edate)){\
+  sql += ' AND BEGDATE <= TO_DATE({?edate?}||\\' 23:59:59\\',\\'YYYY-MM-DD hh24:MI:ss\\')';\
+}\
+if(!Wb.isEmpty(data.SHORT)){\
+  sql += ' AND CNTR_OPERATOR_COD = {?SHORT?}';\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT * FROM ZS_IMTOS_COD.COST_RELIEF_TRUCK WHERE  TENANCY_ID = '{#sys.TENANCY_ID#}' {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

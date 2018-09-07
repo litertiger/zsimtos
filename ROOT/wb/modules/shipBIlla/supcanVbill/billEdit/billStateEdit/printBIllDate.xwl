@@ -1,0 +1,75 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var rs, rsf, TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  zfId = app.get(\"zfId\"),\
+  vId = app.get(\"vId\"),\
+  billNo = app.get(\"billNo\"),\
+  billId = app.get(\"billId\"),\
+  billType = app.get(\"billType\");\
+var rm = app.run(\"select CNTR,CNTR_SIZE||CNTR_TYPE cntr_size,SEAL_NO,SEAL_NO2 from VLOAD_LIST where bill_id='\" + billId + \"' and VID='\" + vId + \"'\");\
+var rsum = app.run(\"select count(*) cntr_count from  VLOAD_LIST where bill_id='\" + billId + \"' and VID='\" + vId + \"'\");\
+if (billType == 'P') { //拼柜\
+  rs = app.run(\"SELECT vbill_head.vid, vbill_head.ID, bill_no, shipper, consignee, contract_tel, notifier_tel, \" +\
+    \"f_hk(pod)pod,f_hk(pol)pol,f_hk(spod)||'('||hg_cod||')' spod, cmdy_code, goods_notes, pieces, weight, volume, marks,nvl(getCntrNUm(vbill_head.ID,'20'),'20×0') CNTR20 ,nvl(getCntrNUm(vbill_head.ID,'40'),'40×0') CNTR40, nvl(getCntrNUm(vbill_head.ID,'45'),'45×0') CNTR45,\" +\
+    \"    pkg, shipper_cod,consignee_cod,contract_address,notifier_address,VESSEL_VOYAGE.VESSEL_NAME,CALL_SIGN IC_CALL, OC_CALL,VESSEL_VOYAGE.EDI_CALL_SIGN,VESSEL_VISIT.LOB_VYG,trunc(VESSEL_VISIT.ETA) CREATED_ON\" +\
+    \" FROM vbill_head,VESSEL_VISIT,VESSEL_VOYAGE,c_port\" +\
+    \" WHERE  VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and (c_port.ID = vbill_head.spod  or c_port.PORT_NAME= vbill_head.spod) and VESSEL_VISIT.ID=vbill_head.vid and   VBILL_HEAD.ID='\" + billId + \"' and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' and  VBILL_HEAD.VID='\" + vId + \"' \");\
+} else if (billType == 'S') { //散货\
+  rs = app.run(\"SELECT vbill_head.vid,vbill_head.ID,bill_no,shipper,consignee,contract_tel,notifier_tel, \" +\
+    \"f_hk(pod)pod,f_hk(pol)pol,f_hk(spod)||'('||hg_cod||')' spod,cmdy_code,goods_notes,pieces,weight,decode(volume,0,'')volume,marks,pkg,shipper_cod, consignee_cod,contract_address,\" +\
+    \"notifier_address,VESSEL_VOYAGE.VESSEL_NAME,CALL_SIGN IC_CALL,OC_CALL,VESSEL_VOYAGE.EDI_CALL_SIGN,\" +\
+    \"VESSEL_VISIT.LOB_VYG,trunc(VESSEL_VISIT.ETA) CREATED_ON\" +\
+    \" FROM vbill_head,VESSEL_VISIT,VESSEL_VOYAGE,c_port\" +\
+    \" WHERE VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and VESSEL_VISIT.ID=vbill_head.vid and (c_port.ID = vbill_head.spod  or c_port.PORT_NAME= vbill_head.spod)\" +\
+    \" and VBILL_HEAD.ID='\" + billId + \"' and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' and VBILL_HEAD.VID='\" + vId + \"'\");\
+} else { //整柜\
+  if (zfId == 0) {\
+    rs = app.run(\"SELECT vbill_head.vid, vbill_head.ID, bill_no, shipper, consignee, contract_tel, notifier_tel, \" +\
+      \"f_hk(pod)pod,f_hk(pol)pol,f_hk(spod)||'('||hg_cod||')' spod, cmdy_code, goods_notes, pieces, weight, decode(volume,0,'')volume, marks,nvl(getCntrNUm(vbill_head.ID,'20'),'20×0') CNTR20 ,nvl(getCntrNUm(vbill_head.ID,'40'),'40×0') CNTR40, nvl(getCntrNUm(vbill_head.ID,'45'),'45×0') CNTR45,\" +\
+      \"    pkg, shipper_cod,consignee_cod,contract_address,notifier_address,VESSEL_VOYAGE.VESSEL_NAME,CALL_SIGN IC_CALL, OC_CALL,VESSEL_VOYAGE.EDI_CALL_SIGN,VESSEL_VISIT.LOB_VYG,trunc(VESSEL_VISIT.ETA) CREATED_ON\" +\
+      \" FROM vbill_head,VESSEL_VISIT,VESSEL_VOYAGE,c_port\" +\
+      \" WHERE  VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and (c_port.ID = vbill_head.spod  or c_port.PORT_NAME= vbill_head.spod) and VESSEL_VISIT.ID=vbill_head.vid and   VBILL_HEAD.ID='\" + billId + \"'  and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"'  and  VBILL_HEAD.VID='\" + vId + \"'  \");\
+\
+  } else { //主分单\
+    rs = app.run(\"SELECT vbill_head.vid, vbill_head.ID, bill_no, shipper, consignee, contract_tel, notifier_tel, \" +\
+      \"f_hk(pod)pod,f_hk(pol)pol,f_hk(spod)||'('||hg_cod||')' spod, cmdy_code, f_getGOODNOTES(bill_no,vbill_head.Tenancy_Id,vbill_head.vid)goods_notes, pieces, weight, decode(volume,0,'')volume, marks,nvl(getCntrNUm(vbill_head.ID,'20'),'20×0') CNTR20 ,nvl(getCntrNUm(vbill_head.ID,'40'),'40×0') CNTR40, nvl(getCntrNUm(vbill_head.ID,'45'),'45×0') CNTR45,\" +\
+      \"    pkg, shipper_cod,consignee_cod,contract_address,notifier_address,VESSEL_VOYAGE.VESSEL_NAME,CALL_SIGN IC_CALL, OC_CALL,VESSEL_VOYAGE.EDI_CALL_SIGN,VESSEL_VISIT.LOB_VYG,trunc(VESSEL_VISIT.ETA) CREATED_ON\" +\
+      \" FROM vbill_head,VESSEL_VISIT,VESSEL_VOYAGE,c_port\" +\
+      \" WHERE  VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and VESSEL_VISIT.ID=vbill_head.vid and (c_port.ID = vbill_head.spod  or c_port.PORT_NAME= vbill_head.spod) and VBILL_HEAD.ID='\" + billId + \"' and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"'  and  VBILL_HEAD.VID='\" + vId + \"' \");\
+  }\
+}\
+rsf = app.run(\"SELECT bill_no,pieces,weight FROM vbill_head WHERE P_BILLNO='\" + billNo + \"' and TENANCY_ID='\" + TENANCY_ID + \"' and phase<>'9' order by bill_no\");\
+app.send({\
+  bill: Wb.getRecords(rs),\
+  billf: Wb.getRecords(rsf),\
+  cntr: Wb.getRecords(rm),\
+  csum: Wb.getRecords(rsum)\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "xlwmcgs": 1,
+  "XLBCCX": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "运单打印",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

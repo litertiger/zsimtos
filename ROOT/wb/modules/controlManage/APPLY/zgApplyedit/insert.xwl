@@ -1,0 +1,69 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //主表ID\
+\
+if (data.APPLY_TYPE == \"ZGJ\") {\
+  //   //插入port_cntr\
+  var sql = \"insert into port_cntr(IB_MODE,ID,TENANCY_ID,CNTR,PHASE,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,CNTR_ISO,\" +\
+    \"CNTR_OPERATOR,CNTR_OPERATOR_COD,CNTR_SIZE,CNTR_TYPE,CREATED_BY,CREATED_ON,CNTR_OWNER_COD,CNTR_OWNER)\" +\
+    \" values('TI',{?ID?},'\" + tenancyid + \"',{?CNTR?},'OUT','E',{?TRADE_ID?},{?I_E_ID?},{?E_F_ID?},{?CNTR_ISO?},\" +\
+    \"{?CNTR_OPERATOR?},{?CNTR_OPERATOR_COD?},{?CNTR_SIZE?},{?CNTR_TYPE?},'\" + username + \"',sysdate,\" +\
+    \"{?CNTR_OWNER_COD?},{?CNTR_OWNER?})\";\
+  app.run(sql, {\
+    arrayData: data.cntrsdata,\
+    transaction: 'start'\
+  });\
+  //插入主表\
+  var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+    \"FROM_OPERATOR_COD,FROM_OPERATOR,APPLY_DATE,CREATED_BY,CREATED_ON,POL,POD)\" +\
+    \" values('\" + id + \"','\" + tenancyid + \"','APY',{?APPLY_TYPE?},{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
+    \"{?FROM_OPERATOR_COD?},{?FROM_OPERATOR?},{?DATE.APPLY_DATE?},'\" + username + \"',sysdate,{?POL?},{?POD?})\";\
+  app.run(sqla);\
+  //插入字表\
+  var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE,I_E_ID,E_F_ID,TRADE_ID)\" +\
+    \" values(sys_guid(),'\" + id + \"',{?ID?},'APY',{?I_E_ID?},{?E_F_ID?},{?TRADE_ID?})\";\
+  app.run(sqll, {\
+    arrayData: data.cntrsdata,\
+    transaction: 'commit'\
+  });\
+}\
+if (data.APPLY_TYPE == \"ZGC\") {\
+  //插入主表\
+  var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+    \"FROM_OPERATOR_COD,FROM_OPERATOR,APPLY_DATE,CREATED_BY,CREATED_ON,POL,POD)\" +\
+    \" values('\" + id + \"','\" + tenancyid + \"','APY',{?APPLY_TYPE?},{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
+    \"{?FROM_OPERATOR_COD?},{?FROM_OPERATOR?},{?DATE.APPLY_DATE?},'\" + username + \"',sysdate,{?POL?},{?POD?})\";\
+  app.run(sqla, {\
+    transaction: 'start'\
+  });\
+  //插入字表\
+  var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE,I_E_ID,E_F_ID,TRADE_ID)\" +\
+    \" values(sys_guid(),'\" + id + \"',{?ID?},'APY',{?I_E_ID?},{?E_F_ID?},{?TRADE_ID?})\";\
+  app.run(sqll, {\
+    arrayData: data.cntrs,\
+    transaction: 'commit'\
+  });\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "增加数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

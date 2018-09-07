@@ -1,0 +1,779 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var tid = \"\"; //task_id\
+var tvid = \"\"; //truck_visit id\
+var trade = \"\"; //内外贸\
+var cfs_name = \"\"; //作业区域\
+var cntrsdata = Wb.decode(data.cntrsdata); //grid数据\
+var rids = \"\";\
+if (Wb.isEmpty(cntrsdata[0].IN_CAR))\
+  throw \"提箱没有拖车,操作失败\";\
+Wb.each(cntrsdata, function(cntr) {\
+  rids += \"'\" + cntr.RID + \"',\";\
+});\
+rids = rids.substring(0, rids.length - 1);\
+// var hei = Wb.getRecords(app.run(\"select hei from c_employee where empno='\" + cntrsdata[0].IN_DRIVER_ID + \"'\" +\
+//   \" and tenancy_id='\" + tenancyid + \"'\", {\
+//     jndi: 'jdbc/basecode'\
+//   }));\
+// if (hei.length > 0) {\
+//   if (hei[0].HEI == \"1\") {\
+//     app.send({\
+//       success: false,\
+//       errstr: \"司机\" + cntrsdata[0].IN_DRIVER_NAME + \"已经被列入黑名单,不能入闸\"\
+//     });\
+//     app.set(\"result\", {\
+//       success: false,\
+//       errstr: \"司机\" + cntrsdata[0].IN_DRIVER_NAME + \"已经被列入黑名单,不能入闸\"\
+//     });\
+//     return;\
+//   }\
+// }\
+if (cntrsdata[0].TRADE_ID == \"1\") { //进闸确认费用是否结清\
+  if (cntrsdata[0].WORK_TYPE == \"FOEI\") { //提重箱\
+    //     var map = new HashMap();\
+    //     map.put(\"billNo\", cntrsdata[0].BILL_NO);\
+    //     map.put(\"cntr\", cntrsdata[0].CNTR);\
+    //     var result = Wb.newClass(\"dubboForCargoStore\").checkFeeByTakeOut(request, map);\
+    //     if (result && !result.success) {\
+    //       app.send({\
+    //         success: result.success,\
+    //         errstr: result.msg\
+    //       });\
+    //       app.set(\"result\", {\
+    //         success: result.success,\
+    //         errstr: result.msg\
+    //       });\
+    //       return;\
+    //     }\
+    var bd = Wb.getRecords(app.run(\"select bd_by from buz_order_item\" +\
+      \" where bill_no='\" + cntrsdata[0].BILL_NO + \"' and cntr_id='\" + cntrsdata[0].PID + \"' and bd_by is not null\"));\
+    if (bd.length < 1) {\
+      app.set(\"result\", {\
+        success: false,\
+        errstr: \"箱子:\" + cntrsdata[0].CNTR + \"没有办单\"\
+      });\
+      app.send({\
+        success: false,\
+        errstr: \"箱子:\" + cntrsdata[0].CNTR + \"没有办单\"\
+      });\
+      return;\
+    }\
+    if (cntrsdata.length == 2) {\
+      //       var map1 = new HashMap();\
+      //       map1.put(\"billNo\", cntrsdata[1].BILL_NO);\
+      //       map1.put(\"cntr\", cntrsdata[1].CNTR);\
+      //       var result1 = Wb.newClass(\"dubboForCargoStore\").checkFeeByTakeOut(request, map1);\
+      //       if (result && !result1.success) {\
+      //         app.send({\
+      //           success: result1.success,\
+      //           errstr: result1.msg\
+      //         });\
+      //         app.set(\"result\", {\
+      //           success: result1.success,\
+      //           errstr: result1.msg\
+      //         });\
+      //         return;\
+      //       }\
+      var bd = Wb.getRecords(app.run(\"select bd_by from buz_order_item\" +\
+        \" where bill_no='\" + cntrsdata[1].BILL_NO + \"' and cntr_id='\" + cntrsdata[1].PID + \"' and bd_by is not null\"));\
+      if (bd.length < 1) {\
+        app.set(\"result\", {\
+          success: false,\
+          errstr: \"箱子:\" + cntrsdata[1].CNTR + \"没有办单\"\
+        });\
+        app.send({\
+          success: false,\
+          errstr: \"箱子:\" + cntrsdata[1].CNTR + \"没有办单\"\
+        });\
+        return;\
+      }\
+    }\
+  }\
+  if (cntrsdata[0].WORK_TYPE == \"EOFI\" && data.cfs == \"JGQ\") { //提空箱\
+    var fx = Wb.getRecords(app.run(\"select RELEASE_ID from port_cntr where id='\" + cntrsdata[0].PID + \"' and RELEASE_ID=1\"));\
+    if (fx.length < 1) {\
+      //       app.set(\"result\", {\
+      //         success: false,\
+      //         errstr: \"箱子:\" + cntrsdata[0].CNTR + \"海关没有放行\"\
+      //       });\
+      app.set(\"result\", {\
+        success: false,\
+        errstr: \"箱子:\" + cntrsdata[0].CNTR + \"海关没有放行\"\
+      });\
+      app.send({\
+        success: false,\
+        errstr: \"箱子:\" + cntrsdata[0].CNTR + \"海关没有放行\"\
+      });\
+      return;\
+    }\
+    if (cntrsdata.length == 2) {\
+      fx = Wb.getRecords(app.run(\"select RELEASE_ID from port_cntr where id='\" + cntrsdata[1].PID + \"' and RELEASE_ID=1\"));\
+      if (fx.length < 1) {\
+        //         app.set(\"result\", {\
+        //           success: false,\
+        //           errstr: \"箱子:\" + cntrsdata[1].CNTR + \"海关没有放行\"\
+        //         });\
+        app.set(\"result\", {\
+          success: false,\
+          errstr: \"箱子:\" + cntrsdata[1].CNTR + \"海关没有放行\"\
+        });\
+        app.send({\
+          success: false,\
+          errstr: \"箱子:\" + cntrsdata[1].CNTR + \"海关没有放行\"\
+        });\
+        return;\
+      }\
+    }\
+  }\
+  var kl = Wb.getRecords(app.run(\"select LOCK_ID from port_cntr where id='\" + cntrsdata[0].PID + \"' and LOCK_ID='1'\"));\
+  if (kl.length > 0) {\
+    app.set(\"result\", {\
+      success: false,\
+      errstr: \"箱子:\" + cntrsdata[0].CNTR + \"被扣留\"\
+    });\
+    app.send({\
+      success: false,\
+      errstr: \"箱子:\" + cntrsdata[0].CNTR + \"被扣留\"\
+    });\
+    return;\
+  }\
+  if (cntrsdata.length == 2) {\
+    kl = Wb.getRecords(app.run(\"select LOCK_ID from port_cntr where id='\" + cntrsdata[1].PID + \"' and LOCK_ID='1'\"));\
+    if (kl.length > 0) {\
+      app.set(\"result\", {\
+        success: false,\
+        errstr: \"箱子:\" + cntrsdata[1].CNTR + \"被扣留\"\
+      });\
+      app.send({\
+        success: false,\
+        errstr: \"箱子:\" + cntrsdata[1].CNTR + \"被扣留\"\
+      });\
+      return;\
+    }\
+  }\
+}\
+//变量保存内外贸\
+if (cntrsdata[0].TRADE_ID == \"1\") {\
+  trade = \"外贸\";\
+}\
+if (cntrsdata[0].TRADE_ID == \"2\") {\
+  trade = \"内贸\";\
+}\
+var res = Wb.decode(DbUtil.getData(app.run(\"select * from receipt where phase='GET' and id in(\" + rids + \")\"), request));\
+if (res.length > 0) {\
+  app.set(\"result\", {\
+    success: false,\
+    errstr: \"系统检测到接箱车辆已经进门,不能重复进门\"\
+  });\
+  app.send({\
+    success: false,\
+    errstr: \"系统检测到接箱车辆已经进门,不能重复进门\"\
+  });\
+  return;\
+}\
+// res = Wb.decode(DbUtil.getData(app.run(\"select tv.id from truck_visit tv left join truck_receipt tr on tv.id=tr.TVID\" +\
+//   \" inner join receipt r on tr.RPID=r.id where tv.in_car='\" + cntrsdata[0].IN_CAR + \"' and tv.phase<>'FIN'\" +\
+//   \" and tv.tenancy_id='\" + tenancyid + \"' and tv.in_car<>'999'\"), request));\
+// if (res.length > 0) {\
+//   app.send({\
+//     success: false,\
+//     errstr: \"拖车\" + cntrsdata[0].IN_CAR + \"有未完成的设备交接单,不能进门\"\
+//   });\
+//   app.set(\"result\", {\
+//     success: false,\
+//     errstr: \"拖车\" + cntrsdata[0].IN_CAR + \"有未完成的设备交接单,不能进门\"\
+//   });\
+//   return;\
+// }\
+//查询闸口属于哪个作业区域,用于创建和查找task\
+var selcfs = \"select * from c_cfs where cfs_cod='\" + data.cfs + \"' and tenancy_id='\" + tenancyid + \"'\";\
+var cfs = Wb.decode(DbUtil.getData(app.run(selcfs, {\
+  jndi: 'jdbc/basecode'\
+}), request));\
+if (cfs.length > 0) {\
+  cfs_name = cfs[0].CFS_NAM;\
+}\
+//====================================\
+var redisUtil = com.ag.util.RedisUtil;\
+var redis = redisUtil.getJedis(); //打开连接\
+if (redis) {\
+  redis.select(5); //通道5\
+  var iserr = 0;\
+  for (var i in cntrsdata) {\
+    if (redis.hsetnx(\"ingate\", cntrsdata[i].CNTR, \"\") == 0)\
+      iserr = 1;\
+    if (redis.hsetnx(\"ingate\", cntrsdata[i].RID, \"\") == 0)\
+      iserr = 1;\
+  }\
+  if (iserr == 1) { //如果已经存在\
+    app.set(\"result\", {\
+      success: false,\
+      errstr: \"卡了,等等\"\
+    });\
+    app.send({\
+      success: false,\
+      errstr: \"卡了,等等\"\
+    });\
+    redisUtil.returnResource(redis); //关闭连接\
+    return;\
+  }\
+  redisUtil.returnResource(redis); //关闭连接\
+}\
+//====================================\
+var errmsg = \"\";\
+try {\
+  //更改receipt为取箱状态,进闸号,进门时间\
+  app.run(\"update receipt set IN_CAR={?IN_CAR?},IN_CAMPI={?IN_CAMPI?},IN_DRIVER_ID={?IN_DRIVER_ID?},phase='GET',\" +\
+    \"GATEIN_NO_T='\" + data.cfs + \"',GATEIN_TIME_T=sysdate,CNTR_ID={?CNTR_ID?},CNTR={?CNTR?},OOG_ID={?OOG_ID?},\" +\
+    \"CATEGORY_ID={?CATEGORY_ID?},GATEIN_BY_T='\" + username + \"' where id={?RID?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(cntrsdata)),\
+      transaction: 'start'\
+    });\
+  //更改port_cntr为取箱状态,预提标志\
+  app.run(\"update port_cntr set PRE_TAK_ID=1 where id={?PID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(cntrsdata))\
+  });\
+  //修改退运申请状态\
+  app.run(\"update cntr_back set phase='EXE' where cntr_id={?PID?} and phase<>'FIN' and type='E'\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(cntrsdata))\
+  });\
+  //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓车次数据处理↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓\
+  tvid = SysUtil.getId();\
+  var instv = \"insert into truck_visit(id,tenancy_id,IN_CAR,IN_TRUCK_HP,IN_CAMPI,IN_TRAY_NO,IN_DRIVER_ID,IN_DRIVER_NAME,\" +\
+    \"OUT_CAMPI,OUT_TRAY_NO,GATEIN_NO_T,GATEIN_TIME_T,phase,CREATED_ON,CREATED_BY)\" +\
+    \" values('\" + tvid + \"','\" + tenancyid + \"',\" +\
+    \"'\" + cntrsdata[0].IN_CAR + \"','\" + cntrsdata[0].IN_CAR_HP + \"','\" + cntrsdata[0].IN_CAMPI + \"',\" +\
+    \"'\" + cntrsdata[0].IN_TRAY_NO + \"','\" + cntrsdata[0].IN_DRIVER_ID + \"','\" + cntrsdata[0].IN_DRIVER_NAME + \"',\" +\
+    \"'\" + cntrsdata[0].IN_CAMPI + \"','\" + cntrsdata[0].IN_TRAY_NO + \"','\" + data.cfs + \"',sysdate,'EXE',\" +\
+    \"sysdate,'\" + username + \"')\";\
+  app.run(instv);\
+  //插入truck_receipt关系表\
+  Wb.each(cntrsdata, function(cs) {\
+    var insvrsql = \"insert into truck_receipt(id,tvid,rpid,DIRECTION,CNTR,FETCHTYPE,BILL_NO)\" +\
+      \"values(sys_guid(),'\" + tvid + \"','\" + cs.RID + \"','F','\" + cs.CNTR + \"','GO','\" + cs.BILL_NO + \"')\";\
+    app.run(insvrsql);\
+  });\
+  //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑车次数据处理↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑\
+  //箱皮重更新信息C_CNTR\
+  Wb.each(cntrsdata, function(cntr) {\
+    var c_c = Wb.getRecords(app.run(\"select * from c_cntr where cntr='\" + cntr.CNTR + \"'\", {\
+      jndi: \"jdbc/basecode\"\
+    }));\
+    cntr.CNTR_WEIGHT = cntr.CNTR_WEIGHT || 0;\
+    if (c_c.length < 1)\
+      app.run(\"insert into c_cntr(cntr,CNTR_ISO,CNTR_SIZE,CNTR_TYPE,WEIGHT)\" +\
+        \" values('\" + cntr.CNTR + \"','\" + cntr.CNTR_ISO + \"','\" + cntr.CNTR_SIZE + \"',\" +\
+        \"'\" + cntr.CNTR_TYPE + \"',\" + cntr.CNTR_WEIGHT + \")\", {\
+          jndi: \"jdbc/basecode\"\
+        });\
+    else\
+      app.run(\"update c_cntr set CNTR_ISO='\" + cntr.CNTR_ISO + \"',CNTR_SIZE='\" + cntr.CNTR_SIZE + \"',\" +\
+        \"CNTR_TYPE='\" + cntr.CNTR_TYPE + \"',WEIGHT=\" + cntr.CNTR_WEIGHT + \" where cntr='\" + cntr.CNTR + \"'\", {\
+          jndi: \"jdbc/basecode\"\
+        });\
+  });\
+  //判断是否已经有task,没有insert,有则update\
+  var seltask = \"select * from task where TASK_TYPE='GOUT'\" +\
+    \" and TASK_NAME=to_char(sysdate,'yyyy-mm-dd')||'\" + cfs_name + trade + \"'\" +\
+    \" and tenancy_id='\" + tenancyid + \"'\";\
+  var task = Wb.decode(DbUtil.getData(app.run(seltask), request));\
+  //记录task的id\
+  if (task.length > 0) {\
+    tid = task[0].ID;\
+  } else {\
+    tid = SysUtil.getId();\
+  }\
+  //根据箱号查询数据,提供给move_list\
+  var selsql = \"select null ID,'\" + tenancyid + \"' TENANCY_ID,'\" + tid + \"' QUEUE_ID,\" +\
+    \"r.CNTR,'SND' PHASE,r.CATEGORY_ID,r.TRADE_ID,r.I_E_ID,r.E_F_ID,\" +\
+    \"r.CNTR_ISO,r.LINE,r.CNTR_OPERATOR,c.SAFE_WT,c.SCALE_WT,r.SEAL_NO,r.SEAL_NO2,r.SEAL_NO3,\" +\
+    \"r.SEAL_NO4,r.CNTR_HIGHT,r.CNTR_LENGTH,c.OPL,c.ORIGIN,r.POD,r.POL,r.SPOD,c.RETURN_LOC,\" +\
+    \"c.TRUCKING_CO,c.PLANNED_POSITION,c.CY_AREA_NO,c.CY_BAY_NO,c.CY_ROW_NO,c.CY_TIER_NO,c.DANG_ID,\" +\
+    \"r.IMDG,r.UNDG,c.WEIGHT,r.TEMP_SET,r.TEMP_MIN,r.TEMP_MAX,r.REEF_ID,c.ON_POWER,c.REQS_POWER,\" +\
+    \"c.REEFER_TYPE,c.ALARM,c.CO2_LEVEL,c.DEFROST_TEMP,c.FAULT_CODE,c.FUEL_LEVEL,r.HUMIDITY_LEVEL,\" +\
+    \"c.O2_LEVEL,c.LAST_REMARK,c.LAST_SET_TEMP,c.LAST_SUPPLY_TEMP,c.LAST_READ_TEMP,r.OVERHEIGHT,\" +\
+    \"r.OVERFRONT,r.OVERBACK,r.OVERLEFT,r.OVERRIGHT,r.OOG_ID,c.BUNDL_ID,c.ON_POWER_TIME,\" +\
+    \"c.OFF_POWER_TIME,c.CONDITION_ID,sysdate UPDATED_ON,sysdate CREATED_ON,r.CNTR_SIZE,\" +\
+    \"r.CNTR_TYPE,'\" + username + \"' CREATED_BY,'\" + username + \"' UPDATED_BY,r.CNTR_OPERATOR_COD,\" +\
+    \"r.BILL_NO,'MOV' MOVE_TYPE,1 PRIORITY,r.ID HANDLE_ID,r.WORK_TYPE,c.ID CNTR_ID,\" +\
+    \"'\" + tvid + \"' CARRIER_CALL,'\" + cntrsdata[0].IN_CAR + \"' CARRIER_CODE,'T' CARRIER_TYPE,\" +\
+    \"'TG' TRCLASS1,'YC' TRCLASS2,'B' FROM_POS_TYP,'G' TO_POS_TYP,c.YARD_POSITION FROM_POS,'\" + data.cfs + \"' TO_POS,\" +\
+    \"'\" + cntrsdata[0].IN_CAR + \"' TRANSPORTER1,'' TRANSPORTER2,c.ARR_POSITION,c.PHASE PP\" +\
+    \" from receipt r \" +\
+    \" left join port_cntr c on c.id=r.cntr_id\" +\
+    \" where r.id in (\" + rids + \")\";\
+  var results = Wb.getRecords(app.run(selsql));\
+\
+  //判断是否已经有task,没有insert,有则update\
+  if (task.length > 0) {\
+    var sqltask = \"update task set MOVES=MOVES+\" + results.length + \" where id='\" + tid + \"'\";\
+    app.run(sqltask);\
+  } else {\
+    var sqltask = \"insert into task(ID,TENANCY_ID,TASK_TYPE,TASK_NAME,PHASE,AUTO_RELEASE,AUTO_POSITION,REPOSITION,\" +\
+      \"PRIORITY,MOVES,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON)\" +\
+      \" values('\" + tid + \"','\" + tenancyid + \"','GOUT',\" +\
+      \"to_char(sysdate,'yyyy-mm-dd')||'\" + cfs_name + trade + \"',\" +\
+      \"'EXE',0,0,0,1,1,'\" + username + \"',\" +\
+      \"sysdate,'\" + username + \"',sysdate)\";\
+    app.run(sqltask);\
+  }\
+\
+  //组织move_list数组数据\
+  var inarr = new Array();\
+  //卸船到堆场后取箱\
+  if (results[0].PP == \"ACT\") {\
+    var in0 = {},\
+      in1 = {},\
+      in2 = {};\
+    Wb.apply(in0, results[0]); //复制数据move_list\
+    Wb.apply(in1, results[0]); //复制数据move_list\
+    Wb.apply(in2, results[0]); //复制数据move_list\
+    inarr[0] = in0;\
+    inarr[0].ID = SysUtil.getId();\
+    //inarr[0].HANDLE_ID = cntrsdata[0].RID;\
+    inarr[1] = in1;\
+    inarr[1].ID = SysUtil.getId();\
+    //inarr[1].HANDLE_ID = cntrsdata[0].RID;\
+    inarr[1].QUEUE_ID = inarr[0].ID;\
+    inarr[1].MOVE_TYPE = 'LOD';\
+    inarr[1].TRCLASS1 = 'YC';\
+    inarr[1].TRCLASS2 = 'TG';\
+    inarr[1].TRANSPORTER1 = \"\";\
+    inarr[1].TRANSPORTER2 = cntrsdata[0].IN_CAR;\
+    inarr[2] = in2;\
+    inarr[2].ID = SysUtil.getId();\
+    //inarr[2].HANDLE_ID = cntrsdata[0].RID;\
+    inarr[2].QUEUE_ID = inarr[0].ID;\
+    inarr[2].MOVE_TYPE = 'DRG';\
+    inarr[2].FROM_POS_TYP = 'G';\
+    inarr[2].TO_POS_TYP = 'B';\
+    inarr[2].FROM_POS = data.cfs;\
+    inarr[2].TO_POS = inarr[0].FROM_POS;\
+    inarr[2].TRANSPORTER2 = \"\";\
+  }\
+  //卸船直接到拖车上拉走\
+  if (results[0].PP == \"ADV\") {\
+    var in0 = {},\
+      in1 = {};\
+    Wb.apply(in0, results[0]); //复制数据move_list\
+    Wb.apply(in1, results[0]); //复制数据move_list\
+    inarr[0] = in0;\
+    inarr[0].ID = SysUtil.getId();\
+    //inarr[0].HANDLE_ID = cntrsdata[0].RID;\
+    inarr[0].FROM_POS = results[0].ARR_POSITION;\
+    inarr[1] = in1;\
+    inarr[1].ID = SysUtil.getId();\
+    //inarr[1].HANDLE_ID = cntrsdata[0].RID;\
+    inarr[1].QUEUE_ID = inarr[0].ID;\
+    inarr[1].MOVE_TYPE = 'DRG';\
+    inarr[1].FROM_POS_TYP = 'G';\
+    inarr[1].TO_POS_TYP = 'V';\
+    inarr[1].FROM_POS = data.cfs;\
+    inarr[1].TO_POS = results[0].ARR_POSITION;\
+    inarr[1].TRANSPORTER2 = \"\";\
+  }\
+  app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on)\" +\
+    \" values('\" + inarr[0].ID + \"','MOVE_LIST','GIN',{?sys.username?},sysdate)\");\
+  if (results.length == 2) { //如果同时提2个箱\
+    //卸船到堆场后取箱\
+    if (results[1].PP == \"ACT\") {\
+      var in3 = {},\
+        in4 = {},\
+        in5 = {};\
+      Wb.apply(in3, results[1]); //复制数据第二个箱的move_list\
+      Wb.apply(in4, results[1]); //复制数据第二个箱的move_list\
+      Wb.apply(in5, results[1]); //复制数据第二个箱的move_list\
+      inarr[3] = in3;\
+      inarr[3].ID = SysUtil.getId();\
+      //inarr[3].HANDLE_ID = cntrsdata[1].RID;\
+      inarr[4] = in4;\
+      inarr[4].ID = SysUtil.getId();\
+      //inarr[4].HANDLE_ID = cntrsdata[1].RID;\
+      inarr[4].QUEUE_ID = inarr[3].ID;\
+      inarr[4].MOVE_TYPE = 'LOD';\
+      inarr[4].TRCLASS1 = 'YC';\
+      inarr[4].TRCLASS2 = 'TG';\
+      inarr[4].TRANSPORTER1 = \"\";\
+      inarr[4].TRANSPORTER2 = cntrsdata[0].IN_CAR;\
+      inarr[5] = in5;\
+      inarr[5].ID = SysUtil.getId();\
+      //inarr[5].HANDLE_ID = cntrsdata[1].RID;\
+      inarr[5].QUEUE_ID = inarr[3].ID;\
+      inarr[5].MOVE_TYPE = 'DRG';\
+      inarr[5].FROM_POS_TYP = 'G';\
+      inarr[5].TO_POS_TYP = 'B';\
+      inarr[5].FROM_POS = data.cfs;\
+      inarr[5].TO_POS = inarr[3].FROM_POS;\
+      inarr[5].TRANSPORTER2 = \"\";\
+      app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on)\" +\
+        \" values('\" + inarr[3].ID + \"','MOVE_LIST','GIN',{?sys.username?},sysdate)\");\
+    }\
+    //卸船直接到拖车上拉走\
+    if (results[1].PP == \"ADV\") {\
+      var in2 = {},\
+        in3 = {};\
+      Wb.apply(in2, results[1]); //复制数据move_list\
+      Wb.apply(in3, results[1]); //复制数据move_list\
+      inarr[2] = in2;\
+      inarr[2].ID = SysUtil.getId();\
+      //inarr[2].HANDLE_ID = cntrsdata[1].RID;\
+      inarr[2].FROM_POS = results[1].ARR_POSITION;\
+      inarr[3] = in3;\
+      inarr[3].ID = SysUtil.getId();\
+      //inarr[3].HANDLE_ID = cntrsdata[1].RID;\
+      inarr[3].QUEUE_ID = inarr[2].ID;\
+      inarr[3].MOVE_TYPE = 'DRG';\
+      inarr[3].FROM_POS_TYP = 'G';\
+      inarr[3].TO_POS_TYP = 'V';\
+      inarr[3].FROM_POS = data.cfs;\
+      inarr[3].TO_POS = results[1].ARR_POSITION;\
+      inarr[3].TRANSPORTER2 = \"\";\
+      app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on)\" +\
+        \" values('\" + inarr[2].ID + \"','MOVE_LIST','GIN',{?sys.username?},sysdate)\");\
+    }\
+  }\
+  // app.log(inarr);\
+  //插入move_list\
+  var sqlmovelist = \"insert into move_list(ID,TENANCY_ID,QUEUE_ID,CNTR,PHASE,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,\" +\
+    \"CNTR_ISO,LINE,CNTR_OPERATOR,SAFE_WT,SCALE_WT,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,CNTR_HIGHT,\" +\
+    \"CNTR_LENGTH,OPL,ORIGIN,POD,POL,SPOD,RETURN_LOC,TRUCKING_CO,PLANNED_POSITION,CY_AREA_NO,CY_BAY_NO,\" +\
+    \"CY_ROW_NO,CY_TIER_NO,DANG_ID,IMDG,UNDG,WEIGHT,TEMP_SET,TEMP_MIN,TEMP_MAX,REEF_ID,ON_POWER,REQS_POWER,\" +\
+    \"REEFER_TYPE,ALARM,CO2_LEVEL,DEFROST_TEMP,FAULT_CODE,FUEL_LEVEL,HUMIDITY_LEVEL,O2_LEVEL,LAST_REMARK,\" +\
+    \"LAST_SET_TEMP,LAST_SUPPLY_TEMP,LAST_READ_TEMP,OVERHEIGHT,OVERFRONT,OVERBACK,OVERLEFT,OVERRIGHT,\" +\
+    \"OOG_ID,BUNDL_ID,ON_POWER_TIME,OFF_POWER_TIME,CONDITION_ID,UPDATED_ON,CREATED_ON,CNTR_SIZE,\" +\
+    \"CNTR_TYPE,CREATED_BY,UPDATED_BY,CNTR_OPERATOR_COD,BILL_NO,MOVE_TYPE,PRIORITY,HANDLE_ID,\" +\
+    \"TO_POS_TYP,FROM_POS_TYP,TO_POS,FROM_POS,TRCLASS1,TRCLASS2,TRANSPORTER1,TRANSPORTER2,CARRIER_CALL,\" +\
+    \"CARRIER_CODE,CARRIER_TYPE,CNTR_ID,WAIT_UNTILL)\" +\
+    \"values({?ID?},{?TENANCY_ID?},{?QUEUE_ID?},{?CNTR?},{?PHASE?},{?CATEGORY_ID?},{?TRADE_ID?},{?I_E_ID?},{?E_F_ID?},\" +\
+    \"{?CNTR_ISO?},{?LINE?},{?CNTR_OPERATOR?},{?SAFE_WT?},{?SCALE_WT?},{?SEAL_NO?},{?SEAL_NO2?},{?SEAL_NO3?},\" +\
+    \"{?SEAL_NO4?},{?CNTR_HIGHT?},{?CNTR_LENGTH?},{?OPL?},{?ORIGIN?},{?POD?},{?POL?},{?SPOD?},{?RETURN_LOC?},\" +\
+    \"{?TRUCKING_CO?},{?PLANNED_POSITION?},{?CY_AREA_NO?},{?CY_BAY_NO?},{?CY_ROW_NO?},{?CY_TIER_NO?},{?DANG_ID?},\" +\
+    \"{?IMDG?},{?UNDG?},{?WEIGHT?},{?TEMP_SET?},{?TEMP_MIN?},{?TEMP_MAX?},{?REEF_ID?},{?ON_POWER?},{?REQS_POWER?},\" +\
+    \"{?REEFER_TYPE?},{?ALARM?},{?CO2_LEVEL?},{?DEFROST_TEMP?},{?FAULT_CODE?},{?FUEL_LEVEL?},{?HUMIDITY_LEVEL?},\" +\
+    \"{?O2_LEVEL?},{?LAST_REMARK?},{?LAST_SET_TEMP?},{?LAST_SUPPLY_TEMP?},{?LAST_READ_TEMP?},{?OVERHEIGHT?},\" +\
+    \"{?OVERFRONT?},{?OVERBACK?},{?OVERLEFT?},{?OVERRIGHT?},{?OOG_ID?},{?BUNDL_ID?},{?timestamp.ON_POWER_TIME?},\" +\
+    \"{?timestamp.OFF_POWER_TIME?},{?CONDITION_ID?},{?timestamp.UPDATED_ON?},{?timestamp.CREATED_ON?},{?CNTR_SIZE?},\" +\
+    \"{?CNTR_TYPE?},{?CREATED_BY?},{?UPDATED_BY?},{?CNTR_OPERATOR_COD?},{?BILL_NO?},{?MOVE_TYPE?},{?PRIORITY?},{?HANDLE_ID?},\" +\
+    \"{?TO_POS_TYP?},{?FROM_POS_TYP?},{?TO_POS?},{?FROM_POS?},{?TRCLASS1?},{?TRCLASS2?},{?TRANSPORTER1?},{?TRANSPORTER2?},\" +\
+    \"{?CARRIER_CALL?},{?CARRIER_CODE?},{?CARRIER_TYPE?},{?CNTR_ID?},sysdate)\";\
+  app.run(sqlmovelist, {\
+    arrayData: inarr,\
+    transaction: 'commit'\
+  });\
+} catch (e) {\
+  errmsg = e;\
+} finally {\
+  //================================\
+  var redis = redisUtil.getJedis();\
+  if (redis) {\
+    redis.select(5); //通道5\
+    for (var i in cntrsdata) { //循环删除\
+      redis.hdel(\"ingate\", cntrsdata[i].CNTR, cntrsdata[i].RID);\
+    }\
+    redisUtil.returnResource(redis); //关闭连接\
+  }\
+  //================================\
+  if (errmsg)\
+    throw errmsg;\
+}\
+//==============发送消息==============\
+var client = new RabbitClient();\
+var gate = \"\";\
+try {\
+  //卸船到堆场后取箱发消息\
+  if (results[0].PP == \"ACT\") {\
+    if (!(client.open() && (task.length > 0 ? true : client.routeSend(\"ex_task\", \"gate.\", {\
+        info: {\
+          type: \"gout\",\
+          action: \"create\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: tid\
+        }\
+      })) && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[0].ID,\
+          cntr: inarr[0].CNTR\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"truck.\" + inarr[2].TRANSPORTER1, {\
+        info: {\
+          type: \"disc\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[2].ID\
+        }\
+      }) && client.routeSend(\"ex_machine\", \"truck.\" + inarr[2].TRANSPORTER1, {\
+        info: {\
+          type: \"truck\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[2].TRANSPORTER1\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"cy.\" + inarr[1].FROM_POS, {\
+        info: {\
+          type: \"disc\",\
+          action: \"create\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[1].ID,\
+          cntr: inarr[1].CNTR\
+        }\
+      }))) return {\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    };\
+  }\
+  //卸船直接到拖车上拉走发消息\
+  if (results[0].PP == \"ADV\") {\
+    if (!(client.open() && (task.length > 0 ? true : client.routeSend(\"ex_task\", \"gate.\", {\
+        info: {\
+          type: \"gout\",\
+          action: \"create\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: tid\
+        }\
+      })) && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[0].ID,\
+          cntr: inarr[0].CNTR\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"truck.\" + inarr[1].TRANSPORTER1, {\
+        info: {\
+          type: \"disc\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[1].ID\
+        }\
+      }) && client.routeSend(\"ex_machine\", \"truck.\" + inarr[1].TRANSPORTER1, {\
+        info: {\
+          type: \"truck\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: inarr[1].TRANSPORTER1\
+        }\
+      }))) return {\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    };\
+  }\
+} catch (e) {\
+  app.set(\"result\", {\
+    success: false,\
+    errstr: e.message\
+  });\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}\
+if (results.length == 2) {\
+  client = new RabbitClient();\
+  try {\
+    //卸船到堆场后取箱发消息\
+    if (results[1].PP == \"ACT\") {\
+      if (!(client.open() && (task.length > 0 ? true : client.routeSend(\"ex_task\", \"gate.\", {\
+          info: {\
+            type: \"gout\",\
+            action: \"create\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: tid\
+          }\
+        })) && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+          info: {\
+            type: \"load\",\
+            action: \"update\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[3].ID,\
+            cntr: inarr[3].CNTR\
+          }\
+        }) && client.routeSend(\"ex_instruction\", \"truck.\" + inarr[5].TRANSPORTER1, {\
+          info: {\
+            type: \"disc\",\
+            action: \"confirm\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[5].ID\
+          }\
+        }) && client.routeSend(\"ex_machine\", \"truck.\" + inarr[5].TRANSPORTER1, {\
+          info: {\
+            type: \"truck\",\
+            action: \"update\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[5].TRANSPORTER1\
+          }\
+        }) && client.routeSend(\"ex_instruction\", \"cy.\" + inarr[4].FROM_POS, {\
+          info: {\
+            type: \"disc\",\
+            action: \"create\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[4].ID,\
+            cntr: inarr[4].CNTR\
+          }\
+        }))) return {\
+        success: false,\
+        errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+      };\
+    }\
+    //卸船直接到拖车上拉走发消息\
+    if (results[1].PP == \"ADV\") {\
+      if (!(client.open() && (task.length > 0 ? true : client.routeSend(\"ex_task\", \"gate.\", {\
+          info: {\
+            type: \"gout\",\
+            action: \"create\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: tid\
+          }\
+        })) && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+          info: {\
+            type: \"load\",\
+            action: \"update\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[2].ID,\
+            cntr: inarr[2].CNTR\
+          }\
+        }) && client.routeSend(\"ex_instruction\", \"truck.\" + inarr[3].TRANSPORTER1, {\
+          info: {\
+            type: \"disc\",\
+            action: \"confirm\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[3].ID\
+          }\
+        }) && client.routeSend(\"ex_machine\", \"truck.\" + inarr[3].TRANSPORTER1, {\
+          info: {\
+            type: \"truck\",\
+            action: \"update\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: inarr[3].TRANSPORTER1\
+          }\
+        }))) return {\
+        success: false,\
+        errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+      };\
+    }\
+  } catch (e) {\
+    app.set(\"result\", {\
+      success: false,\
+      errstr: e.message\
+    });\
+    app.send({\
+      success: false,\
+      errstr: e.message\
+    });\
+  } finally {\
+    client.close();\
+  }\
+}\
+app.set(\"result\", {\
+  success: true\
+});\
+app.send({\
+  success: true\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "提箱开门操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

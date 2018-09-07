@@ -1,0 +1,295 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sdate = data.sdate;\
+var edate = data.edate;\
+if (Wb.isEmpty(sdate))\
+  sdate = '2018-05-01';\
+if (Wb.isEmpty(edate))\
+  edate = '2018-07-31';\
+var sql = \"select nvl(c.short_name,'华晖')short_name,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and e_f_id='F' and cntr_siz_cod='20' then 1 else 0 end)SZF20,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and e_f_id='F' and cntr_siz_cod='40' then 1 else 0 end)SZF40,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and e_f_id='F' and cntr_siz_cod='45' then 1 else 0 end)SZF45,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and e_f_id='E' and cntr_siz_cod='20' then 1 else 0 end)SZE20,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and e_f_id='E' and cntr_siz_cod='40' then 1 else 0 end)SZE40,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and e_f_id='E' and cntr_siz_cod='45' then 1 else 0 end)SZE45,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and i_e_id='I' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%深圳%' and i_e_id='I' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%深圳%' and i_e_id='I' and cntr_siz_cod='45' then 2.25 else 0 end)SZITEU,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and i_e_id='E' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%深圳%' and i_e_id='E' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%深圳%' and i_e_id='E' and cntr_siz_cod='45' then 2.25 else 0 end)SZETEU,\\
+\" +\
+  \"sum(case when service_name like '%深圳%' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%深圳%' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%深圳%' and cntr_siz_cod='45' then 2.25 else 0 end)SZTEU,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and e_f_id='F' and cntr_siz_cod='20' then 1 else 0 end)HKF20,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and e_f_id='F' and cntr_siz_cod='40' then 1 else 0 end)HKF40,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and e_f_id='F' and cntr_siz_cod='45' then 1 else 0 end)HKF45,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and e_f_id='E' and cntr_siz_cod='20' then 1 else 0 end)HKE20,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and e_f_id='E' and cntr_siz_cod='40' then 1 else 0 end)HKE40,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and e_f_id='E' and cntr_siz_cod='45' then 1 else 0 end)HKE45,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and i_e_id='I' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%香港%' and i_e_id='I' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%香港%' and i_e_id='I' and cntr_siz_cod='45' then 2.25 else 0 end)HKITEU,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and i_e_id='E' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%香港%' and i_e_id='E' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%香港%' and i_e_id='E' and cntr_siz_cod='45' then 2.25 else 0 end)HKETEU,\\
+\" +\
+  \"sum(case when service_name like '%香港%' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%香港%' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%香港%' and cntr_siz_cod='45' then 2.25 else 0 end)HKTEU,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and e_f_id='F' and cntr_siz_cod='20' then 1 else 0 end)NSF20,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and e_f_id='F' and cntr_siz_cod='40' then 1 else 0 end)NSF40,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and e_f_id='F' and cntr_siz_cod='45' then 1 else 0 end)NSF45,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and e_f_id='E' and cntr_siz_cod='20' then 1 else 0 end)NSE20,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and e_f_id='E' and cntr_siz_cod='40' then 1 else 0 end)NSE40,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and e_f_id='E' and cntr_siz_cod='45' then 1 else 0 end)NSE45,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and i_e_id='I' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%南沙%' and i_e_id='I' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%南沙%' and i_e_id='I' and cntr_siz_cod='45' then 2.25 else 0 end)NSITEU,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and i_e_id='E' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%南沙%' and i_e_id='E' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%南沙%' and i_e_id='E' and cntr_siz_cod='45' then 2.25 else 0 end)NSETEU,\\
+\" +\
+  \"sum(case when service_name like '%南沙%' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%南沙%' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%南沙%' and cntr_siz_cod='45' then 2.25 else 0 end)NSTEU,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and e_f_id='F' and cntr_siz_cod='20' then 1 else 0 end)YTF20,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and e_f_id='F' and cntr_siz_cod='40' then 1 else 0 end)YTF40,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and e_f_id='F' and cntr_siz_cod='45' then 1 else 0 end)YTF45,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and e_f_id='E' and cntr_siz_cod='20' then 1 else 0 end)YTE20,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and e_f_id='E' and cntr_siz_cod='40' then 1 else 0 end)YTE40,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and e_f_id='E' and cntr_siz_cod='45' then 1 else 0 end)YTE45,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and i_e_id='I' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%盐田%' and i_e_id='I' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%盐田%' and i_e_id='I' and cntr_siz_cod='45' then 2.25 else 0 end)YTITEU,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and i_e_id='E' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%盐田%' and i_e_id='E' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%盐田%' and i_e_id='E' and cntr_siz_cod='45' then 2.25 else 0 end)YTETEU,\\
+\" +\
+  \"sum(case when service_name like '%盐田%' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%盐田%' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when service_name like '%盐田%' and cntr_siz_cod='45' then 2.25 else 0 end)YTTEU,\\
+\" +\
+  \"sum(case when e_f_id='F' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when e_f_id='F' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when e_f_id='F' and cntr_siz_cod='45' then 2.25 else 0 end)FTEU,\\
+\" +\
+  \"sum(case when e_f_id='E' and cntr_siz_cod='20' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when e_f_id='E' and cntr_siz_cod='40' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when e_f_id='E' and cntr_siz_cod='45' then 2.25 else 0 end)ETEU,\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' then 1 else 0 end)+sum(case when cntr_siz_cod='40' then 2 else 0 end)+sum(case when cntr_siz_cod='45' then 2.25 else 0 end)TEU\\
+\" +\
+  \"from t_sas_ship_thruput t left join c_service s on t.sh_line_cod=s.id left join c_customer c on c.code=t.cntr_oper_cod\\
+\" +\
+  \"where (SH_AGENT_COD='HU' or service_name like '%深圳%') and trade_id='1' and t.tenancy_id='\" + data.tenancyId + \"'\\
+\" +\
+  \"and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)>=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by nvl(c.short_name,'华晖')\";\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  SHORT_NAME = \"\",\
+  SZF20 = 0,\
+  SZF40 = 0,\
+  SZF45 = 0,\
+  SZE20 = 0,\
+  SZE40 = 0,\
+  SZE45 = 0,\
+  SZITEU = 0,\
+  SZETEU = 0,\
+  SZTEU = 0,\
+  HKF20 = 0,\
+  HKF40 = 0,\
+  HKF45 = 0,\
+  HKE20 = 0,\
+  HKE40 = 0,\
+  HKE45 = 0,\
+  HKITEU = 0,\
+  HKETEU = 0,\
+  HKTEU = 0,\
+  NSF20 = 0,\
+  NSF40 = 0,\
+  NSF45 = 0,\
+  NSE20 = 0,\
+  NSE40 = 0,\
+  NSE45 = 0,\
+  NSITEU = 0,\
+  NSETEU = 0,\
+  NSTEU = 0,\
+  YTF20 = 0,\
+  YTF40 = 0,\
+  YTF45 = 0,\
+  YTE20 = 0,\
+  YTE40 = 0,\
+  YTE45 = 0,\
+  YTITEU = 0,\
+  YTETEU = 0,\
+  YTTEU = 0,\
+  FTEU = 0,\
+  ETEU = 0,\
+  TEU = 0;\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  SHORT_NAME = rsn.getString(\"SHORT_NAME\");\
+  SZF20 = rsn.getString(\"SZF20\");\
+  SZF40 = rsn.getString(\"SZF40\");\
+  SZF45 = rsn.getString(\"SZF45\");\
+  SZE20 = rsn.getString(\"SZE20\");\
+  SZE40 = rsn.getString(\"SZE40\");\
+  SZE45 = rsn.getString(\"SZE45\");\
+  SZITEU = rsn.getString(\"SZITEU\");\
+  SZETEU = rsn.getString(\"SZETEU\");\
+  SZTEU = rsn.getString(\"SZTEU\");\
+  HKF20 = rsn.getString(\"HKF20\");\
+  HKF40 = rsn.getString(\"HKF40\");\
+  HKF45 = rsn.getString(\"HKF45\");\
+  HKE20 = rsn.getString(\"HKE20\");\
+  HKE40 = rsn.getString(\"HKE40\");\
+  HKE45 = rsn.getString(\"HKE45\");\
+  HKITEU = rsn.getString(\"HKITEU\");\
+  HKETEU = rsn.getString(\"HKETEU\");\
+  HKTEU = rsn.getString(\"HKTEU\");\
+  NSF20 = rsn.getString(\"NSF20\");\
+  NSF40 = rsn.getString(\"NSF40\");\
+  NSF45 = rsn.getString(\"NSF45\");\
+  NSE20 = rsn.getString(\"NSE20\");\
+  NSE40 = rsn.getString(\"NSE40\");\
+  NSE45 = rsn.getString(\"NSE45\");\
+  NSITEU = rsn.getString(\"NSITEU\");\
+  NSETEU = rsn.getString(\"NSETEU\");\
+  NSTEU = rsn.getString(\"NSTEU\");\
+  YTF20 = rsn.getString(\"YTF20\");\
+  YTF40 = rsn.getString(\"YTF40\");\
+  YTF45 = rsn.getString(\"YTF45\");\
+  YTE20 = rsn.getString(\"YTE20\");\
+  YTE40 = rsn.getString(\"YTE40\");\
+  YTE45 = rsn.getString(\"YTE45\");\
+  YTITEU = rsn.getString(\"YTITEU\");\
+  YTETEU = rsn.getString(\"YTETEU\");\
+  YTTEU = rsn.getString(\"YTTEU\");\
+  FTEU = rsn.getString(\"FTEU\");\
+  ETEU = rsn.getString(\"ETEU\");\
+  TEU = rsn.getString(\"TEU\");\
+  xml += \"<SHORT_NAME>\" + SHORT_NAME + \"<\/SHORT_NAME>\";\
+  xml += \"<SZF20>\" + SZF20 + \"<\/SZF20>\";\
+  xml += \"<SZF40>\" + SZF40 + \"<\/SZF40>\";\
+  xml += \"<SZF45>\" + SZF45 + \"<\/SZF45>\";\
+  xml += \"<SZE20>\" + SZE20 + \"<\/SZE20>\";\
+  xml += \"<SZE40>\" + SZE40 + \"<\/SZE40>\";\
+  xml += \"<SZE45>\" + SZE45 + \"<\/SZE45>\";\
+  xml += \"<SZITEU>\" + SZITEU + \"<\/SZITEU>\";\
+  xml += \"<SZETEU>\" + SZETEU + \"<\/SZETEU>\";\
+  xml += \"<SZTEU>\" + SZTEU + \"<\/SZTEU>\";\
+  xml += \"<HKF20>\" + HKF20 + \"<\/HKF20>\";\
+  xml += \"<HKF40>\" + HKF40 + \"<\/HKF40>\";\
+  xml += \"<HKF45>\" + HKF45 + \"<\/HKF45>\";\
+  xml += \"<HKE20>\" + HKE20 + \"<\/HKE20>\";\
+  xml += \"<HKE40>\" + HKE40 + \"<\/HKE40>\";\
+  xml += \"<HKE45>\" + HKE45 + \"<\/HKE45>\";\
+  xml += \"<HKITEU>\" + HKITEU + \"<\/HKITEU>\";\
+  xml += \"<HKETEU>\" + HKETEU + \"<\/HKETEU>\";\
+  xml += \"<HKTEU>\" + HKTEU + \"<\/HKTEU>\";\
+  xml += \"<NSF20>\" + NSF20 + \"<\/NSF20>\";\
+  xml += \"<NSF40>\" + NSF40 + \"<\/NSF40>\";\
+  xml += \"<NSF45>\" + NSF45 + \"<\/NSF45>\";\
+  xml += \"<NSE20>\" + NSE20 + \"<\/NSE20>\";\
+  xml += \"<NSE40>\" + NSE40 + \"<\/NSE40>\";\
+  xml += \"<NSE45>\" + NSE45 + \"<\/NSE45>\";\
+  xml += \"<NSITEU>\" + NSITEU + \"<\/NSITEU>\";\
+  xml += \"<NSETEU>\" + NSETEU + \"<\/NSETEU>\";\
+  xml += \"<NSTEU>\" + NSTEU + \"<\/NSTEU>\";\
+  xml += \"<YTF20>\" + YTF20 + \"<\/YTF20>\";\
+  xml += \"<YTF40>\" + YTF40 + \"<\/YTF40>\";\
+  xml += \"<YTF45>\" + YTF45 + \"<\/YTF45>\";\
+  xml += \"<YTE20>\" + YTE20 + \"<\/YTE20>\";\
+  xml += \"<YTE40>\" + YTE40 + \"<\/YTE40>\";\
+  xml += \"<YTE45>\" + YTE45 + \"<\/YTE45>\";\
+  xml += \"<YTITEU>\" + YTITEU + \"<\/YTITEU>\";\
+  xml += \"<YTETEU>\" + YTETEU + \"<\/YTETEU>\";\
+  xml += \"<YTTEU>\" + YTTEU + \"<\/YTTEU>\";\
+  xml += \"<FTEU>\" + FTEU + \"<\/FTEU>\";\
+  xml += \"<ETEU>\" + ETEU + \"<\/ETEU>\";\
+  xml += \"<TEU>\" + TEU + \"<\/TEU>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

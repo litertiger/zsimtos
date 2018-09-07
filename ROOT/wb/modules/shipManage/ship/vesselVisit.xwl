@@ -1,0 +1,4492 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "xwl1",
+     "file": "m?xwl=shipManage/ship/vesselPort"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "xwl"
+   },
+   {
+    "configs": {"itemId": "tbarv"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "vesselName",
+       "labelAlign": "right",
+       "fieldLabel": "船名",
+       "labelWidth": "40"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "@Str.find"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.pickComp.store.load({\
+  out: app.vesselName\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "dialog": "true",
+     "itemId": "winIO",
+     "padding": "0 0 0 0",
+     "closeAction": "hide",
+     "width": "170",
+     "height": "77"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelIO",
+      "padding": "0 0 0 0",
+      "margin": "0 0 0 0",
+      "autoScroll": "false",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "hbox",
+       "itemId": "radioInOut",
+       "width": "150",
+       "style": "padding-left:25px;"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "radioIn",
+         "boxLabel": "进境",
+         "flex": "1",
+         "name": "radioInGate",
+         "checked": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio"
+       },
+       {
+        "configs": {
+         "itemId": "radioOut",
+         "boxLabel": "出境",
+         "flex": "1",
+         "name": "radioInGate"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio"
+       }
+      ],
+      "type": "container"
+     }],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "var io = \"\";\
+if (app.radioIn.checked)\
+  io = \"in\";\
+if (app.radioOut.checked)\
+  io = \"out\";\
+var sdate, edate, edate1;\
+if (!Wb.isEmpty(app.SETA.getValue()))\
+  sdate = app.timestampToDate(app.SETA.getValue());\
+if (!Wb.isEmpty(app.EETA.getValue()))\
+  edate = app.timestampToDate(app.EETA.getValue());\
+if (!Wb.isEmpty(app.EETA1.getValue()))\
+  edate1 = app.timestampToDate(app.EETA1.getValue());\
+Wb.download('m?xwl=shipManage/ship/vesselvisitedit/get-data&download=1&sdate=' + sdate + '&edate=' +\
+  edate + '&edate1=' + edate1 + '&qphase=' + app.QPHASE.getValue() + '&names=' + app.names.getValue() + '&io=' + io);\
+app.winIO.close();"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "dialog": "true",
+     "itemId": "editWin",
+     "closeAction": "hide",
+     "width": "1100",
+     "autoScroll": "false",
+     "frame": "true",
+     "height": "450"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "absolute",
+      "itemId": "vessPanel",
+      "split": "true",
+      "width": "1088",
+      "region": "north",
+      "autoScroll": "false",
+      "frame": "true",
+      "height": "380"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "absolute",
+        "itemId": "VESSEL_INFO",
+        "width": "516",
+        "x": "10",
+        "y": "0",
+        "title": "港口船舶信息",
+        "height": "176"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "tagConfigs": "matchFieldWidth: false",
+          "allowBlank": "false",
+          "pageSize": "100",
+          "labelWidth": "80",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{width:450}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "minChars": "2",
+          "hideTrigger": "true",
+          "itemId": "VESSEL_CODE",
+          "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      船名\
+    <\/td>\
+    <td>\
+      船舶呼号\
+    <\/td>\
+    <td>\
+      船舶类型\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {VESSEL_NAME}\
+      <\/td>\
+      <td>\
+        {CALL_SIGN}\
+      <\/td>\
+      <td>\
+        {VESSEL_CLASS}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+          "labelAlign": "right",
+          "fieldLabel": "船舶代码",
+          "width": "240",
+          "x": "8",
+          "y": "4",
+          "displayField": "ID",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "pageSize": "50",
+           "url": "m?xwl=shipManage/ship/vesselvisitedit/selectVessel"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "app.VESSEL_NAME.setValue(records[0].data.VESSEL_NAME); //船名\
+app.CALL_SIGN.setValue(records[0].data.CALL_SIGN); //船舶呼号\
+app.VESSEL_CODE.setValue(records[0].data.ID); //船舶ID\
+app.CLASS.setValue(records[0].data.VESSEL_CLASS); //船舶类型\
+app.LINE.setValue(records[0].data.LINE); //公司\
+app.GRT.setValue(records[0].data.GRT); //总吨\
+app.NRT.setValue(records[0].data.NRT); //净吨\
+app.EDI_CALL_SIGN.setValue(records[0].data.EDI_CALL_SIGN); //运输工具号\
+app.EDI_CALL_SIGN1.setValue(records[0].data.EDI_CALL_SIGN); //运输工具号\
+Wb.request({\
+  url: \"m?xwl=shipManage/ship/vesselvisitedit/getChuanzhang\",\
+  params: {\
+    VID: records[0].data.ID\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.rows.length > 0) {\
+      app.INBOUND_CAPTAIN.setValue(result.rows[0].CNAME); //进境船长\
+      app.OUTBOUND_CAPTAIN.setValue(result.rows[0].CNAME); //出境船长\
+    }\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "VESSEL_NAME",
+          "labelAlign": "right",
+          "fieldLabel": "船名",
+          "width": "240",
+          "x": "8",
+          "y": "28",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "APHASE",
+          "hidden": "false",
+          "labelAlign": "right",
+          "fieldLabel": "状态",
+          "width": "240",
+          "x": "256",
+          "keyName": "VESSEL_PHASE",
+          "y": "124",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "CLASS",
+          "labelAlign": "right",
+          "fieldLabel": "船舶类型",
+          "width": "240",
+          "x": "8",
+          "y": "52",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "IB_VYG",
+          "labelAlign": "right",
+          "fieldLabel": "进口艘次号",
+          "width": "240",
+          "x": "256",
+          "y": "4",
+          "isUpperCase": "true",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "maxLength": "15",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "OB_VYG",
+          "labelAlign": "right",
+          "fieldLabel": "出口艘次号",
+          "width": "240",
+          "x": "256",
+          "y": "28",
+          "isUpperCase": "true",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "maxLength": "15",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text",
+         "events": {"change": "text.setValue(newValue.toUpperCase());"}
+        },
+        {
+         "configs": {
+          "itemId": "BERTH_WAY",
+          "labelAlign": "right",
+          "fieldLabel": "停靠方式",
+          "width": "240",
+          "x": "256",
+          "keyName": "BERTH_WAY",
+          "y": "76",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "CALL_SIGN",
+          "labelAlign": "right",
+          "fieldLabel": "船舶呼号",
+          "width": "240",
+          "x": "8",
+          "y": "76",
+          "isUpperCase": "true",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "NEXT_PORT",
+          "labelAlign": "right",
+          "fieldLabel": "下一港",
+          "width": "240",
+          "x": "256",
+          "keyName": "C_PORT",
+          "y": "100",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "LINE",
+          "labelAlign": "right",
+          "fieldLabel": "公司",
+          "width": "240",
+          "x": "256",
+          "y": "52",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "AID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "主表ID",
+          "width": "240",
+          "x": "8",
+          "y": "188",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ATENANCY_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "主表租户ID",
+          "width": "240",
+          "x": "256",
+          "y": "188",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "VESSEL_USE",
+          "labelAlign": "right",
+          "fieldLabel": "船舶用途",
+          "width": "240",
+          "x": "8",
+          "keyName": "VESSEL_USE",
+          "y": "100",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "GRT",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "总吨",
+          "width": "240",
+          "x": "256",
+          "y": "188",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "NRT",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "净吨",
+          "width": "240",
+          "x": "256",
+          "y": "188",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "IS_JK",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "pickList": "[\
+  [\"是\", \"是\"],\
+  [\"否\", \"否\"]\
+]",
+          "fieldLabel": "是否借靠",
+          "width": "240",
+          "x": "8",
+          "y": "124",
+          "labelWidth": "80",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        }
+       ],
+       "type": "fieldset"
+      },
+      {
+       "configs": {
+        "layout": "absolute",
+        "itemId": "VESSEL_TIM_INFO",
+        "width": "524",
+        "x": "544",
+        "y": "0",
+        "title": "时间信息",
+        "height": "176"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "ETA",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "<span style='color:red'>*<\/span>预计到港",
+          "width": "240",
+          "x": "8",
+          "y": "4",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime",
+         "events": {"blur": "if (app.I_E.getValue() == 'I') {\
+  var tenid = '{#sys.TENANCY_ID#}';\
+  var reg = /^(\\d{4})-(\\d{2})-(\\d{2})$/;\
+  //输入的日期\
+  var str = datetime.getRawValue().substring(0, datetime.getRawValue().indexOf(\" \"));\
+  //用正则表达匹配\
+  var arr = reg.exec(str);\
+  if (!reg.test(str) && RegExp.$2 <= 12 && RegExp.$3 <= 31) {\
+    Wb.warn(\"日期格式有误\");\
+    return;\
+  }\
+  var date1 = new Date(str.substring(0, 4), Number(str.substring(5, 7)) - 1, str.substring(8, str.length));\
+  var date = new Date(date1 - 24 * 60 * 60 * 1000);\
+  var qyear = date.getFullYear();\
+  qyear = qyear.toString().substring(2, 4);\
+  var qmonth = date.getMonth() + 1;\
+  qmonth = qmonth > 9 ? qmonth : \"0\" + qmonth;\
+  var qday = date.getDate() > 9 ? date.getDate() : \"0\" + date.getDate();\
+  if (tenid === 'ZSG') {\
+    app.ckZS.setValue(true);\
+    //生成海关进出口航次\
+    app.LIB_VYG.setValue(\"57210\" + qyear + qmonth + qday + \"0\");\
+  }\
+  if (tenid === 'XLG') {\
+    app.ckXL.setValue(true);\
+    //生成海关进出口航次\
+    app.LIB_VYG.setValue(\"57270\" + qyear + qmonth + qday + \"0\");\
+  }\
+  if (tenid === 'SWG') {\
+    app.ckSW.setValue(true);\
+    //生成海关进出口航次\
+    app.LIB_VYG.setValue(\"57280\" + qyear + qmonth + qday + \"0\");\
+  }\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "ETD",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "<span style='color:red'>*<\/span>预计离港",
+          "width": "240",
+          "x": "264",
+          "y": "4",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime",
+         "events": {"blur": "if (app.I_E.getValue() == 'E' && app.ETRADE_ID.getValue() == \"1\") {\
+  var str = app.ETD.getRawValue().substring(0, app.ETD.getRawValue().indexOf(\" \"));\
+  var date = new Date(str.substring(0, 4), Number(str.substring(5, 7)) - 1, str.substring(8, str.length));\
+  var qyear = date.getFullYear();\
+  qyear = qyear.toString().substring(2, 4);\
+  var qmonth = date.getMonth() + 1;\
+  qmonth = qmonth > 9 ? qmonth : \"0\" + qmonth;\
+  var qday = date.getDate() > 9 ? date.getDate() : \"0\" + date.getDate();\
+  app.LOB_VYG.setValue(qyear + qmonth + qday + \"000000\");\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "ATA",
+          "labelAlign": "right",
+          "fieldLabel": "实际到达",
+          "width": "240",
+          "x": "8",
+          "y": "28",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime",
+         "events": {"change": "if (!Wb.isEmpty(newValue)) {\
+  if (!Wb.isEmpty(app.ATD.getValue()))\
+    app.APHASE.setValue(\"L\");\
+  else\
+    app.APHASE.setValue(\"Y\");\
+}\
+if (Wb.isEmpty(newValue)) {\
+  if (!Wb.isEmpty(app.ATD.getValue()))\
+    app.APHASE.setValue(\"L\");\
+  else\
+    app.APHASE.setValue(\"E\");\
+}\
+app.SB_DATE.setValue(newValue);"}
+        },
+        {
+         "configs": {
+          "itemId": "ATA_old",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "实际到达",
+          "width": "240",
+          "x": "8",
+          "y": "28",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime",
+         "events": {"blur": "\
+\
+// if(app.ATD.getValue()!=null)\
+// if(app.ATA.getValue()>=app.ATD.getValue())\
+// {\
+//    Wb.info(\"靠泊时间不能早于离港时间\"); \
+//    app.ATA.focus();\
+//    return; \
+// }\
+\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "ATD",
+          "labelAlign": "right",
+          "fieldLabel": "实际离港",
+          "width": "240",
+          "x": "264",
+          "y": "28",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime",
+         "events": {"change": "if (!Wb.isEmpty(newValue)) {\
+  app.APHASE.setValue(\"L\");\
+}\
+if (Wb.isEmpty(newValue)) {\
+  if (!Wb.isEmpty(app.ATA.getValue()))\
+    app.APHASE.setValue(\"Y\");\
+  else\
+    app.APHASE.setValue(\"E\");\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "ATD_old",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "实际离港",
+          "width": "240",
+          "x": "264",
+          "y": "28",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime",
+         "events": {"blur": "// if(app.ATA.getValue()!=null)\
+// if(app.ATA.getValue()>=app.ATD.getValue())\
+// {\
+//    Wb.info(\"靠泊时间不能早于离港时间\"); \
+//    app.ATD.focus();\
+//    return; \
+// }\
+\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "PETA",
+          "labelAlign": "right",
+          "fieldLabel": "进口返航",
+          "width": "240",
+          "x": "8",
+          "y": "52",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime"
+        },
+        {
+         "configs": {
+          "itemId": "PETD",
+          "labelAlign": "right",
+          "fieldLabel": "出口到港",
+          "width": "240",
+          "x": "264",
+          "y": "52",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime"
+        },
+        {
+         "configs": {
+          "itemId": "IMP_MNFT_DATE",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "导入舱单",
+          "width": "240",
+          "x": "336",
+          "y": "124",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime"
+        },
+        {
+         "configs": {
+          "itemId": "EXP_MNFT_DATE",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "导出舱单",
+          "width": "240",
+          "x": "336",
+          "y": "108",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime"
+        },
+        {
+         "configs": {
+          "itemId": "SB_DATE",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "申报日期",
+          "width": "240",
+          "x": "8",
+          "y": "76",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "I_E",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "pickList": "[\
+  [\"I\", \"进口\"],\
+  [\"E\", \"出口\"]\
+]",
+          "fieldLabel": "进出口",
+          "width": "220",
+          "x": "28",
+          "y": "101",
+          "labelWidth": "60",
+          "anyMatch": "true",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo",
+         "events": {"select": "var tenid = '{#sys.TENANCY_ID#}';\
+var now = new Date();\
+var year = now.getFullYear();\
+year = year.toString().substring(2);\
+var month = now.getMonth() + 1;\
+month = month > 9 ? month : \"0\" + month;\
+var day = now.getDate();\
+day = day > 9 ? day : \"0\" + day;\
+\
+if (app.I_E.getValue() == \"I\") {\
+  app.LOB_VYG.setValue(\"\");\
+  app.ETRADE_ID.setValue(\"\");\
+  app.OC_CALL.setValue(\"\");\
+  app.LOB_VYG.setValue(\"\");\
+  app.OSERVICE.setValue(\"\");\
+  app.DPORTE.setValue(\"\");\
+  app.APORTE.setValue(\"\");\
+  app.OSERVICE_NAME.setValue(\"\");\
+  app.OUT_ZL.setValue(\"\");\
+  app.OUT_BZ.setValue(\"\");\
+  app.OUT_BJ.setValue(\"\");\
+  app.O_BERTH_CODE.setValue(\"\");\
+  app.ONOTES.setValue(\"\");\
+  app.O_OPERATOR.setValue(\"\");\
+  app.I_INFO.setDisabled(false);\
+  app.O_INFO.setDisabled(true);\
+  app.OB_VYG.setValue(\"\");\
+  app.APORTI.setValue(tenid);\
+  app.IC_CALL.setValue(app.initICCALL());\
+  //生成企管部进出口航次\
+  Wb.request({\
+    url: \"m?xwl=shipManage/ship/vesselvisitedit/selectHC\",\
+    params: {\
+      I_O: \"jin\"\
+    },\
+    success: function(respj) {\
+      var jin = Wb.decode(respj.responseText);\
+      if (jin.rows.length > 0) {\
+        var jnum = (parseInt(jin.rows[0].JNUM) + 1).toString();\
+        if (jnum.length == 1) {\
+          app.IB_VYG.setValue(tenid + \"J\" + year + month + day + (\"00\" + jnum));\
+        }\
+        if (jnum.length == 2) {\
+          app.IB_VYG.setValue(tenid + \"J\" + year + month + day + (\"0\" + jnum));\
+        }\
+        if (jnum.length == 3) {\
+          app.IB_VYG.setValue(tenid + \"J\" + year + month + day + jnum);\
+        }\
+      } else {\
+        app.IB_VYG.setValue(tenid + \"J\" + year + month + day + \"001\");\
+      }\
+    }\
+  });\
+  if (tenid != 'AT' && tenid != 'JT') {\
+    var str = app.ETA.getRawValue().substring(0, app.ETA.getRawValue().indexOf(\" \"));\
+    //港口账号默认勾选当前港口,不可修改\
+    var date1 = new Date(str.substring(0, 4), Number(str.substring(5, 7)) - 1, str.substring(8, str.length));\
+    var date = new Date(date1 - 24 * 60 * 60 * 1000);\
+    var qyear = date.getFullYear();\
+    qyear = qyear.toString().substring(2, 4);\
+    var qmonth = date.getMonth() + 1;\
+    qmonth = qmonth > 9 ? qmonth : \"0\" + qmonth;\
+    var qday = date.getDate() > 9 ? date.getDate() : \"0\" + date.getDate();\
+    if (tenid === 'ZSG') {\
+      app.ckZS.setValue(true);\
+      //生成海关进出口航次\
+      app.LIB_VYG.setValue(\"57210\" + qyear + qmonth + qday + \"0\");\
+    }\
+    if (tenid === 'XLG') {\
+      app.ckXL.setValue(true);\
+      //生成海关进出口航次\
+      app.LIB_VYG.setValue(\"57270\" + qyear + qmonth + qday + \"0\");\
+    }\
+    if (tenid === 'SWG') {\
+      app.ckSW.setValue(true);\
+      //生成海关进出口航次\
+      app.LIB_VYG.setValue(\"57280\" + qyear + qmonth + qday + \"0\");\
+    }\
+  }\
+}\
+if (app.I_E.getValue() == \"E\") {\
+  app.LIB_VYG.setValue(\"\");\
+  app.ITRADE_ID.setValue(\"\");\
+  app.IC_CALL.setValue(\"\");\
+  app.LIB_VYG.setValue(\"\");\
+  app.SERVICE.setValue(\"\");\
+  app.DPORTI.setValue(\"\");\
+  app.APORTI.setValue(\"\");\
+  app.SERVICE_NAME.setValue(\"\");\
+  app.IN_ZL.setValue(\"\");\
+  app.IN_BZ.setValue(\"\");\
+  app.IN_BJ.setValue(\"\");\
+  app.BERTH_CODE.setValue(\"\");\
+  app.NOTES.setValue(\"\");\
+  app.I_OPERATOR.setValue(\"\");\
+  app.I_INFO.setDisabled(true);\
+  app.O_INFO.setDisabled(false);\
+  app.IB_VYG.setValue(\"\");\
+  app.DPORTE.setValue(tenid);\
+  app.OC_CALL.setValue(app.initOCCALL());\
+  var str = app.ETD.getRawValue().substring(0, app.ETD.getRawValue().indexOf(\" \"));\
+  var date = new Date(str.substring(0, 4), Number(str.substring(5, 7)) - 1, str.substring(8, str.length));\
+  var qyear = date.getFullYear();\
+  qyear = qyear.toString().substring(2, 4);\
+  var qmonth = date.getMonth() + 1;\
+  qmonth = qmonth > 9 ? qmonth : \"0\" + qmonth;\
+  var qday = date.getDate() > 9 ? date.getDate() : \"0\" + date.getDate();\
+  app.LOB_VYG.setValue(qyear + qmonth + qday + \"000000\");\
+  //生成企管部进出口航次\
+  Wb.request({\
+    url: \"m?xwl=shipManage/ship/vesselvisitedit/selectHC\",\
+    params: {\
+      I_O: \"chu\"\
+    },\
+    success: function(respc) {\
+      var chu = Wb.decode(respc.responseText);\
+      if (chu.rows.length > 0) {\
+        var cnum = (parseInt(chu.rows[0].CNUM) + 1).toString();\
+        if (cnum.length == 1) {\
+          app.OB_VYG.setValue(tenid + \"C\" + year + month + day + (\"00\" + cnum));\
+        }\
+        if (cnum.length == 2) {\
+          app.OB_VYG.setValue(tenid + \"C\" + year + month + day + (\"0\" + cnum));\
+        }\
+        if (cnum.length == 3) {\
+          app.OB_VYG.setValue(tenid + \"C\" + year + month + day + cnum);\
+        }\
+      } else {\
+        app.OB_VYG.setValue(tenid + \"C\" + year + month + day + \"001\");\
+      }\
+    }\
+  });\
+}\
+// if (app.I_E.getValue() == \"IE\") {\
+//   app.I_INFO.setDisabled(false);\
+//   app.O_INFO.setDisabled(false);\
+//   //生成企管部进出口航次\
+//   Wb.request({\
+//     url: \"m?xwl=shipManage/ship/vesselvisitedit/selectHC\",\
+//     params: {\
+//       I_O: \"jin\"\
+//     },\
+//     success: function(respj) {\
+//       var jin = Wb.decode(respj.responseText);\
+//       Wb.request({\
+//         url: \"m?xwl=shipManage/ship/vesselvisitedit/selectHC\",\
+//         params: {\
+//           I_O: \"chu\"\
+//         },\
+//         success: function(respc) {\
+//           var chu = Wb.decode(respc.responseText);\
+//           if (jin.rows.length > 0) {\
+//             var jnum = (parseInt(jin.rows[0].JNUM) + 1).toString();\
+//             if (jnum.length == 1) {\
+//               app.IB_VYG.setValue(tenid + \"J\" + year + month + day + (\"00\" + jnum));\
+//             }\
+//             if (jnum.length == 2) {\
+//               app.IB_VYG.setValue(tenid + \"J\" + year + month + day + (\"0\" + jnum));\
+//             }\
+//             if (jnum.length == 3) {\
+//               app.IB_VYG.setValue(tenid + \"J\" + year + month + day + jnum);\
+//             }\
+//           } else {\
+//             app.IB_VYG.setValue(tenid + \"J\" + year + month + day + \"001\");\
+//           }\
+//           if (chu.rows.length > 0) {\
+//             var cnum = (parseInt(chu.rows[0].CNUM) + 1).toString();\
+//             if (cnum.length == 1) {\
+//               app.OB_VYG.setValue(tenid + \"C\" + year + month + day + (\"00\" + cnum));\
+//             }\
+//             if (cnum.length == 2) {\
+//               app.OB_VYG.setValue(tenid + \"C\" + year + month + day + (\"0\" + cnum));\
+//             }\
+//             if (cnum.length == 3) {\
+//               app.OB_VYG.setValue(tenid + \"C\" + year + month + day + cnum);\
+//             }\
+//           } else {\
+//             app.OB_VYG.setValue(tenid + \"C\" + year + month + day + \"001\");\
+//           }\
+//         }\
+//       });\
+//     }\
+//   });\
+// }"}
+        },
+        {
+         "configs": {
+          "tagConfigs": "{\
+  getValue: function() {\
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+}",
+          "itemId": "IS_QG",
+          "boxLabel": "清关",
+          "x": "282",
+          "width": "72",
+          "y": "77",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check"
+        },
+        {
+         "configs": {
+          "tagConfigs": "{\
+  getValue: function() {\
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+}",
+          "itemId": "IS_SD",
+          "boxLabel": "锁定",
+          "hidden": "true",
+          "x": "428",
+          "width": "72",
+          "y": "77",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check"
+        },
+        {
+         "configs": {
+          "tagConfigs": "{\
+  getValue: function() {\
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+}",
+          "itemId": "IS_SB",
+          "boxLabel": "申报",
+          "x": "332",
+          "width": "72",
+          "y": "77",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check"
+        },
+        {
+         "configs": {
+          "tagConfigs": "{\
+  getValue: function() {\
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+}",
+          "itemId": "IS_PF",
+          "boxLabel": "监卸",
+          "x": "380",
+          "width": "72",
+          "y": "77",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check"
+        },
+        {
+         "configs": {
+          "itemId": "ckZS",
+          "boxLabel": "中山港",
+          "x": "92",
+          "width": "72",
+          "y": "123",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check",
+         "events": {"change": "if (newValue)\
+  app.ZSPORT_ID.setValue('1');\
+else\
+  app.ZSPORT_ID.setValue('0');"}
+        },
+        {
+         "configs": {
+          "itemId": "ZSPORT_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录中山港选中状态值",
+          "width": "241",
+          "x": "216",
+          "y": "276",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ZSPORT_ID_OLD",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录中山港选中状态值",
+          "width": "241",
+          "x": "56",
+          "y": "284",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ckXL",
+          "boxLabel": "小榄港",
+          "x": "164",
+          "width": "72",
+          "y": "123",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check",
+         "events": {"change": "if (newValue)\
+  app.XLPORT_ID.setValue('1');\
+else\
+  app.XLPORT_ID.setValue('0');"}
+        },
+        {
+         "configs": {
+          "itemId": "XLPORT_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录小榄港选中状态值",
+          "width": "241",
+          "x": "248",
+          "y": "260",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "XLPORT_ID_OLD",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录小榄港选中状态值",
+          "width": "241",
+          "x": "16",
+          "y": "260",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ckSW",
+          "boxLabel": "神湾港",
+          "x": "236",
+          "width": "72",
+          "y": "123",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check",
+         "events": {"change": "if (newValue)\
+  app.SWPORT_ID.setValue('1');\
+else\
+  app.SWPORT_ID.setValue('0');"}
+        },
+        {
+         "configs": {
+          "itemId": "SWPORT_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录神湾港选中状态值",
+          "width": "241",
+          "x": "-8",
+          "y": "228",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ckOTHER",
+          "boxLabel": "其他",
+          "x": "308",
+          "width": "72",
+          "y": "123",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "check",
+         "events": {"change": "if (newValue)\
+  app.OTHER_ID.setValue('1');\
+else\
+  app.OTHER_ID.setValue('0');"}
+        },
+        {
+         "configs": {
+          "itemId": "OTHER_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录神湾港选中状态值",
+          "width": "241",
+          "x": "-8",
+          "y": "228",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "SWPORT_ID_OLD",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "记录神湾港选中状态值",
+          "width": "241",
+          "x": "232",
+          "y": "228",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "disabled": "true",
+          "height": "32"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "BID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "子表ID",
+          "width": "241",
+          "x": "248",
+          "y": "204",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "20"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "VID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "主表关联ID",
+          "width": "241",
+          "x": "-16",
+          "y": "188",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "20"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "BTENANCY_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "子表租户ID",
+          "width": "241",
+          "x": "296",
+          "y": "188",
+          "labelWidth": "80",
+          "readOnly": "true",
+          "height": "20"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "FORE_OFFSET",
+          "labelAlign": "right",
+          "fieldLabel": "靠泊天数",
+          "x": "264",
+          "width": "240",
+          "y": "101",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        }
+       ],
+       "type": "fieldset"
+      },
+      {
+       "configs": {
+        "layout": "absolute",
+        "itemId": "I_INFO",
+        "collapsed": "false",
+        "width": "515",
+        "x": "10",
+        "y": "178",
+        "title": "进口船舶信息",
+        "collapsible": "false",
+        "height": "198"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "EDI_CALL_SIGN",
+          "labelAlign": "right",
+          "fieldLabel": "运输工具号",
+          "x": "-20",
+          "width": "260",
+          "y": "4",
+          "isUpperCase": "true",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ITRADE_ID",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "pickList": "[\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"],\
+  [\"12\", \"内外贸\"]\
+]",
+          "fieldLabel": "内外贸",
+          "width": "240",
+          "x": "0",
+          "y": "52",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo",
+         "events": {"change": "// app.ETRADE_ID.setValue(newValue);"}
+        },
+        {
+         "configs": {
+          "itemId": "IC_CALL",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "海关呼号",
+          "width": "240",
+          "x": "0",
+          "y": "164",
+          "isUpperCase": "true",
+          "labelWidth": "80",
+          "maxLength": "15",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "LIB_VYG",
+          "labelAlign": "right",
+          "fieldLabel": "海关航次",
+          "width": "240",
+          "x": "256",
+          "y": "4",
+          "isUpperCase": "true",
+          "labelWidth": "80",
+          "maxLength": "15",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "INBOUND_CAPTAIN",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "入境船长",
+          "width": "240",
+          "x": "280",
+          "displayField": "CNAME",
+          "y": "140",
+          "labelWidth": "80",
+          "valueField": "CNAME",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=shipManage/ship/vesselvisitedit/getChuanzhang"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "app.SERVICE.setValue(combo.getValue());\
+app.SERVICE_NAME.setValue(combo.getRawValue());"}
+        },
+        {
+         "configs": {
+          "itemId": "SERVICE",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "进口航线",
+          "width": "240",
+          "x": "0",
+          "keyName": "C_SERVICE",
+          "y": "28",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo",
+         "events": {"select": "app.SERVICE_NAME.setValue(combo.getRawValue());\
+// app.OSERVICE.setValue(combo.getValue());\
+// app.OSERVICE_NAME.setValue(combo.getRawValue());"}
+        },
+        {
+         "configs": {
+          "itemId": "DPORTI",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "起运港",
+          "width": "240",
+          "x": "0",
+          "keyName": "C_PORT",
+          "y": "76",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "APORTI",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "抵运港",
+          "width": "240",
+          "x": "256",
+          "keyName": "C_PORT",
+          "y": "76",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "SERVICE_NAME",
+          "hidden": "true",
+          "labelAlign": "right",
+          "width": "241",
+          "x": "256",
+          "y": "164",
+          "labelWidth": "80",
+          "maxLength": "60",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "IN_ZL",
+          "labelAlign": "right",
+          "fieldLabel": "装载重量(吨)",
+          "x": "246",
+          "width": "250",
+          "y": "52",
+          "labelWidth": "90",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "IN_BZ",
+          "labelAlign": "right",
+          "fieldLabel": "标重",
+          "x": "256",
+          "width": "240",
+          "y": "100",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "IN_BJ",
+          "labelAlign": "right",
+          "fieldLabel": "标吉",
+          "x": "0",
+          "width": "240",
+          "y": "100",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "BERTH_CODE",
+          "labelAlign": "right",
+          "fieldLabel": "进口泊位",
+          "width": "240",
+          "x": "256",
+          "keyName": "C_BERTH",
+          "y": "28",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "NOTES",
+          "labelAlign": "right",
+          "fieldLabel": "备注",
+          "width": "496",
+          "x": "0",
+          "y": "124",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "I_OPERATOR",
+          "labelAlign": "right",
+          "fieldLabel": "容舱公司",
+          "x": "0",
+          "width": "496",
+          "y": "148",
+          "displayField": "SHORT_NAME",
+          "labelWidth": "80",
+          "valueField": "ID",
+          "height": "22",
+          "multiSelect": "true"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "params": "{fldId:'AG'}",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        }
+       ],
+       "type": "fieldset"
+      },
+      {
+       "configs": {
+        "layout": "absolute",
+        "itemId": "O_INFO",
+        "collapsed": "false",
+        "width": "523",
+        "x": "544",
+        "y": "178",
+        "title": "出口船舶信息",
+        "collapsible": "false",
+        "height": "198"
+       },
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "EDI_CALL_SIGN1",
+          "labelAlign": "right",
+          "fieldLabel": "运输工具号",
+          "x": "-20",
+          "width": "260",
+          "y": "4",
+          "isUpperCase": "true",
+          "readOnly": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "OC_CALL",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "海关呼号",
+          "width": "240",
+          "x": "0",
+          "y": "4",
+          "isUpperCase": "true",
+          "labelWidth": " 80",
+          "maxLength": "15",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "LOB_VYG",
+          "labelAlign": "right",
+          "fieldLabel": "海关航次",
+          "width": "240",
+          "x": "256",
+          "y": "4",
+          "isUpperCase": "true",
+          "labelWidth": "80",
+          "maxLength": "15",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "DPORTE",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "起运港",
+          "width": "240",
+          "x": "0",
+          "keyName": "C_PORT",
+          "y": "76",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "APORTE",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "抵运港",
+          "width": "240",
+          "x": "256",
+          "keyName": "C_PORT",
+          "y": "76",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "ETRADE_ID",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "pickList": "[\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"],\
+  [\"12\", \"内外贸\"]\
+]",
+          "fieldLabel": "内外贸",
+          "width": "240",
+          "x": "0",
+          "y": "52",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "OUTBOUND_CAPTAIN",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "出境船长",
+          "width": "240",
+          "x": "280",
+          "displayField": "CNAME",
+          "y": "148",
+          "labelWidth": "80",
+          "valueField": "CNAME",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=shipManage/ship/vesselvisitedit/getChuanzhang"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "app.SERVICE.setValue(combo.getValue());\
+app.SERVICE_NAME.setValue(combo.getRawValue());"}
+        },
+        {
+         "configs": {
+          "itemId": "OSERVICE",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "出口航线",
+          "width": "240",
+          "x": "0",
+          "keyName": "C_SERVICE",
+          "y": "28",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "forceSelection": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo",
+         "events": {"select": "app.OSERVICE_NAME.setValue(combo.getRawValue());"}
+        },
+        {
+         "configs": {
+          "itemId": "OSERVICE_NAME",
+          "hidden": "true",
+          "labelAlign": "right",
+          "width": "241",
+          "x": "248",
+          "y": "196",
+          "labelWidth": "80",
+          "maxLength": "60",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "OUT_ZL",
+          "labelAlign": "right",
+          "fieldLabel": "装载重量(吨)",
+          "width": "250",
+          "x": "246",
+          "y": "52",
+          "labelWidth": "90",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "OUT_BZ",
+          "labelAlign": "right",
+          "fieldLabel": "标重",
+          "x": "257",
+          "width": "240",
+          "y": "100",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "OUT_BJ",
+          "labelAlign": "right",
+          "fieldLabel": "标吉",
+          "x": "0",
+          "width": "240",
+          "y": "100",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "O_BERTH_CODE",
+          "labelAlign": "right",
+          "fieldLabel": "出口泊位",
+          "width": "240",
+          "x": "256",
+          "keyName": "C_BERTH",
+          "y": "28",
+          "labelWidth": "80",
+          "anyMatch": "true",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "ONOTES",
+          "labelAlign": "right",
+          "fieldLabel": "备注",
+          "width": "496",
+          "x": "0",
+          "y": "124",
+          "labelWidth": "80",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "O_OPERATOR",
+          "labelAlign": "right",
+          "fieldLabel": "容舱公司",
+          "x": "0",
+          "width": "496",
+          "y": "148",
+          "displayField": "SHORT_NAME",
+          "labelWidth": "80",
+          "valueField": "ID",
+          "height": "22",
+          "multiSelect": "true"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "params": "{fldId:'AG'}",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        }
+       ],
+       "type": "fieldset"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = null;\
+var sels = app.grid1.getSelection();\
+//获取租户ID\
+var tenid = '{#sys.TENANCY_ID#}';\
+\
+if (Wb.isEmpty(app.VESSEL_CODE.getValue())) {\
+  Wb.warn(\"船舶代码为空\");\
+  return;\
+}\
+if (app.ETA.getValue() === null) {\
+  Wb.warn(\"预计到港不能为空\");\
+  return;\
+}\
+if (app.ETD.getValue() === null) {\
+  Wb.warn(\"预计离港不能为空\");\
+  return;\
+}\
+if (app.ETA.getValue() >= app.ETD.getValue()) {\
+  Wb.warn(\"预计到港不能大于预计离港\");\
+  return;\
+}\
+if (app.ATA.getValue() !== null && app.ATD.getValue() !== null) {\
+  if (app.ATA.getValue() >= app.ATD.getValue()) {\
+    Wb.warn(\"实际到港不能大于实际离港\");\
+    return;\
+  }\
+}\
+//集团或奥海必须选择港口\
+if (tenid === 'AT' || tenid === 'JT') {\
+  if (app.ckZS.checked === false && app.ckXL.checked === false && app.ckSW.checked === false && app.ckOTHER.checked === false) {\
+    Wb.info(\"请至少选择一个港口\");\
+    return;\
+  }\
+}\
+if (app.SERVICE.getValue() === null || app.SERVICE.getValue() === '') {\
+  app.SERVICE_NAME.setValue('');\
+}\
+if (app.OSERVICE.getValue() === null || app.OSERVICE.getValue() === '') {\
+  app.OSERVICE_NAME.setValue('');\
+}\
+if (app.isEdit) {\
+  if (app.I_E.getValue() == \"I\" && !Wb.isEmpty(sels[0].data.BERTH_CODE) && Wb.isEmpty(app.BERTH_CODE.getValue())) {\
+    Wb.warn(\"维护过进口泊位的船舶,进口泊位不能清空\");\
+    return;\
+  }\
+  if (app.I_E.getValue() == \"E\" && !Wb.isEmpty(sels[0].data.O_BERTH_CODE) && Wb.isEmpty(app.O_BERTH_CODE.getValue())) {\
+    Wb.warn(\"维护过出口泊位的船舶,出口泊位不能清空\");\
+    return;\
+  }\
+  //点击修改按钮的处理过程\
+  values = Wb.getValue(app.editWin);\
+  Wb.request({\
+    url: 'm?xwl=shipManage/ship/vesselvisitedit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function(resp) {\
+      var msg = Wb.decode(resp.responseText);\
+      if (msg.success) {\
+        app.editWin.close();\
+        app.searchBtn.fireEvent(\"click\");\
+      } else\
+        Wb.warn(msg.errstr);\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  values = Wb.getValue(app.editWin);\
+  Wb.request({\
+    url: 'm?xwl=shipManage/ship/vesselvisitedit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      var msg = Wb.decode(resp.responseText);\
+      if (msg.success) {\
+        app.editWin.close();\
+        app.searchBtn.fireEvent(\"click\");\
+      } else\
+        Wb.warn(msg.errstr);\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "xwl2",
+       "file": "m?xwl=system/common/rabbitMq"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "xwl"
+     },
+     {
+      "configs": {
+       "itemId": "grid1",
+       "popupMenu": "app.popupMenu",
+       "disabled": "false",
+       "region": "center",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "tbar",
+         "enableOverflow": "true",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "QPHASE",
+           "labelAlign": "right",
+           "fieldLabel": "状态",
+           "width": "100",
+           "keyName": "VESSEL_PHASE",
+           "labelWidth": "40",
+           "anyMatch": "true",
+           "forceSelection": "true"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "names",
+           "emptyText": "船名、航线",
+           "width": "120"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "SETA",
+           "labelAlign": "right",
+           "fieldLabel": "开始时间",
+           "width": "160",
+           "labelWidth": "60"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "EETA",
+           "labelAlign": "right",
+           "fieldLabel": "结束时间",
+           "width": "160",
+           "labelWidth": "60"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "QIE",
+           "labelAlign": "right",
+           "pickList": "[\
+  [\"\", \"全部\"],\
+  [\"I\", \"进口\"],\
+  [\"E\", \"出口\"],\
+  [\"IE\", \"进出口\"]\
+]",
+           "fieldLabel": "进出口",
+           "width": "120",
+           "labelWidth": "50",
+           "anyMatch": "true"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "QTRADE",
+           "labelAlign": "right",
+           "pickList": "[\
+  [\"\", \"全部\"],\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+           "fieldLabel": "内外贸",
+           "width": "120",
+           "labelWidth": "50",
+           "anyMatch": "true"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "searchBtn",
+           "text": "@Str.find",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.grid1.store.load({\
+  params: {\
+    QPHASE: app.QPHASE.getValue(),\
+    names: app.names.getValue(),\
+    SETA: app.SETA.getRawValue(),\
+    EETA: app.EETA.getRawValue(),\
+    QIE: app.QIE.getValue(),\
+    QTRADE: app.QTRADE.getValue()\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "newBtn",
+           "tooltip": "添加新的记录 (Ctrl+E)",
+           "text": "@Str.add",
+           "iconCls": "record_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.editWin.setTitle('添加 - 船舶计划');\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+\
+Wb.reset(app.editWin);\
+app.ETA.setValue(new Date());\
+app.ETD.setValue(new Date());\
+// app.ITRADE_ID.setValue(\"1\");\
+// app.ETRADE_ID.setValue(\"1\");\
+// app.SERVICE.setValue(\"01\");\
+// app.SERVICE_NAME.setValue(app.SERVICE.getRawValue());\
+// app.OSERVICE.setValue(\"01\");\
+// app.OSERVICE_NAME.setValue(app.OSERVICE.getRawValue());\
+app.VESSEL_CODE.setReadOnly(false);\
+app.SERVICE.setReadOnly(false);\
+app.OSERVICE.setReadOnly(false);\
+app.APHASE.setReadOnly(false);\
+app.INBOUND_CAPTAIN.setReadOnly(false);\
+app.OUTBOUND_CAPTAIN.setReadOnly(false);\
+app.VESSEL_USE.setReadOnly(false);\
+app.APHASE.setReadOnly(false);\
+app.BERTH_CODE.setReadOnly(false);\
+app.BERTH_WAY.setReadOnly(false);\
+app.NEXT_PORT.setReadOnly(false);\
+app.IC_CALL.setValue(app.initICCALL());\
+app.IS_JK.setValue(\"否\");\
+// app.OC_CALL.setValue(app.initOCCALL());\
+app.APHASE.setValue(\"E\");\
+app.I_E.setValue(\"I\");\
+// if (Wb.isEmpty(app.I_E.getValue())) {\
+//   app.I_INFO.setDisabled(true);\
+//   app.O_INFO.setDisabled(true);\
+// }\
+// if (app.I_E.getValue() == \"I\") {\
+app.I_INFO.setDisabled(false);\
+app.O_INFO.setDisabled(true);\
+// }\
+// if (app.I_E.getValue() == \"E\") {\
+//   app.I_INFO.setDisabled(true);\
+//   app.O_INFO.setDisabled(false);\
+// }\
+// if (app.I_E.getValue() == \"IE\") {\
+//   app.I_INFO.setDisabled(false);\
+//   app.O_INFO.setDisabled(false);\
+// }\
+var now = new Date();\
+var year = now.getFullYear();\
+year = year.toString().substring(2);\
+var month = now.getMonth() + 1;\
+month = month > 9 ? month : \"0\" + month;\
+var day = now.getDate();\
+day = day > 9 ? day : \"0\" + day;\
+// app.LOB_VYG.setValue(year + month + day + \"000000\");\
+//获取租户ID,判断是否为集团或奥海\
+var tenid = '{#sys.TENANCY_ID#}';\
+app.APORTI.setValue(tenid);\
+//生成企管部进出口航次\
+Wb.request({\
+  url: \"m?xwl=shipManage/ship/vesselvisitedit/selectHC\",\
+  params: {\
+    I_O: \"jin\"\
+  },\
+  success: function(respj) {\
+    var jin = Wb.decode(respj.responseText);\
+    if (jin.rows.length > 0) {\
+      var jnum = (parseInt(jin.rows[0].JNUM) + 1).toString();\
+      if (jnum.length == 1) {\
+        app.IB_VYG.setValue(tenid + \"J\" + year + month + day + (\"00\" + jnum));\
+      }\
+      if (jnum.length == 2) {\
+        app.IB_VYG.setValue(tenid + \"J\" + year + month + day + (\"0\" + jnum));\
+      }\
+      if (jnum.length == 3) {\
+        app.IB_VYG.setValue(tenid + \"J\" + year + month + day + jnum);\
+      }\
+    } else {\
+      app.IB_VYG.setValue(tenid + \"J\" + year + month + day + \"001\");\
+    }\
+  }\
+});\
+app.ZSPORT_ID.setValue(\"0\");\
+app.XLPORT_ID.setValue(\"0\");\
+app.SWPORT_ID.setValue(\"0\");\
+app.OTHER_ID.setValue(\"0\");\
+if (tenid === 'AT' || tenid === 'JT') {\
+  app.ckZS.setDisabled(false);\
+  app.ckXL.setDisabled(false);\
+  app.ckSW.setDisabled(false);\
+  app.ckOTHER.setDisabled(false);\
+} else {\
+  //港口账号默认勾选当前港口,不可修改\
+  var qdate = new Date(new Date() - 24 * 60 * 60 * 1000);\
+  var qyear = qdate.getFullYear();\
+  qyear = qyear.toString().substring(2);\
+  var qmonth = qdate.getMonth() + 1;\
+  qmonth = qmonth > 9 ? qmonth : \"0\" + qmonth;\
+  var qday = qdate.getDate() > 9 ? qdate.getDate() : \"0\" + qdate.getDate();\
+  if (tenid === 'ZSG') {\
+    app.ckZS.setValue(true);\
+    //生成海关进出口航次\
+    app.LIB_VYG.setValue(\"57210\" + qyear + qmonth + qday + \"0\");\
+  }\
+  if (tenid === 'XLG') {\
+    app.ckXL.setValue(true);\
+    //生成海关进出口航次\
+    app.LIB_VYG.setValue(\"57270\" + qyear + qmonth + qday + \"0\");\
+  }\
+  if (tenid === 'SWG') {\
+    app.ckSW.setValue(true);\
+    //生成海关进出口航次\
+    app.LIB_VYG.setValue(\"57280\" + qyear + qmonth + qday + \"0\");\
+  }\
+  app.ckZS.setDisabled(true);\
+  app.ckXL.setDisabled(true);\
+  app.ckSW.setDisabled(true);\
+  app.ckOTHER.setDisabled(true);\
+  //   app.APORTI.setValue(tenid);\
+  //   app.DPORTE.setValue(tenid);\
+}\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+         },
+         {
+          "configs": {
+           "itemId": "editBtn",
+           "tooltip": "修改选择的记录",
+           "text": "@Str.modify",
+           "iconCls": "record_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(Wb.format(Str.selectRecord, Str.modify));\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle(Str.modify + '- ' + app.selRec.data.VESSEL_NAME);\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+var ips = app.selRec.data.I_OPERATOR.substring(1, app.selRec.data.I_OPERATOR.length - 1).replace(/\\\"/g, \"\").split(\",\");\
+var ops = app.selRec.data.O_OPERATOR.substring(1, app.selRec.data.O_OPERATOR.length - 1).replace(/\\\"/g, \"\").split(\",\");\
+app.I_OPERATOR.setValue(ips);\
+app.O_OPERATOR.setValue(ops);\
+Wb.loadComboFilter(app.VESSEL_CODE, {\
+  query: app.selRec.data.VESSEL_NAME\
+}, function() {\
+  app.VESSEL_CODE.setValue(app.selRec.data.VESSEL_CODE);\
+});\
+app.editWin.show();\
+// if (Wb.isEmpty(app.I_E.getValue())) {\
+//   app.I_INFO.setDisabled(true);\
+//   app.O_INFO.setDisabled(true);\
+// }\
+if (app.I_E.getValue() == \"I\") {\
+  app.I_INFO.setDisabled(false);\
+  app.O_INFO.setDisabled(true);\
+}\
+if (app.I_E.getValue() == \"E\") {\
+  app.I_INFO.setDisabled(true);\
+  app.O_INFO.setDisabled(false);\
+}\
+// if (app.I_E.getValue() == \"IE\") {\
+//   app.I_INFO.setDisabled(false);\
+//   app.O_INFO.setDisabled(false);\
+// }\
+app.EDI_CALL_SIGN.setValue(app.selRec.data.EDI_CALL_SIGN);\
+app.EDI_CALL_SIGN1.setValue(app.selRec.data.EDI_CALL_SIGN);\
+// app.VESSEL_CODE.setReadOnly(true);!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\
+//获取租户ID,判断是否为集团或奥海\
+var tenid = '{#sys.TENANCY_ID#}';\
+if (tenid === 'AT' || tenid === 'JT') {\
+  //奥海或集团账号允许更改港口勾选情况\
+  app.ckZS.setDisabled(false);\
+  app.ckXL.setDisabled(false);\
+  app.ckSW.setDisabled(false);\
+  app.ckOTHER.setDisabled(false);\
+  //但港口信息不被修改才能更改\
+  if (app.selRec.data.ZSGUPD === 1)\
+    app.ckZS.setDisabled(true);\
+  else\
+    app.ckZS.setDisabled(false);\
+  if (app.selRec.data.XLGUPD === 1)\
+    app.ckXL.setDisabled(true);\
+  else\
+    app.ckXL.setDisabled(false);\
+  if (app.selRec.data.SWGUPD === 1)\
+    app.ckSW.setDisabled(true);\
+  else\
+    app.ckSW.setDisabled(false);\
+} else {\
+  //港口账号不能更改\
+  app.ckZS.setDisabled(true);\
+  app.ckXL.setDisabled(true);\
+  app.ckSW.setDisabled(true);\
+  app.ckSW.setDisabled(true);\
+  //港口账号要判断修改的数据如果是自己添加允许修改主表信息,否则不能修改\
+  if (tenid !== app.ATENANCY_ID.getValue()) {\
+    //     app.VESSEL_CODE.setReadOnly(true);\
+    //     app.SERVICE.setReadOnly(true);\
+    //     app.OSERVICE.setReadOnly(true);\
+    //     app.INBOUND_CAPTAIN.setReadOnly(true);\
+    //     app.OUTBOUND_CAPTAIN.setReadOnly(true);\
+    //     app.VESSEL_USE.setReadOnly(true);\
+  } else {\
+    //     app.VESSEL_CODE.setReadOnly(false);\
+    //     app.SERVICE.setReadOnly(false);\
+    //     app.OSERVICE.setReadOnly(false);\
+    //     app.INBOUND_CAPTAIN.setReadOnly(false);\
+    //     app.OUTBOUND_CAPTAIN.setReadOnly(false);\
+    //     app.VESSEL_USE.setReadOnly(false);\
+  }\
+}\
+\
+if (app.selRec.data.ZSPORT_ID === 1)\
+  app.ckZS.setValue(true);\
+else\
+  app.ckZS.setValue(false);\
+if (app.selRec.data.XLPORT_ID === 1)\
+  app.ckXL.setValue(true);\
+else\
+  app.ckXL.setValue(false);\
+if (app.selRec.data.SWPORT_ID === 1)\
+  app.ckSW.setValue(true);\
+else\
+  app.ckSW.setValue(false);\
+if (app.selRec.data.OTHER_ID === 1)\
+  app.ckOTHER.setValue(true);\
+else\
+  app.ckOTHER.setValue(false);\
+\
+//记录修改前的勾选状态,用于奥海或集团账号修改勾选状态做比较\
+app.ZSPORT_ID_OLD.setValue(app.selRec.data.ZSPORT_ID);\
+app.XLPORT_ID_OLD.setValue(app.selRec.data.XLPORT_ID);\
+app.SWPORT_ID_OLD.setValue(app.selRec.data.SWPORT_ID);\
+app.ATA_old.setValue(app.selRec.data.ATA);\
+app.ATD_old.setValue(app.selRec.data.ATD);\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+         },
+         {
+          "configs": {
+           "itemId": "delBtn",
+           "tooltip": "删除选择的记录",
+           "text": "@Str.del",
+           "iconCls": "record_delete_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(\"请选择要删除的记录。\");\
+  return;\
+}\
+var sel = sels[0];\
+\
+var aid = sel.data.AID;\
+var bid = sel.data.BID;\
+var zsupd = sel.data.ZSGUPD;\
+var xlupd = sel.data.XLGUPD;\
+var swupd = sel.data.SWGUPD;\
+\
+Wb.request({\
+  url: \"m?xwl=shipManage/ship/vesselvisitedit/selectbill\",\
+  params: {\
+    vid: bid\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.rows.length > 0) {\
+      Wb.warn(\"已经生成舱单信息,不能删除\");\
+      return;\
+    } else {\
+      Wb.confirmDo(sels, function() {\
+        Wb.request({\
+          url: 'm?xwl=shipManage/ship/vesselvisitedit/delete',\
+          params: {\
+            destroy: Wb.getData(sels, true),\
+            AID: aid,\
+            BID: bid,\
+            ZSGUPD: zsupd,\
+            XLGUPD: xlupd,\
+            SWGUPD: swupd,\
+            VESSEL_CODE: sel.data.VESSEL_CODE,\
+            ATENANCY_ID: sel.data.ATENANCY_ID\
+          },\
+          success: function() {\
+            //Wb.remove(app.grid1, sels);\
+          }\
+        });\
+      }, 'VESSEL_NAME');\
+    }\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "item1",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "cbotenancyid",
+           "labelAlign": "right",
+           "pickList": "[\
+  [\"ZSG\", \"中山港\"],\
+  [\"XLG\", \"小榄港\"],\
+  [\"SWG\", \"神湾港\"]\
+]",
+           "width": "70",
+           "anyMatch": "true",
+           "forceSelection": "true"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "excelBtn",
+           "text": "船舶申报单",
+           "iconCls": "file_xls_icon"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "popupchu",
+             "text": "出境",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.APHASE == \"O\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  Wb.warn(\"没有出境船舶\");\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+if (tenancyid != \"AT\") {\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+} else {\
+  tenancyid = app.cbotenancyid.getValue();\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+}\
+var AF1 = document.getElementById(opt);\
+var whereSql2 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and vid in(\" + ids + \")\");\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \") and trunc(b.sb_date)=trunc(sysdate)\");\
+AF1.func(\"Build\", '/supcan/report/print/ESB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A1='\" + gk1 + \"' gk='\" + gk + \"' sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+if (Number(row1) + Number(row2) < 18) {\
+  if (Number(row1) < 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) > 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) > 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) == 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) == 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+  }\
+}\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           },
+           {
+            "configs": {
+             "itemId": "popupjinY",
+             "text": "进境预报",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.APHASE == \"E\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+if (tenancyid != \"AT\") {\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+} else {\
+  tenancyid = app.cbotenancyid.getValue();\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+}\
+var AF1 = document.getElementById(opt);\
+var now = new Date();\
+now.setDate(now.getDate() + 1);\
+var year = now.getFullYear();\
+var month = now.getMonth() + 1;\
+if (month.toString().length == 1)\
+  month = \"0\" + month.toString();\
+var day = now.getDate();\
+if (day.toString().length == 1)\
+  day = \"0\" + day.toString();\
+var whereSql2 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and vid in(\" + ids + \")\");\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \") and trunc(b.sb_date)=to_date('\" + year + \"-\" + month + \"-\" + day + \"','yyyy-mm-dd')\");\
+AF1.func(\"Build\", '/supcan/report/print/IYB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A1='\" + gk1 + \"' gk='\" + gk + \"' sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+if (Number(row1) + Number(row2) < 18) {\
+  if (Number(row1) < 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) > 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) > 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) == 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) == 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+  }\
+}\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           },
+           {
+            "configs": {
+             "itemId": "popupjinS",
+             "text": "进境申报",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.APHASE == \"Y\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  Wb.warn(\"没有进境船舶\");\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+if (tenancyid != \"AT\") {\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+} else {\
+  tenancyid = app.cbotenancyid.getValue();\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+}\
+var AF1 = document.getElementById(opt);\
+var whereSql2 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and vid in(\" + ids + \")\");\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \") and trunc(b.sb_date)=trunc(sysdate)\" +\
+  \" and b.BERTH_CODE in(select cy_area_no from c_cy_area where tenancy_id='\" + tenancyid + \"' and cfs_cod='JGQ')\");\
+AF1.func(\"Build\", '/supcan/report/print/ISB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A1='\" + gk1 + \"' gk='\" + gk + \"' sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+if (Number(row1) + Number(row2) < 18) {\
+  if (Number(row1) < 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) > 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) > 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) == 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) == 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+  }\
+}\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           },
+           {
+            "configs": {
+             "itemId": "popupjinD",
+             "text": "进境待报",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.APHASE == \"D\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  Wb.warn(\"没有待报船舶\");\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+if (tenancyid != \"AT\") {\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+} else {\
+  tenancyid = app.cbotenancyid.getValue();\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+}\
+var AF1 = document.getElementById(opt);\
+var whereSql2 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and vid in(\" + ids + \")\");\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \") and trunc(b.sb_date)=trunc(sysdate)\");\
+AF1.func(\"Build\", '/supcan/report/print/IDB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A1='\" + gk1 + \"' gk='\" + gk + \"' sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+if (Number(row1) + Number(row2) < 18) {\
+  if (Number(row1) < 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) > 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) > 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) == 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) == 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+  }\
+}\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           },
+           {
+            "configs": {
+             "itemId": "popupjinQ",
+             "hidden": "true",
+             "text": "取消申报",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.APHASE == \"C\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  Wb.warn(\"没有取消船舶\");\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+if (tenancyid != \"AT\") {\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+} else {\
+  tenancyid = app.cbotenancyid.getValue();\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+}\
+var AF1 = document.getElementById(opt);\
+var whereSql2 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and vid in(\" + ids + \")\");\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \") and trunc(b.sb_date)=trunc(sysdate)\");\
+AF1.func(\"Build\", '/supcan/report/print/IBB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid + \";COD=IQX\");\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid + \";COD=IQXZ\");\
+AF1.func(\"SetCellData\", \"<data A1='\" + gk1 + \"' gk='\" + gk + \"' sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+if (Number(row1) + Number(row2) < 18) {\
+  if (Number(row1) < 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) > 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) > 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) == 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) == 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+  }\
+}\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           },
+           {
+            "configs": {
+             "itemId": "popupjinB",
+             "text": "进境补报",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择要补报的船舶\");\
+  return;\
+}\
+var ids = \"\";\
+Wb.each(sels, function(sel) {\
+  ids += \"'\" + sel.data.AID + \"',\";\
+});\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+if (tenancyid != \"AT\") {\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+} else {\
+  tenancyid = app.cbotenancyid.getValue();\
+  if (tenancyid == \"ZSG\") {\
+    gk1 = \"中山港\";\
+    gk = \"中山港航运码头\";\
+  }\
+  if (tenancyid == \"XLG\") {\
+    gk1 = \"小榄港\";\
+    gk = \"小榄港航运码头\";\
+  }\
+  if (tenancyid == \"SWG\") {\
+    gk1 = \"神湾港\";\
+    gk = \"神湾港航运码头\";\
+  }\
+}\
+var AF1 = document.getElementById(opt);\
+var whereSql2 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and vid in(\" + ids + \")\");\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \")\");\
+AF1.func(\"Build\", '/supcan/report/print/IBB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A1='\" + gk1 + \"' gk='\" + gk + \"' sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+if (Number(row1) + Number(row2) < 18) {\
+  if (Number(row1) < 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) > 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) > 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) == 12 && Number(row2) < 6) {\
+    AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+  }\
+  if (Number(row1) < 12 && Number(row2) == 6) {\
+    AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+  }\
+}\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           }
+          ],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "printLog",
+           "hidden": "true",
+           "text": "调度日志打印",
+           "iconCls": "printer_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "tenid",
+           "hidden": "true",
+           "emptyText": "租户ID"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=shipManage/ship/vesselvisitedit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "aidCol",
+           "hidden": "true",
+           "dataIndex": "AID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "bidCol",
+           "hidden": "true",
+           "dataIndex": "BID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "ROWNUM",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCREATED_BY",
+           "dataIndex": "CREATED_BY",
+           "width": "60",
+           "text": "创建人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colIS_SD",
+           "xtype": "checkcolumn",
+           "dataIndex": "IS_SD",
+           "width": "40",
+           "text": "锁定"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSB_DATE",
+           "dataIndex": "SB_DATE",
+           "width": "80",
+           "text": "申报日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colVESSEL_NAME",
+           "dataIndex": "VESSEL_NAME",
+           "text": "船名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colPHASE",
+           "dataIndex": "APHASE",
+           "keyName": "VESSEL_PHASE",
+           "width": "50",
+           "text": "状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colI_E",
+           "renderer": "if (value == \"I\")\
+  return \"进口\";\
+if (value == \"E\")\
+  return \"出口\";\
+if (value == \"IE\")\
+  return \"进出口\";",
+           "dataIndex": "I_E",
+           "width": "60",
+           "text": "进出口"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDIS_TRADE",
+           "renderer": "if (value == \"1\")\
+  return \"外贸\";\
+if (value == \"2\")\
+  return \"内贸\";\
+if (value == \"12\")\
+  return \"内外贸\";",
+           "dataIndex": "DIS_TRADE",
+           "width": "60",
+           "text": "内外贸"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDIS_BERTH_CODE",
+           "dataIndex": "DIS_BERTH_CODE",
+           "keyName": "C_BERTH",
+           "width": "70",
+           "text": "泊位代码"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDIS_LOB_VYG",
+           "dataIndex": "DIS_LOB_VYG",
+           "text": "海关航次"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDIS_OB_VYG",
+           "dataIndex": "DIS_OB_VYG",
+           "width": "110",
+           "text": "艘次号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDIS_SERVICE",
+           "dataIndex": "DIS_SERVICE",
+           "keyName": "C_SERVICE",
+           "width": "75",
+           "text": "航线"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCLASS",
+           "dataIndex": "CLASS",
+           "keyName": "VESSEL_CLASS",
+           "width": "70",
+           "text": "船舶类型"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colIS_PF",
+           "xtype": "checkcolumn",
+           "dataIndex": "IS_PF",
+           "width": "40",
+           "text": "监卸"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCALL_SIGN",
+           "dataIndex": "CALL_SIGN",
+           "width": "85",
+           "text": "船舶呼号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colLINE",
+           "dataIndex": "LINE",
+           "text": "大船公司"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colBERTH_WAY",
+           "dataIndex": "BERTH_WAY",
+           "keyName": "BERTH_WAY",
+           "width": "70",
+           "text": "停靠方式"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colNEXT_PORT",
+           "dataIndex": "NEXT_PORT",
+           "keyName": "C_PORT",
+           "width": "70",
+           "text": "下一港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colETA",
+           "dataIndex": "ETA",
+           "width": "120",
+           "text": "预计到港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colETD",
+           "dataIndex": "ETD",
+           "format": "Y-m-d H:i",
+           "width": "120",
+           "text": "预计离港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colPETA",
+           "dataIndex": "PETA",
+           "format": "Y-m-d H:i",
+           "width": "120",
+           "text": "确报到达"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colPETD",
+           "dataIndex": "PETD",
+           "format": "Y-m-d H:i",
+           "width": "120",
+           "text": "确报离港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colATA",
+           "dataIndex": "ATA",
+           "format": "Y-m-d H:i",
+           "width": "120",
+           "text": "实际到达"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colATD",
+           "dataIndex": "ATD",
+           "format": "Y-m-d H:i",
+           "width": "120",
+           "text": "实际离港"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colEDI_CALL_SIGN",
+           "dataIndex": "EDI_CALL_SIGN",
+           "width": "90",
+           "text": "运输工具号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colDIS_OUTBOUND_CAPTAIN",
+           "dataIndex": "DIS_OUTBOUND_CAPTAIN",
+           "width": "60",
+           "text": "船长"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colIS_QG",
+           "xtype": "checkcolumn",
+           "dataIndex": "IS_QG",
+           "width": "40",
+           "text": "清关"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colIS_SB",
+           "xtype": "checkcolumn",
+           "dataIndex": "IS_SB",
+           "width": "40",
+           "text": "申报"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colZSPORT_ID",
+           "hidden": "true",
+           "dataIndex": "ZSPORT_ID",
+           "text": "中山港check状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colXLPORT_ID",
+           "hidden": "true",
+           "dataIndex": "XLPORT_ID",
+           "text": "小榄港check状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSWPORT_ID",
+           "hidden": "true",
+           "dataIndex": "SWPORT_ID",
+           "text": "神湾港check状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colVID",
+           "hidden": "true",
+           "dataIndex": "VID",
+           "text": "用于区分奥海或集团账号创建调度生成多条数据的分组字段"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colBUPDATEDMAN",
+           "hidden": "true",
+           "dataIndex": "BUPDATED_MAN",
+           "text": "调度子表修改人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colATENANCYID",
+           "hidden": "true",
+           "dataIndex": "ATENANCY_ID",
+           "text": "调度主表租户id"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colBTENANCYID",
+           "hidden": "true",
+           "dataIndex": "BTENANCY_ID",
+           "text": "调度子表租户id"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colZSGUPD",
+           "hidden": "true",
+           "dataIndex": "ZSGUPD",
+           "text": "中山港是否修改"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colXLGUPD",
+           "hidden": "true",
+           "dataIndex": "XLGUPD",
+           "text": "小榄港是否修改"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSWGUPD",
+           "hidden": "true",
+           "dataIndex": "SWGUPD",
+           "text": "神湾港是否修改"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {
+         "itemId": "popupMenu",
+         "normalName": "menu2"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "popupAgents",
+           "hidden": "true",
+           "text": "容舱公司",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var tenid = '{#sys.TENANCY_ID#}';\
+\
+Wb.run({\
+  url: \"m?xwl=shipManage/ship/vesselAgents\",\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._winAgents); //_window1为配置对象，window1为实例\
+    win.show();\
+    win.setTitle(\"容舱公司\");\
+    app.VID.setValue(rowData.AID);\
+    app.grid1.store.load();\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupGuaGangI",
+           "text": "进口挂港",
+           "iconCls": "object_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+//组织JSON数据,定义格式为combo的Store格式\
+var data = [{\
+  'ID': rowData.SERVICE,\
+  'NAME': rowData.SERVICE_NAME\
+}];\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselPort',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._window1); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle(\"维护-\" + Str.VESSEL_ROTATION);\
+    //定义一个Store,绑定数据\
+    var sexStore = Ext.create('Ext.data.Store', {\
+      fields: ['ID', 'NAME'],\
+      data: data\
+    });\
+    //combo通过代码绑定Stroe\
+    app.SERVICE_NAME.bindStore(sexStore);\
+    if (rowData.OSERVICE !== null && rowData.OSERVICE !== '') {\
+      app.SERVICE_NAME.setValue(rowData.OSERVICE);\
+    } else if (rowData.SERVICE !== null && rowData.SERVICE !== '') {\
+      app.SERVICE_NAME.setValue(rowData.SERVICE);\
+    }\
+    app.vesselNo.setValue(rowData.VID);\
+    app.I_E_ID.setValue(\"I\");\
+    app.portGrid.store.load({\
+      out: rowData.VID\
+    });\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupGuaGangE",
+           "text": "出口挂港",
+           "iconCls": "object_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+//组织JSON数据,定义格式为combo的Store格式\
+var data = [{\
+  'ID': rowData.OSERVICE,\
+  'NAME': rowData.OSERVICE_NAME\
+}];\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselPort',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._window1); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle(\"维护-\" + Str.VESSEL_ROTATION);\
+    //定义一个Store,绑定数据\
+    var sexStore = Ext.create('Ext.data.Store', {\
+      fields: ['ID', 'NAME'],\
+      data: data\
+    });\
+    //combo通过代码绑定Stroe\
+    app.SERVICE_NAME.bindStore(sexStore);\
+    if (rowData.OSERVICE !== null && rowData.OSERVICE !== '') {\
+      app.SERVICE_NAME.setValue(rowData.OSERVICE);\
+    } else if (rowData.SERVICE !== null && rowData.SERVICE !== '') {\
+      app.SERVICE_NAME.setValue(rowData.SERVICE);\
+    }\
+    app.vesselNo.setValue(rowData.VID);\
+    app.I_E_ID.setValue(\"E\");\
+    app.portGrid.store.load({\
+      out: rowData.VID\
+    });\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupBooking",
+           "text": "码头装卸量",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselBooking',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._winBooking); //_window1为配置对象，window1为实例\
+    win.show();\
+    win.setTitle('码头装卸量');\
+    app.VID.setValue(rowData.AID);\
+    app.grid1.store.load();\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupComm",
+           "text": "监控记录",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: \"m?xwl=shipManage/ship/vesselComm\",\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.show();\
+    win.setTitle('通讯记录');\
+    app.VID.setValue(rowData.AID);\
+    app.grid1.store.load();\
+    app.isEdit = false;\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupHc",
+           "text": "航次船员维护",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var tenancyid = '{sys.TENANCY_ID}';\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselVoyageCrew',\
+  success: function(appwin) {\
+    var win = new Ext.window.Window(appwin._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=cancel_icon]').hide(); //隐藏窗体取消按钮\
+    win.show();\
+    win.setTitle('船舶员工预申报');\
+    appwin.zId.setValue(rowData.AID);\
+    appwin.VOYAGE_ID.setValue(rowData.BID);\
+    appwin.VESSEL_CODE_CREW.setValue(rowData.VESSEL_CODE);\
+    appwin.grid1.store.load({\
+      \"VOYAGE_ID\": rowData.BID\
+    });\
+    appwin.isEdit = false;\
+    appwin.opt.setValue(opt);\
+    appwin.ids.setValue(rowData.BID);\
+    appwin.ieId.setValue(rowData.I_E);\
+    //重写ok事件\
+    appwin.printBtn.events.click.listeners[0].fireFn = function() {\
+      var AF1 = document.getElementById(opt);\
+      var whereSql = encodeURI(\" vc.vid= '\" + rowData.BID + \"' \");\
+      var whereSql2 = encodeURI(\" where v2.tenancy_id='\" + tenancyid + \"' and v2.id='\" + rowData.BID + \"' and vc.call_out is null\");\
+      AF1.func(\"Build\", '/supcan/report/print/shiper_out.xml?' + Math.round(Math.random() * 100));\
+      AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+      AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+      if (rowData.I_E == 'I') {\
+        AF1.func(\"SetCellData\", \"<data B1=（进境）船舶员工预申报表/> \");\
+      }\
+      AF1.func(\"Calc\", \"\");\
+      AF1.func(\"callfunc\", \"18\");\
+    };\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupXxbgs",
+           "hidden": "true",
+           "text": "航行港澳小型船船长报告书",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselVoyageCrew',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    //     win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    //     win.show();\
+    //     win.setTitle('船舶员工预申报');\
+    app.VOYAGE_ID.setValue(rowData.AID);\
+    app.excelBtn.fireEvent('click');\
+    //     app.grid1.store.load({\
+    //       \"VOYAGE_ID\": rowData.AID\
+    //     });\
+    //     app.isEdit = false;\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupInsb",
+           "hidden": "true",
+           "text": "入境船舶员工预申报表",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselVoyageCrew',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    //     win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    //     win.show();\
+    //     win.setTitle('船舶员工预申报');\
+    app.VOYAGE_ID.setValue(rowData.AID);\
+    app.printBtn.fireEvent('click');\
+    //     app.grid1.store.load({\
+    //       \"VOYAGE_ID\": rowData.AID\
+    //     });\
+    //     app.isEdit = false;\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupDongTai",
+           "text": "船舶动态",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var tenid = '{#sys.TENANCY_ID#}';\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselDongTai',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle('船舶动态');\
+    app.DTVID.setValue(rowData.VID);\
+    app.VESSEL_VISTI_ID.setValue(rowData.BID);\
+    app.dtTENANCY_ID.setValue(tenid);\
+    app.grid1.store.load();\
+//     if (tenid === 'AT' || tenid === 'JT') {\
+//       app.panel1.setDisabled(true);\
+//       app.tbar.setDisabled(true);\
+//     }\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "itemZuoYe",
+           "text": "船舶作业",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "popupKaiGuanCang",
+             "text": "开关舱",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselOther/vesselOtherRecFC',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle('开关舱');\
+    app.VESSEL_VISTI_ID.setValue(rowData.BID);\
+    app.grid1.store.load();\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "popupJiJieLan",
+             "text": "系解缆",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselOther/vesselOtherRecTU',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle('系解缆');\
+    app.VESSEL_VISTI_ID.setValue(rowData.BID);\
+    app.grid1.store.load();\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "popupJiaShuiDian",
+             "text": "加水加电",
+             "iconCls": "object_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselOther/vesselOtherRecWE',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle('加水加电');\
+    app.VESSEL_VISTI_ID.setValue(rowData.BID);\
+    app.grid1.store.load();\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "popupFanDaoXiang",
+             "text": "船舶翻倒箱",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselOther/vesselOtherRecTC',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle('船舶翻倒箱');\
+    app.VESSEL_VISTI_ID.setValue(rowData.BID);\
+    app.grid1.store.load({\
+      \"VESSEL_VISIT_ID\": rowData.ID\
+    });\
+    app.isEdit = false;\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "popupOtherZuoYe",
+             "text": "其他杂作业",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselOther/vesselOtherRecTC123',\
+  success: function(app) {\
+    var win = new Ext.window.Window(app._editWin); //_window1为配置对象，window1为实例\
+    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+    win.show();\
+    win.setTitle('其他杂作业');\
+    app.VESSEL_VISTI_ID.setValue(rowData.BID);\
+    app.grid1.store.load({\
+      \"VESSEL_VISIT_ID\": rowData.ID\
+    });\
+    app.isEdit = false;\
+  }\
+});"}
+           }
+          ],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "popupComp3",
+           "hidden": "true",
+           "text": "@Str.VESSEL_MOVE",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=vesselManage/vesselMove',\
+  success: function(apps) {\
+    \
+    Wb.request({\
+      url: 'm?xwl=vesselManage/vesselmoveedit/selectMove',\
+      params: {VESSEL_VISIT_ID:rowData.ID},\
+      success: function(resp) {\
+           var len=Wb.decode(resp.responseText).rows.length;\
+        if(len===0){\
+          alert(len);\
+          return;\
+        }\
+        else{\
+         var win = new Ext.window.Window(apps._instancedWin); //_window1为配置对象，window1为实例\
+         win.show();\
+         win.setTitle(Str.VESSEL_MOVE);\
+         Wb.setValue(win, Wb.decode(resp.responseText).rows[0]);\
+         apps.VESSEL_NAME.setValue(rowData.VESSEL_NAME);\
+         apps.VESSEL_PHASE.setValue(rowData.PHASE);\
+         apps.grid1.store.load({\"VESSEL_VISIT_ID\":rowData.ID});\
+        }\
+      }\
+    \
+    });\
+   \
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupYanShi",
+           "hidden": "true",
+           "text": "船舶延时",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselDelay',\
+  success: function(apps) {\
+    var win = new Ext.window.Window(apps._editWin); //_window1为配置对象，window1为实例\
+    win.show();\
+    win.setTitle(Str.VESSEL_DELAY);\
+    apps.VESSEL_VISIT_ID.setValue(rowData.ID);\
+    apps.grid1.store.load({\
+      params: {\
+        VESSEL_ID: rowData.ID\
+      }\
+    });\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupComp34",
+           "hidden": "true",
+           "text": "晚到箱",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=vesselManage/vesselMove',\
+  success: function(apps) {\
+    Wb.request({\
+      url: 'm?xwl=vesselManage/vesselmoveedit/selectMove',\
+      params: {\"VESSEL_VISIT_ID\":rowData.ID},\
+      success: function(resp) {\
+           var len=Wb.decode(resp.responseText).rows.length;\
+        if(len===0)\
+          return;\
+        else{\
+         var win = new Ext.window.Window(apps._instancedWin); //_window1为配置对象，window1为实例\
+         win.show();\
+         win.setTitle('移泊');\
+\
+         Wb.setValue(win, Wb.decode(resp.responseText).rows[0]);\
+         apps.VESSEL_NAME.setValue(rowData.VESSEL_NAME);\
+         apps.VESSEL_PHASE.setValue(rowData.PHASE);\
+         apps.grid1.store.load({\"VESSEL_VISIT_ID\":rowData.ID});\
+        }\
+      }\
+    \
+    });\
+   \
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupJiaSuo",
+           "hidden": "true",
+           "text": "船舶加锁",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselLock',\
+  success: function(apps) {\
+    var win = new Ext.window.Window(apps._editWin); //_window1为配置对象，window1为实例\
+    win.show();\
+    win.setTitle(Str.VESSEL_LOCK);\
+    apps.VESSEL_VISIT_ID.setValue(rowData.ID);\
+    apps.grid1.store.load({\
+      params: {\
+        VESSEL_VISIT_ID: rowData.ID\
+      }\
+    });\
+    Wb.setDisabled(apps.UNLOCK_FLAG, true);\
+    Wb.setDisabled(apps.UNLOCK_REASON, true);\
+    Wb.setDisabled(apps.UNLOCK_TIM, true);\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupComp36",
+           "hidden": "true",
+           "text": "船舶作业监控",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=vesselManage/vesselMove',\
+  success: function(apps) {\
+    Wb.request({\
+      url: 'm?xwl=vesselManage/vesselmoveedit/selectMove',\
+      params: {\"VESSEL_VISIT_ID\":rowData.ID},\
+      success: function(resp) {\
+           var len=Wb.decode(resp.responseText).rows.length;\
+        if(len===0)\
+          return;\
+        else{\
+         var win = new Ext.window.Window(apps._instancedWin); //_window1为配置对象，window1为实例\
+         win.show();\
+         win.setTitle('移泊');\
+\
+         Wb.setValue(win, Wb.decode(resp.responseText).rows[0]);\
+         apps.VESSEL_NAME.setValue(rowData.VESSEL_NAME);\
+         apps.VESSEL_PHASE.setValue(rowData.PHASE);\
+         apps.grid1.store.load({\"VESSEL_VISIT_ID\":rowData.ID});\
+        }\
+      }\
+    \
+    });\
+   \
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "itemFenXi",
+           "hidden": "true",
+           "text": "分析",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "popupXieChuanFenXi",
+             "text": "卸船差异分析",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselMove',\
+  success: function(apps) {\
+    Wb.request({\
+      url: 'm?xwl=shipManage/ship/vesselmoveedit/selectMove',\
+      params: {\
+        \"VESSEL_VISIT_ID\": rowData.ID\
+      },\
+      success: function(resp) {\
+        var len = Wb.decode(resp.responseText).rows.length;\
+        if (len === 0)\
+          return;\
+        else {\
+          var win = new Ext.window.Window(apps._instancedWin); //_window1为配置对象，window1为实例\
+          win.show();\
+          win.setTitle('移泊');\
+          Wb.setValue(win, Wb.decode(resp.responseText).rows[0]);\
+          apps.VESSEL_NAME.setValue(rowData.VESSEL_NAME);\
+          apps.VESSEL_PHASE.setValue(rowData.PHASE);\
+          apps.grid1.store.load({\
+            \"VESSEL_VISIT_ID\": rowData.ID\
+          });\
+        }\
+      }\
+    });\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "popupZhuangChuanFenXi",
+             "text": "装船差异分析",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.run({\
+  url: 'm?xwl=shipManage/ship/vesselMove',\
+  success: function(apps) {\
+    Wb.request({\
+      url: 'm?xwl=shipManage/ship/vesselmoveedit/selectMove',\
+      params: {\
+        \"VESSEL_VISIT_ID\": rowData.ID\
+      },\
+      success: function(resp) {\
+        var len = Wb.decode(resp.responseText).rows.length;\
+        if (len === 0)\
+          return;\
+        else {\
+          var win = new Ext.window.Window(apps._instancedWin); //_window1为配置对象，window1为实例\
+          win.show();\
+          win.setTitle('移泊');\
+          Wb.setValue(win, Wb.decode(resp.responseText).rows[0]);\
+          apps.VESSEL_NAME.setValue(rowData.VESSEL_NAME);\
+          apps.VESSEL_PHASE.setValue(rowData.PHASE);\
+          apps.grid1.store.load({\
+            \"VESSEL_VISIT_ID\": rowData.ID\
+          });\
+        }\
+      }\
+    });\
+  }\
+});"}
+           }
+          ],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "itemCangDanWeiHu",
+           "text": "舱单维护",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "popupJinKou",
+             "text": "进口外贸舱单",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+var pageLink = {\
+  url: 'm?xwl=shipBIlla/forBill/inBillC22',\
+  title: '进口舱单',\
+  iconCls: 'table_align_columns_icon',\
+  inframe: true\
+};\
+Wb.open(pageLink);"}
+           },
+           {
+            "configs": {
+             "itemId": "popupChuKou",
+             "text": "出口外贸舱单",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.menu2.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+var pageLink = {\
+  url: 'm?xwl=shipBIlla/forBill/outBillC',\
+  title: '出口舱单',\
+  iconCls: 'table_align_columns_icon',\
+  inframe: true\
+};\
+Wb.open(pageLink);"}
+           }
+          ],
+          "type": "item"
+         }
+        ],
+        "type": "menu",
+        "events": {"show": "var rows = app.grid1.getSelection();\
+app.popupAgents.setDisabled(rows.length != 1);\
+app.popupGuaGangI.setDisabled(rows.length != 1);\
+app.popupGuaGangE.setDisabled(rows.length != 1);\
+app.popupDongTai.setDisabled(rows.length != 1);\
+app.popupBooking.setDisabled(rows.length != 1);\
+app.popupHc.setDisabled(rows.length != 1);\
+app.popupXxbgs.setDisabled(rows.length != 1);\
+app.popupInsb.setDisabled(rows.length != 1);\
+app.itemZuoYe.setDisabled(rows.length != 1);\
+app.itemCangDanWeiHu.setDisabled(rows.length != 1);\
+app.popupComm.setDisabled(rows.length != 1);\
+if (rows.length < 1)\
+  return;\
+menu.selectRow = rows[0];\
+var tenid = '{#sys.TENANCY_ID#}';\
+if (tenid === 'AT' || tenid === 'JT') {\
+  app.popupGuaGangI.setVisible(false);\
+  app.popupGuaGangE.setVisible(false);\
+  app.itemZuoYe.setVisible(false);\
+  app.itemCangDanWeiHu.setVisible(false);\
+  //app.popupXxbgs.setVisible(false);\
+  //app.popupInsb.setVisible(false);\
+}\
+if (tenid !== 'AT' && tenid !== 'JT') {\
+  app.popupBooking.setVisible(false);\
+  app.popupComm.setVisible(false);\
+  if (menu.selectRow.data.I_E == \"I\") {\
+    app.popupGuaGangI.setVisible(true);\
+    app.popupGuaGangE.setVisible(false);\
+  }\
+  if (menu.selectRow.data.I_E == \"E\") {\
+    app.popupGuaGangI.setVisible(false);\
+    app.popupGuaGangE.setVisible(true);\
+  }\
+  if (menu.selectRow.data.I_E == \"IE\") {\
+    app.popupGuaGangI.setVisible(true);\
+    app.popupGuaGangE.setVisible(true);\
+  }\
+  //app.popupHc.setVisible(false);\
+}"}
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+     },
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "panelPrint",
+       "width": "0",
+       "region": "south",
+       "height": "0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);",
+     "destroy": "delete window[\"init\" + opt];"
+    }
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.tenid.setValue('{#sys.TENANCY_ID#}');\
+app.SETA.setValue(new Date());\
+app.EETA.setValue(new Date());\
+app.QIE.setValue(\"\");\
+app.QTRADE.setValue(\"\");\
+if (app.tenid.getValue() != \"AT\")\
+  app.cbotenancyid.setVisible(false);\
+\
+app.names.addListener(\"specialkey\", function(field, e) {\
+  if (e.getKey() == e.ENTER)\
+    app.searchBtn.fireEvent('click');\
+});\
+app.QPHASE.addListener(\"specialkey\", function(field, e) {\
+  if (e.getKey() == e.ENTER)\
+    app.searchBtn.fireEvent('click');\
+});\
+\
+app.searchBtn.fireEvent(\"click\");\
+\
+app.xwl2.subscribe('/exchange/ex_vessel/#', function(d) {\
+  var msg = d.body;\
+  var record = app.grid1.store.data.findBy(function(i, k) {\
+    return i.data.ID === msg.data.ID;\
+  });\
+  app.searchBtn.fireEvent(\"click\");\
+});\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    //     m.func(\"Build\", '/supcan/report/print/ESB.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();\
+Wb.apply(app, {\
+  //生成进口海关呼号\
+  initICCALL: function() {\
+    var tagd = '57210';\
+    var tody = new Date();\
+    var year = tody.getFullYear().toString();\
+    var month = (tody.getMonth() + 1).toString();\
+    var day = tody.getDate().toString();\
+    return tagd + year + month + day;\
+  },\
+  //生成出口海关呼号\
+  initOCCALL: function() {\
+    var tagd = '57210';\
+    var tody = new Date();\
+    var year = tody.getFullYear().toString();\
+    var month = (tody.getMonth() + 1).toString();\
+    var day = tody.getDate().toString();\
+    return tagd + year + month + day;\
+  },\
+  //timestamp转换成date\
+  timestampToDate: function(time) {\
+    var datetime = new Date();\
+    datetime.setTime(time);\
+    var year = datetime.getFullYear();\
+    var month = datetime.getMonth() + 1;\
+    var date = datetime.getDate();\
+    return year + \"-\" + month + \"-\" + date;\
+  },\
+  printShipper: function(id, tenid, ieid) {\
+    \
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "船舶航次",
+ "iconCls": null,
+ "inframe": false,
+ "pageLink": ""
+}

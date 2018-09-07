@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select i_e_id,cntr_operator_cod,cntr_operator,\\
+\" +\
+  \"decode(i_e_id,'I',CONSIGNEE_COD,SHIPPER_COD)SHIPPER_CONSIGNEE_COD,\\
+\" +\
+  \"decode(i_e_id,'I',CONSIGNEE,SHIPPER)SHIPPER_CONSIGNEE\\
+\" +\
+  \"from vbill_head where tenancy_id='\" + tenancyid + \"' and BILL_NO='\" + data.BILL_NO + \"'\\
+\";\
+if (nature == \"5\")\
+  sql += \"and cntr_operator_cod='\" + customcode + \"'\";\
+var result = Wb.getRecords(app.run(sql));\
+if (result.length < 1)\
+  throw \"没有找到提单:\" + data.BILL_NO;\
+if (Wb.isEmpty(result[0].SHIPPER_CONSIGNEE_COD))\
+  throw \"舱单货主系统未备案,请重新选择舱单货主\";\
+app.send(result);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "查找提单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

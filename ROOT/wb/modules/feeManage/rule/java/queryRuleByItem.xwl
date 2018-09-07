@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var sql = Wb.newClass(\"tariffService\").findRuleByItem(request, app.get().itemId);\
+/*var query = app.get().query;\
+var splt;\
+if (query !== undefined && query !== \"\") {\
+  splt = query.split(\",\");\
+}\
+var whereSql = \"\";\
+if (splt !== undefined && splt.length >= 1) {\
+  for (var i = 0; i < splt.length; i++) {\
+    whereSql += \" and DESCRIPTION like '%\"+splt[i]+\"%'\";\
+  }\
+}\
+sql += whereSql;\
+*/\
+var query = request.getParameter(\"query\");\
+if(!Wb.isEmpty(query)){\
+  sql += \" and DESCRIPTION like '%\"+query+\"%'\";\
+}\
+request.setAttribute(\"sql\",sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

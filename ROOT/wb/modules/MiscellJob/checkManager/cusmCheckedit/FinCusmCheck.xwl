@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+app.run(\"update cusm_check set phase='FIN',CHECKRESULT={?CHECKRESULT?},UPDATED_ON=sysdate where checkid={?CHECK_ID_E?}\");\
+var cntr=[];\
+cntr.push(data.CNTR);\
+\
+if (data.isGui=='true') {\
+  var javaDate = new JavaDate();\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd');\
+  app.set(\"task_type\",\"MOVE\");\
+  app.set(\"to_pos\",data.OLDYARDCELL);\
+  app.set(\"task_name\", dateText+\"因查验归位移动至\"+data.OLDYARDCELL);\
+  app.set(\"cntrs\",\"[\\\"\"+data.CNTR+\"\\\"]\");\
+  app.set(\"handle_id\",null);\
+  app.set(\"to_pos_typ\",\"B\");\
+\
+\
+  \
+  app.execute(\"m?xwl=controlManage/task/worktaskcraneedit/insertTask\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "check": 1,
+  "SWB": 1
+ },
+ "title": "完成查验计划",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

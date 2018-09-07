@@ -1,0 +1,95 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var g_custom;
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/t20.xml");
+  AF.func("Load", 'treelistdata/data.txt');
+ }
+ function OpenBar()
+ {
+  AF.func("OpenFreeformBar","");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(Event=="ButtonClicked") {
+   if(p1 == "Cancel")
+    AF.func("CloseFreeformBar", "");
+   else if(p1=="OK") {
+    var xml = AF.func("topBar.Export", "content=asData;includeEmpty=False");
+    AF.func("MessageBoxFloat", AF.func("toJSON", xml + "\r\n recordset"));
+   }
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请点击 <input type="button" value=" 开启查询区 " onClick="OpenBar()"> (注：真实的查询请参考演示页 "30.FreeformBar");<br>
+<b>2</b>.查询区就是XML文档中的freeformBar元素，已涉及到freeform(自由表头)内容;<br>
+</td>
+</tr>
+<tr height=8><td colspan=2></td></tr>
+</table>
+
+<div style="position:relative;width:97%;height:360px">
+	<script>insertTreeList('AF', 'borderColor=#7f9db9')</script>
+</div>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.查询区在XML文档中，就是：<br>
+<pre class='xml'>
+  ...
+  &lt;/Cols&gt;
+  &lt;FreeformRes&gt;
+    &lt;freeform url="query1.xml"/&gt;
+  &lt;/FreeformRes&gt;
+&lt;/TreeList&gt;</pre>
+<br>
+<b>2</b>.上面的XML中引用的 <a href='treelist/query1.xml' target=_blank>query1.xml</a> 是一个标准的freeform(自由表头);<br>
+<br>
+<b>3</b>.js源码分析如下:<br>
+<pre class='cpp'>
+//“开启查询区”按钮的函数
+function OpenBar()
+{
+ AF.func("OpenFreeformBar","");   //打开Bar
+}
+//Supcan事件
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //freeform中的按钮的事件
+ if(Event=="ButtonClicked") {
+   if(p1 == "Cancel")
+    AF.func("CloseFreeformBar", "");  //关闭Bar
+   else if(p1=="OK") {
+    //执行Freeform的扩展函数, 取得XML结果
+    var xml = AF.func("tBar.Export", "content=asData;includeEmpty=False");
+    //如果需要json格式： 执行全局函数 toJSON
+    AF.func("MessageBoxFloat", AF.func("toJSON", xml + "\r\n recordset"));
+   }
+ }
+}</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

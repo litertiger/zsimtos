@@ -1,0 +1,58 @@
+﻿<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="../res/temp1.css" type="text/css">
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<pre class='cpp'>
+&lt;%@ Page Language="C#" %&gt;
+&lt;%@ Import namespace="System" %&gt;
+&lt;%@ Import namespace="System.IO" %&gt;
+&lt;%@ Import namespace="System.Data" %&gt;
+&lt;%@ Import namespace="System.Data.OleDb" %&gt;
+&lt;%@ Import namespace="System.Threading" %&gt;
+&lt;script language="C#" runat="server"&gt;
+ 
+ public void Page_Load(Object sender, EventArgs e) {
+  const string FILEDB = "access.mdb";
+  int nFunc = 0;
+  String func = Request.QueryString["func"];
+  if(func != null) nFunc = Int32.Parse(func);
+ 
+  String SQL = "";
+  if(nFunc == 1) { //取科目汇总
+   SQL = "select kmdm, kmmc, qcye from account where kmfl=1 order by kmdm";
+  }
+  else if(nFunc == 2) { //按科目取明细帐
+   String kmdm = Request.QueryString["kmdm"];
+   if(kmdm == null) return;
+   SQL = "select dt, zy, pzh, j, d from mx where kmdm='" +kmdm+ "' order by pzh";
+  }
+  else if(nFunc == 3) { //按凭证号取凭证
+   String pzh = Request.QueryString["pzh"];
+   if(pzh == null) return;
+   SQL = "select mx.kmdm, account.kmmc, mx.dt, mx.zy, mx.j, mx.d, mx.cfo from mx,account where mx.pzh='" +pzh+ "' and mx.kmdm=account.kmdm order by mx.id";
+  }
+  else
+   return;
+ 
+  //数据库
+  String mdbPath = Server.MapPath(FILEDB);
+  OleDbConnection conn = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + mdbPath + ";");
+  OleDbDataAdapter adapter = new OleDbDataAdapter(SQL, conn);
+  DataTable dt = new DataTable();
+  adapter.Fill(dt);
+  DataSet ds = new DataSet();
+  ds.Tables.Add(dt);
+  ds.WriteXml(Response.Output);
+ 
+  //End
+  Response.ContentType ="text/xml";
+  Response.CacheControl="no-cache";
+  Response.End();
+ }
+&lt;/script&gt;</pre>
+</body>
+<script type='text/javascript' src='../res/nstd.js'></script>
+</html>

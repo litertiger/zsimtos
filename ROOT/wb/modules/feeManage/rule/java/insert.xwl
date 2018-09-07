@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//var num = Wb.newClass(\"tariffService\").saveRule(request,app.get());\
+\
+//新增主表数据\
+var ruleId = SysUtil.getId();\
+var tenancy_id =app.get(\"sys.TENANCY_ID\");//码头代码'ZSG'\
+var username = app.get(\"sys.username\");//登陆用户名\
+\
+ var sql = \"select 1 from C_TARIFF_RULE where DESCRIPTION={?DESCRIPTION?} and TENANCY_ID='\"+tenancy_id+\"'\"\
+ +\" and ITEM_ID={?ITEM_ID?}\";\
+ app.run(sql, {\
+   errorText: '费率条件已存在！'\
+ });\
+\
+var mainSql = \"INSERT INTO C_TARIFF_RULE \"+\
+\"(ID, TENANCY_ID, DESCRIPTION, NOTES, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, ITEM_ID, IS_SHOW)\"+\
+\" VALUES('\"+ruleId+\"', '\"+tenancy_id+\"', {?DESCRIPTION?}, {?NOTES?},\"+\
+    \" '\"+username+\"', sysdate, '\"+username+\"',sysdate, {?ITEM_ID?}, {?IS_SHOW?})\";\
+app.run(mainSql);\
+\
+//新增子表数据\
+var items = Wb.decode(app.get(\"data\"));//获取前台传入的子表数据并转为json对象\
+var recs = items.create;//获取新增的子表json对象\
+app.log(recs);\
+Wb.each(recs, function(rec){//循环新增子表json对象\
+  rec.ID = SysUtil.getId();//子表主键\
+  rec.RULE_ID = ruleId;//子表外键\
+  rec.TENANCY_ID = tenancy_id;//子表租户\
+});\
+app.log(Wb.encode(recs));\
+\
+ app.set({\
+   create: Wb.encode(recs)//json对象转为json字符串，并赋值给create参数\
+   //,update: Wb.encode(items.update),\
+   //destroy: Wb.encode(items.destroy)\
+ });\
+app.update({tableName: 'C_TARIFF_RITEM'});//根据前台传入的增删改参数，同步至数据库\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

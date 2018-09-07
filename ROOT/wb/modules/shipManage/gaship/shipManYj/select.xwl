@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get();\
+sql = \" \";\t\t\
+if (!Wb.isEmpty(data.shipName)) \
+  sql += \" and CODE  like '%'||{?shipName?}||'%'   \";\
+if (!Wb.isEmpty(data.begdate)) \
+  sql += \" and NEXT_TIME>={?TIMESTAMP.begdate?}   \";\
+if (!Wb.isEmpty(data.enddate)) \
+  sql += \" and NEXT_TIME<={?TIMESTAMP.enddate?}   \";\
+\
+\
+request.setAttribute('whereSql', sql);\
+\
+\
+\
+\
+\
+\
+\
+",
+   "serverMethod": "com.ag.aohao.EarlyWarning.getShipManYjSql"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select ID C_C_ID, MAN_NAME {#sql#} from   (SELECT C_CREW.ID,C_CREW.NAME MAN_NAME, SHORT_NAM NAME,warning,\
+       CASE\
+          WHEN next_time - SYSDATE <  warning*30\
+             THEN   '#'||c_certificate.color||'@'||to_char(next_time,'yyyy-mm-dd')\
+                                   \
+          ELSE to_char(next_time,'yyyy-mm-dd')\
+       END next_time,\
+       c_certificate.color\
+  FROM C_CREW, C_CREW_CERTIFICATION, c_certificate\
+ WHERE C_CREW.ID = C_CREW_CERTIFICATION.C_C_ID(+)\
+       AND C_CREW_CERTIFICATION.c_ce_id = c_certificate.ID(+)   {#whereSql#}) group by MAN_NAME,ID"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "ZSG_GA": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

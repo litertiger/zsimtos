@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select * from C_SETTLEMENT_BODY where tenancy_id='\" + tenancyid + \"' and settle_status<>2\" +\
+  \" and (bill_no like '%\" + data.billno + \"%'\";\
+if (!Wb.isEmpty(data.bills)) {\
+  var bills = data.bills.split(\",\");\
+  Wb.each(bills, function(bill) {\
+    sql += \" or bill_no like '%\" + bill + \"%'\";\
+  });\
+}\
+sql += \")\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "查询账单信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

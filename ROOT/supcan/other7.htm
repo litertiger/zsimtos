@@ -1,0 +1,164 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script>
+ var xml_prov = '<?xml version="1.0"?>\
+<TreeList>\
+<Properties isShowGrid="false" isAutoFitWidth="true" headerHeight="0"></Properties>\
+<Cols><Col name="provId" width="0"/><Col name="provText" width="100"/></Cols>\
+<Table>\
+<TR><td>1</td><td>浙江省</td></TR>\
+<TR><td>2</td><td>广东省</td></TR>\
+<TR><td>3</td><td>福建省</td></TR>\
+<TR><td>4</td><td>江苏省</td></TR>\
+</Table></TreeList>';
+
+ var xml4 = '<TreeList>\
+<Properties isShowGrid="false" isAutoFitWidth="true" headerHeight="0"></Properties>\
+<Cols><Col name="city" width="100">city</Col></Cols>\
+</TreeList>';
+
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 4) return;
+   id='';
+  }
+ 
+  if(id == 'AF1' || id=='') AF1.func("BuildTreeList", xml_prov);
+  if(id == 'AF2' || id=='') AF2.func("Filter", "provinceId=''");
+  if(id == 'AF3' || id=='') AF3.func("BuildTreeList", xml_prov);
+  if(id == 'AF4' || id=='') AF4.func("BuildTreeList", xml4);
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id=='AF1') {
+ 　if( Event == "EditChanged" ) {
+    var prov = AF1.func("getValue", "");
+　　AF2.func("Filter", "provinceId='" +prov+ "'");	//本地过滤
+　　AF2.func("SetValue", "");
+   }
+  }
+  else if(id=='AF3') {
+ 　if( Event == "EditChanged" ) {
+    var prov = AF3.func("getText", "");	//服务器过滤
+    var url = "http://www.supcan.cn/dotnet/city.aspx?prov=" + prov;
+　　AF4.func("Load", encodeURI(url));
+   }
+  }
+ }
+</script>
+
+</head>
+
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.下拉小控件是从Treelist、Freeform中分离出来的，功能和Treelist中的一致；<br>
+<b>2</b>.“省份”和“城市”有关联性，以下是两种关联处理方案.<br>
+</td>
+</tr></table>
+
+<br><br>
+<table border=0 width=660 cols=4>
+<tr><td colspan=4 align=left><b>方案一</b>：“城市”采用客户端过滤，在选择“省份”的触发事件中对“城市”内容作过滤.</td></tr>
+<tr height=30>
+<td width=100 align=right>省份：</td>
+<td width=160  height=30>
+<div style="position:relative;width:100%;height:100%">
+	<script>insertEdit('AF1', 'border=client;type=droptreelist;DataCol=provId;displaycol=provText')</script>
+</div>
+</td>
+<td width=160 align=right>城市：</td>
+<td  height=30>
+<div style="position:relative;width:160px;height:100%">
+	<script>insertEdit('AF2', 'border=client;type=droptreelist;treelist=treelist/prov_city.xml;DataCol=cityId;displaycol=cityText')</script>
+</div>
+</td>
+</tr>
+
+<tr height=25><td colspan=4/></tr>
+<tr><td colspan=4 align=left><b>方案二</b>：“城市”采用服务器过滤，在选择“省份”的触发事件中修改“城市”的dataURL，强制刷新.</td></tr>
+<tr height=30>
+<td align=right>省份：</td>
+<td  height=30>
+<div style="position:relative;width:100%;height:100%">
+	<script>insertEdit('AF3', 'border=client;type=droptreelist;DataCol=provId;displaycol=provText')</script>
+</div>
+</td>
+<td align=right>城市：</td>
+<td  height=30>
+<div style="position:relative;width:160px;height:100%">
+	<script>insertEdit('AF4', 'border=client;type=droptreelist;DataCol=city;displaycol=city')</script>
+</div>
+</td>
+</tr>
+</table>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style="line-height:21px">
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+在Treelist、Freeform中也有类似的例子，js相关源码如下：<br>
+<pre class='xml'>
+&lt;script&gt;
+ //“省份”的下拉的XML文档串
+ var xml_prov = '&lt;?xml version="1.0"?&gt;\
+&lt;Properties isShowGrid="false" isAutoFitWidth="true" headerHeight="0"&gt;&lt;/Properties&gt;\
+&lt;Cols&gt;&lt;Col name="provId" width="0"/&gt;&lt;Col name="provText" width="100"/&gt;&lt;/Cols&gt;\
+&lt;Table&gt;\
+&lt;TR&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;浙江省&lt;/td&gt;&lt;/TR&gt;\
+&lt;TR&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;广东省&lt;/td&gt;&lt;/TR&gt;\
+&lt;TR&gt;&lt;td&gt;3&lt;/td&gt;&lt;td&gt;福建省&lt;/td&gt;&lt;/TR&gt;\
+&lt;TR&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;江苏省&lt;/td&gt;&lt;/TR&gt;\
+&lt;/Table&gt;&lt;/TreeList&gt;';
+  
+ //采用服务器搜索的“城市”的下拉的XML文档串
+ var xml4 = '&lt;TreeList&gt;\
+&lt;Properties isShowGrid="false" isAutoFitWidth="true" headerHeight="0"/&gt;\
+&lt;Cols&gt;&lt;Col name="city" width="100"&gt;city&lt;/Col&gt;&lt;/Cols&gt;&lt;/TreeList&gt;';
+ 
+ function OnReady(id)
+ {
+  if(id=='AF1')
+   AF1.func("BuildTreeList", xml_prov);
+  else if(id=='AF2') 
+   AF2.func("Filter", "provinceId=''");
+  else if(id=='AF3') 
+   AF3.func("BuildTreeList", xml_prov);
+  else if(id=='AF4') 
+   AF4.func("BuildTreeList", xml4);
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id=='AF1') {
+   if( Event == "EditChanged" ) {
+    var prov = AF1.func("getValue", "");
+    AF2.func("Filter", "provinceId='" +prov+ "'");	//本地过滤
+   }
+  }
+  else if(id=='AF3') {
+   if( Event == "EditChanged" ) {
+    var prov = AF3.func("getText", "");	//服务器过滤
+    var url = "http:∥www.supcan.cn/dotnet/city.aspx?prov=" + prov;
+    AF4.func("Load", encodeURI(url));
+   }
+  }
+ }
+&lt;/script&gt;</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

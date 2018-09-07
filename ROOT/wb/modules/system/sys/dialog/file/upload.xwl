@@ -1,0 +1,95 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "win",
+    "dialog": "true",
+    "createInstance": "false",
+    "focusControl": "file1",
+    "closeAction": "destroy",
+    "width": "424",
+    "title": "@Str.fileUpload",
+    "iconCls": "file_default_icon",
+    "height": "128"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "absolute",
+     "itemId": "form1",
+     "flat": "true",
+     "width": "400",
+     "height": "72"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "allowBlank": "false",
+      "itemId": "file",
+      "labelAlign": "right",
+      "fieldLabel": "@Str.file",
+      "width": "352",
+      "x": "8",
+      "y": "24",
+      "labelWidth": "80",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "file"
+    }],
+    "type": "form"
+   }],
+   "type": "window",
+   "events": {"ok": "if (app.beforeUpload && app.beforeUpload() === false)\
+  return;\
+Wb.upload({\
+  form: app.form1,\
+  url: app.url,\
+  params: app.params,\
+  showProgress: app.showProgress !== false,\
+  success: function() {\
+    app.win.close();\
+    if (app.success)\
+      Ext.callback(app.success, app, arguments);\
+  }\
+});"}
+  }],
+  "type": "module",
+  "events": {"initialize": "Ext.apply(app, {\
+  /**\
+   * 打开文件上传模态对话框。点击确定按钮时将触发上传操作，可以通过beforeUpload事件进行拦截。\
+   * 上传完成后如果在参数中定义了success方法，那么该方法将被回调。\
+   * @param {String} url 上传的url路径。\
+   * @param {Object} [params] 上传的参数。\
+   * @param {Function} [beforeUpload] 上传前执行的方法，返回false将取消操作。\
+   * @param {Function} [success] 上传成功执行的回调事件。\
+   * @param {Boolean} [showProgress] 是否显示上传进度条，默认为true。\
+   * @param {String} [title] 窗口标题。\
+   * @param {String} [iconCls] 窗口图标。\
+   */\
+  upload: function(params) {\
+    Ext.apply(app, params);\
+    if (params.title)\
+      app.win.title = params.title;\
+    if (params.iconCls)\
+      app.win.iconCls = params.iconCls;\
+    //采用动态创建的方式，win的createInstance属性为false\
+    app.win = new Ext.window.Window(app.win);\
+    app.win.show();\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "上传文件",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,440 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "window1",
+     "closeAction": "hide",
+     "autoReset": "false",
+     "width": "544",
+     "title": "增删改查",
+     "modal": "true",
+     "height": "186"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "班次代码",
+       "width": "240",
+       "x": "8",
+       "y": "16",
+       "labelWidth": "90",
+       "maxLength": "36",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "allowBlank": "true",
+       "itemId": "CLASS_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "班次名称",
+       "width": "240",
+       "x": "248",
+       "y": "16",
+       "labelWidth": "90",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NEXT_DAY_NUM",
+       "labelAlign": "right",
+       "emptyText": "隔天只能是0或1",
+       "maxLengthText": "最大长度为1",
+       "fieldLabel": "隔天",
+       "width": "240",
+       "x": "8",
+       "y": "80",
+       "labelWidth": "90",
+       "maxLength": "1",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "240",
+       "x": "248",
+       "y": "80",
+       "labelWidth": "90",
+       "maxLength": "400",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "BEG_TIME",
+       "labelAlign": "right",
+       "fieldLabel": "开始时间",
+       "width": "240",
+       "x": "8",
+       "y": "48",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "datetime"
+     },
+     {
+      "configs": {
+       "itemId": "END_TIME",
+       "labelAlign": "right",
+       "fieldLabel": "结束时间",
+       "width": "240",
+       "x": "248",
+       "y": "48",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "datetime"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "x": "256",
+       "width": "240",
+       "y": "104",
+       "value": "C_WORK_CLASS",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "OLDID",
+       "labelAlign": "right",
+       "fieldLabel": "班次代码",
+       "width": "240",
+       "x": "8",
+       "y": "16",
+       "labelWidth": "90",
+       "maxLength": "36",
+       "height": "20"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.window1);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Work_Class/C_Work_ClassEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.grid1.store.load();\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Work_Class/C_Work_ClassEdit/insert',\
+    out: app.window1,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+//       Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+       Wb.add(app.grid1, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.grid1.store.load();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "multiSelect": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "search",
+          "labelAlign": "right",
+          "fieldLabel": "班次名称",
+          "labelWidth": "65"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "search_button",
+          "text": "搜索",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+out:app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "add_button",
+          "text": "增加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.reset(app.window1);\
+app.window1.setTitle('添加 - 班次');\
+app.window1.setIconCls('record_add_icon');\
+app.isEdit = false;\
+app.window1.show();\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "edit_button",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+\
+app.selRec = sels[0];\
+app.OLDID.setValue(sels[0].data.ID);\
+app.window1.setTitle('修改 - ' + '('+app.selRec.data.CLASS_NAME+')');\
+app.window1.setIconCls('record_edit_icon');\
+Wb.setValue(app.window1, app.selRec.data);\
+app.window1.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delete_button",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Work_Class/C_Work_ClassEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'ID');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/C_Work_Class/C_Work_ClassEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "id",
+          "dataIndex": "ID",
+          "text": "班次代码",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "className",
+          "dataIndex": "CLASS_NAME",
+          "text": "班次名称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "begName",
+          "dataIndex": "BEG_TIME",
+          "width": "150",
+          "format": "Y-m-d H:i:s",
+          "text": "开始时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "endTime",
+          "renderer": " return Wb.format(value,'Y-m-d H:i:s');",
+          "dataIndex": "END_TIME",
+          "width": "150",
+          "text": "结束时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "nextDayNum",
+          "dataIndex": "NEXT_DAY_NUM",
+          "text": "隔天",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "notes",
+          "dataIndex": "NOTES",
+          "text": "备注",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdBy",
+          "dataIndex": "CREATED_BY",
+          "text": "创建人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdOn",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedBy",
+          "dataIndex": "UPDATED_BY",
+          "text": "修改人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedOn",
+          "dataIndex": "UPDATED_ON",
+          "width": "120",
+          "text": "修改时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.edit_button.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "班次代码",
+ "iconCls": "shopping_cart_icon",
+ "inframe": false,
+ "pageLink": ""
+}

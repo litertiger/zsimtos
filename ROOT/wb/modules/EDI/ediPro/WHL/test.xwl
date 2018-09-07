@@ -1,0 +1,194 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var IOUtils = org.apache.commons.io.IOUtils;\
+var path = \"/edi/ZSG/WANHAI\";\
+var os = new java.io.FileOutputStream(new File(path, \"test.txt\"));\
+// var files = new File('/edi/ZSG/WANHAI');\
+var s = \"123435134\";\
+app.log(s);\
+try {\
+  IOUtils.write(s, os);\
+} finally {\
+  //file.stream可不用关闭，系统会自动关闭\
+  os.close();\
+}\
+//================================================\
+//交换发送方send//交换接收方accept（少CN周一问）\
+// var javaDate = new JavaDate();\
+// var date = DateUtil.format(javaDate, 'yyMMdd:HHmm');\
+// var date1 = DateUtil.format(javaDate, 'yyyyMMddHHmm');\
+// var date2 = DateUtil.format(javaDate, 'yyyyMMddHHmmss');\
+// var t = DateUtil.format(javaDate, 'yyyyMMdd');\
+// var t1 = DateUtil.format(javaDate, 'ss');\
+// var tenancyId = app.get('sys.TENANCY_ID'),\
+//   send = \"\";\
+// var send1 = \"\";\
+// var Load = com.ag.edi.EdiDownLoad;\
+// if (tenancyId == 'ZSG') {\
+//   send = 'CNZSN';\
+//   //   send1 = 'ZSN10';\
+// } else if (tenancyId == 'XLG') {\
+//   send = 'CNXLG';\
+//   //   send1 = 'XLN03';\
+// } else if (tenancyId == 'SWG') {\
+//   send = 'CNSWG';\
+//   //   send1 = 'SWN03';\
+// }\
+// //变量\
+// var num = 17; //报文段数的常量\
+// var heads = \"\";\
+// var ss = \"\";\
+// var head = \"\",\
+//   ran, ieId = \"\",\
+//   inoutType = \"\",\
+//   i = 0,\
+//   cntrOwnerCod = \"\";\
+// var filename = \"WHL_\";\
+// var rs = app.run(\"  SELECT CURSOR (\" +\
+//   \"SELECT DECODE(I_E_ID,'I','3','E','2') I_E_ID,DECODE(E_F_ID,'E','4','F','5','P','7') E_F_ID,CNTR,IN_OUT_TYPE,POD,POL,GsizeToISO95(CNTR_SIZE,CNTR_TYPE) CNTR_ISO,WEIGHT,BILL_NO,SEAL_NO,TO_CHAR(IN_OUT_TIME,'yyyyMMddHH24MI') IN_OUT_TIME \" +\
+//   \" FROM UN_LOAD_EDI a \" +\
+//   \"  WHERE     a.VESSEL_NAME = UN_LOAD_EDI.VESSEL_NAME \" +\
+//   \"         AND a.VOYAGE_NO = UN_LOAD_EDI.VOYAGE_NO AND WHL = 1 and   nvl(WHL_STATE,0)<>1 AND CNTR_OPERATOR_COD IN('ES','HU') \" +\
+//   \" ORDER BY I_E_ID,CNTR ASC) \" +\
+//   \"  b, \" +\
+//   \" VESSEL_NAME, \" +\
+//   \"  VOYAGE_NO,CALL_SIGN,E_NAME,DECODE (I_E_ID,  'I', '3',  'E', '2') I_E_ID,IN_OUT_TYPE,to_char(SHIP_DATE,'yyMMdd:HHmm') SHIP_DATE,CNTR_OPERATOR_COD  \" +\
+//   \" FROM UN_LOAD_EDI where VOYAGE_NO is not null and VESSEL_NAME is not null AND CNTR_OPERATOR_COD IN('ES','HU') AND WHL=1 and nvl(WHL_STATE,0)<>1 AND IN_OUT_TYPE = 'E' and CREATED_ON>=to_date('2018-08-02 00:00:00','yyyy-MM-dd hh24:mi:ss') and CREATED_ON<=to_date('2018-08-03 23:59:59','yyyy-MM-dd hh24:mi:ss')/*AND VOYAGE_NO = '180709A' AND VESSEL_NAME = '中航939' AND TRUNC(CREATED_ON)>=TRUNC(SYSDATE-11)*/\" +\
+//   //   \" FROM UN_LOAD_EDI where VOYAGE_NO is not null and VESSEL_NAME is not null AND CNTR_OPERATOR_COD IN('ES','HU') AND WHL=1 and nvl(WHL_STATE,0)<>1 and IN_OUT_TYPE='I' AND VOYAGE_NO='572101807110' AND VESSEL_NAME='中航937' AND TRUNC(CREATED_ON)>=TRUNC(SYSDATE-10)\" +\
+//   \" GROUP BY VESSEL_NAME, VOYAGE_NO,CALL_SIGN,E_NAME,IN_OUT_TYPE,I_E_ID,SHIP_DATE,CNTR_OPERATOR_COD  \");\
+// while (rs.next()) {\
+//   app.log(\"=========================\");\
+//   if (rs.getString(\"CNTR_OPERATOR_COD\") == 'HU' || rs.getString(\"CNTR_OPERATOR_COD\") == 'ES') {\
+//     //华晖东辉\
+//     send1 = \"ZSN10\";\
+//   } else {\
+//     //珠江中转\
+//     send1 = \"ZSN08\";\
+//   }\
+//   //报文开始-------------------\
+//   var s = t + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + t1;\
+//   head = \"UNB+UNOA:2+\" + send1 + \"+WHL+\" + rs.getString(\"SHIP_DATE\") + \"+\" + s + \"'\\r\\
+\";\
+//   head += \"UNH+\" + s + \"+COARRI:D:95B:UN:ITG14'\\r\\
+\";\
+//   if (rs.getString(\"I_E_ID\") == \"2\") {\
+//     head += \"BGM+46+1+9'\\r\\
+\";\
+//   } else if (rs.getString(\"I_E_ID\") == \"3\") {\
+//     head += \"BGM+44+1+9'\\r\\
+\";\
+//   }\
+//   if (rs.getString(\"IN_OUT_TYPE\") == \"E\")\
+//     head += \"TDT+20+\" + rs.getString(\"VOYAGE_NO\") + \"+1+++++'\\r\\
+\";\
+//   else\
+//     head += \"TDT+20++1+++++'\\r\\
+\";\
+//   if (rs.getString(\"IN_OUT_TYPE\") == \"E\") {\
+//     //装船E\
+//     head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+//   } else {\
+//     //卸船I\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//   }\
+\
+//   head += \"DTM+132:\" + date1 + \":203'\\r\\
+\";\
+//   head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+//   //160政党认同166美国NMFCA (SCAC) \
+//   head += \"NAD+CA+WHL:160:166'\\r\\
+\";\
+//   var rs1 = rs.getObject(1);\
+//   while (rs1.next()) {\
+//     //判断是装船的吉柜的话，把艘次号置为空\
+//     if (rs1.getString(\"IN_OUT_TYPE\") == \"E\" && rs1.getString(\"E_F_ID\") == \"4\")\
+//       head = head.replace(rs.getString(\"VOYAGE_NO\"), '');\
+//     //EQD\tCN--集装箱\t\t柜的类型\
+//     head += \"EQD+CN+\" + rs1.getString(\"CNTR\") + \"+\" + rs1.getString(\"CNTR_ISO\") + \":102:5++\" + rs1.getString(\"I_E_ID\") + \"+\" + rs1.getString(\"E_F_ID\") + \"'\\r\\
+\";\
+//     if (rs1.getString(\"BILL_NO\") != null) {\
+//       if (rs1.getString(\"IN_OUT_TYPE\") == \"E\" && rs1.getString(\"E_F_ID\") == \"5\") {\
+//         //RFF+提单号\
+//         head += \"RFF+BN:\" + rs1.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+//       }\
+//     }\
+//     //DTM\tEffective Date/time有效时间（少）\
+//     head += \"DTM+203:\" + rs1.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+//     if (rs1.getString(\"IN_OUT_TYPE\") == \"E\") {\
+//       //LOC出口装船\
+//       head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+//       if (rs1.getString(\"POD\") == \"\" || rs1.getString(\"POD\") == null) {\
+//         head += \"LOC+11+'\\r\\
+\";\
+//       } else {\
+//         head += \"LOC+11+\" + rs1.getString(\"POD\") + \"'\\r\\
+\";\
+//       }\
+//     } else {\
+//       //LOC进口卸船      \
+//       if (rs1.getString(\"POL\") == \"\" || rs1.getString(\"POL\") == null) {\
+//         head += \"LOC+9+'\\r\\
+\";\
+//       } else {\
+//         head += \"LOC+9+\" + rs1.getString(\"POL\") + \"'\\r\\
+\";\
+//       }\
+//       head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     }\
+\
+//     //MEA+WT++KGM:14690'\
+//     head += \"MEA+WT++KGM:\" + rs1.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+//     if (rs1.getString(\"E_F_ID\") != '4') {\
+//       var sealNo = \"\";\
+//       if (rs1.getString(\"SEAL_NO\") != null) {\
+//         sealNo = rs1.getString(\"SEAL_NO\");\
+//         head += \"SEL+\" + sealNo + \"'\\r\\
+\";\
+//       }\
+//     }\
+//     head += \"NAD+CF+WHL:172'\\r\\
+\";\
+\
+//   }\
+//   head += \"CNT+16:9'\\r\\
+\";\
+//   var datas = head.split(\"'\");\
+//   head += \"UNT+\" + (datas.length - 1) + \"+\" + s + \"'\\r\\
+\";\
+//   head += \"UNZ+1+\" + s + \"'\\r\\
+\";\
+//   app.log(i++);\
+//   app.log(rs.getString(\"VESSEL_NAME\") + \"---\" + rs.getString(\"VOYAGE_NO\"));\
+//   app.log(head);\
+//   var os = new java.io.FileOutputStream(new File(path, filename));\
+//   // var files = new File('/edi/ZSG/WANHAI');\
+//   try {\
+//     IOUtils.copy(head.stream, os);\
+//   } finally {\
+//     //file.stream可不用关闭，系统会自动关闭\
+//     os.close();\
+//   }\
+//   //   request.setAttribute(\"message\", head);\
+// }"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "测试写流到服务器文件",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,116 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//是否下载Excel文件，true下载，false返回HTML\
+var isDownLoad = app.getBool('download');\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var tenancy = \"\";\
+var gang = \"\";\
+var now = new Date();\
+var pdate = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + now.getHours() + ':' + now.getMinutes();\
+if (tenancyid === 'AT' || tenancyid === 'JT') {\
+  tenancy = '港澳公司';\
+}\
+if (tenancyid === 'ZSG') {\
+  tenancy = '中山港航运码头';\
+  gang = \"中山港\";\
+}\
+if (tenancyid === 'XLG') {\
+  tenancy = '小榄港航运码头';\
+  gang = \"小榄港\";\
+}\
+if (tenancyid === 'SWG') {\
+  tenancy = '神湾港航运码头';\
+  gang = \"神湾港\";\
+}\
+var sql = \"\";\
+var sqlz = \"\";\
+if (app.get(\"io\") == \"in\") {\
+  sql = \"select rownum,a.VESSEL_NAME,a.EDI_CALL_SIGN,b.LIB_VYG LVYG,a.LINE,b.IN_ZL,b.IN_BZ,b.IN_BJ,\" +\
+    \"to_char(b.ATA,'dd HH24:mi') ATA,b.NOTES,b.BERTH_CODE from VESSEL_VOYAGE a left join VESSEL_VISIT b on a.id=b.vid where 1=1\";\
+}\
+if (app.get(\"io\") == \"out\") {\
+  sql = \"select rownum,a.VESSEL_NAME,a.EDI_CALL_SIGN,b.LOB_VYG LVYG,a.LINE,b.OUT_ZL,b.OUT_BZ,b.OUT_BJ,\" +\
+    \"to_char(b.ATD,'dd HH24:mi') ATD,b.NOTES from VESSEL_VOYAGE a left join VESSEL_VISIT b on a.id=b.vid\" +\
+    \" left join c_service s on a.oservice=s.id where s.SERVICE_CATEGORY='1'\";\
+  sqlz = \"select rownum,a.VESSEL_NAME,a.EDI_CALL_SIGN,b.LOB_VYG LVYG,a.LINE,b.OUT_ZL,b.OUT_BZ,b.OUT_BJ,\" +\
+    \"to_char(b.ATD,'dd HH24:mi') ATD,b.NOTES from VESSEL_VOYAGE a left join VESSEL_VISIT b on a.id=b.vid\" +\
+    \" left join c_service s on a.oservice=s.id where s.SERVICE_CATEGORY<>'1'\";\
+}\
+if (tenancyid === 'AT' || tenancyid === 'JT') {\
+  sql += \" and a.TENANCY_ID='\" + tenancyid + \"' and b.TENANCY_ID='\" + tenancyid + \"'\";\
+  sqlz += \" and a.TENANCY_ID='\" + tenancyid + \"' and b.TENANCY_ID='\" + tenancyid + \"'\";\
+} else {\
+  sql += \" and b.TENANCY_ID='\" + tenancyid + \"'\";\
+  sqlz += \" and b.TENANCY_ID='\" + tenancyid + \"'\";\
+}\
+if (app.get('qphase') !== 'null') {\
+  sql += \" and a.PHASE='\" + app.get('qphase') + \"'\";\
+  sqlz += \" and a.PHASE='\" + app.get('qphase') + \"'\";\
+}\
+if (!Wb.isEmpty(app.get('names'))) {\
+  sql += \" and (a.VESSEL_NAME like '%'||'\" + app.get('names') + \"'||'%' or a.IB_VYG like '%'||'\" + app.get('names') + \"'||'%'\" +\
+    \" or a.OB_VYG like '%'||'\" + app.get('names') + \"'||'%' or a.SERVICE_NAME like '%'||'\" + app.get('names') + \"'||'%'\" +\
+    \" or a.OSERVICE_NAME like '%'||'\" + app.get('names') + \"'||'%')\";\
+  sqlz += \" and (a.VESSEL_NAME like '%'||'\" + app.get('names') + \"'||'%' or a.IB_VYG like '%'||'\" + app.get('names') + \"'||'%'\" +\
+    \" or a.OB_VYG like '%'||'\" + app.get('names') + \"'||'%' or a.SERVICE_NAME like '%'||'\" + app.get('names') + \"'||'%'\" +\
+    \" or a.OSERVICE_NAME like '%'||'\" + app.get('names') + \"'||'%')\";\
+}\
+if (!Wb.isEmpty(app.get('sdate'))) {\
+  sql += \" and b.ETA>=to_date('\" + app.get('sdate') + \" 00:00:00','yyyy-mm-dd hh24:mi:ss') \" +\
+    \"and b.ETA<=to_date('\" + app.get('sdate') + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+  sqlz += \" and b.ETA>=to_date('\" + app.get('sdate') + \" 00:00:00','yyyy-mm-dd hh24:mi:ss') \" +\
+    \"and b.ETA<=to_date('\" + app.get('sdate') + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+}\
+if (!Wb.isEmpty(app.get('ids'))) {\
+  sql += \" and a.id in(\" + app.get('ids') + \")\";\
+  sqlz += \" and a.id in(\" + app.get('ids') + \")\";\
+}\
+//获得基于结果集的数组，使用此方法可以应用键值，DbUtil.getData(rs,'FIELD1=k1,FIELD2=k2','dictTable1,dictTable2');\
+var data = DbUtil.getData(app.run(sql), request); //读取结果集所有记录数据至JSONArray\
+var dataz = DbUtil.getData(app.run(sqlz), request); //读取结果集所有记录数据至JSONArray\
+var reportData = {\
+  sdate: app.get('sdate'),\
+  edate: app.get('edate'),\
+  pdate: pdate,\
+  tenancy: tenancy,\
+  rows: data,\
+  rownum: Wb.decode(data).length,\
+  rowsz: dataz\
+};\
+\
+if (isDownLoad) {\
+  var excelFilename = 'wb/system/excel/demo/zsg_' + app.get(\"io\") + '_sbd.xlsx',\
+    exportFilename = gang + '小型船舶(' + (app.get(\"io\") == \"in\" ? \"进\" : \"出\") + ')境申报单.xlsx',\
+    sheetIndex = -1; //-1将使用所有的sheet\
+  response.setHeader('content-type', 'application/force-download');\
+  response.setHeader('content-disposition', 'attachment;' + WebUtil.encodeFilename(request, exportFilename));\
+  Wb.getExcel(reportData, excelFilename, response.getOutputStream(), -1);\
+  response.flushBuffer();\
+} else {\
+  var html = Wb.getHtml(reportData, 'wb/system/excel/demo/zsg_' + app.get(\"io\") + '_sbd.xlsx', -1);\
+  app.send(html);\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "获取数据和报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

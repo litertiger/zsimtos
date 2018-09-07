@@ -1,0 +1,76 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+
+<body>
+    <button id="t1" class="ui-button-primary">40尺</button>
+
+    <button id="t2" class="ui-button-primary">20尺</button>
+
+
+</body>
+<script>
+    loadPlan();
+
+    $('button').button();
+    $('#t1').click(function () {
+       var pan = planColor({tp:1,text:"40尺/空箱",color:"rgba(0,255,0,0.5)"});
+        sava(pan);
+    });
+    $('#t2').click(function () {
+        var pan = planColor({tp:2,text:"20尺/重箱",color:"rgba(255,0,0,0.5)"});
+        sava(pan);
+    });
+
+
+    function  planColor(ops) {
+        var ret = {};
+        var share = seajs.require("main/ct/obj/shareData");
+        var plancA = share.objMap.planC;
+        for (var j in plancA) {
+            var planc = plancA[j];
+            if (planc.node.isSelected){
+//                var tp = plancTp(ops.tp);
+//                var lsize =  planc.Lsize;
+//                var asize = planc.Lsize.split(" ");
+//                if (tp.angle == 90||tp.angle == 270)
+//                    lsize =   asize[1] + " " +asize[0];
+                planc.setProperties({
+                    color: ops.color,
+//                    geometryString: tp.geometryString,
+//                    angle: tp.angle,
+                    text: ops.text//,
+//                    Lsize:lsize
+                });
+                ret = {slotA:planc.slotA}
+            }
+        }
+        return ret
+    }
+
+    function sava(planc) {
+        $.ajax( {
+            url:'../m?xwl=yardManage/yardplan/savebound',// 跳转到 action
+            data:{
+                data : JSON.stringify(planc)
+            },
+            type:'post',
+            headers: {
+                Accept: "application/json; charset=utf-8"
+            },
+            cache:false,
+            dataType:'text',
+            success:function(data) {
+                if (data > 0)
+                    alert("保存成功!");
+                else
+                    alert("保存失败!");
+            },
+            error : function(XMLHttpRequest, textStatus, errorThrown) {
+                alert("异常！");
+            }
+        });
+    }
+</script>
+</html>

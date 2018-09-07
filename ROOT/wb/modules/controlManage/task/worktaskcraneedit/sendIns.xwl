@@ -1,0 +1,159 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var taskId = app.get(\"tskid\"),\
+  username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"),\
+  type = app.get('type'); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+if (type !== 'VOUT')\
+  app.send('目前此功能只支持装船任务发送');\
+var mvs = app.get(\"moves\");\
+app.log(mvs);\
+var ids = [];\
+var batch = !mvs;\
+\
+if (batch) //整船发送\
+{\
+  var result = app.run(\"select id from move_list where queue_id={?tskid?} and phase='PLN'\");\
+  ids = Ag.getResultArray(result).rows;\
+} else\
+  ids = Wb.decode(app.get(\"moves\"));\
+\
+app.run(\"update move_list set id=id where 1=2\", {\
+  transaction: \"start\"\
+});\
+Wb.each(ids, function(id) {\
+  var map = app.run(\"{call p_active_instion('\" + id + \"',{?sys.username?},{?@ret?})}\"); //如果返回值中输出结果集，系统不自动加载输出参数，只返回名称为outParams的statement对象。\
+  var ret = map.get('ret');\
+  app.log(ret);\
+  if (!(ret == '99' || batch))\
+    throw ret;\
+});\
+app.run(\"update move_list set id=id where 1=2\", {\
+  transaction: \"commit\"\
+});\
+\
+var mess = \"ship.\" + ship;\
+if (type == 'MOVE')\
+  mess = 'cy.#';\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (!client.open())\
+    return app.send('发送成功,但发送消息失败');\
+  if (batch) {\
+    if (!(client.routeSend(\"ex_instruction\", mess, {\
+        info: {\
+          type: type,\
+          action: \"batch\",\
+          senduser: username,\
+          sendmodule: \"hanset\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: taskId\
+        }\
+      }) && client.routeSend(\"ex_instruction\", 'cy.#', {\
+        info: {\
+          type: type,\
+          action: \"batch\",\
+          senduser: username,\
+          sendmodule: \"hanset\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: taskId\
+        }\
+      })))\
+      return app.send(client.getLastError() || \"指令确认成功，但发送消息超时\");\
+  } else {\
+    Wb.each(ids, function(id) {\
+      if (!(client.routeSend(\"ex_instruction\", mess, {\
+          info: {\
+            type: type,\
+            action: \"update\",\
+            senduser: username,\
+            sendmodule: \"hanset\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: id\
+          }\
+        }) && client.routeSend(\"ex_instruction\", 'cy.#', {\
+          info: {\
+            type: type,\
+            action: \"update\",\
+            senduser: username,\
+            sendmodule: \"hanset\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: id\
+          }\
+        })))\
+        return app.send(client.getLastError() || \"指令确认成功，但发送消息超时\");\
+    });\
+  }\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}\
+\
+/*var taskId = app.get(\"taskId\"),\
+  username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"),\
+  type = app.get('type'); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+var mess = \"ship.\" + ship;\
+if (type == 'MOVE')\
+  mess = 'cy.#';\
+var sqlCntrs = '';\
+//发送消息\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_instruction\", mess, {\
+      info: {\
+        type: \"disc\",\
+        action: \"batch\",\
+        senduser: username,\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: taskId\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}*/\
+app.send('发送成功');"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "发送任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

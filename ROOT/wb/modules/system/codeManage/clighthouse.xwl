@@ -1,0 +1,679 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "tbarpanel2"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "name",
+       "labelAlign": "right",
+       "fieldLabel": "名称",
+       "labelWidth": "50"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findMenu2",
+       "text": "查询",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.grid1.getSelection()[0];\
+app.grid11.store.load({params:{codeCol:sels.data.CODE},out:app.tbarpanel2});//把所有数据取出来放到out里面"}
+     },
+     {
+      "configs": {
+       "itemId": "addMenu",
+       "text": "添加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.editwin1.setTitle('添加 - 灯塔设备 ' );\
+app.editwin1.setIconCls('record_add_icon');\
+app.editwin1.show();\
+Wb.verify(app.editwin1);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+var sels = app.grid1.getSelection()[0];\
+app.LightHouseId.setValue(sels.data.CODE);"}
+     },
+     {
+      "configs": {
+       "itemId": "modifyMenu2",
+       "text": "修改",
+       "iconCls": "record_edit_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.grid11.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin1.setTitle('修改 - 设备信息');\
+app.editwin1.setIconCls('record_edit_icon');\
+var sels2 = app.grid1.getSelection()[0];\
+app.LightHouseId.setValue(sels2.data.CODE);\
+app.editwin1.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+\
+"}
+     },
+     {
+      "configs": {
+       "itemId": "deleteMenu",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.grid11.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/clighthouse/clighthousedata/deletedev',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid11, sels);\
+    }\
+  });\
+}, 'null','删除该记录');"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editwin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "360",
+     "height": "280"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "CODE",
+       "labelAlign": "right",
+       "fieldLabel": "灯塔编号",
+       "width": "300",
+       "x": "8",
+       "y": "16",
+       "labelWidth": "80"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "NAME",
+       "labelAlign": "right",
+       "fieldLabel": "灯塔名",
+       "width": "300",
+       "x": "8",
+       "y": "48",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "300",
+       "x": "8",
+       "y": "80",
+       "labelWidth": "80",
+       "height": "100"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "value": "C_LIGHTHOUSE_DEV"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/clighthouse/clighthousedata/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findMenu1.fireEvent('click'); \
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/clighthouse/clighthousedata/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findMenu1.fireEvent('click'); \
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editwin1",
+     "dialog": "true",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "360",
+     "height": "280"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "LightHouseId",
+       "labelAlign": "right",
+       "fieldLabel": "灯塔编号",
+       "width": "300",
+       "x": "8",
+       "y": "16",
+       "labelWidth": "80",
+       "disabled": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "DEV_ID",
+       "labelAlign": "right",
+       "fieldLabel": "设备名",
+       "keyName": "C_DEV",
+       "width": "300",
+       "x": "8",
+       "y": "48",
+       "labelWidth": "80"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "300",
+       "x": "8",
+       "y": "80",
+       "labelWidth": "80",
+       "height": "100"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "value": "C_LIGHTHOUSE"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin1);\
+\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/clighthouse/clighthousedata/updatedev',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin1.close();\
+      app.findMenu2.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/clighthouse/clighthousedata/insertdev',\
+    out: app.editwin1,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid11, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin1.close();\
+      Wb.verify(app.editwin1);\
+      app.findMenu2.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel1",
+       "width": "600",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "grid1",
+        "split": "true",
+        "tbar": "app.tbarpanel2",
+        "region": "west"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/codeManage/clighthouse/clighthousedata/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "tbar"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "name",
+            "labelAlign": "right",
+            "fieldLabel": "名称",
+            "labelWidth": "50"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "findMenu1",
+            "text": "查询",
+            "iconCls": "seek_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.grid1.store.load({out:app.tbar});//把所有数据取出来放到out里面"}
+          },
+          {
+           "configs": {
+            "itemId": "addMenu",
+            "text": "添加",
+            "iconCls": "record_add_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.editwin.setTitle('添加 - 灯塔 ' );\
+app.editwin.setIconCls('record_add_icon');\
+app.editwin.show();\
+Wb.verify(app.editwin);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+          },
+          {
+           "configs": {
+            "itemId": "modifyMenu1",
+            "text": "修改",
+            "iconCls": "record_edit_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length !=1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin.setTitle('修改 - ' + app.selRec.data.NAME);\
+app.editwin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin, app.selRec.data);\
+app.editwin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "deleteMenu",
+            "text": "删除",
+            "iconCls": "record_delete_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/clighthouse/clighthousedata/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'NAME');"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "rowNumCol",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "tenancyIdCol",
+            "dataIndex": "TENANCY_ID",
+            "keyName": "AUTH_TENANCY",
+            "text": "租户"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "codeCol",
+            "dataIndex": "CODE",
+            "text": "灯塔编号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nameCol",
+            "dataIndex": "NAME",
+            "text": "灯塔名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "notesCol",
+            "dataIndex": "NOTES",
+            "text": "@Str.NOTES"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_BY",
+            "dataIndex": "CREATED_BY",
+            "text": "创建人"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_ON",
+            "dataIndex": "CREATED_ON",
+            "text": "创建日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_BY",
+            "dataIndex": "UPDATED_BY",
+            "text": "最后修改人"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_ON",
+            "dataIndex": "UPDATED_ON",
+            "text": "更新日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {
+        "itemclick": "//alert(record.data.ID);获取到当前点击的ID\
+app.grid11.store.load({\
+   params:{codeCol:record.data.CODE}\
+});",
+        "itemdblclick": "app.modifyMenu1.fireEvent('click');"
+       }
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel2",
+       "tbar": "app.tbarpanel2",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "grid11",
+        "split": "true",
+        "region": "west"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/codeManage/clighthouse/clighthousedata/selectdev"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "rowNumCol",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "tenancyIdCol",
+            "dataIndex": "TENANCY_ID",
+            "keyName": "AUTH_TENANCY",
+            "text": "租户"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "lighthouseIdCol",
+            "dataIndex": "LIGHTHOUSE_ID",
+            "text": "灯塔编号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "devIdCol",
+            "dataIndex": "DEV_ID",
+            "keyName": "C_DEV",
+            "text": "设备名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "notesCol",
+            "dataIndex": "NOTES",
+            "text": "@Str.NOTES"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_BY",
+            "dataIndex": "CREATED_BY",
+            "text": "创建人"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_ON",
+            "dataIndex": "CREATED_ON",
+            "text": "创建日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_BY",
+            "dataIndex": "UPDATED_BY",
+            "text": "最后修改人"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_ON",
+            "dataIndex": "UPDATED_ON",
+            "text": "更新日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemdblclick": "app.modifyMenu2.fireEvent('click');"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "灯塔管理",
+ "iconCls": "calendar_view_week_icon",
+ "inframe": false,
+ "pageLink": ""
+}

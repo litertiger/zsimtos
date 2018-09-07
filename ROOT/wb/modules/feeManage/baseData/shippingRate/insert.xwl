@@ -1,0 +1,30 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var TENANCY_ID = app.get('sys.TENANCY_ID');\
+var testsql = \"SELECT VESSEL_CODE FROM SHIP_FEE_RATE WHERE VESSEL_CODE = '\" + app.get('VESSEL_CODE') + \"'\";\
+var req = Wb.getRecords(app.run(testsql));\
+if (!Wb.isEmpty(req)) {\
+  throw \"不能输入相同的公司名称!\";\
+}\
+\
+var sql = 'INSERT INTO SHIP_FEE_RATE(ID,TENANCY_ID,VESSEL_CODE,VESSEL_NAME,SHIPPER_CODE,SHIPPER,RATE_TYPE,RATE,' +\
+  'CREATED_ON,CREATED_BY,UPDATED_BY,UPDATED_ON) VALUES(SYS_GUID(),\\'' + TENANCY_ID + '\\',{?VESSEL_CODE?},' +\
+  '{?VESSEL_NAME?},{?SHIPPER_CODE?},{?SHIPPER?},{?RATE_TYPE?},{?RATE?},SYSDATE,{?sys.username?},' +\
+  '{?sys.username?},SYSDATE)';\
+app.run(sql, {\
+  transaction: 'commit'\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "插入",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

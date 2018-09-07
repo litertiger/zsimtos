@@ -1,0 +1,580 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "itemId": "editwin",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 90,\
+  width: 260,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "600",
+     "height": "280"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "序列号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "TRAY_NO",
+       "labelAlign": "right",
+       "fieldLabel": "拖卡号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TRAY_NAM",
+       "labelAlign": "right",
+       "fieldLabel": "拖卡名称"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "FACTORY",
+       "labelAlign": "right",
+       "fieldLabel": "厂牌"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TYPE",
+       "labelAlign": "right",
+       "fieldLabel": "型号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CHEJIA",
+       "labelAlign": "right",
+       "fieldLabel": "车架号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "STANDARD",
+       "labelAlign": "right",
+       "fieldLabel": "规格"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TRAY_WGT",
+       "allowBlank": "false",
+       "minValue": "1",
+       "labelAlign": "right",
+       "fieldLabel": "拖卡重"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "LOAD_WGT",
+       "minValue": "1",
+       "labelAlign": "right",
+       "fieldLabel": "核载量"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "BUY_DATE",
+       "labelAlign": "right",
+       "fieldLabel": "购买日期"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "ISMY",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "车辆性质",
+       "keyName": "PT_TYPE",
+       "forceSelection": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "TRUCK_UNIT",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "单位",
+       "displayField": "CNAME",
+       "valueField": "ID",
+       "forceSelection": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "pageSize": "-1",
+        "params": "{fldId:'TU'}",
+        "url": "m?xwl=system/common/client/clientSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "NSYM",
+       "labelAlign": "right",
+       "fieldLabel": "年审日期"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "ICCARD",
+       "labelAlign": "right",
+       "fieldLabel": "运营IC卡号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "x": "272",
+       "width": "240",
+       "y": "112",
+       "value": "C_TRAY",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckEdit/cTray/cTrayEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckEdit/cTray/cTrayEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+       app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "拖卡号",
+          "labelWidth": "65"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "tagConfigs": "matchFieldWidth: false",
+          "hideTrigger": "true",
+          "itemId": "cbocarteam",
+          "labelAlign": "right",
+          "fieldLabel": "车队",
+          "displayField": "CNAME",
+          "enterKeyTriggerClick": "true",
+          "labelWidth": "40",
+          "listConfig": "{\
+  width: 250\
+}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "params": "{fldId:'TU'}",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "findmenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+        },
+        {
+         "configs": {
+          "itemId": "addmenu",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+app.editwin.setTitle('添加 - 托盘 ');\
+app.editwin.setIconCls('record_add_icon');\
+app.editwin.show();\
+if (tenancyid == \"ZSG\")\
+  app.TRUCK_UNIT.setValue(\"HYLY\");\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "modifymenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin.setTitle('修改 - ' + app.selRec.data.TRAY_NAM);\
+app.editwin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin, app.selRec.data);\
+app.editwin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "deletemenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckEdit/cTray/cTrayEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),\
+      tableName: \"C_TRAY\"\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'TRAY_NO');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=truckManager/truckEdit/cTray/cTrayEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colISINTERNAL",
+          "renderer": "if (value == \"0\")\
+  return \"内拖\";\
+if (value == \"1\")\
+  return \"外拖\";",
+          "dataIndex": "ISINTERNAL",
+          "width": "40",
+          "text": "类型",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTRAY_NO",
+          "dataIndex": "TRAY_NO",
+          "width": "60",
+          "text": "拖卡号",
+          "align": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTRAY_NAM",
+          "dataIndex": "TRAY_NAM",
+          "width": "70",
+          "text": "拖卡名称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colFACTORY",
+          "dataIndex": "FACTORY",
+          "width": "60",
+          "text": "厂牌",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTYPE",
+          "dataIndex": "TYPE",
+          "text": "型号",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCHEJIA",
+          "dataIndex": "CHEJIA",
+          "width": "140",
+          "text": "车架号",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSTANDARD",
+          "dataIndex": "STANDARD",
+          "width": "120",
+          "text": "规格",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTRAY_WGT",
+          "dataIndex": "TRAY_WGT",
+          "width": "60",
+          "text": "拖卡重",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colLOAD_WGT",
+          "dataIndex": "LOAD_WGT",
+          "width": "60",
+          "text": "核载量",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colBUY_DATE",
+          "dataIndex": "BUY_DATE",
+          "width": "80",
+          "text": "购买日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTRUCK_UNIT",
+          "renderer": "return Wb.getCustomerByCode(value);",
+          "dataIndex": "TRUCK_UNIT",
+          "text": "单位",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colNSYM",
+          "dataIndex": "NSYM",
+          "width": "80",
+          "text": "年审日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colICCARD",
+          "dataIndex": "ICCARD",
+          "text": "营运IC卡号码",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colNOTES",
+          "dataIndex": "NOTES",
+          "text": "备注",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "xlcd": 1
+ },
+ "title": "拖卡管理",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

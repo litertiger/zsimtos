@@ -1,0 +1,246 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "store1",
+     "url": "m?xwl=system/examples/misc/common-requests/store-data"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "store",
+    "events": {"beforeload": "operation.params = {\
+  foo: 123,\
+  bar: 'abc'\
+};"}
+   },
+   {
+    "configs": {
+     "itemId": "treestore1",
+     "url": "m?xwl=system/examples/misc/common-requests/tree-store-data"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "treestore"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "panel1",
+     "width": "480",
+     "height": "248"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ajaxBtn",
+       "width": "120",
+       "x": "16",
+       "y": "16",
+       "text": "Ajax请求",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "//按Ctrl+4插入Wb.request模板\
+Wb.request({\
+  url: 'm?xwl=system/examples/misc/common-requests/resp-ajax', //url路径，Ctrl+双击文件插入url，在配置项编辑器中可拖动文件或按Ctrl+拖动文件（多选）添加url\
+  params: { //用户指定参数，可选\
+    str: 'bar',\
+    num: 123,\
+    object: {\
+      item: 'value'\
+    },\
+    array: [1, 2, 'abc'],\
+    date: new Date()\
+  },\
+  //showMask: false,请求过程不显示mask\
+  //message: '正在请求数据...',\
+  //mask: app.panel1, mask遮盖对象，默认为全屏，前1.5秒透明遮盖。\
+  out: app.panel1, //输出panel1下所有控件值，可选。指定控件或控件列表，输出该控件及所有子控件值，另如：out:[app.text1,app.date1]\
+  success: function(resp) {\
+    Cs.log(Wb.decode(resp.responseText)); //Cs.info/log/warn/error等都可使用，如果浏览器不支持等于执行空函数。\
+    Wb.info('返回数据：' + resp.responseText);\
+  }\
+});\
+//out参数名称如果同params参数名称重名，params指定参数优先级高"}
+     },
+     {
+      "configs": {
+       "itemId": "storeLoadBtn",
+       "width": "120",
+       "x": "16",
+       "y": "56",
+       "text": "Store Load",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "app.store1.params = {\
+  base1: 'baseParam'\
+}; //store.params参数在每次请求时都有效，除非手动清除。但优先级最低。\
+app.store1.load({\
+  out: app.panel1,\
+  params: {\
+    foo: 'bar',\
+    abc: 123\
+  }, //把panel1下所有控件值和用户指定参数合并作为参数\
+  //showMask: false,请求过程不显示mask\
+  //message: '正在请求数据...',\
+  //showError: false,屏蔽自动显示的错误信息\
+  mask: app.panel1, //mask遮盖对象，未指定默认为全屏，前1.5秒透明遮盖。\
+  callback: function(records, operation, success) { //回调函数，success表明成功加载\
+    if (success)\
+      Wb.info('Store成功加载完成。');\
+  }\
+}); //store中的参数在下一次store.load时将被覆盖\
+//在store的beforeload事件operation.params={foo:'bar'}也可设置参数"}
+     },
+     {
+      "configs": {
+       "itemId": "storeReloadBtn",
+       "width": "120",
+       "x": "152",
+       "y": "56",
+       "text": "Store Reload",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "//重新加载store\
+//store.reload和store.loadPage方法一样会自自动传递最后一次调用的所有参数（包括回调方法），store.load方法则不会(但store.param仍然传递）\
+app.store1.reload({\
+  callback: null //如果最后一次调用指定有回调函数，使用reload后仍将触发该回调函数，如果指定新的参数将覆盖原回调函数\
+});\
+//如果在store.reload方法中指定params参数，原参数会被覆盖，如果需要叠加参数可使用Wb.reload(store,{params:{},callback:fn});\
+//BufferedStore的参数传递请使用store.params"}
+     },
+     {
+      "configs": {
+       "itemId": "treeStoreLoadBtn",
+       "width": "120",
+       "x": "16",
+       "y": "96",
+       "text": "TreeStore Load",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "//Tree通常在节点展开时自动加载，指定Tree的root属性或设置rootVisible为false即可\
+//使用以下代码可重新加载指定节点\
+//app.treestore1.load({\
+//  node: node\
+//});"}
+     },
+     {
+      "configs": {
+       "itemId": "treeStoreReloadBtn",
+       "width": "120",
+       "x": "152",
+       "y": "96",
+       "text": "TreeStore Reload",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "app.treestore1.reload(); //重新加载最后一个加载的节点"}
+     },
+     {
+      "configs": {
+       "itemId": "wbReloadTreeBtn",
+       "width": "120",
+       "x": "280",
+       "y": "96",
+       "text": "Wb.reload Tree",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "//Wb.reload(tree); //重新加载根节点，并默认根据显示属性(text)刷新当前路径，具体见Wb.reload方法说明。"}
+     },
+     {
+      "configs": {
+       "itemId": "commonSubmit",
+       "width": "120",
+       "x": "16",
+       "y": "136",
+       "text": "常规Sumit",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "Wb.submit('ide', {\
+  p1: 'foo',\
+  p2: 123,\
+  p3: new Date()\
+}); //向目标发起submit请求，目标默认为_blank，详见：Wb.submit方法说明。"}
+     },
+     {
+      "configs": {
+       "itemId": "label1",
+       "width": "440",
+       "x": "16",
+       "y": "176",
+       "text": "控件参数：",
+       "cls": "wb_line",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "label"
+     },
+     {
+      "configs": {
+       "itemId": "text1",
+       "labelAlign": "right",
+       "fieldLabel": "字符串",
+       "width": "200",
+       "x": "24",
+       "y": "208",
+       "labelWidth": "60",
+       "value": "text1",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "date1",
+       "labelAlign": "right",
+       "fieldLabel": "日期",
+       "width": "200",
+       "x": "248",
+       "y": "208",
+       "labelWidth": "60",
+       "value": "@new Date()",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     }
+    ],
+    "type": "panel"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "常规请求",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,77 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+\
+var sql = \"select r.id,r.BILL_NO,r.SHIPPER_CONSIGNEE,r.WORK_TYPE,r.CNTR,r.i_e_id,r.trade_id,r.PLAN_STIME,\" +\
+  \"r.CNTR_OPERATOR_COD,r.CNTR_SIZE,r.CNTR_TYPE,r.NOTES,r.CNTR_ISO,r.CMDY_CODE,r.T_ADDRESS,r.F_ADDRESS,r.PT_TYPE,\" +\
+  \"r.GATEOUT_TIME_T,r.GATEIN_TIME_S,r.CREATED_ON,r.PC_BY,r.phase,r.sh,sum(ad.amount) jf,r.shipper_way,r.rid1,r.in_car,\" +\
+  \"r.in_campi,r.in_driver_id,r.out_car,r.out_campi,r.out_driver_id,r.s_adress,r.fei_adddress,r.car_team,r.pt_type\" +\
+  \" from receipt r left join accounts_details ad on r.id=ad.bussiness_code\" +\
+  \" WHERE r.work_type<>'YOYI' AND r.TENANCY_ID='ZSG' AND (r.GATEIN_TIME_S IS NOT NULL OR r.GATEIN_TIME_T IS NOT NULL)\" +\
+  \"AND NVL(r.gateout_time_t, r.gatein_time_s)>=TO_DATE('\" + data.sdate + \" 00:00:00', 'yyyy-mm-dd hh24:mi:ss')\" +\
+  \"AND NVL(R.gateout_time_t, r.gatein_time_s)<=TO_DATE('\" + data.edate + \" 23:59:59', 'yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.cntrs)) {\
+  var allcntr = data.cntrs.split(\",\");\
+  sql += \" and(1=2\";\
+  Wb.each(allcntr, function(cntr) {\
+    if (!Wb.isEmpty(cntr))\
+      sql += \" or r.cntr like '%\" + cntr + \"%'\";\
+  });\
+  sql += \")\";\
+}\
+if (!Wb.isEmpty(data.i_e_id))\
+  sql += \" and r.i_e_id={?i_e_id?}\";\
+if (!Wb.isEmpty(data.trade_id))\
+  sql += \" and r.trade_id={?trade_id?}\";\
+if (!Wb.isEmpty(data.phase))\
+  sql += \" and r.phase={?phase?}\";\
+if (!Wb.isEmpty(data.work_type))\
+  sql += \" and r.work_type={?work_type?}\";\
+if (!Wb.isEmpty(data.pt_type))\
+  sql += \" and r.pt_type={?pt_type?}\";\
+if (!Wb.isEmpty(data.cntr_operator_cod))\
+  sql += \" and r.cntr_operator_cod={?cntr_operator_cod?}\";\
+if (!Wb.isEmpty(data.jf)) {\
+  if (data.jf == \"0\")\
+    sql += \" and ad.amount is null\";\
+  if (data.jf == \"1\")\
+    sql += \" and ad.amount is not null\";\
+}\
+sql += \" group by r.id,r.BILL_NO,r.SHIPPER_CONSIGNEE,r.WORK_TYPE,r.CNTR,r.i_e_id,r.trade_id,r.PLAN_STIME,\" +\
+  \"r.CNTR_OPERATOR_COD,r.CNTR_SIZE,r.CNTR_TYPE,r.NOTES,r.CNTR_ISO,r.CMDY_CODE,r.T_ADDRESS,r.F_ADDRESS,r.PT_TYPE,\" +\
+  \"r.GATEOUT_TIME_T,r.GATEIN_TIME_S,r.CREATED_ON,r.PC_BY,r.phase,r.sh,r.shipper_way,r.rid1,r.in_car,\" +\
+  \"r.in_campi,r.in_driver_id,r.out_car,r.out_campi,r.out_driver_id,r.s_adress,r.fei_adddress,r.car_team,r.pt_type\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "查询设备交接单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

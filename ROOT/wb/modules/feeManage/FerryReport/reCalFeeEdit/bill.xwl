@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var map = new HashMap();\
+var result;\
+if(!Wb.isEmpty(data.billno)){\
+  map.put(\"billNo\", data.billno);\
+  Wb.newClass(\"dubboForShip\").call(request, map);\
+  return false;\
+}\
+\
+var sql = \"select VESSEL_VISIT.ID, I_E \"+\
+    \" from VESSEL_VISIT,VBILL_HEAD where VESSEL_VISIT.ID=VBILL_HEAD.VID and VESSEL_VISIT.TENANCY_ID={?sys.TENANCY_ID?} \"+\
+    \" and decode(I_E,'I',NVL(ATA,ETA),'E',NVL(ATD,ETD))>to_date('\"+data.sdate+\" 00:00:00','yyyy-MM-dd HH24:mi:ss') \"+\
+     \" and decode(I_E,'I',NVL(ATA,ETA),'E',NVL(ATD,ETD))<to_date('\"+data.edate+\" 23:59:59','yyyy-MM-dd HH24:mi:ss')\";\
+//     \" AND I_E='\"+data.ieId+\"' and VBILL_HEAD.TRADE_ID='\"+data.tradeId+\"' and VBILL_HEAD.BILL_TYPE='\"+data.billType+\"'\"+\
+//       \" AND CNTR_OPERATOR_COD='\"+data.cntrOperatorCod+\"' and decode(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD)='\"+data.customerId+\"'\";\
+if(!Wb.isEmpty(data.tradeId)){\
+\tsql+=\" and VBILL_HEAD.TRADE_ID='\"+data.tradeId+\"'\";\
+}\
+if(!Wb.isEmpty(data.billType)){\
+\tsql+=\" and VBILL_HEAD.BILL_TYPE='\"+data.billType+\"'\";\
+}\
+if(!Wb.isEmpty(data.ieId)){\
+\tsql+=\" and I_E='\"+data.ieId+\"'\";\
+}\
+if(!Wb.isEmpty(data.cntrOperatorCod)){\
+\tsql+=\" and CNTR_OPERATOR_COD='\"+data.cntrOperatorCod+\"'\t\";\
+}\
+if(!Wb.isEmpty(data.customerId)){\
+\tsql+=\" and decode(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD)='\"+data.customerId+\"'\";\
+}\
+if(!Wb.isEmpty(data.cntr)){\
+\tsql+=\" and CNTR='\"+data.cntr+\"'\";\
+}\
+sql += \" GROUP BY VESSEL_VISIT.ID,I_E\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  //java.lang.Thread.sleep(5000);\
+  map.put(\"vid\", data.ID);\
+  map.put(\"ieId\", data.I_E);\
+  Wb.newClass(\"dubboForShip\").call(request, map);\
+  //app.log(new JSONObject(result));\
+});\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"JCB": 1},
+ "title": "舱单计费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

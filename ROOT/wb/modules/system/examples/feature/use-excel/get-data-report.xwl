@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//是否下载Excel文件，true下载，false返回HTML\
+var isDownLoad = app.getBool('download');\
+//获得基于结果集的数组，使用此方法可以应用键值，DbUtil.getData(rs,'FIELD1=k1,FIELD2=k2','dictTable1,dictTable2');\
+var data = DbUtil.getData(app.run('select * from WB_REPORT_DEMO order by ROW_NUM'), request); //读取结果集所有记录数据至JSONArray\
+//var data = app.getData('select * from WB_REPORT_DEMO order by ROW_NUM').rows;//使用dataprovider生成数据Object\
+//var data = Wb.getRecords(app.run('select * from WB_REPORT_DEMO order by ROW_NUM'));//读取结果集所有记录数据至数组对象\
+var reportData = {\
+  field1: '某某填报单位',\
+  field2: DateUtil.formatDate(new JavaDate()),\
+  field3: 'Riven',\
+  field4: 'Rachel Valdez',\
+  field5: 'Annette Hill',\
+  field6: 'contact@putdb.com',\
+  rows: data\
+};\
+if (isDownLoad) {\
+  var excelFilename = 'wb/system/excel/demo/form-report.xlsx',\
+    exportFilename = 'report.xlsx',\
+    sheetIndex = 1; //-1将使用所有的sheet\
+  response.setHeader('content-type', 'application/force-download');\
+  response.setHeader('content-disposition', 'attachment;' + WebUtil.encodeFilename(request, exportFilename));\
+  Wb.getExcel(reportData, excelFilename, response.getOutputStream(), 1);\
+  response.flushBuffer();\
+} else {\
+  var html = Wb.getHtml(reportData, 'wb/system/excel/demo/form-report.xlsx', 1);\
+  app.send(html);\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "获取数据和报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

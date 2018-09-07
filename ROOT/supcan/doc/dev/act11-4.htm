@@ -1,0 +1,63 @@
+<HTML>
+<head><title>11.4 线程阻塞问题</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>11.4 线程阻塞问题</p><hr color=#2266ee size=1>
+<p class='sz3'>11.4.1 问题描述</p>
+　　Firefox、Chrome 浏览器有一个很独特的问题：js 主线程不允许被插件长时间阻塞。<br>
+　　例如，你在 js 中执行树列表的转换输出函数：<br>
+<pre class='cpp'>var filename=AF.func("OpenExportDialog", "");</pre>
+　　或者执行硕正报表同样功能的函数：<br>
+<pre class='cpp'>var filename=AF.func("callfunc", "103 \r\n type=xlsx");</pre>
+　　这些函数将弹出一个转换输出选项的模式对话框，在几秒钟后，Firefox极有可能出现如下警告界面, 继而卡死、崩溃：<br>
+<center><img src='image/act3.png'/></center>
+<br>
+　　Chrome 浏览器则可能会在右上角出现如下提示, 但不会崩溃：<br>
+<center><img src='image/act4.bmp'/></center>
+<br>
+　　我们知道，模式对话框打开后，线程是阻塞的，一直到对话框关闭才释放, 而 Firefox 对主线程的控制权极为敏感，不允许插件长时间阻塞主线程，这就是问题的主因。<br>
+　　如果不是 js 调用，而是用鼠标点击插件自己的菜单或工具条、执行相应功能，它是不会弹出这个警告的。<br>
+<br>
+<p class='sz3'>11.4.2 解决方案</p>
+　　为了解决这个问题，硕正插件从1.0.94.0版开始，增加了一个名为 <b>DeclareAsynch</b> 的新函数，采用多线程方式，将打开对话框的过程安置到新的线程中运行，从而绕开的这个问题。<br>
+　　函数 DeclareAsynch 使用也很简单，只要在函数上方执行一遍即可，例如您可以这样写：<br>
+<pre class='cpp'>AF.func("DeclareAsynch", "");
+AF.func("OpenExportDialog", "");</pre>
+<pre class='cpp'>AF.func("DeclareAsynch", "");
+AF.func("callfunc", "103 \r\n type=xlsx");</pre>
+　　紧挨在 DeclareAsynch 下方的插件函数将被安排在新的线程中运行，并且不等对话框关闭，函数将立即返回，不阻塞主线程。<br>
+　　DeclareAsynch 函数的详细文档在全局函数中，请自行参考。<br>
+<br>
+<p class='sz3'>11.4.3 返回值</p>
+　　用此方案，也导致了一个新的问题：如何获取函数的返回值?<br>
+<pre class='cpp'>var filename=AF.func("OpenExportDialog", "");  //返回 filename, 文件名</pre>
+　　如果先执行 DeclareAsynch，你会发现返回的 filename 永远是空串!<br>
+<br>
+　　因为必须要等对话框关闭才能获取确切的文件名，所以，我们只能通过消息事件来传递这个返回值： 在模式对话框关闭后、新线程终止前，插件将触发名为 UserEvent 的事件，该事件的 P4 参数就是返回值 - 文件名。该事件的P1, p2, p3参数由 DeclareAsynch 函数指定，举例如下：<br>
+<pre class='cpp'>function onMyMenu()
+{
+ AF.func("DeclareAsynch", "p1=myFunc");
+ AF.func("callfunc", "103 \r\n type=xlsx");
+}
+
+//硕正事件入口
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "UserEvent" && p1 =="myFunc") {
+   //这就是线程终止时触发的
+   //p4就是 callfunc 的返回值
+   alert(p4);
+ }
+}</pre>
+　　分析上面的 js 可知，这本质上就是常规的异步解决方案，异步往往是和多线程、消息事件关联的.<br>
+<br>
+<p class='sz3'>11.4.4 补充说明</p>
+1.DeclareAsynch 函数本身和 Firefox、Chrome 无关，在其它浏览器下也一样能使用，所以按上述方案处理，也是能兼容其它浏览器的;<br>
+2.建议 DeclareAsynch 只用于会弹出对话框的场合，因为新线程没有独立的消息循环, 用在其它地方可能会出现无法预料的错误;<br>
+3.在函数的下方，不建议书写其它针对插件的函数，因为多线程运行，会有意想不到的后果的.<br>
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var time = new JavaDate();\
+app.set('time', time);\
+try {\
+  if (app.get('plac') === 'CY')\
+    app.run(\"update receipt set CY_STAY_TIME=systimestamp where id in (select rcp_id from truck_app where id={?id?})\");\
+  else\
+    app.run(\"update receipt set FCT_STAY_TIME=systimestamp,out_car='',out_car_hp='',out_driver_id='',out_driver_name='' where id in (select rcp_id from truck_app where id={?id?})\");\
+} catch (e) {\
+  var result = /ORA-\\d+:\\s(.*)\\
+/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  result = /ScriptException:\\s(.*)\\sin/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  app.send({\
+    success: false,\
+    errstr: e\
+  });\
+  throw e;\
+}\
+app.send({\
+  time: time\
+});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "甩卡确认",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

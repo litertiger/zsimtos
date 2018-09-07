@@ -1,0 +1,74 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var vId=app.get(\"vId\"), ieId=app.get(\"ieId\") ,tenancy_id=app.get(\"sys.TENANCY_ID\"),ieId=app.get(\"ieId\"),\
+    nature=app.get(\"sys.NATURE\"),  govCode=app.get(\"sys.GOV_CODE\");\
+var voyageNo,cShipName,eShipName,head=\"<HEAD>\",order=\"<ORDER>\", i=0,j=0,eta,crew=\"\";\
+var  Load=com.ag.edi.EdiDownLoad;\
+\
+var rs=app.run(\"select decode('\"+ieId+\"','I',IC_CALL,OC_CALL) voyageNo, sysdate NOW,nvl(ATA,ETA) ETA,nvl(ATD,ETD) ETD, \"+\
+               \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\"+vId+\"'\");\
+if(rs.next()){\
+  voyageNo=rs.getString(\"VOYAGENO\");\
+  cShipName=rs.getString(\"VESSEL_NAME\");\
+  eShipName=rs.getString(\"E_NAME\");\
+  eta=rs.getString(\"ETA\");\
+  \
+  head+=\"||\"+voyageNo+\"||\"+cShipName+\"||\"+eShipName+\"||||||||||\"+rs.getString(\"NOW\")+\"||\"+eta+\"||11\"+\"||5721||||||||||5721||\"+\"||||||01||1||||||<HEAD>\";\
+}\
+var rs2=app.run(\"select   cursor(select CNTR,CNTR_ISO ,SEAL_NO ,E_F_ID from  VLOAD_LIST D where  M.ID=D.BILL_ID ) CUR ,\"+\
+                \" BILL_NO,SHIPPER ,CONSIGNEE ,POL,POD,  SPOD,GOODS_NOTES ,PIECES , \"+\
+\" PKG ,VOLUME,MARKS ,WEIGHT,NOTIFIER,BILL_TYPE ,LOADING_TIME,PAYER\"+\
+\
+\" from  VBILL_HEAD M  where  M.VID='\"+vId+\"'\");\
+while(rs2.next()){\
+    j=1;\
+  order+=\"||\"+voyageNo+\"||\"+cShipName+\"||\"+i+\"||\"+rs2.getString(\"BILL_NO\")+\"||\"+rs2.getString(\"SHIPPER\")+\"||\"+\
+    rs2.getString(\"CONSIGNEE\")+\"||\"+rs2.getString(\"SPOD\")+\"||\"+rs2.getString(\"POL\")+\"||\"+rs2.getString(\"POL\")+\"||\"\
+    +eta+\"||\"+rs2.getString(\"POL\")+\"||\"+rs2.getString(\"POL\")+\"||\"+rs2.getString(\"POL\")+\"||\";\
+ \
+   var rm=rs2.getObject(1);\
+  while(rm.next()){\
+   order+=\"<CONTA>\"+voyageNo+\"||\"+voyageNo+\"||\"+rs2.getString(\"BILL_NO\")+\"||\"+j+\"||\"+rm.getString(\"CNTR\")+\
+     rm.getString(\"CNTR_ISO\")+\"||\"+rm.getString(\"SEAL_NO\")+\"||\"+rm.getString(\"E_F_ID\")+\"||||\"+\"<CONTA>\";\
+    j++;\
+  }\
+  i++;\
+  order+=\"<ORDER>\";\
+}\
+\
+\
+var r3=app.run(\"select NAME,M.DUTY,SEX,BIRTHDAY,TELPHONE from  VOYAGE_CREW M,C_CREW D where  M.CID=D.ID and M.VID='\"+vId+\"'\");\
+\
+while(rs.next()){\
+crew+=\"<CREW>\"+\"||\"+voyageNo+\"||\"+voyageNo+\"||\"+r3.getString(\"NAME\")+\"||||\"+r3.getString(\"SEX\")+\"||||\"+\
+     r3.getString(\"BIRTHDAY\")+\"||\"+r3.getString(\"DUTY\")+\"||\"+r3.getString(\"TELPHONE\")+\"<CREW>\";\
+  \
+}\
+\
+\
+request.setAttribute(\"fileName\",\"loadShip\");\
+request.setAttribute(\"message\",head+order+crew);\
+Load.download(request,response);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "下载出口预配",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

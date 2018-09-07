@@ -1,0 +1,80 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ if(id == 'AF1') {
+  AF1.func("ReadXML","treelist/tree_field.xml");
+  AF1.func("ExpandAll","");
+ }
+ else if(id == 'AF2') {
+  AF2.func("callfunc", "102 \r\n id=Table1;asForm=true");
+ }
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id == 'AF1' && Event == 'BeginDrag') {
+  var EditType = AF1.func("GetXMLProp", p1 + "\r\n EditType");
+  AF2.func("BeginDrag", EditType + "\r\n" + p3 + "\r\n" + p2);
+ }
+ else if(id=='AF2' && Event == "Toolbar" ) {
+   if(p1>=3000) AF2.func("MessageBoxFloat", "自定义工具条触发了js事件！\\r\\n\\r\\n功能号：" + p1);
+ }
+}
+</script>
+</head>
+
+<body>
+<center>
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.左边使用了“小型页面控件”中的树，树中的字段，能被拖拽到设计器中，请尝试一下;<br>
+<b>2</b>.树中的内容是预先加载好的，这样就实现了可自定义的表单设计器功能;</td>
+</tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<table cols=2 width="100%" cellpadding=3 border=1>
+<colgroup>
+ <col width="200"/>
+ <col/>
+</colgroup>
+<tr height="500px">
+	<td height="500px"><script>insertTree('AF1', 'dragAble=leaf');</script></td>
+	<td height="500px"><script>insertFormDesigner('AF2', 'UserBar=5001,5002; tip.5001=自定义功能1;tip.5002=自定义功能2; image.5001=report/icon1.bmp; image.5002=report/icon2.bmp; imageTransparentColor=#C0C0C0');</script></td>
+</tr>
+</table>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.请查看树加载的<a href="treelist/tree_field.xml" target=_blank>XML</a>；<br>
+<b>2</b>.实现拖拽的关键js如下：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id == 'AF1' && Event == 'BeginDrag') {
+  var EditType = AF1.func("GetXMLProp", p1 + "\r\n EditType");
+  AF2.func("BeginDrag", EditType + "\r\n" + p3 + "\r\n" + p2);
+ }
+ else if(id=='AF2' && Event == "Toolbar" ) {
+  if(p1>=3000) AF2.func("MessageBoxFloat", "自定义工具条触发了js事件！\\r\\n\\r\\n功能号：" + p1);
+ }
+}</pre>
+</td>
+<td/></tr>
+</table>
+</td></tr></table>
+
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,264 @@
+﻿using System;
+using System.Web;
+using System.Web.Services;
+using System.Web.Services.Protocols;
+
+
+[WebService(Namespace = "http://tempuri.org/")]
+[WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
+public class Service : System.Web.Services.WebService
+{
+	static private Department [] arrDept;
+	static private Employee [] arrEmployee;
+	static private Combine combine;
+
+    public Service () {
+
+        //如果使用设计的组件，请取消注释以下行 
+        //InitializeComponent(); 
+
+        if(arrDept==null) 
+		{
+			arrDept=new Department[5];
+			for(int i=0; i<5; i++)
+				arrDept[i]=new Department();
+			arrDept[0].Name="总经理室";
+			arrDept[1].Name="技术部";
+			arrDept[2].Name="财务部";
+			arrDept[3].Name="办公室";
+			arrDept[4].Name="后勤部";
+
+			arrDept[0].Checked=true;
+			arrDept[1].Checked=true;
+			arrDept[2].Checked=true;
+
+			arrDept[0].Manager="张三";
+			arrDept[1].Manager="李先生";
+			arrDept[2].Manager="李约翰";
+			arrDept[3].Manager="王五";
+			arrDept[4].Manager=null;
+
+			arrDept[0].Tel="33819203";
+			arrDept[1].Tel="32803647";
+			arrDept[2].Tel="24000034";
+			arrDept[3].Tel="13959999929";
+			arrDept[4].Tel="";
+
+			arrDept[0].Price=7938.23;
+			arrDept[1].Price=3989.40;
+			arrDept[2].Price=2789.12;
+			arrDept[3].Price=2123;
+			arrDept[4].Price=2330.19;
+		}
+		if(arrEmployee==null) 
+		{
+			arrEmployee=new Employee[5];
+			for(int i=0; i<5; i++)
+				arrEmployee[i]=new Employee();
+			arrEmployee[0].Name="张三";
+			arrEmployee[1].Name="李四";
+			arrEmployee[2].Name="王五";
+			arrEmployee[3].Name="赵六";
+			arrEmployee[4].Name="陈七";
+
+			arrEmployee[0].Manager="张三";
+			arrEmployee[1].Manager="张三";
+			arrEmployee[2].Manager="张三";
+			arrEmployee[3].Manager="张三";
+			arrEmployee[4].Manager="张三";
+		}
+		if(combine==null) 
+		{
+			int i;
+			combine = new Combine();
+			combine.arrDept=new Department[4];
+			combine.arrEmployee=new Employee[2];
+			for(i=0; i<4; i++) 
+			{
+				combine.arrDept[0]=new Department(arrDept[0]);
+				combine.arrDept[1]=new Department(arrDept[1]);
+				combine.arrDept[2]=new Department(arrDept[2]);
+				combine.arrDept[3]=new Department(arrDept[3]);
+			}
+			for(i=0; i<2; i++) 
+			{
+				combine.arrEmployee[0]=new Employee(arrEmployee[0]);
+				combine.arrEmployee[1]=new Employee(arrEmployee[3]);
+			}
+		}
+	}
+
+
+	/*-------------------------------------------------
+	 WEB 服务
+	-------------------------------------------------*/
+	[WebMethod]
+	public string HelloWorld(string name)
+	{
+		return "Hello World," +name+ "!";
+	}
+
+	[WebMethod]
+	public System.DateTime TestDate(System.DateTime date)
+	{
+		return date;
+	}
+
+	[WebMethod]
+	public Department GetDepartment(int i)
+	{
+		if(i<0 || i>=arrDept.Length) return null;
+		return arrDept[i];
+	}
+
+	[WebMethod]
+	public Department [] GetAllDepartments()
+	{
+		return arrDept;
+	}
+
+	[WebMethod]
+	public void SetDepartment(int i, Department dept)
+	{
+		if(i<0 || i>=arrDept.Length) return;
+		arrDept[i]=new Department(dept);
+	}
+
+	[WebMethod]
+	public void SetAllDepartments(Department [] dept)
+	{
+		if(dept==null) return;
+		for(int i=0; i<dept.Length; i++)
+		{
+			if(i>=arrDept.Length) break;
+			arrDept[i]=new Department(dept[i]);
+		}
+	}
+
+	[WebMethod]
+	public Combine GetCombine()
+	{
+		return combine;
+	}
+}
+
+
+	//参数类
+	public class Department
+	{
+		//Constructor1: 必须要有
+		public Department() 
+		{
+			this.name="";
+			this.manager="";
+			this.tel="";
+			this.price=0;
+			this.bChecked=false;
+			this.date=System.DateTime.Now;
+		}
+		//Constructor2: clone，用于传入参数
+		public Department(Department dept)
+		{
+			if(dept!=null)
+			{
+				this.name=dept.Name;
+				this.manager=dept.Manager;
+				this.tel=dept.Tel;
+				this.price=dept.Price;
+				this.bChecked=dept.Checked;
+				this.date=dept.Date;
+			}
+		}
+
+		//member variables
+		private String name;
+		private String manager;
+		private String tel;
+		private Double price;
+		private bool bChecked;
+		private System.DateTime date;
+
+                
+		//Attributes
+		public String Name
+		{
+			get { return this.name; }
+			set { this.name=value; }
+		}
+
+		public String Manager
+		{
+			get { return this.manager; }
+			set { this.manager=value; }
+		}
+
+		public String Tel
+		{
+			get { return this.tel; }
+			set { this.tel=value; }
+		}
+
+		public bool Checked
+		{
+			get { return this.bChecked; }
+			set { this.bChecked=value; }
+		}
+
+		public Double Price
+		{
+			get { return this.price; }
+			set { this.price=value; }
+		}
+
+		public System.DateTime Date
+		{
+			get { return this.date; }
+			set { this.date=value; }
+		}
+	}
+
+
+//参数类
+public class Employee
+{
+	//Constructor1: 必须要有
+	public Employee() 
+	{
+		this.name="";
+		this.manager="";
+	}
+	//Constructor2: clone，用于传入参数
+	public Employee(Employee employee)
+	{
+		if(employee!=null)
+		{
+			this.name=employee.Name;
+			this.manager=employee.Manager;
+		}
+	}
+
+	//member variables
+	private String name;
+	private String manager;
+
+               
+	//Attributes
+	public String Name
+	{
+		get { return this.name; }
+		set { this.name=value; }
+	}
+	public String Manager
+	{
+		get { return this.manager; }
+		set { this.manager=value; }
+	}
+}
+
+//二维
+public class Combine
+{
+	public Department[] arrDept;
+	public Employee [] arrEmployee;
+}
+

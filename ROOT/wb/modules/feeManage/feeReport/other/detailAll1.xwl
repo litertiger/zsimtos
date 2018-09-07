@@ -1,0 +1,703 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  C_CUSTOM: StringUtil.text(com.wb.common.KVBuffer.getList('C_CUSTOM', request)),\
+  AG_SHORT: StringUtil.text(com.wb.common.KVBuffer.getList('AG_SHORT', request))\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "itemId": "panel1",
+     "region": "center"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "layout": "hbox",
+         "itemId": "radioMD",
+         "padding": "0 0 0 10",
+         "width": "100"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "radioM",
+           "boxLabel": "按月",
+           "flex": "1",
+           "name": "radioMD",
+           "checked": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  app.cboY.setVisible(true);\
+  app.cboM.setVisible(true);\
+  var today = new Date(); //获取当前日期\
+  app.cboY.setValue(today.getFullYear());\
+  app.date1.setVisible(false);\
+  app.date1.setValue(new Date());\
+  app.sdate.setValue(\"\");\
+  app.edate.setValue(\"\");\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "radioD",
+           "boxLabel": "按天",
+           "flex": "1",
+           "name": "radioMD"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  var today = new Date(); //获取当前日期\
+  var days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); //获取当前月份天数\
+  app.date1.setVisible(true);\
+  app.date1.setValue(today);\
+  app.sdate.setValue(app.date1.getRawValue());\
+  app.edate.setValue(app.date1.getRawValue());\
+  app.cboY.setVisible(false);\
+  app.cboM.setVisible(false);\
+  app.cboM.setValue(\"\");\
+}"}
+         }
+        ],
+        "type": "container"
+       },
+       {
+        "configs": {
+         "itemId": "cboY",
+         "allowBlank": "false",
+         "emptyText": "年",
+         "width": "60",
+         "displayField": "YEAR",
+         "valueField": "ID",
+         "forceSelection": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "if (app.radioM.checked) {\
+  var year = app.cboY.getValue();\
+  var month = app.cboM.getValue();\
+  var sdate = new Date(year + \"-\" + month + \"-01\");\
+  app.sdate.setValue(sdate);\
+  var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+  var edate = new Date(year + \"-\" + month + \"-\" + days);\
+  app.edate.setValue(edate);\
+}\
+if (app.radioD.checked) {\
+  var date = new Date();\
+  var year = app.cboY.getValue();\
+  var month = date.getMonth() + 1;\
+  var sdate = new Date(year + \"-\" + month + \"-\" + app.cboD.getValue());\
+  app.sdate.setValue(sdate);\
+  var edate = new Date(year + \"-\" + month + \"-\" + app.cboD.getValue());\
+  app.edate.setValue(edate);\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "cboM",
+         "allowBlank": "false",
+         "pickList": "[\
+  [1, \"1月\"],\
+  [2, \"2月\"],\
+  [3, \"3月\"],\
+  [4, \"4月\"],\
+  [5, \"5月\"],\
+  [6, \"6月\"],\
+  [7, \"7月\"],\
+  [8, \"8月\"],\
+  [9, \"9月\"],\
+  [10, \"10月\"],\
+  [11, \"11月\"],\
+  [12, \"12月\"]\
+]",
+         "emptyText": "月",
+         "width": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = combo.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "date1",
+         "allowBlank": "false",
+         "width": "90"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date",
+        "events": {"select": "app.sdate.setValue(value);\
+app.edate.setValue(value);"}
+       },
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "tagConfigs": " matchFieldWidth:false",
+         "emptyText": "客户",
+         "pageSize": "50",
+         "selectOnTab": "true",
+         "listConfig": "{width:450}",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "CUSTOM",
+         "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+         "labelAlign": "right",
+         "width": "160",
+         "displayField": "CNAME",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "params": "{fldId:'CE'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": " matchFieldWidth:false",
+         "emptyText": "船公司",
+         "pageSize": "50",
+         "selectOnTab": "true",
+         "listConfig": "{width:450}",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "CNTR_OPER",
+         "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+         "labelAlign": "right",
+         "width": "160",
+         "displayField": "CNAME",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "pageSize": "-1",
+          "params": "{fldId:'AG'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "itemId": "VID",
+         "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      船名\
+    <\/td>\
+    <td>\
+      进出口\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {CNAME}\
+      <\/td>\
+      <td>\
+        {I_E}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+         "labelAlign": "right",
+         "emptyText": "船名",
+         "width": "120",
+         "displayField": "CNAME",
+         "listConfig": "{\
+  width: 300\
+}",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "forceSelection": "true",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=feeManage/detail/getVoyageByDate"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "operation.params = {\
+  rd: app.radioD.getValue(),\
+  date: app.date1.getRawValue()\
+};"}
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboI_E",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"I\", \"进口\"],\
+  [\"E\", \"出口\"]\
+]",
+         "emptyText": "进出口",
+         "width": "60",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboTRADE",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+         "emptyText": "内外贸",
+         "width": "60",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "tbar2",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "cboSettleStatus",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"0\", \"未结算\"],\
+  [\"1\", \"已结算\"],\
+  [\"2\", \"已开票\"],\
+  [\"3\", \"部分开票\"]\
+]",
+         "emptyText": "结算状态",
+         "width": "75",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboPayType",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"1\", \"现金\"],\
+  [\"2\", \"月结\"]\
+]",
+         "emptyText": "付款类型",
+         "width": "75",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "backBtn",
+         "text": "返回",
+         "iconCls": "first_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "// if (!Wb.verify(app.tbarGrid))\
+//   return;\
+var AF1 = document.getElementById(opt);\
+var sheetIndex = AF1.func(\"GetCurrentWorksheet\", \"\");\
+if (sheetIndex > 0) {\
+  AF1.func(\"SetCurrentWorkSheet\", (sheetIndex - 1) + \"\");\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "// if (!Wb.verify(app.tbarGrid))\
+//   return;\
+var AF1 = document.getElementById(opt);\
+AF1.func(\"SetCurrentWorkSheet\", \"0\");\
+var whereSql = \"\";\
+if (Wb.isEmpty(app.VID.getValue())) {\
+  whereSql += encodeURI(\" and ACCOUNTS_DETAILS.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+    \" and ACCOUNTS_DETAILS.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
+}\
+if (!Wb.isEmpty(app.CUSTOM.getValue())) {\
+  whereSql += \" and PAYMENT_CUSTOMER_CODE = '\" + app.CUSTOM.getValue() + \"'  \";\
+}\
+if (!Wb.isEmpty(app.VID.getValue())) {\
+  whereSql += \" and vid='\" + app.VID.getValue() + \"'\";\
+}\
+if (!Wb.isEmpty(app.cboI_E.getValue()))\
+  whereSql += \" and i_e_id='\" + app.cboI_E.getValue() + \"'\";\
+if (!Wb.isEmpty(app.cboTRADE.getValue()))\
+  whereSql += \" and trade_id='\" + app.cboTRADE.getValue() + \"'\";\
+if (!Wb.isEmpty(app.cboSettleStatus.getValue()))\
+  whereSql += \" and SETTLE_STATUS=\" + app.cboSettleStatus.getValue() + \"\";\
+if (!Wb.isEmpty(app.cboPayType.getValue()))\
+  whereSql += \" and PAYMENT_TYPE=\" + app.cboPayType.getValue() + \"\";\
+\
+mainConditionSql = whereSql;\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + mainConditionSql + \";ee333e=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+\
+// alert(Wb.format(app.date1.getValue(),'Y'+\"年\"+'m'+\"月\"+'d'+\"天\"));\
+if (app.radioD.getValue() == 1) {\
+  AF1.func(\"SetCellData\", \"B2  \\r\\
+ \" + Wb.format(app.date1.getValue(), 'Y' + \"年\" + 'm' + \"月\" + 'd' + \"日\") + \" 货柜及拼柜收费通知单\");\
+}\
+if (app.radioM.getValue() == 1) {\
+  AF1.func(\"SetCellData\", \"B2  \\r\\
+ 2017 年 \" + app.cboM.getValue() + \" 月份货柜及拼柜收费通知单\");\
+}\
+// AF1.func(\"SetCellData\", \"B2  \\r\\
+ 2017 年 \"+app.cboM.getValue()+\" 月份货柜及拼柜收费通知单\");\
+AF1.func(\"SetCellData\", \"<data B3='托运单位:\" + app.CUSTOM.getRawValue() + \"'   D6='\" + '{#sys.dispname#}' + \"'  D7='\" + Wb.dateToText(new Date(), 'yyyy-mm-dd') + \"'/> \");\
+AF1.func(\"Calc\", \"range=current\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "border": "false",
+       "itemId": "panelReport",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"BCV1.TreeList\", opt, \"\", \"100%\");\
+app.panelReport.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", \"\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+//===============================\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+var d = new Date();\
+app.cboM.setValue(d.getMonth() + 1);\
+//定义一个Store,绑定数据\
+var yearStore = Ext.create('Ext.data.Store', {\
+  fields: ['ID', 'YEAR'],\
+  data: years\
+});\
+//combo通过代码绑定Stroe\
+app.cboY.bindStore(yearStore);\
+var today = new Date(); //获取当前日期\
+app.cboY.setValue(today.getFullYear());\
+// var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+// app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+// app.edate.setValue(today);\
+if (app.radioM.checked) {\
+  app.cboM.setVisible(true);\
+  app.date1.setVisible(false);\
+}\
+\
+var year = app.cboY.getValue();\
+var month = app.cboM.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);",
+   "initialize": "var opt = Wb.getId();\
+var types = \"\";\
+\
+Wb.apply(app, {\
+  loadBack: function(params) {\
+    var wheres = params.split(\"@\");\
+    console.log(wheres);\
+\
+    //客户\
+    Wb.loadComboAdd(app.CUSTOM, [{\
+      \"ID\": wheres[3],\
+      \"CNAME\": wheres[4]\
+    }], function() {\
+      app.CUSTOM.setValue(wheres[3]);\
+    });\
+    app.VID.setValue(wheres[5]);\
+    app.cboI_E.setValue(wheres[6]);\
+    app.cboTRADE.setValue(wheres[7]);\
+    app.cboSettleStatus.setValue(wheres[8]);\
+    app.cboPayType.setValue(wheres[9]);\
+    if (wheres[10] == \"true\") {\
+      app.radioM.setValue(true);\
+      app.cboY.setValue(wheres[11]);\
+      app.cboM.setValue(Number(wheres[12]));\
+    } else {\
+      app.radioD.setValue(true);\
+      app.date1.setValue(wheres[13]);\
+    }\
+    app.sdate.setValue(wheres[1]);\
+    app.edate.setValue(wheres[2]);\
+    //===================================================================\
+    //SH舱单，RE设备交接单，HI整柜堆存，ST仓储,RF插拔电，BC散货拖运\
+    if (wheres[14] == \"SH\") {\
+      //组织舱单数据\
+\t  types = \"SH_DATA\";\
+    } else if (wheres[14] == \"RE\") {\
+      //RE设备交接单\
+      types = \"RE_DATA\";\
+    } else if (wheres[14] == \"HI\") {\
+      //HI整柜堆存\
+      types = \"HI_DATA\";\
+    } else if (wheres[14] == \"ST\") {\
+      //ST仓储\
+      types = \"ST_DATA\";\
+    } else if (wheres[14] == \"RF\") {\
+      //RF插拔电\
+      types = \"RF_DATA\";\
+    } else if (wheres[14] == \"BC\") {\
+      //RF插拔电\
+      types = \"BC_DATA\";\
+    } \
+    if(types!=\"\"){\
+    \tapp.shuozheng(types);\
+    }\
+    //======================\
+  },\
+  shuozheng: function(cod) {\
+    Wb.request({\
+      url: \"m?xwl=feeManage/feeReport/other/detailAlledit/loadSql\",\
+      params: {\
+        cod: cod\
+      },\
+      success: function(resp) {\
+        var sqlcod = Wb.decode(resp.responseText);\
+        console.log(\"sqlcod\");\
+        console.log(sqlcod);\
+        if (sqlcod.length > 0) {\
+          var col = sqlcod[0].E_COLUMN.split(\",\");\
+          var colcn = sqlcod[0].C_COLUMN.split(\",\");\
+          if (col.length != colcn.length)\
+            colcn = col;\
+          var xml1 = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\"?>\" +\
+            \"<TreeList>\" +\
+            \"<Properties curselmode='rows' isShowRuler='true' rowHeight='35' editable='true' isFixTotalRow='true' subtotalBgColor='#d3d3d3'>\" +\
+            \"<\/Properties>\" +\
+            \"<Fonts>\" +\
+            \"<Font/>\" +\
+            \"<Font faceName='Verdana' weight='700'/>\" +\
+            \"<\/Fonts>\" +\
+            \"<Cols>\";\
+          for (var i = 0; i < col.length; i++) {\
+            xml1 += \"<Col name='\" + col[i] + \"' editAble='false' width='50' align='center'>\" + colcn[i] + \"<\/Col>\";\
+          }\
+          xml1 += \"<\/Cols>\" +\
+            \"<DropLists>\" +\
+            \"<Droplist id='agList' treelist='/m?xwl=system/common/report/selectCod&tableName=AG_SHORT' DataCol='K' DisplayCol='V'/>\" +\
+            \"<\/DropLists>\" +\
+            \"<\/TreeList>\";\
+          var sql = sqlcod[0].SQL;\
+          //====sql语句家条件====在这里查看sql语句的条件字段名\
+//           sql += \" and JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//             \" and JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+          sql += \" and vv.created_on>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+            \" and vv.created_on<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+          if (!Wb.isEmpty(app.CUSTOM.getValue()))\
+            sql += \" and customer_id='\" + app.CUSTOM.getValue() + \"'\";\
+          if (!Wb.isEmpty(app.CNTR_OPER.getValue()))\
+            sql += \" and CNTR_OPER='\" + app.CNTR_OPER.getValue() + \"'\";\
+          if (!Wb.isEmpty(app.VID.getValue()))\
+            sql += \" and VID='\" + app.VID.getValue() + \"'\";\
+          if (!Wb.isEmpty(app.cboI_E.getValue()))\
+            sql += \" and vh.I_E_ID='\" + app.cboI_E.getValue() + \"'\";\
+          if (!Wb.isEmpty(app.cboTRADE.getValue()))\
+            sql += \" and vh.TRADE_ID='\" + app.cboTRADE.getValue() + \"'\";\
+          if (!Wb.isEmpty(app.cboSettleStatus.getValue()))\
+            sql += \" and SETTLE_STATUS='\" + app.cboSettleStatus.getValue() + \"'\";\
+          if (!Wb.isEmpty(app.cboPayType.getValue()))\
+            sql += \" and PAYMENT_TYPE='\" + app.cboPayType.getValue() + \"'\";\
+          console.log(xml1);\
+          console.log(sql);\
+          var AF1 = document.getElementById(opt);\
+          AF1.func(\"Build\", xml1);\
+          AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=feeManage/feeReport/other/detailAlledit/sql\", {\
+            sql: sql\
+          }));\
+        }\
+      }\
+    });\
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "JCB": 1,
+  "xlswbqt": 1
+ },
+ "title": "费用明细(研发中不要用)",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

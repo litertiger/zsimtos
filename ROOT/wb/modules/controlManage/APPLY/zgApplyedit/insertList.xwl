@@ -1,0 +1,33 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyId=app.get('sys.TENANCY_ID');\
+if (data.APPLY_TYPE == \"ZGJ\") {\
+  //插入在场箱和明细表信息\
+  var id=SysUtil.getId();\
+  app.run(\"insert into PORT_CNTR(ID, TENANCY_ID, CNTR, PHASE, CATEGORY_ID, TRADE_ID, I_E_ID, E_F_ID, CNTR_ISO, CNTR_OPERATOR,CNTR_OPERATOR_COD,CREATED_ON,CREATED_BY, CNTR_SIZE, CNTR_TYPE)\"+\
+          \"values('\"+id+\"','\"+tenancyId+\"',{?CNTR1?},'ADV','I',{?TRADE_ID1?},{?I_E_ID1?},{?E_F_ID1?}, {?CNTR_ISO1?}, {?CNTR_OPERATOR1?},{?CNTR_OPERATOR_COD1?},sysdate,{?sys.username?}, {?CNTR_SIZE1?}, {?CNTR_TYPE1?})\");\
+  app.run(\"insert into cntr_apply_list(ID,AID,CNTR_ID) values(sys_guid(),{?ID?},'\"+id+\"')\");\
+} else {\
+  //只插明细表信息\
+  app.run(\"insert into cntr_apply_list(ID,AID,CNTR_ID) values(sys_guid(),{?ID?},{?CNTR_ID?})\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlzk": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

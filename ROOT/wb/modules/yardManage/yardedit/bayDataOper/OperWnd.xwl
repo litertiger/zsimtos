@@ -1,0 +1,163 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select * from c_cy_bay where cy_area_no={?area?} and cy_bay_no={?bay?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+  jndi: 'jdbc/basecode'\
+});\
+var obj;\
+if (result && result.next())\
+  obj = Wb.getRecord(result);\
+else\
+{\
+  obj = {\
+    CY_AREA_NO: app.get('area'),\
+    CY_BAY_NO: app.get('bay'),\
+    ACCEPT_20: 1,\
+    ACCEPT_40: 1,\
+    ACCEPT_45: 0,\
+    ACCEPT_48: 0\
+  };\
+  app.set('isNew',1);\
+}\
+app.set('data',Wb.encode(obj));"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "window1",
+    "editWin": "true",
+    "closeAction": "destroy",
+    "title": "贝属性"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "CY_AREA_NO",
+      "fieldLabel": "场号",
+      "readOnly": "true"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "text"
+    },
+    {
+     "configs": {
+      "itemId": "CY_BAY_NO",
+      "fieldLabel": "贝号",
+      "readOnly": "true"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "text"
+    },
+    {
+     "configs": {
+      "itemId": "ACCEPT_20",
+      "boxLabel": "是否可以存放20尺"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "check",
+     "events": {"change": "app.ProcOppBay();"}
+    },
+    {
+     "configs": {
+      "itemId": "ACCEPT_40",
+      "boxLabel": "是否可以存放40尺"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "check",
+     "events": {"change": "app.ProcOppBay();"}
+    },
+    {
+     "configs": {
+      "itemId": "ACCEPT_45",
+      "boxLabel": "是否可以存放45尺"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "check",
+     "events": {"change": "app.ProcOppBay();"}
+    },
+    {
+     "configs": {
+      "itemId": "ACCEPT_48",
+      "boxLabel": "是否可以存放48尺"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "check",
+     "events": {"change": "app.ProcOppBay();"}
+    },
+    {
+     "configs": {
+      "itemId": "OPP_BAY_NO",
+      "vtype": "alphanum",
+      "fieldLabel": "搭对贝号"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "text"
+    }
+   ],
+   "type": "window",
+   "events": {"ok": "var params = Wb.getValue(win);\
+if (params.OPP_BAY_NO) {\
+  if (isNaN(params.OPP_BAY_NO) || params.OPP_BAY_NO.length != 2)\
+    return Wb.error('录入的搭对贝号只能是两位数字');\
+  if (params.OPP_BAY_NO % 2 != 1)\
+    return Wb.error('录入的搭对贝号' + params.OPP_BAY_NO + '只能是奇数贝');\
+  if (Math.abs(params.CY_BAY_NO - params.OPP_BAY_NO) != 2)\
+    return Wb.error('当前贝' + params.CY_BAY_NO + '和录入搭对贝号' + params.OPP_BAY_NO + '不相临');\
+}\
+Wb.each(win.query(\"checkbox\"), function(c) {\
+  var id = c.itemId;\
+  params[id] = params[id] ? 1 : 0;\
+});\
+Wb.request({\
+  url: 'm?xwl=yardManage/yardedit/bayDataOper/save',\
+  params: params,\
+  success: function(resp) {\
+    win.close();\
+  }\
+});"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "Wb.setValue(app.window1,Wb.decode('{#data#}'));\
+app.isNew = '{#isNew#}';",
+   "initialize": "app.ProcOppBay = function() {\
+  var oppEnable = false;\
+  Wb.each(app.window1.query(\"checkbox[checked=true]\"), function(c) {\
+    var size = c.itemId.substr(-2);\
+    if (size > 20) {\
+      oppEnable = true;\
+      return false;\
+    }\
+  });\
+  if (oppEnable) {\
+    app.OPP_BAY_NO.allowBlank = app.ACCEPT_20.checked;\
+    app.OPP_BAY_NO.setFieldLabel((app.OPP_BAY_NO.allowBlank ? '' : \"<font color='red'>*<\/font>\") + '搭对贝号');\
+    app.OPP_BAY_NO.show();\
+  } else {\
+    app.OPP_BAY_NO.setValue('');\
+    app.OPP_BAY_NO.hide();\
+  }\
+};"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSYARD": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "操作窗口",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

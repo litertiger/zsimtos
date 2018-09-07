@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select level,MENU_NAME,ID, TYPE, LEAD_NAME, PLAN_BEG, PLAN_END, FACT_BEG, FACT_END, STATE, NOTE,PARID from s_menu start with PARID='-1' connect by prior id=parid\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+var col = [];\
+meta = result.getMetaData();\
+count = meta.getColumnCount(); //列数\
+for (var i = 1; i <= count; ++i)\
+  col.push(meta.getColumnName(i));\
+\
+var nodeHis = [];\
+nodeHis[0] = []; //生成第1级别结点数组并缓存到his数组\
+\
+var curLevel = 1; //当前处理级别初始为1级\
+while (result.next()) {\
+  var d = {\
+    leaf: true\
+  }; //默认无子项\
+  for (var i = 1; i <= count; ++i)\
+    d[col[i - 1]] = result.getString(i);\
+\
+  if (d.LEVEL > curLevel) { //进入下一级\
+    nodeHis[curLevel] = []; //缓存第此级别结点数组并缓存到his数组\
+    var a = nodeHis[curLevel - 1]; //取出缓存的上一级结点数组\
+    var p = a[a.length - 1]; //上级结点数组里的最后一项即父结点\
+    p.children = nodeHis[curLevel]; //父结点的children为此级结点\
+    delete p.leaf; //删除父结点的叶子标志\
+    curLevel = d.LEVEL; //更新当前处理级别\
+  } else if (d.LEVEL < curLevel) {\
+    curLevel = d.LEVEL; //更新当前处理级别\
+  }\
+  delete d.LEVEL; //删除用来计算层级的辅助列\
+  nodeHis[curLevel - 1].push(d); //保存当前记录对应的结点到本级结点数据\
+}\
+app.send({\
+  metaData: {\
+    fields: col.slice(1)/*.map(function(c) {\
+      return {\
+        name: c,\
+        type: \"string\"\
+      };\
+    })*/\
+  },\
+  children: nodeHis[0]\
+\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "一次返回整棵树（使用connect by)",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,42 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+\
+var  username=app.get(\"sys.username\");\
+\
+\
+var  CNTR_OWNER_COD=app.get(\"CNTR_OWNER_COD\");\
+\
+if(Wb.isEmpty(CNTR_OWNER_COD))\
+Wb.error(\"箱主不能为空\");\
+app.run(\"update PORT_CNTR set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where ID in(\"+data.ids+\")\",{transaction:\"start\"});\
+app.run(\"update VLOAD_LIST set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID in(\"+data.ids+\")\");\
+app.run(\"update RECEIPT set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID in(\"+data.ids+\")\");\
+app.run(\"insert into PORT_CNTR_LOG(CNTR_ID, CNTR, MESSAGE, UPDATED_ON, UPDATED_BY) \\\
+        select ID, CNTR, '箱主变更'||CNTR_OWNER_COD||{?CNTR_OWNER_COD?}, sysdate, '\"+username+\"' from port_cntr where ID in(\"+data.ids+\") \"\
+      );\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,145 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\" standalone=\\\"no\\\"?><Message xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\"><Head>\";\
+var head = \"\",\
+  order = \"\";\
+var DomCrud = com.ag.task.Util.DomCrud;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.u'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  d = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uu'),\
+    pinTime = DateUtil.format(javaDate, 'yyyyMMdd');;;\
+\
+var tenancyId = app.get('sys.TENANCY_ID');\
+var username=app.get('sys.username'), ReadProperties=com.ag.util.ReadProperties;\
+if(tenancyId==='ZSG'){\
+\tname=\"中山港国际货运码头\";\
+    username=\"gj001\";\
+    tenancyId='HY';\
+    path=ReadProperties.GetValueByKey(\"ZSMQPUT\");\
+\
+}else if (tenancyId === 'XLG') {\
+  name = \"小榄港国际货运码头\";\
+  tenancyId='XLG';\
+  path=ReadProperties.GetValueByKey(\"XLMQPUT\");\
+\
+} else if (tenancyId === 'SWG') {\
+  name = \"神湾港国际货运码头\";\
+  tenancyId='SWG';\
+  path=ReadProperties.GetValueByKey(\"SWMQPUT\");\
+}\
+var flag = app.get('FLAG');\
+  \
+  var rst=app.run(\"select 'CAP0055'||'\" + pinTime + \"'||lpad(SEQ_WEIGHT_REC.nextVal,8,'0') form_id from dual\");\
+  while(rst.next()){\
+  \ticTaskId=rst.getString(\"FORM_ID\");\
+  }\
+//1为大宗散货\
+if (flag == '1') {\
+\
+  order += \"<IC_TASKID>\" + icTaskId + \"<\/IC_TASKID>\";\
+  order += \"<CARD_NO>\" + cardNo + \"<\/CARD_NO>\";\
+  order += \"<CARD_TYPE>B<\/CARD_TYPE>\";\
+  order += \"<BUS_TYPE>JS<\/BUS_TYPE>\";\
+  order += \"<CAR_NO>\" + carNo + \"<\/CAR_NO>\";\
+  order += \"<CONTA_ID1/>\";\
+  order += \"<CONTA_ID2/>\";\
+  order += \"<SEAL_NO1/>\";\
+  order += \"<SEAL_NO2/>\";\
+  order += \"<WEIGHT>\" + weight + \"<\/WEIGHT>\";\
+  order += \"<NUM>\" + pieces + \"<\/NUM>\";\
+  order += \"<WRITE_TIME>\" + dateText + \"<\/WRITE_TIME>\";\
+  order += \"<WRITE_USER>\" + username + \"<\/WRITE_USER>\";\
+  order += \"<REMARK/>\";\
+  order += \"<DOCK_CODE>\" + tenancyId + \"<\/DOCK_CODE>\";\
+\
+  var rs = app.run(\"select BILL_NO FROM BLUK_TRUCK WHERE ID='\" + id + \"'\");\
+  while (rs.next()) {\
+    order += \"<INFO_LIST><IC_TASKID>\" + icTaskId + \"<\/IC_TASKID>\";\
+    order += \"<BILL_NO>\" + rs.getString('BILL_NO') + \"<\/BILL_NO><\/INFO_LIST>\";\
+  }\
+\
+\
+  order += \"<\/INFO_HEAD>\";\
+  order += \"<\/Declaration>\";\
+  order += \"<\/Message>\";\
+  xml += order;\
+  DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0055_\" + dateName);\
+  app.run(\"update BLUK_TRUCK set phase='YSB' where ID='\" + id + \"'\");\
+  \
+  \
+} else {\
+\
+  head += '<MessageID>ZSENTERPRI_'+dateName+'<\/MessageID>';\
+  head += '<FunctionCode>2<\/FunctionCode>';\
+  head += '<MessageType>CAP0055<\/MessageType>';\
+  head += '<SenderID>' + tenancyId + '<\/SenderID>';\
+  head += '<ReceiverID/>';\
+  head += '<SendTime>' + dateName + '<\/SendTime>';\
+  head += '<Version>1.0<\/Version><\/Head>';\
+  xml += head;\
+  order += \"<Declaration>\";\
+\
+  order += \"<INFO_HEAD>\";\
+\
+  var id = app.get('ID');\
+\
+  var carNo = app.get('CAR_NO');\
+  var cardNo = app.get('CARD_NO');\
+  var username = app.get('sys.username');\
+\
+  var sealNo = app.get('SEALE_NO');\
+  var weight = app.get('WEIGHT');\
+  var pieces = app.get('PIECES');\
+\
+\
+  order += \"<IC_TASKID>\" + icTaskId + \"<\/IC_TASKID>\";\
+  order += \"<CARD_NO>HYB007<\/CARD_NO>\";\
+  order += \"<CARD_TYPE>B<\/CARD_TYPE>\";\
+  order += \"<BUS_TYPE>JS<\/BUS_TYPE>\";\
+  order += \"<CAR_NO>\" + cardNo + \"<\/CAR_NO>\";\
+  order += \"<CONTA_ID1/>\";\
+  order += \"<CONTA_ID2/>\";\
+  order += \"<SEAL_NO1>\" + sealNo + \"<\/SEAL_NO1>\";\
+  order += \"<SEAL_NO2/>\";\
+  order += \"<WEIGHT>\" + weight + \"<\/WEIGHT>\";\
+  order += \"<NUM>\" + pieces + \"<\/NUM>\";\
+  order += \"<WRITE_TIME>\" + dateText + \"<\/WRITE_TIME>\";\
+  order += \"<WRITE_USER>\" + username + \"<\/WRITE_USER>\";\
+  order += \"<REMARK/>\";\
+  order += \"<DOCK_CODE>\" + tenancyId + \"<\/DOCK_CODE>\";\
+\
+  var rs = app.run(\"select BILL_NO FROM BLUK_CUSTOM_DETAIL WHERE PID='\" + id + \"'\");\
+  while (rs.next()) {\
+    order += \"<INFO_LIST><IC_TASKID>\" + icTaskId + \"<\/IC_TASKID>\";\
+    order += \"<BILL_NO>\" + rs.getString('BILL_NO') + \"<\/BILL_NO><\/INFO_LIST>\";\
+  }\
+  order += \"<\/INFO_HEAD>\";\
+  order += \"<\/Declaration>\";\
+  order += \"<\/Message>\";\
+  xml += order;\
+  app.log(xml);\
+ DomCrud.writerDocumentToNewFile(xml.toString(),icTaskId,path);\
+// var a = DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP1104_CUSTOMS_\" + dateName,path);\
+\
+  app.run(\"update BLUK_CUSTOM_MAIN set SEND_ID='1',CAPID='\"+icTaskId+\"' where ID='\" + id + \"'\");\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "散货出闸申报报文",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

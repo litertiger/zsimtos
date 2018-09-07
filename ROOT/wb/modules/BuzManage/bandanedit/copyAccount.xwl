@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var sql = \"\";\
+if (!Wb.isEmpty(data.cntr)) {\
+  sql = \"select vl.cntr_size,vl.cntr_type,vl.i_e_id,vl.cntr_operator_cod,\" +\
+    \"vl.trade_id,vh.bill_type,ad.CUSTOMER_ID,ad.CUSTOMER_NAM,\" +\
+    \"ad.ACCOUNT_CUSTOMER_CODE,ad.ACCOUNT_CUSTOMER_NAM,\" +\
+    \"ad.PAYMENT_CUSTOMER_CODE,ad.PAYMENT_CUSTOMER_NAM\" +\
+    \" from vload_list vl left join accounts_details ad on vl.cntr=ad.cntr and vl.bill_no=ad.bill_no\" +\
+    \" left join vbill_head vh on vh.id=vl.bill_id\" +\
+    \" where rownum=1 and vl.BILL_NO='\" + data.billno + \"' and vl.tenancy_id='\" + tenancyid + \"' and vl.cntr='\" + data.cntr + \"'\";\
+} else {\
+  sql = \"select vh.i_e_id,vh.trade_id,vh.bill_type,vh.CNTR_OPERATOR_COD,ad.CUSTOMER_ID,ad.CUSTOMER_NAM,\" +\
+    \"ad.ACCOUNT_CUSTOMER_CODE,ad.ACCOUNT_CUSTOMER_NAM,\" +\
+    \"ad.PAYMENT_CUSTOMER_CODE,ad.PAYMENT_CUSTOMER_NAM\" +\
+    \" from vbill_head vh left join accounts_details ad on vh.id=ad.BUSSINESS_CODE\" +\
+    \" where rownum=1 and ad.BILL_NO='\" + data.billno + \"' and ad.tenancy_id='\" + tenancyid + \"'\";\
+}\
+var result = Wb.getRecords(app.run(sql));\
+app.send(result);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "复制费用明细",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

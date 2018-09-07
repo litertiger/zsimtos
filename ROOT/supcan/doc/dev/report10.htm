@@ -1,0 +1,56 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">10.查询条件</p><hr color=#2266ee size=1>
+　　在多数情况下，报表的查询往往是有条件的查询，具体对应到数据源，则需要数据源有动态更改查询参数的功能.<br>
+　　数据源的动态查询参数，分为外部动态和内部动态二种，我们分别介绍之.<br>
+<p class="sz3">10.1.外部动态参数</p>
+
+　　所谓外部，是指通过 js 动态让报表更改查询参数，最简单的方法是执行报表的 SetParas( ) 函数，例如：<br>
+<pre class='cpp'>
+ AF.func("SetParas", "ds1 \r\n year=2012; month=2");
+ AF.func("calc", "");</pre>
+　　查询参数 year 和 month 将自动被附在URL中，假设原先的 URL 是：<br>
+　　　　../getData.aspx?ver=22<br>
+　　新的URL将会是:<br>
+　　　　../getData.aspx?ver=22&year=2012&month=2<br>
+　　如果 URL 中原先已经有 year、month 参数，那么这些参数会被替换成新的.<br>
+　　SetParas 函数使用很简单，并且对临时数据源和中心数据源都适用。<br>
+<br>
+　　对于临时数据源，还有一种更常见的方法：把查询参数直接置于 SetSource 中，因为临时数据源反正是要调用 SetSource 函数的：<br>
+<pre class='xml'>
+function OnReady(id) {
+ AF.func("Build", "report/myReport.xml");
+ //指定ds1数据源取数的URL地址
+ AF.func("SetSource", "ds1 \r\n ../getData.aspx?ver=22&year=2012&month=2");
+ //需要重新计算， 因为SetSource仅仅是相当于更改一个属性
+ AF.func("Calc", ""); 
+}</pre>
+<br>
+<p class="sz3">10.2.内部动态参数</p>
+
+　　内部动态参数，是指报表的数据源本身就已经预先设定了某些固定的参数了.<br>
+　　中心数据源的内部动态参数请看文档 "9.中心数据源" 中的 "9.3参数协议", 例如:<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;Project name="业务数据" <font color=black>tip</font>="货运数据"&gt;
+ &lt;ds id="11" <font color=#AA0000>para1</font>="月份" <font color=#AA0000>para2</font>="组织号" dataURL="<font color=#AA0000>data.serv?month=@para1&org=@para2</font>" descURL="data1.desc.xml"&gt;货运数据&lt;/ds&gt;
+ ...</pre>
+　　临时数据源的查询参数需要在数据源的这个界面中设定:<br>
+<center><img src='image/illu21.png'/></center>
+<br>
+　　采用内部参数的好处是，是当你在输入数据源公式时，上方的黄色tip提示条会告诉你，接下去该输入什么参数了：<br>
+<center><img src='image/report21.png'/></center>
+　　并且，你可以不设死参数，可以引用另外的单元格，例如：<br>
+<pre class='cpp'>
+=datarow('ds1', A3, B4)</pre>
+　　在计算时，数据源的参数将会自动取自 A3、B4 单元格.<br>
+<br>
+　　关于上述参数的实例，请参见在线演示：“33.穿透式查询”，这个例子有上述二种参数的完整使用情形.<br>
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

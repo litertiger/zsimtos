@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var sql, data=app.get(), nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\"),tenancy=app.get(\"sys.TENANCY_ID\");\
+\
+sql =\"   \";\
+\
+var cntrCod = app.get(\"cntrCod\"), customer = request.getParameter(\"customer\");\
+if(!Wb.isEmpty(data.cntrCod)){\
+  sql += \" and CNTR_OPERATOR_COD='\"+data.cntrCod+\"'\";\
+}\
+if(!Wb.isEmpty(customer)){\
+  sql += \" and SHIPPER_COD='\"+customer+\"'\";\
+}\
+app.log(data);\
+app.log(app);\
+\
+if(nature=='5')//表示驳船\
+  sql+=\" and  vbill_head.CNTR_OPERATOR_COD='\"+govCode+\"' \";\
+// if(nature=='5')//表示驳船\
+//   sql+=\" and exists (select  1 from  BULK_CONTRACT  where CNTR_OPERATOR_COD='\"+govCode+\"' and BULK_CONTRACT.ID = BULK_CONTRACT_DT.BKCT_ID )  \";\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "dictTableNames": "WB_USER",
+    "sql": "select * from C_CAR_ITEM_HEAD where  tenancy_id='{#sys.TENANCY_ID#}'  {#whereSql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "提单信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,459 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "itemId": "editwin",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 90,\
+  width: 250,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "autoReset": "true",
+     "width": "576",
+     "height": "190"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "value": "C_SERVICE",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ID",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "航线代码",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "MAINORBRANCH",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "pickList": "[\
+  [\"MS\", \"主航线\"],\
+  [\"SS\", \"次航线\"]\
+]",
+       "fieldLabel": "主航线 /支线"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "SERVICE_NAME",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "航线名称",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "LOC_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "中文名",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "INTERORNATIVE",
+       "hidden": "false",
+       "labelAlign": "right",
+       "pickList": "[\
+  [\"guoji\", \"国际\"],\
+  [\"guonei\", \"国内\"]\
+]",
+       "fieldLabel": "国际/国内"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "SERVICE_CATEGORY",
+       "labelAlign": "right",
+       "fieldLabel": "航线类别",
+       "keyName": "SERVICE_CATEGORY",
+       "anyMatch": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "FEE_CATEGORY",
+       "labelAlign": "right",
+       "fieldLabel": "费用类别",
+       "keyName": "FEE_CATEGORY",
+       "anyMatch": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "LINE",
+       "labelAlign": "right",
+       "fieldLabel": "大船公司",
+       "displayField": "CNAME",
+       "valueField": "ID",
+       "queryDelay": "500"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "pageSize": "20",
+        "params": "{fldId:'NO'}",
+        "url": "m?xwl=system/common/shipClientSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cService/cServiceEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cService/cServiceEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "航线名称",
+          "labelWidth": "65"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findmenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "\
+app.grid1.store.load({out:app.tbar});//把所有数据取出来放到out里面"}
+        },
+        {
+         "configs": {
+          "itemId": "addmenu",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.setTitle(\"添加\");\
+win.setIconCls(\"record_add_icon\");\
+win.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "modifymenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.setTitle(\"修改\" + app.selRec.data.SERVICE_NAME);\
+win.setIconCls(\"record_edit_icon\");\
+win.show();\
+Wb.setValue(win, app.selRec.data);\
+app.ID.setReadOnly(true);\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "deletemenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cService/cServiceEdit/delete',\
+    params: {\
+      tableName: \"C_SERVICE\",\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'SERVICE_NAME');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/cService/cServiceEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "dataIndex": "ID",
+          "text": "航线代码",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSERVICE_NAME",
+          "dataIndex": "SERVICE_NAME",
+          "text": "航线名称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colLOC_NAME",
+          "dataIndex": "LOC_NAME",
+          "text": "中文名",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSERVICE_CATEGORY",
+          "dataIndex": "SERVICE_CATEGORY",
+          "keyName": "SERVICE_CATEGORY",
+          "text": "航线类别",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colMAINORBRANCH",
+          "renderer": "if (value == \"MS\")\
+  return \"主航线\";\
+if (value == \"SS\")\
+  return \"支航线\";",
+          "dataIndex": "MAINORBRANCH",
+          "text": "主航线 /支线",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colINTERORNATIVE",
+          "renderer": "if (value == \"guoji\")\
+  return \"国际\";\
+if (value == \"guonei\")\
+  return \"国内\";",
+          "dataIndex": "INTERORNATIVE",
+          "text": "国际/国内",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colFEE_CATEGORY",
+          "dataIndex": "FEE_CATEGORY",
+          "keyName": "FEE_CATEGORY",
+          "text": "费用类别",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colNAME",
+          "dataIndex": "NAME",
+          "text": "大船公司",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "UPDATED_ON",
+          "dataIndex": "UPDATED_ON",
+          "text": "更新日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "text": "创建日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "UPDATED_BY",
+          "dataIndex": "UPDATED_BY",
+          "text": "最后修改人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CREATED_BY",
+          "dataIndex": "CREATED_BY",
+          "text": "创建人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "航线管理",
+ "iconCls": "award_star_bronze_2_icon",
+ "inframe": false,
+ "pageLink": ""
+}

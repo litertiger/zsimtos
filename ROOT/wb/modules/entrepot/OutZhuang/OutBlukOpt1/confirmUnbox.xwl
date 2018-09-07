@@ -1,0 +1,85 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// //判断件数是否符合条件（一个是舱单的件数、另一个是bill的件数）\
+// var rs = app.run(\"select nvl(a.PIECES-b.PIECES,0) num from VBILL_HEAD a,BLUK_BILL b where a.ID=b.BILL_ID(+) and b.CFSBILL_ID={?ID?}\");\
+// if (rs.next()) {\
+//   var num = resultSet.getString('num');\
+//   if (num !== '0') {\
+//     throw ('入库数量有误');\
+//   }\
+// } else {\
+//   throw ('入库数量有误');\
+// }\
+// //更新下bill表\
+// app.run(\"update BLUK_PLAN set SCALE_FLAG=decode({?SCALE_FLAG?},'true',1,0),LOCATION={?LOCATION?} where ID={?LCL_ID?}\", {\
+//   transaction: 'start'\
+// });\
+// app.run(\"update BLUK_BILL set TASKSTATUS='FIN' where CFSBILL_ID={?ID?}\");\
+// app.run(\"update BLUK_GOODS set OUTQUTY=INQUTY,QUTY=0 where CFSBILL_ID = {?ID?}\");\
+// app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES) \" +\
+//   \"select CFSBILL_ID, '1', PIECES from BLUK_BILL where CFSBILL_ID={?ID?}  \");\
+//  var rs = app.run(\"select c.id,c.SHIPPER from bluk_plan a,vload_list b,vbill_head c where a.vid=b.vid and b.bill_id=c.id and a.ID={?LCL_ID?}\"),\
+//    billId, shipper;\
+//  while (rs.next()) {\
+//    shipper = rs.getString('SHIPPER');\
+//    billId = rs.getString('ID');\
+//  }\
+//  app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+//         DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+//         values(sys_guid(),'\" + shipper + \"','\" + billId + \"',sysdate,{?timestamp.WORKDATE?},'','IN','',sysdate,sysdate,{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+// '','','',{?ID?},'','',{?MANNUM?},'','')\");\
+var dispname=app.get(\"sys.dispname\");\
+ var cntrId=app.get(\"CNTR_ID\");\
+ var resultSet = app.run(\"select nvl(a.PIECES-b.IPIECES,0) num from VBILL_HEAD a,BLUK_BILL b where a.ID=b.BILL_ID(+) and b.LCL_ID={?ID?}\");\
+ if (resultSet.next()) {\
+   var num = resultSet.getString('num');\
+   app.log(num);\
+   if (num !== '0'){\
+     throw ('入库数量有误');\
+   }\
+ } else {\
+   throw ('入库数量有误');\
+ }\
+ app.run(\"update BLUK_PLAN set TASKSTATUS='END',SCALE_FLAG=decode({?SCALE_FLAG?},'true',1,0),LOCATION={?LOCATION?} where ID={?ID?}\", {\
+   transaction: 'start'\
+ });\
+ app.run(\"update BLUK_BILL set TASKSTATUS='END' where LCL_ID={?ID?}\");\
+ app.run(\"update port_cntr set LCL_ID=1,E_F_ID='F'   where ID={?CNTR_ID?}\");\
+ app.run(\"update BLUK_GOODS set OUTQUTY=INQUTY,  QUTY=0  where CFSBILL_ID in (select CFSBILL_ID from BLUK_BILL   where LCL_ID={?ID?} )\");\
+ app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,STORE_TIME,BILL_NO,SIGNERCFS,WEIGHT, VOLUME) \" +\
+   \"select cfsbill_id, '1', PIECES,sysdate,BILL_NO,'\"+dispname+\"',WEIGHT, VOLUME from BLUK_BILL where LCL_ID={?ID?}  \");\
+\
+ var rs = app.run(\"select c.id,c.SHIPPER from bluk_plan a,vload_list b,vbill_head c where a.vid=b.vid and b.bill_id=c.id and a.vid={?VID?}\"),\
+   billId, shipper;\
+ while (rs.next()) {\
+   shipper = rs.getString('SHIPPER');\
+   billId = rs.getString('ID');\
+ }\
+ app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        values(sys_guid(),'\" + shipper + \"','\" + billId + \"',sysdate,{?timestamp.WORKDATE?},'','IN','',sysdate,sysdate,{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','',{?ID?},'','',{?MANNUM?},'','')\");\
+\
+request.setAttribute(\"moveType\", \"ZF\");\
+request.setAttribute(\"cntrId\", cntrId);\
+\
+app.execute(\"m?xwl=system/common/cntrStore/cntrStorePro\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1
+ },
+ "title": "确认装箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

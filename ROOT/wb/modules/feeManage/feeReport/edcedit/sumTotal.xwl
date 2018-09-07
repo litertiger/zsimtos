@@ -1,0 +1,65 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var feeid = \"\";\
+if (tenancyid == \"ZSG\")\
+  feeid = \"0302\";\
+if (tenancyid == \"XLG\")\
+  feeid = \"\";\
+if (tenancyid == \"SWG\")\
+  feeid = \"\";\
+var sql=\"SELECT a.IN_E_F_ID BEF,\\\
+a.IN_BILL_NO,\\\
+a.out_BILL_NO,\\\
+a.IN_I_E_ID ,\\\
+a.IN_DT I_TIME,\\\
+       D.PAYMENT_CUSTOMER_CODE CNTR_OPERATOR_COD,\\\
+D.CNTR,\\\
+D.CNTR_SIZE,\\\
+       y.YJT_TIME,\\\
+       a.OUT_E_F_ID,\\\
+       a.OUT_I_E_ID,\\\
+       a.OUT_DT O_TIME,\\\
+D.SETTLE_TIME_END,D.SETTLE_TIME_ON,SETTLE_DAYS,DERATE_DAYS,DWELL_DAYS,AMOUNT,CUSTOMER_ID,D.GOODS_NOTES\\\
+ FROM  accounts_details d left join V_SHIP_IN_OR_OUT a on a.cntr_id=d.cntr_id\\\
+ LEFT JOIN BUZ_ORDER_ITEM y ON d.CNTR_ID=y.CNTR_ID \\\
+\tWHERE a.tenancy_id='\" + tenancyid + \"' and FEE_LIST_ID='\" + feeid + \"'   \";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and JOB_FINISH_DATE>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and JOB_FINISH_DATE<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and D.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.cntrid))\
+  sql += \" and D.CNTR_ID='\" + data.cntrid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and D.CNTR='\" + data.CNTR + \"'\";\
+sql+=\" order by a.IN_DT asc\";\
+\
+\
+request.setAttribute(\"sql\", sql);\
+\
+\
+var s=Wb.getRecords(app.run(sql)),num=0;\
+for(var i=0;i<s.length;i++){\
+\tnum+=s[i].AMOUNT*100;\
+}\
+app.send(num);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "金额求和",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

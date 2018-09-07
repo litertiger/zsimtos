@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+app.log(\"-----------------------------------\"+data.A);\
+app.log(\"-----------------------------------\"+data.B);\
+var username=app.get('sys.username');\
+var orgId=app.get('sys.ORG_ID');\
+var tenancyId=app.get('sys.TENANCY_ID');\
+var state;\
+\
+\
+if(data.A==='true' || data.B=='0'){\
+\tapp.run(\"update C_CUSTOMER_LINK set CREATED_MAN='\"+username+\"', CREATED_ON=sysdate, CUS_NAME={?CUS_NAME?},\"+\
+\"C_ID={?C_ID?}, EMAIL={?EMAIL?}, GOV_CODE={?GOV_CODE?},\"+\
+ \"LINK_NAME={?LINK_NAME?}, ORG_ID='\"+orgId+\"', TEL={?TEL?}, TENANCY_ID='\"+tenancyId+\"', \"+\
+\"UPDATED_MAN='\"+username+\"', UPDATED_ON=sysdate, WECHATMSG_TYPE={?WECHATMSG_TYPE?} where ID={?ID?}\",{jndi:'jdbc/basecode'});\
+}else{\
+  if(data.B!=\"false\"){\
+  \tapp.run(\"insert into C_CUSTOMER_LINK(ID, C_ID, CUS_NAME, TEL, EMAIL, LINK_NAME, TENANCY_ID, \"+\
+                          \"ORG_ID, CREATED_MAN, CREATED_ON, UPDATED_MAN, UPDATED_ON, GOV_CODE, WECHATMSG_TYPE) \"+\
+\t\"values({?ID?},{?C_ID?},{?CUS_NAME?},{?TEL?},{?EMAIL?},{?LINK_NAME?},{?TENANCY_ID?},\"+\
+      \" {?ORG_ID?},'\"+username+\"', sysdate,'\"+username+\"', sysdate,{?GOV_CODE?},{?WECHATMSG_TYPE?})\",{jndi:'jdbc/basecode'});\
+  }\
+\
+}\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

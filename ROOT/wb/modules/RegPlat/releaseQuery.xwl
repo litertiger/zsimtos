@@ -1,0 +1,340 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "head": "<!-- <script src = \"supcan/binary/dynaload.js?1013\" > <\/script>\
+<script>  var  locrec;\
+\
+function OnReady(id)\
+ {\
+ \tif(id=='AF1'){\
+       AF1.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+       AF1.func(\"Build\", '/supcan/report/bluk/bluk.xml ');\
+       AF1.func(\"DisableMenu\",\"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    }\
+  \
+ }\
+  \
+ function OnEvent(id, Event, p1, p2, p3,  p4){\
+   if(Event==\"MenuBeforePopup\"&&id==\"AF1\") {\
+   var menu =\"\";l= Wb.getSupcanMelu(AF1,\"BILL_NO\",true).length\
+  \
+   \t if(l>0){\
+          menu += \"id=4001; text='出库'; style='height:36px' \";\
+          menu += \"enabled= true \\r\\
+\";\
+          menu += \"id=4002; text='搬移';  \";\
+          menu += \"enabled= true \\r\\
+\";\
+          menu += \"id=4004; text='搬移记录'; \";\
+          menu += \"enabled= true \\r\\
+\";\
+   \t }\
+     if(Wb.getSupcanMelu(AF1,\"IMPEXP\",false)==\"拆\"){\
+          menu += \"id=4003; text='扣留'; \";\
+          menu += \"enabled= true \\r\\
+\";\
+     }\
+          AF1.func(\"AddMenu\", menu);\
+   } \
+  \
+  else if(Event==\"MenuClicked\"&&id==\"AF1\") {\
+ \
+       if(p1=='4001'){//出库\
+            \
+         var outNum= Wb.getSupcanMelu(AF1,\"OUTNUM\",true) ;\
+         var billIds= Wb.getSupcanMelu(AF1,\"BILL_ID\",true) ;\
+         var quty= Wb.getSupcanMelu(AF1,\"QUTY\",true),state =\"\";\
+         for(var i=0;i<outNum.length;i++){\
+         \t\tif(outNum[i]==null||outNum[i]==''){\
+                  state=\"请在选中的记录中输入出库数量！\"\
+                  break\
+                }\
+                 if(parseInt(outNum[i])>parseInt(quty[i])){\
+                  state=\"输入的出库数量大约库存数不能出库！\"\
+                  break\
+                }\
+         }\
+         if(state==\"\"){\
+          var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
+\
+\t\t\ttruckWin.show();\
+           \t app.TRUCKNO.focus();\
+            truckWin.mon(truckWin, 'ok', function() {\
+             Wb.request({\
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/setTruck',\
+               params: {billIds:billIds,TRUCKNO:app.TRUCKNO.getValue(),outNum:outNum},\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                app.findBtn.fireEvent('click');\
+                truckWin.close();\
+              }\
+            });\
+          });\
+          }\
+         else\
+             Wb.warn(state);\
+\t\t }else if(p1=='4002'){//搬移\
+          var banWin = new Ext.window.Window(app._banWin); //app._win指向配置对象而非实例\
+          \t banWin.show();\
+             app.OLD_POS.setValue(Wb.getSupcanMelu(AF1,\"LOCATION\",false) );\
+             var billId= Wb.getSupcanMelu(AF1,\"BILL_ID\",false) ;\
+             banWin.mon(banWin, 'ok', function() {\
+             Wb.request({ \
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/moveBluk',\
+               params: {billId:billId},\
+               out:banWin,\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                 app.findBtn.fireEvent('click');\
+                 banWin.close();\
+              }\
+            }); });\
+         \
+         }else if(p1=='4003'){//扣留\
+           \
+          \
+           var klWin = new Ext.window.Window(app._klWin); //app._win指向配置对象而非实例\
+           klWin.show();\
+          app.CFS_ID.setValue('扣留仓');\
+          app.INQUTY.setValue(Wb.getSupcanMelu(AF1,\"QUTY\",false));\
+          klWin.mon(klWin, 'ok', function() { \
+             Wb.request({ \
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/setKouLiu',\
+               params: {billId: Wb.getSupcanMelu(AF1,\"BILL_ID\",false) },\
+               out:klWin,\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                 app.findBtn.fireEvent('click');\
+                klWin.close();\
+              }\
+            }); });\
+         }\
+         else if(p1=='4004'){\
+         \tapp.banSelWin.show();\
+            app.banGrid.store.load({params:{billId:Wb.getSupcanMelu(AF1,\"BILL_ID\",false)}});\
+         }\
+\
+       }\
+   }\
+  <\/script>\
+ -->",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "sdate",
+        "labelAlign": "right",
+        "fieldLabel": "开始时间",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "date"
+      },
+      {
+       "configs": {
+        "itemId": "edate",
+        "labelAlign": "right",
+        "fieldLabel": "结束时间",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "date"
+      },
+      {
+       "configs": {
+        "itemId": "billNo",
+        "labelAlign": "right",
+        "fieldLabel": "提单号",
+        "labelWidth": "50"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "cntr",
+        "labelAlign": "right",
+        "fieldLabel": "箱号",
+        "labelWidth": "40"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "ieId",
+        "labelAlign": "right",
+        "pickList": "[\
+  ['I', '进口'],\
+  ['E', '出口']\
+]",
+        "fieldLabel": "进出口",
+        "width": "130",
+        "labelWidth": "50"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "typeId",
+        "labelAlign": "right",
+        "pickList": "[\
+  ['B', '担保放行'],\
+  ['M', '无纸放行'],\
+  ['R', '普通放行'],\
+  ['J', '进口散货拼柜'],\
+  ['L', '转关'],\
+  ['S', '大宗散货'],\
+  ['T', '入卡退场'],\
+  ['D', '调拨'],\
+  ['K', '无舱单空箱'],\
+  ['S', '出口拼柜散货']\
+]",
+        "fieldLabel": "放行类型",
+        "width": "160",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "ship",
+        "hidden": "true",
+        "labelAlign": "right",
+        "x": "296",
+        "width": "150",
+        "y": "8",
+        "displayField": "NAME",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=entrepot/PortCntr/BulksomeEdit/seelctShip"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "findBtn",
+        "xtype": "splitbutton",
+        "text": "查询"
+       },
+       "expanded": false,
+       "children": [{
+        "configs": {
+         "itemId": "moreBtn",
+         "xtype": "button",
+         "text": "过滤",
+         "iconCls": "li_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var  AF1=document.getElementById(opt);\
+Wb.moreSupcanSelect(AF1);\
+      \
+\
+\
+"}
+       }],
+       "type": "item",
+       "events": {"click": "var AF1 = document.getElementById(opt);\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/releaseQueryEdit/select\", {\
+  sdate: app.sdate.getRawValue(),\
+  edate: app.edate.getRawValue(),\
+  cntr: app.cntr.getValue(),\
+  billNo: app.billNo.getValue(),\
+  ieId: app.ieId.getValue(),\
+  typeId: app.typeId.getValue()\
+}));"}
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "panel1",
+      "region": "center"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport",
+   "events": {
+    "afterrender": "// alert(opt);\
+var mt1 = bldStr(\"BCV1.TreeList\", opt, \"\", \"99%\");\
+app.panel1.update(mt1);\
+",
+    "destroy": "delete  window[\"init\" + opt];"
+   }
+  }],
+  "type": "module",
+  "events": {"finalize": "var opt = Wb.getId();\
+var s = new Date();\
+app.sdate.setValue(new Date());\
+app.edate.setValue(new Date());\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bluk/releaseQuery.xml?' + Math.random() * 1000);\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+  m.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/releaseQueryEdit/select\", {\
+    sdate: app.sdate.getRawValue(),\
+    edate: app.edate.getRawValue(),\
+    cntr: app.cntr.getValue(),\
+    billNo: app.billNo.getValue(),\
+    ieId: app.ieId.getValue(),\
+    typeId: app.typeId.getValue()\
+  }));\
+};\
+\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};"}
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "SCANJB": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "放行查询",
+ "iconCls": "move_icon",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\";\
+var data = app.get();\
+var ids=SysUtil.getId();\
+var result=app.run(\"select WECHATID,ID from C_WECHAT_SUBSCRIB WHERE WECHATID={?WECHATID?}\",{jndi:'jdbc/basecode'});\
+if(result.next()){\
+  \tvar id=app.get('ID');\
+\tsql=\"update C_WECHAT_SUBSCRIB set WECHATID={?WECHATID?} where ID='\"+id+\"'\";\
+}else{\
+\tsql=\"insert into C_WECHAT_SUBSCRIB(ID, WECHATID, MSGID, ENABLED)values('\"+ids+\"', {?WECHATID?}, {?MSGID?}, {?ENABLED?})\";\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcxjb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

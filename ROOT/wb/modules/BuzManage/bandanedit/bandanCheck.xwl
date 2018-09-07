@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var errmsg = \"\";\
+var sql = \"select p.LOCK_ID,p.CNTR,p.RELEASE_ID,p.CIQ_ID,r.id RID from port_cntr p\" +\
+  \" left join receipt r on p.id=r.cntr_id left join vload_list vl on p.id=vl.cntr_id\" +\
+  \" where vl.bill_no='\" + data.billno + \"' and vl.cntr in (\" + data.cntrs + \")\";\
+var cntrs = Wb.decode(DbUtil.getData(app.run(sql), request));\
+\
+var paysql = \"select CNTR,PAY_FLAG from accounts_details\" +\
+  \" where bill_no='\" + data.billno + \"' and cntr in (\" + data.cntrs + \") and PAYMENT_TYPE=1 and amount>0\" +\
+  \" group by CNTR,PAY_FLAG\";\
+var pays = Wb.decode(DbUtil.getData(app.run(paysql), request));\
+\
+Wb.each(pays, function(pay) {\
+  if (pay.PAY_FLAG == 0)\
+    errmsg += \"箱子:\" + pay.CNTR + \"有费用没有结清.\";\
+});\
+Wb.each(cntrs, function(cntr) {\
+  var msg = \"\";\
+  if (!Wb.isEmpty(cntr.LOCK_ID) && cntr.LOCK_ID != \"0\")\
+    msg += \"被扣留.\";\
+  if (cntr.RELEASE_ID == 0)\
+    msg += \"海关没有放行.\";\
+//   if (cntr.CIQ_ID == 0)\
+//     msg += \"商检没有放行.\";\
+  //   if (Wb.isEmpty(cntr.RID))\
+  //     msg += \"船公司没有放行.\";\
+  if (!Wb.isEmpty(msg))\
+    errmsg += \"箱子:\" + cntr.CNTR + msg;\
+});\
+if (!Wb.isEmpty(errmsg))\
+  errmsg += \"不能办单!!!\";\
+app.send(errmsg);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "办单检查",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

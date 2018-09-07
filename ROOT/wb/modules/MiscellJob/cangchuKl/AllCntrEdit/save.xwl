@@ -1,0 +1,52 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  idu = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+var reu = Wb.decode(request.getParameter('update'));\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+\
+Wb.each(reu, function(rec) {\
+  id = SysUtil.getId();\
+  idu.push({\
+    ID: rec.ID,\
+    CNTR_ID: rec.CNTR_ID,\
+    E_F_ID: rec.E_F_ID\
+  });\
+});\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'VLOAD_LIST'\
+});\
+app.log(\"=========================\");\
+app.log(idu);\
+app.run(\"update port_cntr set E_F_ID={?E_F_ID?} WHERE ID={?CNTR_ID?}\",{\
+\tarrayData: new org.json.JSONArray(Wb.encode(idu))\
+});\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

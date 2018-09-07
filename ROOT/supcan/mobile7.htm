@@ -1,0 +1,109 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type="text/javascript" src="binary/dynaload.js?103"></script>
+
+<script>
+var count = 0;
+function OnReady(id)
+{
+	cooper();
+}
+function cooper()
+{
+	count++;
+	if(count != 3) return;
+
+	AF1.func("build", "report/xmlsheet32.xml");
+	AF2.func("build", "treelist/qr.xml");
+	var url = "http://www.supcan.cn/dotnet/query.aspx?page=1";
+	AF2.func("SetValue", "QR \r\n " + url);
+}
+
+</script>
+</head>
+<body onLoad="cooper()">
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>
+1.本例报表模板来自 "一体化查询(3)",  进入手机查询时, 首页查询页生成的是 jQuery mobile 样式的查询页;<br>
+2.数据源完全重用, 不需要单独再开发;<br>
+</td></tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<table cols=5 border=0 width="88%">
+<col width="20">
+<col width=780>
+<col width=50>
+<col width=280>
+<col>
+<tr height=30>
+	<td/>
+	<td><b>Step 1</b>:报表模版如下，该报表已经部署在服务器上了, 您不需要修改.</td>
+	<td/>
+	<td rowspan="2"><b>Step 2</b>:如下二维码指向后端的aspx程序, 请拿出手机扫描, 进入上报填数模式.</td>
+	<td/></tr>
+<tr height="30">
+	<td/>
+	<td rowspan="4" height="410"><script>insertReport('AF1', 'rebar=form,Property')</script></td>
+	<td/>
+	<td/>
+</tr>
+<tr height="140">
+	<td/>
+	<td/>
+	<td rowspan="2" height="220"><script>insertFreeForm('AF2', 'border=none')</script></td>
+	<td/>
+</tr>
+<tr height="140">
+	<td/>
+	<td/>
+	<td/>
+</tr>
+<tr height="100">
+	<td/>
+	<td/>
+	<td/>
+	<td/>
+</tr>
+<tr><td colspan="5"></td></tr>
+</table>
+<br>
+<br>
+<br>
+<br>
+<table width="90%" border="0">
+<tr><td colspan=4><img src='res/tech.jpg'></td></tr><tr><td>
+<tr><td colspan=4>
+<b>实现原理：</b><br>
+1.首先必须在模板中为需要转换的单元格设置 TabOrder，即人工认定哪些单元格是可输入的查询条件:<br>
+<img src="doc/dev/image/server9.png">
+<br>
+<br>
+<b>2</b>.后端 C# 动态生成模板用了 jQueryMobile 模板, 以及 isQueryPage=true 选项：<br>
+<pre class='cpp'>
+if(page == "1") {       //第一个页面
+ // jQueryMobile 模版文件, 它位于当前目录下
+ String TemplateFile = Server.MapPath("template_search.txt");
+ //转换
+ dll.func("callfunc", "105\r\n type=htm; isQueryPage=true; Template=" +TemplateFile+ "; filename=" + TempFilename);
+}</pre>
+在开发文档的 “服务器专版” 的 "<a href="doc/dev/server09-4.htm" target=_blank>9.4.一体化查询</a>" 中，有这方面的详细介绍.<br>
+<br>
+<b>3</b>.这是 <a href="doc/dev/query.aspx.txt" target=_blank>C#源码</a>, 以及 <a href="doc/dev/template_search.txt" target=_blank>jQueryMobile 模板</a>，一段硕正提供的数据源、关联下拉有关的js 文件, 在 <a href="doc/dev/uploadmobile.zip" target=_blank>uploadmobile.zip</a> 包中.<br>
+</td></tr>
+</table>
+
+</center>
+<br>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+
+</html>

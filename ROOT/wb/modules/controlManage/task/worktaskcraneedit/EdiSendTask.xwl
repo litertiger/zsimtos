@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select count(0) from move_list where queue_id={?id?} and phase not in('FIN' ,'CNL','TMP') and MOVE_TYPE='MOV'\");\
+var count;\
+if (result && result.next()) {\
+  count = result.getInt(1);\
+}\
+if (count > 0)\
+  throw (\"尚有指令未完成\");\
+var rs = app.run(\"select  CARRIER_CALL from  TASK where ID={?id?}\");\
+if (rs.next()) {\
+  app.set('vid', rs.getString(\"CARRIER_CALL\"));\
+}\
+// app.run(\"update vessel_visit set endwork=sysdate where id in (select carrier_call from  task where id={?id?})\", {\
+//   transaction: \"start\"\
+// });\
+if (app.get(\"taskType\") == 'VIN') {\
+  app.run(\"Select 1 from vload_list where  vid={?vid?} and  i_e_id='I' and CNTR_OWNER_COD is  null and tenancy_id={?sys.TENANCY_ID?}\", {\
+    errorText: '箱主没有,不能完成确认'\
+  });\
+  app.run(\"call pro_unload_edi('I',{?vid?},{?sys.TENANCY_ID?},{?sys.username?})\");\
+} else if (app.get(\"taskType\") == 'VOUT') {\
+  app.run(\"Select 1 from vload_list where  vid={?vid?} and  i_e_id='E' and CNTR_OWNER_COD is  null \", {\
+    errorText: '箱主没有,不能完成确认'\
+  });\
+\
+  app.run(\"call pro_unload_edi('E',{?vid?},{?sys.TENANCY_ID?},{?sys.username?})\");\
+\
+}\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "装卸船EDI发送",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

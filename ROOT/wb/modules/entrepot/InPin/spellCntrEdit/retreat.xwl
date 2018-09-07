@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var tenancyId = app.get('sys.TENANCY_ID');\
+var dispname = app.get('sys.dispname');\
+\
+//判断是否是库存为0\
+if (app.get('QUTY') == 0) {\
+  app.log(\"===================\");\
+} else {\
+  app.run(\"update bluk_goods set QUTY=QUTY-{?PIECES?},OUTQUTY=OUTQUTY+{?PIECES?},OUTTIME=sysdate where ID={?ID?} and quty>0\");\
+\
+  app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID)\\\
+VALUES({?ID?},'1',{?PIECES?},{?TRUCK_NO?},'','',{?BILL_ID?})\");\
+}\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT,TENANCY_ID)\\\
+        values(sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?TYPE1?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','\" + dispname + \"','',{?CFSBILL_ID?},'','',{?MANNUM?},'',{?PORC_COUNT?},'\" + tenancyId + \"')\");\
+app.run(\"update BLUK_CUSTOM_MAIN set PHASE='FIN' where TRUCK={?TRUCK?} AND ID={?PID?}\");\
+app.run(\"update BLUK_CUSTOM_DETAIL set PHASE='FIN' WHERE PID={?PID?}\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSINMP": 1
+ },
+ "title": "退运",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

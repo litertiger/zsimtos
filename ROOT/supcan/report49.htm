@@ -1,0 +1,70 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "report/xmlsheet4.xml");
+ }
+ function Retrieve()
+ {
+  AF.func('SetSource', 'ds1\r\n' + document.getElementById('source').value);
+  AF.func('Calc', '');
+ }
+</script>
+</head>
+
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>这是用图片作为底图帮助调校位置的报表，查看实际套打效果。数据源相对URL：<input id='source' type=edit size=25 value="reportdata/data4.xml"> <input type=button value=" 取数 " onClick="Retrieve()"></td>
+</tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<div style="position:relative;width:86%;height:500px">
+	<script>insertReport('AF', '')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.设计需精确套打的单据时，经常需要不断微调文字位置，为了简化此类工作，通常是采用空白单证照片作为底图来作辅助设计；<br>
+<b>2</b>.底图是在工具栏“属性”的“当前工作表属性(2)”处定义的，原图如下：<br>
+<img src='report/doc.jpg' width=390 height=214><br>
+你会发现这图是倾斜的，底图设置处有缩放、旋转效果的功能：<br>
+<img src='res/illu17.jpg'><br>
+尺寸的缩放很重要，用尺量好单证的实际尺寸，然后在上面设定，这样显示、打印就比较精确了。<br>
+<br>
+<b>3</b>.在“打印设置”(<img src='res/prtsetup.bmp'>)中可设定“不打印背景图/背景色”；<br>
+<br>
+<b>4</b>.B5单元的公式是：“=datarow('ds1', 'items\item')”，也就是说从第五行开始是数据源数据填入行，公式中'items\item'是XML数据中的节点，公式是设计时从工具箱中拖入的；<br><br>
+<b>5</b>.打开<a href='reportdata/data4.xml' target=_blank>XML数据</a>，其中的价格是有小数点的(单位：元)，而在报表中D5单元的价格单位实际上是“分”，处理的秘诀是：<br>
+<img src='res/illu16.jpg'><br>
+也就是说采用了显示掩码表达式，将金额乘以100了。下面的“合计”是文本框，也采用了一样的显示掩码。<br><br>
+
+<b>6</b>.D5单元格的金额需要恰好套入底图的元、角、分位置，为了准确套入，可选择合适的“字距”:<br>
+<img src='res/illu18.jpg'><br>
+
+<br>
+<b>7</b>.人民币大写处也是采用了文本框，其表达式式是“=RMB(sum(D5:@D5))”，请关注宏“@”的用法，具体可参考开发文档；<br>
+<b>8</b>.报表中“发票号码”、“年”、“月”、“日”处也采用了文本框，其表达式分别是：<br>
+　　=data('ds1', 1, 'no')<br>
+　　=getYear(data('ds1', 1, 'Date'))<br>
+　　=getMonth(data('ds1', 1, 'Date'))<br>
+　　=getDay(data('ds1', 1, 'Date'))<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

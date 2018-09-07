@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select m.id,decode(move_type,'SFT','改位',t.task_type) task_type,m.e_f_id, m.phase, m.origin, m.cntr_iso, m.cntr_size,t.task_name,\
+m.cntr_type ,m.cntr_operator_cod, m.created_on,m.created_by,m.carrier_type, m.carrier_code,m.from_pos,m.to_pos,\
+(select created_on from move_list where queue_id=m.id and move_type='DRG' and rownum=1) snd_on,\
+(select created_by from move_list where queue_id=m.id and move_type='DRG'  and rownum=1) snd_by,\
+(select updated_on from move_list where queue_id=m.id and ((task_type='VIN' and move_type='DIS' and trclass1='QC') or (move_type='LOD' and trclass1='YC'))  and rownum=1) lod_on,\
+(select updated_by from move_list where queue_id=m.id and ((task_type='VIN' and move_type='DIS' and trclass1='QC') or (move_type='LOD' and trclass1='YC'))  and rownum=1) lod_by,\
+(select updated_on from move_list where queue_id=m.id and ((task_type='VOUT' and move_type='LOD' and trclass1='QC') or (move_type='DIS' and trclass1='YC'))  and rownum=1) dis_on,\
+(select updated_by from move_list where queue_id=m.id and ((task_type='VOUT' and move_type='LOD' and trclass1='QC') or (move_type='DIS' and trclass1='YC'))  and rownum=1) dis_by,\
+(select replace(wm_concat(detail),',','->') from (select b.bus_id,u.display_name || to_char (b.act_on, 'mm-dd hh24:mi:ss')\
+ || decode (act_cod,\
+            'VLOD', '装船',\
+            'VDIS', '卸船',\
+            'TLOD', '暂存',\
+            'TDIS', '暂存',\
+            'YLOD', '出场',\
+            'YDIS', '入场',\
+            'YROR', '箱翻',\
+            'MTO', '改位',\
+            'MTRK', '改车',\
+            'GIN', '入闸',\
+            'GOUT', '出闸',\
+            'PLN', '取消',\
+            'CNL', '撤消',\
+            'CARD', '写卡',\
+            'YBCK', '返场',\
+            'VBCK', '退装',\
+            'TPUT', '甩卡',\
+            act_cod) || bus_data detail\
+ from bus_action b, wb_user u  where     b.act_by = u.user_name\
+ and u.tenancy_id = {?sys.TENANCY_ID?} and b.bus_typ = 'MOVE_LIST' and act_cod<>'YROR'\
+ order by act_on)\
+ where bus_id=m.id\
+) detail\
+from move_list m,task t\
+where t.id(+) = m.queue_id and cntr_id={?ID?} and m.move_type in ('MOV','SFT')\
+order  by  created_on\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "xlwmcgs": 1,
+  "default": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "指令查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"\";\
+if (data.LEVELS == \"-1\")\
+  sql = \"select task_type,case task_type when 'GIN' then '收箱' when 'GOUT' then '提箱' when 'MOVE' then '移箱'\" +\
+  \" when 'VIN' then '卸船' when 'VOUT' then '装船' end \\\"text\\\",\" +\
+  \"1 done_check,1 LEVELS from task group by task_type\";\
+if (data.LEVELS == \"1\")\
+  sql = \"select t.id,t.task_name \\\"text\\\",1 done_check,\" +\
+  \"case when (select count(*) from work_task_crane tc where t.id=tc.task_id)>0 then 'false' else 'true' end \\\"leaf\\\",\" +\
+  \"2 LEVELS\" +\
+  \" from task t where tenancy_id='\" + tenancyid + \"' and task_type='\" + data.tasktype + \"'\";\
+if (data.LEVELS == \"2\")\
+  sql = \"select tc.id tid,w.id,w.w_type,w.resource_id||'--'||case w.w_type when '0' then '操作人员'\" +\
+  \" when '1' then '车头' when '2' then '拖卡' when '3' then '场内机械设备' end \\\"text\\\",\" +\
+  \"case when (select count(*) from work_task_crane tcw where driver_id is not null and tcw.id=tc.id)>0 then 'false'\" +\
+  \" else 'true' end \\\"leaf\\\",3 LEVELS,1 done_check\" +\
+  \" from work_task_crane tc left join work_on_duty w on tc.duty_id=w.id\" +\
+  \" where tc.tenancy_id='\" + tenancyid + \"' and tc.task_id='\" + data.parentId + \"'\";\
+if (data.LEVELS == \"3\")\
+  sql = \"select tc.id,tc.driver_id||'--'||'操作人员' \\\"text\\\",\" +\
+  \"'true' \\\"leaf\\\",4 LEVELS,1 done_check\" +\
+  \" from work_task_crane tc left join work_on_duty w on tc.duty_id=w.id\" +\
+  \" where tc.tenancy_id='\" + tenancyid + \"' and tc.id='\" + data.tid + \"'\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "type": "tree",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "加载树",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

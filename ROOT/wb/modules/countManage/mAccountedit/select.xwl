@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select to_char(min(ad.created_on),'mm-dd') rq,ad.bill_no,\" +\
+  \"SUM(CASE WHEN c.DESCRIPTION='过机搬移费' THEN amount ELSE 0 END) gj,\" +\
+  \"SUM(CASE WHEN c.DESCRIPTION='集装箱货物保管费' THEN amount ELSE 0 END) bg,\" +\
+  \"SUM(CASE WHEN c.DESCRIPTION='查验装/拆箱费' THEN amount ELSE 0 END) cy,\" +\
+  \"SUM(CASE WHEN c.DESCRIPTION like '%吊装费' THEN amount ELSE 0 END) dz,\" +\
+  \"SUM(CASE WHEN c.DESCRIPTION like '%堆存费' THEN amount ELSE 0 END) dc,\" +\
+  \"SUM(CASE WHEN instr(c.DESCRIPTION,'%吊装费')=0 and instr(c.DESCRIPTION,'%堆存费')=0\" +\
+  \" and c.DESCRIPTION<>'查验装/拆箱费' and c.DESCRIPTION<>'集装箱货物保管费' and c.DESCRIPTION<>'过机搬移费'\" +\
+  \" THEN amount ELSE 0 END) zx\" +\
+  \" from accounts_details ad left join C_BASE_CHARGING_ITEM c on ad.FEE_LIST_ID=c.id group by bill_no\" +\
+  \" union all\" +\
+  \" select '冷冻柜的特殊柜港务费',null,null,nvl(sum(amount),0),null,null,null,null\" +\
+  \" from accounts_details ad left join port_cntr p on ad.cntr_id=p.id\" +\
+  \" left join C_BASE_CHARGING_ITEM c on ad.FEE_LIST_ID=c.id\" +\
+  \" where c.description like '%港务费%' and p.REEF_ID=1\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

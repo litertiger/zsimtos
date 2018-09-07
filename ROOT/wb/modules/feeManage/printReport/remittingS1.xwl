@@ -1,0 +1,2954 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var nature1 = true,\
+  nature2 = true,\
+  nature = request.getSession().getAttribute('sys.NATURE'); //3码头5驳船\
+//码头2审核，驳船公司5申请\
+if (nature == '2') {\
+  nature1 = true;\
+  nature2 = false;\
+} else if (nature == '5') {\
+  nature1 = false;\
+  nature2 = true;\
+} else {\
+  nature1 = true;\
+  nature2 = false;\
+}\
+\
+app.set({\
+  nature1: nature1,\
+  nature2: nature2\
+});"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "toolbar1"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "addfee",
+       "text": "增加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.addEdit(app.feegrid, {\
+  CONTRACT_ADD_RATE: 100,\
+  ACTUAL_JOB_COUNT: 1,\
+  DWELL_DAYS: 1,\
+  UPDATED_ON: new Date(),\
+  CREATED_ON: new Date(),\
+  UPDATED_BY: '{#sys.username#}',\
+  CREATED_BY: '{#sys.username#}'\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "delfee",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.remove(app.feegrid);"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {"itemId": "bbar"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "lblhj",
+       "text": "合计金额:0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "label"
+     },
+     {
+      "configs": {
+       "itemId": "shipper",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "cntrOperator",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "winRemitting",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "660",
+     "height": "500"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:2}",
+       "border": "true",
+       "itemId": "panelRemitting",
+       "defaults": "{\
+  labelWidth: 90,\
+  width: 300,\
+  margin: '8 8 0 8'\
+}",
+       "region": "north",
+       "frame": "true",
+       "height": "110"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "itemids",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "itemids"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TENANCY_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "租户ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "BILL_NO",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "提单",
+         "isUpperCase": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  if (!app.isedit) {\
+    Wb.request({\
+      url: \"m?xwl=BuzManage/remittingedit/selectVbill\",\
+      params: {\
+        BILL_NO: app.BILL_NO.getValue()\
+      },\
+      success: function(resp) {\
+        var data = Wb.decode(resp.responseText);\
+        if (data.rows.length > 0) {\
+          app.I_E_ID.setValue(data.rows[0].I_E_ID);\
+          //进口\
+          if (data.rows[0].I_E_ID == \"I\") {\
+            app.CUSTOMER_ID.setValue(data.rows[0].CONSIGNEE_COD);\
+            app.CUSTOMER_NAM.setValue(data.rows[0].CONSIGNEE);\
+            app.CODES.setValue(\"'\" + data.rows[0].CNTR_OPERATOR_COD + \"','\" + data.rows[0].CONSIGNEE_COD + \"'\");\
+            app.REM_CUS_COD.store.load({\
+              params: {\
+                codes: app.CODES.getValue()\
+              },\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.REM_CUS_COD.setValue(data.rows[0].CNTR_OPERATOR_COD);\
+                  app.REM_CUS.setValue(data.rows[0].CNTR_OPERATOR);\
+                  app.gridAccDetails.store.load({\
+                    params: {\
+                      bill_no: app.BILL_NO.getValue(),\
+                      cod: app.REM_CUS_COD.getValue()\
+                    }\
+                  });\
+                }\
+              }\
+            });\
+            //==\
+            app.PAYER_COD.store.load({\
+              params: {\
+                query: data.rows[0].CONSIGNEE_COD\
+              },\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.PAYER_COD.setValue(data.rows[0].CONSIGNEE_COD);\
+                  app.PAYER.setValue(data.rows[0].CONSIGNEE);\
+                }\
+              }\
+            });\
+            //==\
+          }\
+          //出口\
+          if (data.rows[0].I_E_ID == \"E\") {\
+            app.CUSTOMER_ID.setValue(data.rows[0].SHIPPER_COD);\
+            app.CUSTOMER_NAM.setValue(data.rows[0].SHIPPER);\
+            app.CODES.setValue(\"'\" + data.rows[0].CNTR_OPERATOR_COD + \"','\" + data.rows[0].SHIPPER_COD + \"'\");\
+            app.REM_CUS_COD.store.load({\
+              params: {\
+                codes: app.CODES.getValue()\
+              },\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.REM_CUS_COD.setValue(data.rows[0].CNTR_OPERATOR_COD);\
+                  app.REM_CUS.setValue(data.rows[0].CNTR_OPERATOR);\
+                  app.gridAccDetails.store.load({\
+                    params: {\
+                      bill_no: app.BILL_NO.getValue(),\
+                      cod: app.REM_CUS_COD.getValue()\
+                    }\
+                  });\
+                }\
+              }\
+            });\
+            //\
+            app.PAYER_COD.store.load({\
+              params: {\
+                query: data.rows[0].SHIPPER_COD\
+              },\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.PAYER_COD.setValue(data.rows[0].SHIPPER_COD);\
+                  app.PAYER.setValue(data.rows[0].SHIPPER);\
+                }\
+              }\
+            });\
+            //\
+          }\
+        } else {\
+          Wb.warn(\"没有找到提单：\" + app.BILL_NO.getValue());\
+        }\
+      }\
+    });\
+  }\
+}\
+\
+\
+\
+// if (e.getKey() == e.ENTER) {\
+//   if (!app.isedit) {\
+//     Wb.request({\
+//       url: \"m?xwl=BuzManage/remittingedit/selectVbill\",\
+//       params: {\
+//         BILL_NO: app.BILL_NO.getValue()\
+//       },\
+//       success: function(resp) {\
+//         var data = Wb.decode(resp.responseText);\
+//         if (data.rows.length > 0) {\
+//           app.I_E_ID.setValue(data.rows[0].I_E_ID);\
+//           //进口\
+//           if (data.rows[0].I_E_ID == \"I\") {\
+//             app.CUSTOMER_ID.setValue(data.rows[0].CONSIGNEE_COD);\
+//             app.CUSTOMER_NAM.setValue(data.rows[0].CONSIGNEE);\
+//             app.CODES.setValue(\"'\" + data.rows[0].CONSIGNEE_COD + \"','\" + data.rows[0].CNTR_OPERATOR_COD + \"'\");\
+//             app.REM_CUS_COD.store.load({\
+//               params: {\
+//                 codes: app.CODES.getValue()\
+//               },\
+//               callback: function(r, options, success) {\
+//                 if (success) {\
+//                   app.REM_CUS_COD.setValue(data.rows[0].CONSIGNEE_COD);\
+//                   app.REM_CUS.setValue(data.rows[0].CONSIGNEE);\
+//                   app.gridAccDetails.store.load({\
+//                     params: {\
+//                       bill_no: app.BILL_NO.getValue(),\
+//                       cod: app.REM_CUS_COD.getValue()\
+//                     }\
+//                   });\
+//                 }\
+//               }\
+//             });\
+//           }\
+//           //出口\
+//           if (data.rows[0].I_E_ID == \"E\") {\
+//             app.CUSTOMER_ID.setValue(data.rows[0].SHIPPER_COD);\
+//             app.CUSTOMER_NAM.setValue(data.rows[0].SHIPPER);\
+//             app.CODES.setValue(\"'\" + data.rows[0].SHIPPER_COD + \"','\" + data.rows[0].CNTR_OPERATOR_COD + \"'\");\
+//             app.REM_CUS_COD.store.load({\
+//               params: {\
+//                 codes: app.CODES.getValue()\
+//               },\
+//               callback: function(r, options, success) {\
+//                 if (success) {\
+//                   app.REM_CUS_COD.setValue(data.rows[0].SHIPPER_COD);\
+//                   app.REM_CUS.setValue(data.rows[0].SHIPPER);\
+//                   app.gridAccDetails.store.load({\
+//                     params: {\
+//                       bill_no: app.BILL_NO.getValue(),\
+//                       cod: app.REM_CUS_COD.getValue()\
+//                     }\
+//                   });\
+//                 }\
+//               }\
+//             });\
+//           }\
+//         } else {\
+//           Wb.warn(\"没有找到提单：\" + app.BILL_NO.getValue());\
+//         }\
+//       }\
+//     });\
+//   }\
+// }"}
+       },
+       {
+        "configs": {
+         "itemId": "REM_DATE",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "托收日期",
+         "format": "Y-m-d"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "allowBlank": "false",
+         "itemId": "REM_CUS_COD",
+         "labelAlign": "right",
+         "fieldLabel": "费用转出方",
+         "pageSize": "50",
+         "displayField": "CNAME",
+         "listConfig": "{width:250}",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "forceSelection": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=BuzManage/remittingedit/selectRem"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "operation.params = {\
+  codes: app.CODES.getValue()\
+};"}
+        }],
+        "type": "combo",
+        "events": {"select": "app.REM_CUS.setValue(combo.getRawValue());\
+app.gridAccDetails.store.load({\
+  params: {\
+    bill_no: app.BILL_NO.getValue(),\
+    cod: combo.getValue()\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "REM_CUS",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "费用转出方",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "allowBlank": "false",
+         "pageSize": "50",
+         "listConfig": "{width:250}",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "PAYER_COD",
+         "labelAlign": "right",
+         "fieldLabel": "费用接收方",
+         "displayField": "CNAME",
+         "forceSelection": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "app.PAYER.setValue(combo.getRawValue());"}
+       },
+       {
+        "configs": {
+         "itemId": "PAYER",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "费用接收方",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "allowBlank": "false",
+         "itemId": "R_TYPE",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['kh', '月结客户'],\
+  ['hz', '货主'],\
+  ['cgs', '船公司']\
+]",
+         "fieldLabel": "托收类型",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "CUSTOMER_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "CUSTOMER_ID",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CUSTOMER_NAM",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "CUSTOMER_NAM",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "I_E_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "I_E_ID",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CODES",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "CODES",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "gridAccDetails",
+       "selType": "checkboxmodel",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "tbar",
+         "hidden": "true",
+         "normalName": "accbar"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "addaBtn",
+           "text": "@Str.add",
+           "iconCls": "record_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (Wb.isEmpty(app.BILL_NO.getValue())) {\
+  Wb.warn(\"请查询提单\");\
+  return;\
+}\
+var win = new Ext.window.Window(app._winAccDetails); //app._win指向配置对象而非实例\
+win.setTitle('添加 - 费用明细');\
+win.setIconCls('record_add_icon');\
+win.show();\
+app.bill_no.setValue(app.BILL_NO.getValue());"}
+         },
+         {
+          "configs": {
+           "itemId": "saveaBtn",
+           "hidden": "true",
+           "text": "@Str.save",
+           "iconCls": "save_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (!Wb.verifyGrid(app.gridAccDetails)) //验证数据是否合法\
+  return;\
+\
+Wb.sync({\
+  grid: app.gridAccDetails,\
+  url: 'm?xwl=BuzManage/remittingedit/accdetailsedit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "itema",
+           "text": "-"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "pageSize": "-1",
+         "url": "m?xwl=BuzManage/remittingedit/selectAccDetails"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTENANCY_ID",
+           "hidden": "true",
+           "dataIndex": "TENANCY_ID",
+           "text": "租户"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR",
+           "dataIndex": "CNTR",
+           "text": "箱号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colFEE_GROUP_ID",
+           "hidden": "true",
+           "dataIndex": "FEE_GROUP_ID",
+           "keyName": "C_BASE_CATEGORY",
+           "text": "费类(隐藏)"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colFEE_LIST_ID",
+           "dataIndex": "FEE_LIST_ID",
+           "keyName": "C_BASE_CHARGING_ITEM",
+           "text": "费目"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colACTUAL_JOB_COUNT",
+           "dataIndex": "ACTUAL_JOB_COUNT",
+           "width": "60",
+           "text": "数量"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colAMOUNT",
+           "dataIndex": "AMOUNT",
+           "width": "60",
+           "text": "金额"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCUSTOMER_NAM",
+           "dataIndex": "CUSTOMER_NAM",
+           "width": "140",
+           "text": "货主"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR_OPERATOR_NAM",
+           "dataIndex": "CNTR_OPERATOR_NAM",
+           "width": "140",
+           "text": "船公司"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var rec = app.gridAccDetails.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择至少 1 个费用明细！');\
+  return;\
+}\
+var records = app.gridAccDetails.getSelection();\
+var ids = \"\";\
+var fmcount = 0;\
+Wb.each(records, function(rec) {\
+  if (Wb.isEmpty(rec.data.FEE_LIST_ID)) {\
+    fmcount++;\
+  }\
+});\
+if (fmcount > 0) {\
+  Wb.warn('请选择费目！');\
+  return;\
+}\
+Wb.each(records, function(rec) {\
+  ids += \"'\" + rec.data.ID + \"',\";\
+});\
+ids = ids.substring(0, ids.length - 1);\
+// if (app.isedit) {\
+//   Wb.sync({\
+//     grid: app.gridAccDetails,\
+//     url: 'm?xwl=BuzManage/remittingedit/accdetailsedit/save',\
+//     message: '正在保存中...',\
+//     success: function(resp) {\
+//       Wb.request({\
+//         url: 'm?xwl=BuzManage/remittingedit/update',\
+//         out: app.winRemitting,\
+//         params: {\
+//           ids: ids,\
+//           itemids: app.itemids.getValue()\
+//         },\
+//         success: function(resp) {\
+//           //隐藏对话框，在模块关闭时自动销毁对话框\
+//           app.winRemitting.close();\
+//           app.gridRemitting.store.load({\
+//             out: app.tbar\
+//           });\
+//           app.gridRemittingItem.store.load();\
+//         }\
+//       });\
+//     }\
+//   });\
+// } else {\
+// Wb.sync({\
+//   grid: app.gridAccDetails,\
+//   url: 'm?xwl=BuzManage/remittingedit/accdetailsedit/save',\
+//   message: '正在保存中...',\
+//   success: function(resp) {\
+Wb.request({\
+  url: 'm?xwl=BuzManage/remittingedit/insert',\
+  out: app.winRemitting,\
+  params: {\
+    ids: ids\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (!result.success) {\
+      Wb.warn(result.errmsg);\
+      return;\
+    }\
+    //隐藏对话框，在模块关闭时自动销毁对话框\
+    app.winRemitting.close();\
+    app.gridRemitting.store.load({\
+      out: app.tbar\
+    });\
+    app.gridRemittingItem.store.load();\
+  }\
+});\
+//   }\
+// });\
+// }"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "winAccDetails",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "800",
+     "height": "600"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:3}",
+       "itemId": "panelAccDetails",
+       "defaults": "{\
+  labelWidth: 60,\
+  width: 240,\
+  margin: '8 0 0 8'\
+}",
+       "width": "648",
+       "region": "north",
+       "frame": "true",
+       "height": "170"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "billNo",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "提单号",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "allowBlank": "false",
+         "selectOnTab": "true",
+         "isUpperCase": "true",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "paymentCustomerCode",
+         "labelAlign": "right",
+         "fieldLabel": "付费人",
+         "x": "8",
+         "width": "240",
+         "displayField": "CNAME",
+         "y": "8",
+         "forceSelection": "false",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "// app.ADACCOUNT_CUSTOMER_NAM.setValue(combo.getRawValue());\
+// app.ADPAYMENT_CUSTOMER_CODE.setValue(combo.getValue());\
+// app.ADPAYMENT_CUSTOMER_NAM.setValue(combo.getRawValue());"}
+       },
+       {
+        "configs": {
+         "allowBlank": "true",
+         "selectOnTab": "true",
+         "isUpperCase": "true",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "cntrOperatorCod",
+         "labelAlign": "right",
+         "fieldLabel": "船公司",
+         "x": "8",
+         "width": "240",
+         "displayField": "CNAME",
+         "y": "8",
+         "forceSelection": "false",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "app.ADCNTR_OPERATOR_NAM.setValue(combo.getRawValue());"}
+       },
+       {
+        "configs": {
+         "allowBlank": "true",
+         "selectOnTab": "true",
+         "isUpperCase": "true",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "customerId",
+         "labelAlign": "right",
+         "fieldLabel": "货主",
+         "x": "8",
+         "width": "240",
+         "displayField": "CNAME",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "app.ADCUSTOMER_NAM.setValue(combo.getRawValue());"}
+       },
+       {
+        "configs": {
+         "allowBlank": "false",
+         "hidden": "true",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "itemId": "feeListId",
+         "labelAlign": "right",
+         "fieldLabel": "费项",
+         "x": "8",
+         "width": "240",
+         "displayField": "CNAME",
+         "y": "8",
+         "multiSelect": "false",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "params": "{fldId:'C_BASE_CHARGING_ITEM'}",
+          "url": "m?xwl=system/common/codeSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "iEId",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['I', '进口'],\
+  ['E', '出口']\
+]",
+         "fieldLabel": "进出口",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['1', '外贸'],\
+  ['2', '内贸']\
+]",
+         "fieldLabel": "内外贸",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cntr",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "箱号",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "cntrSize",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['20', '20'],\
+  ['40', '40'],\
+  ['45', '45']\
+]",
+         "fieldLabel": "箱尺寸",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "goodsNotes",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "货物名称",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "cntrType",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "货物属性",
+         "keyName": "CARGO_TYPE",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "value": "P",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "billType",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "包装类型",
+         "keyName": "BILL_TYPE",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "jobFinishDate",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "业务时间",
+         "format": "Y-m-d",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "paymentType",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['1', '现金'],\
+  ['2', '月结']\
+]",
+         "fieldLabel": "收费类型",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "value": "1",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "contractRate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "单价",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number",
+        "events": {"blur": "app.amount.setValue(number.value*app.actualJobCount.getValue()*app.contractAddRate.getValue()*app.dwellDays.getValue()/100);"}
+       },
+       {
+        "configs": {
+         "itemId": "actualJobCount",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "数量",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "value": "1",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "contractAddRate",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "折扣",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "value": "100",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "dwellDays",
+         "allowBlank": "true",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "天数",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "value": "1",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "amount",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "总价",
+         "x": "8",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "tagConfigs": "{\
+  colspan: 3\
+}",
+         "itemId": "notes",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "备注",
+         "width": "490",
+         "x": "8",
+         "y": "8",
+         "height": "24"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "textarea"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel1",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "feegrid",
+        "editable": "true",
+        "tbar": "app.toolbar1"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=BuzManage/sundryFeeSql/selectfee"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "features"},
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "features",
+           "ftype": "summary"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "feature"
+         }],
+         "type": "array"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "主键ID"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colTID",
+            "hidden": "true",
+            "dataIndex": "TID",
+            "text": "主表ID"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colBILL_NO",
+            "hidden": "true",
+            "dataIndex": "BILL_NO",
+            "text": "提单号"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colFEE_LIST_ID",
+            "summaryRenderer": "return '合计：';",
+            "dataIndex": "FEE_LIST_ID",
+            "width": "130",
+            "keyName": "C_BASE_CHARGING_ITEM",
+            "text": "费目"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "queryMode": "local",
+             "displayField": "CNAME",
+             "valueField": "ID"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "autoLoad": "true",
+              "params": "{fldId:'C_BASE_CHARGING_ITEM'}",
+              "url": "m?xwl=system/common/codeSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colcontractRate",
+            "dataIndex": "CONTRACT_RATE",
+            "width": "50",
+            "text": "单价",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number",
+            "events": {"change": "var fee=app.feegrid.getSelection()[0];\
+var contractRate=this.getValue();\
+var actualJobCount=fee.data.ACTUAL_JOB_COUNT;\
+var contractAddRate=fee.data.CONTRACT_ADD_RATE;\
+var dwellDays=fee.data.DWELL_DAYS;\
+var amount=contractRate*actualJobCount*contractAddRate*dwellDays/100;\
+fee.set(\"AMOUNT\",amount);\
+"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colactualJobCount",
+            "dataIndex": "ACTUAL_JOB_COUNT",
+            "width": "50",
+            "text": "数量",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number",
+            "events": {"change": "var fee=app.feegrid.getSelection()[0];\
+var actualJobCount=this.getValue();\
+if(fee.data.CONTRACT_RATE!=null&&fee.data.CONTRACT_RATE!=''){\
+var contractRate=fee.data.CONTRACT_RATE;\
+var contractAddRate=fee.data.CONTRACT_ADD_RATE;\
+var dwellDays=fee.data.DWELL_DAYS;\
+var amount=contractRate*actualJobCount*contractAddRate*dwellDays/100;\
+fee.set(\"AMOUNT\",amount);\
+}"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "coldwellDays",
+            "dataIndex": "DWELL_DAYS",
+            "width": "50",
+            "text": "天数",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number",
+            "events": {"change": "var fee=app.feegrid.getSelection()[0];\
+var dwellDays=this.getValue();\
+if(fee.data.CONTRACT_RATE!=null&&fee.data.CONTRACT_RATE!=''){\
+var contractRate=fee.data.CONTRACT_RATE;\
+var contractAddRate=fee.data.CONTRACT_ADD_RATE;\
+var actualJobCount=fee.data.ACTUAL_JOB_COUNT;\
+var amount=contractRate*actualJobCount*contractAddRate*dwellDays/100;\
+fee.set(\"AMOUNT\",amount);\
+}"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colcontractAddRate",
+            "dataIndex": "CONTRACT_ADD_RATE",
+            "width": "50",
+            "text": "折扣",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number",
+            "events": {"change": "var fee=app.feegrid.getSelection()[0];\
+var contractAddRate=this.getValue();\
+if(fee.data.CONTRACT_RATE!=null&&fee.data.CONTRACT_RATE!=''){\
+var contractRate=fee.data.CONTRACT_RATE;\
+var dwellDays=fee.data.DWELL_DAYS;\
+var actualJobCount=fee.data.ACTUAL_JOB_COUNT;\
+var amount=contractRate*actualJobCount*contractAddRate*dwellDays/100;\
+fee.set(\"AMOUNT\",amount);\
+}"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colamount",
+            "summaryRenderer": "return Wb.format('共 {0} ', value);",
+            "dataIndex": "AMOUNT",
+            "summaryType": "sum",
+            "width": "90",
+            "text": "总价",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colPAY_FLAG",
+            "renderer": "if (value == '0') {\
+  return '未收费';\
+}\
+if (value == '1') {\
+  return '已收费';\
+}",
+            "dataIndex": "PAY_FLAG",
+            "width": "65",
+            "text": "收费状态",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_BY",
+            "hidden": "true",
+            "dataIndex": "CREATED_BY",
+            "text": "创建人"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_ON",
+            "hidden": "true",
+            "dataIndex": "UPDATED_ON",
+            "text": "修改时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_ON",
+            "hidden": "true",
+            "dataIndex": "CREATED_ON",
+            "text": "创建时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_BY",
+            "hidden": "true",
+            "dataIndex": "UPDATED_BY",
+            "text": "修改人"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid"
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "// if (!Wb.verify(app.panelAccDetails))\
+//   return false;\
+\
+// var tenid = '{#sys.TENANCY_ID#}';\
+// Wb.request({\
+//   url: \"m?xwl=BuzManage/remittingedit/selectCustonType\",\
+//   params: {\
+//     code: app.REM_CUS_COD.getValue()\
+//   },\
+//   success: function(resp) {\
+//     var account_type = Wb.decode(resp.responseText);\
+//     Wb.addEdit(app.gridAccDetails, {\
+//       ID: Wb.guid(),\
+//       TENANCY_ID: tenid,\
+//       BILL_NO: app.BILL_NO.getValue(), //提单号\
+//       CNTR: app.CNTR.getValue(), //箱号\
+//       ACCOUNT_CUSTOMER_CODE: app.REM_CUS_COD.getValue(), //计费对象ID\
+//       ACCOUNT_CUSTOMER_NAM: app.REM_CUS.getValue(), //计费对象\
+//       PAYMENT_CUSTOMER_CODE: app.PAYER_COD.getValue(), //付费对象ID\
+//       PAYMENT_CUSTOMER_NAM: app.PAYER.getValue(), //付费对象\
+//       FEE_LIST_ID: app.FEE_LIST_ID.getValue(), //费目\
+//       ACTUAL_JOB_COUNT: app.ACTUAL_JOB_COUNT.getValue(),\
+//       AMOUNT: app.AMOUNT.getValue(),\
+//       SETTLE_STATUS: 0, //结算标识(0:未结算 1:已结算)\
+//       PAYMENT_TYPE: Wb.isEmpty(account_type.rows[0].ACCOUNT_TYPE) ? 1 : account_type.rows[0].ACCOUNT_TYPE, //结算类型(1:现金 2:月结)\
+//       PAY_FLAG: 0, //收费标记(0:未收费 1:已收费)\
+//       CUSTOMER_ID: app.CUSTOMER_ID.getValue(),\
+//       CUSTOMER_NAM: app.CUSTOMER_NAM.getValue(),\
+//       UNIT_ID: 0,\
+//       I_E_ID: app.I_E_ID.getValue(),\
+//       IS_MANUAL: 1 //手工费用\
+//     }); //更多选项可使用Wb.add方法\
+//     app.winAccDetails.close();\
+//   }\
+// });"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "tab1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "border",
+        "itemId": "panel1",
+        "title": "月结客户缴费通知单"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "layout": "border",
+          "itemId": "panelGrid",
+          "region": "north",
+          "height": "300"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "gridRemitting",
+           "disabled": "false",
+           "region": "center"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {"itemId": "tbar"},
+            "expanded": true,
+            "children": [
+             {
+              "configs": {
+               "itemId": "txtBILL_NO",
+               "labelAlign": "right",
+               "emptyText": "提单号",
+               "isUpperCase": "true",
+               "labelWidth": "60"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "tagConfigs": "matchFieldWidth: false",
+               "emptyText": "客户",
+               "pageSize": "50",
+               "enterKeyTriggerClick": "true",
+               "listConfig": "{width:250}",
+               "valueField": "ID",
+               "queryDelay": "500",
+               "hideTrigger": "false",
+               "itemId": "cboREM_CUS_COD",
+               "labelAlign": "right",
+               "displayField": "CNAME",
+               "anyMatch": "true",
+               "forceSelection": "true",
+               "height": "22"
+              },
+              "expanded": false,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "url": "m?xwl=feeManage/printReport/remittingeditS/selectHz"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store",
+               "events": {"beforeload": "operation.params.sdate=app.sdate.getRawValue();\
+operation.params.edate=app.edate.getRawValue();"}
+              }],
+              "type": "combo",
+              "events": {"select": "console.log(records);\
+app.cname.setValue(records[0].data.CNAME);"}
+             },
+             {
+              "configs": {
+               "itemId": "sdate",
+               "labelAlign": "right",
+               "fieldLabel": "开始日期",
+               "labelWidth": "60",
+               "height": "22"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "date"
+             },
+             {
+              "configs": {
+               "itemId": "edate",
+               "labelAlign": "right",
+               "fieldLabel": "结束日期",
+               "labelWidth": "60",
+               "height": "22"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "date"
+             },
+             {
+              "configs": {
+               "itemId": "rtype",
+               "hidden": "true",
+               "pickList": "[[\"kh\",\"月结客户\"],[\"hz\",\"货主\"],[\"cgs\",\"船公司\"]]",
+               "emptyText": "类型"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "searchBtn",
+               "text": "@Str.find",
+               "iconCls": "search_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "app.gridRemitting.store.load({\
+  out: app.tbar\
+});"}
+             },
+             {
+              "configs": {
+               "itemId": "item1",
+               "hidden": "true",
+               "text": "-"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "item"
+             },
+             {
+              "configs": {
+               "itemId": "addBtn",
+               "hidden": "true",
+               "text": "@Str.add",
+               "iconCls": "record_add_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var win = new Ext.window.Window(app._winRemitting);\
+win.setTitle('添加 - 托收单');\
+win.setIconCls('record_add_icon');\
+app.winRemitting.show();\
+app.REM_DATE.setValue(new Date());\
+app.addaBtn.setDisabled(false);\
+app.saveaBtn.setDisabled(false);\
+\
+\
+// app.gridAccDetails.store.load({\
+//   params: {\
+//     BILL_NO: app.BILL_NO.getValue(),\
+//     ids: \"''\"\
+//   }\
+// });"}
+             },
+             {
+              "configs": {
+               "itemId": "editBtn",
+               "hidden": "true",
+               "text": "@Str.modify",
+               "iconCls": "record_edit_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var sels = app.gridRemitting.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(Wb.format(Str.selectRecord, Str.modify));\
+  return;\
+}\
+app.isedit = true;\
+app.selRec = sels[0];\
+var win = new Ext.window.Window(app._winRemitting);\
+win.setTitle(Str.modify + '- ' + app.selRec.data.BILL_NO);\
+win.setIconCls('record_edit_icon');\
+app.BILL_NO.setReadOnly(true);\
+app.addaBtn.setDisabled(true);\
+app.saveaBtn.setDisabled(true);\
+Wb.setValue(app.winRemitting, app.selRec.data);\
+app.winRemitting.show();\
+\
+Wb.request({\
+  url: \"m?xwl=BuzManage/remittingedit/selectItems\",\
+  params: {\
+    C_ID: app.selRec.data.ID\
+  },\
+  success: function(resp) {\
+    var items = Wb.decode(resp.responseText);\
+    var ids = \"\";\
+    Wb.each(items.rows, function(item) {\
+      ids += \"'\" + item.AD_ID + \"',\";\
+    });\
+    app.itemids.setValue(ids.substring(0, ids.length - 1));\
+    app.gridAccDetails.store.load({\
+      params: {\
+        BILL_NO: app.BILL_NO.getValue(),\
+        ids: ids.substring(0, ids.length - 1),\
+        cod: app.selRec.data.REM_CUS_COD,\
+        accuser: accuser\
+      },\
+      callback: function(r, options, success) { //r:返回的数据,r.length,r[0].data.属性 success:是否回调成功,true,false\
+        if (success) {\
+          var selRow, selRecs = [];\
+          Wb.each(items.rows, function(data) {\
+            selRow = Wb.find(app.gridAccDetails.store, \"ID\", data.AD_ID);\
+            if (selRow)\
+              selRecs.push(selRow);\
+          });\
+          app.gridAccDetails.setSelection(selRecs);\
+        }\
+      }\
+    });\
+  }\
+});"}
+             },
+             {
+              "configs": {
+               "itemId": "delBtn",
+               "hidden": "true",
+               "tooltip": "删除选择的记录",
+               "text": "@Str.del",
+               "iconCls": "record_delete_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var sels = app.gridRemitting.getSelection();\
+\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=BuzManage/remittingedit/delete',\
+    params: {\
+      ID: sels[0].data.ID,\
+      ids: app.txtitemids.getValue()\
+    },\
+    success: function() {\
+      app.gridRemitting.store.load({\
+        out: app.tbar\
+      });\
+      app.gridRemittingItem.store.load();\
+    }\
+  });\
+}, 'BILL_NO');"}
+             },
+             {
+              "configs": {
+               "itemId": "item2",
+               "hidden": "true",
+               "text": "打印",
+               "iconCls": "printer_icon"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var sels = app.gridRemitting.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(\"请选择要打印的托收单\");\
+  return;\
+}\
+\
+if (sels[0].data.R_TYPE == \"kh\")\
+  app.printBtn.fireEvent(\"click\");\
+if (sels[0].data.R_TYPE == \"hz\")\
+  app.printBtnH.fireEvent(\"click\");\
+if (sels[0].data.R_TYPE == \"cgs\")\
+  app.printBtnC.fireEvent(\"click\");"}
+             },
+             {
+              "configs": {
+               "itemId": "printBtn",
+               "hidden": "true",
+               "text": "月结托收单",
+               "iconCls": "printer_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var sels = app.gridRemitting.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(\"请选择要打印的托收单\");\
+  return;\
+}\
+var date = new Date();\
+var printdate = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate();\
+var sotre = app.gridRemittingItem.getStore();\
+var ids = \"\";\
+Wb.each(sotre.data.items, function(item) {\
+  ids += \"'\" + item.data.FEE_LIST_ID + \"',\";\
+});\
+if (!Wb.isEmpty(ids))\
+  ids = ids.substring(0, ids.length - 1);\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and ad.tenancy_id='\" + tenancyid + \"' and ad.bill_no='\" + sels[0].data.BILL_NO + \"'\");\
+var whereSql1 = encodeURI(\" and ad.tenancy_id='\" + tenancyid + \"' and ad.bill_no='\" + sels[0].data.BILL_NO + \"' and fee_list_id in(\" + ids + \")\");\
+AF1.func(\"Build\", '/supcan/report/fee/month_acc.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + sels[0].data.ID + \"' ID='\" + sels[0].data.ID + \"'/>\");\
+AF1.func(\"SetCellData\", \"<data A1='中山港国际货柜码头月结客户缴费通知单\" + \"' D2='月结客户缴费托收单号：\" + \"' A10='月结客户缴费托收单位(签章)：\" + \"' F10='业务员：\" + \"{#sys.dispname#}\" + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+             },
+             {
+              "configs": {
+               "itemId": "printBtnC",
+               "hidden": "true",
+               "text": "船公司托收单",
+               "iconCls": "printer_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var sels = app.gridRemitting.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(\"请选择要打印的托收单\");\
+  return;\
+}\
+var date = new Date();\
+var printdate = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate();\
+var sotre = app.gridRemittingItem.getStore();\
+var ids = \"\";\
+Wb.each(sotre.data.items, function(item) {\
+  ids += \"'\" + item.data.FEE_LIST_ID + \"',\";\
+});\
+if (!Wb.isEmpty(ids))\
+  ids = ids.substring(0, ids.length - 1);\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and ad.tenancy_id='\" + tenancyid + \"' and ad.bill_no='\" + sels[0].data.BILL_NO + \"'\");\
+var whereSql1 = encodeURI(\" and ad.tenancy_id='\" + tenancyid + \"' and ad.bill_no='\" + sels[0].data.BILL_NO + \"' and fee_list_id in(\" + ids + \")\");\
+AF1.func(\"Build\", '/supcan/report/fee/month_cgs.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + sels[0].data.ID + \"' ID='\" + sels[0].data.ID + \"'/>\");\
+AF1.func(\"SetCellData\", \"<data A1='中山港国际货柜码头船公司缴费通知单' D2='船公司缴费托收单号：' A10='船公司缴费托收单位(签章)：' F10='业务员：\" + \"{#sys.dispname#}\" + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+             },
+             {
+              "configs": {
+               "itemId": "printBtnH",
+               "hidden": "true",
+               "text": "货主通知单",
+               "iconCls": "printer_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "item",
+              "events": {"click": "var sels = app.gridRemitting.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn(\"请选择要打印的托收单\");\
+  return;\
+}\
+var date = new Date();\
+var printdate = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate();\
+var sotre = app.gridRemittingItem.getStore();\
+var ids = \"\";\
+Wb.each(sotre.data.items, function(item) {\
+  ids += \"'\" + item.data.FEE_LIST_ID + \"',\";\
+});\
+if (!Wb.isEmpty(ids))\
+  ids = ids.substring(0, ids.length - 1);\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and ad.tenancy_id='\" + tenancyid + \"' and ad.bill_no='\" + sels[0].data.BILL_NO + \"'\");\
+var whereSql1 = encodeURI(\" and ad.tenancy_id='\" + tenancyid + \"' and ad.bill_no='\" + sels[0].data.BILL_NO + \"' and fee_list_id in(\" + ids + \")\");\
+AF1.func(\"Build\", '/supcan/report/fee/month_hz.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + sels[0].data.ID + \"' ID='\" + sels[0].data.ID + \"'/>\");\
+AF1.func(\"SetCellData\", \"<data A1='中山港国际货柜码头货主缴费通知单' D2='货主缴费托收单号：' A10='货主缴费托收单位(签章)：' F10='业务员：\" + \"{#sys.dispname#}\" + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+             },
+             {
+              "configs": {
+               "itemId": "txtitemids",
+               "hidden": "true",
+               "labelAlign": "right",
+               "labelWidth": "85"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "txtPRINTNO",
+               "hidden": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }
+            ],
+            "type": "toolbar"
+           },
+           {
+            "configs": {
+             "itemId": "store",
+             "sorters": "'ID'",
+             "url": "m?xwl=feeManage/printReport/remittingeditS/select"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "store",
+            "events": {"beforeload": "operation.params = {\
+  sdate: app.sdate.getRawValue(),\
+  edate: app.edate.getRawValue(),\
+  billNo: app.txtBILL_NO.getValue(),\
+  hz: app.cboREM_CUS_COD.getValue()\
+};"}
+           },
+           {
+            "configs": {"itemId": "columns"},
+            "expanded": true,
+            "children": [
+             {
+              "configs": {
+               "itemId": "colTENANCY_ID",
+               "hidden": "true",
+               "dataIndex": "TENANCY_ID",
+               "text": "租户"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "column1",
+               "xtype": "rownumberer"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colPRINTPHASE",
+               "renderer": "if(value=='0'){\
+\treturn '未打印';\
+}else if(value=='1'){\
+\treturn '已打印';\
+}else if(value=='2'){\
+\treturn '确认';\
+}",
+               "dataIndex": "PRINTPHASE",
+               "width": "55",
+               "text": "状态"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colR_TYPE",
+               "renderer": "if (value == \"kh\")\
+  return \"月结客户\";\
+if (value == \"hz\")\
+  return \"货主\";\
+if (value == \"cgs\")\
+  return \"船公司\";",
+               "hidden": "true",
+               "dataIndex": "R_TYPE",
+               "width": "80",
+               "text": "类型"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colID",
+               "hidden": "false",
+               "dataIndex": "PRINTNO",
+               "text": "打印单号"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colREM_CUS",
+               "dataIndex": "ACCOUNT_CUSTOMER_NAM",
+               "width": "200",
+               "text": "托收方"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colPAYER",
+               "dataIndex": "PAYMENT_CUSTOMER_NAM",
+               "width": "200",
+               "text": "付费方"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colREM_DATE",
+               "hidden": "true",
+               "dataIndex": "REM_DATE",
+               "format": "Y-m-d",
+               "text": "托收日期"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colBILL_NO",
+               "dataIndex": "BILL_NO",
+               "text": "提单"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colVESSEL_NAME",
+               "hidden": "true",
+               "dataIndex": "VESSEL_NAME",
+               "text": "船名"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colVYG",
+               "hidden": "true",
+               "dataIndex": "VYG",
+               "text": "航次"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colGOODS_NOTES",
+               "hidden": "true",
+               "dataIndex": "GOODS_NOTES",
+               "text": "货物"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colPIECES",
+               "hidden": "true",
+               "dataIndex": "PIECES",
+               "width": "60",
+               "text": "件数"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colWEIGHT",
+               "hidden": "true",
+               "dataIndex": "WEIGHT",
+               "width": "60",
+               "text": "重量"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colVOLUME",
+               "hidden": "true",
+               "dataIndex": "VOLUME",
+               "width": "60",
+               "text": "体积"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colCREATED_BY",
+               "dataIndex": "CREATED_BY",
+               "width": "60",
+               "keyName": "WB_USER",
+               "text": "操作人"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             },
+             {
+              "configs": {
+               "itemId": "colCREATED_ON",
+               "dataIndex": "CREATED_ON",
+               "width": "120",
+               "text": "操作时间"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             }
+            ],
+            "type": "array"
+           }
+          ],
+          "type": "grid",
+          "events": {
+           "itemclick": "app.selRec = record.data;\
+app.gridRemittingItem.store.load({\
+  params: {\
+    PRINTNO: record.data.PRINTNO\
+  },\
+  callback: function(r, options, success) { //r:返回的数据,r.length,r[0].data.属性 success:是否回调成功,true,false\
+    if (success) {\
+      var ids = \"\";\
+      var hj = 0;\
+      for (var i = 0; i < r.length; i++) {\
+        //         ids += \"'\" + r[i].data.AD_ID + \"',\";\
+        hj += r[i].data.AMOUNT;\
+      }\
+      //       app.txtitemids.setValue(ids.substring(0, ids.length - 1));\
+      app.lblhj.setText(\"合计金额:\" + hj);\
+    }\
+  }\
+});\
+app.txtPRINTNO.setValue(record.data.PRINTNO);",
+           "itemdblclick": "// app.editBtn.fireEvent('click');"
+          }
+         }],
+         "type": "panel"
+        },
+        {
+         "configs": {
+          "itemId": "gridRemittingItem",
+          "pagingBar": "false",
+          "tbar": "app.tbarItem",
+          "region": "center",
+          "bbar": "app.bbar"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "tbar",
+            "hidden": "false"
+           },
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "addMenu",
+              "text": "@Str.add",
+              "iconCls": "record_add_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "// if (Wb.isEmpty(app.BILL_NO.getValue())) {\
+//   Wb.warn(\"请查询提单\");\
+//   return;\
+// }\
+// var win = new Ext.window.Window(app._winAccDetails); //app._win指向配置对象而非实例\
+// win.setTitle('添加 - 费用明细');\
+// win.setIconCls('record_add_icon');\
+// win.show();\
+// app.bill_no.setValue(app.BILL_NO.getValue());\
+var sels = app.gridRemitting.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择一条数据!\");\
+  return;\
+}\
+var win = new Ext.window.Window(app._winAccDetails); //app._win指向配置对象而非实例\
+win.setTitle('添加 - 费用明细');\
+win.setIconCls('record_add_icon');\
+win.show();\
+app.billNo.setValue(sels[0].data.BILL_NO);\
+app.paymentCustomerCode.setValue(sels[0].data.PAYMENT_CUSTOMER_CODE);\
+app.iEId.setValue(sels[0].data.I_E_ID);\
+app.tradeId.setValue(sels[0].data.TRADE_ID);\
+app.cntrOperatorCod.setValue(sels[0].data.CNTR_OPERATOR_COD);\
+win.mon(win, 'ok', function() {\
+  Wb.request({\
+    url: 'm?xwl=feeManage/printReport/remittingeditS/addfee',\
+    out: app.panelAccDetails,\
+    params: {\
+      datas: Wb.getModified(app.feegrid),\
+      PRINTNO:sels[0].data.PRINTNO\
+    },\
+    success: function(resp) {\
+      Wb.info(\"成功\");\
+      win.close();\
+    }\
+  });\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "updateMenu",
+              "text": "@Str.modify",
+              "iconCls": "record_edit_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var sels = app.gridRemittingItem.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择一条数据!\");\
+  return;\
+}\
+var win = new Ext.window.Window(app._winAccDetails); //app._win指向配置对象而非实例\
+win.setTitle('添加 - 费用明细');\
+win.setIconCls('record_add_icon');\
+win.show();\
+app.billNo.setValue(sels[0].data.BILL_NO);\
+app.paymentCustomerCode.setValue(sels[0].data.PAYMENT_CUSTOMER_CODE);\
+app.iEId.setValue(sels[0].data.I_E_ID);\
+app.tradeId.setValue(sels[0].data.TRADE_ID);\
+app.cntrOperatorCod.setValue(sels[0].data.CNTR_OPERATOR_COD);\
+\
+app.feegrid.store.load({\
+  params: {\
+    BILL_NO: sels[0].data.BILL_NO\
+  }\
+});\
+app.addfee.setDisabled(true);\
+app.delfee.setDisabled(true);\
+\
+win.mon(win, 'ok', function() {\
+  Wb.request({\
+    url: 'm?xwl=feeManage/printReport/remittingeditS/editfee',\
+    out: app.panelAccDetails,\
+    params: {\
+      datas: Wb.getModified(app.feegrid)\
+    },\
+    success: function(resp) {\
+      Wb.info(\"成功\");\
+      win.close();\
+    }\
+  });\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "delMenu",
+              "text": "@Str.del",
+              "iconCls": "record_delete_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var row = app.gridRemittingItem.getSelection();\
+if (row.length < 1) {\
+  Wb.warn(\"请选择一条费用！\");\
+  return;\
+}\
+\
+if (row[0].data.PRINTPHASE != 0) {\
+  Wb.warn(\"已打印或确认，不可删除\");\
+  return;\
+}\
+var feeHead = \"\";\
+var feeBody = \"\";\
+Wb.confirm(\"确定删除这条费用吗？\", function() {\
+//   feeBody = '{\"feeListId\":\"' + row[0].data.FEE_LIST_ID + '\",\"CNTR\":\"\",\"CNTRSIZE\":\"\",\"contractRate\":\"' + row[0].data.CONTRACT_RATE + '\",\"actualJobCount\":\"' + row[0].data.ACTUAL_JOB_COUNT +\
+//     '\",\"contractAddRate\":\"' + row[0].data.CONTRACT_ADD_RATE + '\",\"dwellDays\":\"' + row[0].data.DWELL_DAYS + '\",\"amount\":\"' + row[0].data.AMOUNT + '\"},';\
+//   feeHead = '{\"billNo\":\"' + row[0].data.BILL_NO + '\",\"bussinessCode\":\"' + row[0].data.BUSSINESS_CODE + '\",\"paymentCustomerCode\":\"' + row[0].data.PAYMENT_CUSTOMER_CODE + '\",\"cntrOperatorCod\":\"' + row[0].data.CNTR_OPERATOR_COD +\
+//     '\",\"customerId\":\"' + row[0].data.CUSTOMER_ID + '\",\"iEId\":\"' + row[0].data.I_E_ID + '\",\"tradeId\":\"' + row[0].data.TRADE_ID + '\",\"goodsNotes\":\"' + row[0].data.GOODS_NOTES + '\",\"cntrType\":\"' + row[0].data.CNTR_TYPE +\
+//     '\",\"billType\":\"' + row[0].data.BILL_TYPE + '\",\"jobFinishDate\":\"' + row[0].data.JOB_FINISH_DATE + '\",\"paymentType\":\"' + row[0].data.PAYMENT_TYPE + '\",\"notes\":\"' + row[0].data.NOTES + '\",\"feeBody\":' + feeBody + '}';\
+  Wb.request({\
+    url: 'm?xwl=feeManage/printReport/remittingeditS/deletefee',\
+    params: {\
+      ids: row[0].data.ID\
+    },\
+    success: function(resp) {\
+      app.gridRemittingItem.store.load({\
+        params: {\
+          PRINTNO: app.txtPRINTNO.getValue()\
+        }\
+      });\
+    }\
+  });\
+});"}
+            }
+           ],
+           "type": "toolbar"
+          },
+          {
+           "configs": {
+            "itemId": "store",
+            "pageSize": "-1",
+            "url": "m?xwl=feeManage/printReport/remittingeditS/selectItems"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "colID",
+              "hidden": "true",
+              "dataIndex": "ID",
+              "text": "ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colC_ID",
+              "hidden": "true",
+              "dataIndex": "C_ID",
+              "text": "主表ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colBILL_NO",
+              "dataIndex": "BILL_NO",
+              "text": "提单号"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colFEE_LIST_ID",
+              "dataIndex": "FEE_LIST_ID",
+              "width": "260",
+              "keyName": "C_BASE_CHARGING_ITEM",
+              "text": "费目"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colPAYMENT_TYPE",
+              "renderer": "if (value == 1)\
+  return \"现金\";\
+if (value == 2)\
+  return \"月结\";",
+              "dataIndex": "PAYMENT_TYPE",
+              "width": "70",
+              "text": "结算方式"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colACTUAL_JOB_COUNT",
+              "dataIndex": "ACTUAL_JOB_COUNT",
+              "width": "60",
+              "text": "数量"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colAMOUNT",
+              "dataIndex": "AMOUNT",
+              "width": "60",
+              "text": "金额"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colR_OK",
+              "renderer": "if (value == \"0\")\
+  return \"未确认\";\
+if (value == \"1\")\
+  return \"已确认\";",
+              "hidden": "true",
+              "dataIndex": "R_OK",
+              "width": "60",
+              "text": "状态"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid"
+        }
+       ],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "border",
+        "itemId": "panel2",
+        "title": "通知单明细"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "gridDetails",
+          "pagingBar": "false",
+          "region": "center"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "tbar",
+            "hidden": "false"
+           },
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "txtbillNo",
+              "hidden": "true",
+              "labelAlign": "right",
+              "emptyText": "提单号",
+              "isUpperCase": "true",
+              "labelWidth": "60"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "tagConfigs": "matchFieldWidth: false",
+              "hidden": "true",
+              "emptyText": "客户",
+              "pageSize": "50",
+              "enterKeyTriggerClick": "true",
+              "listConfig": "{width:250}",
+              "valueField": "ID",
+              "queryDelay": "500",
+              "hideTrigger": "false",
+              "itemId": "cboHz",
+              "labelAlign": "right",
+              "displayField": "CNAME",
+              "anyMatch": "true",
+              "forceSelection": "true",
+              "height": "22"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "url": "m?xwl=feeManage/printReport/remittingeditS/selectHz"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store",
+              "events": {"beforeload": "operation.params.sdate=app.sdate.getRawValue();\
+operation.params.edate=app.edate.getRawValue();"}
+             }],
+             "type": "combo",
+             "events": {"select": "app.cname.setValue(records[0].data.CNAME);"}
+            },
+            {
+             "configs": {
+              "itemId": "findFeeDetails",
+              "hidden": "true",
+              "text": "查找",
+              "iconCls": "seek_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "app.gridDetails.store.load({\
+  params: {\
+\tCUSTOMER_ID:app.cboREM_CUS_COD.getValue()\
+  }\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "printS",
+              "text": "打印缴费通知单",
+              "iconCls": "printer_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = \"\";\
+if (!Wb.isEmpty(app.cboREM_CUS_COD.getValue()))\
+  whereSql += \" and ACCOUNTS_DETAILS.CUSTOMER_ID='\" + app.cboREM_CUS_COD.getValue() + \"'\";\
+if(!Wb.isEmpty(app.sdate.getValue()) && !Wb.isEmpty(app.edate.getValue())){\
+whereSql+=\" and accounts_details.JOB_FINISH_DATE>=to_date('\"+app.sdate.getRawValue()+\" 00:00:00','yyyy-mm-dd hh24:mi:ss') and accounts_details.JOB_FINISH_DATE<=to_date('\"+app.edate.getRawValue()+\" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+}\
+whereSql += encodeURI(\" and ACCOUNTS_DETAILS.tenancy_id='\" + tenancyid + \"' \");\
+AF1.func(\"Build\", '/supcan/report/fee_report/SREMITTING_PRINT.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+// AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + sels[0].data.ID + \"' ID='\" + sels[0].data.ID + \"'/>\");\
+if (!Wb.isEmpty(app.cname.getValue()))\
+  AF1.func(\"SetCellData\", \"<data A1='\" + app.cname.getValue() + \"月结客户托收单'/>\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+            },
+            {
+             "configs": {
+              "itemId": "printH",
+              "text": "打印汇总单",
+              "iconCls": "printer_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = \"\";\
+if (!Wb.isEmpty(app.cboHz.getValue()))\
+  whereSql += \" and ACCOUNTS_DETAILS.CUSTOMER_ID='\" + app.cboHz.getValue() + \"'\";\
+if (!Wb.isEmpty(app.sdate.getValue()) && !Wb.isEmpty(app.edate.getValue())) {\
+  whereSql += \" and accounts_details.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss') and accounts_details.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+}\
+whereSql += encodeURI(\" and ACCOUNTS_DETAILS.tenancy_id='\" + tenancyid + \"' \");\
+// AF1.func(\"Build\", '/supcan/report/fee_report/REMITTING_HZ.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"Build\", '/supcan/report/fee_report/customerReport.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+// AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + sels[0].data.ID + \"' ID='\" + sels[0].data.ID + \"'/>\");\
+if (!Wb.isEmpty(app.cname.getValue())) {\
+  if(!Wb.isEmpty(app.sdate.getValue() && !Wb.isEmpty(app.edate.getValue()))){\
+  \tif(app.sdate.getRawValue()==app.edate.getRawValue()){\
+    \tAF1.func(\"SetCellData\", \"<data A1='\"+Wb.format(app.sdate.getValue(),'Y'+\"年\"+'m'+\"月\"+'d'+\"日\")+\"\" + app.cname.getValue() + \"   ' />\");\
+    }else{\
+    \tAF1.func(\"SetCellData\", \"<data A1='\"+Wb.format(app.sdate.getValue(),'Y'+\"年\"+'m'+\"月\"+'d'+\"日\")+\"至\"+Wb.format(app.edate.getValue(),'Y'+\"年\"+'m'+\"月\"+'d'+\"日\")+\"\" + app.cname.getValue() + \"   ' />\");\
+    }\
+  }\
+  AF1.func(\"SetCellData\", \"<data A1='\" + app.cname.getValue() + \"'/>\");\
+}\
+var s=new Date();\
+s=Wb.format(s,'Y/m/d');\
+// AF1.func(\"SetCellData\", \"<data K7='\"+Wb.dateToText(s)+\"'/>\");\
+AF1.func(\"SetCellData\", \"<data K7='\"+s+\"'/>\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+            },
+            {
+             "configs": {
+              "itemId": "cname",
+              "hidden": "true"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }
+           ],
+           "type": "toolbar"
+          },
+          {
+           "configs": {
+            "groupField": "PRINTNO",
+            "itemId": "store",
+            "autoLoad": "true",
+            "pageSize": "-1",
+            "url": "m?xwl=feeManage/printReport/remittingeditS/selectFeeDetails"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "operation.params = {\
+  sdate: app.sdate.getRawValue(),\
+  edate: app.edate.getRawValue(),\
+  billNo: app.txtBILL_NO.getValue(),\
+  hz: app.cboREM_CUS_COD.getValue()\
+};"}
+          },
+          {
+           "configs": {
+            "itemId": "features",
+            "ftype": "grouping",
+            "groupHeaderTpl": "{name} ({rows.length}单)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "feature"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "colID",
+              "hidden": "true",
+              "dataIndex": "ID",
+              "text": "ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colC_ID",
+              "hidden": "true",
+              "dataIndex": "C_ID",
+              "text": "主表ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colAID",
+              "dataIndex": "PRINTNO",
+              "width": "120",
+              "text": "收费汇总单号"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colCUSTOMER_NAM",
+              "dataIndex": "CUSTOMER_NAM",
+              "width": "160",
+              "text": "货主"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colBILL_NO",
+              "dataIndex": "BILL_NO",
+              "width": "120",
+              "text": "海关运/提单号"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colACTUAL_JOB_COUNT",
+              "dataIndex": "ACTUAL_JOB_COUNT",
+              "width": "60",
+              "text": "数量",
+              "align": "right"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colRATE",
+              "dataIndex": "RATE",
+              "width": "60",
+              "text": "单价",
+              "align": "right"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colAMOUNT",
+              "dataIndex": "AMOUNT",
+              "width": "60",
+              "text": "金额",
+              "align": "right"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colFEE_LIST_ID",
+              "dataIndex": "FEE_LIST_ID",
+              "width": "200",
+              "keyName": "C_BASE_CHARGING_ITEM",
+              "text": "项目说明"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colCNTR",
+              "dataIndex": "CNTR",
+              "width": "100",
+              "text": "柜号"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colI_E_ID",
+              "dataIndex": "I_E_ID",
+              "width": "60",
+              "keyName": "I_E_ID",
+              "text": "进出口"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colCNTR_OPERATOR_COD",
+              "dataIndex": "CNTR_OPERATOR_COD",
+              "width": "80",
+              "keyName": "AG_SHORT",
+              "text": "船公司"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colETA",
+              "dataIndex": "ETA",
+              "width": "80",
+              "text": "进口日期"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colRTA",
+              "dataIndex": "RTA",
+              "width": "80",
+              "text": "放行日期"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colSETTLE_DAYS",
+              "dataIndex": "SETTLE_DAYS",
+              "width": "60",
+              "text": "堆存天",
+              "align": "right"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid"
+        },
+        {
+         "configs": {
+          "border": "false",
+          "itemId": "panelPrint",
+          "region": "south",
+          "height": "0"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "panel"
+        }
+       ],
+       "type": "panel"
+      }
+     ],
+     "type": "tab",
+     "events": {"beforetabchange": "if (app.tab1) {\
+  app.gridDetails.store.load({\
+    params: {\
+      CUSTOMER_ID: app.cboREM_CUS_COD.getValue()\
+    }\
+  });\
+}"}
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "var times=new Date();\
+app.sdate.setValue(new Date(times.getTime()-14*24*60*60*1000));\
+app.edate.setValue(new Date());\
+app.gridRemitting.store.load({\
+  out: app.tbar\
+});\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "月结客户缴费通知单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

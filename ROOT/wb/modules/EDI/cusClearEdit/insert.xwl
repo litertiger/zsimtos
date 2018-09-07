@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var TENANCY_ID =app.get('sys.TENANCY_ID'),username=app.get('sys.username'),fxingId=app.get(\"fxingId\") ,column=\"\";\
+app.log(fxingId);\
+if(fxingId=='1')\
+  column=\" CIQ_ID=1 \";\
+else \
+   column=\" RELEASE_ID=1 \";\
+\
+if(app.get(\"REL_TYPE\")=='K')\
+  app.run(\"update  port_cntr  set \"+column+\" where   cntr= {?CONTA_NO?}  and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+  else\
+ {\
+app.run(\"insert into T_EDI_PASS (CREATE_BY, CREATE_ON,CUSREL_ID,FORM_ID,DOCK_CODE,MANIFEST_ID,TRANSPORT_ID,VID,BILL_NO,CONTA_NO,I_E_FLAG,DECL_TRAF_MODE,BILL_TYPE,\" +\
+  \"                PARENT_BILL_NO,CUSTOMS_CODE,CREATE_DATE,OP_ER,VALID_FLAG,REL_TYPE,TURN_ID,ASSOC_ID,DB_TYPE,TAG_ID,LOAD_PORT,DISTRICT_PORT,\" +\
+  \"                DATA_FROM,CLEAR_FLAG,GATE_OUT_TIME,DISTRICT_IN_TIME,DISTRICT_OUT_TIME,LOAD_IN_TIME,STATUS,EMPTY_CONTA_MARK,SHIP_NAME, VOYAGE_NO)\" +\
+  \"values ('\"+username+\"',sysdate,{?CUSREL_ID?},{?FORM_ID?},{?DOCK_CODE?},{?MANIFEST_ID?},{?TRANSPORT_ID?},{?VID?},{?BILL_NO?},{?CONTA_NO?},{?I_E_FLAG?},{?DECL_TRAF_MODE?},\" +\
+  \"        {?BILL_TYPE?},{?PARENT_BILL_NO?},{?CUSTOMS_CODE?},{?CREATE_DATE?},{?OP_ER?},'Y',{?REL_TYPE?},{?TURN_ID?},{?ASSOC_ID?},{?DB_TYPE?},\" +\
+  \"        {?TAG_ID?},{?LOAD_PORT?},{?DISTRICT_PORT?},{?DATA_FROM?},{?CLEAR_FLAG?},{?GATE_OUT_TIME?},{?DISTRICT_IN_TIME?},{?DISTRICT_OUT_TIME?},\" +\
+  \"        {?LOAD_IN_TIME?},{?STATUS?},{?EMPTY_CONTA_MARK?},{?SHIP_NAME?}, {?VOYAGE_NO?})\", {\
+    transaction: \"start\"\
+  });\
+app.run(\"update VBILL_HEAD set \"+column+\" where  BILL_NO={?BILL_NO?} and  TENANCY_ID='\" + TENANCY_ID + \"'\");\
+app.run(\"update VLOAD_LIST set \"+column+\" where  BILL_NO={?BILL_NO?} and  TENANCY_ID='\" + TENANCY_ID + \"'\");\
+app.run(\"update  port_cntr  set \"+column+\" where   ID  in(select  cntr_id from   VLOAD_LIST  where  BILL_NO={?BILL_NO?} and  TENANCY_ID='\" + TENANCY_ID + \"')\");}"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "serverscript1",
+     "script": "var rs=app.run(\"select NOTIFIER from VBILL_HEAD where BILL_NO ={?BILL_NO?}\");  \
+if(rs.next()){\
+\t\tvar  NOTIFIER=rs.getString(\"NOTIFIER\");\
+  if(!StringUtil.isEmpty(NOTIFIER)){\
+      var message = app.get(\"BILLNO\") + \"已经放行\";\
+     app.sendMessage(\"qu_wechat\", '{\"ID\":\"600006\",\"MESSAGE\":\"' + message + '\"}');\
+  }\
+\
+}\
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "serverscript"
+   },
+   {
+    "configs": {
+     "itemId": "responseIdField",
+     "string": "{ID_FIELD:'{#sys.id#}'}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "response"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "基本添加记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

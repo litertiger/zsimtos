@@ -1,0 +1,121 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var isShow=true;
+ function OnReady(id)
+ {
+　AF.func("Build", "treelist/t2.xml");
+  AF.func("Load", "treelistdata/km.json.txt");
+ }
+ function onClickButtonHide()
+ {
+  var isHide = (AF.func("GetColProp", "0 \r\n isHide")==true) ? "false":"true";
+  AF.func("SetColProp", "0 \r\n isHide \r\n" + isHide);
+ }
+ function onClickButtonStyle()
+ {
+  isShow = !isShow;
+  AF.func("SetProp", "isShowTreeLine \r\n " + isShow);
+  if(isShow)
+   AF.func("SetProp", "TreeNodeButton \r\n !Bmp/TreeNodeClose.bmp, !Bmp/TreeNodeExpand.bmp");
+  else
+   AF.func("SetProp", "TreeNodeButton \r\n treelist/lit.zip#tree1.bmp, treelist/lit.zip#tree2.bmp");
+ }
+
+ function onClickButtonImage()
+ {
+　AF.func("SetProp", "BgColor \r\n white");
+　AF.func("SetProp", "RowHeight \r\n 22");
+　AF.func("SetProp", "TreeImageLeaf \r\n treelistdata/flag.zip#canada.bmp");
+　AF.func("SetProp", "TreeImageNodeCollapse \r\n treelistdata/flag.zip#switzerland.bmp");
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=150>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.以往介绍的树，都是需要有多个排序列才能呈现多层. 而下面的树仅需要一列(代码列)，树的层次级别是由代码本身的规则决定的；<br>
+<b>2</b>.若修改了科目代码，其级别会立即自动更新；<br>
+<b>3</b>.若修改了明细科目的余额和发生额，会自动向上级科目汇总；<br>
+</tr>
+</table>
+
+<div style="position:relative;width:870px">
+	<script>insertTreeList('AF', '', '310px')</script>
+</div><br>
+有一种常见的场景是不希望看到代码，将代码列隐去即可：<input type=button value=" 隐藏/显示第一列 " onClick="onClickButtonHide()"><br>
+树的另一种显示样式：<input type=button value=" 更改样式 " onClick="onClickButtonStyle()"><br>
+
+<!--tr height=25 bgColor=#003366><td colspan=2 align=right><a href="treelist/t17.xml" target=_blank>查看创建该TreeList的XML描述文件</a>&nbsp;&nbsp;</td></tr-->
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.查看创建该TreeList的<a href="treelist/t2.xml" target=_blank>XML描述文件</a>，以及加载的<a href="treelistdata/km.json.txt" target=_blank>JSON数据</a>；<br>
+<b>2</b>.这个JSON数据中, 没有上级科目的余额和发生额，也没有任何“期末余额”数据，因为硕正套件会自动根据XML描述文件中定义的规则计算出这些数据的；<br>
+<b>3</b>.源码分析：<br>
+　　页面中并没有多少 js 源码，功能都是由XML描述文件中设定的，下面就是这个 XML 文件中关键的部分：<br>
+<pre class='xml'>
+&lt;TreeList&gt;
+ &lt!-- treeformat="byId" 是关键，表示树的上下级是按代码创建的 --&gt;
+ &lt;Properties Title="科目余额表" editAble="true" isTree="true" <font color=red>treeformat="byId"</font> &gt;
+  &lt;Expresses&gt;
+   &lt!-- 让期末的“方向” 自动等于 期初的“方向” --&gt;
+   &lt;Express&gt;<font color=red>jd2=jd</font>&lt;/Express&gt;
+   &lt!-- 期末余额 和 期初余额、发生额的逻辑关系 --&gt;
+   &lt;Express&gt;<font color=red>qmye = if(jd==2, qcye + dfe - jfe, qcye + jfe - dfe)</font>&lt;/Express&gt;
+  &lt;/Expresses&gt;
+ &lt;/Properties&gt;
+ 
+ &lt!-- 余额 和 发生额都定义了suntotalExpress: 分类汇总，即自动逐级向上汇总 --&gt;
+ &lt;Cols&gt;
+  &lt;Col name="kmdm"  width="150"&gt;科目代码&lt;/Col&gt;
+  &lt;Col name="kmmc"  width="180"&gt;科目名称&lt;/Col&gt;
+  &lt;group name="期初"&gt;
+    &lt;Col name="jd"    width="40" align="center" editType="droplist" droplistID="jdList"&gt;方向&lt;/Col&gt;
+    &lt;Col name="qcye"  width="100" dataType="double" decimal="2" <font color=red>subTotalExpress</font>="@sum"&gt;余额&lt;/Col&gt;
+  &lt;/group&gt;
+  &lt;group name="本期发生"&gt;
+    &lt;Col name="jfe"   width="100" dataType="double" decimal="2" <font color=red>subTotalExpress</font>="@sum"&gt;借方&lt;/Col&gt;
+    &lt;Col name="dfe"   width="100" dataType="double" decimal="2" <font color=red>subTotalExpress</font>="@sum"&gt;贷方&lt;/Col&gt;
+  &lt;/group&gt;
+  &lt;group name="期末"&gt;
+    &lt;Col name="jd2"   width="40" align="center" editType="droplist" droplistID="jdList"&gt;方向&lt;/Col&gt;
+    &lt;Col name="qmye"  width="100" dataType="double" decimal="2" <font color=red>subTotalExpress</font>="@sum"&gt;余额&lt;/Col&gt;
+  &lt;/group&gt;
+ &lt;/Cols&gt;
+ 
+ &lt!-- “方向”的字典 --&gt;
+ &lt;Droplists&gt;
+  &lt;Droplist id="jdList"&gt;
+   &lt;item key="1"&gt;借&lt;/item&gt;
+   &lt;item key="2"&gt;贷&lt;/item&gt;
+   &lt;item key="3"&gt;平&lt;/item&gt;
+  &lt;/Droplist&gt;
+ &lt;/Droplists&gt;
+&lt;/TreeList&gt;</pre>
+　　可见，subTotalExpress就是纵向的逐级汇总计算逻辑、&lt;Expresses&gt;中的就是横向的计算逻辑；<br>
+<br>
+<b>4</b>.完善计算逻辑：<br>
+　　修改了期初余额，能自动计算期末余额。如果您想让它反过来自动计算期初余额，只要再加一行Express表达式就行，这个表达式就留给您自己写吧。<br>
+<br>
+<b>5</b>.树的图标<br>
+　　可以通过SetTreeImage函数、或displayMask属性为每行单独设置图标，也可以采用TreeImageLeaf、 TreeImageNodeExpand、 TreeImageNodeCollapse设置统一的树叶、树杈图标。<br>
+　　请点击：<input type=button value=" 更改图标 " onClick="onClickButtonImage()"> ，查看上面树的图标.<br>
+</td></tr></table>
+
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

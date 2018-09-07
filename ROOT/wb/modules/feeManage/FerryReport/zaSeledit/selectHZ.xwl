@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select ad.BILL_NO,ad.pay_flag,to_char(ad.SETTLE_ON,'yyyy-mm-dd')SETTLE_ON,ad.PAYMENT_TYPE,\" +\
+  \"c.NAME,ad.vessel_name,bi.description,ad.amount,ad.SETTLEMENT_CODE\" +\
+  \" from accounts_details ad left join c_base_charging_item bi on ad.fee_list_id=bi.id\" +\
+  \" left join vbill_head_oth vh on vh.id=ad.bussiness_code left join c_customer c on c.code=vh.TRUCKFEE_PAYER_COD\" +\
+  \" where vh.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and vh.created_on>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and vh.created_on<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.billno))\
+  sql += \" and ad.bill_no='\" + data.billno + \"'\";\
+if (!Wb.isEmpty(data.TRUCKFEE_PAYER_COD))\
+  sql += \" and vh.TRUCKFEE_PAYER_COD='\" + data.TRUCKFEE_PAYER_COD + \"'\";\
+\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "费用汇总",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

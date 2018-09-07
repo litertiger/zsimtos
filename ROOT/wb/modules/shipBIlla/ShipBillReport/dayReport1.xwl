@@ -1,0 +1,162 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "labelWidth": "80"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "ieId",
+         "labelAlign": "right",
+         "fieldLabel": "进出口",
+         "keyName": "I_E_ID",
+         "width": "150",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['1', '外贸'],\
+  ['2', '内贸']\
+]",
+         "fieldLabel": "内外贸",
+         "width": "150",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and trunc(v2.eta)=to_date('\" + app.sdate.getRawValue() + \"','yyyy-mm-dd')\");\
+if(!Wb.isEmpty(app.ieId.getValue()))\
+  whereSql+=\" and vh.i_e_id='\"+app.ieId.getValue()+\"' \";\
+if(!Wb.isEmpty(app.tradeId.getValue()))\
+  whereSql+=\" and vh.TRADE_ID='\"+app.tradeId.getValue()+\"' \";\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime()+\";tenancyId=\"+'{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bill/dayReportB.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&sdfa=1222223\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+var today = new Date(); //获取当前日期\
+// var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+// app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+app.sdate.setValue(today);\
+app.edate.setValue(today);",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "日报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,36 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get('names'),govCode=app.get('govCode');\
+// app.run(\"update  vbill_head set  ( case when  I_E_ID='I' then  CONSIGNEE_COD else SHIPPER_COD  end )={?CODE?}  where ( case when  I_E_ID='I' then  CONSIGNEE else SHIPPER  end ) in (\"+data+\")\");\
+\
+app.run(\"update  vbill_head set CONSIGNEE_COD={?CODE?}\twhere I_E_ID='I' and  CONSIGNEE in ( SELECT NAME \"+\
+ \" FROM c_customer \"+\
+ \" WHERE gov_code = '\"+govCode+\"' \"+\
+ \" UNION ALL\"+\
+ \" SELECT cus_name\"+\
+ \" FROM c_customer_name \"+\
+  \"WHERE gov_code = '\"+govCode+\"'  ) and nvl(CONSIGNEE_COD,'999999') ='999999' \");\
+app.run(\"update  vbill_head set SHIPPER_COD={?CODE?}\twhere I_E_ID='E' and  SHIPPER in ( SELECT NAME \"+\
+ \" FROM c_customer \"+\
+ \" WHERE gov_code = '\"+govCode+\"' \"+\
+ \" UNION ALL\"+\
+ \" SELECT cus_name\"+\
+ \" FROM c_customer_name \"+\
+  \"WHERE gov_code = '\"+govCode+\"'  ) and nvl(SHIPPER_COD,'999999') ='999999'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "修改客户名称代码",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

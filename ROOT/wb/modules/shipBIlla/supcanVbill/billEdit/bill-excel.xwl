@@ -1,0 +1,114 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//是否下载Excel文件，true下载，false返回HTML\
+var isDownLoad = app.getBool(\"download\");\
+var vId = app.get(\"vId\");\
+var billId = app.get(\"billId\");\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+\
+var sql = \"select vy.edi_call_sign,nvl(vi.lib_vyg,vi.lob_vyg) lvyg,vy.vessel_code,vy.vessel_name,vy.ib_vyg,\" +\
+  \"vy.class,b.CNTR_OPERATOR,b.CNTR_OPERATOR_cod,nvl(vi.ATA,vi.Eta) ata,b.POL,b.spod,vl.cntr,\" +\
+  \"vl.cntr_size||vl.CNTR_TYPE cntr_type,vl.bill_no,vl.Goods_Notes,b.MARKS,vl.PIECES,b.PKG,vl.weight,\" +\
+  \"vl.VOLUME,b.SHIPPER,b.CONSIGNEE,vl.SEAL_NO\" +\
+  \" from vbill_head b left join vload_list vl on b.id = vl.bill_id \" +\
+  \" left join vessel_visit vi on b.vid = vi.id\" +\
+  \" left join vessel_voyage vy on vi.vid = vy.id\" +\
+  \" where b.vid='\" + vId + \"' or b.id='\" + billId + \"'\";\
+//获得基于结果集的数组，使用此方法可以应用键值，DbUtil.getData(rs,'FIELD1=k1,FIELD2=k2','dictTable1,dictTable2');\
+var data = DbUtil.getData(app.run(sql), request); //读取结果集所有记录数据至JSONArray\
+//装卸港名称\
+var sqlgk1 = \"select port_name from c_port where id='\" + data.get(0).get(\"POL\") + \"'\";\
+var pol = DbUtil.getData(app.run(sqlgk1, {\
+  jndi: 'jdbc/basecode'\
+}), request);\
+var sqlgk2 = \"select port_name from c_port where id='\" + data.get(0).get(\"SPOD\") + \"'\";\
+var spod = DbUtil.getData(app.run(sqlgk2, {\
+  jndi: 'jdbc/basecode'\
+}), request);\
+//船舶类型名称\
+var classname = \"\";\
+if (!Wb.isEmpty(data.get(0).get(\"CLASS\"))) {\
+  var sqlclass = \"select sys_value from s_code where sys_category='VESSEL_CLASS' and sys_key='\" + data.get(0).get(\"CLASS\") + \"'\";\
+  var sclass = DbUtil.getData(app.run(sqlclass, {\
+    jndi: 'jdbc/basecode'\
+  }), request);\
+  classname = sclass.get(0).get(\"SYS_VALUE\");\
+}\
+//驳船公司地址联系人电话\
+var sqlbc = \"select ADDRESS,BIZ_LINKMAN,nvl(TEL,TELEX) tel from c_customer\" +\
+  \" where code='\" + data.get(0).get(\"CNTR_OPERATOR_COD\") + \"'\";\
+var operator = DbUtil.getData(app.run(sqlbc, {\
+  jndi: 'jdbc/basecode'\
+}), request);\
+//求箱数量\
+var sqlhj = \"select wm_concat(count(*)||'X'||(vl.cntr_size||vl.cntr_type)) heji from vload_list vl\" +\
+  \" left join vbill_head b on vl.bill_id=b.id where b.vid='\" + vId + \"' or b.id='\" + billId + \"'\" +\
+  \" group by cntr_size,cntr_type\";\
+var heji = DbUtil.getData(app.run(sqlhj), request);\
+//求件数,重量总和\
+var sqlzh = \"select sum(vl.PIECES) pz,sum(vl.weight) wz from vload_list vl\" +\
+  \" left join vbill_head b on vl.bill_id=b.id where b.vid='\" + vId + \"' or b.id='\" + billId + \"'\";\
+var zh = DbUtil.getData(app.run(sqlzh), request);\
+//格式化时间\
+var date = new Date(data.get(0).get(\"ATA\"));\
+var ata = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();\
+\
+var reportData = {\
+  edi_call_sign: data.get(0).get(\"EDI_CALL_SIGN\"),\
+  lvyg: data.get(0).get(\"LVYG\"),\
+  vessel_code: data.get(0).get(\"VESSEL_CODE\"),\
+  vessel_name: data.get(0).get(\"VESSEL_NAME\"),\
+  ib_vyg: data.get(0).get(\"IB_VYG\"),\
+  pol: pol.get(0).get(\"PORT_NAME\"),\
+  spod: spod.get(0).get(\"PORT_NAME\"),\
+  CNTR_OPERATOR: data.get(0).get(\"CNTR_OPERATOR\"),\
+  class1: classname,\
+  address: operator.get(0).get(\"ADDRESS\"),\
+  lianxiren: operator.get(0).get(\"BIZ_LINKMAN\"),\
+  tel: operator.get(0).get(\"TEL\"),\
+  ata: ata,\
+  heji: heji.get(0).get(\"HEJI\"),\
+  pz: zh.get(0).get(\"PZ\"),\
+  wz: zh.get(0).get(\"WZ\"),\
+  rows: data\
+};\
+\
+if (isDownLoad) {\
+  var excelFilename = 'wb/system/excel/demo/bill.xlsx',\
+    exportFilename = '中山港小型船舶(进)境申报单.xlsx',\
+    sheetIndex = -1; //-1将使用所有的sheet\
+  response.setHeader('content-type', 'application/force-download');\
+  response.setHeader('content-disposition', 'attachment;' + WebUtil.encodeFilename(request, exportFilename));\
+  Wb.getExcel(reportData, excelFilename, response.getOutputStream(), -1);\
+  response.flushBuffer();\
+} else {\
+  var html = Wb.getHtml(reportData, 'wb/system/excel/demo/bill.xlsx', -1);\
+  app.send(html);\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "XLBCCX": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "舱单导出Excel",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

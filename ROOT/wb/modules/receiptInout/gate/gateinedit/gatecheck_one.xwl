@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var ok = true;\
+var msg = \"箱:\" + data.cntr;\
+var sql = \"select id from port_cntr where cntr like '%\" + data.cntr + \"%' and tenancy_id='\" + tenancyid + \"'\";\
+var cntr = Wb.getRecords(app.run(sql));\
+if (cntr.length < 1) { //找不到在场箱信息\
+  msg += \"系统中没有找到.\";\
+  app.set(\"check1\", {\
+    success: false,\
+    errstr: msg\
+  });\
+} else if (cntr.length > 1) { //场箱信息过多\
+  msg += \"找到了多个,请输入的更准确些.\";\
+  app.set(\"check1\", {\
+    success: false,\
+    errstr: msg\
+  });\
+} else {\
+  sql = \"select r.id from receipt r where r.cntr_id='\" + cntr[0].ID + \"' and r.tenancy_id='\" + tenancyid + \"' and r.work_type not in('FOFI')\" +\
+    \" and ((r.phase not in('FIN','CNL') and r.work_type<>'YOYI')or(r.phase='EXE' and r.work_type='YOYI' and getcfscodbyyard(r.F_ADDRESS,r.tenancy_id)='JGQ'))\";\
+  var receipt = Wb.getRecords(app.run(sql));\
+  if (receipt.length < 1) { //设备交接单没有办理\
+    msg += \"设备交接单没有办理或已经完成\";\
+    app.set(\"check1\", {\
+      success: false,\
+      errstr: msg\
+    });\
+  } else if (receipt.length >= 1) {\
+    app.set(\"check1\", {\
+      success: true,\
+      receipts: receipt\
+    });\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "闸口箱验证第一步",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

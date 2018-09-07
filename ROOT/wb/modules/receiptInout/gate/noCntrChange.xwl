@@ -1,0 +1,751 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbar",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "txtBILL",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "单号",
+       "width": "220",
+       "displayField": "BILL_NO",
+       "labelWidth": "50",
+       "valueField": "ID",
+       "anyMatch": "true",
+       "forceSelection": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=receiptInout/gate/nocntrchangeedit/loadReceipt"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo",
+      "events": {"select": "Wb.setValue(app.panelForm, records[0].data);\
+//箱主\
+Wb.loadComboAdd(app.LINE_COD, [{\
+  \"ID\": records[0].data.CNTR_OWNER_COD,\
+  \"CNAME\": records[0].data.CNTR_OWNER\
+}], function() {\
+  app.LINE_COD.setValue(records[0].data.CNTR_OWNER_COD);\
+  app.LINE.setValue(records[0].data.CNTR_OWNER);\
+});\
+//发货人\
+Wb.loadComboAdd(app.SHIPPER_COD, [{\
+  \"ID\": records[0].data.SHIPPER_COD,\
+  \"CNAME\": records[0].data.SHIPPER\
+}], function() {\
+  app.SHIPPER_COD.setValue(records[0].data.SHIPPER_COD);\
+  app.SHIPPER.setValue(records[0].data.SHIPPER);\
+});\
+//收货人\
+Wb.loadComboAdd(app.CONSIGNEE_COD, [{\
+  \"ID\": records[0].data.CONSIGNEE_COD,\
+  \"CNAME\": records[0].data.CONSIGNEE\
+}], function() {\
+  app.CONSIGNEE_COD.setValue(records[0].data.CONSIGNEE_COD);\
+  app.CONSIGNEE.setValue(records[0].data.CONSIGNEE);\
+});\
+//计费对象\
+Wb.loadComboAdd(app.ACCOUNT_CUSTOMER_CODE, [{\
+  \"ID\": records[0].data.ACCOUNT_CUSTOMER_CODE,\
+  \"CNAME\": records[0].data.ACCOUNT_CUSTOMER\
+}], function() {\
+  app.ACCOUNT_CUSTOMER_CODE.setValue(records[0].data.ACCOUNT_CUSTOMER_CODE);\
+  app.ACCOUNT_CUSTOMER.setValue(records[0].data.ACCOUNT_CUSTOMER);\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "btnupda",
+       "text": "换单",
+       "iconCls": "relation_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verify(app.panelForm))\
+  return false;\
+if (!Wb.verify(app.tbar))\
+  return false;\
+Wb.confirm(\"确认换单\", function() {\
+  Wb.request({\
+    url: \"m?xwl=receiptInout/gate/nocntrchangeedit/huandan\",\
+    params: {\
+      oldrid: app.txtBILL.getValue(),\
+      newrid: app.BILL_NO.getValue()\
+    },\
+    success: function(resp) {\
+      Wb.info(\"操作完成\");\
+      Wb.reset(app.panelForm);\
+      Wb.reset(app.tbar);\
+    }\
+  });\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "@{type:'table',columns:4}",
+      "itemId": "panelForm",
+      "defaults": "{\
+  labelWidth: 90,\
+  width: 260,\
+  margin: '8 8 0 8'\
+}",
+      "tbar": "app.tbar",
+      "region": "north",
+      "height": "220"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "BILL_NO",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "单号",
+        "displayField": "BILL_NO",
+        "valueField": "ID",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=receiptInout/gate/nocntrchangeedit/loadNewReceipt"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR",
+        "labelAlign": "right",
+        "fieldLabel": "箱号",
+        "readOnly": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_SIZE",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "箱尺寸",
+        "keyName": "CNTR_SIZE",
+        "readOnly": "true",
+        "anyMatch": "true",
+        "forceSelection": "false"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "combo",
+       "events": {"select": "app.CNTR_ISO.setValue(app.CNTR_SIZE.getValue() + app.CNTR_TYPE.getValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_TYPE",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "箱型",
+        "keyName": "CNTR_TYPE",
+        "displayField": "K",
+        "readOnly": "true",
+        "valueField": "K",
+        "anyMatch": "true",
+        "forceSelection": "false"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "combo",
+       "events": {"select": "app.CNTR_ISO.setValue(app.CNTR_SIZE.getValue() + app.CNTR_TYPE.getValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_ISO",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "ISO",
+        "readOnly": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "allowBlank": "false",
+        "pageSize": "50",
+        "enterKeyTriggerClick": "true",
+        "readOnly": "true",
+        "listConfig": "{\
+  width: 250\
+}",
+        "valueField": "ID",
+        "queryDelay": "500",
+        "hideTrigger": "true",
+        "itemId": "LINE_COD",
+        "labelAlign": "right",
+        "fieldLabel": "箱主",
+        "displayField": "CNAME",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "pageSize": "20",
+         "params": "{fldId:'CM'}",
+         "url": "m?xwl=system/common/client/clientSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"change": "app.LINE.setValue(combo.getRawValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "LINE",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "大船公司"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "allowBlank": "false",
+        "enterKeyTriggerClick": "true",
+        "readOnly": "true",
+        "listConfig": "{\
+  width: 250\
+}",
+        "valueField": "ID",
+        "queryDelay": "500",
+        "hideTrigger": "true",
+        "itemId": "CNTR_OPERATOR_COD",
+        "labelAlign": "right",
+        "fieldLabel": "驳船代理",
+        "displayField": "CNAME",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "pageSize": "-1",
+         "params": "{fldId:'AG'}",
+         "url": "m?xwl=system/common/client/clientSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"select": "app.CNTR_OPERATOR.setValue(combo.getRawValue());\
+app.ACCOUNT_CUSTOMER_CODE.setValue(combo.getValue());\
+app.ACCOUNT_CUSTOMER.setValue(combo.getRawValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_OPERATOR",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "箱代理"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "itemId": "CAR_TEAM",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "车队",
+        "displayField": "CNAME",
+        "enterKeyTriggerClick": "true",
+        "readOnly": "true",
+        "listConfig": "{\
+  width: 250\
+}",
+        "valueField": "ID",
+        "queryDelay": "500",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "pageSize": "-1",
+         "params": "{fldId:'AG'}",
+         "url": "m?xwl=receiptInout/receipt/receiptedit/selectCarTeam"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "PLAN_STIME",
+        "labelAlign": "right",
+        "fieldLabel": "计划送货时间",
+        "readOnly": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "datetime"
+      },
+      {
+       "configs": {
+        "itemId": "WORK_TYPE",
+        "labelAlign": "right",
+        "fieldLabel": "作业方式",
+        "keyName": "WORK_WAY",
+        "readOnly": "true",
+        "anyMatch": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_COUNT",
+        "allowDecimals": "false",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "箱数量",
+        "readOnly": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "T_ADDRESS",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "提箱地点",
+        "keyName": "C_CFS",
+        "readOnly": "true",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "F_ADDRESS",
+        "labelAlign": "right",
+        "fieldLabel": "返场地址",
+        "keyName": "C_CFS",
+        "readOnly": "true",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "queryMode": "remote",
+        "itemId": "S_ADRESS",
+        "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      地址\
+    <\/td>\
+    <td>\
+      距离\
+    <\/td>\
+    <td>\
+      区域\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {NAME}\
+      <\/td>\
+      <td>\
+        {DISTANCE}\
+      <\/td>\
+      <td>\
+        {AREANAME}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+        "labelAlign": "right",
+        "fieldLabel": "拖送地址",
+        "displayField": "NAME",
+        "readOnly": "true",
+        "listConfig": "{\
+  width: 300\
+}",
+        "valueField": "ID",
+        "forceSelection": "true",
+        "minChars": "2"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "pageSize": "-1",
+         "url": "m?xwl=receiptInout/receipt/receiptedit/selectADRESS"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"select": "app.FEI_ADDDRESS.setValue(records[0].data.ARID);"}
+      },
+      {
+       "configs": {
+        "itemId": "FEI_ADDDRESS",
+        "labelAlign": "right",
+        "fieldLabel": "计费区域",
+        "keyName": "C_AREA",
+        "readOnly": "true",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "TRADE_ID",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "内外贸",
+        "keyName": "TRADE_ID",
+        "readOnly": "true",
+        "anyMatch": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "VID",
+        "labelAlign": "right",
+        "fieldLabel": "航次",
+        "displayField": "VESSEL_NAME",
+        "readOnly": "true",
+        "valueField": "ID",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=receiptInout/receipt/outNoCntrReceiptedit/selectVesselVoyage"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"change": "if (!Wb.isEmpty(combo.valueModels)) {\
+  app.LINE.setValue(combo.valueModels[0].data.LINE);\
+} else {\
+  app.LINE.setValue(\"\");\
+}"}
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "pageSize": "50",
+        "enterKeyTriggerClick": "true",
+        "readOnly": "true",
+        "listConfig": "{width:250}",
+        "valueField": "ID",
+        "queryDelay": "500",
+        "hideTrigger": "true",
+        "itemId": "SHIPPER_COD",
+        "labelAlign": "right",
+        "fieldLabel": "发货人",
+        "displayField": "CNAME",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "params": "{fldId:'CE'}",
+         "url": "m?xwl=system/common/client/clientSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"select": "app.SHIPPER.setValue(combo.getRawValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "SHIPPER",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "发货人"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "pageSize": "50",
+        "enterKeyTriggerClick": "true",
+        "readOnly": "true",
+        "listConfig": "{\
+  width: 250\
+}",
+        "valueField": "ID",
+        "queryDelay": "500",
+        "hideTrigger": "true",
+        "itemId": "CONSIGNEE_COD",
+        "labelAlign": "right",
+        "fieldLabel": "收货人",
+        "displayField": "CNAME",
+        "height": "22"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "params": "{fldId:'CE'}",
+         "url": "m?xwl=system/common/client/clientSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"select": "app.CONSIGNEE.setValue(combo.getRawValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "CONSIGNEE",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "收货人"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "matchFieldWidth: false",
+        "hideTrigger": "true",
+        "itemId": "ACCOUNT_CUSTOMER_CODE",
+        "labelAlign": "right",
+        "fieldLabel": "计费对象",
+        "displayField": "CNAME",
+        "enterKeyTriggerClick": "true",
+        "readOnly": "true",
+        "listConfig": "{width:250}",
+        "valueField": "ID",
+        "queryDelay": "500"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "pageSize": "-1",
+         "url": "m?xwl=receiptInout/receipt/receiptedit/selectFEI"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store",
+        "events": {"beforeload": "operation.params = {\
+  code: app.SHIPPER_COD.getValue(),\
+  query: operation.params.query\
+};"}
+       }],
+       "type": "combo",
+       "events": {"select": "app.ACCOUNT_CUSTOMER.setValue(combo.getRawValue());"}
+      },
+      {
+       "configs": {
+        "itemId": "ACCOUNT_CUSTOMER",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "计费对象"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "SHIPPER_WAY",
+        "labelAlign": "right",
+        "pickList": "[\
+  [1, \"码头承运\"],\
+  [3, \"驳船承运\"]\
+]",
+        "fieldLabel": "承运方式",
+        "readOnly": "true",
+        "forceSelection": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "POL",
+        "labelAlign": "right",
+        "fieldLabel": "装货码头",
+        "keyName": "C_PORT",
+        "readOnly": "true",
+        "queryDelay": "500",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "POD",
+        "labelAlign": "right",
+        "fieldLabel": "卸货码头",
+        "keyName": "C_PORT",
+        "readOnly": "true",
+        "queryDelay": "500",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "SPOD",
+        "labelAlign": "right",
+        "fieldLabel": "目的码头",
+        "keyName": "C_PORT",
+        "readOnly": "true",
+        "queryDelay": "500",
+        "anyMatch": "true",
+        "forceSelection": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "SHIP_ORDER",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "订舱号/SO",
+        "readOnly": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "YZC_ON",
+        "labelAlign": "right",
+        "fieldLabel": "预装船时间",
+        "readOnly": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "datetime"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "JCB": 1,
+  "DCXK": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "不订箱号换单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

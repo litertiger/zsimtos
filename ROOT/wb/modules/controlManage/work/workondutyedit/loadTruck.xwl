@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\",ids = \"'%'\";\
+var rs= app.run(\"select resource_id from work_on_duty where w_type='1' and to_char(beg_work_tim,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd') \");\
+while(rs.next()){\
+  ids += \",'\"+rs.getString('RESOURCE_ID')+\"'\";\
+}\
+sql += \" and truck_no not in (\" + ids + \")\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "select ct.* ,(select team_name from c_employee_team where id=ct.work_group) work_name ,ct.ISMY MACH_TYPE \
+ from c_truck ct\
+where work_group is not null {#sql#}\
+order by work_group"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "加载车辆",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

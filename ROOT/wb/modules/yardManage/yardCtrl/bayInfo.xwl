@@ -1,0 +1,116 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var areaNo = app.get('areaNo');\
+if (!areaNo) {\
+  areaNo = 'A1';\
+  app.set('areaNo', areaNo);\
+}\
+\
+var bayNo = app.get('bayNo');\
+if (!bayNo) {\
+  bayNo = '01';\
+  app.set('bayNo', bayNo);\
+}\
+\
+var result = app.run(\"select opp_bay_no,accept_20,accept_40,accept_45,accept_48 from c_cy_bay \\\
+where cy_area_no={?areaNo?} and cy_bay_no={?bayNo?} and TENANCY_ID={?sys.TENANCY_ID?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+if (result && result.next()) {\
+  var oppBayNo = result.getInt('opp_bay_no');\
+  var accept20 = result.getInt('accept_20');\
+  var accept40 = result.getInt('accept_40');\
+  var accept45 = result.getInt('accept_45');\
+  var accept48 = result.getInt('accept_48');\
+  if (!accept20 && (accept40 || accept45 || accept48) && oppBayNo) {\
+    bayNo = Wb.pad((bayNo * 1 + oppBayNo) / 2, 2);\
+    app.set('bayNo', bayNo);\
+  }\
+}\
+\
+var rows, tiers, type, bays;\
+var result = app.run(\"select bay_num,row_num,tier_num,cy_typ from c_cy_area where cy_area_no={?areaNo?} and TENANCY_ID={?sys.TENANCY_ID?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+if (result && result.next()) {\
+  type = result.getString(\"cy_typ\");\
+  rows = type === \"B\" ? 1 : result.getInt('row_num');\
+  tiers = type === \"B\" ? 1 : result.getInt('tier_num');\
+  bays = type === \"B\" ? 1 : result.getInt('bay_num');\
+} else {\
+  result = app.run(\"select beg_bay_no,end_bay_no,beg_row_no,end_row_no,area_no from boundary_d where boundary_no={?areaNo?} and area_id = '1' and TENANCY_ID={?sys.TENANCY_ID?}\");\
+  if (result && result.next()) {\
+    type = 'L';\
+    rows = Math.abs(result.getInt('beg_row_no') - result.getInt('end_row_no')) + 1;\
+    bays = Math.abs(result.getInt('beg_bay_no') - result.getInt('end_bay_no')) / 2 + 1;\
+    area = result.getString('area_no');\
+    result = app.run(\"select tier_num from c_cy_area where cy_area_no='\" + area + \"' and TENANCY_ID={?sys.TENANCY_ID?}\", {\
+      jndi: \"jdbc/basecode\"\
+    });\
+    if (result && result.next())\
+      tiers = result.getInt('tier_num');\
+    else\
+      throw areaNo + '不存在';\
+  } else\
+    throw areaNo + '不存在';\
+}\
+if (bayNo > bays * 2 - 1)\
+  throw '贝号超出范围';\
+var cntr = [];\
+\
+app.set('lBayNo', Wb.pad(bayNo - 1, 2));\
+app.set('rBayNo', Wb.pad(bayNo * 1 + 1, 2));\
+result = app.run(\"select cntr ,nvl(bound_position,yard_position) pos,category_id,cntr_iso,e_f_id,cntr_owner_cod line,pod,pol,weight,cntr_size,spec_stow,cntr_type,cntr_operator,i_e_id,spec_stow2 \\\
+from port_cntr where TENANCY_ID={?sys.TENANCY_ID?} and substr(nvl(bound_position,yard_position),1,2)={?areaNo?} and substr(nvl(bound_position,yard_position),3,2) in({?lBayNo?},{?bayNo?},{?rBayNo?})\");\
+while (result && result.next()) {\
+  cntr.push({\
+    no: result.getString('cntr'),\
+    stowLoc: result.getString('pos'),\
+    cntrClass: result.getString('category_id'),\
+    cntr_iso: result.getString('cntr_iso'),\
+    e_f_id: result.getString('e_f_id'),\
+    line: result.getString('line'),\
+    pod: result.getString('pod'),\
+    pol: result.getString('pol'),\
+    weight: result.getString('weight'),\
+    cntr_size: result.getString('cntr_size'),\
+    spec_stow: result.getString('spec_stow'),\
+    spec_stow2: result.getString('spec_stow2'),\
+    cntr_type: result.getString('cntr_type'),\
+    operator: result.getString('cntr_operator'),\
+    ie: result.getString('i_e_id')\
+  });\
+}\
+\
+app.send({\
+  bayNo: bayNo,\
+  no: areaNo + bayNo,\
+  type: type,\
+  rows: rows,\
+  tiers: tiers,\
+  cntr: cntr\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "yard": 1,
+  "HSEDI": 1,
+  "ZSWNH": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "贝图信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

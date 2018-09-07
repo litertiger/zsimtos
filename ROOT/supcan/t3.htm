@@ -1,0 +1,153 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 3) return;
+   id='';
+  }
+  if(id=='AF1' || id=='') AF1.func("Build", "treelist/t3_1.xml");
+  if(id=='AF2' || id=='') AF2.func("Build", "treelist/t3_2.xml");
+  if(id=='AF3' || id=='') {
+   AF3.func("Build", "treelist/t3_3.xml");
+   AF3.func("Load", "treelistdata/data-group.xml");
+  }
+ }
+ function Retrieve()
+ {
+  var url = document.getElementById("source").value;
+  AF1.func("Load", url);
+  AF2.func("Load", url);
+ }
+</script>
+</head>
+
+<body topmargin=4 vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=3 border=0 width=100%>
+<col valign=top width=90>
+<col width=250>
+<col>
+<tr><td align=center rowspan=2><img src='res/how.bmp'></td><td/><td>上下2个表填入相同的 TSV-Ex 格式数据(相对URL): <input id='source' type=edit size=35 value="treelistdata/data60.tsv-ex.txt"> <input type=button value=" 取数 " onClick="Retrieve()"></td></tr>
+<tr><td><b>方式一. 表头的列以分组形式显示</b></td><td>操作提示：1.列的拖动被限制在组内；2.点击列以排序；3.切换到以树展现；4.打印预览；</td></tr>
+</table>
+
+<div style="position:relative;width:97%">
+	<script>insertTreeList('AF1', '', '270px')</script>
+</div>
+
+<table border=0><tr height=8><td/></tr>
+</table>
+
+<table cols=3 border=0 width=100%>
+<col valign=top width=90>
+<col width=250>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>方式二. 表头、数据行都折行显示</b></td><td> 操作提示：可随意拖动列到其它列的上方、下方、左侧、右侧，并且也不影响排序、以树展示。</td></tr>
+</table>
+<div style="position:relative;width:97%">
+	<script>insertTreeList('AF2', '', 250)</script>
+</div>
+
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.这2个Treelist的XML描述文件是在前面的demo基础上稍作修改的，分别为<a href="treelist/t3_1.xml" target=_blank>t3_1.xml</a>、<a href="treelist/t3_2.xml" target=_blank>t3_2.xml</a>. 填入了TSV-EX格式的<a href="treelistdata/data60.tsv-ex.txt" target=_blank>数据</a>.<br>
+<b>2</b>.第一个XML描述文件，表头分组的诀窍在于&lt;Group&gt;，&lt;Group&gt;可以层层相套、级次自定，并可包含&lt;col&gt;，或与&lt;col&gt;并列：<br>
+<pre class='xml'>
+//底色改为白色、表头改为浅灰单色
+&lt;Properties Title="订单明细表" bgColor="white" headerColor="#f0f0f0"&gt;&lt;/Properties&gt;
+&lt;Fonts&gt;
+ &lt;Font /&gt;
+ &lt;Font italic="1" height="-14" /&gt;
+&lt;/Fonts&gt;
+&lt;Cols&gt;
+  &lt;Col name="Country" width="100"&gt;国家&lt;/Col&gt;
+  &lt;Group title="订单情况" textColor="#3333ff"&gt;
+    &lt;Col name="OrderID" width="70" align="center"&gt;订单号&lt;/Col&gt;
+    &lt;Col name="CustomerID" width="70"&gt;客户号&lt;/Col&gt;
+    &lt;Group title="日期"&gt;
+      &lt;Col name="OrderDate" width="90" datatype="date"&gt;销售日期&lt;/Col&gt;
+      &lt;Col name="RequiredDate" width="90" datatype="date"&gt;接单日期&lt;/Col&gt;
+    &lt;/Group&gt;
+    &lt;Col name="Freight" width="80" datatype="double" decimal="2"&gt;货重&lt;/Col&gt;
+  &lt;/Group&gt;
+  &lt;Col name="ShipName" width="130"&gt;船名\r\n(海运承包)&lt;/Col&gt;
+  &lt;Group title="货 运 目 的 地" fontIndex="1"&gt;
+    &lt;Col name="ShipCity" width="130"&gt;城市&lt;/Col&gt;
+    &lt;Col name="ShipAddress" width="240"&gt;地址&lt;/Col&gt;
+  &lt;/Group&gt;
+&lt;/Cols&gt;</pre>
+<b>3</b>.第二个XML描述文件，分层的诀窍在于"atLayer"属性，表示处于第几层：<br>
+<pre class='xml'>
+&lt;Cols&gt;
+ ...
+ &lt;Col name="ShipName" width="240" <font color=red>atlayer</font>="1"&gt;船名&lt;/Col&gt;
+ &lt;Col name="ShipCity" width="130" <font color=red>atlayer</font>="1"&gt;城市&lt;/Col&gt;
+ &lt;Col name="ShipAddress" width="340" <font color=red>atlayer</font>="1"&gt;地址&lt;/Col&gt;
+&lt;/Cols&gt;</pre>
+</td></tr></table>
+<br><br>
+
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td>
+<b>4.Group 的 Id 的用途</b><br>
+　　假如某个&lt;group&gt; 含有id，例如：<br>
+<pre class='xml'>
+&lt;Cols&gt;
+  ...
+  &lt;Group <font color=red>id="dts"</font> title="日期"&gt;
+    &lt;Col name="OrderDate" width="90" datatype="date"&gt;销售日期&lt;/Col&gt;
+    &lt;Col name="RequiredDate" width="90" datatype="date"&gt;接单日期&lt;/Col&gt;
+  &lt;/Group&gt;
+  ...
+&lt;/Cols&gt;</pre>
+　　那么它加载的XML格式数据，允许直接采用分组名“dts”来代替它下属的“OrderDate”和“RequiredDate”， 数据默认以斜杠("/")分隔下属的各个列，例如：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;table&gt;
+ &lt;row&gt;
+  &lt;Country&gt;France&lt;/Country&gt;
+  &lt;OrderID&gt;10248&lt;/OrderID&gt;
+  &lt;CustomerID&gt;VINET&lt;/CustomerID&gt;
+  <font color=red>&lt;dts&gt;2006.07.04/2006.08.01&lt;/dts&gt;</font>
+  &lt;Freight/&gt;
+  &lt;ShipName&gt;Com Test&apos;c	5bc&lt;/ShipName&gt;
+  &lt;ShipCity&gt;Reims&lt;/ShipCity&gt;
+  &lt;ShipAddress/&gt;
+ &lt;/row&gt;
+ &lt;row&gt;
+  &lt;Country&gt;Germany&lt;/Country&gt;
+  &lt;OrderID&gt;10249&lt;/OrderID&gt;
+  &lt;CustomerID&gt;TOMSP&lt;/CustomerID&gt;
+  <font color=red>&lt;dts&gt;2006.07.04/2006.08.16&lt;/dts&gt;</font>
+  &lt;Freight&gt;11.61&lt;/Freight&gt;
+  &lt;ShipName&gt;Toms Spezialitten&lt;/ShipName&gt;
+  &lt;ShipCity&gt;Munster&lt;/ShipCity&gt;
+  &lt;ShipAddress&gt;Luisenstr. 48&lt;/ShipAddress&gt;
+ &lt;/row&gt;
+ ...</pre>
+　　这是采用了这种方式的实例(<a href="treelist/t3_3.xml" target=_blank>xml模版文件</a>、<a href="treelistdata/data-group.xml" target=_blank>xml数据</a>)：<br>
+</td></tr>
+</table>
+<div style="position:relative;width:97%">
+	<script>insertTreeList('AF3', '', 200)</script>
+</div>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

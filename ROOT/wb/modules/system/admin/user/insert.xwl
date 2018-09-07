@@ -1,0 +1,85 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var userRoleRows, id = SysUtil.getId(),\
+  data = app.get();\
+if (data.USER_NAME.equals('-'))\
+  Wb.error('无效的用户名。');\
+if (data.PASSWORD.equals('******'))\
+  Wb.error('无效的密码。');\
+app.run('select 1 from WB_USER where USER_NAME={?USER_NAME?}', {\
+  errorText: '用户名称 \"' + data.USER_NAME + '\" 已经存在。'\
+});\
+userRoleRows = Wb.decode(data.roleGrid);\
+app.set({\
+  USER_ID: id,\
+  PASSWORD: Encrypter.getMD5(data.PASSWORD),\
+  CREATE_DATE: new JavaDate(),\
+  LOGIN_TIMES: 0\
+});\
+app.update({\
+  tableName: 'WB_USER',\
+  mode: 'insert',\
+  islog:true\
+}); //updater默认启用事务\
+Wb.each(userRoleRows, function(rec) {\
+  rec.USER_ID = id;\
+});\
+request.setAttribute('create', Wb.encode(userRoleRows));\
+app.update({\
+  tableName: 'WB_USER_ROLE'\
+});\
+app.send({\
+  USER_ID: id\
+});",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "query1",
+     "jndi": "jdbc/basecode",
+     "loadData": "true",
+     "sql": "select GOV_CODE  ID from C_CUSTOMER  ,C_CUSTOMER_CONTACT where C_CUSTOMER.ID  =C_CUSTOMER_CONTACT .C_ID\
+and C_CUSTOMER_CONTACT.DEFAULT_PROTOCOL='0042R1FZZVCCJ'\
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query2",
+     "sql": "select ID  from  AUTH_ORGANIZATION  where  ORG_CODE='{#query1.ID#}' and  TENANCY_ID=''\
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "dataprovider1",
+     "jndi": "jdbc/basecode",
+     "sql": "select *  from C_CUSTOMER  ,C_CUSTOMER_CONTACT where C_CUSTOMER.ID  =C_CUSTOMER_CONTACT .C_ID\
+and C_CUSTOMER_CONTACT.ORG_ID='{#query2.ID#}'"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "dataprovider"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "basic": 1,
+  "user": 1
+ },
+ "title": "添加",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

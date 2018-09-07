@@ -1,0 +1,203 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sdate = data.sdate;\
+var edate = data.edate;\
+var b = Number(sdate.substring(8));\
+var e = Number(edate.substring(8));\
+app.run(\"delete from T_RPT_JTG_5 where report_date>=to_date('\" + sdate + \"','yyyy-mm-dd') and report_date<=to_date('\" + edate + \"','yyyy-mm-dd')\", {\
+  transaction: 'start'\
+});\
+//初始化非集装箱货类\
+app.run(\"insert into T_RPT_JTG_5(ID,REPORT_DATE,CARGO_KIND_COD,CARGO_KIND_NAME,ZSGINWEIGHT,ZSGOUTWEIGHT,XLGINWEIGHT,XLGOUTWEIGHT,SWGINWEIGHT,\\
+\" +\
+  \"SWGOUTWEIGHT,CARGO_KINE_TYPE,CREATED_BY,UPDATED_BY,UPDATED_ON,CREATED_ON,trade_id)\\
+\" +\
+  \"select sys_guid(),trunc(ETA),ck.ID,\\
+\" +\
+  \"decode(ck.pid,-1,ck.cargo_kind_name,'    其中：'||ck.cargo_kind_name)cargo_kind_name,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and t.i_e_id='I' then t.weight else 0 end)/1000 izswt,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and t.i_e_id='E' then t.weight else 0 end)/1000 ezswt,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and t.i_e_id='I' then t.weight else 0 end)/1000 ixlwt,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and t.i_e_id='E' then t.weight else 0 end)/1000 exlwt,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and t.i_e_id='I' then t.weight else 0 end)/1000 iswwt,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and t.i_e_id='E' then t.weight else 0 end)/1000 eswwt,\\
+\" +\
+  \"ck.pid,'sys','sys',sysdate,sysdate,\\
+\" +\
+  \"case when sh_line_type='3' then '1' when sh_line_type='2' and trade_id='2' then '2' when (sh_line_type='2' and trade_id='1') or sh_line_type='1' then '1' end trade_id\\
+\" +\
+  \"from c_cargo_kind ck,v_ship_bill t\\
+\" +\
+  \"where ck.id=t.CMDY_CODE and (ck.id not in('1700','1701')or(ck.id='1700' and bill_type='S'))\\
+\" +\
+  \"and trunc(ETA)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(eta)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by ck.seq_no,ck.pid,ck.ID,ck.cargo_kind_name,trunc(ETA),\\
+\" +\
+  \"case when sh_line_type='3' then '1' when sh_line_type='2' and trade_id='2' then '2' when (sh_line_type='2' and trade_id='1') or sh_line_type='1' then '1' end\");\
+//初始化集装箱重量\
+app.run(\"insert into T_RPT_JTG_5(ID,REPORT_DATE,CARGO_KIND_COD,CARGO_KIND_NAME,ZSGINWEIGHT,ZSGOUTWEIGHT,XLGINWEIGHT,XLGOUTWEIGHT,SWGINWEIGHT,\\
+\" +\
+  \"SWGOUTWEIGHT,CARGO_KINE_TYPE,CREATED_BY,UPDATED_BY,UPDATED_ON,CREATED_ON,trade_id)\\
+\" +\
+  \"select sys_guid(),trunc(s.bill_date),'1701','    其中：集装箱',\\
+\" +\
+  \"sum(case when s.tenancy_id='ZSG' and s.cntr_siz_cod='20' and s.i_e_id='I' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='ZSG' and s.cntr_siz_cod='40' and s.i_e_id='I' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='ZSG' and s.cntr_siz_cod='45' and s.i_e_id='I' then 4.5 else 0 end) izswt,\\
+\" +\
+  \"sum(case when s.tenancy_id='ZSG' and s.cntr_siz_cod='20' and s.i_e_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='ZSG' and s.cntr_siz_cod='40' and s.i_e_id='E' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='ZSG' and s.cntr_siz_cod='45' and s.i_e_id='E' then 4.5 else 0 end) ezswt,\\
+\" +\
+  \"sum(case when s.tenancy_id='XLG' and s.cntr_siz_cod='20' and s.i_e_id='I' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='XLG' and s.cntr_siz_cod='40' and s.i_e_id='I' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='XLG' and s.cntr_siz_cod='45' and s.i_e_id='I' then 4.5 else 0 end) ixlwt,\\
+\" +\
+  \"sum(case when s.tenancy_id='XLG' and s.cntr_siz_cod='20' and s.i_e_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='XLG' and s.cntr_siz_cod='40' and s.i_e_id='E' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='XLG' and s.cntr_siz_cod='45' and s.i_e_id='E' then 4.5 else 0 end) exlwt,\\
+\" +\
+  \"sum(case when s.tenancy_id='SWG' and s.cntr_siz_cod='20' and s.i_e_id='I' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='SWG' and s.cntr_siz_cod='40' and s.i_e_id='I' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='SWG' and s.cntr_siz_cod='45' and s.i_e_id='I' then 4.5 else 0 end) iswwt,\\
+\" +\
+  \"sum(case when s.tenancy_id='SWG' and s.cntr_siz_cod='20' and s.i_e_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='SWG' and s.cntr_siz_cod='40' and s.i_e_id='E' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when s.tenancy_id='SWG' and s.cntr_siz_cod='45' and s.i_e_id='E' then 4.5 else 0 end) eswwt,\\
+\" +\
+  \"'1700','sys','sys',sysdate,sysdate,\\
+\" +\
+  \"case when line_type='3' then '1' when line_type='2' and trade_id='2' then '2' when (line_type='2' and trade_id='1') or line_type='1' then '1' end trade_id\\
+\" +\
+  \"from t_sas_ship_thruput s\\
+\" +\
+  \"where trunc(s.bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(s.bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by trunc(s.bill_date),\\
+\" +\
+  \"case when line_type='3' then '1' when line_type='2' and trade_id='2' then '2' when (line_type='2' and trade_id='1') or line_type='1' then '1' end\\
+\" +\
+  \"order by trunc(s.bill_date)\");\
+app.run(\"update t_rpt_jtg_5 j5 set (j5.zsginweight,j5.zsgoutweight,j5.xlginweight,j5.xlgoutweight,j5.swginweight,j5.swgoutweight)=\\
+\" +\
+  \"(select zsginweight+nvl(s.izswt,0),zsgoutweight+nvl(s.ezswt,0),xlginweight+nvl(s.ixlwt,0),\\
+\" +\
+  \"xlgoutweight+nvl(s.exlwt,0),swginweight+nvl(s.iswwt,0),swgoutweight+nvl(s.eswwt,0) from t_rpt_jtg_5 j left join\\
+\" +\
+  \"(select trunc(v.eta)eta,\\
+\" +\
+  \"case when sh_line_type='3' then '1' when sh_line_type='2' and trade_id='2' then '2' when (sh_line_type='2' and trade_id='1') or sh_line_type='1' then '1' end trade_id,\\
+\" +\
+  \"sum(case when v.tenancy_id='ZSG' and v.i_e_id='I' then v.weight else 0 end)/1000 izswt,\\
+\" +\
+  \"sum(case when v.tenancy_id='ZSG' and v.i_e_id='E' then v.weight else 0 end)/1000 ezswt,\\
+\" +\
+  \"sum(case when v.tenancy_id='XLG' and v.i_e_id='I' then v.weight else 0 end)/1000 ixlwt,\\
+\" +\
+  \"sum(case when v.tenancy_id='XLG' and v.i_e_id='E' then v.weight else 0 end)/1000 exlwt,\\
+\" +\
+  \"sum(case when v.tenancy_id='SWG' and v.i_e_id='I' then v.weight else 0 end)/1000 iswwt,\\
+\" +\
+  \"sum(case when v.tenancy_id='SWG' and v.i_e_id='E' then v.weight else 0 end)/1000 eswwt\\
+\" +\
+  \"from v_ship_bill v where v.cmdy_code='1700' and v.bill_type not in('S','E')\\
+\" +\
+  \"and trunc(v.eta)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(v.eta)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by trunc(v.eta),\\
+\" +\
+  \"case when sh_line_type='3' then '1' when sh_line_type='2' and trade_id='2' then '2' when (sh_line_type='2' and trade_id='1') or sh_line_type='1' then '1' end)s\\
+\" +\
+  \"on j.report_date=s.eta and j.trade_id=s.trade_id where j.cargo_kind_cod='1701' and j5.id=j.id)\\
+\" +\
+  \"where j5.report_date>=to_date('\" + sdate + \"','yyyy-mm-dd') and j5.report_date<=to_date('\" + edate + \"','yyyy-mm-dd') and j5.cargo_kind_cod='1701'\");\
+//按每天循环补充没有的货类\
+for (var i = b; i <= e; i++) {\
+  var day = i;\
+  if (day.toString().length < 2)\
+    day = \"0\" + day.toString();\
+  //补充外贸\
+  app.run(\"insert into T_RPT_JTG_5(ID,REPORT_DATE,CARGO_KIND_COD,CARGO_KIND_NAME,ZSGINWEIGHT,ZSGOUTWEIGHT,XLGINWEIGHT,XLGOUTWEIGHT,SWGINWEIGHT,\\
+\" +\
+    \"SWGOUTWEIGHT,CARGO_KINE_TYPE,CREATED_BY,UPDATED_BY,UPDATED_ON,CREATED_ON,trade_id)\\
+\" +\
+    \"select sys_guid(),to_date('\" + sdate.substring(0, 7) + \"-\" + day + \"'\" + \",'yyyy-mm-dd'),\\
+\" +\
+    \"ck.ID,decode(ck.pid,-1,ck.cargo_kind_name,'    其中：'||ck.cargo_kind_name),\\
+\" +\
+    \"0,0,0,0,0,0,ck.pid,'sys','sys',sysdate,sysdate,'1'\\
+\" +\
+    \"from c_cargo_kind ck\\
+\" +\
+    \"where ck.id not in(select cargo_kind_cod from t_rpt_jtg_5\\
+\" +\
+    \"where report_date=to_date('\" + sdate.substring(0, 7) + \"-\" + day + \"'\" + \",'yyyy-mm-dd') and trade_id='1')\");\
+  //补充内贸\
+  app.run(\"insert into T_RPT_JTG_5(ID,REPORT_DATE,CARGO_KIND_COD,CARGO_KIND_NAME,ZSGINWEIGHT,ZSGOUTWEIGHT,XLGINWEIGHT,XLGOUTWEIGHT,SWGINWEIGHT,\\
+\" +\
+    \"SWGOUTWEIGHT,CARGO_KINE_TYPE,CREATED_BY,UPDATED_BY,UPDATED_ON,CREATED_ON,trade_id)\\
+\" +\
+    \"select sys_guid(),to_date('\" + sdate.substring(0, 7) + \"-\" + day + \"'\" + \",'yyyy-mm-dd'),\\
+\" +\
+    \"ck.ID,decode(ck.pid,-1,ck.cargo_kind_name,'    其中：'||ck.cargo_kind_name),\\
+\" +\
+    \"0,0,0,0,0,0,ck.pid,'sys','sys',sysdate,sysdate,'2'\\
+\" +\
+    \"from c_cargo_kind ck\\
+\" +\
+    \"where ck.id not in(select cargo_kind_cod from t_rpt_jtg_5\\
+\" +\
+    \"where report_date=to_date('\" + sdate.substring(0, 7) + \"-\" + day + \"'\" + \",'yyyy-mm-dd') and trade_id='2')\");\
+}\
+//更新一级货类重量\
+app.run(\"update t_rpt_jtg_5 u set(ZSGINWEIGHT2,ZSGOUTWEIGHT2,XLGINWEIGHT2,XLGOUTWEIGHT2,SWGINWEIGHT2,SWGOUTWEIGHT2)=\\
+\" +\
+  \"(select nvl(a.zsginweight,0)+nvl(b1,0),nvl(a.zsgoutweight,0)+nvl(b2,0),nvl(a.xlginweight,0)+nvl(b3,0),\\
+\" +\
+  \"nvl(a.xlgoutweight,0)+nvl(b4,0),nvl(a.swginweight,0)+nvl(b5,0),nvl(a.swgoutweight,0)+nvl(b6,0)\\
+\" +\
+  \"from(select t.id,t.cargo_kind_cod,t.report_date,t.zsginweight,t.zsgoutweight,t.xlginweight,t.xlgoutweight,t.swginweight,t.swgoutweight,t.trade_id\\
+\" +\
+  \"from t_rpt_jtg_5 t where cargo_kine_type='-1' and report_date>=to_date('\" + sdate + \"','yyyy-mm-dd') and report_date<=to_date('\" + edate + \"','yyyy-mm-dd'))a left join\\
+\" +\
+  \"(select t.cargo_kine_type,t.report_date,sum(t.zsginweight)b1,sum(t.zsgoutweight)b2,sum(t.xlginweight)b3,sum(t.xlgoutweight)b4,sum(t.swginweight)b5,sum(t.swgoutweight)b6,t.trade_id\\
+\" +\
+  \"from t_rpt_jtg_5 t where t.cargo_kine_type<>'-1' and report_date>=to_date('\" + sdate + \"','yyyy-mm-dd') and report_date<=to_date('\" + edate + \"','yyyy-mm-dd') group by t.cargo_kine_type,t.report_date,t.trade_id)b\\
+\" +\
+  \"on a.cargo_kind_cod=b.cargo_kine_type and a.report_date=b.report_date and a.trade_id=b.trade_id where a.id=u.id)\\
+\" +\
+  \"where u.cargo_kine_type='-1'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "交统港5表数据初始化",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,354 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">9.事件</p><hr color=#2266ee size=1>
+　　Supcan FreeForm的OnEvent( id, Event, p1, p2, p3, p4 )事件含义及参数分别如下：<br>
+<table width=98% border=1 align="center">
+<tr><th>分组</th><th>Event</th><th>含义</th><th>p1</th><th>p2</th><th>p3</th><th>p4</th></tr>
+<tr>
+  <td rowspan="14">输入</td>
+  <td rowspan="4">EditChanged</td>
+  <td>某输入框内容已修改</td>
+  <td>id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：包括Checkbox、RadioButton</td></tr>
+<tr>
+  <td>文件上传控件的上传文件有变动</td>
+  <td>id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：通常在关闭对话框后</td></tr>
+<tr>
+  <td rowspan="4">EditKeydown</td>
+  <td>输入框的键盘动作</td>
+  <td>id</td>
+  <td>键的ASCII码，例如回车是13、空格是32</td>
+  <td>见备注2</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注1：EditKeydown 和 EditChar 事件均为在输入框中的键盘事件，EditKeydown 能捕获几乎所有键盘动作，包括非字符的回车、Tab等；而 EditChar 事件则以输入的字符为主，包括中文;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注2：p3的含义为: 1-Ctrl键也按下了； 2-Shift键也按下了； 3-二者一起按下了</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注3：您可以执行全局函数 CancelEvent( ) 去阻止继续执行，就如事件没有发生过那样，但不同的ASCII码，您需要在这两个事件中挑选一个执行CancelEvent( )，具体请在演示页“12.事件”中去测试</td></tr>
+<tr>
+  <td rowspan="2">EditChar</td>
+  <td>输入框的键盘字符</td>
+  <td>id</td>
+  <td>字符的ASCII码</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：EditKeydown 和 EditChar 事件均为在输入框中的键盘事件，EditKeydown 能捕获几乎所有键盘动作，包括非字符的回车、Tab等；而 EditChar 事件则以输入的字符为主，包括中文;</td></tr>
+<tr>
+  <td>LooseFocus</td>
+  <td>某输入框已失去焦点</td>
+  <td>id</td>
+  <td>下一个焦点的id<br>(仅和键盘动作有关)</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="2">BeforeDropdown</td>
+  <td>某输入框的下拉 List 或下拉 Treelist 正准备下拉</td>
+  <td>id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：可执行全局函数CalcelEvent( )阻止继续执行, 但仅对下拉Treelist有效, 对下拉List无效</td></tr>
+<tr>
+  <td>DropdownSelChanged</td>
+  <td>某下拉的下拉行被鼠标选择了</td>
+  <td>id</td>
+  <td>1 - 数据有变化<br>0 - 数据无变化</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="3">按钮</td>
+  <td rowspan="3">ButtonClicked</td>
+  <td>情形1: 某按钮已Clicked</td>
+  <td>id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：支持 CancelEvent 全局函数阻止继续执行</td></tr>
+<tr>
+  <td>情形2: 鼠标点到下拉 DropTreelist 弹出窗的自定义按钮上</td>
+  <td>id</td>
+  <td>　</td>
+  <td>DropdownButton</td>
+  <td>自定义按钮的 id</td></tr>
+<tr>
+  <td>Text</td>
+  <td>HyperLink</td>
+  <td>鼠标点击了超链接的Text</td>
+  <td>id号</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="3">分页器</td>
+  <td rowspan="2">BeforePager</td>
+  <td>分页触发前</td>
+  <td>id号</td>
+  <td>开始行</td>
+  <td>每页行数</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：支持 CancelEvent 全局函数取消分页</td></tr>
+<tr>
+  <td>Pager</td>
+  <td>分页触发后</td>
+  <td>id号</td>
+  <td>开始行</td>
+  <td>每页行数</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="11">选项卡</td>
+  <td rowspan="3">BeforeSelChanged</td>
+  <td>选项卡(Tab)切换前</td>
+  <td>老的页签的序号</td>
+  <td>新的页签的序号</td>
+  <td>新的页签的ID</td>
+  <td>见备注1</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注1：p4参数含义为:  0表示第一次展现, 1表示已经被展现过</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注2：支持 CancelEvent 全局函数阻止继续执行</td></tr>
+<tr>
+  <td rowspan="2">SelChanged</td>
+  <td>选项卡(Tab)切换后</td>
+  <td>老的页签的序号</td>
+  <td>新的页签的序号</td>
+  <td>新的页签的ID</td>
+  <td>见备注</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：p4参数含义为:  0表示第一次展现, 1表示已经被展现过</td></tr>
+<tr>
+  <td rowspan="2">BeforeClosed</td>
+  <td>选项卡某页签被手工关闭前</td>
+  <td>页签的序号</td>
+  <td>　</td>
+  <td>页签的ID</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：支持 CancelEvent 全局函数取消关闭</td></tr>
+<tr>
+  <td>Closed</td>
+  <td>选项卡某页签已经被手工关闭</td>
+  <td>页签的序号</td>
+  <td>　</td>
+  <td>页签的ID</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="2">BeforeExchanged</td>
+  <td>选项卡被拖拽交换位置前</td>
+  <td>被拖拽的页签id</td>
+  <td>交换前的各个页签id排列顺序,逗号分隔</td>
+  <td>交换后的各个页签id排列顺序,逗号分隔</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：支持 CancelEvent 全局函数取消该动作</td></tr>
+<tr>
+  <td>Exchanged</td>
+  <td>选项卡被拖拽交换位置</td>
+  <td>被拖拽的页签id</td>
+  <td>交换前的各个页签id排列顺序,逗号分隔</td>
+  <td>交换后的各个页签id排列顺序,逗号分隔</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="4">ImageFlow</td>
+  <td>ImageClicked</td>
+  <td>鼠标点到某图</td>
+  <td>id号</td>
+  <td>text</td>
+  <td>url</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>ImageDblClicked</td>
+  <td>鼠标双击某图</td>
+  <td>id号</td>
+  <td>text</td>
+  <td>url</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>MouseMoveIn</td>
+  <td>鼠标移入某图 (仅style=horz)</td>
+  <td>id号</td>
+  <td>text</td>
+  <td>url</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>MouseMoveOut</td>
+  <td>鼠标移出某图 (仅style=horz)</td>
+  <td>id号</td>
+  <td>text</td>
+  <td>url</td>
+  <td>&nbsp;</td></tr>
+  	
+  	
+<tr>
+  <td rowspan="2">Freeform-<br>Tree</td>
+  <td>FreeformTreeClicked</td>
+  <td>鼠标单击树的某节点</td>
+  <td>FreeformTree的id</td>
+  <td>数据的id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>FreeformTreeDblClicked</td>
+  <td>鼠标双击树的某节点</td>
+  <td>FreeformTree的id</td>
+  <td>数据的id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>Toolbar</td>
+  <td>MenuClicked</td>
+  <td>工具条对应的菜单项已选中</td>
+  <td>菜单item的id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="4">菜单按钮</td>
+  <td rowspan="3">MenuBeforePopup</td>
+  <td>鼠标点击某动态菜单按钮之后、在将要弹出菜单之前</td>
+  <td>按钮控件的id</td>
+  <td>该控件的menuID</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>鼠标点击在 enableDefaultMenu="true" 的某动态菜单按钮的左侧</td>
+  <td>按钮控件的id</td>
+  <td>该控件的menuID</td>
+  <td>Left</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>鼠标点击在 enableDefaultMenu="true" 的某动态菜单按钮的右侧</td>
+  <td>按钮控件的id</td>
+  <td>该控件的menuID</td>
+  <td>Right</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>MenuClicked</td>
+  <td>菜单按钮的菜单项已选中</td>
+  <td>菜单item的id</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="4">文件上传</td>
+  <td rowspan="4">Upload</td>
+  <td>有文件上传成功</td>
+  <td>文件顺序号</td>
+  <td>文件总数</td>
+  <td>见备注</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：如果是分块上传, p3参数是类似这样的串: "FileParts=33;CurrentFilePart=2;PassTime=00:02:33;RemainTime=00:01:30;Speed=50", 其含义如下：<br>
+　　FileParts - 总块数;<br>
+　　CurrentFilePart - 刚上传的块序号;<br>
+　　PassTime - 已耗用的时间(时:分:秒);<br>
+　　RemainTime - 估计还需要时间(时:分:秒);<br>
+　　Speed - 测算到的网速，单位为 千字节/秒;<br>
+　　此外，如果是将一个目录压缩成zip包上传，那么第一个Upload消息肯定是“Compressed=true”</td></tr>
+<tr>
+  <td>文件上传过程中有异常</td>
+  <td>　</td>
+  <td>　</td>
+  <td>　</td>
+  <td>异常信息</td></tr>
+<tr>
+  <td>异步方式调用全局函数 httpPostLocalFile 触发的</td>
+  <td>本地文件名</td>
+  <td>服务器返回的串</td>
+  <td>硕正插件捕捉到的异常错误串</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td rowspan="5">文件下载</td>
+  <td rowspan="5">Download</td>
+  <td>文件异步下载成功</td>
+  <td>任务ID号</td>
+  <td>文件名 (若toString=true则为纯数字串形式的内存块句柄, 可用全局函数 GetDataString访问)</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>文件异步下载失败</td>
+  <td>任务ID号</td>
+  <td>&nbsp;</td>
+  <td>错误信息</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>文件异步下载中</td>
+  <td>任务ID号</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>见备注</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注1：异步方式调用全局函数 Download 将触发本事件</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注2：p4是类似这样的串:  "FileSize=1002034;CurrentSize=200030;PassTime=00:02:33;RemainTime=00:01:30;Speed=50", 其含义如下:<br>
+　　FileSize - 文件总长度(字节);<br>
+　　CurrentSize - 已下载的长度(字节);<br>
+　　PassTime - 已耗用的时间(时:分:秒);<br>
+　　RemainTime - 估计还需要时间(时:分:秒);<br>
+　　Speed - 测算到的网速，单位为 千字节/秒</td></tr>
+<tr>
+  <td rowspan="13"></td>
+  <td rowspan="2">RButtonClicked</td>
+  <td>鼠标右键点击</td>
+  <td>右键点中 Object 的 ID 号 (也可能为空串), 若有多个ID, 则相互以逗号分隔</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注：可以在本事件中调用全局函数 Menu 自行弹出菜单</td></tr>
+<tr>
+  <td rowspan="3">DataReach</td>
+  <td>已经访问了 dataURL(包括 Load 函数访问) 并得到了数据，但尚未应用该数据</td>
+  <td>内存块的句柄(为一纯数字串)</td>
+  <td>URL</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注1：可以用全局函数 GetDataString / SetDataString 取得或更改内存块中的数据</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注2：可以用上述2个函数存取数据，但不宜过多调用其它函数，否则会造成不稳定</td></tr>
+<tr>
+  <td rowspan="4">DropDownDataReach</td>
+  <td>某个异步加载数据的下拉已经获得了数据并已完成加载</td>
+  <td><b>某个下拉资源的 id</b> - 表示此下拉数据已经到达<br>
+<b>Complete!</b> - 所有异步下拉的数据已全部到达</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注1：异步访问http的下拉列表、下拉树列表在初始加载数据时触发</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注2：同步加载数据的下拉不会触发本事件</td></tr>
+<tr bgColor=#ffffdd><td colspan="5">备注3：当全部异步下拉都完成加载后，本事件会再次被触发，p1是固定的串 "Complete!"</td></tr>
+<tr>
+  <td>HotKey</td>
+  <td>触发了快捷键</td>
+  <td>快捷键</td>
+  <td>id号,如果正在输入的话</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>
+<tr>
+  <td>UserEvent</td>
+  <td>全局函数 PostMessage 发出的自定义事件</td>
+  <td>自定义</td>
+  <td>自定义</td>
+  <td>自定义</td>
+  <td>自定义</td></tr>
+<tr>
+  <td>CacheSaved</td>
+  <td>全局事件，请参见全局函数 ListenEvent</td>
+  <td>缓存的ID</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td></tr>  
+<tr>
+  <td>组件id.事件名</td>
+  <td>内部的大粒度组件的事件</td>
+  <td>和组件有关</td>
+  <td>和组件有关</td>
+  <td>和组件有关</td>
+  <td>和组件有关</td></tr>
+</table>
+<br>
+　　事件的js用法可参见“事件、按钮、菜单、工具条”Demo页。<br>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

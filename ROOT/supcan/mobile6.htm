@@ -1,0 +1,145 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type="text/javascript" src="binary/dynaload.js?103"></script>
+
+<script>
+function OnReady(id)
+{
+ AF.func("build", "treelist/qr.xml");
+ AF.func("SetValue", "QR \r\n http://www.supcan.cn/dotnet/rt.aspx?func=0");
+}
+</script>
+</head>
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>
+基于报表在线演示“33.穿透式查询”，稍作修改，实现了手机上的总表、明细表、凭证的穿透式实时查询；<br>
+</td></tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<br>
+<table cols=4 border=0 width="88%">
+<col>
+<col width=400>
+<col>
+<col width=260>
+<tr height=23><td/><td/><td/><td/></tr>
+<tr>
+	<td/>
+	<td>网址为： http://www.supcan.cn/dotnet/rt.aspx?func=0<br>对应二维码为:</td>
+	<td/>
+	<td></td>
+</tr>
+<tr height="200">
+	<td/>
+	<td height="200"><script>insertFreeForm('AF', 'border=none')</script></td>
+	<td/>
+	<td><img id='imghlp' src='' style='visibility:hidden'></td>
+</tr>
+<tr height=50><td colspan=4><br></td></tr><tr><td>
+
+<tr><td colspan=4><img src='res/tech.jpg'></td></tr><tr><td>
+
+<tr><td colspan=4>
+<b>1</b>.实现该功能的后端C#源码 rt.aspx 的关键片段：<br>
+<pre class='cpp'>
+public void Page_Load(Object sender, EventArgs e) {
+  //取得 func 参数,  "0/1/2" 分别代表 "科目表/明细表/记账凭证"
+  String pageFunc = Request.Params["func"];
+  if(pageFunc == null) return;
+  int nFunc = Int32.Parse(pageFunc);
+  if(!(nFunc==0 || nFunc==1 || nFunc==2)) return;
+ 
+  String BaseDir = "http://www.supcan.cn/";    //报表服务中 http 访问的的相对URL
+  String TempURL = BaseDir + "dotnet/temp/";   //最终生成文件的手机访问的URL目录
+  Response.ContentType = "text/plain";
+
+  //加载winface.dll
+  String WinFacePathname = Server.MapPath("MyProg\\winface.dll");  //winface.dll所在目录 (硕正组件的绝对目录)
+  DllInvoke dll = new DllInvoke(WinFacePathname);
+  if(dll.m_hLib == IntPtr.Zero) {
+   Response.Write("dll加载失败");
+   Response.End();
+   return;
+  }
+ 
+  //服务是否被其它线程打开着
+  if(dll.GetActiveServices( ) > 0) {
+   Response.Write("服务器忙，请稍后再试");
+   Response.End();
+   return;
+  }
+ 
+  //创建报表服务
+  String TempDir = Server.MapPath("Temp");  //Temp 目录的绝对路径
+  if(dll.OpenReportService("LogSize=1000;LogLevel=0;TempDir=" +TempDir+ ";BaseDir=" + BaseDir) == false) {
+   Response.Write("服务创建失败");
+   Response.End();
+   return;
+  }
+ 
+  //报表服务：打开报表文件
+  String ReportFilename = Server.MapPath("..\\report\\xmlsheet10_mobile.xml");
+  dll.func("build", ReportFilename);
+ 
+  //切换到所需工作表，作为当前工作表
+  dll.func("SetCurrentWorkSheet", pageFunc);
+ 
+  //设置超链接的导航 (仍指向本 rt.aspx, 但func参数有区分)
+  if(nFunc == 0)
+   dll.func("SetNavigator", BaseDir + "dotnet/rt.aspx?func=1&kmdm=@para");
+  else if(nFunc == 1)
+   dll.func("SetNavigator", BaseDir + "dotnet/rt.aspx?func=2&pzh=@para");
+ 
+  //获得参数，计算
+  String para = "";
+  if(nFunc == 1) {
+   para = Request.Params["kmdm"];
+   if(para != null) dll.func("SetParas", "ds2 \r\n" + para);
+  }
+  else if(nFunc == 2) {
+   para = Request.Params["pzh"];
+   if(para != null) dll.func("SetCellData", "b2 \r\n" + para);
+  }
+  dll.func("calc", "");
+ 
+  //报表转换成html
+  String TempFilename = dll.func("CacheDirUtility", "isCreateTempFile=true;ext=htm");
+  if(TempFilename=="") {
+   dll.CloseService();
+   Response.Write("服务器忙，请稍后再试..");
+   Response.End();
+   return;
+  }
+  dll.func("callfunc", "105\r\n type=htm;filename=" + TempFilename);
+  //关闭服务
+  dll.CloseService();
+
+  //返回html文件的URL==========
+  //取得不含路径的文件名
+  int n = TempFilename.LastIndexOf('\\');
+  TempFilename = TempFilename.Substring(n+1);
+  //拼接成URL、重定向
+  TempURL += TempFilename;
+  Response.Redirect(TempURL);
+  Response.End();
+}</pre>
+<b>2</b>.须结合开发者指南“服务器专版”、报表在线演示“28.穿透式查询”一起分析.<br>
+<b>3</b>.报表文件 xmlsheet10_mobile.xml 和“28.穿透式查询”中的 xmlsheet10.xml 文件基本一致，由于手机上操作超链接的需要，加高了行高.<br>
+</td></tr>
+</table>
+
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+
+</html>

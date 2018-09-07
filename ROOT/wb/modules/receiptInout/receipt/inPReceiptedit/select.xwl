@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \" and tenancy_id='\" + tenancyid + \"'\";\
+\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and BILL_NO='\" + data.billNo + \"'\";\
+if (nature == \"5\")\
+  sql += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select r.*,to_char(created_on,'yyyy-mm-dd hh24:mi')created_on from RECEIPT r \
+where phase not in('FIN','CNL') and P_TYPE='S'{#sql#} order by r.created_on desc,bill_no"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

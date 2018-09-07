@@ -1,0 +1,530 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "feeItemWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "344",
+     "title": "费目维护",
+     "height": "336"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "feeItemWinGrid",
+      "submitSelect": "true",
+      "selType": "checkboxmodel",
+      "sortableColumns": "false",
+      "simpleSelect": "true",
+      "pagingBar": "false",
+      "x": "8",
+      "width": "320",
+      "y": "8",
+      "region": "center",
+      "multiSelect": "true",
+      "height": "264"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "remoteSort": "true",
+        "autoLoad": "true",
+        "pageSize": "-1",
+        "params": "{fldId:'C_BASE_CHARGING_ITEM'}",
+        "url": "m?xwl=system/common/codeSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "id",
+          "hidden": "true",
+          "dataIndex": "CID",
+          "text": "编号"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "name",
+          "dataIndex": "CNAME",
+          "width": "200",
+          "text": "费目"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "window",
+    "events": {
+     "show": "app.feeItemWinGrid.selModel.deselectAll();",
+     "ok": "var ids = new Array();\
+var sels2 = app.feeItemWinGrid.getSelection();\
+    Wb.each(sels2,function (sel){\
+      //console.log(sel.data);\
+      ids.push(sel.data.ID);\
+\t});\
+    Wb.request({\
+      url: 'm?xwl=feeManage/accountPoints/java/save',\
+      params: {ids:ids,\
+               POINT_CODE:app.hidNode.getValue(),\
+               POINT_NAME:app.hidName.getValue()\
+              }, \
+      success: function() {\
+        alert(\"保存成功\");\
+        app.feeItemWin.hide();\
+        app.feeItemGrid.store.load({params:{POINT_CODE:app.hidNode.getValue()}});\
+      }\
+    });"
+    }
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "split": "true",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel1",
+        "split": "true",
+        "width": "200",
+        "region": "west"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "tree1",
+         "root": "{ID:'-1', text:'收费事件列表'}"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=feeManage/accountPoints/sql/s_code"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"beforeload": "\
+var node = operation.node;\
+operation.params.parentId = node.isRoot() ? '-1' : node.data.ID;"}
+        }],
+        "type": "tree",
+        "events": {"itemclick": "//console.info(record.data);\
+var hidNode = record.data.ID;\
+app.hidNode.setValue(hidNode);\
+app.hidName.setValue(record.data.text);\
+app.feeItemGrid.store.load({params:{POINT_CODE:hidNode}});"}
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel2",
+        "split": "true",
+        "region": "center"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "hidNode",
+          "hidden": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "hidName",
+          "hidden": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "feeItemGrid",
+          "title": "费目信息"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {"itemId": "tbar"},
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editFeeItemMenu",
+             "text": "选择费目",
+             "iconCls": "db_form_add_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "app.feeItemWin.show();\
+//app.feeItemWinGrid.store.load();\
+Wb.request({\
+    url: 'm?xwl=feeManage/accountPoints/sql/findItemByPoint',\
+    params: {POINT_CODE:app.hidNode.getValue()},\
+    success: function(resp) {\
+      var roleRec;\
+      var selRecs = [];\
+      var roles = Wb.decode(resp.responseText);\
+      Wb.each(roles.rows, function(data) {\
+        roleRec = Wb.find(app.feeItemWinGrid.store, 'ID', data.ITEM_ID);\
+        if (roleRec){\
+          selRecs.push(roleRec);\
+        }\
+      });\
+      app.feeItemWinGrid.setSelection(selRecs);\
+      \
+    }\
+});\
+"}
+           }],
+           "type": "toolbar"
+          },
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "false",
+            "url": "m?xwl=feeManage/accountPoints/sql/findItemByPoint"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "col_ID",
+              "hidden": "true",
+              "dataIndex": "ID",
+              "text": "编号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "name",
+              "dataIndex": "DESCRIPTION",
+              "width": "150",
+              "text": "费目名称"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "invoiceType",
+              "dataIndex": "INVOICE_TYPE",
+              "keyName": "C_BASE_INVOICE",
+              "text": "发票类型"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "rateType",
+              "renderer": "if(value === 0){\
+  return \"普通\";\
+}\
+if(value == 1){\
+  return \"分段\";\
+}",
+              "dataIndex": "RATE_TYPE",
+              "text": "费率类型"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "lifeStatus",
+              "renderer": "if(value === 0){\
+  return \"不启用\";\
+}else if(value === 1){\
+  return \"启用\";\
+}",
+              "hidden": "true",
+              "dataIndex": "LIFE_STATUS",
+              "text": "有效状态"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "minAmount",
+              "dataIndex": "MIN_AMOUNT",
+              "text": "最小金额"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "maxAmount",
+              "dataIndex": "MAX_AMOUNT",
+              "text": "最大金额"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "unit",
+              "dataIndex": "UNIT",
+              "keyName": "FEE_UNIT",
+              "text": "计价单位"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "isAutocalc",
+              "renderer": "\
+if(value === 0){\
+  return \"自动\";\
+}else if(value === 1){\
+  return \"手动\";\
+}",
+              "dataIndex": "IS_AUTOCALC",
+              "text": "自动计算"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "isFormat",
+              "renderer": "if(value === 1){\
+  return \"是\";\
+}else{\
+  return \"否\";\
+}",
+              "dataIndex": "IS_FORMAT",
+              "text": "是否取整"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "formatUnit",
+              "renderer": "if(value === 0){\
+  return \"分\";\
+}\
+if(value === 1){\
+  return \"角\";\
+}\
+if(value === 2){\
+  return \"元\";\
+}\
+if(value === 3){\
+  return \"十元\";\
+}",
+              "dataIndex": "FORMAT_UNIT",
+              "text": "取整单位"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "currency",
+              "dataIndex": "CURRENCY",
+              "keyName": "C_CURRENCY",
+              "text": "币种"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "glCode",
+              "dataIndex": "GL_CODE",
+              "text": "会计科目"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "flatRate",
+              "renderer": "if(value === 0){\
+  return \"否\";\
+}else if(value == 1){\
+  return \"是\";\
+}",
+              "dataIndex": "FLAT_RATE",
+              "text": "固定费率"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "isAll",
+              "renderer": "\
+if(value === 0){\
+  return \"不包干\";\
+}\
+if(value === 1){\
+  return \"包干\";\
+}",
+              "dataIndex": "IS_ALL",
+              "text": "是否包干"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "accountType",
+              "renderer": "\
+if(value == 1){\
+  return \"现金\";\
+}\
+if(value == 2){\
+  return \"月结\";\
+}\
+if(value == 3){\
+  return \"托收单\";\
+}",
+              "dataIndex": "ACCOUNT_TYPE",
+              "text": "结算方式"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "isAverage",
+              "renderer": "if(value === 0){\
+  return \"否\";\
+}\
+if(value == 1){\
+  return \"是\";\
+}",
+              "dataIndex": "IS_AVERAGE",
+              "text": "分摊"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "notes",
+              "dataIndex": "NOTES",
+              "text": "备注"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "col_CREATEUSER",
+              "dataIndex": "CREATEUSER",
+              "text": "创建人"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "col_CREATETIME",
+              "dataIndex": "CREATETIME",
+              "text": "创建时间"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid"
+        }
+       ],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "计费事件维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

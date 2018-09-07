@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  recs = Wb.decode(request.getParameter('update'));\
+Wb.each(recs, function(rec) {\
+  id = rec.ID;\
+  ids.push({\
+    ID: rec.ID,\
+    CNTR_ID: rec.CNTR_ID,\
+    SCALE_WT: rec.GROSSWT\
+  });\
+});\
+// app.run(\"update port_cntr set SCALE_WT=to_number({?SCALE_WT?}) where ID={?CNTR_ID?}\",{arrayData: new org.json.JSONArray(Wb.encode(ids))});\
+request.setAttribute('update', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'CNTR_WEIGHT_REC',\
+  whereFields: 'ID',\
+  transaction: 'commit',\
+  uniqueUpdate: true\
+});\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "ZSJJ": 1,
+  "ZSGHUQD": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

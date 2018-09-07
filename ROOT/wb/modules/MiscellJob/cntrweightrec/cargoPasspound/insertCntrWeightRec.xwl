@@ -1,0 +1,175 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = [];\
+var username = app.get(\"sys.username\"),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  zcntrWeight = app.get(\"zcntrWeight\"),\
+  fcntrWeight = app.get(\"fcntrWeight\"),\
+  fcntr = app.get(\"fcntr\"), //副箱\
+  zcntr = app.get(\"zcntr\"), //主箱\
+  truckNo = app.get(\"truckNo\"),\
+  trayNo = app.get(\"trayNo\"),\
+  trunkWeight=0,\
+  trayWeight = 0,\
+  pounds = app.get(\"pounds\"),\
+  billNo = app.get(\"BILL_NO\"),\
+  cntrId = app.get(\"CNTR_ID\"),\
+  billnos = \"'\" + billNo + \"'\",\
+    \
+\
+  state = true,\
+  gWt = 0,\
+  zgWt = 0;\
+  message = \"\";\
+\
+   if(Wb.isEmpty(app.get(\"trunkWeight\"))){\
+  trunkWeight = app.get(\"trunkWeight\");\
+   }\
+   if(Wb.isEmpty(app.get(\"trayWeight\"))){\
+  trayWeight = app.get(\"trayWeight\");\
+   }\
+if (Wb.isEmpty(fcntrWeight)||fcntrWeight==0) {\
+  gWt = pounds - trunkWeight - trayWeight - zcntrWeight;\
+  app.log(gWt);\
+  if (Wb.isEmpty(fcntr)) { //表示只有一箱,求副箱信息。\
+    var rs = app.run(\"select ID,CNTR_ID, CNTR,GTAREWT, TOTALWT,BILL_NO,CNTR_ID from  CNTR_WEIGHT_REC  where  PHASE='EXE' and OTHERGNO='\" + zcntr + \"' \");\
+    if (rs.next()) { //存在主箱 一车2箱表\
+      zgWt = rs.getInt(\"TOTALWT\") - pounds - rs.getInt(\"GTAREWT\"); //总重减去副箱重量=副箱重量\
+      //更新副箱\
+      app.run(\"update CNTR_WEIGHT_REC set PHASE='FIN',TOTALWT=\" + pounds + \" ,GROSSWT=\" + zgWt + \" ,WEIGHTIME=sysdate where CNTR='\" + rs.getString(\"CNTR\") + \"'  and PHASE='EXE' \", {\
+        transaction: 'start'\
+      });\
+      app.run(\"update CNTR_WEIGHT_PLN set PHASE='FIN',TOTALWT=\" + pounds + \" ,GROSSWT=\" + zgWt + \" ,WEIGHTIME=sysdate where CNTR='\" + rs.getString(\"CNTR\") + \"'  and PHASE='PLN' \");\
+\
+      app.run(\"update port_cntr set  SCALE_WT=\" + zgWt + \" where  ID='\" + cntrId + \"' and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+      app.run(\"update VLOAD_LIST set  CARGO_WT= \" + zgWt + \" where  cntr_id='\" + cntrId + \"' and bill_no='\" + billNo + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \");\
+\
+      //更新主箱\
+      app.run(\"update CNTR_WEIGHT_REC set PHASE='FIN' ,GTAREWT=\" + zcntrWeight + \", TOTALWT=\" + pounds + \" ,GROSSWT=\" + gWt + \" ,WEIGHTIME=sysdate where PHASE='EXE' and CNTR='\" + zcntr + \"'   \");\
+      app.run(\"update CNTR_WEIGHT_PLN set PHASE='FIN' ,GTAREWT=\" + zcntrWeight + \", TOTALWT=\" + pounds + \" ,GROSSWT=\" + gWt + \" ,WEIGHTIME=sysdate where PHASE='PLN' and CNTR='\" + zcntr + \"'   \");\
+\
+      app.run(\"update port_cntr set  SCALE_WT=\" + gWt + \" where  ID='\" + cntrId + \"' and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+      app.run(\"update VLOAD_LIST set  CARGO_WT= \" + gWt + \" where  cntr_id='\" + cntrId + \"' and bill_no='\" + billNo + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \", {\
+        transaction: 'commit'\
+      });\
+\
+\
+    } else { //只有一票\
+      var ID = SysUtil.getId();\
+      app.run(\"INSERT INTO cntr_weight_rec \" +\
+        \"    (ID, cntr, bill_no, cntr_size, cntr_type, gtarewt, weightime, vid, \" +\
+        \"     voyage_no, bill_id, e_f_id, truck_no, tray_no, truckwt, traywt, \" +\
+        \"     totalwt, grosswt, created_by, created_on, updated_by, updated_on, \" +\
+        \"     tenancy_id, othergno, phase, i_e_id, goods, isout, gkno, cntr_id) \" +\
+        \" SELECT  SYS_GUID () , p.cntr, v.bill_no, p.cntr_size, p.cntr_type, \" +\
+        \"  \" + zcntrWeight + \", SYSDATE, v.vid, v.voyage_no, v.bill_id, 'F', \" +\
+        \"  '\" + truckNo + \"', '\" + trayNo + \"', \" + trunkWeight + \", \" + trayWeight + \", \" +\
+        \"  \" + pounds + \", \" + gWt + \", '\" + username + \"', SYSDATE, \" +\
+        \"  '\" + username + \"', SYSDATE, '\" + TENANCY_ID + \"', NULL, 'FIN', p.i_e_id, \" +\
+        \"  v.goods_notes, '0', '', p.ID \" +\
+        \"  FROM port_cntr p, vload_list v \" +\
+        \"  WHERE p.ID = v.cntr_id(+) AND p.i_e_id = v.i_e_id(+) and main_flag= 1 and p.cntr='\" + zcntr + \"'\", {\
+          transaction: 'start'\
+        });\
+      app.run(\"update CNTR_WEIGHT_PLN set PHASE='FIN' ,GTAREWT=\" + zcntrWeight + \", TOTALWT=\" + pounds + \" ,GROSSWT=\" + gWt + \" ,WEIGHTIME=sysdate where PHASE='PLN' and CNTR='\" + zcntr + \"'   \");\
+\
+      app.run(\"update port_cntr set  SCALE_WT=\" + gWt + \" where  ID='\" + cntrId + \"' and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+      app.run(\"update VLOAD_LIST set  CARGO_WT= \" + gWt + \" where  cntr_id='\" + cntrId + \"' and bill_no='\" + billNo + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \", {\
+        transaction: 'commit'\
+      });\
+\
+    }\
+  } \
+}\
+else { //表示有双箱\
+    var ID = SysUtil.getId();\
+    app.run(\"INSERT INTO cntr_weight_rec \" +\
+      \"    (ID, cntr, bill_no, cntr_size, cntr_type, gtarewt, weightime, vid, \" +\
+      \"     voyage_no, bill_id, e_f_id, truck_no, tray_no, truckwt, traywt, \" +\
+      \"     totalwt, grosswt, created_by, created_on, updated_by, updated_on, \" +\
+      \"     tenancy_id, othergno, phase, i_e_id, goods, isout, gkno, cntr_id) \" +\
+      \" SELECT '\" + ID + \"', p.cntr, v.bill_no, p.cntr_size, p.cntr_type, \" +\
+      \"  \" + zcntrWeight + \", SYSDATE, v.vid, v.voyage_no, v.bill_id, 'F', \" +\
+      \"  '\" + truckNo + \"', '\" + trayNo + \"', \" + trunkWeight + \", \" + trayWeight + \", \" +\
+      \"  \" + pounds + \", \" + gWt + \", '\" + username + \"', SYSDATE, \" +\
+      \"  '\" + username + \"', SYSDATE, '\" + TENANCY_ID + \"', '\"+fcntr+\"' , 'EXE', p.i_e_id, \" +\
+      \"  v.goods_notes, '0', '', p.ID \" +\
+      \"  FROM port_cntr p, vload_list v \" +\
+      \"  WHERE p.ID = v.cntr_id(+) AND p.i_e_id = v.i_e_id(+) and main_flag= 1  and p.cntr='\" + zcntr + \"'\", {\
+        transaction: 'start'\
+      });\
+    app.run(\"INSERT INTO cntr_weight_rec \" +\
+      \"    (ID, cntr, bill_no, cntr_size, cntr_type, gtarewt, weightime, vid, \" +\
+      \"     voyage_no, bill_id, e_f_id, truck_no, tray_no, truckwt, traywt, \" +\
+      \"     totalwt, grosswt, created_by, created_on, updated_by, updated_on, \" +\
+      \"     tenancy_id, othergno, phase, i_e_id, goods, isout, gkno, cntr_id,ZID) \" +\
+      \" SELECT SYS_GUID (), p.cntr, v.bill_no, p.cntr_size, p.cntr_type, \" +\
+      \"  \" + fcntrWeight + \", SYSDATE, v.vid, v.voyage_no, v.bill_id, 'F', \" +\
+      \"  '\" + truckNo + \"', '\" + trayNo + \"', \" + trunkWeight + \", \" + trayWeight + \", \" +\
+      \"  \" + pounds + \", null, '\" + username + \"', SYSDATE, \" +\
+      \"  '\" + username + \"', SYSDATE, '\" + TENANCY_ID + \"', '\" + zcntr + \"', 'EXE', p.i_e_id, \" +\
+      \"  v.goods_notes, '0', '', p.ID , '\" + ID + \"'\" +\
+      \"  FROM port_cntr p, vload_list v \" +\
+      \"  WHERE p.ID = v.cntr_id(+) AND p.i_e_id = v.i_e_id(+) and main_flag= 1   and p.cntr='\" + fcntr + \"'\", {\
+        transaction: 'commit'\
+      });\
+  }\
+\
+  //   var rs = app.run(\"select ID, CNTR, TOTALWT,BILL_NO,CNTR_ID from  CNTR_WEIGHT_REC  where  PHASE='EXE' and OTHERGNO='\" + zcntr + \"' \");\
+  //   if (rs.next()) { //存在主单 一车2箱表 1 第二次 2 第一次\
+\
+  //     app.run(\"update  port_cntr set  SCALE_WT=\" + gWt + \" where  CNTR='\" + zcntr + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \");\
+  //     app.run(\"update VLOAD_LIST set  CARGO_WT= \" + gWt + \" where  cntr_id='\" + cntrId + \"' and bill_no='\" + billNo + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \");\
+  //     billnos += \",'\" + rs.getString(\"BILL_NO\") + \"'\";\
+  //     gWt = rs.getInt(\"TOTALWT\") - pounds;\
+  //      app.run(\"update  port_cntr set  SCALE_WT=\" + gWt + \" where  CNTR='\" + rs.getString(\"CNTR\") + \"' and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+  //     app.run(\"update VLOAD_LIST set  CARGO_WT= \" + gWt + \" where  cntr_id='\" + cntrId + \"' and bill_no='\" + rs.getString(\"BILL_NO\") + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \");\
+\
+  //   } else {\
+  //     app.run(\"update CNTR_WEIGHT_REC set PHASE='FIN' ,TRUCK_NO='\" + truckNo + \"', TRAY_NO='\" + trayNo + \"',OTHERGNO='\" + fcntr + \"' ,GTAREWT=\" + zcntrWeight + \", TRUCKWT=\" + trunkWeight + \", TRAYWT=\" + trayWeight + \",TOTALWT=\" + pounds + \" ,GROSSWT=\" + gWt + \" ,WEIGHTIME=sysdate where ID={?ID?}   \", {\
+  //       transaction: 'start'\
+  //     });\
+  //     app.run(\"update port_cntr set  SCALE_WT=\" + gWt + \" where  CNTR='\" + zcntr + \"' and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+  //     app.run(\"update VLOAD_LIST set  CARGO_WT= \" + gWt + \" where  cntr_id='\" + cntrId + \"' and bill_no='\" + billNo + \"' and TENANCY_ID='\" + TENANCY_ID + \"' \");\
+  //   }\
+  // } else {\
+  //   app.run(\"update CNTR_WEIGHT_REC set PHASE='EXE' ,TRUCK_NO='\" + truckNo + \"', TRAY_NO='\" + trayNo + \"',OTHERGNO='\" + fcntr + \"' ,GTAREWT=\" + zcntrWeight + \", TRUCKWT=\" + trunkWeight + \", TRAYWT=\" + trayWeight + \",TOTALWT=\" + pounds + \" ,GROSSWT=\" + gWt + \" ,WEIGHTIME=sysdate where ID={?ID?}   \", {\
+  //     transaction: 'start'\
+  //   });\
+  //   app.run(\"update CNTR_WEIGHT_REC set PHASE='EXE'  where CNTR='\" + fcntr + \"'  and  PHASE in('PLN','SND') \");\
+  // }\
+\
+  var rm = app.run(\"select f_pound_message('\"+cntrId+\"','\"+TENANCY_ID+\"')  BL  from  dual \");\
+  while (rm.next()) {\
+    var bl = rm.getString(\"BL\");\
+   \tif(!Wb.isEmpty(bl)){\
+      state = false;\
+      message += bl;\
+    }\
+    \
+  }\
+\
+  data[0] = state;\
+  data[1] = message;\
+\
+\
+  app.send(data);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"select phase,APPLY_TYPE from cntr_apply where id='\" + data.ID + \"'\";\
+var res = Wb.getRecords(app.run(sql));\
+if (res[0].PHASE != \"APY\")\
+  throw \"已做审核或转关,不能删除\";\
+\
+app.run(\"delete from cntr_apply where 1=2\", {\
+  transaction: 'start'\
+});\
+if (res[0].APPLY_TYPE == \"ZGJ\") {\
+  app.run(\"delete from port_cntr where id in(select cntr_id from cntr_apply_list where aid='\" + data.ID + \"')\");\
+}\
+//先删子表\
+app.run(\"delete from cntr_apply_list where aid='\" + data.ID + \"'\");\
+//再删主表\
+app.run(\"delete from cntr_apply where id='\" + data.ID + \"'\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

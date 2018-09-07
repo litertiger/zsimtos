@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var signercfd = app.get('sys.dispname');\
+var username = app.get('sys.username');\
+var tenancyId = app.get('sys.TENANCY_ID');\
+\
+\
+\
+var data = app.get();\
+\
+app.run(\"update  BLUK_GOODS set  OUTQUTY={?QUTY?}, \\\
+QUTY=quty-{?QUTY?},  OUTTIME=SYSDATE, WEIGHT=WEIGHT-{?WEIGHT?}, VOLUME=VOLUME-{?VOLUME?},  \\\
+UPDATED_ON=SYSDATE, UPDATED_BY='\"+username+\"' WHERE ID={?ID?}\");\
+\
+app.run(\"insert into bluk_inout(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID, SIGNERCFS, TENANCY_ID, TRUCKNUM, LINK_NAME)\\\
+values('\" + id + \"','0',{?QUTY?},{?TRUCKNO?},'','','','\" + signercfd + \"','\"+tenancyId+\"',{?TRUCKNUM?},{?LINK_NAME?})\");\
+\
+app.run(\"update vload_list set PIECES=PIECES+{?QUTY?}, WEIGHT=WEIGHT+{?WEIGHT?}, VOLUME=VOLUME+{?VOLUME?}  where cntr_id={?CNTR_ID?} and I_E_ID='E'\");\
+app.run(\"update vbill_head set PIECES=PIECES+{?QUTY?}, WEIGHT=WEIGHT+{?WEIGHT?}, VOLUME=VOLUME+{?VOLUME?}   where  \"+\
+        \" TENANCY_ID='\"+tenancyId+\"' and BILL_NO={?BILL_NO?} and I_E_ID='E'\");\
+\
+// //插入作业票\
+// app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+//         DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+//         values(sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+// '','','','','','',{?MANNUM?},'',{?PORC_COUNT?})\",{arrayData: new org.json.JSONArray(data.datas)});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

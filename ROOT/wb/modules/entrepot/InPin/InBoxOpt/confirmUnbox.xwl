@@ -1,0 +1,82 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var dispname=app.get(\"sys.dispname\");\
+var TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+app.run(\"SELECT 1 FROM bluk_bill, bluk_goods \" +\
+  \" WHERE bluk_bill.bill_id = bluk_goods.bill_id \" +\
+  \"  AND lcl_id = {?ID?}\" +\
+  \"  AND bluk_bill.pieces <> bluk_goods.INQUTY \", {\
+    errorText: \"入库数和舱单数据不符不能确认\"\
+  }\
+);\
+\
+var cntrId;\
+var r = app.run(\"select CNTR_ID  from  BLUK_PLAN where  ID={?ID?} \");\
+if (r.next()) {\
+  cntrId = r.getString(\"CNTR_ID\");\
+}\
+app.run(\"select 1 from bluk_bill where TASKSTATUS <> 'FIN' and LCL_ID={?ID?} \", {\
+  errorText: \"未全部入库，不能确认拆箱!\"\
+});\
+//避免重复确认拆箱\
+app.run(\"select 1 from bluk_inout where id in(select id from bluk_goods where CFSBILL_ID in\"+\
+        \" (select CFSBILL_ID from bluk_bill where lcl_id={?ID?})) and OUTFLAG='0'\",{\
+\terrorText:\"已确认拆箱！\"\
+});\
+\
+app.run(\"update BLUK_PLAN set TASKSTATUS='END',ETIME=sysdate where ID={?ID?} \", {\
+  transaction: 'start'\
+});\
+app.run(\"update BLUK_BILL set TASKSTATUS='END' where LCL_ID={?ID?} \");\
+app.run(\"update port_cntr set LCL_ID=0,E_F_ID=decode({?ieId?},'I','E','F')   where ID='\" + cntrId + \"' \");\
+app.run(\"insert into PORT_CNTR_LOG(CNTR_ID,CNTR,MESSAGE,UPDATED_ON,UPDATED_BY)\"+\
+        \"values('\" + cntrId + \"',{?CNTR?},'拼柜拆箱',sysdate,{?sys.dispname?})\");\
+\
+//出入库记录\
+var tr = [];\
+var rs = app.run(\"select B.ID,B.INQUTY,C.BILL_ID,b.WEIGHT,b.VOLUME,b.INTIME,B.BILL_NO from BLUK_PLAN a,BLUK_GOODS b,BLUK_BILL c where a.ID=C.LCL_ID AND b.BILL_ID=C.BILL_ID AND A.ID={?ID?} \"),\
+  id, inquty, billId;\
+while (rs.next()) {\
+  id = rs.getString('ID');\
+  inquty = rs.getString('INQUTY');\
+  billId = rs.getString('BILL_ID');\
+  tr.push({\
+    ID: id,\
+    INQUTY: inquty,\
+    BILL_ID: billId,\
+    WEIGHT:\trs.getString('WEIGHT'),\
+    VOLUME: rs.getString('VOLUME'),\
+    INTIME: rs.getString('INTIME'),\
+    BILL_NO: rs.getString('BILL_NO'),\
+    SIGNERCFS:dispname,\
+    STORE_TIME: rs.getString('INTIME')\
+  });\
+}\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, CFSBILL_ID,WEIGHT,VOLUME,STORE_TIME,BILL_NO,SIGNERCFS)values({?ID?},'0',{?INQUTY?},{?BILL_ID?},{?WEIGHT?},{?VOLUME?},{?timestamp.INTIME?},{?BILL_NO?},{?SIGNERCFS?})\", {\
+  arrayData: new org.json.JSONArray(Wb.encode(tr)),\
+   transaction: 'commit'\
+});\
+\
+\
+request.setAttribute(\"moveType\", \"CE\");\
+request.setAttribute(\"cntrId\", cntrId);\
+\
+app.execute(\"m?xwl=system/common/cntrStore/cntrStorePro\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "确认拆箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

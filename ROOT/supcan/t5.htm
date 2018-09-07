@@ -1,0 +1,67 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/t5.xml");
+  AF.func("Load", "treelistdata/data.txt");
+ }
+ function changeimage()
+ {
+  AF.func("SetColProp", "orderid  \r\n displaymask \r\n ");
+  AF.func("SetColProp", "shipname \r\n displaymask \r\n rightImage=if(compareDate(RequiredDate,'2007.6.1')>=0,'../treelistdata/new.bmp','')");
+ }
+</script>
+</head>
+
+<body topmargin=4 vlink=#0000ff link=#0000ff>
+<center>
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td align=left>"国家"和“订单号”使用了显示掩码，使:<b>1</b>.“国家”列的左侧有国旗图标；<b>2</b>.若“接单日期”大于2007.6.1，“订单号”右侧有"New"图标；<br>
+操作提示：<b>1</b>.请在"接单日期"处试着输入，使其大于或小于2007.6.1，观察“订单号”右侧图标的变化；<b>2</b>.请按“接单日期”排序；</td>
+</tr>
+</table>
+
+<div style="position:relative;width:90%">
+	<script>insertTreeList('AF', '', '420px')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.本Treelist的<a href="treelist/t5.xml" target=_blank>XML描述文件</a>关键部分如下:<br>
+<pre class='xml' maxchars='120'>
+...
+&lt;Col name="Country" displaymask="leftImage='../treelistdata/flag.zip#' + data+ '.bmp'">国家&lt;/Col&gt;
+&lt;Col name="OrderID" displayMask="rightImage=if(compareDate(RequiredDate, '2007.6.1')>=0, '../treelistdata/new.bmp', '')"&gt;订单号&lt;/Col&gt;
+...</pre>
+　　第2行表示，flag.zip文件中包含有以Country列的内容命名的bmp文件，所以能自动显示该图标。此外，请注意表达式中用到了<a href="doc/dev/pub.htm?103#Tag605" target=_blank>图片扩展URL</a>语法；<br>
+　　第3行稍复杂，是一个日期判断，表示如果RequiredDate(接单日期)大于等于2007.6.1，那么在订单号的右侧显示new.bmp；<br>
+<br>
+<b>2</b>.如果你觉得在XML描述文件中把日期判断写死总是不妥(我们也觉得不妥，因为这影响了XML文件的复用性)，那么可以用js动态修改，请试着按一下<input type="button" value="动态修改" onClick="changeimage()">，看看“New”图标是不是跑到“船名”右侧了？ 按钮执行的js函数源码如下：<br>
+<pre class='cpp' maxchars='140'>
+function changeimage()
+{
+ //清空“订单号”的displayMask
+ AF.func("SetColProp", "orderid  \r\n displaymask \r\n ");
+ //在“船名”右侧加图片
+ AF.func("SetColProp", "shipname \r\n displaymask \r\n rightImage=if(compareDate(RequiredDate, '2007.6.1')>=0, '../treelistdata/new.bmp', '')");
+}</pre>
+　　可见属性是可以动态修改的，你可以把上述函数添加到 OnReady() 事件中，这样Treelist一加载就立即改过来了。 <br>
+注：列的几乎所有属性都是可以动态更改的，请参考后面的demo中(2.高级应用)有“动态更改属性”的具体演示。
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

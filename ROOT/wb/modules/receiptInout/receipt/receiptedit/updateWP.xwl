@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+var sq = Wb.getRecords(app.run(\"select id from receipt_updwp where rid='\" + data.ID + \"' and phase='PLN'\"));\
+if (sq.length > 0)\
+  throw \"设备交接单有未完成的变更申请,不能重复申请\";\
+app.run(\"insert into receipt_updwp(id,rid,TENANCY_ID,CNTR,WORK_TYPE_OLD,WORK_TYPE,CNTR_ID,NOTES,CREATED_BY,CREATED_ON,PHASE,EMPTY_DRIVING_FLAG)\" +\
+  \" values(sys_guid(),{?ID?},'\" + tenancyid + \"',{?CNTR?},{?WORK_TYPE_OLD?},{?WORK_TYPE?},{?CNTR_ID?},{?NOTES?},\" +\
+  \"'\" + username + \"',sysdate,'PLN','\" + data.kp + \"')\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "变更作业方式",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

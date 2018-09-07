@@ -1,0 +1,352 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "gridA",
+     "editable": "true",
+     "tbar": "app.tbar",
+     "region": "center"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "tbar"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "addBtn",
+         "text": "添加",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+Wb.addEdit(app.gridA, {\
+  TENANCY_ID: tenancyid\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "removeBtn",
+         "text": "移除",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var sels = app.gridA.getSelection();\
+if (sels.length < 1)\
+  return;\
+if (sels[0].data.ON_LOCK == \"1\")\
+  return;\
+Wb.remove(app.gridA);"}
+       },
+       {
+        "configs": {
+         "itemId": "saveBtn",
+         "text": "保存",
+         "iconCls": "save_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verifyGrid(app.gridA)) //验证数据是否合法\
+  return;\
+\
+Wb.sync({\
+  grid: app.gridA,\
+  url: \"m?xwl=system/common/feeReportCodedit/save\",\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    app.gridA.store.load();\
+  }\
+});"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "store",
+       "autoLoad": "true",
+       "url": "m?xwl=system/common/feeReportCodedit/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     },
+     {
+      "configs": {"itemId": "columns"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "column1",
+         "xtype": "rownumberer"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colID",
+         "dataIndex": "ID",
+         "text": "COD"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "displayField": "COD",
+          "valueField": "COD",
+          "anyMatch": "true",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/common/feeReportCodedit/loadSQLCOD"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var sel = app.gridA.getSelection()[0];\
+sel.set('FEE_ID', records[0].data.ID);"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colTENANCY_ID",
+         "dataIndex": "TENANCY_ID",
+         "text": "TENANCY_ID"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colFEE_NAME",
+         "dataIndex": "FEE_NAME",
+         "text": "费目"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "labelAlign": "right",
+          "displayField": "DESCRIPTION",
+          "valueField": "DESCRIPTION",
+          "anyMatch": "true",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/common/feeReportCodedit/loadFee"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var sel = app.gridA.getSelection()[0];\
+sel.set('FEE_ID', records[0].data.ID);"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colFEE_ID",
+         "dataIndex": "FEE_ID",
+         "text": "费目ID"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colI_E_ID",
+         "dataIndex": "I_E_ID",
+         "keyName": "I_E_ID",
+         "width": "80",
+         "text": "进出口"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "labelAlign": "right",
+          "keyName": "I_E_ID",
+          "anyMatch": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colTRADE_ID",
+         "dataIndex": "TRADE_ID",
+         "keyName": "TRADE_ID",
+         "width": "80",
+         "text": "内外贸"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "labelAlign": "right",
+          "keyName": "TRADE_ID",
+          "anyMatch": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colSHIP_CONSIGN_COD",
+         "dataIndex": "SHIP_CONSIGN_COD",
+         "text": "货主ID"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "hideTrigger": "true",
+          "tagConfigs": "matchFieldWidth: false",
+          "itemId": "editor",
+          "displayField": "CNAME",
+          "pageSize": "50",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{\
+  width: 250\
+}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var sel = app.gridA.getSelection()[0];\
+sel.set('SHIPPER_CONSIGNEE', records[0].data.CNAME);"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colSHIPPER_CONSIGNEE",
+         "dataIndex": "SHIPPER_CONSIGNEE",
+         "text": "货主"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OPERATOR_COD",
+         "dataIndex": "CNTR_OPERATOR_COD",
+         "text": "船公司ID"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "hideTrigger": "true",
+          "itemId": "editor",
+          "displayField": "SHORT_NAME",
+          "pageSize": "50",
+          "enterKeyTriggerClick": "true",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "params": "{fldId:'AG'}",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var sel = app.gridA.getSelection()[0];\
+sel.set('CNTR_OPERATOR', records[0].data.SHORT_NAME);"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OPERATOR",
+         "dataIndex": "CNTR_OPERATOR",
+         "text": "船公司"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       }
+      ],
+      "type": "array"
+     }
+    ],
+    "type": "grid"
+   }],
+   "type": "viewport"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "灵活多变费目配置",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

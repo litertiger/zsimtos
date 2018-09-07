@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var sql, data = app.get(),username=app.get(\"sys.username\"),tenancy=app.get(\"sys.TENANCY_ID\");\
+sql ='select USER_ID,USER_NAME,DISPLAY_NAME,EMAIL,STATUS,AUTH_ORGANIZATION.ORG_NAME,ORG_ID,WB_USER.ORG_NAME,WB_USER.TENANCY_ID,TYPE from WB_USER,AUTH_ORGANIZATION '\
+  +\"where AUTH_ORGANIZATION.ID(+)=ORG_ID and USER_NAME<>'admin'\";\
+if(username!='admin')\
+  sql+=\"  and WB_USER.TENANCY_ID='\"+tenancy+\"'\";\
+if (!Wb.isEmpty(data.findCombo)) {\
+  sql += '  and  USER_NAME ={?findCombo?}';\
+} else if (data.selRoleGrid) {\
+  //按角色进行搜索用户\
+  var paramName, i = 0,\
+    roleParams = [],\
+    roles = Wb.decode(data.selRoleGrid);\
+  if (roles.length) {\
+    Wb.each(roles, function(role) {\
+      paramName = 'role' + (i++);\
+      request.setAttribute(paramName, role.ROLE_ID);\
+      roleParams.push('{?' + paramName + '?}');\
+    });\
+    sql += ' and USER_ID in (select distinct USER_ID from WB_USER_ROLE where ROLE_ID in (' + roleParams + '))';\
+  }\
+}\
+if (!Wb.isEmpty(data.username)) {\
+  sql+=\"and  (USER_NAME  like '%'||'\"+data.username+\"'||'%'   or DISPLAY_NAME  like '%'||'\"+data.username+\"'||'%'  )\";\
+  \
+}\
+\
+request.setAttribute('sql', sql);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "dictTableNames": "WB_USER",
+    "sql": "{#sql#} {#sql.orderBy#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "basic": 1,
+  "user": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

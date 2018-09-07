@@ -1,0 +1,122 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF1' || id=='') {
+   AF1.func("SetRedrawAble", "false");
+   AF1.func("Build", "treelist/merge.xml \r\n fadeInStep=0");
+   merge();
+   AF1.func("SetRedrawAble", "true");
+  }
+  if(id == 'AF2' || id=='') {
+   AF2.func("Build", "treelist/merge2.xml");
+  }
+ }
+ function merge()
+ {
+  //纵向合并
+  AF1.func("mergeSame", "col=fl");
+  AF1.func("mergeSame", "col=status1");
+  AF1.func("mergeSame", "col=status2");
+  //横向合并
+  for(row=0; row<AF1.func("GetRows", ""); row++)
+   AF1.func("mergeSame", "isDemergeFirst=false; row=" +row+ ";col2=status2");
+ }
+ function demerge()
+ {
+   AF1.func("demerge","");
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>方案一. 通过API合并单元格，改变了列表的外观</b><br>
+您可以点击“解除合并”，查看合并前的模样；
+</td>
+</tr>
+<tr height=8><td colspan=2></td></tr>
+</table>
+
+<div style="position:relative;width:97%;height:300px">
+	<script>insertTreeList('AF1', '')</script>
+</div>
+<table border=0 cols=1 width=90%><tr height=5><td></td></tr></table>
+<input type=button value=" 解除合并 " onClick="demerge()">&nbsp;&nbsp;<input type=button value=" 合并 " onClick="merge()">
+<br><br>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td valign="middle"><b>方案二.通过 VColSep(虚拟列分隔符)属性指定数据的分隔符，让其看起来是多列</b></td>
+</tr>
+<tr height=8><td colspan=2></td></tr>
+</table>
+
+<div style="position:relative;width:97%;height:300px">
+	<script>insertTreeList('AF2', '')</script>
+</div>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.方案一的关键源码分析：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ if(id=='AF1') {
+  AF1.func("SetRedrawAble", "false");		//关闭重画, 否则屏幕能看到合并的切换过程
+  AF1.func("Build", "treelist/merge.xml \r\n fadeInStep=0");  		//关闭淡入淡出效果 (这个例子的数据就在XML模版文件中)
+  merge();
+  AF1.func("SetRedrawAble", "true");		//开启重画
+ }
+ ...
+}
+//合并
+function merge()
+{
+ //纵向合并
+ AF1.func("mergeSame", "col=fl");  //合并第一列
+ AF1.func("mergeSame", "col=status1");   //合并第二列
+ AF1.func("mergeSame", "col=status2");   //合并第三列
+  
+ //横向逐行合并
+ for(row=0; row&lt;AF1.func("GetRows", ""); row++)
+  AF1.func("mergeSame", "isDemergeFirst=false; row=" +row+ ";col2=status2");
+}
+//解除合并
+function demerge()
+{
+  AF1.func("demerge","");
+}</pre><br>
+
+<b>2</b>.方案二的关键是它的<a href="treelist/merge2.xml" target=_blank>XML描述文件</a>中的前二列定义了 VColSep 属性，设定了 VColSep 的列，其列内的纵向、横向能实现自动合并；<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,2636 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "bbar",
+     "enableOverflow": "true",
+     "style": "background:white;"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "lbluser",
+       "width": "140"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "label"
+     },
+     {
+      "configs": {"itemId": "lblcfs"},
+      "expanded": false,
+      "children": [],
+      "type": "label"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "bbarp",
+     "enableOverflow": "true",
+     "style": "background:white;"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "inBtn",
+       "width": "170",
+       "text": "<span style='font-size:20px;font-weight:bold;'>进门确认(F9)<\/span>",
+       "iconCls": "yellow-wharehouse_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var store = app.gridReceipt.getStore();\
+if (store.data.length <= 0) {\
+  Wb.warn(\"没有箱信息\");\
+  return;\
+}\
+var sels = app.gridReceipt.getSelection();\
+var cntrs = \"\";\
+Wb.each(store.data.items, function(s) {\
+  cntrs += \"'\" + s.data.CNTR + \"',\";\
+});\
+cntrs = cntrs.substring(0, cntrs.length - 1);\
+\
+if (app.radioTi.checked) { //提箱\
+  Wb.request({\
+    url: 'm?xwl=receiptInout/gate/gateinedit/operDoorTi',\
+    params: {\
+      cntrs: cntrs,\
+      cfs: app.CFS.getValue(),\
+      cntrsdata: app.gridReceipt.store.data.items.map(function(r) {\
+        return r.data;\
+      })\
+    },\
+    success: function(resp) {\
+      var result = Wb.decode(resp.responseText);\
+      if (result.success) {\
+        Wb.reset(app.panelForm);\
+        Wb.reset(app.panelForm1);\
+        app.gridReceipt.store.load();\
+        app.radioTi.setValue(true);\
+        app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+        app.radioShou.setBoxLabel(\"收箱\");\
+        if (window.global)\
+          app.CFS.setValue(global.config.CFS);\
+        app.CNTR.focus();\
+        //         Wb.info(\"提箱进门确认完成\");\
+      } else {\
+        Wb.error(result.errstr);\
+      }\
+    }\
+  });\
+}\
+if (app.radioShou.checked) { //收箱\
+  Wb.request({\
+    url: 'm?xwl=receiptInout/gate/gateinedit/operDoorShou',\
+    params: {\
+      cntrs: cntrs,\
+      cfs: app.CFS.getValue(),\
+      cntrsdata: app.gridReceipt.store.data.items.map(function(r) {\
+        return r.data;\
+      })\
+    },\
+    success: function(resp) {\
+      var result = Wb.decode(resp.responseText);\
+      if (result.success) {\
+        Wb.reset(app.panelForm);\
+        Wb.reset(app.panelForm1);\
+        app.radioTi.setValue(true);\
+        app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+        app.radioShou.setBoxLabel(\"收箱\");\
+        if (window.global)\
+          app.CFS.setValue(global.config.CFS);\
+        //Wb.info(\"收箱进门确认完成\");\
+        Wb.request({\
+          url: 'm?xwl=receiptInout/gate/gateinedit/overTs',\
+          params: {\
+            cntrsdata: app.gridReceipt.store.data.items.map(function(r) {\
+              return r.data;\
+            })\
+          },\
+          success: function(resp) {\
+            app.gridReceipt.store.load();\
+            app.CNTR.focus();\
+            //             Wb.info(resp.responseText);\
+          }\
+        });\
+      } else {\
+        Wb.error(result.errstr);\
+      }\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delBtn",
+       "width": "102",
+       "text": "<span style='font-size:20px;font-weight:bold;'>移&nbsp;&nbsp;除<\/span>",
+       "iconCls": "delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridReceipt.getSelection();\
+if (sels.length <= 0) {\
+  Wb.warn(\"没有选择箱子\");\
+  return;\
+}\
+\
+Wb.confirm(\"移除箱子:\" + sels[0].data.CNTR, function() {\
+  if (sels[0].data.GITYPE == \"B\") {\
+    Wb.request({\
+      url: \"m?xwl=receiptInout/gate/gateinedit/cntrjiesuo\",\
+      params: {\
+        CNTR_ID: sels[0].data.CNTR_ID\
+      },\
+      success: function(resp) {\
+        var st = app.radioTi.getValue();\
+        app.gridReceipt.store.remove(sels[0]);\
+        Wb.reset(app.panelForm);\
+        Wb.reset(app.panelForm1);\
+        if (st) {\
+          app.radioTi.setValue(true);\
+          app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+          app.radioShou.setBoxLabel(\"收箱\");\
+        } else {\
+          app.radioShou.setValue(true);\
+          app.radioTi.setBoxLabel(\"提箱\");\
+          app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+        }\
+        if (window.global)\
+          app.CFS.setValue(global.config.CFS);\
+      }\
+    });\
+  } else {\
+    var st = app.radioTi.getValue();\
+    app.gridReceipt.store.remove(sels[0]);\
+    Wb.reset(app.panelForm);\
+    Wb.reset(app.panelForm1);\
+    if (st) {\
+      app.radioTi.setValue(true);\
+      app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+      app.radioShou.setBoxLabel(\"收箱\");\
+    } else {\
+      app.radioShou.setValue(true);\
+      app.radioTi.setBoxLabel(\"提箱\");\
+      app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+    }\
+    if (window.global)\
+      app.CFS.setValue(global.config.CFS);\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "winReceipt",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "400",
+     "title": "选择设备交接单",
+     "height": "200"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "border": "false",
+      "itemId": "gridSelReceipt",
+      "pagingBar": "false",
+      "disabled": "false",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "pageSize": "-1",
+        "url": "m?xwl=receiptInout/gate/gateinedit/selReceipt"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colCREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR",
+          "dataIndex": "CNTR",
+          "width": "140",
+          "text": "箱号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colINTYPE",
+          "dataIndex": "INTYPE",
+          "width": "50",
+          "text": "类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPPHASE",
+          "dataIndex": "PPHASE",
+          "keyName": "IN_YARD_TYPE",
+          "width": "60",
+          "text": "箱状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "window",
+    "events": {"ok": "var sel = app.gridSelReceipt.getSelection();\
+if (sel.length < 1) {\
+  Wb.error(\"请选择一条设备交接单\");\
+  return;\
+}\
+var ok = true;\
+if (sel[0].data.PPHASE != \"ACT\" && sel[0].data.WORK_TYPE == \"YOYI\")\
+  ok = false;\
+if (ok)\
+  gogogo();\
+else\
+  Wb.confirm(\"箱子:\" + sel[0].data.CNTR + \"状态不符合移箱状态,但当前选择的是移箱,是否继续\", function() {\
+    gogogo();\
+  });\
+\
+function gogogo() {\
+  rid = sel[0].data.ID;\
+  app.winReceipt.close();\
+  //执行验证\
+  Wb.request({\
+    url: \"m?xwl=receiptInout/gate/gateinedit/gatecheck_two\",\
+    params: {\
+      rid: rid,\
+      cfs: app.CFS.getValue(),\
+      jinchu: \"jin\"\
+    },\
+    success: function(resp) {\
+      var result = Wb.decode(resp.responseText);\
+      if (!result.success) {\
+        Wb.reset(app.panelForm);\
+        Wb.reset(app.panelForm1);\
+        app.gridReceipt.store.load();\
+        app.radioTi.setValue(true);\
+        app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+        app.radioShou.setBoxLabel(\"收箱\");\
+        if (window.global)\
+          app.CFS.setValue(global.config.CFS);\
+        app.txtMsg.setValue(result.errstr);\
+        app.CNTR.reset();\
+        app.CNTR.focus();\
+        return;\
+      }\
+      //查询设备交接单\
+      Wb.request({\
+        url: \"m?xwl=receiptInout/gate/gateinedit/select1\",\
+        params: {\
+          rid: result.rid\
+        },\
+        success: function(resp) {\
+          var result = Wb.decode(resp.responseText);\
+          //         if (!Wb.isEmpty(result.success) && !result.success) {\
+          //           app.txtMsg.setValue(result.msg);\
+          //           app.txtMsg.setFieldStyle(\"color:red;\");\
+          //           Wb.reset(app.panelForm);\
+          //           Wb.reset(app.panelForm1);\
+          //           app.gridReceipt.store.load();\
+          //           app.radioTi.setValue(true);\
+          //           app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+          //           app.radioShou.setBoxLabel(\"收箱\");\
+          //           if (window.global)\
+          //             app.CFS.setValue(global.config.CFS);\
+          //           app.CNTR.focus();\
+          //           return;\
+          //         }\
+          app.txtMsg.setValue(\"\");\
+          if (result.length < 1) {\
+            Wb.reset(app.panelForm);\
+            Wb.reset(app.panelForm1);\
+            app.gridReceipt.store.load();\
+            app.radioTi.setValue(true);\
+            app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+            app.radioShou.setBoxLabel(\"收箱\");\
+            if (window.global)\
+              app.CFS.setValue(global.config.CFS);\
+            Wb.warn(\"没有找到待入闸设备交接单\");\
+            app.CNTR.focus();\
+            return;\
+          }\
+          if (result.length > 1 && result[0].WORK_TYPE != \"FOFI\") {\
+            Wb.reset(app.panelForm);\
+            Wb.reset(app.panelForm1);\
+            app.gridReceipt.store.load();\
+            app.radioTi.setValue(true);\
+            app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+            app.radioShou.setBoxLabel(\"收箱\");\
+            if (window.global)\
+              app.CFS.setValue(global.config.CFS);\
+            Wb.warn(\"找到多条关于'\" + app.CNTR.getValue() + \"'的信息,请输入更精确的信息\");\
+            app.CNTR.focus();\
+            return;\
+          }\
+          if (result[0].WORK_TYPE != \"YOYI\") {\
+            //===============panelForm================\
+            Wb.setValue(app.panelForm, result[0]);\
+            Wb.setValue(app.panelForm1, result[0]);\
+            app.SCALE_WEIGHT.setValue(\"\");\
+            app.GITYPE.setValue(\"C\");\
+            app.CNTR1.setValue(result[0].CNTR);\
+            app.IN_CAR.store.load({\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.IN_CAR.setValue(result[0].IN_CAR);\
+                  app.carzhong();\
+                }\
+              }\
+            });\
+            app.IN_CAMPI.store.load({\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.IN_CAMPI.setValue(result[0].IN_CAMPI);\
+                  app.campizhong();\
+                }\
+              }\
+            });\
+            app.IN_DRIVER_ID.store.load({\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.IN_DRIVER_ID.setValue(result[0].IN_DRIVER_ID);\
+                }\
+              }\
+            });\
+            //获取柜自重\
+            Wb.request({\
+              url: \"m?xwl=receiptInout/gate/gateinedit/getCNTR\",\
+              params: {\
+                cntr: result[0].CNTR\
+              },\
+              success: function(resp) {\
+                var cw = Wb.decode(resp.responseText);\
+                if (cw.rows.length > 0)\
+                  app.CNTR_WEIGHT.setValue(cw.rows[0].WEIGHT || 0);\
+                else\
+                  app.CNTR_WEIGHT.setValue(0);\
+                app.CNTR_WEIGHT.selectText();\
+              }\
+            });\
+            if (result[0].TS == \"shou\") {\
+              if (zk == \"LN\")\
+                app.CNTR_WEIGHT.allowBlank = true;\
+              else\
+                app.CNTR_WEIGHT.allowBlank = false;\
+            }\
+            if (result[0].TS == \"ti\") {\
+              app.radioTi.setValue(true);\
+              app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+              app.radioShou.setBoxLabel(\"收箱\");\
+            }\
+            if (result[0].TS == \"shou\") {\
+              app.radioShou.setValue(true);\
+              app.radioTi.setBoxLabel(\"提箱\");\
+              app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+            }\
+            if (app.radioShou.checked) {\
+              app.xwl1.call(\"qu_find_plac\", {\
+                info: {\
+                  type: \"ship\",\
+                  action: \"findplace\",\
+                  senduser: '{#sys.username#}',\
+                  sendmodule: \"ship\",\
+                  sendtime: (new Date()).getTime()\
+                },\
+                data: {\
+                  cntr: app.CNTR1.getValue(),\
+                  cfscode: app.CFS.getValue(),\
+                  ef: Wb.isEmpty(app.E_F_ID.getValue()) ? \"null\" : app.E_F_ID.getValue(),\
+                  tenancyId: '{#sys.TENANCY_ID#}'\
+                }\
+              }, function(d) {\
+                if (d.body.cntr == app.CNTR1.getValue())\
+                  app.YARD_POSITION.setValue(d.body.position);\
+              });\
+            }\
+            if (app.radioTi.checked) {\
+              //             if (result[0].F_CNTR == \"0\") {\
+              //               Wb.reset(app.panelForm);\
+              //               Wb.reset(app.panelForm1);\
+              //               app.gridReceipt.store.load();\
+              //               app.radioTi.setValue(true);\
+              //               app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+              //               app.radioShou.setBoxLabel(\"收箱\");\
+              //               if (window.global)\
+              //                 app.CFS.setValue(global.config.CFS);\
+              //               Wb.warn(\"此单未放箱审核\");\
+              //               app.CNTR.focus();\
+              //               return;\
+              //             }\
+              if (Wb.isEmpty(result[0].PID)) {\
+                Wb.reset(app.panelForm);\
+                Wb.reset(app.panelForm1);\
+                app.gridReceipt.store.load();\
+                app.radioTi.setValue(true);\
+                app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                app.radioShou.setBoxLabel(\"收箱\");\
+                if (window.global)\
+                  app.CFS.setValue(global.config.CFS);\
+                Wb.warn(\"箱子已经核销\");\
+                app.CNTR.focus();\
+                return;\
+              }\
+              //             if (result[0].T_ADDRESS != app.CFS.getValue()) {\
+              //               Wb.reset(app.panelForm);\
+              //               Wb.reset(app.panelForm1);\
+              //               app.gridReceipt.store.load();\
+              //               app.radioTi.setValue(true);\
+              //               app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+              //               app.radioShou.setBoxLabel(\"收箱\");\
+              //               if (window.global)\
+              //                 app.CFS.setValue(global.config.CFS);\
+              //               Wb.warn(\"提箱车辆进错闸口了\");\
+              //               app.CNTR.focus();\
+              //               return;\
+              //             }\
+            }\
+          } else { //移箱\
+            //===============panelForm================\
+            Wb.setValue(app.panelForm, result[0]);\
+            Wb.setValue(app.panelForm1, result[0]);\
+            app.SCALE_WEIGHT.setValue(\"\");\
+            app.GITYPE.setValue(\"C\");\
+            app.CNTR1.setValue(result[0].CNTR);\
+            app.IN_CAR.store.load({\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.IN_CAR.setValue(result[0].IN_CAR);\
+                  app.carzhong();\
+                }\
+              }\
+            });\
+            app.IN_CAMPI.store.load({\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.IN_CAMPI.setValue(result[0].IN_CAMPI);\
+                  app.campizhong();\
+                }\
+              }\
+            });\
+            app.IN_DRIVER_ID.store.load({\
+              callback: function(r, options, success) {\
+                if (success) {\
+                  app.IN_DRIVER_ID.setValue(result[0].IN_DRIVER_ID);\
+                }\
+              }\
+            });\
+            //获取柜自重\
+            Wb.request({\
+              url: \"m?xwl=receiptInout/gate/gateinedit/getCNTR\",\
+              params: {\
+                cntr: result[0].CNTR\
+              },\
+              success: function(resp) {\
+                var cw = Wb.decode(resp.responseText);\
+                if (cw.rows.length > 0)\
+                  app.CNTR_WEIGHT.setValue(cw.rows[0].WEIGHT || 0);\
+                else\
+                  app.CNTR_WEIGHT.setValue(0);\
+                app.CNTR_WEIGHT.selectText();\
+              }\
+            });\
+            if (window.global)\
+              app.CFS.setValue(global.config.CFS);\
+            if (result[0].TS == \"ti\") {\
+              app.radioTi.setValue(true);\
+              app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+              app.radioShou.setBoxLabel(\"收箱\");\
+            }\
+            if (result[0].TS == \"shou\") {\
+              app.radioShou.setValue(true);\
+              app.radioTi.setBoxLabel(\"提箱\");\
+              app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+            }\
+            if (app.radioShou.checked) {\
+              if (Wb.isEmpty(result[0].YARD_POSITION)) {\
+                Wb.reset(app.panelForm);\
+                Wb.reset(app.panelForm1);\
+                app.gridReceipt.store.load();\
+                app.radioTi.setValue(true);\
+                app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                app.radioShou.setBoxLabel(\"收箱\");\
+                if (window.global)\
+                  app.CFS.setValue(global.config.CFS);\
+                Wb.warn(\"收箱没有找到区域,不能进闸\");\
+                app.CNTR.focus();\
+                return;\
+              }\
+              app.xwl1.call(\"qu_find_plac\", {\
+                info: {\
+                  type: \"ship\",\
+                  action: \"findplace\",\
+                  senduser: '{#sys.username#}',\
+                  sendmodule: \"ship\",\
+                  sendtime: (new Date()).getTime()\
+                },\
+                data: {\
+                  cntr: app.CNTR1.getValue(),\
+                  cfscode: app.CFS.getValue(),\
+                  ef: Wb.isEmpty(app.E_F_ID.getValue()) ? \"null\" : app.E_F_ID.getValue(),\
+                  tenancyId: '{#sys.TENANCY_ID#}'\
+                }\
+              }, function(d) {\
+                if (d.body.cntr == app.CNTR1.getValue())\
+                  app.YARD_POSITION.setValue(d.body.position);\
+              });\
+            }\
+          }\
+        }\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "xwl1",
+       "file": "m?xwl=system/common/rabbitMq"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "xwl"
+     },
+     {
+      "configs": {"itemId": "tab1"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "layout": "border",
+         "border": "false",
+         "itemId": "panelIN",
+         "title": "进闸"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "layout": "border",
+           "itemId": "panelLeft",
+           "width": "280",
+           "region": "west",
+           "bbar": "app.bbarp"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "layout": "@{type:'table',columns:1}",
+             "border": "false",
+             "itemId": "panelForm",
+             "defaults": "{\
+  labelWidth: 80,\
+  width: 260,\
+  margin: '6 0 0 0'\
+}",
+             "region": "north",
+             "title": "车信息",
+             "height": "460"
+            },
+            "expanded": true,
+            "children": [
+             {
+              "configs": {
+               "itemId": "RID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "RID"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "PID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "PID"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CFS",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "CFS"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CNTR",
+               "labelAlign": "right",
+               "fieldLabel": "箱号",
+               "isUpperCase": "true",
+               "maxLength": "11"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text",
+              "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  if (Wb.isEmpty(app.CNTR.getValue()))\
+    return;\
+  app.CNTR_WEIGHT.focus();\
+  if (app.NO_CNTR.getValue() != \"1\") {\
+    //执行验证\
+    Wb.request({\
+      url: \"m?xwl=receiptInout/gate/gateinedit/gatecheck\",\
+      params: {\
+        cntr: app.CNTR.getValue(),\
+        cfs: app.CFS.getValue()\
+      },\
+      success: function(resp) {\
+        var result = Wb.decode(resp.responseText);\
+        if (!Wb.isEmpty(result.duo)) {\
+          var rids = \"\";\
+          Wb.each(result.receipts, function(r) {\
+            rids += \"'\" + r.ID + \"',\";\
+          });\
+          rids = rids.substring(0, rids.length - 1);\
+          app.winReceipt.show();\
+          app.gridSelReceipt.store.load({\
+            params: {\
+              ids: rids\
+            }\
+          });\
+        } else {\
+          if (!result.success) {\
+            app.txtMsg.setValue(result.errstr);\
+            app.CNTR.reset();\
+            return;\
+          }\
+          //查询设备交接单\
+          Wb.request({\
+            url: \"m?xwl=receiptInout/gate/gateinedit/select1\",\
+            params: {\
+              rid: result.rid\
+            },\
+            success: function(resp) {\
+              var result = Wb.decode(resp.responseText);\
+              //               if (!Wb.isEmpty(result.success) && !result.success) {\
+              //                 app.txtMsg.setValue(result.msg);\
+              //                 app.txtMsg.setFieldStyle(\"color:red;\");\
+              //                 Wb.reset(app.panelForm);\
+              //                 Wb.reset(app.panelForm1);\
+              //                 app.gridReceipt.store.load();\
+              //                 app.radioTi.setValue(true);\
+              //                 app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+              //                 app.radioShou.setBoxLabel(\"收箱\");\
+              //                 if (window.global)\
+              //                   app.CFS.setValue(global.config.CFS);\
+              //                 app.CNTR.focus();\
+              //                 return;\
+              //               }\
+              app.txtMsg.setValue(\"\");\
+              if (result.length < 1) {\
+                Wb.reset(app.panelForm);\
+                Wb.reset(app.panelForm1);\
+                app.gridReceipt.store.load();\
+                app.radioTi.setValue(true);\
+                app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                app.radioShou.setBoxLabel(\"收箱\");\
+                if (window.global)\
+                  app.CFS.setValue(global.config.CFS);\
+                Wb.warn(\"没有找到待入闸设备交接单\");\
+                app.CNTR.focus();\
+                return;\
+              }\
+              if (result.length > 1 && result[0].WORK_TYPE != \"FOFI\") {\
+                Wb.reset(app.panelForm);\
+                Wb.reset(app.panelForm1);\
+                app.gridReceipt.store.load();\
+                app.radioTi.setValue(true);\
+                app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                app.radioShou.setBoxLabel(\"收箱\");\
+                if (window.global)\
+                  app.CFS.setValue(global.config.CFS);\
+                Wb.warn(\"找到多条关于'\" + app.CNTR.getValue() + \"'的信息,请输入更精确的信息\");\
+                app.CNTR.focus();\
+                return;\
+              }\
+              if (result[0].WORK_TYPE != \"YOYI\") {\
+                //===============panelForm================\
+                Wb.setValue(app.panelForm, result[0]);\
+                Wb.setValue(app.panelForm1, result[0]);\
+                app.SCALE_WEIGHT.setValue(\"\");\
+                app.GITYPE.setValue(\"C\");\
+                app.CNTR1.setValue(result[0].CNTR);\
+                app.IN_CAR.store.load({\
+                  callback: function(r, options, success) {\
+                    if (success) {\
+                      app.IN_CAR.setValue(result[0].IN_CAR);\
+                      app.carzhong();\
+                    }\
+                  }\
+                });\
+                app.IN_CAMPI.store.load({\
+                  callback: function(r, options, success) {\
+                    if (success) {\
+                      app.IN_CAMPI.setValue(result[0].IN_CAMPI);\
+                      app.campizhong();\
+                    }\
+                  }\
+                });\
+                app.IN_DRIVER_ID.store.load({\
+                  callback: function(r, options, success) {\
+                    if (success) {\
+                      app.IN_DRIVER_ID.setValue(result[0].IN_DRIVER_ID);\
+                    }\
+                  }\
+                });\
+                //获取柜自重\
+                Wb.request({\
+                  url: \"m?xwl=receiptInout/gate/gateinedit/getCNTR\",\
+                  params: {\
+                    cntr: result[0].CNTR\
+                  },\
+                  success: function(resp) {\
+                    var cw = Wb.decode(resp.responseText);\
+                    if (cw.rows.length > 0)\
+                      app.CNTR_WEIGHT.setValue(cw.rows[0].WEIGHT || 0);\
+                    else\
+                      app.CNTR_WEIGHT.setValue(0);\
+                    app.CNTR_WEIGHT.selectText();\
+                  }\
+                });\
+                if (result[0].TS == \"shou\") {\
+                  if (zk == \"LN\")\
+                    app.CNTR_WEIGHT.allowBlank = true;\
+                  else\
+                    app.CNTR_WEIGHT.allowBlank = false;\
+                }\
+                if (result[0].TS == \"ti\") {\
+                  app.radioTi.setValue(true);\
+                  app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                  app.radioShou.setBoxLabel(\"收箱\");\
+                }\
+                if (result[0].TS == \"shou\") {\
+                  app.radioShou.setValue(true);\
+                  app.radioTi.setBoxLabel(\"提箱\");\
+                  app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+                }\
+                if (app.radioShou.checked) {\
+                  app.xwl1.call(\"qu_find_plac\", {\
+                    info: {\
+                      type: \"ship\",\
+                      action: \"findplace\",\
+                      senduser: '{#sys.username#}',\
+                      sendmodule: \"ship\",\
+                      sendtime: (new Date()).getTime()\
+                    },\
+                    data: {\
+                      cntr: app.CNTR1.getValue(),\
+                      cfscode: app.CFS.getValue(),\
+                      ef: Wb.isEmpty(app.E_F_ID.getValue()) ? \"null\" : app.E_F_ID.getValue(),\
+                      tenancyId: '{#sys.TENANCY_ID#}',\
+                      ie: 'E'\
+                    }\
+                  }, function(d) {\
+                    if (d.body.cntr == app.CNTR1.getValue())\
+                      app.YARD_POSITION.setValue(d.body.position);\
+                  });\
+                }\
+                if (app.radioTi.checked) {\
+                  //             if (result[0].F_CNTR == \"0\") {\
+                  //               Wb.reset(app.panelForm);\
+                  //               Wb.reset(app.panelForm1);\
+                  //               app.gridReceipt.store.load();\
+                  //               app.radioTi.setValue(true);\
+                  //               app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                  //               app.radioShou.setBoxLabel(\"收箱\");\
+                  //               if (window.global)\
+                  //                 app.CFS.setValue(global.config.CFS);\
+                  //               Wb.warn(\"此单未放箱审核\");\
+                  //               app.CNTR.focus();\
+                  //               return;\
+                  //             }\
+                  if (Wb.isEmpty(result[0].PID)) {\
+                    Wb.reset(app.panelForm);\
+                    Wb.reset(app.panelForm1);\
+                    app.gridReceipt.store.load();\
+                    app.radioTi.setValue(true);\
+                    app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                    app.radioShou.setBoxLabel(\"收箱\");\
+                    if (window.global)\
+                      app.CFS.setValue(global.config.CFS);\
+                    Wb.warn(\"箱子已经核销\");\
+                    app.CNTR.focus();\
+                    return;\
+                  }\
+                  //             if (result[0].T_ADDRESS != app.CFS.getValue()) {\
+                  //               Wb.reset(app.panelForm);\
+                  //               Wb.reset(app.panelForm1);\
+                  //               app.gridReceipt.store.load();\
+                  //               app.radioTi.setValue(true);\
+                  //               app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                  //               app.radioShou.setBoxLabel(\"收箱\");\
+                  //               if (window.global)\
+                  //                 app.CFS.setValue(global.config.CFS);\
+                  //               Wb.warn(\"提箱车辆进错闸口了\");\
+                  //               app.CNTR.focus();\
+                  //               return;\
+                  //             }\
+                }\
+              } else { //移箱\
+                //===============panelForm================\
+                Wb.setValue(app.panelForm, result[0]);\
+                Wb.setValue(app.panelForm1, result[0]);\
+                app.SCALE_WEIGHT.setValue(\"\");\
+                app.GITYPE.setValue(\"C\");\
+                app.CNTR1.setValue(result[0].CNTR);\
+                app.IN_CAR.store.load({\
+                  callback: function(r, options, success) {\
+                    if (success) {\
+                      app.IN_CAR.setValue(result[0].IN_CAR);\
+                      app.carzhong();\
+                    }\
+                  }\
+                });\
+                app.IN_CAMPI.store.load({\
+                  callback: function(r, options, success) {\
+                    if (success) {\
+                      app.IN_CAMPI.setValue(result[0].IN_CAMPI);\
+                      app.campizhong();\
+                    }\
+                  }\
+                });\
+                app.IN_DRIVER_ID.store.load({\
+                  callback: function(r, options, success) {\
+                    if (success) {\
+                      app.IN_DRIVER_ID.setValue(result[0].IN_DRIVER_ID);\
+                    }\
+                  }\
+                });\
+                //获取柜自重\
+                Wb.request({\
+                  url: \"m?xwl=receiptInout/gate/gateinedit/getCNTR\",\
+                  params: {\
+                    cntr: result[0].CNTR\
+                  },\
+                  success: function(resp) {\
+                    var cw = Wb.decode(resp.responseText);\
+                    if (cw.rows.length > 0)\
+                      app.CNTR_WEIGHT.setValue(cw.rows[0].WEIGHT || 0);\
+                    else\
+                      app.CNTR_WEIGHT.setValue(0);\
+                    app.CNTR_WEIGHT.selectText();\
+                  }\
+                });\
+                if (window.global)\
+                  app.CFS.setValue(global.config.CFS);\
+                if (result[0].TS == \"ti\") {\
+                  app.radioTi.setValue(true);\
+                  app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                  app.radioShou.setBoxLabel(\"收箱\");\
+                }\
+                if (result[0].TS == \"shou\") {\
+                  app.radioShou.setValue(true);\
+                  app.radioTi.setBoxLabel(\"提箱\");\
+                  app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+                }\
+                if (app.radioShou.checked) {\
+                  if (Wb.isEmpty(result[0].YARD_POSITION)) {\
+                    Wb.reset(app.panelForm);\
+                    Wb.reset(app.panelForm1);\
+                    app.gridReceipt.store.load();\
+                    app.radioTi.setValue(true);\
+                    app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                    app.radioShou.setBoxLabel(\"收箱\");\
+                    if (window.global)\
+                      app.CFS.setValue(global.config.CFS);\
+                    Wb.warn(\"收箱没有找到区域,不能进闸\");\
+                    app.CNTR.focus();\
+                    return;\
+                  }\
+                }\
+              }\
+            }\
+          });\
+        }\
+      }\
+    });\
+  }\
+}"}
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "CNTR_ID"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "E_F_ID",
+               "labelAlign": "right",
+               "fieldLabel": "空重",
+               "keyName": "E_F_ID",
+               "anyMatch": "true",
+               "fieldStyle": "font-size:18px;font-weight:bold;color:red;"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo",
+              "events": {"select": "// Wb.request({\
+//   url: 'm?xwl=receiptInout/gate/gateinedit/insertaaa',\
+//   params: {\
+//     cntr_id: app.PID.getValue(),\
+//     cntr: app.CNTR.getValue(),\
+//     e_f_id: app.E_F_ID.getValue()\
+//   },\
+//   success: function(resp) {}\
+// });"}
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_WEIGHT",
+               "labelAlign": "right",
+               "fieldLabel": "柜自重"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number",
+              "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  app.IN_CAR.focus();\
+  app.IN_CAR.selectText();\
+}"}
+             },
+             {
+              "configs": {
+               "itemId": "IN_CAR",
+               "allowBlank": "false",
+               "labelAlign": "right",
+               "fieldLabel": "车头",
+               "displayField": "TRUCK_NO",
+               "isUpperCase": "true",
+               "valueField": "TRUCK_NO",
+               "queryDelay": "100",
+               "forceSelection": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "pageSize": "-1",
+                "url": "m?xwl=receiptInout/gate/gateinedit/selectV_CAR"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "specialkey": "if (e.getKey() == e.ENTER) {\
+  if (!combo.isExpanded) { //判断combo不展开才切换焦点\
+    app.IN_CAMPI.focus();\
+    app.IN_CAMPI.selectText();\
+  }\
+}\
+if (e.getKey() == \"38\") {\
+  if (!combo.isExpanded) { //判断combo不展开才切换焦点\
+    app.CNTR_WEIGHT.focus();\
+    app.CNTR_WEIGHT.selectText();\
+  }\
+}",
+               "select": "app.IN_CAR_HP.setValue(records[0].data.PLAT_NO);\
+app.carzhong();"
+              }
+             },
+             {
+              "configs": {
+               "itemId": "CAR_WEIGHT",
+               "labelAlign": "right",
+               "fieldLabel": "拖车重量",
+               "readOnly": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number",
+              "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  app.IN_CAR.focus();\
+}"}
+             },
+             {
+              "configs": {
+               "itemId": "IN_CAR_HP",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "车牌号"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "IN_CAMPI",
+               "allowBlank": "false",
+               "labelAlign": "right",
+               "fieldLabel": "拖卡",
+               "displayField": "TRAY_NO",
+               "isUpperCase": "true",
+               "valueField": "TRAY_NO",
+               "queryDelay": "100",
+               "forceSelection": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "pageSize": "-1",
+                "url": "m?xwl=receiptInout/gate/gateinedit/selectTray"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "specialkey": "if (e.getKey() == e.ENTER) {\
+  if (!combo.isExpanded) { //判断combo不展开才切换焦点\
+    app.IN_DRIVER_ID.focus();\
+    app.IN_DRIVER_ID.selectText();\
+  }\
+}",
+               "select": "app.IN_TRAY_NO.setValue(combo.getRawValue());\
+app.campizhong();"
+              }
+             },
+             {
+              "configs": {
+               "itemId": "TRAY_WEIGHT",
+               "labelAlign": "right",
+               "fieldLabel": "拖卡重量",
+               "readOnly": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number",
+              "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  app.IN_CAR.focus();\
+}"}
+             },
+             {
+              "configs": {
+               "itemId": "IN_TRAY_NO",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "拖卡号"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "IN_DRIVER_ID",
+               "allowBlank": "false",
+               "labelAlign": "right",
+               "fieldLabel": "司机",
+               "displayField": "EMPNAME",
+               "valueField": "EMPNO",
+               "queryDelay": "100",
+               "forceSelection": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "pageSize": "-1",
+                "url": "m?xwl=receiptInout/gate/gateinedit/selectDriver"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "specialkey": "if (e.getKey() == e.ENTER) {\
+  if (!combo.isExpanded) //判断combo不展开才切换焦点\
+    app.YARD_POSITION.focus();\
+}",
+               "select": "app.IN_DRIVER_NAME.setValue(combo.getRawValue());"
+              }
+             },
+             {
+              "configs": {
+               "itemId": "IN_DRIVER_NAME",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "司机名"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "YARD_POSITION",
+               "labelAlign": "right",
+               "fieldLabel": "目标位置",
+               "isUpperCase": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text",
+              "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  app.SCALE_WEIGHT.focus();\
+}"}
+             },
+             {
+              "configs": {
+               "itemId": "SCALE_WEIGHT_M",
+               "labelAlign": "right",
+               "fieldLabel": "读磅重",
+               "readOnly": "true",
+               "fieldStyle": "color:red;font-size:20px;font-weight:bold;"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "SCALE_WEIGHT",
+               "labelAlign": "right",
+               "fieldLabel": "F3取磅重",
+               "fieldStyle": "color:red"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             },
+             {
+              "configs": {
+               "itemId": "GITYPE",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "GITYPE"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "BILL_NO",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "提单号",
+               "isUpperCase": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text",
+              "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  if (Wb.isEmpty(app.CNTR.getValue())) {\
+    //不定箱号的数据查找,根据提单号找设备交接单\
+    Wb.request({\
+      url: \"m?xwl=receiptInout/gate/gateinedit/selectByBill_no\",\
+      params: {\
+        billno: app.BILL_NO.getValue()\
+      },\
+      success: function(resp) {\
+        var receipts = Wb.decode(resp.responseText);\
+        if (receipts.rows.length > 0) {\
+          if (receipts.rows[0].F_CNTR == \"0\") {\
+            Wb.reset(app.panelForm);\
+            Wb.reset(app.panelForm1);\
+            app.radioTi.setValue(true);\
+            app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+            app.radioShou.setBoxLabel(\"收箱\");\
+            if (window.global)\
+              app.CFS.setValue(global.config.CFS);\
+            Wb.warn(\"此单未放箱审核\");\
+            return;\
+          }\
+          if (Wb.isEmpty(receipts.rows[0].CNTR_ID)) {\
+            //根据设备交接单调用服务找箱子\
+            Wb.request({\
+              url: \"m?xwl=system/common/cntrStore/findEmpty\",\
+              params: {\
+                cntrIso: receipts.rows[0].CNTR_ISO,\
+                cntrOpera: receipts.rows[0].CNTR_OPERATOR_COD,\
+                cfs: app.CFS.getValue(),\
+                tradeId: receipts.rows[0].TRADE_ID,\
+                cntrOwner: receipts.rows[0].LINE_COD,\
+                rId: receipts.rows[0].ID\
+              },\
+              success: function(resp) {\
+                var cntrid = resp.responseText;\
+                if (cntrid == \"没有找到对应的箱子\") {\
+                  Wb.warn(cntrid);\
+                  app.BILL_NO.setValue(\"\");\
+                } else {\
+                  //根据返回的箱号和提单,查询相关数据并显示\
+                  Wb.request({\
+                    url: \"m?xwl=receiptInout/gate/gateinedit/selectNoCntr\",\
+                    params: {\
+                      billno: app.BILL_NO.getValue(),\
+                      cntrid: cntrid\
+                    },\
+                    success: function(resp) {\
+                      var result = Wb.decode(resp.responseText);\
+                      Wb.setValue(app.panelForm, result[0]);\
+                      Wb.setValue(app.panelForm1, result[0]);\
+                      app.SCALE_WEIGHT.setValue(\"\");\
+                      app.GITYPE.setValue(\"B\");\
+                      app.CNTR1.setValue(result[0].CNTR);\
+                      app.IN_CAR.store.load({\
+                        callback: function(r, options, success) {\
+                          if (success) {\
+                            app.IN_CAR.setValue(result[0].IN_CAR);\
+                            app.carzhong();\
+                          }\
+                        }\
+                      });\
+                      app.IN_CAMPI.store.load({\
+                        callback: function(r, options, success) {\
+                          if (success) {\
+                            app.IN_CAMPI.setValue(result[0].IN_CAMPI);\
+                            app.campizhong();\
+                          }\
+                        }\
+                      });\
+                      app.IN_DRIVER_ID.store.load({\
+                        callback: function(r, options, success) {\
+                          if (success) {\
+                            app.IN_DRIVER_ID.setValue(result[0].IN_DRIVER_ID);\
+                          }\
+                        }\
+                      });\
+                      //获取柜自重\
+                      Wb.request({\
+                        url: \"m?xwl=receiptInout/gate/gateinedit/getCNTR\",\
+                        params: {\
+                          cntr: result[0].CNTR\
+                        },\
+                        success: function(resp) {\
+                          var cw = Wb.decode(resp.responseText);\
+                          if (cw.rows.length > 0)\
+                            app.CNTR_WEIGHT.setValue(cw.rows[0].WEIGHT || 0);\
+                          else\
+                            app.CNTR_WEIGHT.setValue(0);\
+                        }\
+                      });\
+                      if (result[0].TS == \"ti\")\
+                        app.radioTi.setValue(true);\
+                      if (result[0].TS == \"shou\")\
+                        app.radioShou.setValue(true);\
+                      if (!Wb.isEmpty(result[0].YARD_POSITION)) {\
+                        Wb.request({\
+                          url: \"m?xwl=receiptInout/gate/gateinedit/selectCFS\",\
+                          params: {\
+                            cyarea: result[0].YARD_POSITION.substring(0, 3)\
+                          },\
+                          success: function(rescfs) {\
+                            var cfs = Wb.decode(rescfs.responseText);\
+                            if (cfs.rows.length > 0) {\
+                              if (cfs.rows[0].CFS_COD != app.CFS.getValue()) {\
+                                Wb.reset(app.panelForm);\
+                                Wb.reset(app.panelForm1);\
+                                app.radioTi.setValue(true);\
+                                app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                                app.radioShou.setBoxLabel(\"收箱\");\
+                                if (window.global)\
+                                  app.CFS.setValue(global.config.CFS);\
+                                Wb.warn(\"提箱车辆进错闸口了\");\
+                                return;\
+                              }\
+                            }\
+                          }\
+                        });\
+                      } else {\
+                        Wb.reset(app.panelForm);\
+                        Wb.reset(app.panelForm1);\
+                        app.radioTi.setValue(true);\
+                        app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                        app.radioShou.setBoxLabel(\"收箱\");\
+                        if (window.global)\
+                          app.CFS.setValue(global.config.CFS);\
+                        Wb.warn(\"提箱没有找到目标位置\");\
+                        return;\
+                      }\
+                    }\
+                  });\
+                }\
+              }\
+            });\
+          } else {\
+            Wb.request({\
+              url: \"m?xwl=receiptInout/gate/gateinedit/selectNoCntr\",\
+              params: {\
+                billno: app.BILL_NO.getValue(),\
+                cntrid: \"\"\
+              },\
+              success: function(resp) {\
+                var result = Wb.decode(resp.responseText);\
+                Wb.setValue(app.panelForm, result[0]);\
+                Wb.setValue(app.panelForm1, result[0]);\
+                app.GITYPE.setValue(\"B\");\
+                app.CNTR1.setValue(result[0].CNTR);\
+                if (result[0].TS == \"ti\") {\
+                  app.radioTi.setValue(true);\
+                  app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                  app.radioShou.setBoxLabel(\"收箱\");\
+                }\
+                if (result[0].TS == \"shou\") {\
+                  app.radioShou.setValue(true);\
+                  app.radioTi.setBoxLabel(\"提箱\");\
+                  app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+                }\
+                if (!Wb.isEmpty(result[0].YARD_POSITION)) {\
+                  Wb.request({\
+                    url: \"m?xwl=receiptInout/gate/gateinedit/selectCFS\",\
+                    params: {\
+                      cyarea: result[0].YARD_POSITION.substring(0, 3)\
+                    },\
+                    success: function(rescfs) {\
+                      var cfs = Wb.decode(rescfs.responseText);\
+                      if (cfs.rows.length > 0) {\
+                        if (cfs.rows[0].CFS_COD != app.CFS.getValue()) {\
+                          Wb.reset(app.panelForm);\
+                          Wb.reset(app.panelForm1);\
+                          app.radioTi.setValue(true);\
+                          app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                          app.radioShou.setBoxLabel(\"收箱\");\
+                          if (window.global)\
+                            app.CFS.setValue(global.config.CFS);\
+                          Wb.warn(\"提箱车辆进错闸口了\");\
+                          return;\
+                        }\
+                      }\
+                    }\
+                  });\
+                } else {\
+                  Wb.reset(app.panelForm);\
+                  Wb.reset(app.panelForm1);\
+                  app.radioTi.setValue(true);\
+                  app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+                  app.radioShou.setBoxLabel(\"收箱\");\
+                  if (window.global)\
+                    app.CFS.setValue(global.config.CFS);\
+                  Wb.warn(\"提箱没有找到目标位置\");\
+                  return;\
+                }\
+              }\
+            });\
+          }\
+        }\
+      }\
+    });\
+  }\
+}"}
+             },
+             {
+              "configs": {
+               "itemId": "DRIVERLICENSE",
+               "labelAlign": "right",
+               "fieldLabel": "驾驶证"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "OUTCARTEAM",
+               "labelAlign": "right",
+               "pickList": "[\
+  [1, '是'],\
+  [0, '否']\
+]",
+               "fieldLabel": "外车队"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "NO_CNTR",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "NO_CNTR",
+               "readOnly": "true"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "layout": "hbox",
+               "itemId": "radioInGage",
+               "margin": "0 0 0 80",
+               "width": "160"
+              },
+              "expanded": true,
+              "children": [
+               {
+                "configs": {
+                 "itemId": "radioTi",
+                 "boxLabel": "提箱",
+                 "flex": "1",
+                 "name": "radioInGate",
+                 "checked": "true",
+                 "readOnly": "true"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "radio",
+                "events": {"change": "if (newValue) {\
+  app.DRIVERLICENSE.setReadOnly(true);\
+  app.SCALE_WEIGHT.setReadOnly(true);\
+  app.OUTCARTEAM.setReadOnly(true);\
+  app.NOTES.setReadOnly(true);\
+  //=========================\
+  app.CNTR_ISO.setReadOnly(true);\
+  app.E_F_ID.setReadOnly(true);\
+  app.CNTR_SIZE.setReadOnly(true);\
+  app.CNTR_OWNER.setReadOnly(true);\
+  app.CNTR_OPERATOR.setReadOnly(true);\
+  app.CNTR_TYPE.setReadOnly(true);\
+  app.VID.setReadOnly(true);\
+  app.POD.setReadOnly(true);\
+  app.SPOD.setReadOnly(true);\
+  app.TRUCK_COM.setReadOnly(true);\
+  app.DOOR_DIRECTION.setReadOnly(true);\
+  app.CMDY_CODE.setReadOnly(true);\
+  app.GROS_WEIGHT.setReadOnly(true);\
+  app.CARGO_WT.setReadOnly(true);\
+  app.SPEC_STOW.setReadOnly(true);\
+  app.SEAL_NO.setReadOnly(true);\
+  app.SEAL_NO2.setReadOnly(true);\
+  //   app.YARD_POSITION.setReadOnly(true);\
+}"}
+               },
+               {
+                "configs": {
+                 "itemId": "radioShou",
+                 "boxLabel": "收箱",
+                 "flex": "1",
+                 "name": "radioInGate",
+                 "readOnly": "true"
+                },
+                "expanded": true,
+                "children": [],
+                "type": "radio",
+                "events": {"change": "if (newValue) {\
+  app.DRIVERLICENSE.setReadOnly(false);\
+  app.SCALE_WEIGHT.setReadOnly(false);\
+  app.OUTCARTEAM.setReadOnly(false);\
+  app.NOTES.setReadOnly(false);\
+  //=========================\
+  app.CNTR_ISO.setReadOnly(false);\
+  app.E_F_ID.setReadOnly(false);\
+  app.CNTR_SIZE.setReadOnly(false);\
+  app.CNTR_OWNER.setReadOnly(false);\
+  app.CNTR_OPERATOR.setReadOnly(false);\
+  app.CNTR_TYPE.setReadOnly(false);\
+  app.VID.setReadOnly(false);\
+  app.POD.setReadOnly(false);\
+  app.SPOD.setReadOnly(false);\
+  app.TRUCK_COM.setReadOnly(false);\
+  app.DOOR_DIRECTION.setReadOnly(false);\
+  app.CMDY_CODE.setReadOnly(false);\
+  app.GROS_WEIGHT.setReadOnly(false);\
+  app.CARGO_WT.setReadOnly(false);\
+  app.SPEC_STOW.setReadOnly(false);\
+  app.SEAL_NO.setReadOnly(false);\
+  app.SEAL_NO2.setReadOnly(false);\
+  //   app.YARD_POSITION.setReadOnly(false);\
+}"}
+               }
+              ],
+              "type": "container"
+             },
+             {
+              "configs": {
+               "itemId": "TS",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "TS"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "border": "false",
+               "itemId": "panelButton",
+               "margin": "10 0 0 60"
+              },
+              "expanded": true,
+              "children": [
+               {
+                "configs": {
+                 "itemId": "updBtn",
+                 "width": "85",
+                 "text": "信息确认(F8)"
+                },
+                "expanded": true,
+                "children": [],
+                "type": "button",
+                "events": {"click": "if (!Wb.verify(app.panelForm))\
+  return false;\
+if (!Wb.verify(app.panelForm1))\
+  return false;\
+if (Wb.isEmpty(app.CNTR1.getValue())) {\
+  Wb.warn(\"请输入箱号回车查询\");\
+  return;\
+}\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+if (app.E_F_ID.getValue() == \"F\" && app.radioShou.checked && app.CFS.getValue() == \"JGQ\") {\
+  if (app.CNTR_WEIGHT.getValue().toString().length != 4) {\
+    Wb.warn(\"柜自重只能输入4位数字\");\
+    return;\
+  }\
+  if (Wb.isEmpty(app.SCALE_WEIGHT.getValue()) || app.SCALE_WEIGHT.getValue() < 1) {\
+    Wb.warn(\"收重柜必须过磅\");\
+    return;\
+  }\
+}\
+if (app.CFS.getValue() == \"JGQ\") {\
+  if (app.IN_CAR.getValue() == \"999\" || app.IN_CAMPI.getValue() == \"999\") {\
+    Wb.warn(\"监管区不能选择999拖车和999拖卡\");\
+    return;\
+  }\
+}\
+var goon = true;\
+var store = app.gridReceipt.getStore();\
+Wb.each(store.data.items, function(item) {\
+  if ((parseInt(item.data.CNTR_SIZE) + parseInt(app.CNTR_SIZE.getValue())) > 40 && item.data.CNTR != app.CNTR1.getValue()) {\
+    Wb.warn(\"错误:两个箱只能为20尺箱子\");\
+    goon = false;\
+  }\
+  if (item.data.IN_CAR != app.IN_CAR.getValue() && item.data.CNTR != app.CNTR1.getValue()) {\
+    Wb.warn(\"错误:两个箱车辆不相同\");\
+    goon = false;\
+  }\
+  if (item.data.IN_CAMPI != app.IN_CAMPI.getValue() && item.data.CNTR != app.CNTR1.getValue()) {\
+    Wb.warn(\"错误:两个箱拖卡不相同\");\
+    goon = false;\
+  }\
+  if (item.data.IN_DRIVER_ID != app.IN_DRIVER_ID.getValue() && item.data.CNTR != app.CNTR1.getValue()) {\
+    Wb.warn(\"错误:两个箱司机不相同\");\
+    goon = false;\
+  }\
+  if (item.data.TRADE_ID != app.TRADE_ID.getValue() && item.data.CNTR != app.CNTR1.getValue()) {\
+    Wb.warn(\"错误:两个箱内外贸不相同\");\
+    goon = false;\
+  }\
+  if (item.data.WORK_TYPE != app.WORK_TYPE.getValue() && item.data.CNTR != app.CNTR1.getValue()) {\
+    Wb.warn(\"错误:两个箱作业类型不同\");\
+    goon = false;\
+  }\
+});\
+if (goon) {\
+  var ret = Wb.find(app.gridReceipt.store, \"CNTR\", app.CNTR1.getValue());\
+  if (ret)\
+    Wb.remove(app.gridReceipt, ret);\
+  Wb.addEdit(app.gridReceipt, {\
+    GITYPE: app.GITYPE.getValue(),\
+    RID: app.RID.getValue(),\
+    PID: app.PID.getValue(),\
+    TENANCY_ID: tenancyid,\
+    CNTR: app.CNTR1.getValue(),\
+    CNTR_ID: app.CNTR_ID.getValue(),\
+    BILL_NO: app.BILL_NO.getValue(),\
+    TEMP_SET: app.TEMP_SET.getValue(),\
+    IMDG: app.IMDG.getValue(),\
+    IN_CAR: app.IN_CAR.getValue(),\
+    IN_CAR_HP: app.IN_CAR_HP.getRawValue(),\
+    IN_CAMPI: app.IN_CAMPI.getValue(),\
+    IN_TRAY_NO: app.IN_TRAY_NO.getValue(),\
+    IN_DRIVER_ID: app.IN_DRIVER_ID.getValue(),\
+    IN_DRIVER_NAME: app.IN_DRIVER_NAME.getValue(),\
+    SCALE_WEIGHT: app.SCALE_WEIGHT.getValue(), //磅重\
+    NOTES: app.NOTES.getValue(),\
+    DRIVERLICENSE: app.DRIVERLICENSE.getValue(),\
+    OUTCARTEAM: app.OUTCARTEAM.getValue(),\
+    CNTR_ISO: app.CNTR_ISO.getValue(),\
+    E_F_ID: app.E_F_ID.getValue(),\
+    CNTR_SIZE: app.CNTR_SIZE.getValue(),\
+    CNTR_OWNER: app.CNTR_OWNER.getValue(),\
+    CNTR_OPERATOR: app.CNTR_OPERATOR.getValue(),\
+    CNTR_TYPE: app.CNTR_TYPE.getValue(),\
+    VID: app.VID.getValue(),\
+    POD: app.POD.getValue(),\
+    SPOD: app.SPOD.getValue(),\
+    DOOR_DIRECTION: app.DOOR_DIRECTION.getValue(),\
+    CMDY_CODE: app.CMDY_CODE.getValue(),\
+    GROS_WEIGHT: app.GROS_WEIGHT.getValue(), //毛重\
+    SPEC_STOW: app.SPEC_STOW.getValue(),\
+    SEAL_NO: app.SEAL_NO.getValue(),\
+    SEAL_NO2: app.SEAL_NO2.getValue(),\
+    CARGO_WT: app.CARGO_WT.getValue(), //货重\
+    TRUCK_COM: app.TRUCK_COM.getValue(),\
+    OOG_ID: app.OOG_ID.getValue(),\
+    DANG_ID: app.DANG_ID.getValue(),\
+    REEF_ID: app.REEF_ID.getValue(),\
+    ON_POWER: app.ON_POWER.getValue(),\
+    REQS_POWER: app.REQS_POWER.getValue(),\
+    BUNDL_ID: app.BUNDL_ID.getValue(),\
+    CATEGORY_ID: app.CATEGORY_ID.getValue(),\
+    TRADE_ID: app.TRADE_ID.getValue(),\
+    I_E_ID: app.I_E_ID.getValue(),\
+    YARD_POSITION: app.YARD_POSITION.getValue(),\
+    WORK_TYPE: app.WORK_TYPE.getValue(),\
+    WEIGHT: app.WEIGHT.getValue(), //重量\
+    TS: app.TS.getValue(),\
+    CNTR_WEIGHT: app.CNTR_WEIGHT.getValue(),\
+    RELEASE_ID: app.RELEASE_ID.getValue(),\
+    T_ADDRESS: app.T_ADDRESS.getValue(),\
+    CAR_WEIGHT: app.CAR_WEIGHT.getValue(), //车自重\
+    TRAY_WEIGHT: app.TRAY_WEIGHT.getValue() //卡自重\
+  });\
+\
+  var ck = app.radioTi.checked;\
+  Wb.reset(app.panelForm);\
+  Wb.reset(app.panelForm1);\
+  if (ck) {\
+    app.radioTi.setValue(true);\
+    app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+    app.radioShou.setBoxLabel(\"收箱\");\
+  } else {\
+    app.radioShou.setValue(true);\
+    app.radioTi.setBoxLabel(\"提箱\");\
+    app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+  }\
+  if (window.global)\
+    app.CFS.setValue(global.config.CFS);\
+}\
+app.CNTR.focus();"}
+               },
+               {
+                "configs": {
+                 "itemId": "quxiaoBtn",
+                 "margin": "0 0 0 10",
+                 "width": "60",
+                 "text": "取消"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "button",
+                "events": {"click": "if (app.GITYPE.getValue() == \"B\") {\
+  Wb.request({\
+    url: \"m?xwl=receiptInout/gate/gateinedit/cntrjiesuo\",\
+    params: {\
+      CNTR_ID: app.CNTR_ID.getValue()\
+    },\
+    success: function(resp) {\
+      var st = app.radioTi.getValue();\
+      Wb.reset(app.panelForm);\
+      Wb.reset(app.panelForm1);\
+      if (st) {\
+        app.radioTi.setValue(true);\
+        app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+        app.radioShou.setBoxLabel(\"收箱\");\
+      } else {\
+        app.radioShou.setValue(true);\
+        app.radioTi.setBoxLabel(\"提箱\");\
+        app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+      }\
+      if (window.global)\
+        app.CFS.setValue(global.config.CFS);\
+    }\
+  });\
+} else {\
+  var st = app.radioTi.getValue();\
+  Wb.reset(app.panelForm);\
+  Wb.reset(app.panelForm1);\
+  if (st) {\
+    app.radioTi.setValue(true);\
+    app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+    app.radioShou.setBoxLabel(\"收箱\");\
+  } else {\
+    app.radioShou.setValue(true);\
+    app.radioTi.setBoxLabel(\"提箱\");\
+    app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+  }\
+  if (window.global)\
+    app.CFS.setValue(global.config.CFS);\
+}"}
+               },
+               {
+                "configs": {
+                 "itemId": "reloadBtn",
+                 "margin": "0 0 0 10",
+                 "width": "40",
+                 "text": "刷新"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "button",
+                "events": {"click": "app.reload();"}
+               }
+              ],
+              "type": "panel"
+             }
+            ],
+            "type": "panel"
+           },
+           {
+            "configs": {
+             "layout": "fit",
+             "border": "false",
+             "itemId": "panelMsg",
+             "region": "center"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "txtMsg",
+              "fieldStyle": "font-size:16px;font-weight:bold;color:red;"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "textarea"
+            }],
+            "type": "panel"
+           }
+          ],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "border",
+           "itemId": "panelRight",
+           "region": "center",
+           "height": "310"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "layout": "@{type:'table',columns:3}",
+             "border": "false",
+             "itemId": "panelForm1",
+             "defaults": "{\
+  labelWidth: 80,\
+  width: 260,\
+  margin: '6 0 0 0'\
+}",
+             "region": "north",
+             "title": "委托信息",
+             "height": "200"
+            },
+            "expanded": true,
+            "children": [
+             {
+              "configs": {
+               "itemId": "CNTR1",
+               "labelAlign": "right",
+               "fieldLabel": "箱号",
+               "readOnly": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "I_E_ID",
+               "labelAlign": "right",
+               "fieldLabel": "进出口",
+               "keyName": "I_E_ID",
+               "readOnly": "true",
+               "anyMatch": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_ISO",
+               "labelAlign": "right",
+               "fieldLabel": "ISO"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "WORK_TYPE",
+               "labelAlign": "right",
+               "fieldLabel": "工作方式",
+               "keyName": "WORK_WAY",
+               "readOnly": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "TRADE_ID",
+               "labelAlign": "right",
+               "fieldLabel": "内外贸",
+               "keyName": "TRADE_ID",
+               "readOnly": "true",
+               "anyMatch": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_SIZE",
+               "labelAlign": "right",
+               "fieldLabel": "箱尺寸",
+               "keyName": "CNTR_SIZE",
+               "anyMatch": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_OWNER",
+               "labelAlign": "right",
+               "fieldLabel": "箱主"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_OPERATOR",
+               "labelAlign": "right",
+               "fieldLabel": "箱代理"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CNTR_TYPE",
+               "labelAlign": "right",
+               "fieldLabel": "箱型"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "VID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "船号"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "POD",
+               "labelAlign": "right",
+               "fieldLabel": "卸货码头",
+               "keyName": "C_PORT",
+               "queryDelay": "500",
+               "forceSelection": "true"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "SPOD",
+               "labelAlign": "right",
+               "fieldLabel": "目的码头",
+               "keyName": "C_PORT",
+               "queryDelay": "500",
+               "forceSelection": "true"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "TRUCK_COM",
+               "labelAlign": "right",
+               "fieldLabel": "拖车公司"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "DOOR_DIRECTION",
+               "labelAlign": "right",
+               "fieldLabel": "箱门方向"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CMDY_CODE",
+               "labelAlign": "right",
+               "fieldLabel": "货物名称"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "GROS_WEIGHT",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "毛重"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CARGO_WT",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "货重"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "SPEC_STOW",
+               "labelAlign": "right",
+               "fieldLabel": "配载要求"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "SEAL_NO",
+               "labelAlign": "right",
+               "fieldLabel": "铅封1"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "SEAL_NO2",
+               "labelAlign": "right",
+               "fieldLabel": "铅封2"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "OOG_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "超规格"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "DANG_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "危品"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "REEF_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "冷冻"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "ON_POWER",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "通电"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "REQS_POWER",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "通电要求"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "BUNDL_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "折叠柜"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "CATEGORY_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "箱分类",
+               "keyName": "CATEGORY_ID",
+               "anyMatch": "true"
+              },
+              "expanded": true,
+              "children": [],
+              "type": "combo"
+             },
+             {
+              "configs": {
+               "itemId": "TEMP_SET",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "温度"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "IMDG",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "危品号"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "WEIGHT",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "重量"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "RELEASE_ID",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "放行"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "T_ADDRESS",
+               "hidden": "true",
+               "labelAlign": "right",
+               "fieldLabel": "提箱地点"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {
+               "itemId": "NOTES",
+               "labelAlign": "right",
+               "fieldLabel": "备注"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }
+            ],
+            "type": "panel"
+           },
+           {
+            "configs": {
+             "border": "false",
+             "itemId": "gridReceipt",
+             "pagingBar": "false",
+             "disabled": "false",
+             "title": "确认箱",
+             "region": "center",
+             "bbar": "app.bbar"
+            },
+            "expanded": true,
+            "children": [
+             {
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "pageSize": "-1",
+               "sorters": "'ID'",
+               "url": "m?xwl=receiptInout/gate/gateinedit/loadGrid"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             },
+             {
+              "configs": {"itemId": "columns"},
+              "expanded": true,
+              "children": [
+               {
+                "configs": {
+                 "itemId": "colRID",
+                 "hidden": "true",
+                 "dataIndex": "RID",
+                 "text": "RID"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colPID",
+                 "hidden": "true",
+                 "dataIndex": "PID",
+                 "text": "PID"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colTENANCY_ID",
+                 "hidden": "true",
+                 "dataIndex": "TENANCY_ID",
+                 "text": "租户"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "column1",
+                 "xtype": "rownumberer"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colCNTR",
+                 "dataIndex": "CNTR",
+                 "width": "140",
+                 "text": "箱号"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colYARD_POSITION",
+                 "dataIndex": "YARD_POSITION",
+                 "text": "堆场位置"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colSEAL_NO",
+                 "dataIndex": "SEAL_NO",
+                 "text": "铅封"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colCNTR_ISO",
+                 "dataIndex": "CNTR_ISO",
+                 "width": "70",
+                 "text": "ISO"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colBILL_NO",
+                 "dataIndex": "BILL_NO",
+                 "text": "提单号"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colSCALE_WEIGHT",
+                 "dataIndex": "SCALE_WEIGHT",
+                 "width": "60",
+                 "text": "总重"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colCNTR_WEIGHT",
+                 "dataIndex": "CNTR_WEIGHT",
+                 "width": "50",
+                 "text": "箱自重"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colTEMP_SET",
+                 "hidden": "true",
+                 "dataIndex": "TEMP_SET",
+                 "width": "40",
+                 "text": "温度"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colIMDG",
+                 "dataIndex": "IMDG",
+                 "width": "50",
+                 "text": "危品号"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               },
+               {
+                "configs": {
+                 "itemId": "colGITYPE",
+                 "hidden": "true",
+                 "dataIndex": "GITYPE",
+                 "text": "GITYPE"
+                },
+                "expanded": false,
+                "children": [],
+                "type": "column"
+               }
+              ],
+              "type": "array"
+             }
+            ],
+            "type": "grid",
+            "events": {"itemclick": "Wb.setValue(app.panelForm, record.data);\
+Wb.setValue(app.panelForm1, record.data);\
+app.CNTR1.setValue(record.data.CNTR);\
+//===============panelForm================\
+// app.RID.setValue(record.data.RID);\
+// app.PID.setValue(record.data.PID);\
+// app.CNTR_ID.setValue(record.data.CNTR_ID);\
+// app.IN_CAR.setValue(record.data.IN_CAR);\
+// app.IN_CAMPI.setValue(record.data.IN_CAMPI);\
+// app.IN_DRIVER_ID.setValue(record.data.IN_DRIVER_ID);\
+// app.CNTR.setValue(record.data.CNTR);\
+// app.GATEIN_TIME.setValue(record.data.GATEIN_TIME);\
+// app.NOTES.setValue(record.data.NOTES);\
+// app.DRIVERLICENSE.setValue(record.data.DRIVERLICENSE);\
+// app.OUTCARTEAM.setValue(record.data.OUTCARTEAM);\
+// app.CNTR_WEIGHT.setValue(record.data.CNTR_WEIGHT);\
+//===============panelForm1===============\
+// app.CNTR_ISO.setValue(record.data.CNTR_ISO);\
+// app.E_F_ID.setValue(record.data.E_F_ID);\
+// app.WORK_TYPE.setValue(record.data.WORK_TYPE);\
+// app.CNTR_SIZE.setValue(record.data.CNTR_SIZE);\
+// app.BILL_NO.setValue(record.data.BILL_NO);\
+// app.CNTR_OWNER.setValue(record.data.CNTR_OWNER);\
+// app.CNTR_OPERATOR.setValue(record.data.CNTR_OPERATOR);\
+// app.CNTR_TYPE.setValue(record.data.CNTR_TYPE);\
+// app.VID.setValue(record.data.VID);\
+// app.POD.setValue(record.data.POD);\
+// app.SPOD.setValue(record.data.SPOD);\
+// app.DOOR_DIRECTION.setValue(record.data.DOOR_DIRECTION);\
+// app.CMDY_CODE.setValue(record.data.CMDY_CODE);\
+// app.GROS_WEIGHT.setValue(record.data.GROS_WEIGHT);\
+// app.SPEC_STOW.setValue(record.data.SPEC_STOW);\
+// app.SEAL_NO.setValue(record.data.SEAL_NO);\
+// app.SEAL_NO2.setValue(record.data.SEAL_NO2);\
+// app.CARGO_WT.setValue(record.data.CARGO_WT);\
+// app.TRUCK_COM.setValue(record.data.TRUCK_COM);\
+// app.OOG_ID.setValue(record.data.OOG_ID);\
+// app.DANG_ID.setValue(record.data.DANG_ID);\
+// app.REEF_ID.setValue(record.data.REEF_ID);\
+// app.ON_POWER.setValue(record.data.ON_POWER);\
+// app.REQS_POWER.setValue(record.data.ON_POWER);\
+// app.BUNDL_ID.setValue(record.data.BUNDL_ID);\
+// app.CATEGORY_ID.setValue(record.data.CATEGORY_ID);\
+// app.TRADE_ID.setValue(record.data.TRADE_ID);\
+// app.I_E_ID.setValue(record.data.I_E_ID);\
+// app.YARD_POSITION.setValue(record.data.YARD_POSITION);"}
+           }
+          ],
+          "type": "panel",
+          "events": {"resize": "app.gridReceipt.setHeight(height - 30);"}
+         }
+        ],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "layout": "fit",
+         "border": "false",
+         "itemId": "panelOUT",
+         "title": "出闸"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "xwl_gout",
+          "file": "m?xwl=receiptInout/gate/gateOut1"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "xwl"
+        }],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "layout": "fit",
+         "border": "false",
+         "itemId": "panelBang",
+         "title": "过磅"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "xwl_gout",
+          "file": "m?xwl=MiscellJob/cntrweightrec/passPound"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "xwl"
+        }],
+        "type": "panel"
+       }
+      ],
+      "type": "tab"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "viewport.el.addKeyListener(Ext.EventObject.F3, function() {\
+  app.SCALE_WEIGHT.setValue(app.SCALE_WEIGHT_M.getValue());\
+});\
+viewport.el.addKeyListener(Ext.EventObject.F8, function() {\
+  app.updBtn.fireEvent(\"click\");\
+});\
+viewport.el.addKeyListener(Ext.EventObject.F9, function() {\
+  app.inBtn.fireEvent(\"click\");\
+});\
+app.CNTR.focus();"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.lbluser.setText(\"登录人：\" + \"{#sys.username#}\");\
+app.CFS.setValue(\"JGQ\");\
+if (window.global) {\
+  app.CFS.setValue(global.config.CFS);\
+  var zk = \"\";\
+  if (global.config.CFS == \"JGQ\")\
+    zk = \"监管区\";\
+  if (global.config.CFS == \"NMQ\")\
+    zk = \"内贸区\";\
+  if (global.config.CFS == \"LN\")\
+    zk = \"路南\";\
+  app.lblcfs.setText(\"闸口：\" + zk);\
+}\
+\
+if (app.radioTi.checked) {\
+  app.radioTi.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>提箱<\/span>\");\
+  app.radioShou.setBoxLabel(\"收箱\");\
+  app.DRIVERLICENSE.setReadOnly(true);\
+  app.SCALE_WEIGHT.setReadOnly(true);\
+  app.OUTCARTEAM.setReadOnly(true);\
+  app.NOTES.setReadOnly(true);\
+  //=========================\
+  app.CNTR_ISO.setReadOnly(true);\
+  app.E_F_ID.setReadOnly(true);\
+  app.CNTR_SIZE.setReadOnly(true);\
+  app.CNTR_OWNER.setReadOnly(true);\
+  app.CNTR_OPERATOR.setReadOnly(true);\
+  app.CNTR_TYPE.setReadOnly(true);\
+  app.VID.setReadOnly(true);\
+  app.POD.setReadOnly(true);\
+  app.SPOD.setReadOnly(true);\
+  app.TRUCK_COM.setReadOnly(true);\
+  app.DOOR_DIRECTION.setReadOnly(true);\
+  app.CMDY_CODE.setReadOnly(true);\
+  app.GROS_WEIGHT.setReadOnly(true);\
+  app.CARGO_WT.setReadOnly(true);\
+  app.SPEC_STOW.setReadOnly(true);\
+  app.SEAL_NO.setReadOnly(true);\
+  app.SEAL_NO2.setReadOnly(true);\
+  //   app.YARD_POSITION.setReadOnly(true);\
+}\
+if (app.radioShou.checked) {\
+  app.radioTi.setBoxLabel(\"提箱\");\
+  app.radioShou.setBoxLabel(\"<span style='font-size:20px;font-weight:bold;color:red;'>收箱<\/span>\");\
+  app.DRIVERLICENSE.setReadOnly(false);\
+  app.SCALE_WEIGHT.setReadOnly(false);\
+  app.OUTCARTEAM.setReadOnly(false);\
+  app.NOTES.setReadOnly(false);\
+  //=========================\
+  app.CNTR_ISO.setReadOnly(false);\
+  app.E_F_ID.setReadOnly(false);\
+  app.CNTR_SIZE.setReadOnly(false);\
+  app.CNTR_OWNER.setReadOnly(false);\
+  app.CNTR_OPERATOR.setReadOnly(false);\
+  app.CNTR_TYPE.setReadOnly(false);\
+  app.VID.setReadOnly(false);\
+  app.POD.setReadOnly(false);\
+  app.SPOD.setReadOnly(false);\
+  app.TRUCK_COM.setReadOnly(false);\
+  app.DOOR_DIRECTION.setReadOnly(false);\
+  app.CMDY_CODE.setReadOnly(false);\
+  app.GROS_WEIGHT.setReadOnly(false);\
+  app.CARGO_WT.setReadOnly(false);\
+  app.SPEC_STOW.setReadOnly(false);\
+  app.SEAL_NO.setReadOnly(false);\
+  app.SEAL_NO2.setReadOnly(false);\
+  //   app.YARD_POSITION.setReadOnly(false);\
+}\
+\
+if (window.addEventListener)\
+  window.addEventListener('message', function(e) {\
+    app.SCALE_WEIGHT_M.setValue(e.data);\
+  }, false);",
+   "initialize": "Wb.apply(app, {\
+  reload: function() {\
+    window.location.reload();\
+  },\
+  carzhong: function() {\
+    //获得车头重量\
+    if (!Wb.isEmpty(app.IN_CAR.getValue()))\
+      Wb.request({\
+        url: \"m?xwl=receiptInout/gate/gateinedit/getTruck_wgt\",\
+        params: {\
+          truck_no: app.IN_CAR.getValue()\
+        },\
+        success: function(resp) {\
+          var tw = Wb.decode(resp.responseText);\
+          if (tw.rows.length > 0)\
+            app.CAR_WEIGHT.setValue(tw.rows[0].TRUCK_WGT || 0);\
+          else\
+            app.CAR_WEIGHT.setValue(0);\
+        }\
+      });\
+  },\
+  campizhong: function() {\
+    //获得拖卡重量\
+    if (!Wb.isEmpty(app.IN_CAMPI.getValue()))\
+      Wb.request({\
+        url: \"m?xwl=receiptInout/gate/gateinedit/getTray_wgt\",\
+        params: {\
+          tray_no: app.IN_CAMPI.getValue()\
+        },\
+        success: function(resp) {\
+          var tw = Wb.decode(resp.responseText);\
+          if (tw.rows.length > 0)\
+            app.TRAY_WEIGHT.setValue(tw.rows[0].TRAY_WGT || 0);\
+          else\
+            app.TRAY_WEIGHT.setValue(0);\
+        }\
+      });\
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "ZK": 1,
+  "ZSBF": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "进出闸确认",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

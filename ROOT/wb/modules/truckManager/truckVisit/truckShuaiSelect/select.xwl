@@ -1,0 +1,69 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),\
+  inOrOut = app.get(\"inOrOut\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  workType = app.get(\"workType\"),\
+  govCode = app.get(\"sys.GOV_CODE\"); //租户id\
+\
+var sql = \"SELECT r.CNTR_OPERATOR_COD,r.cntr_size,r.cntr_type,r.MBILL_NO,r.SHIP_ORDER,r.GATEOUT_BY_T,\\
+\" +\
+  \"r.GATEIN_BY_S,r.car_team,r.in_car,r.in_campi,r.in_driver_id,r.out_car,r.out_campi,r.out_driver_id,\\
+\" +\
+  \"r.cntr,r.trade_id,r.i_e_id,r.e_f_id,r.line,decode(r.i_e_id,'I',r.consignee,'E',r.shipper)shipper,\\
+\" +\
+  \"r.seal_no,r.release_no,r.bill_no,r.gatein_time_t,r.gateout_time_t,\\
+\" +\
+  \"nvl(r.gatein_no_t,r.gateout_no_t)gatein_no_t,r.pt_type,r.cntr_operator,\" +\
+  \"r.gateout_time_s,r.gatein_time_s,nvl(r.gatein_no_s,r.gateout_no_s)gatein_no_s,r.mbill_no,r.vessel_name,\\
+\" +\
+  \"r.CNTR_OWNER_COD,r.WORK_TYPE,nvl(r.CY_STAY_TIME,r.FCT_STAY_TIME)shuaitime,\\
+\" +\
+  \"case when r.FCT_STAY_TIME is not null and r.CY_STAY_TIME is null then '工厂' when r.CY_STAY_TIME is not null then '码头外围' end shuaiaddr,\" +\
+  \"nvl(r.FCT_PICK_TIME,r.CY_PICK_TIME)jiantime\\
+\" +\
+  \"FROM receipt r where r.TENANCY_ID='\" + tenancyid + \"' and r.work_type<>'YOYI'\\
+\" +\
+  \"and nvl(r.CY_STAY_TIME,r.FCT_STAY_TIME) is not null\\
+\" +\
+  \"and trunc(r.pc_on)>=trunc({?TIMESTAMP.begdate?}) and trunc(r.pc_on)<=trunc({?TIMESTAMP.enddate?})\";\
+\
+if (nature == '5')\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.shipperway))\
+  sql += \" and r.shipper_way='\" + data.shipperway + \"'\";\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and r.TRADE_ID={?tradeId?}\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and r.cntr like '%\" + data.cntr + \"%'\";\
+\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "xlcd": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,342 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "dockedItems"},
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "tbarGrid",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "sdate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "开始时间",
+          "width": "160",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "edate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "结束时间",
+          "width": "160",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "tagConfigs": " matchFieldWidth:false",
+          "emptyText": "船公司",
+          "pageSize": "50",
+          "selectOnTab": "true",
+          "labelWidth": "55",
+          "listConfig": "{width:450}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "hideTrigger": "true",
+          "itemId": "CUSTOM",
+          "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+          "labelAlign": "right",
+          "width": "220",
+          "x": "200",
+          "y": "67",
+          "displayField": "CNAME",
+          "height": "22",
+          "multiSelect": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var ids = \"\";\
+for (var i = 0; i < records.length; i++) {\
+  ids += \"'\" + records[i].data.ID + \"',\";\
+}\
+if (ids.length > 0) {\
+  ids = ids.slice(0, ids.length - 1);\
+} else {\
+  ids = \"''\";\
+}\
+app.IDS.setValue(ids);"}
+        },
+        {
+         "configs": {
+          "itemId": "C_SERVICE",
+          "emptyText": "航线",
+          "width": "100",
+          "displayField": "SERVICE_NAME",
+          "valueField": "ID",
+          "anyMatch": "true",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=feeManage/FerryReport/billcountedit/selectSerice"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "IDS",
+          "hidden": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "billno",
+          "emptyText": "海关运/提单号",
+          "width": "120"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "tradeId",
+          "labelAlign": "right",
+          "emptyText": "内外贸",
+          "keyName": "TRADE_ID",
+          "width": "70",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "ieId",
+          "labelAlign": "right",
+          "emptyText": "进出口",
+          "keyName": "I_E_ID",
+          "width": "70",
+          "forceSelection": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "selBtn",
+          "text": "查询",
+          "iconCls": "search_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+//AF1.func(\"SeparateView\", \"2 \\r\\
+ 0\"); //前3行上下分屏\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var feeids = \"\";\
+var feegroup = \"\";\
+\
+var sql =  \" AND VVV.TENANCY_ID='\" + tenancyid + \"' \"+\
+    \" and VVV.SHIP_DT>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and VVV.SHIP_DT<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\" + \
+    \"and VH.BILL_NO like '%\" + app.billno.getValue() + \"%'\";\
+if (!Wb.isEmpty(app.ieId.getValue()))\
+  sql += \" and vh.I_E_ID='\" + app.ieId.getValue() + \"'\t\";\
+if (!Wb.isEmpty(app.tradeId.getValue()))\
+  sql += \" and vh.TRADE_ID='\" + app.tradeId.getValue() + \"'\";\
+if (!Wb.isEmpty(app.CUSTOM.getValue())) {\
+//   whereSql += \" and PAYMENT_CUSTOMER_CODE = '\" + app.CUSTOM.getValue() + \"'  \";\
+  sql += \" and VH.CNTR_OPERATOR_COD  IN(\" + app.IDS.getValue() + \")  \";\
+}\
+if(!Wb.isEmpty(app.C_SERVICE.getValue())){\
+\tif(app.C_SERVICE.getValue()=='1'){\
+    \tsql+=\" and decode(vh.I_E_ID,'I',SERVICE,'E',OSERVICE)<>'ZS2HK' \";\
+    }else if(app.C_SERVICE.getValue()=='2'){\
+    \tsql+=\" and decode(vh.I_E_ID,'I',SERVICE,'E',OSERVICE)<>'ZS2SZD' \";\
+    }else{\
+    \tsql+=\" and decode(vh.I_E_ID,'I',SERVICE,'E',OSERVICE) ='\"+app.C_SERVICE.getValue()+\"'\";\
+    }\
+}\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */ // if (!Wb.isEmpty(app.cboMoney.getValue())) {\
+//   if (app.cboMoney.getValue() == \"1\")\
+//     sql += \" and AD.BUSSINESS_CODE is not null\";\
+//   if (app.cboMoney.getValue() == \"2\")\
+//     sql += \" and AD.BUSSINESS_CODE is null\";\
+// }\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "array"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", 'supcan/report/report/fcl_vbillhead.xml?' + 'version1.3');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&v1.3\");\
+  }\
+};\
+/**\
+  * 文档注释。\
+  *\
+  * Example:\
+  *\
+  *     var foo = bar();\
+  *\
+  * @param {type} name1 必须参数说明。\
+  * @param {type} [name2] 可选参数说明。\
+  * @return {type} 返回值说明。\
+  */\
+var today = new Date();\
+var year = today.getFullYear();\
+var month = today.getMonth() + 1;\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(today);",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "整柜运/提单查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

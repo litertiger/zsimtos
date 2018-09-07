@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//更新下bill表\
+// app.run(\"update BLUK_PLAN set SCALE_FLAG=decode({?SCALE_FLAG?},'true',1,0),LOCATION='' where ID={?LCL_ID?}\", {\
+//   transaction: 'start'\
+// });\
+// app.run(\"update BLUK_BILL set TASKSTATUS='FIN' where CFSBILL_ID={?ID?}\");\
+// app.run(\"update BLUK_GOODS set OUTQUTY='',QUTY=INQUTY where CFSBILL_ID = {?ID?} AND BILL_ID={?BILL_ID?}\");\
+// app.run(\"update VBILL_HEAD_E set IS_LOAD_CNTR=0 where ID={?BILL_ID?}\");\
+\
+// app.run(\"delete from BLUK_INOUT where ID={?ID?} \");\
+//  var rs = app.run(\"select c.id,c.SHIPPER from bluk_plan a,vload_list b,vbill_head c where a.vid=b.vid and b.bill_id=c.id and a.ID={?LCL_ID?}\"),\
+//    billId, shipper;\
+//  while (rs.next()) {\
+//    shipper = rs.getString('SHIPPER');\
+//    billId = rs.getString('ID');\
+//  }\
+//  app.run(\"delete from WORK_BILL where BILL_ID='\"+billId+\"'\");\
+\
+\
+app.run(\"update BLUK_PLAN set SCALE_FLAG=decode({?SCALE_FLAG?},'true',1,0),LOCATION='' where ID={?LCL_ID?}\", {\
+  transaction: 'start'\
+});\
+app.run(\"update BLUK_BILL set TASKSTATUS='FIN' where BILL_ID={?BILL_ID?}\");\
+app.run(\"update BLUK_GOODS set OUTQUTY='',QUTY=INQUTY where BILL_ID={?BILL_ID?}\");\
+app.run(\"update VBILL_HEAD_E set IS_LOAD_CNTR=0,KEEPER_NAME='' where ID={?BILL_ID?}\");\
+\
+app.run(\"delete from BLUK_INOUT where ID IN(SELECT ID FROM BLUK_GOODS where BILL_ID={?BILL_ID?}) and OUTFLAG='1' \");\
+//  var rs = app.run(\"select c.id,c.SHIPPER from bluk_plan a,vload_list b,vbill_head c where a.vid=b.vid and b.bill_id=c.id and a.ID={?LCL_ID?}\"),\
+//    billId, shipper;\
+//  while (rs.next()) {\
+//    shipper = rs.getString('SHIPPER');\
+//    billId = rs.getString('ID');\
+//  }\
+//  app.run(\"delete from WORK_BILL where BILL_ID='\"+billId+\"'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1
+ },
+ "title": "取消装箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

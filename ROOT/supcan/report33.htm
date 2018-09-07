@@ -1,0 +1,155 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ AF.func("Build", "report/xmlsheet10.xml");
+ AF.func("SubscribeEvent", "Clicked");
+ //计算第一个工作表
+ AF.func("calc", "range=current");
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //过滤Clicked以外的事件
+ if(Event != "Clicked") return;
+
+ var sheetIndex = AF.func("GetCurrentWorksheet", "");
+ if(sheetIndex == 0) {    //第一个工作表的事件
+   //过滤 "科目代码" 超链接以外的事件
+   if(p4 != "kmdm") return;
+
+   //取得序号 (对应到数据源的行号)
+   var dsRow = AF.func("GetCellData", p1 + "\r\n 0");
+   //直接读取数据源，取得该科目的科目名称、期初余额
+   var kmmc = AF.func("data", "ds1 \r\n" +dsRow+ "\r\n kmmc");
+   var qcye = AF.func("data", "ds1 \r\n" +dsRow+ "\r\n qcye");
+
+   //切换到第二个工作表：明细表
+   AF.func("SetCurrentWorkSheet", "1");
+
+   //修改标题 (别名是 "title" 的单元格)， 以及期初余额 (别名是 "qcye" 的单元格)
+   AF.func("SetCellData", "title \r\n" + p3 + "-" + kmmc + "明细账");
+   AF.func("SetCellData", "qcye \r\n" + qcye);
+   //动态设置参数：科目代码
+   AF.func("SetParas", "ds2 \r\n" + p3);
+   //仅计算本工作表
+   AF.func("calc", "range=current");
+ }
+ else if(sheetIndex == 1) {  //第二个工作表的事件
+   //过滤 "凭证号" 超链接以外的事件
+   if(p4 != "pzh") return;
+
+   //切换到第三个工作表：凭证
+   AF.func("SetCurrentWorkSheet", "2");
+   AF.func("SetCellData", "pzh \r\n" + p3);
+   //仅计算本工作表
+   AF.func("calc", "range=current");
+ }
+}
+</script>
+</head>
+
+<body topmargin=4>
+<center>
+
+<table cols=2 border=0 width=80%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请点击任意一行 "科目代码" 的超链接；<br>
+<b>2</b>.发现工作表被自动切换到了"明细账",  再请点击任意一行的“凭证号”超链接;<br>
+<b>3</b>.这个案例，实现了从总账到明细账、从明细账到凭证的穿透式查询；</td>
+</tr></table>
+<div style="position:relative;width:80%;height:430px">
+	<script>insertReport('AF', 'PagesTabPercent=50')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.报表有3个数据源：  ds1, ds2, ds3,  分别用于3个工作表.  您可以在此看一下数据源的数据：<br>
+用于科目表的ds1数据源数据：<a href='http://www.supcan.cn/dotnet/account.aspx?func=1' target=_blank>http://www.supcan.cn/dotnet/account.aspx?func=1</a>;<br>
+用于明细表的ds2数据源数据, 数据源动态参数是kmdm：<a href='http://www.supcan.cn/dotnet/account.aspx?func=2&kmdm=101' target=_blank>http://www.supcan.cn/dotnet/account.aspx?func=2&kmdm=101</a>;<br>
+用于记账凭证的ds3数据源数据, 数据源动态参数是pzh：<a href='http://www.supcan.cn/dotnet/account.aspx?func=3&pzh=313' target=_blank>http://www.supcan.cn/dotnet/account.aspx?func=3&pzh=313</a>;<br>
+这是后端的<a href="reportdata/account_aspx.htm" target=_blank>C#源码</a>、以及<a href="http://www.supcan.cn/dotnet/access.mdb.zip" target=_Blank>后端的access数据库文件(access.mdb) </a><br>
+<br>
+<b>2</b>.源码分析:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ AF.func("Build", "report/xmlsheet10.xml");
+ AF.func("SubscribeEvent", "Clicked");  //预订鼠标点击事件
+ //计算当前 (第一个) 工作表
+ AF.func("calc", "range=current");
+}
+ 
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //过滤Clicked以外的事件
+ if(Event != "Clicked") return;
+
+ var sheetIndex = AF.func("GetCurrentWorksheet", "");
+ //处理第一个工作表的事件==========
+ if(sheetIndex == 0) {
+   //滤除 "科目代码" 超链接以外的事件
+   if(p4 != "kmdm") return;
+
+   //取得序号 (对应到数据源的行号)
+   var dsRow = AF.func("GetCellData", p1 + "\r\n 0");
+   //直接读取数据源，取得该科目的科目名称、期初余额
+   var kmmc = AF.func("data", "ds1 \r\n" +dsRow+ "\r\n kmmc");
+   var qcye = AF.func("data", "ds1 \r\n" +dsRow+ "\r\n qcye");
+
+   //切换到第二个工作表 (明细表)
+   AF.func("SetCurrentWorkSheet", "1");
+
+   //修改标题 (别名是 "title" 的单元格)， 以及期初余额 (别名是 "qcye" 的单元格)
+   AF.func("SetCellData", "title \r\n" + p3 + "-" + kmmc + "明细账");
+   AF.func("SetCellData", "qcye \r\n" + qcye);
+   //动态设置参数：科目代码
+   AF.func("SetParas", "ds2 \r\n" + p3);
+   //仅计算本工作表
+   AF.func("calc", "range=current");
+ }
+ //处理第二个工作表的事件===========
+ else if(sheetIndex == 1) {
+   //滤除 "凭证号" 超链接以外的事件
+   if(p4 != "pzh") return;
+
+   //切换到第三个工作表 (凭证)
+   AF.func("SetCurrentWorkSheet", "2");
+
+   //为别名为 "pzh" 的单元格 (B2) 赋值
+   AF.func("SetCellData", "pzh \r\n" + p3);
+   //仅计算本工作表
+   AF.func("calc", "range=current");
+ }
+}</pre>
+<br>
+<b>3</b>.工作表2、3的动态参数处理，故意采用了2种不同的技巧.  <br>
+工作表2(明细表)的参数是科目代码，是通过调用 SetParas 函数设置的, 即上面源码的第33行;<br>
+工作表3(凭证)的参数是通过引用 B2 单元格设置的，只要改动 B2 单元格内容即可 (源码第46行), 凭证工作表的 B2 引用请见：<br>
+<center><img src='res/illu51.jpg'></center>
+<br>
+<br>
+<b>4</b>.工作表2(明细表)中的“余额”列不是数据源填充的，它是计算列，其计算的逻辑是： 本余额 = 上一行的余额 + 借方 - 贷方，涉及到跨越行的计算关系. 为了实现该自动计算，F5单元格的公式被设成：<br>
+<pre class='cpp'>
+=@F4+@D5-@E5</pre>
+请注意 F4 单元格所在行不是数据源填入行，F4的单元格别名是 "qcye", 在源码的第31行，动态设置了它的初始值. 当数据源填入数据后，该列的公式被自动生成: <br>
+<center><img src='res/illu52.jpg'></center>
+从而就实现了行的交错的计算.
+<br><br>
+<b>5</b>.记账凭证工作表，为了尽可能模拟真实凭证纸，我们将 B4 单元格的显示格式的一个属性  "数据源至少填入行数" 设成了 5 行。<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

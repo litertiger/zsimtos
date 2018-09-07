@@ -1,0 +1,31 @@
+﻿<%@ Page Language="C#" %>
+<%@ Import namespace="System" %>
+<%@ Import namespace="System.IO" %>
+<%@ Import namespace="System.Data" %>
+<%@ Import namespace="System.Data.OleDb" %>
+<%@ Import namespace="System.Threading" %>
+<script language="C#" runat="server">
+	public void Page_Load(Object sender, EventArgs e) {
+		String country = Request.Params["country"];
+		if(country==null) return;
+
+		//参数：SQL
+		String SQL = "";
+		SQL = "select top " +country.Length+ " OrderId,CustomerId,RequiredDate,Freight,ShipCity,ShipAddress from test where Country='" + country + "'";
+
+		//数据库
+		const string FILEDB = "access.mdb";
+		String mdbPath = Server.MapPath(FILEDB);
+		OleDbConnection conn = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + mdbPath + ";");
+		OleDbDataAdapter adapter = new OleDbDataAdapter(SQL, conn);
+		DataTable dt = new DataTable();
+		adapter.Fill(dt);
+
+		DataSet ds = new DataSet();
+		ds.Tables.Add(dt);
+		ds.WriteXml(Response.Output);
+		Response.ContentType = "text/xml";
+		Response.CacheControl="no-cache";
+		Response.End();		
+	}
+</script>

@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID');\
+\
+if (data.col == \"ru\") { //虚拟进闸\
+  //调用堆存\
+  request.setAttribute(\"moveType\", data.work_type);\
+  request.setAttribute(\"cntr\", data.cntr);\
+  request.setAttribute(\"cntrId\", data.cntrid);\
+  app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+} else if (data.col == \"trade_id\") { //更改内外贸属性\
+  app.run(\"update port_cntr set trade_id=decode(trade_id,'1','2','2','1') where id='\" + data.cntrid + \"'\");\
+} else if (data.col == \"zhuan\") { //修改船公司\
+  app.run(\"update port_cntr set cntr_operator='\" + data.cntr_operator + \"',cntr_operator_cod='\" + data.cntr_operator_cod + \"'\" +\
+    \" where id='\" + data.cntrid + \"'\");\
+} else if (data.col == \"chu\") { //虚拟出闸\
+  app.run(\"insert into receipt(id,cntr,cntr_id,work_type,cntr_operator_cod,cntr_operator,xn,gateout_time_t,tenancy_id,phase)\" +\
+    \"select sys_guid(),p.cntr,p.id,'\" + data.work_type + \"',p.cntr_operator_cod,p.cntr_operator,1,r.gateout_time_t,\" +\
+    \"'\" + tenancyid + \"','FIN' from port_cntr port_cntr p left join receipt r on p.id=r.cntr_id\" +\
+    \" where p.id='\" + data.cntrid + \"' and r.id='\" + data.rid + \"'\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

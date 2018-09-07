@@ -1,0 +1,119 @@
+﻿<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  var series = "销售统计图\\r\\n2013年度";
+  var names = "北京\t上海\t杭州\t深圳\t广州\t天津\t重庆";
+  var datas = "130\t83\t212\t134\t260\t90\t122";
+  AF.func("AddSeries", series +"\r\n"+ names +"\r\n"+ datas);
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+　if( Event == "Clicked" || Event == "DblClicked" ) {
+    var str = p2+ ", " +p3+ ", " +p4+ "%";
+    if(Event == "DblClicked") str += " (双击)";
+    document.getElementById('lb1').innerHTML = str;
+   }
+ }
+ function OnSelType(value)
+ {
+  AF.func("SetProp", "chart\r\n" + value);
+  document.getElementById("namearrange").disabled = (value==0) ? false : true;
+  document.getElementById("checkbox1").disabled = (value==0) ? false : true;
+ }
+ function OnSelContent(value)
+ {
+  AF.func("SetProp", "textContent\r\n" + value);
+ }
+ function OnSelArrange(value)
+ {
+  AF.func("SetProp", "textArrange\r\n" + value);
+ }
+ function OnSelTitle(value)
+ {
+  AF.func("SetProp", "TitlePosition\r\n" + value);
+ }
+ function OnSelItems()
+ {
+  AF.func("SetProp", "Items\r\n" + document.getElementById('itemsInput').value);
+ }
+ function OnSelColor(value)
+ {
+  if(value == 0)
+   AF.func("SetProp", "colors\r\n");
+  else if(value == 1)
+   AF.func("SetProp", "colors\r\n #111111,#555555,#999999,#f2f2f2");
+  else if(value == 2)
+   AF.func("SetProp", "colors\r\n #2D68D6,#5F9FD1,#777777,#788F66");
+ }
+ function Set3D()
+ {
+  var n = AF.func("GetProp", "PieBorderPercent");
+  if(n == 10) {
+   AF.func("SetProp", "PieBorderPercent \r\n 100");
+   AF.func("SetProp", "PieShadowSize \r\n 1");
+  }
+  else {
+   AF.func("SetProp", "PieBorderPercent \r\n 10");
+   AF.func("SetProp", "PieShadowSize \r\n 2");
+  }
+ }
+</script>
+</head>
+
+<body>
+<center>
+
+<br>
+<table cols=2 border=0 width=96%>
+<col width=180>
+<col>
+<tr height=400>
+<td>类型：<br><select onchange="OnSelType(this.value)"><option value="0" selected="selected">圆饼图 </option><option value="1">柱状图</option><option value="2">折线图</option><option value="3">曲线图</option><option value="4">区域图</option><option value="5">雷达图</option></select><br><br>
+条目最多显示：<br><input type=text size=6 value="28" id='itemsInput'>条  <input type="button" onclick="OnSelItems()" value="确定"><br><br>
+文字排列：<br><select onchange="OnSelArrange(this.value)" id='namearrange'><option value="0">无</option><option value="1">外部、对齐</option><option value="2" selected="selected">外部</option><option value="3">内部</option></select><br><br>
+文字内容：<br><select onchange="OnSelContent(this.value)"><option value="0">无</option><option value="1">仅名称</option><option value="2" selected="selected">名称、百分比</option><option value="3">名称、数值</option><option value="4">名称、数值、百分比</option></select><br><br>
+标题位置：<br><select onchange="OnSelTitle(this.value)"><option value="0">无</option><option value="2" selected="selected">位于顶部</option><option value="8">位于底部</option></select><br><br>
+自定义颜色：<br><select onchange="OnSelColor(this.value)"><option value="0" selected="selected">系统默认</option><option value="1">灰调</option><option value="2">时尚</option></select><br><br>
+<input type="checkbox" id="checkbox1" onClick="Set3D()" checked="checked">凹凸效果</input><br>
+</td>
+<td>
+	<script>insertChart('AF', "bordercolor=#4499ff;borderWidth=2;borderRound=23;backcolor=#fff5ea,#f0e0d0", "400px")</script>
+</td>
+</tr>
+<tr><td/><td>鼠标点击事件:<Label style="color:red" id=lb1></Label></td></tr>
+</table>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style="line-height:21px">
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.HTML中本Chart控件的创建风格如下：<br>
+<pre class='xml' maxchars='80'>
+&lt;script&gt;
+ insertChart('AF', 'bordercolor=#4499ff; borderWidth=2; borderRound=23; backcolor=#fff5ea,#f0e0d0');
+&lt;/script&gt;</pre>
+<b>2</b>.初始Chart数据的js源码如下:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ var seriesname = "销售统计图\\r\\n2013年度";
+ var names = "北京\t上海\t杭州\t深圳\t广州\t天津\t重庆";
+ var datas = "130\t33\t312\t134\t290\t90\t122";
+ AF.func("AddSeries", seriesname +"\r\n"+ names +"\r\n"+ datas);
+}</pre>
+</td></tr></table>
+<table border=0 cols=2 border=0 width=97%>
+<tr valign=top><td align=right><img src='res/boy.gif'></td><td align=left>使用够简单吧！</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

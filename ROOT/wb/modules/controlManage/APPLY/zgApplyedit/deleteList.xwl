@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var sql = \"select phase,APPLY_TYPE from cntr_apply where phase='APY'\" +\
+  \" and id in(select aid from cntr_apply_list where id='\" + data.ID + \"')\";\
+var res = Wb.getRecords(app.run(sql));\
+if (res.length < 1) {\
+  app.send({\
+    ok: false,\
+    msg: \"申请已经审核或已经转关\"\
+  });\
+  return;\
+}\
+app.run(\"delete from cntr_apply where 1=2\", {\
+  transaction: 'start'\
+});\
+if (res[0].APPLY_TYPE == \"ZGJ\") {\
+  app.run(\"delete from port_cntr where id in(select cntr_id from cntr_apply_list where id='\" + data.ID + \"')\");\
+}\
+//先删子表\
+app.run(\"delete from cntr_apply_list where id='\" + data.ID + \"'\");\
+app.send({\
+  ok: true\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

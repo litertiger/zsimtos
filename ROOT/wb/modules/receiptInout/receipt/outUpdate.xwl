@@ -1,0 +1,405 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "wincntroper",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 60,\
+  width: 300,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "width": "360",
+     "title": "修改船公司",
+     "height": "100"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "tagConfigs": "matchFieldWidth: false",
+      "hideTrigger": "true",
+      "itemId": "CNTR_OPERATOR_COD",
+      "allowBlank": "false",
+      "labelAlign": "right",
+      "fieldLabel": "船公司",
+      "displayField": "CNAME",
+      "enterKeyTriggerClick": "true",
+      "listConfig": "{\
+  width: 250\
+}",
+      "valueField": "ID",
+      "queryDelay": "500",
+      "forceSelection": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "pageSize": "-1",
+       "params": "{fldId:'AG'}",
+       "url": "m?xwl=system/common/client/clientSelect"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     }],
+     "type": "combo"
+    }],
+    "type": "window",
+    "events": {"ok": "if (!Wb.verify(app.wincntroper))\
+  return;\
+var sel = app.gridreceipt.getSelection()[0];\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/outUpdateedie/update\",\
+  params: {\
+    cntrid: sel.data.CNTR_ID,\
+    cntr: sel.data.CNTR,\
+    work_type: sel.data.WORK_TYPE,\
+    cntr_operator_cod: app.CNTR_OPERATOR_COD.getValue(),\
+    cntr_operator: app.CNTR_OPERATOR_COD.getRawValue(),\
+    col: \"zhuan\"\
+  },\
+  success: function(resp) {\
+    Wb.info(\"修改完成\");\
+    app.wincntroper.close();\
+    app.btnfind.fireEvent(\"click\");\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winout",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 60,\
+  width: 300,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "width": "360",
+     "title": "虚拟出闸",
+     "height": "100"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "WORK_TYPE",
+      "allowBlank": "false",
+      "labelAlign": "right",
+      "pickList": "[\
+  ['EOTC', '吉出转关'],\
+  ['FOTC', '重出转关']\
+]",
+      "fieldLabel": "虚拟类型",
+      "labelWidth": "80",
+      "forceSelection": "true"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "combo"
+    }],
+    "type": "window",
+    "events": {"ok": "if (!Wb.verify(app.winout))\
+  return;\
+var sel = app.gridreceipt.getSelection()[0];\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/outUpdateedie/update\",\
+  params: {\
+    rid: sel.data.ID,\
+    cntrid: sel.data.CNTR_ID,\
+    work_type: app.WORK_TYPE.getValue(),\
+    col: \"chu\"\
+  },\
+  success: function(resp) {\
+    app.btnfind.fireEvent(\"click\");\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "border": "false",
+      "itemId": "gridreceipt",
+      "pagingBar": "false",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "border": "false",
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "txtCNTR",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "箱号",
+          "isUpperCase": "true",
+          "labelWidth": "50"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text",
+         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.btnfind.fireEvent('click');"}
+        },
+        {
+         "configs": {
+          "itemId": "datechu",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "出闸时间",
+          "labelWidth": "80"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date",
+         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.btnfind.fireEvent('click');"}
+        },
+        {
+         "configs": {
+          "itemId": "btnfind",
+          "text": "查找"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verify(app.tbar)) {\
+  return;\
+}\
+\
+app.gridreceipt.store.load({\
+  params: {\
+    cntr: app.txtCNTR.getValue(),\
+    tidate: app.datechu.getRawValue()\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "btnin",
+          "text": "虚拟入闸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridreceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.error(\"先选择设备交接单\");\
+  return;\
+}\
+var sel = sels[0];\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/outUpdateedie/update\",\
+  params: {\
+    cntrid: sel.data.CNTR_ID,\
+    cntr: sel.data.CNTR,\
+    work_type: sel.data.WORK_TYPE,\
+    col: \"in\"\
+  },\
+  success: function(resp) {\
+    Wb.info(\"虚拟入闸操作完成\");\
+    app.btnfind.fireEvent(\"click\");\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "btntradec",
+          "text": "内外贸转换"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridreceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.error(\"先选择设备交接单\");\
+  return;\
+}\
+var sel = sels[0];\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/outUpdateedie/update\",\
+  params: {\
+    cntrid: sel.data.CNTR_ID,\
+    cntr: sel.data.CNTR,\
+    work_type: sel.data.WORK_TYPE,\
+    col: \"trade_id\"\
+  },\
+  success: function(resp) {\
+    app.btnfind.fireEvent(\"click\");\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "btncpchange",
+          "text": "转柜"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridreceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.error(\"先选择设备交接单\");\
+  return;\
+}\
+var sel = sels[0];\
+var win = new Ext.window.Window(app._wincntroper);\
+win.show();\
+\
+app.CNTR_OPERATOR_COD.store.load({\
+  callback: function(r, options, success) { //r:返回的数据,r.length,r[0].data.属性 success:是否回调成功,true,false\
+    if (success) {\
+      app.CNTR_OPERATOR_COD.setValue(sel.data.CNTR_OPERATOR_COD);\
+    }\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "btnout",
+          "text": "虚拟出闸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridreceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.error(\"先选择设备交接单\");\
+  return;\
+}\
+var sel = sels[0];\
+var win = new Ext.window.Window(app._winout);\
+win.show();\
+app.WORK_TYPE.setValue(\"EOTC\");"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "pageSize": "-1",
+        "url": "m?xwl=receiptInout/receipt/outUpdateedie/selectReceipt"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colCNTR",
+          "dataIndex": "CNTR",
+          "text": "箱号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR_OPERATOR_COD",
+          "dataIndex": "CNTR_OPERATOR_COD",
+          "width": "60",
+          "keyName": "AG_SHORT",
+          "text": "船公司"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTRADE_ID",
+          "dataIndex": "TRADE_ID",
+          "keyName": "TRADE_ID",
+          "width": "60",
+          "text": "内外贸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPHASE",
+          "renderer": "if (value == \"PLN\")\
+  return \"未派车\";\
+if (value == \"EXE\")\
+  return \"已派车\";\
+if (value == \"GET\")\
+  return \"正在提箱\";\
+if (value == \"OUT\")\
+  return \"场外\";\
+if (value == \"RTN\")\
+  return \"正在还箱\";\
+if (value == \"FIN\")\
+  return \"完成\";\
+if (value == \"CNL\")\
+  return \"取消\";",
+          "dataIndex": "PHASE",
+          "width": "70",
+          "text": "状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colWORK_TYPE",
+          "dataIndex": "WORK_TYPE",
+          "keyName": "WORK_WAY",
+          "width": "75",
+          "text": "作业类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "xlcd": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "闸外虚拟操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

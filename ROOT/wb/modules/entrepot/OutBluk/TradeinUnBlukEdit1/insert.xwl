@@ -1,0 +1,120 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var username = app.get('sys.username'),\
+  tenancyId = app.get('sys.TENANCY_ID');\
+var data = app.get(),\
+  cntr = '',\
+  size = '',\
+  type = '';\
+//手动添加费用\
+// {\
+// \t\"feeDetails\": [\
+// \t\t{\
+// \t\t\t\"billNo\": \"提单号（必填）*1\",\
+// \t\t\t\"paymentCustomerCode\": \"付费人（必填）*2\",\
+// \t\t\t\"cntrOperatorCod\": \"船公司（选填）\",\
+// \t\t\t\"customerId\": \"货主（选填）\",\
+// \t\t\t\"iEId\": \"进出口（必填）*4\",\
+// \t\t\t\"tradeId\": \"内外贸（必填）*5\",\
+// \t\t\t\"goodsNotes\": \"货名（选填）\",\
+// \t\t\t\"cntrType\": \"货物属性（选填，默认普通，key：CARGO_TYPE）\",\
+// \t\t\t\"billType\": \"包装类型（必填，C=整箱 E=空箱 P=拼箱 S=散货）\",\
+// \t\t\t\"jobFinishDate\": \"业务时间（选填，默认当前时间，yyyy-MM-dd）\",\
+// \t\t\t\"paymentType\": \"收费类型（选填，1=现金2=月结，默认1）\",\
+// \t\t\t\"notes\": \"备注（必填）*8\",\
+// \t\t\t\"feeListId\": \"费目（必填）*3\",\
+// \t\t\t\"cntr\": \"箱号（选填）\",\
+// \t\t\t\"cntrSize\": \"箱尺寸（选填）\",\
+// \t\t\t\"contractRate\": \"单价（必填）*6\",\
+// \t\t\t\"actualJobCount\": \"数量（选填，默认值1）\",\
+// \t\t\t\"contractAddRate\": \"折扣（选填，默认值100）\",\
+// \t\t\t\"dwellDays\": \"天数（选填，默认值1）\",\
+// \t\t\t\"amount\": \"总价（必填）*7\"\
+// \t\t},\
+// \t\t{\
+// \t\t\t\"billNo\": \"提单号（必填）*1\",\
+// \t\t\t\"paymentCustomerCode\": \"付费人（必填）*2\",\
+// \t\t\t\"cntrOperatorCod\": \"船公司（选填）\",\
+// \t\t\t\"customerId\": \"货主（选填）\",\
+// \t\t\t\"iEId\": \"进出口（必填）*4\",\
+// \t\t\t\"tradeId\": \"内外贸（必填）*5\",\
+// \t\t\t\"goodsNotes\": \"货名（选填）\",\
+// \t\t\t\"cntrType\": \"货物属性（选填，默认普通，key：CARGO_TYPE）\",\
+// \t\t\t\"billType\": \"包装类型（必填，C=整箱 E=空箱 P=拼箱 S=散货）\",\
+// \t\t\t\"jobFinishDate\": \"业务时间（选填，默认当前时间，yyyy-MM-dd）\",\
+// \t\t\t\"paymentType\": \"收费类型（选填，1=现金2=月结，默认1）\",\
+// \t\t\t\"notes\": \"备注（选填）*8\",\
+// \t\t\t\"feeListId\": \"费目（必填）*3\",\
+// \t\t\t\"cntr\": \"箱号（选填）\",\
+// \t\t\t\"cntrSize\": \"箱尺寸（选填）\",\
+// \t\t\t\"contractRate\": \"单价（必填）*6\",\
+// \t\t\t\"actualJobCount\": \"数量（选填，默认值1）\",\
+// \t\t\t\"contractAddRate\": \"折扣（选填，默认值100）\",\
+// \t\t\t\"dwellDays\": \"天数（选填，默认值1）\",\
+// \t\t\t\"amount\": \"总价（必填）*7\"\
+// \t\t}\
+// \t]\
+// }\
+\
+\
+var s = Wb.decode(data.ss);\
+var bodyData = s.create;\
+app.log(bodyData);\
+var feeBody = '[';\
+var title = \"\";\
+if (bodyData.length > 0) {\
+  for (var i = 0; i < bodyData.length; i++) {\
+    app.log(bodyData[i]);\
+    title += '{\"billNo\": \"' + data.BILL_NO + '\",' +\
+      '\"paymentCustomerCode\": \"' + bodyData[i].PAYMENT_CUSTOMER_CODE + '\",' +\
+      '\"cntrOperatorCod\": \"' + bodyData[i].CNTR_OPERATOR_COD + '\",' +\
+      '\"customerId\": \"' + data.SHIPPER_COD + '\",' +\
+      '\"iEId\": \"I\",' +\
+      '\"BUSSINESS_CODE\": \"' + bodyData[i].BUSSINESS_CODE + '\",' +\
+      '\"tradeId\": \"' + bodyData[i].TRADE_ID + '\",' +\
+      '\"goodsNotes\": \"' + data.GOODS_NOTES + '\",' +\
+      '\"cntrType\": \"' + data.CARGO_TYPE + '\",' +\
+      '\"billType\": \"' + bodyData[i].BILL_TYPE + '\",' +\
+      '\"jobFinishDate\": \"\",' +\
+      '\"paymentType\": \"' + bodyData[i].PAYMENT_TYPE + '\",' +\
+      '\"notes\": \"' + bodyData[i].NOTES + '\",' +\
+      '\"feeListId\": \"' + bodyData[i].FEE_LIST_ID + '\",' +\
+      '\"cntr\": \"' + bodyData[i].CNTR + '\",' +\
+      '\"cntrSize\": \"' + bodyData[i].CNTR_SIZE + '\",' +\
+      '\"contractRate\": \"' + bodyData[i].AMOUNT + '\",' +\
+      '\"actualJobCount\": \"' + bodyData[i].ACTUAL_JOB_COUNT + '\",' +\
+      '\"contractAddRate\": \"100\",' +\
+      '\"dwellDays\": \"1\",' +\
+      '\"amount\": \"' + bodyData[i].AMOUNT + '\"},';\
+  }\
+  title = title.substring(0, title.length - 1);\
+  title += ']';\
+}\
+var resultFee = feeBody + title + '';\
+app.log(resultFee);\
+Wb.newClass(\"accountDetailService\").addManualFees(request, resultFee);\
+//整柜拆箱计划\
+app.run(\"insert  into DEV_CNTR (ID,BILL_ID, BILL_NO, CNTR, GOODS_NOTES, CNTR_SIZE, CNTR_TYPE, SHIPPER, SHIPPER_COD, CNTR_OPERATOR_COD, TENANCY_ID, TRUCK_COD, NOTE, CREATED_BY, CREATED_ON, \" +\
+  \"UPDATED_BY, UPDATED_ON, PHASE, DEV_TYPE,PIECES, WEIGHT, VOLUME,DEV_TIME,CARGO_TYPE,LINK_NAME,ORDER_NO) values({?ID?},{?BILL_ID?}, {?BILL_NO?}, {?CNTR?}, {?GOODS_NOTES?}, {?CNTR_SIZE?}, {?CNTR_TYPE?}, {?SHIPPER?}, {?SHIPPER_COD?}, {?CNTR_OPERATOR_COD?}, '\" + tenancyId + \"', {?TRUCK_COD?}, {?NOTE?}, '\" + username + \"',\" +\
+  \" sysdate, '\" + username + \"', sysdate, 'PLN', {?DEV_TYPE?},{?PIECES?}, {?WEIGHT?}, {?VOLUME?},{?timestamp.DEV_TIME?},{?CARGO_TYPE?},{?LINK_NAME?},(select f_get_bill_no('ZGC',sysdate,'yymmdd','DEV_CNTR','ORDER_NO',3) FROM DUAL)) \");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "新增",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

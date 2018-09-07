@@ -1,0 +1,76 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.send(Ag.getResultArray(app.run(\"select cntr,cntr_size from port_cntr where cntr like '%'||'1217'||'%' and tenancy_id='ZSG' and substr(yard_position,1,2) in ('L3','L4')\")));\
+return;\
+function check(ie, ef, area) {\
+  if (!ie)\
+    return {\
+      success: false,\
+      errstr: '贸易性质不能为空'\
+    };\
+  if (!ef)\
+    return {\
+      success: false,\
+      errstr: '吉重标志不能为空'\
+    };\
+  if (!area || area.length < 2)\
+    return {\
+      success: false,\
+      errstr: '场号不能小于2位'\
+    };\
+  app.set('area', area.substr(0, 2));\
+  var result = app.run(\"select cfs_cod,category from c_cy_area where cy_area_no={?area?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  var cfs, category;\
+  if (result && result.next()) {\
+    cfs = result.getString('cfs_cod');\
+    category = result.getString('category');\
+  } else\
+    return {\
+      success: false,\
+      errstr: '场号不存在'\
+    };\
+  if (!cfs)\
+    return {\
+      success: false,\
+      errstr: '无法判断所在场区'\
+    };\
+  if (ie == 'I') {\
+    if (cfs == 'JGQ')\
+      return {\
+        success: false,\
+        errstr: '内贸柜不能进入监管区'\
+      };\
+  } else {\
+    if (cfs != 'JGQ' && ef == 'F')\
+      return {\
+        success: false,\
+        errstr: '外贸重柜不能进入非监管区'\
+      };\
+  }\
+  if (ef == 'F' && (category == 'J' || category == 'O'))\
+    return {\
+      success: false,\
+      errstr: '重柜不能进入吉柜区'\
+    };\
+  return {\
+    success: true\
+  };\
+}\
+app.send('aaa');\
+app.log('bbbb');"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

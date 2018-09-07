@@ -1,0 +1,231 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sdate1 = data.sdate;\
+var edate1 = data.edate;\
+if (Wb.isEmpty(sdate1))\
+  sdate1 = '2018-08-01';\
+if (Wb.isEmpty(edate1))\
+  edate1 = '2018-08-15';\
+var sql = \"select decode(v2.i_e,'I',v2.lib_vyg,v2.lob_vyg)vyg,v1.vessel_code,decode(v2.i_e,'I',v1.service_name,v1.oservice_name)service_name,\\
+\" +\
+  \"dp.port_name deport,ap.port_name aeport,s.distance gl,\\
+\" +\
+  \"decode(v2.i_e,'E',to_char(v2.etd,'dd-hh24:mi'))sdate,decode(v2.i_e,'I',to_char(v2.eta,'dd-hh24:mi'))edate,'' sj,\\
+\" +\
+  \"decode(round(sum(case when (bill_type='S' and t.is_jk=0) then CARGO_GROSS_WGT else 0 end)/1000,0)\\
+\" +\
+  \"+round((sum(case when cntr_siz_cod='45' then 4.5 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='20' then 2 else 0 end)),0)\\
+\" +\
+  \"+round(sum(case when bill_type not in('E','S') then CARGO_GROSS_WGT else 0 end)/1000,0),0,'','√')zh,\\
+\" +\
+  \"decode(round(sum(case when (bill_type='S' and t.is_jk=0) then CARGO_GROSS_WGT else 0 end)/1000,0)\\
+\" +\
+  \"+round((sum(case when cntr_siz_cod='45' then 4.5 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='20' then 2 else 0 end)),0)\\
+\" +\
+  \"+round(sum(case when bill_type not in('E','S') then CARGO_GROSS_WGT else 0 end)/1000,0),0,'√')jh,\\
+\" +\
+  \"round(sum(case when (bill_type='S' and t.is_jk=0) then CARGO_GROSS_WGT else 0 end)/1000,0)\\
+\" +\
+  \"+round((sum(case when cntr_siz_cod='45' then 4.5 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='20' then 2 else 0 end)),0)\\
+\" +\
+  \"+round(sum(case when bill_type not in('E','S') then CARGO_GROSS_WGT else 0 end)/1000,0)wt,\\
+\" +\
+  \"(round(sum(case when (bill_type='S' and t.is_jk=0) then CARGO_GROSS_WGT else 0 end)/1000,0)\\
+\" +\
+  \"+round((sum(case when cntr_siz_cod='45' then 4.5 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' then 4 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='20' then 2 else 0 end)),0)\\
+\" +\
+  \"+round(sum(case when bill_type not in('E','S') then CARGO_GROSS_WGT else 0 end)/1000,0))*s.distance zz,\\
+\" +\
+  \"wm_concat(distinct case when bill_type='S' and t.is_jk=0 then c.cargo_kind_name end)cargo_kind_name,\\
+\" +\
+  \"decode(round(sum(case when (bill_type='S' and t.is_jk=0) then CARGO_GROSS_WGT else 0 end)/1000,0),0,'',\\
+\" +\
+  \"round(sum(case when (bill_type='S' and t.is_jk=0) then CARGO_GROSS_WGT else 0 end)/1000,0))swt,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='E' then 1 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='E' then 1 else 0 end))e20,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='40' and e_f_id='E' then 1 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='40' and e_f_id='E' then 1 else 0 end))e40,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='45' and e_f_id='E' then 1 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='45' and e_f_id='E' then 1 else 0 end))e45,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='F' then 1 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='F' then 1 else 0 end))f20,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='40' and e_f_id='F' then 1 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='40' and e_f_id='F' then 1 else 0 end))f40,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='45' and e_f_id='F' then 1 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='45' and e_f_id='F' then 1 else 0 end))f45,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='F' then CARGO_GROSS_WGT else 0 end),0,'',\\
+\" +\
+  \"round(sum(case when cntr_siz_cod='20' and e_f_id='F' then CARGO_GROSS_WGT else 0 end)/1000,0))wt20,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='40' and e_f_id='F' then CARGO_GROSS_WGT else 0 end),0,'',\\
+\" +\
+  \"round(sum(case when cntr_siz_cod='40' and e_f_id='F' then CARGO_GROSS_WGT else 0 end)/1000,0))wt40,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='45' and e_f_id='F' then CARGO_GROSS_WGT else 0 end),0,'',\\
+\" +\
+  \"round(sum(case when cntr_siz_cod='45' and e_f_id='F' then CARGO_GROSS_WGT else 0 end)/1000,0))wt45,\\
+\" +\
+  \"cus.short_name,'' hbsx,'' jifei,'' jiaban,'' jiabanfei,'' jiabanfei1\\
+\" +\
+  \"from vessel_visit v2 left join t_sas_ship_thruput t on t.ship_no=v2.id left join vessel_voyage v1 on v2.vid=v1.id\\
+\" +\
+  \"left join c_port dp on dp.id=decode(v2.i_e,'I',v2.dporti,v2.dporte) left join c_port ap on ap.id=decode(v2.i_e,'I',v2.aporti,v2.aporte)\\
+\" +\
+  \"left join c_ship_distance s on decode(v2.i_e,'I',v2.dporti,v2.dporte)=s.dporte and decode(v2.i_e,'I',v2.aporti,v2.aporte)=s.aporte\\
+\" +\
+  \"left join c_cargo_kind c on c.id=t.cmdy_code left join c_vessel_code v on v.id=t.ship_cod\\
+\" +\
+  \"left join c_customer cus on cus.code=t.SH_AGENT_COD\\
+\" +\
+  \"where v2.tenancy_id<>'AT' and trunc(v2.eta)>=to_date('\" + sdate1 + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(v2.eta)<=to_date('\" + edate1 + \"','yyyy-mm-dd')\" + data.wheresql + \"\\
+\" +\
+  \"group by v2.id,decode(v2.i_e,'I',v1.service_name,v1.oservice_name),s.distance,\\
+\" +\
+  \"decode(v2.i_e,'E',to_char(v2.etd,'dd-hh24:mi')),decode(v2.i_e,'I',to_char(v2.eta,'dd-hh24:mi')),\\
+\" +\
+  \"decode(v2.i_e,'I',v2.lib_vyg,v2.lob_vyg),v1.vessel_code,dp.port_name,ap.port_name,cus.short_name\";\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  VYG = \"\",\
+  VESSEL_CODE = \"\",\
+  SERVICE_NAME = \"\",\
+  DEPORT = \"\",\
+  AEPORT = \"\",\
+  GL = 0,\
+  SDATE = \"\",\
+  EDATE = \"\",\
+  SJ = \"\",\
+  ZH = \"\",\
+  JH = \"\",\
+  WT = 0,\
+  ZZ = 0,\
+  CARGO_KIND_NAME = \"\",\
+  SWT = 0,\
+  E20 = 0,\
+  E40 = 0,\
+  E45 = 0,\
+  F20 = 0,\
+  F40 = 0,\
+  F45 = 0,\
+  WT20 = 0,\
+  WT40 = 0,\
+  WT45 = 0,\
+  SHORT_NAME = \"\",\
+  HBSX = \"\",\
+  JIFEI = \"\",\
+  JIABAN = \"\",\
+  JIABANFEI = \"\",\
+  JIABANFEI1 = \"\";\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  VYG = rsn.getString(\"VYG\");\
+  VESSEL_CODE = rsn.getString(\"VESSEL_CODE\");\
+  SERVICE_NAME = rsn.getString(\"SERVICE_NAME\");\
+  DEPORT = rsn.getString(\"DEPORT\");\
+  AEPORT = rsn.getString(\"AEPORT\");\
+  GL = rsn.getString(\"GL\");\
+  SDATE = rsn.getString(\"SDATE\");\
+  EDATE = rsn.getString(\"EDATE\");\
+  SJ = rsn.getString(\"SJ\");\
+  ZH = rsn.getString(\"ZH\");\
+  JH = rsn.getString(\"JH\");\
+  WT = rsn.getString(\"WT\");\
+  ZZ = rsn.getString(\"ZZ\");\
+  CARGO_KIND_NAME = rsn.getString(\"CARGO_KIND_NAME\");\
+  SWT = rsn.getString(\"SWT\");\
+  E20 = rsn.getString(\"E20\");\
+  E40 = rsn.getString(\"E40\");\
+  E45 = rsn.getString(\"E45\");\
+  F20 = rsn.getString(\"F20\");\
+  F40 = rsn.getString(\"F40\");\
+  F45 = rsn.getString(\"F45\");\
+  WT20 = rsn.getString(\"WT20\");\
+  WT40 = rsn.getString(\"WT40\");\
+  WT45 = rsn.getString(\"WT45\");\
+  SHORT_NAME = rsn.getString(\"SHORT_NAME\");\
+  HBSX = rsn.getString(\"HBSX\");\
+  JIFEI = rsn.getString(\"JIFEI\");\
+  JIABAN = rsn.getString(\"JIABAN\");\
+  JIABANFEI = rsn.getString(\"JIABANFEI\");\
+  JIABANFEI1 = rsn.getString(\"JIABANFEI1\");\
+  xml += \"<VYG>\" + VYG + \"<\/VYG>\";\
+  xml += \"<VESSEL_CODE>\" + VESSEL_CODE + \"<\/VESSEL_CODE>\";\
+  xml += \"<SERVICE_NAME>\" + SERVICE_NAME + \"<\/SERVICE_NAME>\";\
+  xml += \"<DEPORT>\" + DEPORT + \"<\/DEPORT>\";\
+  xml += \"<AEPORT>\" + AEPORT + \"<\/AEPORT>\";\
+  xml += \"<GL>\" + GL + \"<\/GL>\";\
+  xml += \"<SDATE>\" + SDATE + \"<\/SDATE>\";\
+  xml += \"<EDATE>\" + EDATE + \"<\/EDATE>\";\
+  xml += \"<SJ>\" + SJ + \"<\/SJ>\";\
+  xml += \"<ZH>\" + ZH + \"<\/ZH>\";\
+  xml += \"<JH>\" + JH + \"<\/JH>\";\
+  xml += \"<WT>\" + WT + \"<\/WT>\";\
+  xml += \"<ZZ>\" + ZZ + \"<\/ZZ>\";\
+  xml += \"<CARGO_KIND_NAME>\" + CARGO_KIND_NAME + \"<\/CARGO_KIND_NAME>\";\
+  xml += \"<SWT>\" + SWT + \"<\/SWT>\";\
+  xml += \"<E20>\" + E20 + \"<\/E20>\";\
+  xml += \"<E40>\" + E40 + \"<\/E40>\";\
+  xml += \"<E45>\" + E45 + \"<\/E45>\";\
+  xml += \"<F20>\" + F20 + \"<\/F20>\";\
+  xml += \"<F40>\" + F40 + \"<\/F40>\";\
+  xml += \"<F45>\" + F45 + \"<\/F45>\";\
+  xml += \"<WT20>\" + WT20 + \"<\/WT20>\";\
+  xml += \"<WT40>\" + WT40 + \"<\/WT40>\";\
+  xml += \"<WT45>\" + WT45 + \"<\/WT45>\";\
+  xml += \"<SHORT_NAME>\" + SHORT_NAME + \"<\/SHORT_NAME>\";\
+  xml += \"<HBSX>\" + HBSX + \"<\/HBSX>\";\
+  xml += \"<JIFEI>\" + JIFEI + \"<\/JIFEI>\";\
+  xml += \"<JIABAN>\" + JIABAN + \"<\/JIABAN>\";\
+  xml += \"<JIABANFEI>\" + JIABANFEI + \"<\/JIABANFEI>\";\
+  xml += \"<JIABANFEI1>\" + JIABANFEI1 + \"<\/JIABANFEI1>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "船舶运输明细数据data",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

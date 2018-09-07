@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get(); //获取request parameter，request attribute和session attributes值组成的对象。\
+if (data.type == 2)\
+  Wb.error('这是一个异常测试。'); //抛出Java Exception异常\
+var IOUtils = org.apache.commons.io.IOUtils; //创建快捷方式引用\
+var file = new File(Base.path, data.file1__name);\
+var os = new java.io.FileOutputStream(file); //在应用根目录创建文件输出流\
+try {\
+  //复制文件流内容至文件输出流，data.file1为上传文件内容的输入流，data.file1__name为文件名称，data.file1__size为文件大小，可以使用app.getFiles获取。\
+  IOUtils.copy(data.file1, os);\
+} finally {\
+  os.close(); //关闭输出流\
+}\
+//app.run('update table set blob_field={?file1?} 使用此方法可以把上传的文件更新到blob_field字段\
+//前台上传的参数无论是什么类型，传到后台后都是字符串\
+var result = {\
+  text1: data.text1, //等于request.getAttribute('text1')。采用文件上传的方式传递的参数置于attribute中而非parameters中。\
+  abc: data.abc, //abc在form的baseParams中传递\
+  foo: data.foo, //字符串\
+  num: data.num, //parseFloat(data.num)可转成js数值，Double.parseDouble(data.num)可转成java数值\
+  date: data.date //Wb.strToDate(data.date)可转成js日期，DateUtil.strToDate(data.date)可转成java日期\
+};\
+//立即输出至客户端。最后一个参数true表示采用json串封装的方式返回成功信息，此方式仅适用于文件上传模式。\
+app.send('您上传的文件位于：<strong>应用根目录<\/strong><br><br>您提交的参数为：' + Wb.encode(result), true);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "处理上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,301 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "grid1",
+     "selType": "checkboxmodel",
+     "pagingBar": "false"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "tbar"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "BILL_NO",
+         "labelAlign": "right",
+         "fieldLabel": "提单号",
+         "isUpperCase": "true",
+         "labelWidth": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.grid1.store.load({\
+  params: {\
+    billno: app.BILL_NO.getValue()\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "ytoxBtn",
+         "text": "月结转现金",
+         "iconCls": "money_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择费用信息\");\
+  return;\
+}\
+var aid = \"\";\
+var errcount = 0;\
+Wb.each(sels, function(item) {\
+  aid += \"'\" + item.data.ID + \"',\";\
+  if (item.data.PAY_FLAG == 1)\
+    errcount++;\
+});\
+/*\
+if (errcount > 0) {\
+  Wb.warn(\"有箱子已经收费,转换失败\");\
+  return;\
+}*/\
+aid = aid.substring(0, aid.length - 1);\
+Wb.confirm(\"月结转现金\", function() {\
+  Wb.request({\
+    url: \"m?xwl=BuzManage/ptypechangeedit_old/moneyChange\",\
+    params: {\
+      ptype: \"1\",\
+      aid: aid\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.res)\
+        app.grid1.store.load({\
+          params: {\
+            billno: app.BILL_NO.getValue()\
+          }\
+        });\
+      else\
+        Wb.warn(res.msg);\
+    }\
+  });\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "xtoyBtn",
+         "text": "现金转月结",
+         "iconCls": "calendar_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择费用信息\");\
+  return;\
+}\
+var aid = \"\";\
+Wb.each(sels, function(item) {\
+  aid += \"'\" + item.data.ID + \"',\";\
+});\
+aid = aid.substring(0, aid.length - 1);\
+Wb.confirm(\"现金转月结\", function() {\
+  Wb.request({\
+    url: \"m?xwl=BuzManage/ptypechangeedit_old/moneyChange\",\
+    params: {\
+      ptype: \"2\",\
+      aid: aid\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.res)\
+        app.grid1.store.load({\
+          params: {\
+            billno: app.BILL_NO.getValue()\
+          }\
+        });\
+      else\
+        Wb.warn(res.msg);\
+    }\
+  });\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "item1",
+         "text": "-"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "item"
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "store",
+       "pageSize": "-1",
+       "url": "m?xwl=BuzManage/ptypechangeedit_old/selectAccDetials"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     },
+     {
+      "configs": {"itemId": "columns"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "column1",
+         "xtype": "rownumberer"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colPAYMENT_TYPE",
+         "renderer": "if (value == 1)\
+  return \"现金\";\
+if (value == 2)\
+  return \"月结\";",
+         "dataIndex": "PAYMENT_TYPE",
+         "text": "结算方式"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colBILL_NO",
+         "dataIndex": "BILL_NO",
+         "text": "提单号"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR",
+         "dataIndex": "CNTR",
+         "text": "箱号"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colPAY_FLAG",
+         "renderer": "if (value == 1)\
+  return \"已收费\";\
+if (value == 0)\
+  return \"未收费\";",
+         "dataIndex": "PAY_FLAG",
+         "text": "收费状态"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colACCOUNT_CUSTOMER_NAM",
+         "dataIndex": "ACCOUNT_CUSTOMER_NAM",
+         "text": "计费对象"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colPAYMENT_CUSTOMER_NAM",
+         "dataIndex": "PAYMENT_CUSTOMER_NAM",
+         "text": "付费对象"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colFEI_ESCRIPTION",
+         "dataIndex": "FEI_ESCRIPTION",
+         "text": "费目"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colDESCRIPTION",
+         "dataIndex": "DESCRIPTION",
+         "text": "发票类型"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colACTUAL_JOB_COUNT",
+         "dataIndex": "ACTUAL_JOB_COUNT",
+         "text": "数量"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colAMOUNT",
+         "dataIndex": "AMOUNT",
+         "text": "金额"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       }
+      ],
+      "type": "array"
+     }
+    ],
+    "type": "grid"
+   }],
+   "type": "viewport"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "结算类型转换",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,651 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "cntrWin",
+    "createInstance": "false",
+    "closeAction": "destroy",
+    "width": "760",
+    "title": "作业票",
+    "height": "300"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "fit",
+     "itemId": "panel1",
+     "height": "150"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "editable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "padding": "0,0,0,0",
+        "cls": "border-width:0px",
+        "dock": "top"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "addBtn",
+          "text": "增加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "// var date = new Date();\
+// Ext.util.Format.date(new Date(),'Y-m-d');\
+//需要对作业票哪里加验证。\
+var num = 0;\
+for (var i = 0; i < app.grid1.store.getCount(); i++) {\
+  var record = app.grid1.getStore().getAt(i);\
+  num += record.data.PORC_COUNT;\
+}\
+var f = Wb.work(weight, volume);\
+if (num >= f) {\
+  Wb.warn(\"操作量与实际不符！\");\
+  return;\
+}\
+\
+Wb.addEdit(app.grid1, {\
+  WORKDATE: new Date(),\
+  TYPE: type,\
+  CNTR_ID: cntrId,\
+  BILL_NO:'{#BILL_NO#}',\
+  BILL_ID:'{#BILL_ID#}',\
+  PID:'{#PID#}',\
+  PORC_COUNT:f-num\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.remove(app.grid1);"}
+        },
+        {
+         "configs": {
+          "itemId": "saveBtn",
+          "text": "保存",
+          "iconCls": "save_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+\
+\
+var num = 0;\
+for (var i = 0; i < app.grid1.store.getCount(); i++) {\
+  var record = app.grid1.getStore().getAt(i);\
+  num += record.data.PORC_COUNT;\
+}\
+var f = Wb.work(weight, volume);\
+if (num > f) {\
+  Wb.warn(\"操作量与实际不符！\");\
+  return;\
+}\
+\
+\
+Wb.sync({\
+  grid: app.grid1,\
+  url: 'm?xwl=entrepot/PortCntrWeight/WorkBillEdit2/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+    app.cntrWin.close();\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "IDS",
+          "hidden": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "label1",
+          "text": "作业量:"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "label"
+        },
+        {
+         "configs": {
+          "itemId": "numbers",
+          "style": "color:red"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "label"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=entrepot/PortCntrWeight/WorkBillEdit2/select"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer",
+          "width": "40"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "BILL_ID214",
+          "hidden": "true",
+          "dataIndex": "BILL_ID",
+          "text": "提单ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_ID2141",
+          "hidden": "true",
+          "dataIndex": "CNTR_ID",
+          "text": "箱ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "BILL_NO12",
+          "dataIndex": "BILL_NO",
+          "text": "提单号"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "displayField": "BILL_NO"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "false",
+            "url": "m?xwl=entrepot/PortCntrWeight/WorkBillEdit2/selectBill"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "// alert('{#BILL_NO#}');\
+if ('{#BILL_NO#}' != null && '{#BILL_NO#}'!=\"\")\
+  operation.params = {\
+    CNTR_ID: cntrId\
+  };\
+else\
+  operation.params = {\
+    VID: vId,\
+    CNTR_ID: cntrId\
+  };"}
+          }],
+          "type": "combo",
+          "events": {"select": "var sels = app.grid1.getSelection();\
+selRec = sels[0];\
+var store = app.grid1.getStore();\
+var rowIndex = store.indexOf(selRec);\
+var rec = app.grid1.store.getAt(rowIndex);\
+rec.set('BILL_ID',records[0].data.ID);"}
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "TYPE22",
+          "dataIndex": "TYPE",
+          "keyName": "CRAFTWORK",
+          "text": "类型",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "keyName": "CRAFTWORK"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PORC_COUNT12",
+          "dataIndex": "PORC_COUNT",
+          "text": "作业量",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowBlank": "false",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "WORKDATE741",
+          "dataIndex": "WORKDATE",
+          "format": "Y-m-d",
+          "text": "作业日期",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {"itemId": "editor"},
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MACHINE458",
+          "dataIndex": "MACHINE",
+          "text": "装卸机械",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "displayField": "RESOURCE_ID",
+           "valueField": "RESOURCE_ID"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=entrepot/PortCntr/WorkBillEdit/selectSw"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "operation.params = {\
+  type: 3,\
+  query: operation.params.query\
+};"}
+          }],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "DEPT_ID74",
+          "dataIndex": "DEPT_ID",
+          "text": "装卸班组",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowBlank": "false",
+           "displayField": "TEAM_NAME",
+           "valueField": "HAND_CODE"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=entrepot/PortCntrWeight/WorkBillEdit2/selectDeptId"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"beforeload": "\
+operation.params.s=app.IDS.getValue();"}
+          }],
+          "type": "combo",
+          "events": {"select": "// app.MACHINE.store.load({\
+//   params: {\
+//     s: records[0].data.TEAM_NAME\
+//   }\
+// });\
+app.IDS.setValue(records[0].data.TEAM_NAME);"}
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MANHOUR2",
+          "dataIndex": "MANHOUR",
+          "text": "人工工时",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MANNUM12",
+          "dataIndex": "MANNUM",
+          "text": "作业人数",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MACHINEHOUR23",
+          "dataIndex": "MACHINEHOUR",
+          "width": "120",
+          "text": "机械工时",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CHECKS11",
+          "dataIndex": "CHECKS",
+          "text": "查验次数",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SCALES3",
+          "dataIndex": "SCALES",
+          "text": "过磅次数",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "minValue": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "DRAWOUTTYPEID12",
+          "hidden": "true",
+          "dataIndex": "DRAWOUTTYPEID",
+          "text": "掏柜类型",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SHIPPER9685",
+          "hidden": "true",
+          "dataIndex": "SHIPPER",
+          "text": "货主",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "BILL_ID487",
+          "hidden": "true",
+          "dataIndex": "BILL_ID",
+          "text": "运/提单号",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "EDITTIME74",
+          "hidden": "true",
+          "dataIndex": "EDITTIME",
+          "width": "120",
+          "text": "开票时间",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PLACE78",
+          "hidden": "true",
+          "dataIndex": "PLACE",
+          "text": "作业地点",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "AGENT_ID99",
+          "hidden": "true",
+          "dataIndex": "AGENT_ID",
+          "width": "120",
+          "text": "船公司",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "BTIME895",
+          "hidden": "true",
+          "dataIndex": "BTIME",
+          "width": "120",
+          "text": "开始执行时间",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "ETIME113",
+          "hidden": "true",
+          "dataIndex": "ETIME",
+          "text": "终止执行时间",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SIGNERPORT21",
+          "hidden": "true",
+          "dataIndex": "SIGNERPORT",
+          "text": "业务签名",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SIGNER996",
+          "hidden": "true",
+          "dataIndex": "SIGNER",
+          "width": "120",
+          "text": "完成确认签名",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "TASKSTATUS78",
+          "hidden": "true",
+          "dataIndex": "TASKSTATUS",
+          "text": "任务状态",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "HANDLE_ID32",
+          "hidden": "true",
+          "dataIndex": "HANDLE_ID",
+          "text": "关联单号",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "panel"
+   }],
+   "type": "window"
+  }],
+  "type": "module",
+  "events": {"finalize": "// var i='{#VID#}';\
+// alert('{#VID#}');\
+// alert('{#CNTR_ID#}');\
+\
+var vId = '{#VID#}';\
+var cntrId = '{#CNTR_ID#}';\
+var type = '{#TYPE#}';\
+var weight='{#WEIGHT#}';\
+var volume='{#VOLUME#}';\
+\
+"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

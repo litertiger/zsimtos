@@ -1,0 +1,71 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">4.XML树</p>　　<img src='image/document.bmp' title='请参见演示页: "4.树控件"，或"开发文档"左侧的树'><hr color=#2266ee size=1>
+　　Supcan Tree树是通过一个XML创建的，有二种XML格式可供选择。<br>
+　　第一种XML格式类似平面的结果集，由 "PID" 属性指定父节点，例如:<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Data&gt;
+&lt;items&gt;
+　　&lt;item ID="10" text="安装|Install" para="act.htm#Tag10" img="2"/&gt;
+　　&lt;item ID="20" text="硕正套件|Supcan RIA Suit" para="act.htm#Tag20"  img="12"/&gt;
+　　&lt;item ID="201" PID="20" text="语法|Gramma" para="act.htm#Tag201"/&gt;
+　　&lt;item ID="202" PID="20" text="函数|Function" para="act.htm#Tag202" LazyLoad="true"/&gt;
+　　&lt;item ID="203" PID="20" text="事件|Event" para="act.htm#Tag203"/&gt;
+&lt;/items&gt;
+&lt;/Data&gt;</pre>
+　　如果是用 Json 格式，须这样写:<br>
+<pre class='xml'>
+{"items": [
+ {"ID":"10", "text":"安装|Install", "para":"act.htm#Tag10", "img":"2"},
+ {"ID":"20", "text":"硕正套件|Supcan RIA Suit", "para":"act.htm#Tag20", "img":"12"},
+ {"ID":"201", "PID":"20", "text":"语法|Gramma", "para":"act.htm#Tag201"}
+]}</pre>
+　　第二种XML格式本身就是一颗树，不需要单独指定"PID", 例如:<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Data&gt;
+&lt;items&gt;
+ &lt;item ID="10" text="安装|Install" para="act.htm#Tag10" img="pack.zip#22.jpg"/&gt;
+ &lt;item ID="20" text="硕正套件|Supcan RIA Suit" para="act.htm#Tag20"&gt;
+  &lt;item ID="201" text="语法|Gramma" para="act.htm#Tag201" LazyLoad="tree.aspx?id=201"/&gt;
+  &lt;item ID="202" text="函数|Function" para="act.htm#Tag202"/&gt;
+  &lt;item ID="203" text="事件|Event" para="act.htm#Tag203"&gt;
+    &lt;item ID="20301" text="OnReady" para="act.htm#Tag20301"/&gt;
+    &lt;item ID="20302" text="OnEvent" para="act.htm#Tag20302"/&gt;
+  &lt;/item&gt;
+ &lt;/item&gt;
+&lt;/items&gt;
+&lt;/Data&gt;</pre>
+
+
+　　XML的属性规则如下:<br>
+<table width=98% border=1 align="center">
+<tr><th>属性</th><th>含义</th></tr>
+<tr><td>ID</td><td>ID串，串可包含任意字符，ID必须唯一</td></tr>
+<tr><td>PID</td><td>从属的父ID</td></tr>
+<tr><td>str 或 text</td><td>显示的文字</td></tr>
+<tr><td>tip</td><td>鼠标滑过时的浮动Tip</td></tr>
+<tr><td>img 或 image</td><td>内置图标的数字(树叶图标需要加上10)，或自定义图标的URL，支持<a href="pub05.htm" target=_blank>图片扩展URL</a>.<br>注：如果是相对URL，是相对于当前XML文档，而非页面.</td></tr>
+<tr><td>para</td><td>可选参数</td></tr>
+<tr><td>LazyLoad</td><td>表示有子孙，且是在展开时动态加载的，有2种形式：<br>1.串"true", 表示通过"LazyLoad"事件触发(参见demo页);<br>2.是一个绝对或相对(相对于本XML)URL，用于自动加载，不触发事件.</td></tr>
+<tr><td>check 或 checked</td><td>checkbox的值(true/false,  仅用于创建参数含hasCheckBox时)</td></tr>
+<tr><td>textColor</td><td>文字的颜色, 如"#FF0000"</td></tr>
+<tr><td>其它任意属性</td><td>自定义属性，可通过GetXMLProp( )/SetXMLProp( )存取</td></tr>
+</table>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">如果 text、tip 需要有中英文切换功能，那么中英文之间以 “|” 分隔即可.</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">text也可以这样写: &lt;item id="10"&gt;安装&lt;/item&gt;.</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">如果未定义text，那么将显示ID.</p>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

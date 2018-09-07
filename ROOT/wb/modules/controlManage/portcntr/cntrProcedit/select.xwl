@@ -1,0 +1,67 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");; //租户id\
+\
+var sql = \"SELECT cntr_id FROM cntr_store_record_proc where 1=1 \";\
+\
+if (!Wb.isEmpty(data.cntr)) {\
+  sql += \" and CNTR  LIKE '%'||{?cntr?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.tradeId)) {\
+  sql += \" and TRADE_ID  LIKE '%'||{?tradeId?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.ieId)) {\
+  sql += \" and I_E_ID  LIKE '%'||{?ieId?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.indate)) {\
+  sql += \" and IN_TIME>=to_timestamp('\" + data.indate + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.outdate)) {\
+  sql += \" and OUT_TIME<=to_timestamp('\" + data.outdate.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+\
+if(!Wb.isEmpty(data.bargeCompany)){\
+  sql += \" and CNTR_OPERATOR_COD = {?bargeCompany?}\";\
+}\
+\
+\
+var cntrOperatorSql = \"\";\
+if(!Wb.isEmpty(data.shippingHouse)){\
+  cntrOperatorSql = \" and CNTR_OPERATOR_COD = '\"+data.shippingHouse+\"'\";\
+}\
+if(data.JCStorage==\"true\"){\
+   cntrOperatorSql += \" and not (E_F_ID = 'F' and I_E_ID = 'I')\";\
+}\
+\
+var wheresql = \"SELECT AMOUNT,ID,CNTR,cntr_id,TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME,TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,CNTR_OPERATOR_COD,\" +\
+  \"CNTR_OWNER,CNTR_ISO,TRADE_ID,I_E_ID,E_F_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,ACTION,IN_BUS_ID,\" +\
+  \"OUT_BUS_ID,TO_CHAR (BD_DATE, 'yyyy-MM-dd hh24:mi') BD_DATE,TO_CHAR (STUFF_DATE, 'yyyy-MM-dd hh24:mi') STUFF_DATE,\" +\
+  \"TO_CHAR (SHIP_DATE, 'yyyy-MM-dd hh24:mi') SHIP_DATE,TO_CHAR (GATE_DATE, 'yyyy-MM-dd hh24:mi') GATE_DATE,TO_CHAR (IN_PORT_DATE, 'yyyy-MM-dd hh24:mi') IN_PORT_DATE\" +\
+    \" ,BILL_NO_IMPORT,BILL_NO_EXPORT,\"+\
+     \"    to_char(EXPORT_TIME,'yyyy-MM-dd hh24:mi') EXPORT_TIME,to_char(IMPORT_TIME,'yyyy-MM-dd hh24:mi')\"+\
+\"IMPORT_TIME,DWELL_DAYS,FREE_DAYS,decode(E_F_ID_EXPORT,'E','吉柜','F','重柜','未知') E_F_ID_EXPORT,decode(E_F_ID_IMPORT,'E','吉柜','F','重柜','未知') E_F_ID_IMPORT,FEE_UNIT\"+\
+  \",NODE_ID  FROM cntr_store_record_proc where 1=1 and IN_TIME IS NOT NULL  AND cntr_id in (\" + sql + \")\"+ cntrOperatorSql +\" and trade_id ='1' order by CNTR,IN_TIME  asc\";\
+\
+// min(TO_CHAR(IN_TIME,'yyMMddhh24mi')) OVER (PARTITION BY CNTR_ID)||'-'|| CNTR  \
+app.send(Wb.getRecords(app.run(wheresql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

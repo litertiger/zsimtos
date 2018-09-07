@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get(),whereSql=\"\";\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+if(!Wb.isEmpty(data.billNo ) )\
+  whereSql+=\" and receipt.BILL_NO like '%\"+data.billNo+\"%' \";\
+if(!Wb.isEmpty(data.orderNo ) )\
+  whereSql+=\" and receipt.SHIP_ORDER like '%\"+data.orderNo+\"%' \";\
+         \
+if(!Wb.isEmpty(data.CAR_TEAM ) )\
+  whereSql+=\" and receipt.CAR_TEAM = '\"+data.CAR_TEAM+\"' \";\
+if(!Wb.isEmpty(data.cntrNo ) )\
+  whereSql+=\" and receipt.CNTR = '\"+data.cntrNo+\"' \";\
+if(!Wb.isEmpty(data.WORK_TYPE ) )\
+  whereSql+=\" and receipt.WORK_TYPE = '\"+data.WORK_TYPE+\"' \";\
+//20180423 增加外连接 c_base_charging_item.ID(+) accounts_details.BUSSINESS_CODE(+)\
+var sql = \"select *  from (SELECT receipt.CNTR_OPERATOR_COD ,receipt.WORK_TYPE,decode(receipt.I_E_ID,'I','进口','E','出口') I_E_ID,  decode(max(PAY_FLAG),0,'未交费','已缴费') PAY_FLAG,decode(min(IS_MANUAL),0,'未审核','审核') IS_MANUAL,  receipt.ID, receipt.car_team, receipt.bill_no, receipt.ship_order, receipt.cntr,\\\
+         receipt.cntr_size, receipt.cntr_type, receipt.e_f_id,\\\
+         receipt.cargo_type, receipt.in_tray_no, SUM (amount) amount, description\\\
+    FROM receipt, accounts_details, c_base_charging_item\\\
+   WHERE receipt.trade_id = '2' and phase IN ('OUT','FIN')  and pt_type not in ('1','2') \\\
+ and receipt.tenancy_id='\" + tenancyid + \"' \"+whereSql+\" and  receipt.CREATED_ON>={?timestamp.begdate?}\\\
+ and receipt.CREATED_ON<={?timestamp.enddate?}+1    AND fee_list_id = c_base_charging_item.ID(+) \\\
+   and receipt.ID=accounts_details.BUSSINESS_CODE(+) \\\
+GROUP BY c_base_charging_item.ID,\\\
+         bussiness_code,\\\
+         description,\\\
+         receipt.car_team,\\\
+         receipt.bill_no,\\\
+         receipt.I_E_ID,\\\
+receipt.CNTR_OPERATOR_COD ,\\\
+         receipt.ship_order,\\\
+         receipt.cntr,\\\
+         receipt.cntr_size,\\\
+         receipt.cntr_type,receipt.WORK_TYPE,\\\
+         receipt.e_f_id,receipt.ID,\\\
+         receipt.cargo_type,\\\
+         receipt.in_tray_no) PIVOT (SUM(amount)  FOR description IN ('内贸集装箱货运管理费' \\\
+         as RZPRICES, '内贸港务费' as GWPRICES,     '内贸港建费' as GJPRICES,'内贸拖运费' AS NMTYF))  \";\
+\
+\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

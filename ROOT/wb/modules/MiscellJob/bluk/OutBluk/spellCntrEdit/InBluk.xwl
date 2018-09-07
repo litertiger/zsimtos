@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//更新goods表,插入到inout多条数据（传过来数组），还有就是更新作业票\
+var data=app.get();\
+app.run(\"update BLUK_GOODS set QUTY={?QUTY?},OUTTIME=sysdate,OUTQUTY={?OUTQUTY?},IMPEXP='E' where ID={?ID?}\",{arrayData: new org.json.JSONArray(data.datas),transaction: 'start'} );\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID)values({?ID?},'1',{?NUM?},{?TRUCK_NO?},{?RELEASE_NO?},{?SEAL_NO?},{?CFSBILL_ID?})\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        select sys_guid(),SHIPPER,BILL_ID,sysdate,{?timestamp.WORKDATE?},{?CFS_ID?},{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'','' from BLUK_GOODS where BILL_ID={?billId?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+//拼柜状态的变化\
+app.run(\"update BLUK_CUSTOM_MAIN set PHASE='FIN' where TRUCK={?TRUCK?} AND ID={?PID?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"update BLUK_CUSTOM_DETAIL set PHASE='FIN' WHERE PID={?PID?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

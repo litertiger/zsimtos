@@ -1,0 +1,32 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),username = app.get('sys.username'); //租户id\
+\
+app.run(\"update BLUK_GOODS set LOCATION={?NEW_POS?}  where ID={?ID?}\",{\
+         transaction:'start'\
+        });\
+\
+app.run(\"insert into BLUK_STATE(ID, BLUK_ID, OLD_POS, NEW_POS, MOVE_RES, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY) values \"+\
+        \"(sys_guid(), {?ID?}, {?OLD_POS?}, {?NEW_POS?}, {?MOVE_RES?}, '\"+tenancyid+\"', sysdate, sysdate,  '\"+username+\"', '\"+username+\"')\",\
+        { transaction:'commit'  });\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "场内搬移",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

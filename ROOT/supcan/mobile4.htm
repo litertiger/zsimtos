@@ -1,0 +1,197 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type="text/javascript" src="binary/dynaload.js?103"></script>
+
+<script>
+var uid;
+var count = 0;
+function OnReady(id)
+{
+	cooper();
+}
+function cooper()
+{
+	count++;
+	if(count != 3) return;
+
+	uid = getpsid();
+	AF1.func("build", "report/upmobile1.xml");
+	AF2.func("build", "treelist/qr.xml");
+	var url = "http://www.supcan.cn/dotnet/up.aspx?report=upmobile1&func=0&uid=" + uid;
+	AF2.func("SetValue", "QR \r\n " + url);
+	//document.getElementById("test").innerHTML = url;
+	//定时轮询，取得上报的XML
+	setInterval("loadXML()", 15000);
+}
+
+//向服务器取得上报的XML
+function loadXML()
+{
+	var xml = AF1.func("Download", "http://www.supcan.cn/dotnet/up.aspx?func=24&uid=" + uid + "\r\n toString=true; isEcho=false");
+	if(xml == "") return;
+	AF1.func("RebuildTabOrder", "");
+	AF1.func("SetUploadXML", xml + "\r\n autocalc=false");
+}
+
+//生成伪随机数
+function getpsid()
+{
+  var s = new Date();
+  return s.getHours().toString() + s.getMinutes().toString() + s.getSeconds().toString() + s.getMilliseconds().toString();
+}
+</script>
+</head>
+<body onLoad="cooper()">
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>
+1.报表上报汇总的运行时 (UploadRunTime, 填数过程) 在移动端的实现;<br>
+2.上报的报表 XML 模版，在 pc 端能录入、移动端也能录入，采集到的数据格式基本一致, 所以数据保存到数据库的工作不需要单独再开发;<br>
+3.您要做的，只是写一个很简单的 aspx 或 jsp，调用硕正报表服务, 动态地将报表 xml 文件转换成纯 HTML5 的程序即可.<br>
+</td></tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<table cols=5 border=0 width="88%">
+<col>
+<col width=580>
+<col width=120>
+<col width=400>
+<col>
+<tr height=23>
+	<td/>
+	<td><b>Step 1</b>:报表模版如下，该报表已经部署在服务器上了, 您不需要修改.</td>
+	<td/>
+	<td><b>Step 2</b>:如下二维码指向后端的aspx程序, 请拿出手机扫描, 进入上报填数模式.</td>
+	<td/></tr>
+<tr height="90">
+	<td/>
+	<td rowspan="4" height="360"><script>insertReport('AF1', 'rebar=none')</script></td>
+	<td align="center"><img src="res/arrow_r.bmp"></td>
+	<td rowspan="2" height="180"><script>insertFreeForm('AF2', 'border=none')</script></td>
+	<td/>
+</tr>
+<tr height="90">
+	<td/>
+	<td/>
+	<td/>
+</tr>
+<tr height="90">
+	<td/>
+	<td/>
+	<td/>
+	<td/>
+</tr>
+<tr height="90">
+	<td/>
+	<td align="center"><img src="res/arrow_l.bmp"></td>
+	<td><b>Step 3</b>:在手机中任意输入，然后点击 “提交”，数据将上传、服务器将对数据进行验证, 如果地区、省份、城市、数量未输入，手机会给出未通过验证的提示.<br>一旦输入成功，大约 10 秒钟后，左侧报表会显示您刚才输入的内容!</td>
+	<td/>
+</tr>
+<tr><td colspan="5"><br>注：在电脑上即刻显示手机录入内容的场景并不太常见，该例子只是演示了手机输入、三级关联下拉、ajax上传、验证、回显，这整个链路的实现的过程.</td></tr>
+</table>
+<p id="test"></p>
+<br>
+<br>
+
+<table width="90%" border="0">
+<tr><td colspan=4><img src='res/tech.jpg'></td></tr><tr><td>
+
+<tr><td colspan=4>
+<b>1</b>.本页面脚本分析：<br>
+<pre class='cpp'>
+&lt;script&gt;
+var uid;  //伪 id，本例中用来判别PC端、手机端是否同一个人
+var count = 0;
+function OnReady(id)
+{
+ cooper();
+}
+function cooper()
+{
+ count++;
+ if(count != 3) return;
+ 
+ //生成伪 id
+ uid = getpsid();
+ //打开报表模版
+ AF1.func("build", "report/uploadmobile.xml");
+ //打开Freeform
+ AF2.func("build", "treelist/qr.xml");
+ //Freeform显示二维码，引导您访问后端的关键程序：up.aspx
+ AF2.func("SetValue", "QR \r\n http://www.supcan.cn/dotnet/up.aspx?func=0&uid=" + uid);
+ //定时(每隔15秒)轮询，取得上报的XML数据
+ setInterval("loadXML()", 15000);
+}
+ 
+//从服务器取得上报的XML
+function loadXML()
+{
+ var xml = AF1.func("Download", "http://www.supcan.cn/dotnet/up.aspx?func=24&uid=" + uid + "\r\n toString=true; isEcho=false");
+ if(xml == "") return;
+ //把 XML 数据填入报表
+ AF1.func("RebuildTabOrder", "");
+ AF1.func("SetUploadXML", xml + "\r\n autoCalc=none");
+}
+ 
+//生成伪随机数
+function getpsid()
+{
+ var s = new Date();
+ return s.getHours().toString() + s.getMinutes().toString() + s.getSeconds().toString() + s.getMilliseconds().toString();
+}
+&lt;/script&gt;
+...
+&lt;body onLoad="cooper()" ...</pre>
+这些就是全部的脚本了，客户端脚本并不复杂。<br>
+<br>
+<b>2</b>.后端开发稍复杂，在开发文档的 “服务器专版” 中，有这方面的详细介绍。本例的后端程序资料可下载：<a href="doc/dev/uploadmobile.zip" target=_blank>uploadmobile.zip</a>， 包中包括 3 个文件：<br>
+<b>up.aspx</b> - C#程序文件，关键代码<br>
+<b>template_upload.txt</b> - html 模版<br>
+<b>uploadxml.js</b> - html 引用的 js 包，用于下拉处理(比如例子中的三级关联下拉)、遍历 html 生成 XML 数据串、ajax上传<br>
+<br>
+<b>3</b>.在开发文档中有介绍的关键代码，在此就不作介绍，如下是 up.aspx 和本例有关的其它功能讲解：<br>
+<pre class='cpp'>
+ ...
+ //用于存放提交的 XML 串的map
+ static Dictionary<string, string> mapUidXml = new Dictionary<string, string>();
+ 
+ public void Page_Load(Object sender, EventArgs e) {
+   ..</pre>
+上报的 XML ，通常是需要后端解析、保存到数据库的，在本例中，只是简单地将其暂存在一全局哈希表 mapUidXml 中, 其 key 就是“伪id”。<br>
+<br>
+<br>
+<pre class='cpp'>
+ ...
+ //分支：功能号24， 直接返回 uid 提交的 xml 串, 并从 map 中移除
+ if(pageFunc == "24") {
+  string xml = "";
+  lock(mapUidXml) {	//并发加锁，必须的
+   if(mapUidXml.ContainsKey(uid)) {
+    xml = mapUidXml[uid];
+    mapUidXml.Remove(uid);
+   }
+  }
+  Response.Write(xml);
+  Response.End();
+  return;
+ }
+ ..</pre>
+上面的代码相信您一看就明白，上面的C#片段，就是例子中 js 每隔10秒轮询的请求，URL中的功能号func=24，对应到后端的实现。<br>
+ 
+</td></tr>
+</table>
+
+</center>
+<br>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+
+</html>

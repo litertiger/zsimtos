@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //生成ID\
+var sql1 = \"insert into buz_order(id,tenancy_id,bill_id,line,line_cod,CNTR_OPERATOR,CNTR_OPERATOR_COD,RECEIVER,RECEIVER_COD,shipper,\" +\
+  \"shipper_cod,pod,pol,bill_no,i_e_id,trade_id,release_id,quantity,notes,CREATED_BY,CREATED_ON,GOODS_NOTES,BILL_TYPE,PIECES,LCL_ID,BD_BY,BD_ON)\" +\
+  \" select '\" + id + \"','\" + tenancyid + \"',id,line,line_cod,cntr_operator,CNTR_OPERATOR_COD,consignee,consignee_cod,shipper,\" +\
+  \"shipper_cod,pod,pol,BILL_NO,i_e_id,trade_id,release_id,quantity,notes,'\" + username + \"',\" +\
+  \"sysdate,GOODS_NOTES,BILL_TYPE,PIECES,LCL_ID,{?BD_BY?},{?timestamp.BD_ON?} from vbill_head where tenancy_id='\" + tenancyid + \"'\" +\
+  \" and BILL_NO={?BILL_NO?} \" +\
+  \" and not exists(select bill_no from buz_order where vbill_head.BILL_NO=buz_order.bill_no)\";\
+app.run(sql1, {\
+  transaction: 'start'\
+});\
+\
+var sql2 = \"insert into buz_order_item(id,tenancy_id,order_id,sequence,cntr,CNTR_SIZE,\" +\
+  \"CNTR_TYPE,temp_set,imdg,undg,cmdy_code,weight,volume,pieces,notes,CREATED_BY,CREATED_ON,\" +\
+  \"BILL_NO,E_F_ID,REEF_ID,DANG_ID,PAY_FLAG,CNTR_ID,LCL_ID,GOODS_NOTES,BD_BY,BD_ON)\" +\
+  \"select sys_guid(),'\" + tenancyid + \"','\" + id + \"',sequence,cntr,CNTR_SIZE,CNTR_TYPE,\" +\
+  \"temp_set,imdg,undg,cmdy_code,weight,volume,pieces,notes,'\" + username + \"',sysdate,\" +\
+  \"BILL_NO,E_F_ID,REEF_ID,DANG_ID,0,CNTR_ID,LCL_ID,GOODS_NOTES,{?BD_BY?},{?timestamp.BD_ON?} \" +\
+  \" from vload_list where BILL_NO={?BILL_NO?} and tenancy_id='\" + tenancyid + \"' \" +\
+  \" and not exists(select BILL_NO from buz_order_item where vload_list.BILL_NO=buz_order_item.BILL_NO)\";\
+app.run(sql2);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "添加办单数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

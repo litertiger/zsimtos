@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var machFilter = '';\
+var result = app.run(\"select mach_type from c_machine where mach_class='YC' and id={?mach?} and tenancy_id={?sys.TENANCY_ID?}\");\
+if (result && result.next()) {\
+  var machType = result.getString('mach_type');\
+  if (machType && machType !== 'RMG' && machType !== 'ERTG')\
+    machFilter = \" and substr(decode(i.move_type,'LOD',p.yard_position,i.to_pos),1,2) not in(\\\
+select cy_area_no from c_cy_area where  category in('I','J') and temp_enter=0 and tenancy_id={?sys.TENANCY_ID?})\" + (app.get('workType') == '4' || app.get('workType') == '0' ?\
+      \" union select 'TLOD' task_type,i.transporter2 truck,c.plat_no,i.cntr,i.cntr_iso,m.to_pos pos,i.queue_id,i.id,'DIS' move_type,m.to_pos,m.priority,i.updated_on,m.cntr_operator,p.i_e_id ie,decode(p.lcl_id,'1','P',p.e_f_id) e_f_id,m.notes\\\
+ from move_list m,move_list i,task t,port_cntr p,v_car c\\\
+ where  i.transporter2=c.truck_no(+) and c.tenancy_id(+)={?sys.TENANCY_ID?} and m.cntr_id=p.id and m.id=i.queue_id and t.id = m.queue_id and i.phase<>'FIN' and i.tenancy_id={?sys.TENANCY_ID?} and t.task_type='VOUT' and i.cntr like '%'||{?cntr?}||'%'\\\
+ and i.trclass1='QC' and i.move_type='LOD' and m.phase='EXE' and ({?address?} is null or instr({?address?},substr(m.to_pos,1,2))>0)\" : \"\") + (app.get('workType') == '3' || app.get('workType') == '0' ?\
+      \" union select 'TDIS' task_type,'' truck,'' plat_no,m.cntr,m.cntr_iso,m.from_pos pos,m.id queue_id,'DIS-TMP' id,'LOD' move_type,m.to_pos,m.priority,m.updated_on,m.cntr_operator,p.i_e_id ie,decode(p.lcl_id,'1','P',p.e_f_id) e_f_id,m.notes\\\
+ from move_list m,task t,port_cntr p\\\
+ where  m.cntr_id=p.id and t.id = m.queue_id and m.phase='TMP' and t.task_type='VIN' and m.tenancy_id={?sys.TENANCY_ID?} and m.cntr like '%'||{?cntr?}||'%' and ({?address?} is null or instr({?address?},substr(m.from_pos,1,2))>0)\" : \"\");\
+}\
+var typefilter = \"i.trclass1='YC' and i.shift_id=0\";\
+switch (app.get('workType')) {\
+  case '1': //'闸进'\
+    typefilter += \" and t.task_type='GIN'\";\
+    break;\
+  case '2': //'闸出':\
+    typefilter += \" and t.task_type='GOUT'\";\
+    break;\
+  case '3': //'船进':\
+    typefilter += \" and t.task_type='VIN'\";\
+    break;\
+  case '4': //'船出':\
+    typefilter += \" and t.task_type='VOUT'\";\
+    break;\
+  case '5': //'移箱':\
+    typefilter += \" and i.move_type='ROR'\";\
+    break;\
+  case '6': //'移进':\
+    typefilter += \" and t.task_type='MOVE' and i.move_type='DIS'\";\
+    break;\
+  case '7': //'移出':\
+    typefilter += \" and t.task_type='MOVE' and i.move_type='LOD'\";\
+    break;\
+}\
+\
+result = app.run(\"select t.task_type,i.TRANSPORTER2 truck,c.plat_no,i.cntr,i.cntr_iso,decode(i.move_type,'LOD',p.yard_position,i.to_pos) pos,i.queue_id,i.id,i.move_type,m.to_pos,m.priority,i.updated_on,p.cntr_operator,p.i_e_id ie,decode(p.lcl_id,'1','P',p.e_f_id) e_f_id,m.notes \\\
+from move_list m,move_list i,task t,port_cntr p,v_car c \\\
+where  i.transporter2=c.truck_no(+) and c.tenancy_id(+)={?sys.TENANCY_ID?} and m.id=i.queue_id and t.id = m.queue_id and i.cntr_id=p.id and i.phase not in('CNL','FIN') and m.phase not in('CNL','FIN') and i.TENANCY_ID={?sys.TENANCY_ID?} and i.cntr like '%'||{?cntr?}||'%' and \" + typefilter +\
+  \" and ({?address?} is null or instr({?address?},substr(decode(i.move_type,'LOD',p.yard_position,i.to_pos),1,2))>0) \" + machFilter +\
+  \"order by priority desc,updated_on\");\
+\
+app.send(Ag.getResultSet(result));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "HSEDI": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "指令列表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

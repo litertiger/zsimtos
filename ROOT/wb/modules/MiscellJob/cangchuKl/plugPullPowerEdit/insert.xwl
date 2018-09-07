@@ -1,0 +1,84 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//   function getInervalHour(startDate, endDate) {//计算时间差别\
+//     var ms = Math.abs(endDate - startDate);\
+//     if (ms <= 0) return 1;\
+//     return Math.floor(ms / 1000 / 60 / 60);\
+//   }\
+var tenancy_id = app.get('sys.TENANCY_ID');\
+var cntr_id = app.get('CNTR_ID');\
+var sdate = Date.parse(app.get('REGTIME')); //将字符串日期装换成Js的date类型\
+var cntr = app.get('CNTR'); //箱号\
+var i_e_id = app.get('I_E_ID'); //进出口类型 I 进口 E 出口\
+var E_F_ID = app.get('E_F_ID'); //箱子空重  E 空箱 F 重箱\
+var IS_PREPARE = app.get('IS_PREPARE'); //是否预插电 0 否 1是\
+var rec =  app.run(\"SELECT ID,BILL_NO,ON_POWER FROM port_cntr_NEW WHERE cntr={?CNTR?} and cntr_type in ('RF','RH') and tenancy_id = '\" + tenancy_id + \"' \");\
+if (!(rec && rec.next()))\
+  throw \"箱号\" + cntr + \"不是有效的冷柜箱号!\";\
+var countT = app.run(\"select count(0) from cntr_reefinfo where tenancy_id = '\" + tenancy_id + \"' and opertype = 'T' and cntr = {?CNTR?}\");\
+var countF = app.run(\"select count(0) from cntr_reefinfo where tenancy_id = '\" + tenancy_id + \"' and opertype = 'F' and cntr = {?CNTR?}\");\
+var countt, countf;\
+if (countT.next()) {\
+  countt = countT.getInt(1);\
+}\
+if (countF.next()) {\
+  countf = countF.getInt(1);\
+}\
+if ((countt - countf) >= 1 && app.get(\"OPERTYPE\") == 'T') {\
+  throw \"箱号：\" + app.get(\"CNTR\") + \" 已经有了一条插电的记录！\";\
+}\
+if ((countt - countf) <= 0 && app.get(\"OPERTYPE\") == 'F') {\
+  throw \"箱号：\" + app.get(\"CNTR\") + \"已经有了一条拔电的记录！\";\
+}\
+\
+if (app.get('OPERTYPE') == 'F') {\
+  var result = app.run(\"select id,OPERTYPE,REGTIME from cntr_reefinfo where id = '\" + app.get('POWERON_ID') + \"' \");\
+  if (Wb.isEmpty(result)) {\
+    throw \"该箱号没有对应的插电记录\";\
+  }\
+  //     var edate;\
+  //     if (result.next())\
+  //       edate = result.getDate(3);\
+  //     var ms = getInervalHour(sdate, edate.getTime()); /\t/取到时间相差多少\
+\
+}\
+if (!Wb.isEmpty(app.get(\"POWERON_ID\"))) { //如果poweron_id存在就按照插入电费的来。\
+  app.run(\"INSERT INTO cntr_reefinfo(ID,CNTR,CNTR_ID,CREATED_BY,CREATED_ON,CURRTEMP,DEGREES,OPERTYPE,TENANCY_ID,UPDATED_BY,\" +\
+    \"UPDATED_ON,POWERON_ID,BILL_NO,REGTIME,I_E_ID,IS_PREPARE,E_F_ID)VALUES(sys_guid(),{?CNTR?},'\" + cntr_id + \"','\" + app.get('sys.username') + \"',SYSDATE,{?CURRTEMP?}\" +\
+    \",{?DEGREES?},{?OPERTYPE?},'\" + tenancy_id + \"','\" + app.get('sys.username') + \"',SYSDATE,'\" + app.get(\"POWERON_ID\") + \"',{?BILL_NO?},\" +\
+    \"{?timestamp.PULLOUTTIME?},'\" + i_e_id + \"',{?IS_PREPARE?},{?E_F_ID?})\");\
+  app.run(\"update vload_list set cargo_type='L',REEF_ID=1   where cntr_id = '\" + cntr_id + \"' and tenancy_id = '\" + tenancy_id + \"'\", {\
+    transaction: \"commit\"\
+  });\
+  app.run(\"UPDATE PORT_CNTR SET ON_POWER = 0  WHERE CNTR = '\" + cntr + \"'\");\
+  if (E_F_ID == \"F\") {\
+    try {\
+      var map = new HashMap();\
+      map.put(\"cntrId\", cntr);\
+      map.put(\"ieId\", i_e_id);\
+      Wb.newClass(\"dubboForMarkCool\").call(request, map);\
+    } catch (e) {}\
+  }\
+  app.run(\"UPDATE CNTR_REEFINFO SET I_E_ID ='\" + i_e_id + \"',BILL_NO='\" + app.get('BILL_NO') + //如果在拔电的时候进行修改属性\
+    \"',E_F_ID = '\" + E_F_ID + \"',IS_PREPARE = '\" + IS_PREPARE + \"' WHERE ID = '\" + app.get(\"POWERON_ID\") + \"'\");\
+} else { //如果手动插入了拔电记录那么会执行这个sql会找到对应父级id\
+  app.run(\"INSERT INTO cntr_reefinfo(ID,CNTR,CNTR_ID,CREATED_BY,CREATED_ON,CURRTEMP,DEGREES,OPERTYPE,TENANCY_ID,UPDATED_BY,\" +\
+    \"UPDATED_ON,BILL_NO,REGTIME,I_E_ID,IS_PREPARE,E_F_ID)VALUES(sys_guid(),{?CNTR?},'\" + cntr_id + \"','\" + app.get('sys.username') + \"',SYSDATE,{?CURRTEMP?}\" +\
+    \",{?DEGREES?},{?OPERTYPE?},'\" + tenancy_id + \"','\" + app.get('sys.username') + \"',SYSDATE,{?BILL_NO?},\" +\
+    \"{?timestamp.REGTIME?},'\" + i_e_id + \"', {?IS_PREPARE?},{?E_F_ID?})\");\
+  //   app.run(\"UPDATE PORT_CNTR SET ON_POWER = 1  WHERE CNTR = '\" + cntr + \"'\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "插入",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

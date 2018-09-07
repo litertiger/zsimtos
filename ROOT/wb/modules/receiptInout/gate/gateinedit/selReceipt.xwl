@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select r.id,r.cntr,r.created_on,p.phase pphase,r.phase rphase,r.work_type,\" +\
+  \"case when r.work_type<>'YOYI' and r.phase in('PLN','EXE') then '提箱'\" +\
+  \" when r.work_type<>'YOYI' and r.phase in('GET','OUT','RTN') then '收箱'\" +\
+  \" when r.work_type='YOYI' then '移箱' end intype\" +\
+  \" from receipt r\" +\
+  \" left join port_cntr p on r.cntr_id=p.id where r.id in(\" + data.ids + \")\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "多条设备交接单筛选",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,87 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var pieces = 0,\
+  w = 0,\
+  des, des1, ids = [];\
+var rs = Wb.getRecords(app.run(\"select phase,PIECES,WEIGHT from MOVE_LISTB where QUEUE_ID={?QUEUE_ID?} and MOVE_TYPE='DIS'\"));\
+var isPhase = true;\
+if (rs.length == 0) {\
+  isPhase = false;\
+} else {\
+  for (var i = 0; i < rs.length; i++) {\
+    if (rs[i].PHASE == 'PLN' || rs[i].PHASE == 'SND') {\
+      isPhase = false;\
+    }\
+  }\
+}\
+ids.push({\
+\tstate:isPhase\
+});\
+app.send(ids);\
+// var data = app.get();\
+// var pieces = 0,\
+//   w = 0,\
+//   des, des1, ids = [];\
+// var rs = Wb.getRecords(app.run(\"select phase,PIECES,WEIGHT from MOVE_LISTB where QUEUE_ID={?QUEUE_ID?} and MOVE_TYPE='DIS'\"));\
+// var isPhase = true;\
+// for (var i = 0; i < rs.length; i++) {\
+//   if (rs[i].PHASE == 'EXE' || rs[i].PHASE == 'PLN') {\
+//     isPhase = false;\
+//   }\
+//   pieces += rs[i].PIECES;\
+//   w += rs[i].WEIGHT;\
+// }\
+// app.log(\"1\"+pieces+\"2\"+w);\
+// if (isPhase === true) {\
+//   //如果全部入库的话根据，handle_id去查数量加起来\
+//   var rsa = Wb.getRecords(app.run(\"select INQUTY,WEIGHT from BLUK_GOODS where BILL_ID={?BILL_ID?}\")),\
+//     num = 0,\
+//     weight = 0;\
+//   for (var i = 0; i < rsa.length; i++) {\
+//     num += rsa[i].INQUTY;\
+//     weight += rsa[i].WEIGHT;\
+//   }\
+//   app.log(\"00\"+num+\"00\"+weight);\
+//   if (pieces > num) {\
+//     des = \"少了\";\
+//   } else if (pieces < num) {\
+//     des = \"多了\";\
+//   } else {\
+//     des = \"正常\";\
+//   }\
+\
+//   if (w > weight) {\
+//     des1 = \"少了\";\
+//   } else if (w < weight) {\
+//     des1 = \"多了\";\
+//   } else {\
+//     des1 = \"正常\";\
+//   }\
+// }\
+// ids.push({\
+//     des: des,\
+//     des1: des1,\
+//     state:isPhase\
+//   });\
+\
+// app.send(ids);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "判断是否全部入库及其件数、重量对比",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

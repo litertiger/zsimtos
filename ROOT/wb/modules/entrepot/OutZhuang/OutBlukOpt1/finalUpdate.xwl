@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//首先判断柜下面有没有提单\
+var rs=app.run(\"select 1 from vbill_head where VID={?VID?} AND CNTR_ID={?CNTR_ID?} \");\
+if(!rs.next()){\
+\tWb.error(\"不能确认出库完成！\");\
+}\
+\
+// app.run(\"select 1 from BULK_CONTRACT_DT where VID={?VID?} AND IS_ALLOW_BLUK=1\",{errorText:\"不能完成入库\"});\
+app.run(\"select 1 from VBILL_HEAD_E where ID IN(SELECT ID FROM VBILL_HEAD WHERE VID={?VID?} AND CNTR_ID={?CNTR_ID?}) AND IS_ALLOW_BLUK=1\", {\
+  errorText: \"不能完成装箱\"\
+});\
+// app.run(\"select 1 from VBILL_HEAD_E WHERE ID IN (SELECT ID FROM VBILL_HEAD WHERE VID={?VID?}) AND IS_LOAD_CNTR=0 \",{errorText:\"装箱出库没有全部结束\"});\
+\
+var rs = app.run(\"select IS_LOAD_CNTR from VBILL_HEAD_E WHERE ID IN (SELECT ID FROM VBILL_HEAD WHERE VID={?VID?} AND CNTR_ID={?CNTR_ID?}) \");\
+// var rs=app.run(\"select IS_LOAD_CNTR from VBILL_HEAD_E WHERE ID IN (SELECT BILL_ID FROM VLOAD_LIST WHERE VID={?VID?} AND CNTR={?CNTR?})\");\
+while (rs.next()) {\
+  if (rs.getString('IS_LOAD_CNTR') == 0 || rs.getString('IS_LOAD_CNTR') == null || rs.getString('IS_LOAD_CNTR') == \"\") {\
+    Wb.error(\"装箱出库没有全部结束！\");\
+  }\
+  app.log(rs.getString(\"IS_LOAD_CNTR\"));\
+}\
+\
+app.run(\"update BLUK_PLAN set TASKSTATUS='END',ETIME=sysdate where ID={?ID?}\");\
+// app.run(\"update BLUK_BILL SET LCL_ID={?ID?} WHERE CNTR_ID={?CNTR_ID?} \");\
+app.run(\"update PORT_CNTR SET LCL_ID=1,E_F_ID='F',I_E_ID='E',WEIGHT={?FWEIGHT?},VOLUME={?FVOLUME?},PIECES={?PIECES?} WHERE ID={?CNTR_ID?} AND CNTR={?CNTR?}\",{transaction:\"commit\"});\
+app.run(\"insert into PORT_CNTR_LOG(CNTR_ID,CNTR,MESSAGE,UPDATED_ON,UPDATED_BY)\"+\
+        \"values({?CNTR_ID?},{?CNTR?},'整柜拆箱--确认出库完成',sysdate,{?sys.dispname?})\");\
+// app.run(\"update BULK_CONTRACT_DT set IS_BLUK='1' where ID IN (select BILL_ID from BLUK_PLAN a,BLUK_BILL b where a.ID=b.LCL_ID and a.ID={?ID?})\");\
+var data=app.get();\
+request.setAttribute(\"moveType\", \"EF\"); //set参数\
+request.setAttribute(\"cntr\", data.CNTR);\
+request.setAttribute(\"cntrId\", data.CNTR_ID);\
+app.execute('m?xwl=system/common/cntrStore/cntrStorePro');"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

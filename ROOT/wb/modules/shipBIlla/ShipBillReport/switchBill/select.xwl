@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql,data= app.get();\
+sql = '';\
+if(!Wb.isEmpty(data.bill_on_cod)){\
+  sql += ' and (a.bill_no like \\'%\\'||{?bill_on_cod?}||\\'%\\' or a.bill_no_new like \\'%\\'||{?bill_on_cod?}||\\'%\\') ';\
+}\
+if(!Wb.isEmpty(data.sdate)){\
+  sql += ' and a.created_on >= {?timestamp.sdate?}';\
+}\
+if(!Wb.isEmpty(data.edate)){\
+  sql += ' and a.created_on < {?timestamp.edate?}';\
+}\
+if(!Wb.isEmpty(data.checkFind)){\
+  sql += ' and a.CHECK_FLAG = {?checkFind?}';\
+}\
+if(!Wb.isEmpty(data.cntr_operator_cod)){\
+  sql += ' and a.cntr_operator_cod = {?cntr_operator_cod?}';\
+}\
+\
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select a.ID,a.TENANCY_ID,a.ORDER_NO,a.VID,a.VID_NEW,a.AMEDMENT_TYPE,a.FEE_AMEDMENT,a.CNTR_OPERATOR_COD,a.BILL_ID,a.BILL_NO,a.BILL_NO_NEW,a.REASONS\
+,a.NOTES,a.INVALID_FLAG,a.INVALID_BY,a.INVALID_ON,a.CHECK_FLAG,a.CHECK_BY,a.CHECK_ON,a.UPDATED_ON,a.CREATED_ON,a.CREATED_BY,a.UPDATED_BY\
+,NVL(v.lob_vyg,v.lib_vyg) VYG,v.lib_vyg,v.lob_vyg,e.vessel_name\
+  FROM VBILL_HEAD_AMEDMENT a,vessel_visit v,vessel_voyage e where 1=1 {#sql#} and a.vid = v.id and v.vid = e.id  "
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSGSWHD": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

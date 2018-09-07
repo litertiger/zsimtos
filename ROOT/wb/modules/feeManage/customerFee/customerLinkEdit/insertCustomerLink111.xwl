@@ -1,0 +1,75 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "query1",
+     "jndi": "jdbc/basecode",
+     "sql": "insert into C_CUSTOMER_LINK(ID, C_ID, CUS_NAME, TEL, EMAIL, LINK_NAME, TENANCY_ID, \
+                          ORG_ID, CREATED_MAN, CREATED_ON, UPDATED_MAN, UPDATED_ON, GOV_CODE, WECHATMSG_TYPE) \
+values('{#sys.id#}',{?C_ID?},{?CUS_NAME?},{?TEL?},{?EMAIL?},{?LINK_NAME?},{?TENANCY_ID?},\
+       {?ORG_ID?},'{#sys.username#}', sysdate,'{#sys.username#}', sysdate,{?GOV_CODE?},{?WECHATMSG_TYPE?})\
+\
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "response1",
+     "string": "{ID:'{#sys.id#}'}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "response"
+   },
+   {
+    "configs": {
+     "itemId": "query2",
+     "jndi": "jdbc/basecode",
+     "loadData": "true",
+     "sql": "select ID from C_CUSTOMER_LINK where ID='{#sys.id#}'"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query3",
+     "jndi": "jdbc/basecode",
+     "sql": "select 1 from C_WECHAT_SUBSCRIB where WECHATID='{#query2.ID#}'"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query4",
+     "jndi": "jdbc/basecode",
+     "sql": "insert into C_WECHAT_SUBSCRIB (ID, WECHATID, MSGID, ENABLED) values (SYS_GUID(),'{#query2.ID#}',{?MSGID?},'1')"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

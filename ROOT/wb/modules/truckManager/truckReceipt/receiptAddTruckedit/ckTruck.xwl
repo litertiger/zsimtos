@@ -1,0 +1,63 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var nos = \"\";\
+var truck = Wb.getRecords(app.run(\"select in_car,phase from truck_visit\" +\
+  \" where tenancy_id='\" + tenancyid + \"' and in_car='\" + data.truckno + \"' and phase<>'FIN'\"));\
+if (truck.length > 0) {\
+  var phase = \"\";\
+  if (truck[0].PHASE == \"EXE\")\
+    phase = \"场内提箱\";\
+  if (truck[0].PHASE == \"OUT\")\
+    phase = \"场外\";\
+  if (truck[0].PHASE == \"RTN\")\
+    phase = \"场内还箱\";\
+  app.send({\
+    success: false,\
+    msg: \"车辆\" + data.truckno + \"有拖送任务未完成.当前状态:\" + phase\
+  });\
+} else {\
+  var sql = \"select t.truck_no from c_truck t left join c_employee e on t.trucker_no=e.empno\" +\
+    \" where t.truck_no='\" + data.truckno + \"' and t.TENANCY_ID='\" + tenancyid + \"'\";\
+  //and(e.hei is null or e.hei=0) \
+  if (nature == \"5\" || nature == \"6\")\
+    sql += \" and t.ismy=5\";\
+  truck = Wb.getRecords(app.run(sql, {\
+    jndi: \"jdbc/basecode\"\
+  }));\
+  if (truck.length < 1)\
+    app.send({\
+      success: false,\
+      msg: \"车辆\" + data.truckno + \"未备案\"\
+    });\
+  else\
+    app.send({\
+      success: true\
+    });\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "验证车辆",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

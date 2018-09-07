@@ -1,0 +1,251 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "title": "{#Str.login#}",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "win",
+    "fullscreen": "true",
+    "scrollable": "true"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "titlebar1",
+      "title": "{#Var.sys.app.title#}",
+      "docked": "top",
+      "titleAlign": "left"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "loginBtn",
+       "handler": "app.login",
+       "glyph": "f007",
+       "ui": "action",
+       "text": "@Str.login",
+       "align": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "tbutton"
+     }],
+     "type": "ttitlebar"
+    },
+    {
+     "configs": {
+      "instructions": "@Str.enterLogin",
+      "itemId": "tfieldset1"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "container1"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "icon",
+          "width": "30",
+          "style": "color:#c8c8c8;",
+          "html": "<span class='wb_glyph' style='position:relative;top:11px;left:10px;'>&#xf007;<\/span>"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tcomp"
+        },
+        {
+         "configs": {
+          "itemId": "username",
+          "flex": "1",
+          "placeHolder": "@Str.username",
+          "required": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "ttext"
+        }
+       ],
+       "type": "tcontainer"
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "container2",
+        "style": "border-bottom:1px solid #c8c8c8;border-top:1px solid #c8c8c8;"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "icon",
+          "width": "30",
+          "style": "color:#c8c8c8;",
+          "html": "<span class='wb_glyph' style='position:relative;top:13px;left:10px;'>&#xf023;<\/span>"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tcomp"
+        },
+        {
+         "configs": {
+          "itemId": "password",
+          "xtype": "passwordfield",
+          "flex": "1",
+          "placeHolder": "@Str.password",
+          "required": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "ttext"
+        }
+       ],
+       "type": "tcontainer"
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "verifyContainer",
+        "style": "border-bottom:1px solid #c8c8c8;"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "icon",
+          "width": "30",
+          "style": "color:#c8c8c8;",
+          "html": "<span class='wb_glyph' style='position:relative;top:13px;left:10px;'>&#xf046;<\/span>"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tcomp"
+        },
+        {
+         "configs": {
+          "border": "0",
+          "itemId": "verifyCode",
+          "flex": "1",
+          "placeHolder": "@Str.verifyCode",
+          "required": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "ttext"
+        },
+        {
+         "configs": {
+          "itemId": "verifyImage",
+          "margin": "15 5 0 2",
+          "width": "90",
+          "height": "20"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "timage",
+         "events": {"tap": "app.changeVC();\
+app.verifyCode.focus(true, true);"}
+        }
+       ],
+       "type": "tcontainer"
+      },
+      {
+       "configs": {
+        "itemId": "saveToggle",
+        "labelWidth": "160",
+        "label": "@Str.saveUserName"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttoggle",
+       "events": {"change": "if (!newValue)\
+  Ext.util.Cookies.clear('sys.username');"}
+      }
+     ],
+     "type": "tfieldset"
+    }
+   ],
+   "type": "tcontainer",
+   "events": {
+    "painted": "if (!app.notSetData) {\
+  var username = Wb.getCookie('sys.username');\
+  app.saveToggle.setValue(username ? 1 : 0);\
+  if (Wb.isEmpty(username)) {\
+    //单独timeout防止focus任务被cancel\
+    setTimeout(function() {\
+      app.username.focus();\
+    }, 50);\
+  } else {\
+    app.username.setValue(username);\
+    setTimeout(function() {\
+      app.password.focus();\
+    }, 50);\
+  }\
+}",
+    "destroy": "Wb.loginWinShown = false;",
+    "action": "app.login();",
+    "initialize": "app.verifyEnabled = '{#Var.sys.session.verifyImage.enabled#}' === 'true';\
+if (app.verifyEnabled)\
+  app.verifyImage.setSrc('m?xwl=system/sys/session/get-verify-image');\
+else\
+  app.verifyContainer.hide();"
+   }
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  changeVC: function() {\
+    app.verifyImage.setSrc('m?xwl=system/sys/session/get-verify-image&' + Wb.getId());\
+  },\
+  loginSuccess: function(resp) {\
+    if (app.saveToggle.getValue())\
+      Wb.setCookie('sys.username', app.username.getValue());\
+    window.location = app.referUrl || resp.responseText;\
+  },\
+  login: function() {\
+    if (!Wb.verify(app.win))\
+      return;\
+    Wb.request({\
+      url: 'verify-user',\
+      out: app.win,\
+      message: Str.processLogin,\
+      showError: false,\
+      success: app.loginSuccess,\
+      failure: function(resp) {\
+        if (app.verifyEnabled)\
+          app.changeVC();\
+        Wb.except(resp, function() {\
+          var s = resp.responseText;\
+          switch (s) {\
+            case Str.vcInvalid:\
+            case Str.vcExpired:\
+              if (!app.verifyCode.hidden)\
+                app.verifyCode.focus(true, true);\
+              break;\
+            case Str.passwordInvalid:\
+              app.password.focus(true, true);\
+              break;\
+            default:\
+              app.username.focus(true, true);\
+              break;\
+          }\
+        });\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "移动登录",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var ieId=app.get('ieId'),TENANCY_ID=app.get('sys.TENANCY_ID'),username=app.get('sys.username');\
+var createDate, id = SysUtil.getId(),shipNo=app.get('shipNo'),//app.get(\"batch\"),\
+      nature=app.get(\"sys.NATURE\"),data = app.get();\
+var vHeandwhereSql=\"\",vListwhereSql=\"\";\
+if(  nature=='5'){\
+  vHeandwhereSql=\" and  VBILL_HEAD.CREATED_BY='\"+username+\"'\";\
+  vListwhereSql=\"  and  VLOAD_LIST.CREATED_BY='\"+username+\"'\";\
+}\
+  \
+\
+app.run(\"update  ZS_IMTOS.PORT_CNTR  set E_DSHIP_NO={?shipNo?} where TENANCY_ID='\"+TENANCY_ID+\"' and  CNTR  in (select VLOAD_LIST.CNTR    \"+\
+          \"  FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id \"+vHeandwhereSql+\" and  VBILL_HEAD.TENANCY_ID='\"+TENANCY_ID+\"' and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  vbill_head.VID={?shipNo?} )\");\
+app.run(\"update   zs_imtos.VLOAD_LIST set CNTR_ID=(select  ID from ZS_IMTOS.PORT_CNTR where PORT_CNTR.CNTR=VLOAD_LIST.cntr and PORT_CNTR.tenancy_id='\"+TENANCY_ID+\"' ) \"+\
+        \"  where    VLOAD_LIST.VID={?shipNo?} and VLOAD_LIST.TENANCY_ID='\"+TENANCY_ID+\"'  \");\
+app.run(\"update  port_cntr  set   (PIECES,WEIGHT, VOLUME)=(select sum(PIECES),sum(WEIGHT), sum(VOLUME) from VLOAD_LIST where VID={?shipNo?} and CNTR_ID=port_cntr.ID and I_E_ID='E' )  \"+\
+        \" where  E_DSHIP_NO={?shipNo?}  and I_E_ID='E' and  exists (select 1 from VLOAD_LIST where CNTR_ID=port_cntr.ID and   VID={?shipNo?}  and lcl_id=1 )\");\
+\
+app.run(\"update  vbill_head set  PHASE='1'  where  VID={?shipNo?} and   PHASE='9'  \"+vHeandwhereSql+\" and VBILL_HEAD.TENANCY_ID='\"+TENANCY_ID+\"' \");\
+app.run(\"update  VLOAD_LIST set  PHASE='1'  where  VID={?shipNo?} and   PHASE='9'  \"+vListwhereSql+\"  and VLOAD_LIST.TENANCY_ID='\"+TENANCY_ID+\"' \");\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "同步上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//判断件数是否符合条件（一个是舱单的件数、另一个是bill的件数）\
+// var rs = app.run(\"select nvl(a.PIECES-b.PIECES,0) num from VBILL_HEAD a,BLUK_BILL b where a.ID=b.BILL_ID(+) and b.CFSBILL_ID={?ID?}\");\
+// if (rs.next()) {\
+//   var num = rs.getString('num');\
+//   if (num !== '0') {\
+//     throw ('入库数量有误');\
+//   }\
+// } else {\
+//   throw ('入库数量有误');\
+// }\
+var dispname=app.get('sys.dispname');\
+app.run(\"select 1 from VBILL_HEAD_E where IS_ALLOW_BLUK =1 AND ID={?BILL_ID?}\",{errorText:\"不能装箱\"} );\
+\
+//出库时，需要改变更新bluk_bill的lcl_id\
+app.run(\"update BLUK_BILL  set  LCL_ID = (select ID FROM BLUK_PLAN WHERE VID={?VID?} and CNTR_ID={?CNTR_ID?} AND VANNINGDV='E'),TASKSTATUS='END' WHERE BILL_ID={?BILL_ID?}\");\
+\
+app.run(\"update BLUK_GOODS set OUTQUTY=INQUTY,QUTY=0,location='' where BILL_ID={?BILL_ID?}\");\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,STORE_TIME,BILL_NO,SIGNERCFS,WEIGHT, VOLUME) \" +\
+  \"select ID, '1', OUTQUTY,sysdate,BILL_NO,'\"+dispname+\"',WEIGHT, VOLUME from BLUK_GOODS where BILL_ID={?BILL_ID?}  \");\
+// app.run(\"update BLUK_GOODS set OUTQUTY=INQUTY,QUTY=0 where CFSBILL_ID = {?ID?} AND BILL_ID={?BILL_ID?}\");\
+// app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES) \" +\
+//   \"select ID, '1', OUTQUTY from BLUK_GOODS where CFSBILL_ID={?ID?} AND BILL_ID={?BILL_ID?}  \");\
+//更新BULK_CONTRACT_DT 的IS_LOAD为1\
+app.run(\"update VBILL_HEAD_E set IS_LOAD_CNTR=1,KEEPER_NAME='\"+dispname+\"' where ID={?BILL_ID?}\");\
+\
+//  var rs = app.run(\"select c.id,c.SHIPPER from bluk_plan a,vload_list b,vbill_head c where a.vid=b.vid and b.bill_id=c.id and a.ID={?LCL_ID?}\"),\
+//    billId, shipper;\
+//  while (rs.next()) {\
+//    shipper = rs.getString('SHIPPER');\
+//    billId = rs.getString('ID');\
+//  }\
+//  app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+//         DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+//         values(sys_guid(),'\" + shipper + \"','\" + billId + \"',sysdate,{?timestamp.WORKDATE?},'','IN','',sysdate,sysdate,{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+// '','','',{?ID?},'','',{?MANNUM?},'','')\");\
+\
+ "
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1
+ },
+ "title": "确认装箱修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

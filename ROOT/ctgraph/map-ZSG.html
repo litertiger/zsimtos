@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+      .mapText {position:absolute;color:red;font-weight:800;font-size:24px;border:2px solid #F00;width:150px;height:90px;transform:rotate(2deg);text-align:center;}
+      #bkDiv {z-index:1}
+      #mapDiv {z-index::2}
+    </style>
+  </head>
+  <body>
+    <div id='bkDiv'>
+      <img src="map-ZSG.jpg" name="zsg" width="2337" height="1653" usemap="#zsgMap" id="zsg" border="0" />
+    </div>
+    <div id='mapDiv'>
+      <map name="zsgMap" id="zsgMap">
+        <area shape="poly" coords="1151,332,1338,336,1340,422,1147,415" href="#" id='A1'/>
+        <area shape="poly" coords="1340,337,1535,343,1529,427,1341,422" href="#" id='A2'/>
+        <area shape="poly" coords="1537,343,1734,352,1730,437,1530,431" href="#" id='A3'/>
+        <area shape="poly" coords="1146,428,1336,434,1324,520,1142,510" href="#" id='A4'/>
+        <area shape="poly" coords="1340,432,1532,444,1528,526,1324,516" href="#" id='A5'/>
+        <area shape="poly" coords="1534,442,1728,448,1720,534,1530,526" href="#" id='A6'/>
+      </map>
+    </div>
+    <div id="msg" style="display:none; position:absolute; background:lightyellow; left:0px; top:20px;z-index:3"></div>
+    <script type="text/javascript">
+      function clickArea()
+      {
+        this.click();
+      }
+      zsgMap.addEventListener('mouseover',
+                              function(e){
+        msg.style.left = e.pageX + "px";
+        msg.style.top = e.pageY + "px";
+        msg.style.display="block";
+        msg.innerText = e.target.id;
+      });
+      zsgMap.addEventListener('mousemove',function(e){
+        if(msg.style.display=="none")
+          return;
+        var e = event;
+        msg.style.left = e.pageX + 10 + "px";
+        msg.style.top = e.pageY + 10 + "px";
+      });
+      zsgMap.addEventListener('mouseout',
+                              function (){
+        msg.style.display="none";
+      });
+      zsgMap.addEventListener('click',function (e){
+        msg.style.display="none";
+        var sql = " and yard_position like '"+ e.target.id +"%'";
+        top.Wb.open({
+          url: "m?xwl=controlManage/portcntr/portCntr",
+          title: "箱列表",
+          inframe: false,
+          success: function(app){
+            app.grid1.store.autoLoad = false
+            app.grid1.store.autoLoadTask && app.grid1.store.autoLoadTask.cancel()
+            app.moreSql(sql);
+            console.log(app)
+          }
+        });
+      });
+      var areas = zsgMap.querySelectorAll('area');
+      var ids=[]
+      for(var i=0;i<areas.length;++i)
+      {
+        var span = document.createElement('span');
+        var pt = areas[i].coords.split(',');
+        span.className = 'mapText';
+        span.style.top = pt[1]+'px';
+        span.style.left = pt[0]+'px';
+        span.id = 'span'+areas[i].id;
+        span.innerHTML = "this is " + areas[i].id;
+        span.onclick = clickArea.bind(areas[i]);
+        bkDiv.appendChild(span);
+        ids.push(areas[i].id);
+      }
+      /*top.Wb.request({url:'m?xwl=controlManage/mapcntrs',params:{ids:ids},success:function(resp){
+        var counts = top.Wb.decode(resp.responseText);
+        for(var i in counts)
+          window["span"+i].innerHTML = counts[i];
+      }});*/
+    </script>
+  </body>
+</html>

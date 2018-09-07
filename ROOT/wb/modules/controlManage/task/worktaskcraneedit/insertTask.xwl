@@ -1,0 +1,156 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var toPos = app.get(\"to_pos\"),\
+  tenancyId = app.get('sys.TENANCY_ID'),\
+  code=app.get('sys.GOV_CODE'),\
+  action;\
+if (!toPos)\
+  throw \"目标位置不能为空！\";\
+if (toPos.length < 2)\
+  throw \"目标位置至少要录入2位场号！\";\
+var toYard = toPos.substr(0, 2);\
+var cntrs = Wb.decode(app.get(\"cntrs\"));\
+if (!cntrs)\
+  throw \"箱号列表不能为空！\";\
+\
+app.run(\"select 1 from port_cntr  where e_f_id='F' and tenancy_id='\" + tenancyId + \"' and cntr in('\" + cntrs.join(\"','\") + \"') and CNTR_OPERATOR_COD='\"+code+\"'\", {\
+    errorText: \"驳船重柜不能申请移箱！\"\
+  });\
+\
+var result = app.run(\"select count(0) from port_cntr where e_f_id='F' and tenancy_id='\" + tenancyId + \"' and cntr in('\" + cntrs.join(\"','\") + \"')\");\
+if (result && result.next() && result.getInt(1) > 0) {\
+  result = app.run(\"select count(0) from c_cy_area where category in('O','J') and cy_area_no=substr({?to_pos?},1,2) and tenancy_id='\" + tenancyId + \"'\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next() && result.getInt(1) == 1)\
+    throw '重柜不能进入吉柜堆存场';\
+}\
+\
+result = app.run(\"select f_check_plac(cntr,{?to_pos?},tenancy_id) from port_cntr where f_check_plac(cntr,{?to_pos?},tenancy_id)<>'99' and cntr in('\" + cntrs.join(\"','\") + \"') and tenancy_id='\" + tenancyId + \"'\");\
+if (result && result.next()) {\
+  throw result.getString(1);\
+}\
+\
+var cntrYards = Ag.getResultObj(app.run(\"select cntr ,substr(yard_position,1,2) from port_cntr where yard_position is not null and tenancy_id='\" + tenancyId + \"' and cntr in('\" + cntrs.join(\"','\") + \"')\"));\
+if (!cntrYards)\
+  throw \"获得箱位失败！\";\
+\
+var y2ys = Ag.getYardCfsMap(app);\
+if (!y2ys)\
+  throw \"获得箱位所在场区失败！\";\
+\
+try {\
+  var hdIds = Wb.decode(app.get(\"handle_id\"));\
+  var isArr = Wb.isArray(hdIds);\
+} catch (e) {}\
+\
+app.run(\" select 1 from move_list  where  phase not in  ('CNL','TMP','FIN') and move_type='MOV'  and  \"+\
+        \" cntr_id in ( select  ID  from   port_cntr  where  tenancy_id='\" + tenancyId + \"'   \"+\
+        \" and cntr in('\" + cntrs.join(\"','\") + \"')  and  YARD_POSITION=move_list.from_pos   )  and to_pos={?to_pos?} \", {\
+    errorText: \"已经有相同的移箱指令，不能再次移箱！\"\
+  });\
+app.run(\"select 1 from receipt  where  phase = 'EXE' and  WORK_TYPE='YOYI' and  cntr_id in ( select  ID  from   port_cntr  where  tenancy_id='\" + tenancyId + \"' and cntr in('\" + cntrs.join(\"','\") + \"')  ) \", {\
+    errorText: \"已经有移箱设备交接单，请联系中控尽快作业！\"\
+  });\
+\
+app.run(\"select 1 from move_list,task where task.ID=move_list.QUEUE_ID and   move_list.PHASE  in('SND','EXE') and task.TASK_TYPE='MOVE' and  cntr_Id in( select ID from port_cntr where    tenancy_id='\" + tenancyId + \"' \" +\
+  \"and cntr in('\" + cntrs.join(\"','\") + \"'))\", {\
+    errorText: \"有移箱指令未结束，请联系中控后再处理\"\
+  });\
+var taskId = app.get('sys.id'),\
+  taskRs = app.run(\"select ID ,phase from  task where task_type='MOVE'  and  tenancy_id='\" + tenancyId + \"' and  task_name=to_char(sysdate,'yyyy-mm-dd')||' 移箱' \");\
+if (taskRs.next()) {\
+  taskId = taskRs.getString('ID');\
+  action = 'update';\
+  if (taskRs.getString('PHASE') == 'FIN')\
+    app.run(\"update task set  PHASE='EXE'  where  ID='\" + taskId + \"'  \");\
+} else {\
+  action = 'create';\
+  app.run(\"insert into task(id,tenancy_id,task_type,task_name,phase,auto_release,auto_position,reposition,priority,created_by,created_on,updated_by,updated_on,wait_untill) \" +\
+    \"values('\" + taskId + \"',{?sys.TENANCY_ID?},{?task_type?},to_char(sysdate,'yyyy-mm-dd')||' 移箱' ,'PLN','1','1','1',1,{?sys.username?},sysdate,{?sys.username?},sysdate,{?timestamp.wait_untill?})\", {\
+      transaction: \"start\"\
+    });\
+}\
+if (cntrs && cntrs.length > 0)\
+  app.run(\"update port_cntr set  SPEC_STOW2='1'  where  tenancy_id='\" + tenancyId + \"' and cntr in('\" + cntrs.join(\"','\") + \"') \");\
+\
+  app.run(\"insert into move_list(id,queue_id,tenancy_id,move_type,phase,transporter5,priority,cntr,cntr_iso,cntr_size,cntr_type,oog_id,dang_id,reef_id,on_power,reqs_power,bundl_id,category_id,e_f_id,trade_id,i_e_id,bill_no,from_pos,to_pos,from_pos_typ,to_pos_typ,position_status,trclass1,trclass2,trclass3,trclass4,created_by,created_on,updated_by,updated_on,y2y_id,handle_id,cntr_id,notes)\" +\
+    \" select sys_guid(),'\" + taskId + \"',{?sys.TENANCY_ID?},'MOV','PLN',{?needTruck?},1,cntr,cntr_iso,cntr_size,cntr_type,oog_id,dang_id,reef_id,on_power,reqs_power,bundl_id,category_id,e_f_id,trade_id,i_e_id,bill_no,yard_position,{?to_pos?},'B',{?to_pos_typ?},phase,'TG','YC','TG','YC',{?sys.username?},sysdate,{?sys.username?},sysdate,{?y2y?},{?handle_id?},id,{?remark?} from port_cntr where cntr={?cntr?} and tenancy_id='\" + tenancyId + \"' and yard_position is not null\", {\
+      arrayData: cntrs.map(function(cntr, i) {\
+        var row = {\
+          cntr: cntr,\
+          y2y: y2ys[cntrYards[cntr]] == y2ys[toYard] ? 0 : 1 //(y2ys[cntrYards[cntr]] === 'JGQ' || y2ys[toYard] === 'JGQ') ? 1 : 0\
+        };\
+        if (isArr)\
+          row.handle_id = hdIds[i];\
+        return row;\
+      }),\
+      transaction: \"commit\"\
+    });\
+//自动发送\
+if (app.get('autoSend')) {\
+  var moveListService = com.ag.edi.SpringApplicationContext.getBean(\"moveListService\");\
+  var map = new HashMap();\
+  map.put(\"id\", taskId);\
+  map.put(\"type\", app.get('task_type'));\
+  map.put(\"cntrs\", app.get(\"cntrs\"));\
+  map.put(\"tenancyId\", tenancyId);\
+  map.put(\"state\", \"0\");\
+  map.put(\"username\", app.get('sys.username'));\
+  moveListService.instSplit(map);\
+}\
+var client = new RabbitClient();\
+\
+\
+try {\
+  var send = client.open() && client.routeSend(\"ex_task\", '#', {\
+    info: {\
+      type: \"task\",\
+      action: action,\
+      senduser: app.get(\"sys.username\"),\
+      sendmodule: \"taskMointor\",\
+      sendtime: (new Date()).getTime()\
+    },\
+    data: {\
+      id: app.get('sys.id')\
+    }\
+  });\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: '任务生成成功，但发送消息异常'\
+  });\
+} finally {\
+  client.close();\
+}\
+app.send({\
+  success: true\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "yard": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "ZSYARDCONT": 1,
+  "xlwmcgs": 1,
+  "ZSJJ": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "生成任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

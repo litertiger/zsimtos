@@ -1,0 +1,181 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "begdate",
+         "allowBlank": "false",
+         "hidden": "false",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "enddate",
+         "allowBlank": "false",
+         "hidden": "false",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "pickList": "[\
+  [\"all\", \"全部\"],\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+         "emptyText": "内外贸",
+         "width": "60",
+         "value": "all",
+         "forceSelection": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var begdate = app.begdate.getRawValue().substring(0, 10);\
+var enddate = app.enddate.getRawValue().substring(0, 10);\
+\
+\
+AF1.func(\"setSource\", \"ds1 \\r\\
+ m?xwl=countManage/cntrNumCount/shipperCount\");\
+AF1.func(\"SetParas\",  \"ds1 \\r\\
+ para=1;begdate=\" + begdate + \";enddate=\" +enddate+ \";tradeId=\" +app.tradeId.getValue()+ \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A2='\" +begdate + \"至\" + enddate + \"客户对比清单'/>\");\
+\
+// alert(AF1.func(\"getSource\",\"ds1\"));\
+AF1.func(\"Calc\", \"\");\
+"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);\
+"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+ \
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/mtbb/sc_month1.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"setSource\", \"ds1 \\r\\
+ m?xwl=countManage/cntrNumCount/shipperCount\");\
+\
+\
+  }\
+  \
+};\
+\
+\
+\
+\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+\
+var today = new Date(); //获取当前日期\
+app.begdate.setValue(today);\
+app.enddate.setValue(today);\
+\
+",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "ZSGGB": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "客户月度报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

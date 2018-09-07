@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),goods=app.get(\"goods\"),nature=app.get(\"sys.NATURE\"),bulkType=app.get(\"bulkType\"), govCode=app.get(\"sys.GOV_CODE\");; //租户id\
+\
+\
+var sql=\"SELECT ASSOC_ID, AUTO_RELEASE_FLAG, AUTO_RELEASE_TIME, A.BILL_NO, BILL_TYPE, CLEAR_FLAG, CNTR_ID, CONTA_NO, \"+\
+\"CREATE_DATE CREATE_DATE, CUSREL_ID, CUSTOMS_CODE, DATA_FROM, DB_TYPE, DECL_TRAF_MODE, DISTRICT_IN_TIME, DISTRICT_OUT_TIME,\"+\
+    \"DISTRICT_PORT, DOCK_CODE, EMPTY_CONTA_MARK, FILE_NAME, A.FORM_ID, GATE_OUT_TIME, A.ID, I_E_FLAG, LOAD_IN_TIME, \"+\
+    \"LOAD_PORT, MANIFEST_ID, OP_ER, ORDER_ID, PARENT_BILL_NO, REL_TYPE, STATUS, TAG_ID, A.TENANCY_ID, TRANSPORT_ID, \"+\
+    \"TURN_ID, VALID_FLAG, VOYAGE_NO from CN_CAP0039 A where A.TENANCY_ID='\"+tenancyid+\"'\";\
+       \
+if(!Wb.isEmpty(data.sdate)&& !Wb.isEmpty(data.edate)){\
+ sql+=\" and A.CREATE_DATE>='\"+data.sdate+\"' \"+\
+     \" and A.CREATE_DATE<='\"+data.edate+\" 23:59:59' \";\
+//   sql+=\" and to_date(CREATE_DATE,'yyyy-MM-dd HH24:MI:SS')>=to_date('\"+data.sdate+\" 00:00:00','yyyy-MM-dd HH24:MI:SS') and  to_date(CREATE_DATE,'yyyy-MM-dd HH24:MI:SS')<=to_date('\"+data.sdate+\" 23:59:59','yyyy-MM-dd HH24:MI:SS')\";\
+}\
+\
+\
+\
+\
+if(!Wb.isEmpty(data.billNo)){\
+\tsql+=\" and a.BILL_NO like '%'||{?billNo?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.ieId)){\
+\tsql+=\" and a.I_E_FLAG={?ieId?}\";\
+}\
+\
+if(!Wb.isEmpty(data.cntr)){\
+\tsql+=\" and a.CONTA_NO={?cntr?}\";\
+}\
+\
+if(!Wb.isEmpty(data.typeId)){\
+\tsql+=\" and a.REL_TYPE={?typeId?}\";\
+}\
+sql +=\" order by  CREATE_DATE desc\";\
+app.send(Wb.getRecords(app.run(sql)));\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "SCANJB": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),goods=app.get(\"goods\"),nature=app.get(\"sys.NATURE\"),bulkType=app.get(\"bulkType\"), govCode=app.get(\"sys.GOV_CODE\");; //租户id\
+\
+var sql=\"SELECT VESSEL_CODE, VESSEL_NAME, I_E,TO_CHAR (ETA, 'yyyy-mm-dd') ETA,\\\
+               decode( DECODE (i_e, 'I', itrade_id, etrade_id),'1','外贸','内贸')trade_id,\\\
+       DECODE (I_E, 'I', LIB_VYG, LOB_VYG) VOYAGE_NO,DECODE (I_E, 'I', nvl(IS_SD,0), nvl(OS_SD,0)) SD\\\
+  FROM VESSEL_VISIT, VESSEL_VOYAGE\\\
+ WHERE VESSEL_VISIT.VID = VESSEL_VOYAGE.ID\\\
+   AND TO_CHAR (ETA, 'yyyy-mm-dd') > '1'\\\
+  AND VESSEL_VISIT.TENANCY_ID='\"+tenancyid+\"' \";\
+\
+\
+  \
+if(!Wb.isEmpty(data.sdate)&& !Wb.isEmpty(data.edate)){\
+ sql+=\" and TO_CHAR (ETA, 'yyyy-mm-dd')>='\"+data.sdate+\"' \"+\
+     \" and TO_CHAR (ETA, 'yyyy-mm-dd')<='\"+data.edate+\" 23:59:59' \";\
+//   sql+=\" and to_date(CREATE_DATE,'yyyy-MM-dd HH24:MI:SS')>=to_date('\"+data.sdate+\" 00:00:00','yyyy-MM-dd HH24:MI:SS') and  to_date(CREATE_DATE,'yyyy-MM-dd HH24:MI:SS')<=to_date('\"+data.sdate+\" 23:59:59','yyyy-MM-dd HH24:MI:SS')\";\
+}\
+\
+\
+\
+\
+if(!Wb.isEmpty(data.lock)){\
+\tsql+=\" and DECODE (I_E, 'I', nvl(IS_SD,0),  nvl(OS_SD,0) )={?lock?}\";\
+}\
+\
+\
+if(!Wb.isEmpty(data.ieId)){\
+\tsql+=\" and I_E={?ieId?}\";\
+}\
+\
+if(!Wb.isEmpty(data.tradeId)){\
+\tsql+=\" and DECODE (I_E, 'I', ITRADE_ID, ETRADE_ID)={?tradeId?}\";\
+}\
+\
+sql +=\" order by  ETA desc\";\
+app.send(Wb.getRecords(app.run(sql)));\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "锁船查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

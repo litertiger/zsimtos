@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+var RESOURCE_ID = \"\",\
+  RESOURCE_NAME = \"\";\
+var sql = \"select work_task_crane.DUTY_ID,'\" + RESOURCE_ID + \"' RESOURCE_ID,'\" + RESOURCE_NAME + \"' RESOURCE_NAME, work_task_crane.beg_work_tim, work_task_crane.end_work_tim,\" +\
+  \" work_task_crane.tenancy_id \" +\
+  \" from work_task_crane where  work_task_crane.tenancy_id ='\" + tenancyId + \"' and  work_task_crane.TASK_ID='\" + data.taskId + \"'\";\
+var rs = Wb.getRecords(app.run(sql));\
+app.log(rs);\
+if (rs.length == 0) {\
+  sql = \"select 1 from dual where 1=2\";\
+} else {\
+  for (var i = 0; i < rs.length; i++) {\
+    var ry = app.run(\"select EMPNAME,EMPNO from C_EMPLOYEE where ID='\" + rs[i].DUTY_ID + \"'\", {\
+      jndi: \"jdbc/basecode\"\
+    });\
+    if (ry.next()) {\
+      app.log(ry.EMPNAME);\
+      RESOURCE_NAME = ry.EMPNAME;\
+      RESOURCE_ID = ry.EMPNO;\
+    }\
+\
+  }\
+}\
+app.log(sql);\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

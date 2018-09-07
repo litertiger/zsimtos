@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select id,cntr, out_tray_no,in_driver_name,in_car_hp,cmdy_code,trade_id,seal_no,f_address,to_char(yzc_on,'yyyy-mm-dd') yzc from receipt where cntr like '%'||{?value?}||'%' and out_driver_id is null and phase='OUT'\");\
+if (result && result.next()) {\
+  var trade = result.getString('trade_id') || '';\
+  trade = trade = '1' ? '外贸' : trade = '2' ? '内贸' : trade;\
+  app.send({\
+    id: result.getString('id'),\
+    cntr: result.getString('cntr'),\
+    tray: result.getString('out_tray_no') || '',\
+    name: result.getString('in_driver_name') || '',\
+    truck: result.getString('in_car_hp') || '',\
+    code: result.getString('cmdy_code') || '',\
+    trade: trade,\
+    seal: result.getString('seal_no') || '',\
+    addr: result.getString('f_address') || '',\
+    yzc: result.getString('yzc') || ''\
+  });\
+}\
+app.send({\
+  errstr: '未找到柜信息'\
+});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查询捡柜信息",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

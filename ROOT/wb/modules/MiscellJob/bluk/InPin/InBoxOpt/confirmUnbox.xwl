@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"SELECT 1 FROM bluk_bill, bluk_goods \"+\
+\" WHERE bluk_bill.bill_id = bluk_goods.bill_id \"+\
+ \"  AND lcl_id = {?ID?}\"+\
+ \"  AND bluk_bill.pieces <> bluk_goods.INQUTY\",{  errorText:\"入库数和舱单数据不符不能确认\"}    \
+       );\
+\
+app.run(\"select 1 from bluk_bill where TASKSTATUS <> 'FIN' and LCL_ID={?ID?}\",{errorText:\"未全部入库，不能确认拆箱!\"});\
+\
+app.run(\"update BLUK_PLAN set TASKSTATUS='END' where ID={?ID?}\",{ transaction: 'start'});\
+app.run(\"update BLUK_BILL set TASKSTATUS='END' where LCL_ID={?ID?}\");\
+app.run(\"update port_cntr set LCL_ID=0,E_F_ID=decode({?ieId?},'I','E','F')   where ID=(select CNTR_ID  from  BLUK_PLAN where  ID={?ID?})\");\
+\
+//出入库记录\
+var tr=[];\
+var rs=app.run(\"select B.ID,B.INQUTY,C.BILL_ID from BLUK_PLAN a,BLUK_GOODS b,BLUK_BILL c where a.ID=C.LCL_ID AND b.BILL_ID=C.BILL_ID AND A.ID={?ID?}\"),id,inquty,billId;\
+while(rs.next()){\
+\tid=rs.getString('ID');\
+  inquty=rs.getString('INQUTY');\
+  billId=rs.getString('BILL_ID');\
+  tr.push({\
+  \tID:id,\
+    INQUTY:inquty,\
+    BILL_ID:billId\
+  });\
+}\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, CFSBILL_ID)values({?ID?},'0',{?INQUTY?},{?BILL_ID?})\",{arrayData: new org.json.JSONArray(Wb.encode(tr))} );\
+\
+// var rs=app.run(\"select c.id,c.SHIPPER from bluk_plan a,vload_list b,vbill_head c where a.vid=b.vid and b.bill_id=c.id and a.vid={?VID?}\"),billId,shipper;\
+// while(rs.next()){\
+//   shipper=rs.getString('SHIPPER');\
+//   billId=rs.getString('ID');\
+// }\
+//插入作业票\
+// app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+//         DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+//         values(sys_guid(),'\"+shipper+\"','\"+billId+\"',sysdate,{?timestamp.WORKDATE?},'','IN','',sysdate,sysdate,{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+// '','','',{?ID?},'','',{?MANNUM?},'','')\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "确认拆箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get(),\
+  roles = ['default'],\
+  userRoleRows = Wb.decode(data.roleGrid);\
+\
+if (data.USER_NAME.equals('-'))\
+  Wb.error('无效的用户名。');\
+if (data.USER_ID == 'admin' && !Wb.find(userRoleRows, 'ROLE_ID', 'admin')) {\
+  Wb.error('不能取消默认管理员帐户的管理员权限。');\
+}\
+app.run('select 1 from WB_USER where USER_NAME={?USER_NAME?} and USER_ID<>{?USER_ID?}', {\
+  errorText: '用户名称 \"' + data.USER_NAME + '\" 已经存在。'\
+});\
+app.set({\
+  \
+  PASSWORD: Encrypter.getMD5(data.PASSWORD)\
+});\
+// app.run('update WB_USER set USER_NAME={?nvarchar.USER_NAME?},DISPLAY_NAME={?nvarchar.DISPLAY_NAME?}' +\
+//   (data.PASSWORD.equals('******') ? '' : ',PASSWORD={?varchar.PASSWORD?}') +\
+//   ',STATUS={?numeric.STATUS?},EMAIL={?varchar.EMAIL?} where USER_ID={?varchar.#USER_ID?}', {\
+//     transaction: 'start'\
+//   }\
+// );\
+app.run('update WB_USER set USER_NAME={?nvarchar.USER_NAME?},DISPLAY_NAME={?nvarchar.DISPLAY_NAME?}' +\
+  (data.PASSWORD.equals('******') ? '' : ',PASSWORD={?varchar.PASSWORD?}') +\
+  ',STATUS={?numeric.STATUS?},EMAIL={?varchar.EMAIL?},TENANCY_ID={?varchar.TENANCY_ID?},TYPE={?varchar.TYPE?},ORG_ID={?ORG_ID?},ORG_NAME={?ORG_NAME?} where USER_ID={?varchar.#USER_ID?}', {\
+    transaction: 'start',\
+  islog:true\
+  }\
+);\
+\
+//更新WB_USER_ROLE\
+app.run('delete from WB_USER_ROLE where USER_ID={?USER_ID?}');\
+Wb.each(userRoleRows, function(rec) {\
+  rec.USER_ID = data.USER_ID;\
+  roles.push(rec.ROLE_ID);\
+});\
+request.setAttribute('create', Wb.encode(userRoleRows));\
+app.update({\
+  tableName: 'WB_USER_ROLE'\
+});\
+//更新session\
+com.wb.common.Session.updateSession(data.USER_ID, roles, data.STATUS == 1);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "basic": 1,
+  "user": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

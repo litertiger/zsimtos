@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var username=app.get('sys.username');\
+var sql=\"\";\
+var rs=Wb.getRecords(app.run(\"select * from bluk_bill where BILL_NO={?BILL_NO?}\"));\
+if(rs.length==0){\
+\t//插入一条数据\
+  app.run(\"INSERT INTO BLUK_BILL \" +\
+  \"       (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES,\" +\
+  \"       CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+  \"       SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+  \"       UPDATED_BY,BILL_NO,CNTR_ID,CNTR)\" +\
+  \"  SELECT SYS_GUID (), 'I', BILL_ID, VLOAD_LIST.GOODS_NOTES, NULL,\" +\
+  \"       VLOAD_LIST.PIECES, VLOAD_LIST.CNTR_OPERATOR, NULL, 'PLN', NULL,\" +\
+  \"       VLOAD_LIST.WEIGHT, VLOAD_LIST.VOLUME,'', VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+  \"       VBILL_HEAD.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,CNTR\" +\
+  \"   FROM VLOAD_LIST, VBILL_HEAD\" +\
+  \"   WHERE VLOAD_LIST.BILL_ID = VBILL_HEAD.ID    and VBILL_HEAD.BILL_NO={?BILL_NO?} and VBILL_HEAD.bill_type='C' and  \" +\
+  \"not exists(select 1 from   BLUK_BILL  where    CFSINOUT='I' and BILL_ID=vload_list.BILL_ID)\");\
+}\
+sql=\"select * from bluk_bill where BILL_NO={?BILL_NO?}\";\
+request.setAttribute('sql',sql);\
+\
+"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

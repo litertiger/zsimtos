@@ -1,0 +1,171 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 3) return;
+   id='';
+  }
+ 
+  if(id == 'AF1' || id=='') {
+    AF1.func("Build", "treelist/t16.xml");
+    AF1.func("Filter", "provinceId=provId@parent \r\n cityId");	//cityId列的下拉的provinceId列＝当前的provId
+  }
+  if(id == 'AF2' || id=='') {
+    AF2.func("Build", "treelist/t16_2.xml");
+    AF2.func("Filter", "provinceId=provId@parent \r\n cityId");	//cityId列的下拉的provinceId列＝当前的provId
+  }
+  if(id == 'AF3' || id=='') {
+    AF3.func("Build", "treelist/t16.xml \r\n autoUpdate=true");
+    AF3.func("Filter", "provinceId=provId@parent \r\n cityId");	//cityId列的下拉的provinceId列＝当前的provId
+   }
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+   if(id=='AF1') {
+    if(Event == "DropdownSelChanged") {
+     if(p2 == "provId") AF1.func("SetCellData", p1 + "\r\n cityId \r\n");
+    }
+   }
+   else if(id=='AF2') {
+    if(Event == "EditChanged") {
+     if(p2 == "provId") AF2.func("SetCellData", p1 + "\r\n cityId \r\n");
+    }
+   }
+   else if(id=='AF3') {
+    if(Event == "DropdownSelChanged") {
+     if(p2 == "provId") {
+      var prov = AF3.func("GetCellData", p1 + "\r\n" + p2);
+      AF3.func("ApplyFilter", p1 + "\r\n cityId");
+      var h = AF3.func("GetHandle", "cityId");
+      var row = AF3.func(h + "find", "provinceId='" + prov + "'");
+      var s = AF3.func(h + "GetCellData", row + "\r\n cityId");
+      AF3.func("SetCellData", p1 + "\r\n cityId \r\n" + s );
+     }
+    }
+   }
+ }
+</script>
+</head>
+
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示功能1：下拉过滤</b>：“省份”和“城市”都是下拉输入，但是二者之间有过滤的逻辑关系，在js中设定了“城市”下拉的过滤表达式</td></tr>
+</table>
+
+<table cols=5 border=0 cellpadding=2 cellspacing=0 width=100%>
+<col width=20>
+<col>
+<col width=20>
+<col>
+<col width=10>
+<tr><td/><td>Example1: “省份”采用dropTreelist<br>树列表的<a href="treelist/t16.xml" target=_blank>XML描述文件</a>， 以及它的关联下拉 <a href="treelist/province.xml" target=_blank>省份</a>、<a href="treelist/prov_city.xml" target=_blank>城市</a></td>
+<td/><td>Example2: “省份”采用dropList<br>树列表的<a href="treelist/t16_2.xml" target=_blank>XML描述文件</a>， 它的关联下拉 "城市" 同左</td><td/><tr>
+<tr height=139>
+	<td/>
+	<td  height=139><script>insertTreeList('AF1', 'Border=single')</script></td>
+	<td/>
+	<td  height=139><script>insertTreeList('AF2', 'Border=single')</script></td>
+	<td/>
+</tr>
+<tr>
+	<td/>
+	<td><b>1.</b>它的OnReady( )部分：<br>
+<pre class='cpp'>
+AF1.func("Build", "treelist/t16.xml");
+//表达式：cityId列的下拉的provinceId列＝当前行的provId
+var exp = "provinceId=provId@parent \r\n cityId";
+AF1.func("Filter", exp);</pre>
+<b>2.</b>它的OnEvent( )部分，仅用于清除CityId：<br>
+<pre class='cpp'>
+if(Event=="DropdownSelChanged" && p2=="provId")
+ AF1.func("SetCellData", p1 + "\r\n cityId \r\n");</pre>
+	</td>
+	<td/>
+	<td><b>1.</b>它的OnReady( )部分：<br>
+<pre class='cpp'>
+AF2.func("Build", "treelist/t16_2.xml");
+//表达式：cityId列的下拉的provinceId列＝当前行的provId
+var exp = "provinceId=provId@parent \r\n cityId";
+AF2.func("Filter", exp);</pre>
+<b>2.</b>它的OnEvent( )部分，仅用于清除CityId：<br>
+<pre class='cpp'>
+if(Event=="EditChanged" && p2=="provId")
+ AF2.func("SetCellData", p1 + "\r\n cityId \r\n");</pre>
+	</td>
+	<td/>
+</td>
+</tr>
+</table>
+<br>
+
+
+
+<hr color=#2266ee size=1>
+
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示功能2：“省份”下拉后，“城市”能立即自动选该省份的第一个城市</td>
+</tr>
+</table>
+<div style="position:relative;width:600px;height:139px">
+	<script>insertTreeList('AF3', 'Border=single')</script>
+</div>
+</center>
+
+
+<br>
+<b>关键点1</b>. 设置 autoUpdate=true, 使得“省份”下拉选中后，“省份"能及时从输入缓存更新到单元格:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ ...
+ else if(id=='AF3') {
+  AF3.func("Build", "treelist/t16.xml \r\n autoUpdate=true");  //注：autoUpdate="true" 也可以直接写在XML文件的 Properties 中
+  ...</pre>
+<b>关键点2</b>. 在事件中，查找该省份的第一个城市:<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ ...
+ else if(id=='AF3') {
+  if(Event == "DropdownSelChanged") {
+   if(p2 == "provId") {
+    var prov = AF3.func("GetCellData", p1 + "\r\n" + p2);   //取得所选的"省份"
+    AF3.func("ApplyFilter", p1 + "\r\n cityId");   //强制让过滤立即生效
+    var h = AF3.func("GetHandle", "cityId");    //取得“城市”的下拉句柄
+    var row = AF3.func(h + "find", "provinceId='" + prov + "'");   //从下拉中找到该省份的第一个城市的行号
+    var s = AF3.func(h + "GetCellData", row + " \r\n cityId");   //取得城市
+    AF3.func("SetCellData", p1 + "\r\n cityId \r\n" + s );   //置城市
+   }
+  }...</pre>
+<b>疑问分析</b><br>
+<b>问一</b>.上述语句第10行，是从下拉树列表中查找“省份”相匹配的行，按理说执行过 ApplyFilter，下拉中的所有行都应该属于这个省份的了，为什么还要执行 Find 函数查找呢？<br>
+<b>答</b>.下拉列的 DropTreeList 对象真正被创建的时刻是首次下拉时，如果没有被下拉过，ApplyFilter函数其实是无效的.<br>
+<br>
+<b>问二</b>.在这个例子中，autoUpdate属性置为true有什么用处？<br>
+<b>答</b>.autoUpdate=true目的是为了让 DropdownSelChanged 事件在触发前的瞬间，就让下拉选中的数据立即更新到树列表中，就象 EditChanged 事件那样. <br>
+　　我们知道，EditChanged事件通常是在焦点离开的时候触发的，联动下拉的效果没有 DropdownSelChanged 来得直接.<br>
+　　此外应注意：autoUpdate="true"后，用户也就无法用 Esc 键反悔了.<br>
+
+<br><br>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

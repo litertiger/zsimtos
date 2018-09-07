@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+// var sql = \"select t.truck_no from c_truck t left join c_employee e on t.trucker_no=e.empno\" +\
+//   \" where t.truck_no='\" + data.truckno + \"' and t.TENANCY_ID='\" + tenancyid + \"' and(e.hei is null or e.hei=0)\";\
+var sql = \"select t.truck_no,t.* from c_truck t left join c_employee e on t.trucker_no=e.empno\" +\
+  \" where (t.truck_no='\" + data.truckno + \"' or t.plat_no LIKE '%'||{?truckno?}||'%') and t.TENANCY_ID='\" + tenancyid + \"' and(e.hei is null or e.hei=0)\"+ \
+\"\tAND (TRUCK_NO LIKE '%'||{?query?}||'%' OR PLAT_NO LIKE '%'||{?query?}||'%')\";\
+if (nature == \"5\")\
+  sql += \" and t.TRUCK_UNIT='\" + customcode + \"'\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "DHSHIP": 1,
+  "check": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "验证车辆",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

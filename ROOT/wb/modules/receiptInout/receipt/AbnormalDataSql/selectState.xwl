@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \" and tenancy_id='\" + tenancyid + \"'\";\
+\
+if (!Wb.isEmpty(data.txtCNTR))\
+  sql += \" and CNTR like '%\" + data.txtCNTR + \"%'\";\
+if (!Wb.isEmpty(data.txtBILL))\
+  sql += \" and BILL_NO like '%\" + data.txtBILL + \"%'\";\
+if (!Wb.isEmpty(data.cboPHASE))\
+  sql += \" and PHASE='\" + data.cboPHASE + \"'\";\
+if (!Wb.isEmpty(data.cboWTYPE))\
+  sql += \" and WORK_TYPE='\" + data.cboWTYPE + \"'\";\
+if (nature == \"5\")\
+  sql += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+if (data.gateOutTime == 'true')\
+  sql += \" and to_char(GATEOUT_TIME_T,'yyyy-MM-dd')> to_char(sysdate-3,'yyyy-MM-dd') and phase='OUT' \";\
+if (!Wb.isEmpty(data.cboCNTR_SIZE))\
+  sql += \" and CNTR_SIZE='\" + data.cboCNTR_SIZE + \"'\";\
+if (!Wb.isEmpty(data.cboI_E_ID))\
+  sql += \" and I_E_ID='\" + data.cboI_E_ID + \"'\";\
+if (!Wb.isEmpty(data.cboTRADE_ID))\
+  sql += \" and TRADE_ID='\" + data.cboTRADE_ID + \"'\";\
+if (!Wb.isEmpty(data.SHIPPER_COD))\
+  sql += \" and SHIPPER_COD='\" + data.SHIPPER_COD + \"'\";\
+if (!Wb.isEmpty(data.CONSIGNEE_COD))\
+  sql += \" and CONSIGNEE_COD='\" + data.CONSIGNEE_COD + \"'\";\
+if (!Wb.isEmpty(data.ACCOUNT_CUSTOMER_CODE))\
+  sql += \" and ACCOUNT_CUSTOMER_CODE='\" + data.ACCOUNT_CUSTOMER_CODE + \"'\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": false,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT *\
+  FROM RECEIPT\
+ WHERE     WORK_TYPE <> 'YOYI'\
+       AND (   (    (GATEIN_TIME_S IS NULL OR GATEIN_TIME_T IS NULL)\
+                AND PHASE = 'RTN')\
+            OR (    PHASE = 'FIN'\
+                AND (GATEIN_TIME_S IS NULL OR GATEOUT_TIME_T IS NULL))) {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlcd": 1
+ },
+ "title": "查询箱子状态异常的",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

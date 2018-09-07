@@ -1,0 +1,87 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "panelRMQ",
+    "hidden": "true",
+    "width": "0",
+    "x": "0",
+    "weight": "0",
+    "y": "0",
+    "height": "0"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "panel"
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "app.panelRMQ.update('<iframe id=\"'+app._frameId+'\"width=\"0\" height=\"0\" src=\"wb/script/rabbitMq.html\"><\/iframe>');\
+",
+   "initialize": "app._frameId = Wb.getId();\
+app.contextOwner = null;\
+\
+function getAppClient(cb) {\
+  if(app.client)\
+    return cb();\
+  var frm = window[app._frameId];\
+  if (!frm) {\
+    setTimeout(function() {\
+      getAppClient(cb);\
+    }, 200);\
+    return;\
+  }\
+  var wnd = frm.contentWindow || frm;\
+  if (!wnd) {\
+    setTimeout(function() {\
+      getAppClient(cb);\
+    }, 200);\
+    return;\
+  }\
+  if (!(wnd.client && wnd.client.connected)) {\
+    setTimeout(function() {\
+      getAppClient(cb);\
+    }, 200);\
+    return;\
+  }\
+  app.client = wnd.client;\
+  cb();\
+}\
+\
+app.subscribe = function(dest, cb) {\
+  getAppClient(function() {\
+    app.client.subscribe(dest, cb);\
+  });\
+};\
+\
+app.unsubscribe = function(dest) {\
+  getAppClient(function() {\
+    app.client.unsubscribe(dest);\
+  });\
+};\
+app.send = function(dest, data) {\
+  getAppClient(function() {\
+    app.client.send(dest, data);\
+  });\
+};\
+app.call = function(dest, data, callback) {\
+  getAppClient(function() {\
+    app.client.call(dest, data, callback);\
+  });\
+};"
+  }
+ }],
+ "roles": {
+  "default": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1
+ },
+ "title": "引入消息",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

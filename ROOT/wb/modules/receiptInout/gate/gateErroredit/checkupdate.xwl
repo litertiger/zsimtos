@@ -1,0 +1,75 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var msg = \"箱:\" + data.CNTR;\
+var sql = \"select id,cntr from port_cntr where cntr like '%\" + data.CNTR + \"%' and tenancy_id='\" + tenancyid + \"'\";\
+var cntr = Wb.getRecords(app.run(sql));\
+if (cntr.length < 1) { //找不到在场箱信息\
+  throw msg + \"系统中没有找到.\";\
+} else if (cntr.length > 1) { //场箱信息过多\
+  throw msg + \"找到了多个,请输入的更准确些.\";\
+} else {\
+  msg = \"箱:\" + cntr[0].CNTR;\
+  sql = \"select r.id,r.phase rphase,p.phase pphase,r.work_type from receipt r left join port_cntr p on r.cntr_id=p.id\" +\
+    \" where r.tenancy_id='\" + tenancyid + \"' and p.id='\" + cntr[0].ID + \"' and r.phase not in('FIN','CNL')\" +\
+    \" and r.work_type not in('FOFI','EOTC','FOTC')\";\
+  var phase = Wb.getRecords(app.run(sql));\
+  if (phase.length < 0) {\
+    throw msg + \"没有找到设备交接单,不能入闸,请联系业务部\";\
+  } else {\
+    if (phase[0].WORK_TYPE == \"FOEI\" || phase[0].WORK_TYPE == \"EOEI\" || phase[0].WORK_TYPE == \"EOFI\") {\
+      if ((phase[0].PPHASE == \"ADV\" || phase[0].PPHASE == \"ACT\") && (phase[0].RPHASE == \"PLN\" || phase[0].RPHASE == \"EXE\")) {\
+        app.run(\"update receipt set phase='OUT' where id='\" + phase[0].ID + \"'\");\
+        app.run(\"update port_cntr set phase='OUT' where id='\" + cntr[0].ID + \"'\", {\
+          transaction: 'commit'\
+        });\
+        app.send(msg + \"已经达到收箱条件,可以进闸\");\
+        return;\
+      } else if ((phase[0].PPHASE == \"ADV\" || phase[0].PPHASE == \"ACT\") && phase[0].RPHASE == \"GET\") {\
+        var ml = Wb.getRecords(app.run(\"select phase from move_list where tenancy_id='\" + tenancyid + \"'\" +\
+          \" and HANDLE_ID='\" + phase[0].ID + \"' and move_type='MOV' and phase='EXE'\"));\
+        if (ml.length > 0) {\
+          throw msg + \"没有做提箱出闸确认,请联系出闸管理员\";\
+        } else if (ml.length < 1) {\
+          throw msg + \"堆场没有做提箱确认,请联系中控管理员\";\
+        }\
+      } else if (phase[0].PPHASE == \"ACT\" && phase[0].RPHASE == \"RTN\") {\
+        throw msg + \"已经被收进堆场了,请联系中控管理员是否误操作\";\
+      } else\
+        app.send(msg + \"符合收箱条件\");\
+    } else if (phase[0].WORK_TYPE == \"EITC\" || phase[0].WORK_TYPE == \"FITC\") {\
+      if (phase[0].RPHASE == \"PLN\") {\
+        app.run(\"update receipt set phase='EXE' where id='\" + phase[0].ID + \"'\");\
+        app.send(msg + \"已经达到收箱条件,可以进闸\");\
+        return;\
+      } else\
+        app.send(msg + \"符合收箱条件\");\
+    } else if (phase[0].WORK_TYPE == \"YOYI\") {\
+      if (phase[0].RPHASE == \"PLN\") {\
+        throw msg + \"起始移箱堆场没有做移出指令确认,请联系中控管理员\";\
+      } else\
+        app.send(msg + \"符合收箱条件\");\
+    }\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "验证并修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

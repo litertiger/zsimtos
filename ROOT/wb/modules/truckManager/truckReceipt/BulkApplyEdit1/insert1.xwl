@@ -1,0 +1,56 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var type = app.get('type');\
+var flag = app.get('flag');\
+var tenancyId = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyyMMddHHmmss');\
+//未办单的不能做申请，不能出库（2018/07/25，阿敏提出的）\
+app.run(\"select 1 from buz_order WHERE BILL_NO={?BILL_NO?} AND BD_ON IS NULL AND BD_BY IS NULL\", {\
+  errorText: \"未办单不能申请!\"\
+});\
+\
+var rs = app.run(\"select 1 from BLUK_APPLY_M where ID={?P_ID?}\");\
+if (!rs.next()) {\
+  app.run(\"insert into BLUK_APPLY_M(ID,TENANCY_ID,TYPE,FLAG)values({?P_ID?},'\" + tenancyId + \"','\" + type + \"','\" + flag + \"')\");\
+  if (app.get('is') == 'false') {\
+    app.run(\"insert into BLUK_APPLY_D(ID,P_ID,GOOD_NOTES,BILL_NO,WEIGHT,PIECES,SHIPPER_COD,SHIPPER,TENANCY_ID,NOTE,\" +\
+      \"CREATED_BY,CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, APPLYDATE, DELIVERYDATE, REMAIN_PIECES, REMAIN_WEIGHT)\" +\
+      \"values(SYS_GUID(),{?P_ID?},{?GOOD_NOTES?},{?BILL_NO?},{?WEIGHT?},\" +\
+      \"{?PIECES?},{?SHIPPER_COD?},{?SHIPPER?},'\" + tenancyId + \"',{?NOTE?},'\" + username + \"',sysdate,'\" + username + \"',sysdate,\" +\
+      \"{?PHASE?},{?timestamp.APPLYDATE?},{?timestamp.DELIVERYDATE?},{?REMAIN_PIECES?},{?REMAIN_WEIGHT?})  \");\
+  } else {\
+    app.run(\"update BLUK_APPLY_D set GOOD_NOTES={?GOOD_NOTES?},BILL_NO={?BILL_NO?},WEIGHT={?WEIGHT?},PIECES={?PIECES?},SHIPPER_COD={?SHIPPER_COD?},SHIPPER={?SHIPPER?},TENANCY_ID='\" + tenancyId + \"',NOTE={?NOTE?},\" +\
+      \" UPDATED_BY='\" + username + \"', UPDATED_ON=sysdate, PHASE={?PHASE?}, APPLYDATE={?timestamp.APPLYDATE?}, DELIVERYDATE={?timestamp.DELIVERYDATE?}, REMAIN_PIECES={?REMAIN_PIECES?}, REMAIN_WEIGHT={?REMAIN_WEIGHT?} where ID={?ID?}\");\
+  }\
+} else {\
+  if (app.get('is') == 'false') {\
+    app.run(\"insert into BLUK_APPLY_D(ID,P_ID,GOOD_NOTES,BILL_NO,WEIGHT,PIECES,SHIPPER_COD,SHIPPER,TENANCY_ID,NOTE,\" +\
+      \"CREATED_BY,CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE, APPLYDATE, DELIVERYDATE, REMAIN_PIECES, REMAIN_WEIGHT)\" +\
+      \"values(sys_guid(),{?P_ID?},{?GOOD_NOTES?},{?BILL_NO?},{?WEIGHT?},\" +\
+      \"{?PIECES?},{?SHIPPER_COD?},{?SHIPPER?},'\" + tenancyId + \"',{?NOTE?},'\" + username + \"',sysdate,'\" + username + \"',sysdate\" +\
+      \",{?PHASE?},{?timestamp.APPLYDATE?},{?timestamp.DELIVERYDATE?},{?REMAIN_PIECES?},{?REMAIN_WEIGHT?})  \");\
+  } else {\
+    app.run(\"update BLUK_APPLY_D set GOOD_NOTES={?GOOD_NOTES?},BILL_NO={?BILL_NO?},WEIGHT={?WEIGHT?},PIECES={?PIECES?},SHIPPER_COD={?SHIPPER_COD?},SHIPPER={?SHIPPER?},TENANCY_ID='\" + tenancyId + \"',NOTE={?NOTE?},\" +\
+      \" UPDATED_BY='\" + username + \"', UPDATED_ON=sysdate, PHASE={?PHASE?}, APPLYDATE={?timestamp.APPLYDATE?}, DELIVERYDATE={?timestamp.DELIVERYDATE?}, REMAIN_PIECES={?REMAIN_PIECES?}, REMAIN_WEIGHT={?REMAIN_WEIGHT?} where ID={?ID?}\");\
+  }\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "check": 1,
+  "xlcd": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

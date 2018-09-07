@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get(\"sys.username\");\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+app.run(\"select 1 from remitting where id ={?ID?} AND R_OK=1\", {\
+  errorText: \"已经确认,不能作废托收单\"\
+});\
+app.run(\"select 1 from remitting where id ={?ID?} AND R_OK=2\", {\
+  errorText: \"已经作废\"\
+});\
+\
+var sql = \"update remitting set r_ok=2 where ID={?ID?}\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+sql = \"update remitting_item set r_ok=2 where C_ID={?ID?}\";\
+app.run(sql);\
+\
+app.run(\"insert into remitting_log values('作废托收单:\" + data.ID + \"','\" + username + \"',sysdate,'\" + tenancyid + \"')\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

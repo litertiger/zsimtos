@@ -1,0 +1,2535 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbarMove",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "search",
+       "hidden": "true",
+       "labelAlign": "right",
+       "labelWidth": "40"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findButton",
+       "hidden": "true",
+       "text": "搜索",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.gridMove.store.load({out:app.tbarMove});"}
+     },
+     {
+      "configs": {
+       "itemId": "newButton",
+       "hidden": "true",
+       "tooltip": "激活一条指令",
+       "text": "激活",
+       "iconCls": "ok_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.reset(app.movewin);\
+app.movewin.setTitle('添加 - 数据');\
+app.movewin.setIconCls('record_add_icon');\
+app.movewin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "editButton",
+       "hidden": "true",
+       "tooltip": "修改选择的记录",
+       "text": "修改",
+       "iconCls": "record_edit_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridMove.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.movewin.setTitle('修改 -数据 ' + app.selRec.data.VESSEL_NAME);\
+app.movewin.setIconCls('record_edit_icon');\
+Wb.setValue(app.movewin, app.selRec.data);\
+app.movewin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "delButton",
+       "tooltip": "删除选择的记录",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridMove.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/taskedit/movelistedit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.gridMove, sels);\
+    }\
+  });\
+}, 'CNTR');"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "editWin",
+     "closeAction": "hide",
+     "width": "632",
+     "height": "488"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "maxLength": "72",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TENANCY_ID",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "maxLengthText": "租户超出最大长度",
+       "fieldLabel": "租户",
+       "x": "0",
+       "width": "200",
+       "y": "8",
+       "isUpperCase": "true",
+       "labelWidth": "80",
+       "maxLength": "72",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TASK_TYPE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "任务类型",
+       "width": "200",
+       "x": "400",
+       "y": "8",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "PHASE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "maxLengthText": "状态超出最大长度",
+       "fieldLabel": "状态",
+       "x": "0",
+       "width": "200",
+       "y": "38",
+       "isUpperCase": "true",
+       "labelWidth": "80",
+       "maxLength": "10",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "AUTO_RELEASE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "自动放行",
+       "x": "200",
+       "width": "200",
+       "y": "398",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     },
+     {
+      "configs": {
+       "itemId": "AUTO_POSITION",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "自动找位",
+       "x": "0",
+       "width": "200",
+       "y": "398",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     },
+     {
+      "configs": {
+       "itemId": "REPOSITION",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "复位",
+       "x": "0",
+       "width": "200",
+       "y": "332",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     },
+     {
+      "configs": {
+       "itemId": "SEQUENCE",
+       "allowBlank": "true",
+       "maxText": "序号超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "序号",
+       "x": "200",
+       "width": "200",
+       "y": "36",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "DESCRIPTION",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "fieldLabel": "类型",
+       "width": "200",
+       "x": "400",
+       "y": "36",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "PRIORITY",
+       "allowBlank": "false",
+       "maxText": "优先级超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "优先级",
+       "x": "0",
+       "width": "200",
+       "y": "66",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "CARRIER_CALL",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "运输呼号超出最大长度",
+       "fieldLabel": "运输呼号",
+       "x": "200",
+       "width": "200",
+       "y": "66",
+       "isUpperCase": "true",
+       "labelWidth": "80",
+       "maxLength": "72",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CARRIER_TYPE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "fieldLabel": "运输类型",
+       "width": "200",
+       "x": "400",
+       "y": "66",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "CARRIER_CODE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "运输号超出最大长度",
+       "fieldLabel": "运输号",
+       "x": "0",
+       "width": "200",
+       "y": "96",
+       "isUpperCase": "true",
+       "labelWidth": "80",
+       "maxLength": "40",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "VESSEL_STRUCTURE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "船舶安排超出最大长度",
+       "fieldLabel": "船舶安排",
+       "x": "200",
+       "width": "200",
+       "y": "96",
+       "labelWidth": "80",
+       "maxLength": "72",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "WAIT_UNTILL",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "96",
+       "labelWidth": "80",
+       "maxLength": "11",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "START_EXECUTE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "fieldLabel": "开始时间",
+       "x": "0",
+       "width": "200",
+       "y": "366",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "END_EXECUTE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "fieldLabel": "结束时间",
+       "x": "200",
+       "width": "200",
+       "y": "366",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "LIMIT_TIME",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "fieldLabel": "最小时间",
+       "x": "400",
+       "width": "200",
+       "y": "366",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "124",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "EXECUTING_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "124",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "ACTIVE_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "124",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "EXPECTED_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "154",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "EXCLUSIVE_TRANS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "154",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "PARTTIME_TRANS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "154",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "TASK_SPLIT_METHOD",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "184",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TASK_SORT_METHOD",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "184",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "MOVE_SPLIT_METHOD",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "184",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "MOVE_SORT_METHOD",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "214",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "EXE_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "214",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "HOLD_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "214",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "DIS_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "244",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "RGS_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "244",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "ENA_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "244",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "ACT_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "274",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "SHF_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "274",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "PLN_MOVES",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "274",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "EXE_WQS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "304",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "HOLD_WQS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "304",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "RGS_WQS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "304",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "PLAN_WQS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "400",
+       "width": "200",
+       "y": "334",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "ACT_WQS",
+       "allowBlank": "true",
+       "maxText": "超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "109",
+       "fieldLabel": "null",
+       "x": "200",
+       "width": "200",
+       "y": "334",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "CREATED_BY",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "maxLengthText": "创建人超出最大长度",
+       "fieldLabel": "创建人",
+       "x": "400",
+       "width": "200",
+       "y": "334",
+       "labelWidth": "80",
+       "maxLength": "24",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATED_ON",
+       "allowBlank": "true",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "创建时间",
+       "x": "400",
+       "width": "200",
+       "y": "516",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATED_BY",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "32",
+       "width": "200",
+       "y": "436",
+       "labelWidth": "80",
+       "maxLength": "24",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATED_ON",
+       "allowBlank": "true",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "修改时间",
+       "x": "24",
+       "width": "200",
+       "y": "436",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "TASK_NAME",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "maxLengthText": "任务名称超出最大长度",
+       "fieldLabel": "任务名称",
+       "x": "200",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "maxLength": "50",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/taskedit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.findBtn.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/taskedit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+        var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+     \
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.findBtn.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "movewin",
+     "closeAction": "hide",
+     "width": "856",
+     "autoScroll": "true",
+     "height": "496"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "maxLength": "36",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ORIGIN",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "原始位置超出最大长度",
+       "fieldLabel": "原始位置",
+       "x": "200",
+       "width": "200",
+       "y": "100",
+       "labelWidth": "80",
+       "maxLength": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CRANE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "桥吊超出最大长度",
+       "fieldLabel": "桥吊",
+       "x": "0",
+       "width": "200",
+       "y": "128",
+       "labelWidth": "80",
+       "maxLength": "40",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "箱号",
+       "x": "400",
+       "width": "200",
+       "y": "100",
+       "labelWidth": "80",
+       "maxLength": "22",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "C_CNTR_SIZ",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "尺寸",
+       "x": "200",
+       "width": "200",
+       "y": "158",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "C_CNTR_TYP",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "类型",
+       "x": "400",
+       "width": "200",
+       "y": "128",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "maxLength": "4",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_HIGHT",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "null",
+       "x": "0",
+       "width": "200",
+       "y": "188",
+       "labelWidth": "80",
+       "maxLength": "22",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_LENGTH",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "长度",
+       "x": "200",
+       "width": "200",
+       "y": "188",
+       "labelWidth": "80",
+       "maxLength": "22",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "OVERHEIGHT",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "超重",
+       "x": "400",
+       "width": "200",
+       "y": "158",
+       "labelWidth": "80",
+       "maxLength": "22",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "LINE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "船公司超出最大长度",
+       "fieldLabel": "船公司",
+       "x": "400",
+       "width": "200",
+       "y": "456",
+       "labelWidth": "80",
+       "maxLength": "200",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SAFE_WT",
+       "allowBlank": "true",
+       "maxText": "安全重量超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "69",
+       "fieldLabel": "安全重量",
+       "x": "400",
+       "width": "200",
+       "y": "486",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "SCALE_WT",
+       "allowBlank": "true",
+       "maxText": "过磅重量超出最大长度",
+       "labelAlign": "right",
+       "maxValue": "69",
+       "fieldLabel": "过磅重量",
+       "x": "0",
+       "width": "200",
+       "y": "576",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "SERVICE",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "航线超出最大长度",
+       "fieldLabel": "航线",
+       "x": "200",
+       "width": "200",
+       "y": "514",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "POL",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "装货港超出最大长度",
+       "fieldLabel": "装货港",
+       "x": "200",
+       "width": "200",
+       "y": "546",
+       "labelWidth": "80",
+       "maxLength": "10",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TRUCKING_CO",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "车队超出最大长度",
+       "fieldLabel": "车队",
+       "x": "600",
+       "width": "200",
+       "y": "606",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TRANSPORTER1",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "作业机械超出最大长度",
+       "fieldLabel": "作业机械",
+       "x": "400",
+       "width": "200",
+       "y": "576",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TRCLASS1",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "作业类型超出最大长度",
+       "fieldLabel": "作业类型",
+       "x": "600",
+       "width": "200",
+       "y": "664",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "FROM_POS",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "来的位置超出最大长度",
+       "fieldLabel": "来的位置",
+       "x": "600",
+       "width": "200",
+       "y": "576",
+       "labelWidth": "80",
+       "maxLength": "72",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TO_POS",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "去的位置超出最大长度",
+       "fieldLabel": "去的位置",
+       "x": "0",
+       "width": "200",
+       "y": "514",
+       "labelWidth": "80",
+       "maxLength": "72",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "FROM_XPOINT",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "C101012 起始坐标超出最大长度",
+       "fieldLabel": "C101012 起始坐标",
+       "x": "600",
+       "width": "200",
+       "y": "856",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "32"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "FROM_YPOINT",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "起始坐标超出最大长度",
+       "fieldLabel": "起始坐标",
+       "x": "600",
+       "width": "200",
+       "y": "396",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TO_XPOINT",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "目标坐标超出最大长度",
+       "fieldLabel": "目标坐标",
+       "x": "600",
+       "width": "200",
+       "y": "188",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TO_YPOINT",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "目标坐标超出最大长度",
+       "fieldLabel": "目标坐标",
+       "x": "200",
+       "width": "200",
+       "y": "636",
+       "labelWidth": "80",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PLANNED_POSITION",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "maxLengthText": "计划位置超出最大长度",
+       "fieldLabel": "计划位置",
+       "x": "200",
+       "width": "200",
+       "y": "606",
+       "labelWidth": "80",
+       "maxLength": "24",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATED_BY",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "创建人",
+       "x": "616",
+       "width": "200",
+       "y": "1046",
+       "labelWidth": "80",
+       "maxLength": "24",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATED_ON",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "创建时间",
+       "x": "616",
+       "width": "200",
+       "y": "1038",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATED_BY",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "maxLengthText": "超出最大长度",
+       "fieldLabel": "修改人",
+       "x": "624",
+       "width": "200",
+       "y": "1038",
+       "labelWidth": "80",
+       "maxLength": "24",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATED_ON",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "修改时间",
+       "x": "616",
+       "width": "200",
+       "y": "1044",
+       "labelWidth": "80",
+       "readOnly": "false",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.movewin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/taskedit/movelistedit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.movewin.close();\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/taskedit/movelistedit/insert',\
+    out: app.movewin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+        var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+     \
+      Wb.add(app.gridMove, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.movewin.close();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "split": "true",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel3",
+        "split": "true",
+        "width": "500",
+        "region": "west"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "treeGrid",
+         "split": "true",
+         "root": "{   text: '任务类型', LEVELS:1 }",
+         "iconCls": "org_icon",
+         "region": "center",
+         "tools": "Wb.getTreeTools()",
+         "rootVisible": "true",
+         "height": "333"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "tbar",
+           "enableOverflow": "true",
+           "region": "north"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "startDate",
+             "labelAlign": "right",
+             "fieldLabel": "起始时间",
+             "labelWidth": "60"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "date"
+           },
+           {
+            "configs": {
+             "itemId": "item2",
+             "text": "-"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item"
+           },
+           {
+            "configs": {
+             "itemId": "endDate",
+             "labelAlign": "right",
+             "fieldLabel": "结束时间",
+             "labelWidth": "60"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "date"
+           },
+           {
+            "configs": {
+             "itemId": "findBtn",
+             "text": "搜索",
+             "iconCls": "seek_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "app.treeGrid.store.load({out:app.tbar});"}
+           }
+          ],
+          "type": "toolbar"
+         },
+         {
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=controlManage/task/taskedit/taskedit/tree-select"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "treestore",
+          "events": {"beforeload": "var node = operation.node;\
+var st=app.startDate.getValue();\
+var en=app.endDate.getValue();\
+var startdate = Ext.util.Format.date(app.startDate.getValue(), 'Y-m-d H:i:s');\
+var enddate = Ext.util.Format.date(app.endDate.getValue(), 'Y-m-d H:i:s');\
+// alert(node.data.level);\
+// alert(node.data.ID);\
+operation.params={level:node.isRoot()?1:node.data.level,type:node.data.IDS,startDate:startdate,endDate:enddate };\
+\
+\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "viewConfig",
+           "markDirty": "false"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tableview"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "menu",
+             "xtype": "treecolumn",
+             "dataIndex": "text",
+             "width": "170",
+             "text": "任务类型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ID99",
+             "hidden": "true",
+             "dataIndex": "ID",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TENANCY_ID99",
+             "dataIndex": "TENANCY_ID",
+             "text": "租户"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TASK_TYPE99",
+             "dataIndex": "TASK_TYPE",
+             "text": "任务类型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PHASE99",
+             "dataIndex": "PHASE",
+             "text": "状态"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "AUTO_RELEASE99",
+             "xtype": "checkcolumn",
+             "dataIndex": "AUTO_RELEASE",
+             "text": "自动放行"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "AUTO_POSITION99",
+             "xtype": "checkcolumn",
+             "dataIndex": "AUTO_POSITION",
+             "text": "自动找位"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "REPOSITION99",
+             "xtype": "checkcolumn",
+             "dataIndex": "REPOSITION",
+             "text": "复位"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SEQUENCE99",
+             "dataIndex": "SEQUENCE",
+             "text": "序号"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "DESCRIPTION99",
+             "dataIndex": "DESCRIPTION",
+             "text": "类型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PRIORITY99",
+             "dataIndex": "PRIORITY",
+             "text": "优先级"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CARRIER_CALL99",
+             "dataIndex": "CARRIER_CALL",
+             "text": "运输呼号"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CARRIER_TYPE99",
+             "dataIndex": "CARRIER_TYPE",
+             "text": "运输类型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CARRIER_CODE99",
+             "dataIndex": "CARRIER_CODE",
+             "text": "运输号"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "VESSEL_STRUCTURE99",
+             "dataIndex": "VESSEL_STRUCTURE",
+             "text": "船舶安排"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "WAIT_UNTILL99",
+             "dataIndex": "WAIT_UNTILL",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "START_EXECUTE99",
+             "dataIndex": "START_EXECUTE",
+             "text": "开始时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "END_EXECUTE99",
+             "dataIndex": "END_EXECUTE",
+             "text": "结束时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "LIMIT_TIME99",
+             "dataIndex": "LIMIT_TIME",
+             "text": "最小时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "MOVES99",
+             "dataIndex": "MOVES",
+             "text": "移动"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "EXECUTING_MOVES99",
+             "dataIndex": "EXECUTING_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ACTIVE_MOVES99",
+             "dataIndex": "ACTIVE_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "EXPECTED_MOVES99",
+             "dataIndex": "EXPECTED_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "EXCLUSIVE_TRANS99",
+             "dataIndex": "EXCLUSIVE_TRANS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PARTTIME_TRANS99",
+             "dataIndex": "PARTTIME_TRANS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TASK_SPLIT_METHOD99",
+             "dataIndex": "TASK_SPLIT_METHOD",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TASK_SORT_METHOD99",
+             "dataIndex": "TASK_SORT_METHOD",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "MOVE_SPLIT_METHOD99",
+             "dataIndex": "MOVE_SPLIT_METHOD",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "MOVE_SORT_METHOD99",
+             "dataIndex": "MOVE_SORT_METHOD",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "EXE_MOVES99",
+             "dataIndex": "EXE_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "HOLD_MOVES99",
+             "dataIndex": "HOLD_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "DIS_MOVES99",
+             "dataIndex": "DIS_MOVES",
+             "text": "卸数量"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "RGS_MOVES99",
+             "dataIndex": "RGS_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ENA_MOVES99",
+             "dataIndex": "ENA_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ACT_MOVES99",
+             "dataIndex": "ACT_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SHF_MOVES99",
+             "dataIndex": "SHF_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PLN_MOVES99",
+             "dataIndex": "PLN_MOVES",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "EXE_WQS99",
+             "dataIndex": "EXE_WQS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "HOLD_WQS99",
+             "dataIndex": "HOLD_WQS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "RGS_WQS99",
+             "dataIndex": "RGS_WQS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PLAN_WQS99",
+             "dataIndex": "PLAN_WQS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ACT_WQS99",
+             "dataIndex": "ACT_WQS",
+             "text": "null"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "OPERATOR99",
+             "dataIndex": "CREATED_BY",
+             "text": "创建人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "OPER_TIME99",
+             "dataIndex": "CREATED_ON",
+             "width": "120",
+             "text": "创建时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CHANGER99",
+             "dataIndex": "UPDATED_BY",
+             "text": "修改人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CHANGE_TIME99",
+             "dataIndex": "UPDATED_BY",
+             "width": "120",
+             "text": "修改时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TASK_NAME99",
+             "dataIndex": "TASK_NAME",
+             "text": "任务名称"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "tree",
+        "events": {
+         "itemclick": "// alert(record.data.ID);\
+app.gridMove.store.load({\
+\tparams:{c:record.data.ID}\
+});",
+         "selectionchange": "app.selNodes = selected;\
+app.selNode = selected[0];\
+"
+        }
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel1",
+        "split": "true",
+        "region": "center"
+       },
+       "expanded": false,
+       "children": [{
+        "configs": {
+         "itemId": "gridMove",
+         "barNavigateButtons": "false",
+         "barPageButton": "false",
+         "barExportAllButtons": "false",
+         "barInfoLabel": "false",
+         "tbar": "app.tbarMove",
+         "disabled": "false",
+         "region": "center",
+         "barRefreshButton": "false",
+         "barExportButtons": "false",
+         "multiSelect": "true",
+         "height": "300"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "false",
+           "sorters": "'ID'",
+           "url": "m?xwl=controlManage/task/taskedit/movelistedit/select"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "column1",
+             "xtype": "rownumberer"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR99",
+             "dataIndex": "CNTR",
+             "text": "箱号"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PHASE999",
+             "dataIndex": "PHASE",
+             "text": "状态"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "C_CNTR_SIZ99",
+             "dataIndex": "CNTR_SIZE",
+             "text": "尺寸"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "C_CNTR_TYP99",
+             "dataIndex": "CNTR_TYPE",
+             "text": "类型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_HIGHT99",
+             "dataIndex": "CNTR_HIGHT",
+             "text": "高度"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_LENGTH99",
+             "dataIndex": "CNTR_LENGTH",
+             "text": "长度"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "OVERHEIGHT99",
+             "dataIndex": "OVERHEIGHT",
+             "text": "超重"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ORIGIN99",
+             "dataIndex": "ORIGIN",
+             "text": "原始位置"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CARRIER_ATA99",
+             "dataIndex": "CARRIER_ATA",
+             "text": "来的时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "LINE99",
+             "dataIndex": "LINE",
+             "text": "船公司"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SAFE_WT99",
+             "dataIndex": "SAFE_WT",
+             "text": "安全重量"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SCALE_WT99",
+             "dataIndex": "SCALE_WT",
+             "text": "过磅重量"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SERVICE99",
+             "dataIndex": "SERVICE",
+             "text": "航线"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "OPL99",
+             "dataIndex": "OPL",
+             "text": "装货港"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TRUCKING_CO99",
+             "dataIndex": "TRUCKING_CO",
+             "text": "车队"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TRANSPORTER199",
+             "dataIndex": "TRANSPORTER1",
+             "text": "作业机械"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TRCLASS199",
+             "dataIndex": "TRCLASS1",
+             "text": "作业类型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "FROM_POS99",
+             "dataIndex": "FROM_POS",
+             "text": "来的位置"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TO_POS99",
+             "dataIndex": "TO_POS",
+             "text": "去的位置"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "FROM_YPOINT99",
+             "dataIndex": "FROM_YPOINT",
+             "text": "起始坐标"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TO_XPOINT99",
+             "dataIndex": "TO_XPOINT",
+             "text": "目标坐标"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "POSITION_STATUS99",
+             "dataIndex": "POSITION_STATUS",
+             "text": "位置状态"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "BILL_NO99",
+             "dataIndex": "BILL_NO",
+             "text": "提单号码"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CREATED_MAN99",
+             "dataIndex": "CREATED_BY",
+             "text": "创建人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CREATED_ON99",
+             "dataIndex": "CREATED_ON",
+             "text": "创建时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "UPDATED_MAN99",
+             "dataIndex": "UPDATED_BY",
+             "text": "修改人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "UPDATED_ON99",
+             "dataIndex": "UPDATED_ON",
+             "text": "修改时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         },
+         {
+          "configs": {
+           "itemId": "popupMenu",
+           "normalName": "menu1"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "popupComp",
+            "tooltip": "激活",
+            "text": "激活",
+            "iconCls": "object_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "// Wb.info(app.menu1.popupComp.itemId); //同一menu可以用于多个控件，popupComp指向使菜单弹出的控件\
+//(激活现在就先改下状态)\
+var sels = app.gridMove.getSelection();\
+\
+Wb.request({\
+  url: 'm?xwl=controlManage/task/taskedit/taskedit/listok',\
+  params: {\
+  \tID:sels[0].data.ID\
+  },\
+  success: function(resp) {\
+\
+  }\
+});\
+\
+\
+      "}
+          }],
+          "type": "menu",
+          "events": {"show": "var rows = app.gridMove.getSelection();\
+// app.popupRow.setDisabled(rows.length != 1);\
+menu.selectRow = rows[0];"}
+         }
+        ],
+        "type": "grid",
+        "events": {"itemdblclick": "app.editButton.fireEvent('click');"}
+       }],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "var  opeType;"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "TASK",
+ "iconCls": "trash_icon",
+ "inframe": true,
+ "pageLink": ""
+}

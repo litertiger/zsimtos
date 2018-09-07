@@ -1,0 +1,42 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "importModules": "[\"m?xwl=dev/dict/refresh-buffer\"]"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "serverscript1",
+    "script": "//importModule比module.serverScript后加载，因此放到新添加的serverscript控件中\
+var id = SysUtil.getId(),\
+  Utils = request.getAttribute('Utils');\
+request.setAttribute('FIELD_ID', id);\
+app.run('select 1 from WB_DICT where TABLE_NAME={?TABLE_NAME?} and FIELD_NAME={?FIELD_NAME?}', {\
+  errorText: app.format('itemExist', app.get('FIELD_NAME'))\
+});\
+//update方法默认开始数据库事务\
+app.update({\
+  tableName: 'WB_DICT',\
+  mode: 'insert'\
+});\
+//更新缓存中的数据\
+app.refreshBuffer(); //方法定义在./refresh-buffer.xwl\
+//发送fieldId同步到前台\
+app.send({\
+  FIELD_ID: id\
+});"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "serverscript"
+  }],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "添加",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get(); \
+var sql='';\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+sql +=\" and tenancy_id ='\"+tenancyid+\"'\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \"  and created_on>=to_date('\" + data.sdate.substring(0, 19) + \"','yyyy-MM-dd hh24:mi:ss')\"+\
+    \" and created_on<=to_date('\" + data.sdate.substring(0, 10) + \" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.billno))\
+  sql += \" and bill_no={?billno?}\";\
+app.log(sql);\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT * FROM TAKE_GOODS where 1=1 {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

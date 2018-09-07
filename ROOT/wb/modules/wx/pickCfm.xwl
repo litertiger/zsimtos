@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "try {\
+  app.run(\"{call p_truckapp({?id?},{?no?},'PICK',{?cntr?})}\");\
+} catch (e) {\
+  var result = /ORA-\\d+:\\s(.*)\\
+/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  result = /ScriptException:\\s(.*)\\sin/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  app.send({\
+    success: false,\
+    errstr: e\
+  });\
+  throw e;\
+}\
+app.send({\
+  success: true\
+});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "捡柜确认",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

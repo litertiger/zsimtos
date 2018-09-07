@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var dispname = app.get('sys.dispname');\
+app.run(\"update BLUK_GOODS set OUTQUTY=nvl(OUTQUTY,0)+to_number({?PIECES?}) , \" +\
+  \" QUTY=QUTY-to_number({?PIECES?}),OUTTIME={?timestamp.OUTTIME?}  where BILL_ID={?BILL_ID?} AND BILL_NO={?BILL_NO?}\", {\
+    transaction: 'start'\
+  });\
+\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID,WEIGHT,VOLUME,\" +\
+  \"STORE_TIME,BILL_NO,SIGNERCFS)\" +\
+  \"values({?ID?},'1',{?PIECES?},{?TRUCK_NO?},{?RELEASE_NO?},{?SEAL_NO?},{?PID?},{?WEIGHT?},\" +\
+  \"{?VOLUME?},sysdate,{?BILL_NO?},'\" + dispname + \"')\");\
+\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        select sys_guid(),SHIPPER,BILL_ID,sysdate,{?timestamp.WORKDATE?},'',{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'','' from BLUK_GOODS where BILL_ID={?BILL_ID?} AND BILL_NO={?BILL_NO?}\");\
+\
+\
+app.run(\"insert into BULK_LOG(ID,NOTES,BILL_NO,CREATED_ON,CREATED_BY,CFSBILL_ID,TYPE)\" +\
+  \"VALUES(SYS_GUID(),'在仓库做的出库操作',{?BILL_NO?},sysdate,{?sys.username?},{?ID?},'仓库出库')\", {\
+    transaction: 'commit'\
+  });"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "出库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

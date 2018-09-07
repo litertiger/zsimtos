@@ -1,0 +1,130 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+// sql = \" select  sum(cntrnum) cntrnum  from  ( select  1  CNTRNUM\" +\
+//   \" FROM VBILL_HEAD vh,VLOAD_LIST vl,VESSEL_VISIT v2,vessel_voyage v1,buz_order bo\" +\
+//   \" WHERE vh.ID=vl.BILL_ID(+) AND vh.id=bo.bill_id(+) and vh.VID=v2.ID(+) and v2.vid=v1.id(+)\" +\
+//   \" and vh.TENANCY_ID='\" + tenancyid + \"'  and  vh.phase<>'9'  \" +\
+//   \" AND to_char(v2.ETA,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59' \"+\
+//   \"  \";\
+\
+\
+sql = \"SELECT sum(c20) c20,sum(c40) c40,sum(c45) c45\" +\
+  \" FROM (  SELECT 1 CNTRNUM,sum(decode(cntr_size,'20',1,0)) c20,sum(decode(cntr_size,'40',1,0)) c40,sum(decode(cntr_size,'45',1,0)) c45\" +\
+  \"           FROM VBILL_HEAD vh,\" +\
+  \"                VLOAD_LIST vl,\" +\
+  \"                VESSEL_VISIT v2,\" +\
+  \"                vessel_voyage v1\" +\
+\
+  \"          WHERE     vh.ID = vl.BILL_ID(+)\" +\
+  \"                AND vh.VID = v2.ID(+)\" +\
+  \"                AND v2.vid = v1.id(+)\" +\
+  \" and vh.TENANCY_ID='\" + tenancyid + \"'  and  vh.phase<>'9'  and vl.main_flag=1 \" +\
+  \" AND to_char(v2.ETA,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59' \";\
+\
+\
+sql += \" and vh.BILL_TYPE = 'P'\";\
+\
+\
+\
+if (!Wb.isEmpty(data.transittype))\
+  sql += \" and vh.TRANSIT ='\" + data.transittype + \"'\";\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and vh.BILL_NO LIKE '%\" + data.billNo + \"%'\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and vl.CNTR LIKE '%\" + data.cntr + \"%'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD) && data.CNTR_OPERATOR_COD != '[]') {\
+  //   sql += \" and vh.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+  var s = Wb.decode(data.CNTR_OPERATOR_COD);\
+  var ss = \"\";\
+  for (var i = 0; i < s.length; i++) {\
+    ss += \"'\" + s[i] + \"',\";\
+  }\
+  sql += \" and vh.CNTR_OPERATOR_COD in(\" + ss.substring(0, ss.length - 1) + \")\";\
+}\
+// if (!Wb.isEmpty(data.SHIP_CONSIGN_COD))\
+//   sql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD)='\" + data.SHIP_CONSIGN_COD + \"' \";\
+//============2=====\
+// if (!Wb.isEmpty(data.SHIP_CONSIGN_COD)){\
+//   var str = \"\";\
+//   var s = Wb.decode(data.SHIP_CONSIGN_COD);\
+//   for (var i = 0; i < s.length; i++) {\
+//     str += \"'\" + s[i] + \"',\";\
+//   }\
+//   if (s.length > 0) {\
+// \tsql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD) in(\" + str.substring(0, str.length - 1) + \")\";\
+//   }\
+// }\
+//============3=====\
+if (!Wb.isEmpty(data.SHIP_CONSIGN_COD) && data.SHIP_CONSIGN_COD != '[]') {\
+  var str = \"\";\
+  var ss = data.SHIP_CONSIGN_COD;\
+  var s = ss.split(\",\");\
+  for (var i = 0; i < s.length; i++) {\
+    str += \"'\" + s[i] + \"',\";\
+  }\
+  if (s.length > 0) {\
+    sql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER) in(\" + str.substring(0, str.length - 1) + \")\";\
+  }\
+}\
+if (!Wb.isEmpty(data.ieId))\
+  sql += \" and vh.I_E_ID='\" + data.ieId + \"'\t\";\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and vh.TRADE_ID='\" + data.tradeId + \"'\";\
+if (!Wb.isEmpty(data.voyageNo))\
+  sql += \" and v2.VID='\" + data.voyageNo + \"'\";\
+if (nature == 5)\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+// if (!Wb.isEmpty(data.cargotype) && data.cargotype != \"A\")\
+//   sql += \" and vl.cargo_type='\" + data.cargotype + \"'\";\
+if (!Wb.isEmpty(data.cargotype) && data.cargotype != \"A\") {\
+  if (data.cargotype == 'NL')\
+    sql += \" and vl.cargo_type<>'L'\";\
+  else\
+    sql += \" and vl.cargo_type='\" + data.cargotype + \"'\";\
+}\
+if (!Wb.isEmpty(data.loadport))\
+  sql += \" and vh.POL='\" + data.loadport + \"'\";\
+if (!Wb.isEmpty(data.unloadport))\
+  sql += \" and vh.POD='\" + data.unloadport + \"'\";\
+if (!Wb.isEmpty(data.cntrSizeType))\
+  sql += \" and vl.CNTR_SIZE='\" + data.cntrSizeType + \"'\";\
+if (!Wb.isEmpty(data.C_SERVICE))\
+  sql += \" and decode(vh.I_E_ID,'I',v1.SERVICE,'E',v1.OSERVICE)='\" + data.C_SERVICE + \"'\";\
+if (!Wb.isEmpty(data.IS_JK))\
+  sql += \" and IS_JK='\" + data.IS_JK + \"'\t\";\
+\
+// app.send(Wb.getRecords(app.run(sql+\" group by vl.cntr,vl.I_E_ID )\")));\
+app.send(Wb.getRecords(app.run(sql + \" group by vl.cntr,vl.I_E_ID,cntr_size )\")));\
+\
+\
+// var rs=app.run(sql);\
+// if(rs.next())\
+// {\
+// \tapp.send(rs.getString(\"CNTRNUM\"));\
+// }"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "拼柜票数统计",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

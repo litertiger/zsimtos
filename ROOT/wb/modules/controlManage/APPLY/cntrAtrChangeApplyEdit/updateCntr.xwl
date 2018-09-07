@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var aid = data.ID;\
+var sqlp = \"\";\
+\
+//修改port_cntr\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sqlp = \"update port_cntr set CNTR_OPERATOR={?CNTR_OPERATOR?},CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?}\" +\
+  \" where ID in (select cntr_id from cntr_apply_list where aid={?ID?})\";\
+else\
+  sqlp = \"update port_cntr set TRADE_ID={?TRADE_ID?} where ID in (select cntr_id from cntr_apply_list where aid={?ID?})\";\
+app.run(sqlp, {\
+  transaction: 'start'\
+});\
+//修改主表状态\
+sqla = \"update cntr_apply set phase='AOK' where id={?ID?}\";\
+app.run(sqla, {\
+  transaction: 'commit'\
+});\
+//查询子表cntr_id,cntr\
+var selcntr = \"select p.id,p.cntr from port_cntr p left join cntr_apply_list al on p.id=al.cntr_id where al.aid={?ID?}\";\
+var cs = Wb.decode(DbUtil.getData(app.run(selcntr), request));\
+if (data.APPLY_TYPE == \"ITO\") { //内转外\
+  Wb.each(cs, function(cntr) {\
+    app.log(data.APPLY_TYPE);\
+    //调用堆存\
+    request.setAttribute(\"moveType\", \"21\"); //set参数\
+    request.setAttribute(\"cntr\", cntr.CNTR);\
+    request.setAttribute(\"cntrId\", cntr.ID);\
+    app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+  });\
+}\
+if (data.APPLY_TYPE == \"OTI\") { //外转内\
+  Wb.each(cs, function(cntr) {\
+    app.log(data.APPLY_TYPE);\
+    //调用堆存\
+    request.setAttribute(\"moveType\", \"12\"); //set参数\
+    request.setAttribute(\"cntr\", cntr.CNTR);\
+    request.setAttribute(\"cntrId\", cntr.ID);\
+    app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+  });\
+}\
+if (data.APPLY_TYPE == \"OTO\") { //转代理\
+  Wb.each(cs, function(cntr) {\
+    app.log(data.APPLY_TYPE);\
+    //调用堆存\
+    request.setAttribute(\"moveType\", \"CV\"); //set参数\
+    request.setAttribute(\"cntr\", cntr.CNTR);\
+    request.setAttribute(\"cntrId\", cntr.ID);\
+    app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+  });\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "箱申请审核",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

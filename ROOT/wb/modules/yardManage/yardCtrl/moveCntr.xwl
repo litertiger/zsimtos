@@ -1,0 +1,115 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var cntr = app.get(\"CNTR\");\
+if (!cntr)\
+  throw \"箱号不能为空\";\
+var pos = app.get(\"NEW_POS\");\
+if (!pos)\
+  throw \"新场位不能为空\";\
+var mach = app.get(\"MACH\");\
+if (!mach)\
+  throw \"场地机械号不能为空\";\
+//发送消息\
+var client = new RabbitClient();\
+/*client.setHost(\"192.168.1.14\");\
+client.setUser(\"liaw\");\
+client.setPass(\"123\");\
+client.setVHost(\"test\");\
+client.setTimeout(10000);*/\
+\
+function getDriver(mach) {\
+  app.set('driver', '');\
+  var result = app.run(\"select mach_oper from c_machine where id='\" + mach + \"' and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next())\
+    app.set('driver', result.getString(1));\
+  else {\
+    result = app.run(\"select trucker_no from c_truck where truck_no='\" + mach + \"' and nvl(tenancy_id,{?sys.TENANCY_ID?})={?sys.TENANCY_ID?}\", {\
+      jndi: 'jdbc/basecode'\
+    });\
+    if (result && result.next()) {\
+      app.set('driver', result.getString(1));\
+    }\
+  }\
+}\
+\
+//验证箱位\
+var ret = '调用验证箱位函数失败';\
+var rCheck = app.run(\"SELECT F_CHECK_PLAC({?CNTR?},{?NEW_POS?},{?sys.TENANCY_ID?}) FROM DUAL\");\
+if (rCheck && rCheck.next())\
+  ret = rCheck.getString(1);\
+if (ret != '99') {\
+  app.send({\
+    success: false,\
+    errstr: ret\
+  });\
+  throw ret;\
+}\
+\
+getDriver('mach');\
+app.set('sys.id', SysUtil.getId());\
+//补堆场作业指令\
+app.run(\"insert into move_list(id,tenancy_id,move_type,phase,priority,cntr,cntr_iso,cntr_size,cntr_type,oog_id,dang_id,reef_id,on_power,reqs_power,bundl_id,category_id,e_f_id,trade_id,i_e_id,bill_no,from_pos,to_pos,from_pos_typ,to_pos_typ,position_status,trclass1,created_by,created_on,updated_by,updated_on,cntr_id,transporter1,transporter3)\\\
+   select {?sys.id?},{?sys.TENANCY_ID?},'SFT','FIN',1,cntr,cntr_iso,cntr_size,cntr_type,oog_id,dang_id,reef_id,on_power,reqs_power,bundl_id,category_id,e_f_id,trade_id,i_e_id,bill_no,yard_position,{?NEW_POS?},'B','B',phase,'YC',{?sys.username?},sysdate,{?sys.username?},sysdate,id,{?MACH?},{?driver?} from port_cntr where cntr={?CNTR?} and tenancy_id={?sys.TENANCY_ID?} and yard_position is not null\", {\
+  transaction: \"start\"\
+});\
+\
+//更新未完成的装车指令起点位置\
+app.run(\"update move_list set from_pos={?NEW_POS?} where cntr={?CNTR?} and tenancy_id={?sys.TENANCY_ID?} and phase not in('CNL','FIN','TMP') and from_pos_typ in ('B','C')\");\
+\
+//更新在场箱位置\
+app.run(\"update port_cntr set yard_position={?NEW_POS?},updated_by={?sys.username?},updated_on=sysdate where cntr={?CNTR?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+  transaction: \"commit\"\
+});\
+\
+\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_portcntr\", \"cy.\" + pos.substr(0, 2) + \".\" + pos.substr(2, 2) + \".\" + pos.substr(4, 2) + \".\" + pos.substr(6, 1), {\
+      info: {\
+        type: \"cntr\",\
+        action: \"update\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"yardctrl\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        cntr: cntr\
+      }\
+    })))\
+    throw \"指令确认成功，但发送消息超时\";\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "response1",
+    "json": "{\"success\":true}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "response"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "指令列表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

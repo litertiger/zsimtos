@@ -1,0 +1,34 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//将派车记录的数据同步到散货实际作业的表中\
+\
+\
+\
+\
+app.run(\"insert into BLUK_TRUCK_WORK(ID, TENANCY_ID, PID, FROM_ID, BILL_NO, TRUCK, TRUCK_NO, TRAY, DRIVER,\" +\
+  \"WEIGHT, PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, NOTE, PHASE, VOLUME, RELEASE_ORDER,\" +\
+  \"CON_FLAG, AUTO_ID, \" +\
+  \" CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON,SHIPPER,SHIPPER_COD)\" +\
+  \"  select sys_guid(),TENANCY_ID, {?PID?},ID,(select BILL_NO from BLUK_APPLY_D where P_ID={?PID?}),TRUCK,TRUCK_NO, TRAY, DRIVER,WEIGHT, PIECES,\" +\
+  \" FEI_ADDDRESS, S_ADRESS, (select APPLYDATE from BLUK_APPLY_D where P_ID={?PID?}), NOTE, PHASE, VOLUME, RELEASE_ORDER,CON_FLAG,'1',\" +\
+  \" {?sys.username?},sysdate,{?sys.username?},sysdate,(select SHIPPER from BLUK_APPLY_D where P_ID={?PID?}),(select SHIPPER_COD from BLUK_APPLY_D where P_ID={?PID?}) from BLUK_TRUCK_M where ID={?ID?}\"+\
+        \" AND NOT EXISTS(SELECT 1 FROM BLUK_TRUCK_WORK WHERE FROM_ID={?ID?})\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "JCB": 1,
+  "xlcd": 1
+ },
+ "title": "同步",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

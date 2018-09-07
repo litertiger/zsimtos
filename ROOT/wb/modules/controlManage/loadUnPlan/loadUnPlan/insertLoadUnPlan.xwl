@@ -1,0 +1,98 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "query1",
+     "transaction": "start",
+     "sql": "INSERT INTO load_un_plan (ID,\
+                          berth_cod,\
+                          vid,\
+                          vessel_name,\
+                          cargo_name,\
+                          spec,\
+                          weight,\
+                          consign,\
+                          work_way,\
+                          created_on,\
+                          created_by,\
+                          eta)\
+   SELECT sys_guid (),\
+          berth_code,\
+          vessel_visit.ID,\
+          vessel_voyage.vessel_name,\
+          getShipCargo (vessel_visit.ID, 'I'),\
+          /*getshipEfNUm (vessel_visit.ID, 'I'),*/\
+getCNTROPERATORshipEfNUm (vessel_visit.VID, 'I',vessel_visit.TENANCY_ID,ETA),\
+          getShipWeight (vessel_visit.ID, 'I'),\
+          getshipConsign (vessel_visit.ID, 'I'),\
+          'I',\
+          sysdate,\
+          'admin',\
+           eta\
+     FROM vessel_visit,vessel_voyage\
+    WHERE     vessel_visit.vid = vessel_voyage.ID\
+          AND vessel_visit.tenancy_id = '{#sys.TENANCY_ID#}'\
+          AND trunc(nvl(ata,eta))= {?timestamp.shipDate?}\
+          AND INSTR (I_E, 'I') > 0\
+          and  vessel_visit.id not in  (select vid from load_un_plan where work_way='I')"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query2",
+     "transaction": "commit",
+     "sql": "INSERT INTO load_un_plan (ID,\
+                          berth_cod,\
+                          vid,\
+                          vessel_name,\
+                          cargo_name,\
+                          spec,\
+                          weight,\
+                          consign,\
+                          work_way,\
+                          created_on,\
+                          created_by,\
+                          etd)\
+   SELECT sys_guid (),\
+          berth_code,\
+          vessel_visit.ID,\
+          vessel_voyage.vessel_name,\
+          getShipCargo (vessel_visit.ID, 'E'),\
+          /*getshipEfNUm (vessel_visit.ID, 'E'),*/\
+getCNTROPERATORshipEfNUm (vessel_visit.VID, 'E',vessel_visit.TENANCY_ID,ETA),\
+          getShipWeight (vessel_visit.ID, 'E'),\
+          getshipConsign (vessel_visit.ID, 'E'),\
+          'E',\
+          sysdate,\
+          'admin',\
+           etd\
+     FROM vessel_visit,vessel_voyage\
+    WHERE     vessel_visit.vid = vessel_voyage.ID\
+          AND vessel_visit.tenancy_id = '{#sys.TENANCY_ID#}'\
+          AND trunc(nvl(atd,etd))= {?timestamp.shipDate?}\
+          AND INSTR (I_E, 'E') > 0\
+          and  vessel_visit.id not in  (select vid from load_un_plan where work_way='E')"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "生成装卸计划",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,239 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var renancyId = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+\
+if (app.get(\"type\") == 'MOVE') //移箱\
+{\
+  if (!app.get('moves'))\
+    throw '未选定要发送的箱';\
+  var mvs = Wb.decode(app.get('moves'));\
+  var moves = mvs.join(\"','\");\
+  var rs = app.run(\"select distinct cntr_id from  move_list m,c_cy_area a where  queue_id={?id?} and  a.tenancy_id={?sys.TENANCY_ID?}\" +\
+    \" and a.cy_area_no=substr(to_pos,0,2) and CATEGORY='C' and m.id in('\" + moves + \"')\");\
+  while (rs.next()) {\
+\
+    var cntrId = rs.getString(\"CNTR_ID\");\
+    app.run(\"delete  from move_list where  queue_ID=(select m.ID from  task t,move_list m where t.ID=m.queue_id \\\
+               and  t.TASK_TYPE='VOUT' and m.phase='SND' and m.cntr_id='\" + cntrId + \"')\");\
+    app.run(\"update  move_list set PHASE='PLN' where ID=(select m.ID  from  task t,move_list m where t.ID=m.queue_id \\\
+               and  t.TASK_TYPE='VOUT' and m.phase='SND' and m.cntr_id='\" + cntrId + \"')\");\
+  }\
+  app.run(\"update  move_list set   phase='SND',WAIT_UNTILL=sysdate ,UPDATED_BY={?sys.username?}, UPDATED_ON=sysdate,IS_SPLIT=1  where id in('\" + moves + \"')\");\
+  if (app.get(\"transporter5\") == 'ROR')\
+    app.run(\"INSERT INTO move_list\\\
+            (ID, tenancy_id, queue_id, sequence_no, move_type, phase,\\\
+             progress, priority, direction, handle_id, origin, contract_no,\\\
+             crane, is_split, cntr, cntr_iso, cntr_size, cntr_type,\\\
+             cntr_hight, cntr_length, overheight, overfront, overback,\\\
+             overleft, overright, oog_id, dang_id, imdg, undg, temp_set,\\\
+             temp_min, temp_max, reef_id, on_power, reqs_power, reefer_type,\\\
+             alarm, co2_level, defrost_temp, fault_code, fuel_level,\\\
+             humidity_level, o2_level, last_remark, last_set_temp,\\\
+             last_supply_temp, last_read_temp, on_power_time, off_power_time,\\\
+             bundl_id, bundle_box, bundle_type, carrier_call, carrier_type,\\\
+             carrier_code, carrier_ata, line, cntr_op, cntr_operator, safe_wt,\\\
+             scale_wt, service, opl, pod, pol, spod, return_loc, trucking_co,\\\
+             transporter1, transporter2, transporter3, transporter4,\\\
+             transporter5, trclass1, trclass2, trclass3, trclass4, trclass5,\\\
+             from_pos_typ, to_pos_typ, from_pos, to_pos, from_block, from_bay,\\\
+             from_row, from_layer, to_block, to_bay, to_row, to_layer,\\\
+             from_xpoint, from_ypoint, to_xpoint, to_ypoint, position_status,\\\
+             distance, planned_position, cy_area_no, cy_bay_no, cy_row_no,\\\
+             cy_tier_no, twin_cntr, filter_name, category_id, trade_id,\\\
+             i_e_id, e_f_id, weight, bill_no, seal_no, seal_no2, seal_no3,\\\
+             seal_no4, auto_release, sequenced, wait_untill, start_execute,\\\
+             end_execute, limit_time, enable_time, pend_execute,\\\
+             plan_duration, shifter, created_by, created_on, updated_by,\\\
+             updated_on, cntr_id, cntr_operator_cod, condition_id, lock_id,\\\
+             enable_id, shift_id, y2y_id, bill_type, card_write_id)\\\
+   SELECT sys_guid(), tenancy_id, ID, sequence_no, 'ROR', phase,\\\
+             progress, priority, direction, handle_id, origin, contract_no,\\\
+             crane, is_split, cntr, cntr_iso, cntr_size, cntr_type,\\\
+             cntr_hight, cntr_length, overheight, overfront, overback,\\\
+             overleft, overright, oog_id, dang_id, imdg, undg, temp_set,\\\
+             temp_min, temp_max, reef_id, on_power, reqs_power, reefer_type,\\\
+             alarm, co2_level, defrost_temp, fault_code, fuel_level,\\\
+             humidity_level, o2_level, last_remark, last_set_temp,\\\
+             last_supply_temp, last_read_temp, on_power_time, off_power_time,\\\
+             bundl_id, bundle_box, bundle_type, '', '场桥',\\\
+             '', carrier_ata, line, cntr_op, cntr_operator, safe_wt,\\\
+             scale_wt, service, opl, pod, pol, spod, return_loc, trucking_co,\\\
+             transporter1, transporter2, transporter3, transporter4,\\\
+             transporter5, 'YC', '', '', '', '',\\\
+             'B', 'B', from_pos, to_pos, from_block, from_bay,\\\
+             from_row, from_layer, to_block, to_bay, to_row, to_layer,\\\
+             from_xpoint, from_ypoint, to_xpoint, to_ypoint, position_status,\\\
+             distance, planned_position, cy_area_no, cy_bay_no, cy_row_no,\\\
+             cy_tier_no, twin_cntr, filter_name, category_id, trade_id,\\\
+             i_e_id, e_f_id, weight, bill_no, seal_no, seal_no2, seal_no3,\\\
+             seal_no4, auto_release, sequenced, wait_untill, start_execute,\\\
+             end_execute, limit_time, enable_time, pend_execute,\\\
+             plan_duration, shifter,{?sys.username?}, sysdate, {?sys.username?},\\\
+             sysdate, cntr_id, cntr_operator_cod, condition_id, lock_id,\\\
+\t\t\t enable_id, shift_id, y2y_id, bill_type, card_write_id\\\
+     FROM move_list  WHERE id in('\" + moves + \"')\");\
+  else {\
+    app.run(\"INSERT INTO move_list\\\
+            (ID, tenancy_id, queue_id, sequence_no, move_type, phase,\\\
+             progress, priority, direction, handle_id, origin, contract_no,\\\
+             crane, is_split, cntr, cntr_iso, cntr_size, cntr_type,\\\
+             cntr_hight, cntr_length, overheight, overfront, overback,\\\
+             overleft, overright, oog_id, dang_id, imdg, undg, temp_set,\\\
+             temp_min, temp_max, reef_id, on_power, reqs_power, reefer_type,\\\
+             alarm, co2_level, defrost_temp, fault_code, fuel_level,\\\
+             humidity_level, o2_level, last_remark, last_set_temp,\\\
+             last_supply_temp, last_read_temp, on_power_time, off_power_time,\\\
+             bundl_id, bundle_box, bundle_type, carrier_call, carrier_type,\\\
+             carrier_code, carrier_ata, line, cntr_op, cntr_operator, safe_wt,\\\
+             scale_wt, service, opl, pod, pol, spod, return_loc, trucking_co,\\\
+             transporter1, transporter2, transporter3, transporter4,\\\
+             transporter5, trclass1, trclass2, trclass3, trclass4, trclass5,\\\
+             from_pos_typ, to_pos_typ, from_pos, to_pos, from_block, from_bay,\\\
+             from_row, from_layer, to_block, to_bay, to_row, to_layer,\\\
+             from_xpoint, from_ypoint, to_xpoint, to_ypoint, position_status,\\\
+             distance, planned_position, cy_area_no, cy_bay_no, cy_row_no,\\\
+             cy_tier_no, twin_cntr, filter_name, category_id, trade_id,\\\
+             i_e_id, e_f_id, weight, bill_no, seal_no, seal_no2, seal_no3,\\\
+             seal_no4, auto_release, sequenced, wait_untill, start_execute,\\\
+             end_execute, limit_time, enable_time, pend_execute,\\\
+             plan_duration, shifter, created_by, created_on, updated_by,\\\
+             updated_on, cntr_id, cntr_operator_cod, condition_id, lock_id,\\\
+             enable_id, shift_id, y2y_id, bill_type, card_write_id)\\\
+   SELECT sys_guid(), tenancy_id, ID, sequence_no, 'DRG', phase,\\\
+             progress, priority, direction, handle_id, origin, contract_no,\\\
+             crane, is_split, cntr, cntr_iso, cntr_size, cntr_type,\\\
+             cntr_hight, cntr_length, overheight, overfront, overback,\\\
+             overleft, overright, oog_id, dang_id, imdg, undg, temp_set,\\\
+             temp_min, temp_max, reef_id, on_power, reqs_power, reefer_type,\\\
+             alarm, co2_level, defrost_temp, fault_code, fuel_level,\\\
+             humidity_level, o2_level, last_remark, last_set_temp,\\\
+             last_supply_temp, last_read_temp, on_power_time, off_power_time,\\\
+             bundl_id, bundle_box, bundle_type, '', '拖车',\\\
+             '', carrier_ata, line, cntr_op, cntr_operator, safe_wt,\\\
+             scale_wt, service, opl, pod, pol, spod, return_loc, trucking_co,\\\
+             transporter1, transporter2, transporter3, transporter4,\\\
+             transporter5, 'TG', 'YC', '', '', '',\\\
+             'T', 'B', '', from_pos, from_block, from_bay,\\\
+             from_row, from_layer, to_block, to_bay, to_row, to_layer,\\\
+             from_xpoint, from_ypoint, to_xpoint, to_ypoint, position_status,\\\
+             distance, planned_position, cy_area_no, cy_bay_no, cy_row_no,\\\
+             cy_tier_no, twin_cntr, filter_name, category_id, trade_id,\\\
+             i_e_id, e_f_id, weight, bill_no, seal_no, seal_no2, seal_no3,\\\
+             seal_no4, auto_release, sequenced, wait_untill, start_execute,\\\
+             end_execute, limit_time, enable_time, pend_execute,\\\
+             plan_duration, shifter, {?sys.username?}, sysdate,{?sys.username?},\\\
+             sysdate, cntr_id, cntr_operator_cod, condition_id, lock_id,\\\
+\t\t\t enable_id, shift_id, y2y_id, bill_type, card_write_id\\\
+     FROM move_list  WHERE id in('\" + moves + \"')\");\
+    app.run(\"INSERT INTO move_list\\\
+            (ID, tenancy_id, queue_id, sequence_no, move_type, phase,\\\
+             progress, priority, direction, handle_id, origin, contract_no,\\\
+             crane, is_split, cntr, cntr_iso, cntr_size, cntr_type,\\\
+             cntr_hight, cntr_length, overheight, overfront, overback,\\\
+             overleft, overright, oog_id, dang_id, imdg, undg, temp_set,\\\
+             temp_min, temp_max, reef_id, on_power, reqs_power, reefer_type,\\\
+             alarm, co2_level, defrost_temp, fault_code, fuel_level,\\\
+             humidity_level, o2_level, last_remark, last_set_temp,\\\
+             last_supply_temp, last_read_temp, on_power_time, off_power_time,\\\
+             bundl_id, bundle_box, bundle_type, carrier_call, carrier_type,\\\
+             carrier_code, carrier_ata, line, cntr_op, cntr_operator, safe_wt,\\\
+             scale_wt, service, opl, pod, pol, spod, return_loc, trucking_co,\\\
+             transporter1, transporter2, transporter3, transporter4,\\\
+             transporter5, trclass1, trclass2, trclass3, trclass4, trclass5,\\\
+             from_pos_typ, to_pos_typ, from_pos, to_pos, from_block, from_bay,\\\
+             from_row, from_layer, to_block, to_bay, to_row, to_layer,\\\
+             from_xpoint, from_ypoint, to_xpoint, to_ypoint, position_status,\\\
+             distance, planned_position, cy_area_no, cy_bay_no, cy_row_no,\\\
+             cy_tier_no, twin_cntr, filter_name, category_id, trade_id,\\\
+             i_e_id, e_f_id, weight, bill_no, seal_no, seal_no2, seal_no3,\\\
+             seal_no4, auto_release, sequenced, wait_untill, start_execute,\\\
+             end_execute, limit_time, enable_time, pend_execute,\\\
+             plan_duration, shifter, created_by, created_on, updated_by,\\\
+             updated_on, cntr_id, cntr_operator_cod, condition_id, lock_id,\\\
+             enable_id, shift_id, y2y_id, bill_type, card_write_id)\\\
+   SELECT sys_guid(), tenancy_id, ID, sequence_no, 'LOD', phase,\\\
+             progress, priority, direction, handle_id, origin, contract_no,\\\
+             crane, is_split, cntr, cntr_iso, cntr_size, cntr_type,\\\
+             cntr_hight, cntr_length, overheight, overfront, overback,\\\
+             overleft, overright, oog_id, dang_id, imdg, undg, temp_set,\\\
+             temp_min, temp_max, reef_id, on_power, reqs_power, reefer_type,\\\
+             alarm, co2_level, defrost_temp, fault_code, fuel_level,\\\
+             humidity_level, o2_level, last_remark, last_set_temp,\\\
+             last_supply_temp, last_read_temp, on_power_time, off_power_time,\\\
+             bundl_id, bundle_box, bundle_type, '', '场桥',\\\
+             '', carrier_ata, line, cntr_op, cntr_operator, safe_wt,\\\
+             scale_wt, service, opl, pod, pol, spod, return_loc, trucking_co,\\\
+             transporter1, transporter2, transporter3, transporter4,\\\
+             transporter5, 'YC', 'TG', '', '', '',\\\
+             'B', 'T', from_pos, '', from_block, from_bay,\\\
+             from_row, from_layer, to_block, to_bay, to_row, to_layer,\\\
+             from_xpoint, from_ypoint, to_xpoint, to_ypoint, position_status,\\\
+             distance, planned_position, cy_area_no, cy_bay_no, cy_row_no,\\\
+             cy_tier_no, twin_cntr, filter_name, category_id, trade_id,\\\
+             i_e_id, e_f_id, weight, bill_no, seal_no, seal_no2, seal_no3,\\\
+             seal_no4, auto_release, sequenced, wait_untill, start_execute,\\\
+             end_execute, limit_time, enable_time, pend_execute,\\\
+             plan_duration, shifter,{?sys.username?}, sysdate, {?sys.username?},\\\
+             sysdate, cntr_id, cntr_operator_cod, condition_id, lock_id,\\\
+\t\t\t enable_id, shift_id, y2y_id, bill_type, card_write_id\\\
+     FROM move_list  WHERE id in('\" + moves + \"')\");\
+\
+  }\
+  var RabbitClient = com.ag.util.RabbitClient;\
+  var client = new RabbitClient();\
+  try {\
+    if (!client.open())\
+      return app.send('发送成功,但发送消息失败');\
+\
+    Wb.each(mvs, function(id) {\
+      if (!client.routeSend(\"ex_instruction\", 'cy.#', {\
+          info: {\
+            type: 'move',\
+            action: \"update\",\
+            senduser: username,\
+            sendmodule: \"hanset\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: id\
+          }\
+        }))\
+        return app.send(client.getLastError() || \"指令确认成功，但发送消息超时\");\
+    });\
+  } catch (e) {\
+    app.send('异常'+e);\
+  } finally {\
+    client.close();\
+  }\
+  app.send(\"成功\");\
+\
+} else {\
+  var MoveList = com.ag.zhshan.portCntr.service.MoveList;\
+  MoveList.instSplit(request, response);\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "指令拆分",
+ "iconCls": "arrow_join_icon",
+ "inframe": false,
+ "pageLink": ""
+}

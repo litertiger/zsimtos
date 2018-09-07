@@ -1,0 +1,394 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "editwin",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "436",
+     "height": "182"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "ID",
+       "width": "240",
+       "x": "40",
+       "y": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TENANCY_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "TENANCY_ID",
+       "width": "240",
+       "x": "40",
+       "y": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "AREANAME",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "区域名称",
+       "width": "280",
+       "x": "40",
+       "y": "16",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "DISTANCE",
+       "allowDecimals": "true",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "距离",
+       "x": "40",
+       "width": "280",
+       "y": "40",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "x": "80",
+       "width": "240",
+       "y": "112",
+       "value": "C_AREA",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "RATIO",
+       "allowDecimals": "true",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "收费系数",
+       "x": "40",
+       "width": "280",
+       "y": "64",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "PAIXU",
+       "allowDecimals": "false",
+       "labelAlign": "right",
+       "fieldLabel": "排序",
+       "x": "40",
+       "width": "280",
+       "y": "88",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckEdit/cArea/cAreaEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckEdit/cArea/cAreaEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "名称",
+          "labelWidth": "50"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findmenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+        },
+        {
+         "configs": {
+          "itemId": "addmenu",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.editwin.setTitle('添加 - 计费地址');\
+app.editwin.setIconCls('record_add_icon');\
+app.editwin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+app.TENANCY_ID.setValue('{#sys.TENANCY_ID#}');"}
+        },
+        {
+         "configs": {
+          "itemId": "modifymenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin.setTitle('修改 - ' + app.selRec.data.AREANAME);\
+app.editwin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin, app.selRec.data);\
+app.editwin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "deletemenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckEdit/cArea/cAreaEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),tableName:'C_AREA'\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'AREANAME');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=truckManager/truckEdit/cArea/cAreaEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "ID",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colAREANAME",
+          "dataIndex": "AREANAME",
+          "text": "区域名称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colRATIO",
+          "dataIndex": "RATIO",
+          "text": "收费系数",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colDISTANCE",
+          "dataIndex": "DISTANCE",
+          "text": "距离",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPAIXU",
+          "dataIndex": "PAIXU",
+          "text": "排序",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_BY",
+          "dataIndex": "CREATED_BY",
+          "text": "创建人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colUPDATED_BY",
+          "dataIndex": "UPDATED_BY",
+          "text": "最后修改人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colUPDATED_ON",
+          "dataIndex": "UPDATED_ON",
+          "width": "120",
+          "text": "更新日期",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "JCB": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "计费区域管理",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

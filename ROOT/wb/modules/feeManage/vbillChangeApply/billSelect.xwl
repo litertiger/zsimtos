@@ -1,0 +1,73 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var sql, data = app.get();\
+\
+sql = ' I_E_ID={?ieId?}';\
+if (!Wb.isEmpty(data.BILL_ID)) {\
+  sql += '  and BILL_ID={?BILL_ID?}';\
+} \
+if (!Wb.isEmpty(data.shipNo)) {\
+  sql += ' and VID={?shipNo?}';\
+} \
+if (!Wb.isEmpty(data.LCL_ID)) {\
+  sql += ' and LCL_ID=1 and  main_flag=1';\
+} \
+request.setAttribute('whereSql', sql);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createColumns": "false",
+    "sql": "select ID,\
+TENANCY_ID,\
+VID,\
+CNTR,\
+CNTR_ISO,\
+E_F_ID,\
+CNTR_OPERATOR,\
+CMDY_CODE,\
+GOODS_NOTES,\
+ACKWARD_CARGO,\
+WEIGHT,\
+VOLUME,\
+PIECES,\
+BILL_NO,\
+TRADE_ID,\
+OVERHEIGHT,\
+OVERFRONT,\
+OVERBACK,\
+OVERLEFT,\
+OVERRIGHT,\
+SEAL_NO,\
+TRANS_ID,\
+I_E_ID E from VLOAD_LIST where   I_E_ID = 'I'\
+  and ID in ( select BILL_ID from VLOAD_LIST , VESSEL_VISIT, VESSEL_VOYAGE\
+             where \
+             VESSEL_VISIT.VID = VESSEL_VOYAGE.ID and VESSEL_VISIT.TENANCY_ID = '{#sys.TENANCY_ID#}' \
+            and({?TIMESTAMP.date?} >= to_date(to_char(ETA, 'yyyymmdd'), 'yyyymmdd') \
+                 and {?TIMESTAMP.date?} <= to_date(to_char(ETA, 'yyyymmdd'), 'yyyymmdd') + 0.99999) and I_E_ID = 'I'\
+             and  VESSEL_VISIT.ID= VID\
+             and  CNTR={?CNTR_NO?}  )"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "basic": 1,
+  "DCXK": 1
+ },
+ "title": "拆票信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

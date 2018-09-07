@@ -1,0 +1,46 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz3">9.2.查询模版</p>
+<b>A).最简单的报表, 单个层</b><br>
+　　这是最简单的情形, 生成单个， 主体是 &lt;Table&gt; , 并再在外部包绕一层 &lt;div&gt;<br>
+<pre class='xml'>
+&lt;div&gt;
+ &lt;Table&gt; 
+  ...
+ &lt;/Table&gt;
+&lt;/div&gt; </pre>
+　　您只要使用 <b>&lt;!--SUPCAN_REPORT_dMain--&gt;</b> 占位符即可.<br>
+　　如果数据行数较多、你希望 html 自动能实现报表的表头冻结、左侧某些列冻结，那么必须用到其它几个占位符了.<br>
+<br>
+<b>B).2个层</b><br>
+　　生成 2 个层：表头和表体，表头是固定的 (冻结)，表体可以上下滚动, 您需要包含 <b>SUPCAN_REPORT_dTitle</b> 和 <b>SUPCAN_REPORT_dMain</b> 占位符.<br>
+<br>
+<b>C).5个层</b><br>
+　　这是最复杂的情形，除了有表头，还可以让左侧的某些列固定在左侧, 生成的报表的 5 个 div 区域， 如图:<br>
+<center><img src='image/server5.png'/></center>
+　　为了让生成的这些 div 层的 id 不和您的页面元素同名，您还可以指定其名称，比如：<br>
+<pre class='xml'>
+&lt;!--SUPCAN_REPORT_dTitle id="supcanTitle"--&gt;</pre>
+　　表示标题 div 层的 id 是"supcanTitle".<br>
+<br>
+<br>
+　　2个层和5个层的报表, 会包含2个js函数： supcan_Resize( ) 函数、supcan_ScrollMain( ) 函数，那么该占位符表示将动态生成的js函数安置到此处.<br>
+<b>supcan_Resize( ) 函数的作用</b><br>
+　　用于动态控制  dMain 层的高度和宽度(5层时)，让 dMain 层自动浮现或隐藏垂直滚动条和水平滚动条(5层时)， 函数的调用时机是在容器尺寸变化时，比如:<br>
+<pre class='xml'>
+&lt;body onresize="supcan_Resize()" onLoad="supcan_Resize()" leftmargin="0" topmargin="0"&gt;</pre>
+<b>supcan_ScrollMain( ) 函数的作用</b><br>
+　　用于5层的情形：当拖动 dMain 层垂直或水平滚动时，让 dLeft、dHead 层动态改变其位置，使其能和 dMain 层保持同步，这个函数不需要您再外部调用，我们生成的 dMain 层会调用该函数的：<br>
+<pre class='xml'>
+&lt;div id="dMain" onscroll="supcan_ScrollMain()"&gt;
+...</pre>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

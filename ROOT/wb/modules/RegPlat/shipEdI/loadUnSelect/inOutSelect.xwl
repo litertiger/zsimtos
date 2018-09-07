@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var  whereSql=\" select  * from IN_OUT_EDI where  \";\
+\
+ whereSql+=\"   IN_OUT_TIME>trunc({?timestamp.begdate?})  and  IN_OUT_TIME<trunc({?timestamp.enddate?})+0.9999\";\
+\
+if(Wb.isEmpty(data.tradeId))\
+ whereSql+=\" and  trade_ID=\"+data.tradeId+\"\";\
+app.log(data.type);\
+if(data.type==\"true\")\
+ \twhereSql+=\" and  IN_OUT_TYPE='IN'\";\t\
+ else whereSql+=\" and  IN_OUT_TYPE='OUT'\";\
+\
+\
+  if(!Wb.isEmpty(data.cntr))\
+     whereSql+=\" and  cntr='\"+data.cntr+\"'\";\
+ if(!Wb.isEmpty(data.workType)) \
+   if(data.workType=='COSCO')\
+     whereSql+=\" and  COSCO=1\";\
+  else if(data.workType=='CCT')\
+     whereSql+=\" and  CCT=1\";\
+  else if(data.workType=='OOCL')\
+     whereSql+=\" and  OOCL=1\";\
+\
+    var result = Wb.getRecords(app.run(whereSql));\
+    app.send(result);\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "SWB": 1
+ },
+ "title": "进出门查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

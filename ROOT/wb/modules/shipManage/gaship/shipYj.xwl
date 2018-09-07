@@ -1,0 +1,278 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverMethod": "com.ag.aohao.EarlyWarning.getShipYjSql"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "win",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "306",
+     "height": "184"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "VESSEL_NAME",
+       "fieldLabel": "船舶名称",
+       "x": "24",
+       "width": "241",
+       "y": "8",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "GET_TIME",
+       "allowBlank": "false",
+       "fieldLabel": "最后年检时间",
+       "x": "24",
+       "width": "241",
+       "y": "64",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "NEXT_TIME",
+       "allowBlank": "false",
+       "fieldLabel": "证书有限期限",
+       "x": "24",
+       "width": "241",
+       "y": "96",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "Certificate",
+       "pickList": "{#jsArray#}",
+       "fieldLabel": "证书",
+       "x": "24",
+       "width": "241",
+       "y": "40",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "\
+Wb.request({\
+  url: 'm?xwl=shipManage/gaship/shipYj/updateCreit',\
+  out: app.win,\
+  success: function(resp) {\
+    Wb.info('成功！');\
+    app.grid1.store.load({\
+    out:app.tbar\
+    });\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "disabled": "false",
+      "region": "center",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "shipName",
+          "emptyText": "船名",
+          "displayField": "VESSEL_NAME",
+          "valueField": "ID",
+          "blankText": "船名"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=shipManage/gaship/shipYj/shipSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "begdate",
+          "fieldLabel": "从",
+          "width": "120",
+          "labelWidth": "20"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "enddate",
+          "fieldLabel": "-",
+          "width": "120",
+          "labelWidth": "20"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "findbtn",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": " app.grid1.store.load({\
+ out:app.tbar\
+ });"}
+        },
+        {
+         "configs": {
+          "itemId": "zsShbtn",
+          "text": "证书审核",
+          "iconCls": "tick_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "\
+\
+var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+\
+app.selRec = sels[0];\
+app.win.setTitle('证书-年审 ');\
+app.win.setIconCls('record_edit_icon');\
+Wb.setValue(app.win, app.selRec.data);\
+app.win.show();\
+"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "sortOnFilter": "true",
+        "itemId": "store",
+        "autoLoad": "false",
+        "sorters": "'CN10'",
+        "url": "m?xwl=shipManage/gaship/shipYj/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "var now=new Date() ;\
+var last=new Date(now );\
+var news=new Date(now.getTime() +180*60*60*24*1000);\
+app.begdate.setValue(last);\
+app.enddate.setValue(news);\
+\
+ app.grid1.reconfigure(app.grid1.store,  buildColumn() );\
+ app.grid1.doLayout();\
+ app.grid1.store.load({\
+ out:app.tbar\
+ });\
+//这个是主要的方法\
+function buildColumn(){ \
+    var columns = [];  \
+    var item2 = {}; \
+  var jsid='{#id#}';\
+var jsname='{#name#}';\
+\
+    var s=jsid.split(',');\
+   var name=jsname.split(',');\
+       item2.dataIndex='VESSEL_NAME';\
+        item2.text ='  船名  ';\
+        item2.sortable=true;\
+        item2.width = 120; \
+    columns[0]=item2;\
+  for(var i=1;i<=s.length;i++){\
+     item2 = {}; \
+        item2.dataIndex=s[i-1];//\"第三者人身风险互保基金入会证书\";\
+        item2.text =name[i-1];//\"第三者人身风险互保基金入会证书\";\
+       item2.autoWrap=true;\
+        item2.sortable=true;\
+    \
+        item2.renderer=function(value,metaData,record,rowIndex,colIndex,store,view){\
+          if(value==null)\
+            return value;\
+          else if(value.indexOf(\"@\")>0){\
+          var vl=value.split(\"@\");\
+           metaData.style = 'background-color:'+vl[0]+';';\
+           \
+          return '<span style=\"color:white\">' + vl[1] + '<\/span>';\
+          }else\
+          return value;\
+        };\
+        item2.width = item2.text.length>=4?\"120\":80; \
+   \
+    columns[i]=item2;\
+  }\
+        return  columns;\
+}\
+\
+",
+   "initialize": "var  opeType;"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "ZSG_GA": 1
+ },
+ "title": "船舶证书预警",
+ "iconCls": "date_error_icon",
+ "inframe": true,
+ "pageLink": ""
+}

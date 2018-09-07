@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var signercfd = app.get('sys.dispname');\
+var data = app.get();\
+\
+\
+\
+\
+\
+\
+app.run(\"update  BLUK_GOODS set  OUTQUTY={?QUTY?}, \\\
+QUTY=quty-{?QUTY?},  OUTTIME=SYSDATE, WEIGHT={?WEIGHT?}, VOLUME={?VOLUME?},  \\\
+UPDATED_ON=SYSDATE, UPDATED_BY='{?sys.username?}' WHERE ID={?ID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+\
+\
+app.run(\"insert into bluk_inout(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID, SIGNERCFS, TENANCY_ID, TRUCKNUM, LINK_NAME)\\\
+values('\" + id + \"','0',{?QUTY?},{?TRUCKNO?},'','','','\" + signercfd + \"','{?sys.TENANCY_ID?}',{?TRUCKNUM?},{?LINK_NAME?})\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+//插入作业票\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        values(sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'',{?PORC_COUNT?})\",{arrayData: new org.json.JSONArray(data.datas)});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

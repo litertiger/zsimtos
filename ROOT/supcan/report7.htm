@@ -1,0 +1,88 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ AF.func("SubscribeEvent", "Clicked");
+ AF.func("Build", "report/report10.xml");
+ AF.func("calc", "");
+}
+
+//供回调的js函数
+var target = [0,1,2];
+target[0]= [500, 1200, 800, 300];
+target[1]= [600, 1400,1000, 350];
+target[2]= [400, 1000, 600, 200];
+function getTarget(dept, month) {
+ month--;
+ if(dept<0 || month>3) return 0;
+ if(month<0 || month>2) return 0;
+ return target[month][dept];
+}
+ 
+//工作表2 的事件
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event!="Clicked") return;
+ if(p3=="start1") {
+  AF.func("SetCellProp", "userch1\r\n charttype \r\n pie");		//圆饼图
+  AF.func("SetCellProp", "userch1\r\n colors\r\n #5F9FD1,#777777,#2D68D6,#788F66");	//自定义颜色
+  AF.func("Chart_DeleteAllSeries", "userch1");				//清理统计数据
+  AF.func("Chart_SetSeriesName", "userch1 \r\n 0 \r\n 上半年支出");
+  AF.func("Chart_SetItemNames", "userch1 \r\n 1月份,2月份,3月份,4月份,5月份,6月份");
+  AF.func("Chart_SetValues", "userch1 \r\n \r\n 2033.12, 2387.00, 12401, 2031.12, 1234, 1220");
+ }
+ else if(p3=="start2" || p3=="start3") {
+  var charttype = "bar";
+  if(p3=="start3") charttype="budget";
+  AF.func("SetCellProp", "userch1\r\n charttype \r\n" + charttype);		//柱状图、财务预算图
+  AF.func("Chart_DeleteAllSeries", "userch1");				//清理统计数据
+  AF.func("Chart_SetSeriesName", "userch1 \r\n 0 \r\n 预算");
+  AF.func("Chart_SetSeriesName", "userch1 \r\n 1 \r\n 发生额");
+  AF.func("Chart_SetItemNames", "userch1 \r\n 1季度,2季度,3季度,4季度");
+  AF.func("Chart_SetValues", "userch1 \r\n 0 \r\n B3, C3, D3, 1230.23");	//统计数据可以是数字，也可以是单元名、别名
+  AF.func("Chart_SetValues", "userch1 \r\n 1 \r\n B4, C4, D4, 210");
+ }
+ else if(p1 == "userch1") {			//统计图的鼠标事件
+  AF.func("SetCellData", "G5 \r\n 鼠标事件:\\r\\n"+p2 + "\\r\\n" + p3);
+ }
+}
+</script>
+</head>
+
+<body topmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.本例是在上一个demo页基础上，增加了2个和销售额有关的统计图，请在灰色的单元格内输入任意数字，观察统计图的自动更新情况；<br>
+<b>2</b>.可试一下打印预览、察看统计图的打印效果;　　　<b>3</b>.工作表2演示了完全由js控制的统计图.</td></tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<div style="position:relative;width:100%">
+	<script>insertReport('AF', 'workmode=runtime', '570px')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.有二个地方可以修改统计图的属性：选中统计图，鼠标右键的弹出菜单：<br>
+<img src='res/illu1.jpg'/>
+<br>
+<b>2</b>.增加统计图用工具条上的<img src='res/chart.bmp'>按钮.<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,1011 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "codtoolbar"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "codename",
+       "emptyText": "客户代码、中文名称"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "queryBtn",
+       "text": "查询",
+       "iconCls": "seek_icon",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "app.codgrid.store.load({\
+  out: app.codtoolbar\
+});\
+app.nextgrid.store.load({\
+});\
+"}
+     },
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "新增",
+       "iconCls": "record_add_icon",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "app.customWin.setHeight(210);\
+Wb.reset(app.customWin);\
+app.customWin.setTitle('添加 - 客户');\
+app.customWin.show();\
+app.CODE.setDisabled(false);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "editBtn",
+       "text": "编辑",
+       "iconCls": "record_edit_icon",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "var sels = app.codgrid.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+Wb.reset(app.customWin);\
+app.customWin.setHeight(210);\
+app.selRec = sels[0];\
+app.customWin.setTitle('修改 - ' + app.selRec.data.NAME);\
+Wb.setValue(app.customWin, app.selRec.data);\
+app.CODE.setDisabled(true);\
+//在给别的类型设置值的时候，需要在这后面改才行---Wb.setValue(app.customWin, app.selRec.data);\
+// app.CLIENT_TYPE.setValue('CE');\
+// console.log(sels[0]);\
+app.customWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "delBtn",
+       "hidden": "'{#sys.username#}'!='admin'",
+       "text": "删除",
+       "iconCls": "record_delete_icon",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "var sels = app.codgrid.getSelection();\
+Wb.confirm(\"确定要删除此客户吗?\",\
+  function() {\
+    Wb.request({\
+      url: 'm?xwl=system/customer/customertreeedit/delete',\
+      params: {\
+        ID: sels[0].data.ID\
+      }, //合并窗口和记录数据作为参数，后者为默认值\
+      success: function() {\
+        Wb.remove(app.codgrid, sels);\
+      }\
+    });\
+  });"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "customWin",
+     "resizable": "true",
+     "closeAction": "hide",
+     "width": "601",
+     "title": "新增客户",
+     "autoScroll": "true",
+     "height": "216"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "x": "416",
+       "width": "240",
+       "y": "400",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "客户代码",
+       "width": "192",
+       "x": "8",
+       "y": "16",
+       "isUpperCase": "true",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"change": "// text.setValue(newValue.toUpperCase());\
+"}
+     },
+     {
+      "configs": {
+       "itemId": "NAME",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "中文名称",
+       "width": "376",
+       "x": "184",
+       "y": "16",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SHORT_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "中文简称",
+       "width": "192",
+       "x": "8",
+       "y": "48",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ADDRESS",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "联系地址",
+       "width": "376",
+       "x": "184",
+       "y": "80",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TEL",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "电话",
+       "width": "152",
+       "x": "48",
+       "y": "80",
+       "labelWidth": "50",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATEUSER",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "录入人员",
+       "width": "224",
+       "x": "32",
+       "y": "280",
+       "labelWidth": "90",
+       "disabled": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATEUSER",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "最近修改人",
+       "width": "216",
+       "x": "520",
+       "y": "120",
+       "labelWidth": "90",
+       "disabled": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATETIME",
+       "hidden": "true",
+       "fieldLabel": "录入时间",
+       "x": "248",
+       "width": "272",
+       "y": "232",
+       "labelWidth": "60",
+       "disabled": "true",
+       "height": "31"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "datetime"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATETIME",
+       "hidden": "true",
+       "fieldLabel": "最近修改时间",
+       "x": "16",
+       "width": "312",
+       "y": "368",
+       "labelWidth": "85",
+       "disabled": "true",
+       "height": "24"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "datetime"
+     },
+     {
+      "configs": {
+       "itemId": "GOV_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "统一社会信用代码",
+       "width": "552",
+       "x": "8",
+       "y": "112",
+       "labelWidth": "130",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"change": "text.setValue(newValue.toUpperCase());"}
+     },
+     {
+      "configs": {
+       "itemId": "S_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "代码类型",
+       "x": "184",
+       "width": "375",
+       "keyName": "ORG_CODE",
+       "y": "48",
+       "labelWidth": "90",
+       "forceSelection": "true",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "app.GOV_CODE.setValue(app.GOV_CODE.getValue().replace(/^\\s\\s*/, '').replace(/\\s\\s*$/, ''));\
+var sels = app.codgrid.getSelection();\
+var values = Wb.getValue(app.customWin);\
+\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/customer/customertreeedit/update',\
+    out: app.customWin,\
+    success: function() {\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.customWin.close();\
+      app.queryBtn.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/customer/customertreeedit/findcodename',\
+    out: app.customWin,\
+    success: function(resp) {\
+      var data = Wb.decode(resp.responseText);\
+      if (data.total > 0) {\
+        Wb.warn('客户代码或中文名称重复！');\
+        return;\
+      }\
+      Wb.request({\
+        url: 'm?xwl=system/customer/customertreeedit/insert',\
+        out: app.customWin,\
+        success: function(resp) {\
+          //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+          //       Wb.add(app.customWin, Wb.apply(Wb.decode(resp.responseText), values));\
+          //隐藏对话框，在模块关闭时自动销毁对话框\
+          app.customWin.close();\
+          app.queryBtn.fireEvent('click');\
+        }\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "nextcustomWin",
+     "resizable": "true",
+     "closeAction": "hide",
+     "width": "601",
+     "title": "新增客户",
+     "autoScroll": "true",
+     "height": "216"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "x": "416",
+       "width": "240",
+       "y": "400",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PID",
+       "hidden": "true",
+       "x": "416",
+       "width": "240",
+       "y": "400",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "客户代码",
+       "width": "192",
+       "x": "8",
+       "y": "16",
+       "isUpperCase": "true",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"change": "// text.setValue(newValue.toUpperCase());\
+"}
+     },
+     {
+      "configs": {
+       "itemId": "NAME",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "中文名称",
+       "width": "376",
+       "x": "184",
+       "y": "16",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SHORT_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "中文简称",
+       "width": "192",
+       "x": "8",
+       "y": "48",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ADDRESS",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "联系地址",
+       "width": "376",
+       "x": "184",
+       "y": "80",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TEL",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "电话",
+       "width": "152",
+       "x": "48",
+       "y": "80",
+       "labelWidth": "50",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATEUSER",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "录入人员",
+       "width": "224",
+       "x": "32",
+       "y": "280",
+       "labelWidth": "90",
+       "disabled": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATEUSER",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "最近修改人",
+       "width": "216",
+       "x": "520",
+       "y": "120",
+       "labelWidth": "90",
+       "disabled": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CREATETIME",
+       "hidden": "true",
+       "fieldLabel": "录入时间",
+       "x": "248",
+       "width": "272",
+       "y": "232",
+       "labelWidth": "60",
+       "disabled": "true",
+       "height": "31"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "datetime"
+     },
+     {
+      "configs": {
+       "itemId": "UPDATETIME",
+       "hidden": "true",
+       "fieldLabel": "最近修改时间",
+       "x": "16",
+       "width": "312",
+       "y": "368",
+       "labelWidth": "85",
+       "disabled": "true",
+       "height": "24"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "datetime"
+     },
+     {
+      "configs": {
+       "itemId": "nGOV_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "统一社会信用代码",
+       "width": "552",
+       "x": "8",
+       "y": "112",
+       "labelWidth": "130",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"change": "text.setValue(newValue.toUpperCase());"}
+     },
+     {
+      "configs": {
+       "itemId": "S_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "代码类型",
+       "x": "184",
+       "width": "375",
+       "keyName": "ORG_CODE",
+       "y": "48",
+       "labelWidth": "90",
+       "forceSelection": "true",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "app.nGOV_CODE.setValue(app.nGOV_CODE.getValue().replace(/^\\s\\s*/, '').replace(/\\s\\s*$/, ''));\
+var sels = app.codgrid.getSelection();\
+var values = Wb.getValue(app.nextcustomWin);\
+\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/customer/customertreeedit/nextupdate',\
+    out: app.nextcustomWin,\
+    success: function() {\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.nextcustomWin.close();\
+      app.nextgrid.store.load({\
+        params: {\
+          PID: sels[0].data.ID\
+        }\
+      });\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/customer/customertreeedit/findnextcodename',\
+    out: app.nextcustomWin,\
+    success: function(resp) {\
+      var data = Wb.decode(resp.responseText);\
+      if (data.total > 0) {\
+        Wb.warn('客户代码或中文名称重复！');\
+        return;\
+      }\
+      Wb.request({\
+        url: 'm?xwl=system/customer/customertreeedit/nextinsert',\
+        out: app.nextcustomWin,\
+        success: function(resp) {\
+          //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+          //       Wb.add(app.customWin, Wb.apply(Wb.decode(resp.responseText), values));\
+          //隐藏对话框，在模块关闭时自动销毁对话框\
+          app.nextcustomWin.close();\
+          app.nextgrid.store.load({\
+            params: {\
+              PID: sels[0].data.ID\
+            }\
+          });\
+        }\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel1",
+       "width": "450",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "codgrid",
+        "tbar": "app.codtoolbar"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/customer/customertreeedit/codselect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "deptCode",
+            "dataIndex": "CODE",
+            "width": "90",
+            "text": "客户代码"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "deptNameCol",
+            "dataIndex": "NAME",
+            "width": "160",
+            "text": "中文名称"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "deptshortNameCol",
+            "dataIndex": "SHORT_NAME",
+            "width": "80",
+            "text": "中文简称"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "deptecode",
+            "dataIndex": "S_CODE",
+            "width": "140",
+            "keyName": "ORG_CODE",
+            "text": "代码类型"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "deptgovcode",
+            "dataIndex": "GOV_CODE",
+            "width": "115",
+            "text": "统一社会信用代码"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "deptaddress",
+            "dataIndex": "ADDRESS",
+            "width": "90",
+            "text": "联系地址"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "depttel",
+            "dataIndex": "TEL",
+            "width": "80",
+            "text": "电话"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "deptID",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.nextgrid.store.load({\
+  params: {\
+    PID: record.data.ID\
+  }\
+});"}
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel11",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {"itemId": "nextgrid"},
+       "expanded": false,
+       "children": [
+        {
+         "configs": {"itemId": "tbar"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "nextname",
+            "hidden": "true",
+            "emptyText": "客户代码、中文名称"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "nextqueryBtn",
+            "hidden": "true",
+            "text": "查询",
+            "iconCls": "seek_icon",
+            "height": "22"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"click": "app.nextgrid.store.load({\
+  out: app.tbar\
+});\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "nextaddBtn",
+            "text": "新增",
+            "iconCls": "record_add_icon",
+            "height": "22"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"click": "var sels = app.codgrid.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要添加下级数据的记录。');\
+  return;\
+}\
+app.nextcustomWin.setHeight(210);\
+Wb.reset(app.nextcustomWin);\
+app.PID.setValue(sels[0].data.ID);\
+app.nextcustomWin.setTitle('添加 - 客户');\
+app.nextcustomWin.show();\
+app.CODE.setDisabled(false);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+          },
+          {
+           "configs": {
+            "itemId": "nexteditBtn",
+            "text": "编辑",
+            "iconCls": "record_edit_icon",
+            "height": "22"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"click": "var sels = app.nextgrid.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+\
+Wb.reset(app.nextcustomWin.customWin);\
+app.nextcustomWin.setHeight(210);\
+app.selRec = sels[0];\
+app.nextcustomWin.setTitle('修改 - ' + app.selRec.data.NAME);\
+Wb.setValue(app.nextcustomWin, app.selRec.data);\
+app.CODE.setDisabled(true);\
+//在给别的类型设置值的时候，需要在这后面改才行---Wb.setValue(app.customWin, app.selRec.data);\
+app.nGOV_CODE.setValue(sels[0].data.GOV_CODE);\
+// console.log(sels[0]);\
+app.nextcustomWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+          },
+          {
+           "configs": {
+            "itemId": "nextdelBtn",
+            "hidden": "'{#sys.username#}'!='admin'",
+            "text": "删除",
+            "iconCls": "record_delete_icon",
+            "height": "22"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"click": "var sels = app.nextgrid.getSelection();\
+Wb.confirm(\"确定要删除此记录吗?\",\
+  function() {\
+    Wb.request({\
+      url: 'm?xwl=system/customer/customertreeedit/nextdelete',\
+      params: {\
+        ID: sels[0].data.ID\
+      }, //合并窗口和记录数据作为参数，后者为默认值\
+      success: function() {\
+        Wb.remove(app.nextgrid, sels);\
+      }\
+    });\
+  });"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=system/customer/customertreeedit/codnextselect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "nextCode",
+            "dataIndex": "CODE",
+            "width": "90",
+            "text": "客户代码"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nextNameCol",
+            "dataIndex": "NAME",
+            "width": "160",
+            "text": "中文名称"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nextshortNameCol",
+            "dataIndex": "SHORT_NAME",
+            "width": "80",
+            "text": "中文简称"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nextecode",
+            "dataIndex": "S_CODE",
+            "width": "140",
+            "keyName": "ORG_CODE",
+            "text": "代码类型"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nextgovcode",
+            "dataIndex": "GOV_CODE",
+            "width": "115",
+            "text": "统一社会信用代码"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nextaddress",
+            "dataIndex": "ADDRESS",
+            "width": "90",
+            "text": "联系地址"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nexttel",
+            "dataIndex": "TEL",
+            "width": "80",
+            "text": "电话"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nextID",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid"
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "箱主列表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

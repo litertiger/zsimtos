@@ -1,0 +1,906 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbarAll",
+     "width": "300"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "name1",
+       "emptyText": "船员姓名",
+       "width": "120",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findall",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "    app.gridAll.store.load({\
+      params: {\
+       \"sId\": app.VESSEL_CODE_CREW.getValue(),\
+        vid: app.VESSEL_CODE_CREW.getValue(),\
+        VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+        name: app.name1.getValue()\
+      }\
+    });"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {"itemId": "tbarAboard"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "name2",
+       "emptyText": "船员姓名",
+       "width": "120"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findaboard",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "app.gridAboard.store.load({\
+  params: {\
+    VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+    name: app.name2.getValue()\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "text": "保存"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "if (!Wb.verifyGrid(app.gridAboard)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.gridAboard,\
+  url: 'm?xwl=shipManage/ship/vesselVoyageCrewEdit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.gridAboard, Wb.decode(resp.responseText));\
+    app.grid1.store.load();\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "btncopy",
+       "text": "上期船员"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "Wb.request({\
+  url: 'm?xwl=shipManage/ship/vesselVoyageCrewEdit/copy',\
+  params: {\
+    zId: app.zId.getValue()\
+  },\
+  success: function(resp) {\
+    app.gridAll.store.reload();\
+    app.gridAboard.store.load({\
+      params: {\
+        VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+        name: app.name2.getValue()\
+      }\
+    });\
+    app.grid1.store.load();\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "window1",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "704",
+     "height": "515",
+     "frame": "true"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "absolute",
+      "itemId": "panel1",
+      "width": "663",
+      "autoScroll": "true",
+      "height": "526",
+      "frame": "true"
+     },
+     "expanded": false,
+     "children": [
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "center-center-west",
+        "split": "true",
+        "width": "310",
+        "x": "5",
+        "y": "8",
+        "region": "west",
+        "height": "420"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "gridAll",
+         "selType": "checkboxmodel",
+         "editable": "true",
+         "pagingBar": "false",
+         "tbar": "app.tbarAll",
+         "region": "center"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=shipManage/ship/vesselVoyageCrewEdit/selectVCrew"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "cid",
+             "hidden": "true",
+             "dataIndex": "CID",
+             "width": "160"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "name",
+             "dataIndex": "NAME",
+             "width": "160",
+             "text": "姓名"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "duty",
+             "dataIndex": "DUTY",
+             "width": "122",
+             "keyName": "SHIP_DUTY",
+             "text": "职位"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid"
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "absolute",
+        "itemId": "center-center-center",
+        "width": "48",
+        "x": "317",
+        "y": "8",
+        "region": "center",
+        "height": "420"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "colspan": "2",
+          "itemId": "in",
+          "textAlign": "center",
+          "width": "40",
+          "x": "3",
+          "y": "190",
+          "text": ">>>",
+          "height": "10"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "var rec = app.gridAll.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择至少 1 位可选船员！');\
+  return;\
+}\
+var records = app.gridAll.getSelection(),\
+  CID = [];\
+Wb.each(records, function(rec) {\
+  CID.push({\
+    CID: rec.data.CID,\
+    DUTY: rec.data.DUTY\
+  });\
+});\
+\
+Wb.request({\
+  url: 'm?xwl=shipManage/ship/vesselVoyageCrewEdit/insert',\
+  params: {\
+    VID: app.VOYAGE_ID.getValue(),\
+    zId: app.zId.getValue(),\
+    CID: CID\
+  },\
+  success: function(resp) {\
+    app.gridAll.store.reload();\
+    app.gridAboard.store.load({\
+      params: {\
+        VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+        name: app.name2.getValue()\
+      }\
+    });\
+    app.grid1.store.load();\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "colspan": "2",
+          "itemId": "out",
+          "textAlign": "center",
+          "width": "40",
+          "x": "3",
+          "y": "248",
+          "text": "<<<",
+          "height": "10"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "var rec = app.gridAboard.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择至少 1 位已在船员！');\
+  return;\
+}\
+var records = app.gridAboard.getSelection(),ids=[];\
+Wb.each(records, function(rec) {\
+  ids.push({CID:rec.data.CID});\
+\
+});\
+\
+  Wb.request({\
+    url: 'm?xwl=shipManage/ship/vesselVoyageCrewEdit/update',\
+    params: {\
+      ID: ids,\
+      zId:app.zId.getValue()\
+    },\
+    success: function(resp) {\
+\t\tapp.gridAll.store.reload();\
+      app.gridAboard.store.load({\
+        params: {\
+          VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+          name: app.name2.getValue()\
+        }\
+      });\
+      app.grid1.store.load();\
+    }\
+  });"}
+        }
+       ],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "center-center-east",
+        "split": "true",
+        "width": "310",
+        "x": "369",
+        "y": "8",
+        "region": "east",
+        "height": "420"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "gridAboard",
+         "selType": "checkboxmodel",
+         "editable": "true",
+         "pagingBar": "false",
+         "tbar": "app.tbarAboard",
+         "region": "center",
+         "multiSelect": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=shipManage/ship/vesselVoyageCrewEdit/selectVoyageCrew"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "id",
+             "hidden": "true",
+             "dataIndex": "ID",
+             "width": "160"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "name",
+             "dataIndex": "NAME",
+             "width": "160",
+             "text": "姓名"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "duty",
+             "dataIndex": "DUTY",
+             "width": "122",
+             "keyName": "SHIP_DUTY",
+             "text": "职位"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "keyName": "SHIP_DUTY",
+              "anyMatch": "true"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo"
+            }],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid"
+       }],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "app.window1.close();"}
+   },
+   {
+    "configs": {
+     "layout": "form",
+     "itemId": "editWin",
+     "dialog": "true",
+     "createInstance": "false",
+     "closeAction": "hide",
+     "width": "834",
+     "height": "500"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "VOYAGE_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "VOYAGE_ID",
+       "width": "201",
+       "x": "200",
+       "y": "10",
+       "labelWidth": "80",
+       "maxLength": "36",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "VESSEL_CODE_CREW",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "VESSEL_CODE_CREW",
+       "width": "201",
+       "x": "200",
+       "y": "10",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "zId",
+       "hidden": "true",
+       "labelAlign": "right",
+       "width": "201",
+       "x": "200",
+       "y": "10",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ids",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "opt",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ieId",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "grid1",
+       "disabled": "false",
+       "region": "center",
+       "multiSelect": "true",
+       "height": "436"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "tbar",
+         "enableOverflow": "true",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "item2",
+           "text": "员工维护",
+           "iconCls": "user_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.window1.setTitle('船舶员工预申报');\
+app.window1.down('[iconCls=cancel_icon]').hide(); //隐藏窗体取消按钮\
+app.window1.show();\
+\
+app.gridAll.store.load({\
+  params: {\
+    \"sId\": app.VESSEL_CODE_CREW.getValue(),\
+    vid: app.VESSEL_CODE_CREW.getValue(),\
+    VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+    name: app.name1.getValue()\
+  }\
+});\
+\
+app.gridAboard.store.load({\
+  params: {\
+    VOYAGE_ID: app.VOYAGE_ID.getValue(),\
+    name: app.name2.getValue()\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "item1",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "excelBtn",
+           "text": "Excel导出",
+           "iconCls": "file_xls_icon"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.download(\"m?xwl=shipManage/ship/vesselVoyageCrewEdit/get-data&download=1&vid=\" + app.VOYAGE_ID.getValue());"}
+         },
+         {
+          "configs": {
+           "itemId": "printBtn",
+           "text": "打印",
+           "iconCls": "dp_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var tenid = '{#sys.TENANCY_ID#}';\
+//====================这个按钮的事件在父窗口中执行====================\
+// var tenancy;\
+// if (tenid === 'ZSG')\
+//   tenancy = '中山港';\
+// if (tenid === 'XLG')\
+//   tenancy = '小榄港';\
+// if (tenid === 'SWG')\
+//   tenancy = '神湾港';\
+\
+// var LODOP = getLodop();\
+// if (null === LODOP) return;\
+// LODOP.PRINT_INIT(\"\"); //初始化\
+// LODOP.ADD_PRINT_TEXT(\"5.82mm\", \"30.96mm\", \"143.35mm\", \"10.9mm\", \"（出境）船舶员工预申报表\"); //表格名称\
+// LODOP.SET_PRINT_STYLEA(0, \"FontName\", \"宋体-方正超大字符集\"); //设置表格名称字体\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 20);\
+// LODOP.SET_PRINT_STYLEA(0, \"Alignment\", 2);\
+// LODOP.SET_PRINT_STYLEA(0, \"Bold\", 1);\
+// //========================================\
+// //参数说明,距离上边像素1,距离做左边像素1,距离上边像素2,距离左边像素2,线种类(0代表直线),线粗\
+// LODOP.ADD_PRINT_LINE(75, 33, 355, 33, 0, 1); //最左侧竖线\
+// LODOP.ADD_PRINT_LINE(75, 766, 355, 766, 0, 1); //最右侧竖线\
+// LODOP.ADD_PRINT_LINE(75, 33, 75, 766, 0, 1); //第1条横线\
+// LODOP.ADD_PRINT_LINE(115, 33, 115, 766, 0, 1); //第2条横线\
+// LODOP.ADD_PRINT_LINE(155, 33, 155, 766, 0, 1); //第3条横线\
+// LODOP.ADD_PRINT_LINE(195, 33, 195, 766, 0, 1); //第4条横线\
+// LODOP.ADD_PRINT_LINE(75, 160, 195, 160, 0, 1); //第1条竖线\
+// LODOP.ADD_PRINT_LINE(75, 450, 275, 450, 0, 1); //第2条竖线\
+// LODOP.ADD_PRINT_LINE(75, 620, 275, 620, 0, 1); //第3条竖线\
+// LODOP.ADD_PRINT_LINE(195, 250, 275, 250, 0, 1); //第4条竖线\
+// LODOP.ADD_PRINT_LINE(235, 33, 235, 766, 0, 1); //第5条横线\
+// LODOP.ADD_PRINT_LINE(275, 33, 275, 766, 0, 1); //第6条横线\
+// LODOP.ADD_PRINT_LINE(315, 33, 315, 766, 0, 1); //第7条横线\
+// LODOP.ADD_PRINT_LINE(355, 33, 355, 766, 0, 1); //第8条横线\
+// LODOP.ADD_PRINT_LINE(315, 60, 355, 60, 0, 1); //表格第1条竖线\
+// LODOP.ADD_PRINT_LINE(315, 160, 355, 160, 0, 1); //表格第2条竖线\
+// LODOP.ADD_PRINT_LINE(315, 187, 355, 187, 0, 1); //表格第3条竖线\
+// LODOP.ADD_PRINT_LINE(315, 300, 355, 300, 0, 1); //表格第4条竖线\
+// LODOP.ADD_PRINT_LINE(315, 360, 355, 360, 0, 1); //表格第5条竖线\
+// LODOP.ADD_PRINT_LINE(315, 420, 355, 420, 0, 1); //表格第6条竖线\
+// LODOP.ADD_PRINT_LINE(315, 580, 355, 580, 0, 1); //表格第7条竖线\
+// LODOP.ADD_PRINT_LINE(315, 630, 355, 630, 0, 1); //表格第8条竖线\
+// //==========================================\
+// LODOP.ADD_PRINT_TEXT(87, 80, 100, 25, \"船名\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(87, 480, 130, 25, \"船籍港:\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(87, 630, 134, 25, \"装载货物:\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(127, 65, 100, 25, \"船舶单位\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(127, 500, 130, 25, \"出境日期\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(127, 625, 140, 25, \"2017年   月   日\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(167, 65, 100, 25, \"离抵港口\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(167, 500, 130, 25, \"出入地点\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(207, 65, 160, 25, \"航行港澳证明书编号\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(207, 520, 100, 25, \"总吨\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(247, 120, 100, 25, \"有效期\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(247, 520, 100, 25, \"净吨\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(287, 370, 100, 25, \"船员名单\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(316, 38, 30, 25, \"序号\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(327, 95, 100, 25, \"姓名\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(316, 165, 30, 25, \"性别\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(327, 205, 100, 25, \"出生年月日\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(327, 315, 100, 25, \"籍贯\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(327, 375, 100, 25, \"职务\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(327, 468, 100, 25, \"证件号码\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(316, 590, 50, 25, \"证件类型\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// LODOP.ADD_PRINT_TEXT(327, 652, 100, 25, \"证件有效期\");\
+// LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+// Wb.request({\
+//   url: 'm?xwl=shipManage/ship/vesselVoyageCrewEdit/print',\
+//   params: {\
+//     VOYAGE_ID: app.VOYAGE_ID.getValue()\
+//   },\
+//   success: function(resp) {\
+//     var data = Wb.decode(resp.responseText);\
+//     if (data.length > 0) {\
+//       LODOP.ADD_PRINT_TEXT(87, 200, 240, 25, data[0].VESSEL_NAME); //船名\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.SET_PRINT_STYLEA(0, \"Bold\", 1);\
+//       LODOP.ADD_PRINT_TEXT(87, 540, 130, 25, data[0].CJG); //船籍港\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.ADD_PRINT_TEXT(87, 710, 134, 25, data[0].VESSEL_USE); //装载货物\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.ADD_PRINT_TEXT(127, 175, 260, 25, data[0].LINE); //船舶单位\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.ADD_PRINT_TEXT(167, 175, 260, 25, \"从：\" + tenancy + \"  至：\" + data[0].NEXT_PORT); //离抵港口\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.ADD_PRINT_TEXT(167, 650, 130, 25, tenancy); //出入地点\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.ADD_PRINT_TEXT(207, 660, 100, 25, data[0].GRT); //总吨\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       LODOP.ADD_PRINT_TEXT(247, 660, 100, 25, data[0].NRT); //净吨\
+//       LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       //============循环数据=============\
+//       LODOP.ADD_PRINT_LINE(355, 33, 355 + data.length * 40, 33, 0, 1); //最左侧竖线\
+//       LODOP.ADD_PRINT_LINE(355, 766, 355 + data.length * 40, 766, 0, 1); //最右侧竖线\
+//       LODOP.ADD_PRINT_LINE(355, 60, 355 + data.length * 40, 60, 0, 1); //表格第1条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 160, 355 + data.length * 40, 160, 0, 1); //表格第2条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 187, 355 + data.length * 40, 187, 0, 1); //表格第3条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 300, 355 + data.length * 40, 300, 0, 1); //表格第4条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 360, 355 + data.length * 40, 360, 0, 1); //表格第5条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 420, 355 + data.length * 40, 420, 0, 1); //表格第6条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 580, 355 + data.length * 40, 580, 0, 1); //表格第7条竖线\
+//       LODOP.ADD_PRINT_LINE(355, 630, 355 + data.length * 40, 630, 0, 1); //表格第8条竖线\
+//       for (var i = 0; i < data.length; i++) {\
+//         LODOP.ADD_PRINT_LINE(355 + (i + 1) * 40, 33, 355 + (i + 1) * 40, 766, 0, 1); //添加横线\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 38, 30, 25, (i + 1).toString()); //序号\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 85, 100, 25, data[i].NAME);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 165, 30, 25, data[i].SEX);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 190, 100, 25, data[i].BIRTHDAY);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 315, 100, 25, data[i].ORIGINAL_PLAC);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 375, 100, 25, data[i].DUTY);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 448, 100, 25, data[i].C_CODE);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 581, 80, 25, data[i].ZSNAME);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//         LODOP.ADD_PRINT_TEXT(367 + i * 40, 652, 100, 25, data[i].NEXT_TIME);\
+//         LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 12);\
+//       }\
+//     }\
+//     //LODOP.PRINT_DESIGN(); //设计器\
+//     LODOP.PREVIEW(); //预览\
+//     //LODOP.PRINT(); //打印\
+//   }\
+// });\
+// app.printShipper(app.ids.getValue(), tenid);\
+// var AF1 = document.getElementById(app.opt.getValue());\
+// var whereSql = encodeURI(\" vc.vid= '\" + app.ids.getValue() + \"' \");\
+// if (app.ieId.getValue() == 'I') {\
+//   AF1.func(\"SetCellData\", \"<data B1=（进境）船舶员工预申报表/> \");\
+// }\
+// var whereSql2 = encodeURI(\" where v2.tenancy_id='\" + tenid + \"' and v2.id='\" + app.ids.getValue() + \"' and vc.call_out is null \");\
+// AF1.func(\"Build\", '/supcan/report/print/shiper_out.xml?' + Math.round(Math.random() * 100));\
+// AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+// AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+// AF1.func(\"Calc\", \"\");\
+// AF1.func(\"callfunc\", \"18\");"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "sorters": "'ID'",
+         "url": "m?xwl=shipManage/ship/vesselVoyageCrewEdit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store",
+        "events": {"beforeload": "operation.params = {\
+  VOYAGE_ID: app.VOYAGE_ID.getValue()\
+};"}
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "VOYAGE_ID99",
+           "hidden": "true",
+           "dataIndex": "VOYAGE_ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "NAME1",
+           "dataIndex": "NAME",
+           "width": "70",
+           "text": "姓名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SEX1",
+           "dataIndex": "SEX",
+           "width": "40",
+           "text": "性别"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "BIRTHDAY1",
+           "dataIndex": "BIRTHDAY",
+           "format": "Y-m-d",
+           "width": "80",
+           "text": "出生日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "ORIGINAL_PLAC1",
+           "dataIndex": "ORIGINAL_PLAC",
+           "width": "80",
+           "text": "籍贯"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "DUTY1",
+           "dataIndex": "DUTY",
+           "keyName": "SHIP_DUTY",
+           "width": "70",
+           "text": "职务"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "ZSNAME1",
+           "dataIndex": "ZSNAME",
+           "width": "70",
+           "text": "证书种类"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colC_CODE",
+           "hidden": "false",
+           "dataIndex": "C_CODE",
+           "width": "80",
+           "text": "证件号码"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colNEXT_TIME",
+           "dataIndex": "NEXT_TIME",
+           "width": "80",
+           "text": "证件有效期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "app.editWin.close();"}
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "航次船员维护",
+ "iconCls": "trash_icon",
+ "inframe": true,
+ "pageLink": ""
+}

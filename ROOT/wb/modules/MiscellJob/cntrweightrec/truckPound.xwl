@@ -1,0 +1,749 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "toolbarList"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "names",
+       "hidden": "false",
+       "labelAlign": "right",
+       "fieldLabel": "拖卡号",
+       "labelWidth": "50"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findBtn",
+       "hidden": "false",
+       "text": "查询",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.grid2.store.load({\
+  out: app.toolbarList\
+}); //把所有数据取出来放到out里面"}
+     },
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "添加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.addEdit(app.grid2,{TENANCY_ID:'{#sys.TENANCY_ID#}'});"}
+     },
+     {
+      "configs": {
+       "itemId": "deleteBtn",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.remove(app.grid2);"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.grid2)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid2,\
+  url: 'm?xwl=MiscellJob/cntrweightrec/truckPoundEdit/saveTray',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid2, Wb.decode(resp.responseText));\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "printer",
+       "text": "打印",
+       "iconCls": "printer_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var AF1 = document.getElementById(optTray);\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "dialog": "true",
+     "itemId": "editwin",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 8'\
+}",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "568",
+     "bodyPadding": "4 0 4 0",
+     "height": "200"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "labelAlign": "right",
+       "fieldLabel": "箱号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"change": "if (newValue.length > 4) {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/backApplyEdit/selectPortCntr',\
+    params: {\
+      CNTR: app.CNTR.getValue()\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText);\
+      Wb.each(rs.rows, function(rec) {\
+        app.CNTR.setValue(rec.CNTR);\
+\t\tapp.CNTR_OPERATOR.setValue(rec.CNTR_OPERATOR);\
+        app.CNTR_OPERATOR_COD.setValue(rec.CNTR_OPERATOR_COD);\
+\t\tapp.CNTR_ID.setValue(rec.ID);\
+        app.APPLY_DATE.setValue(new Date());  \
+        app.TENANCY_ID.setValue(rec.TENANCY_ID);\
+        app.I_E_ID.setValue(rec.I_E_ID);\
+        app.BILL_NO.setValue(rec.BILL_NO);\
+      });\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR",
+       "labelAlign": "right",
+       "fieldLabel": "驳船公司"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR_COD",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "APPLY_DATE",
+       "labelAlign": "right",
+       "fieldLabel": "申请日期"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_ID",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "BILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "提单号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "I_E_ID",
+       "labelAlign": "right",
+       "fieldLabel": "进出口",
+       "keyName": "I_E_ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "PHASE",
+       "labelAlign": "right",
+       "pickList": "[\
+  [\"PLN\", \"计划\"],\
+  [\"SND\", \"激活\"],\
+  [\"EXE\", \"执行\"],\
+  [\"FIN\", \"完成\"]\
+]",
+       "fieldLabel": "状态",
+       "disabled": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "APPLY_MAN",
+       "labelAlign": "right",
+       "fieldLabel": "申请人"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "APPLY_UNIT",
+       "labelAlign": "right",
+       "fieldLabel": "申请单位"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TENANCY_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "租户"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/update',\
+    params:  Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "tab1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "border",
+        "itemId": "panel1",
+        "title": "拖头登记",
+        "height": "300"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "grid1",
+          "editable": "true",
+          "region": "center"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=MiscellJob/cntrweightrec/truckPoundEdit/select"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "row",
+              "xtype": "rownumberer",
+              "text": "编号",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PLAT_NO12",
+              "dataIndex": "TRUCK_NO",
+              "text": "拖头号码",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "PLAT_NO",
+               "valueField": "PLAT_NO"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=MiscellJob/cntrweightrec/truckPoundEdit/selectTruck"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRUCK_WGT23",
+              "dataIndex": "TRUCK_WGT",
+              "text": "拖头重量（吨）",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowDecimals": "true",
+               "minValue": "0"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number",
+              "events": {"change": "var sel = app.grid1.getSelection();\
+\
+if (sel[0].data.YH == \"\")\
+  sel[0].set('JZ', newValue);\
+else\
+  sel[0].set('JZ', newValue-sel[0].data.YH);"}
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "YH98",
+              "dataIndex": "YH",
+              "text": "油重（吨）",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowDecimals": "true",
+               "minValue": "0"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number",
+              "events": {"change": "var sel = app.grid1.getSelection();\
+\
+\
+if (sel[0].data.TRUCK_WGT == \"\")\
+  sel[0].set('JZ', '');\
+else\
+  sel[0].set('JZ', sel[0].data.TRUCK_WGT-newValue);"}
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "JZ09",
+              "dataIndex": "JZ",
+              "format": "0.00",
+              "text": "净重（吨）",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TENANCY_IDcolumn1",
+              "hidden": "true",
+              "dataIndex": "TENANCY_ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          },
+          {
+           "configs": {"itemId": "tbar"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "name",
+              "labelAlign": "right",
+              "fieldLabel": "车牌号",
+              "labelWidth": "50"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "findmenu",
+              "text": "查询",
+              "iconCls": "seek_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+            },
+            {
+             "configs": {
+              "itemId": "addmenu",
+              "text": "添加",
+              "iconCls": "record_add_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "Wb.addEdit(app.grid1,{TENANCY_ID:'{#sys.TENANCY_ID#}'});"}
+            },
+            {
+             "configs": {
+              "itemId": "deletemenu",
+              "text": "删除",
+              "iconCls": "record_delete_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "Wb.remove(app.grid1);"}
+            },
+            {
+             "configs": {
+              "itemId": "savemenu",
+              "text": "保存",
+              "iconCls": "save_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+\
+\
+Wb.sync({\
+  grid: app.grid1,\
+  url: 'm?xwl=MiscellJob/cntrweightrec/truckPoundEdit/saveTruck',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+    app.findmenu.fireEvent('click');\
+  }\
+});      "}
+            },
+            {
+             "configs": {
+              "itemId": "printerBtn",
+              "text": "打印",
+              "iconCls": "printer_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "// var ids = \"\";\
+// for (var i = 0; i < app.grid1.store.getCount(); i++) {\
+//   var record = app.grid1.store.getAt(i);\
+//   if(i==app.grid1.store.getCount()-1)\
+//     ids+=\"'\"+record.data.ID+\"'\";\
+//   else\
+//     ids+=\"'\"+record.data.ID+\"',\";\
+// }\
+// if (app.grid1.store.getCount() == 0) {\
+//   ids = \"''\";\
+//   return;\
+// }\
+\
+var AF1 = document.getElementById(opt);\
+// var whereSql = encodeURI(\" where id in(\" + ids + \") \");\
+// AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime());\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+            }
+           ],
+           "type": "toolbar"
+          }
+         ],
+         "type": "grid"
+        },
+        {
+         "configs": {
+          "border": "false",
+          "layout": "border",
+          "itemId": "panelPrint",
+          "width": "0",
+          "region": "south",
+          "height": "0"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "panel"
+        }
+       ],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "border",
+        "itemId": "panel2",
+        "title": "拖卡登记"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "grid2",
+          "editable": "true",
+          "tbar": "app.toolbarList",
+          "region": "center"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=MiscellJob/cntrweightrec/truckPoundEdit/selectTray"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "row",
+              "xtype": "rownumberer",
+              "text": "编号",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRAY_NAM12",
+              "dataIndex": "TRAY_NO",
+              "text": "拖卡号码",
+              "align": "center",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "TRAY_NAM",
+               "valueField": "TRAY_NAM"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=MiscellJob/cntrweightrec/truckPoundEdit/selectTruckNAm"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRAY_WGT12",
+              "dataIndex": "TRAY_WGT",
+              "width": "80",
+              "text": "拖卡重量",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column1",
+              "hidden": "true",
+              "dataIndex": "TENANCY_ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid",
+         "events": {"itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"}
+        },
+        {
+         "configs": {
+          "border": "false",
+          "layout": "border",
+          "itemId": "panelTray",
+          "width": "0",
+          "region": "south",
+          "height": "0"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "panel"
+        }
+       ],
+       "type": "panel"
+      }
+     ],
+     "type": "tab"
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);\
+var mt2 = bldStr(\"LuxForm\", optTray, \"\", \"100%\");\
+app.panelTray.update(mt2);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/pound/poundtruck.xml?0110000011111' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};\
+\
+\
+window[\"init\" + optTray] = function(id) {\
+  var m = document.getElementById(optTray);\
+  if (id == optTray) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/pound/poundtray.xml?0110000011111' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();\
+var optTray=Wb.getId();"
+  }
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "转关车辆过磅",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,431 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "dialog": "true",
+     "itemId": "Win",
+     "width": "310",
+     "height": "180"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "absolute",
+      "itemId": "panel1",
+      "width": "376",
+      "height": "120"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "MENU_NAME",
+        "labelAlign": "right",
+        "fieldLabel": "菜单名称",
+        "width": "270",
+        "x": "10",
+        "y": "10",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "MENU_URL",
+        "labelAlign": "right",
+        "fieldLabel": "菜单url",
+        "width": "270",
+        "x": "10",
+        "y": "45",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "MENU_TYPE",
+        "labelAlign": "right",
+        "pickList": "[\
+  [0,'菜单'],[1,'功能'],[2,'子系统']\
+]",
+        "fieldLabel": "菜单类型",
+        "width": "270",
+        "x": "10",
+        "y": "80",
+        "labelWidth": "60"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "MENU_ID",
+        "hidden": "true",
+        "fieldLabel": "ID"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "toolbar1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "menu_name",
+         "labelAlign": "right",
+         "fieldLabel": "菜单名称",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "findButton",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "app.grid1.store.load({\
+  out:app.toolbar1\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "addButton",
+         "text": "增加",
+         "iconCls": "db_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "if (!app.selNode) {\
+  Wb.warn('请选择 1 个部门。');\
+  return;\
+}\
+var win = new Ext.window.Window(app._Win); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '添加');\
+\
+app.MENU_NAME.setValue(\"\");\
+app.MENU_URL.setValue(\"\");\
+app.MENU_TYPE.setValue(\"\");\
+app.MENU_ID.setValue(\"\");\
+\
+//alert(app.selNode.data.MENU_ID);\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  Wb.request({\
+    url: 'm?xwl=system/admin/wbMenu/insertWbMenu', \
+    params:{\
+      MENU_NAME:app.MENU_NAME.getValue(),\
+      MENU_URL:app.MENU_URL.getValue(),\
+      MENU_TYPE:app.MENU_TYPE.getValue(),\
+      PARENT_MENU: app.selNode.data.MENU_ID,\
+      ORDER_INDEX: app.selNode.lastChild ? app.selNode.lastChild.data.ORDER_INDEX + 1 : 1\
+    },\
+    success: function(resp) {\
+      win.close(); //根据closeAction属性，默认为销毁\
+      app.findButton.fireEvent('click');\
+      app.tree1.store.load();\
+    }\
+  });\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "editbutton",
+         "text": "修改",
+         "iconCls": "db_edit_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+var win = new Ext.window.Window(app._Win); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, '修改');\
+Wb.setValue(win, rec.data); //把记录数据应用到窗口\
+\
+\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  var values = Wb.applyIf(Wb.getValue(win), Wb.getData(rec, true)); //Wb.getData用于获取记录中的原始值，见Wb.getData方法\
+  Wb.request({\
+    url: 'm?xwl=system/admin/wbMenu/updateWbMenu',\
+    params: values,\
+    success: function(resp) {\
+      Wb.update(rec, values); //同步在客户端表格中更新\
+      win.close(); //根据closeAction属性，默认为销毁\
+      app.findButton.fireEvent('click');\
+      app.tree1.store.load();\
+    }\
+  });\
+});\
+\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "delButton",
+         "text": "删除",
+         "iconCls": "db_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "if (app.tree1.selModel.isSelected(app.tree1.getRootNode())) {\
+  Wb.warn('不能删除根节点。');\
+  return;\
+}\
+Wb.confirm('确定要删除选择的部门及其所属的所有子部门吗？', function() {\
+  var deptIds = {};\
+  Wb.each(app.tree1.getSelection(), function(node) {\
+    node.cascadeBy(function(item) {\
+      deptIds[item.data.MENU_ID] = {\
+        MENU_ID: item.data.MENU_ID\
+      };\
+    });\
+  });\
+  Wb.request({\
+    url: 'm?xwl=system/admin/wbMenu/deleteWbMenu',\
+    params: {\
+      deptIds: Ext.Object.getValues(deptIds)\
+    },\
+    success: function(resp) {\
+      Wb.remove(app.tree1);\
+    }\
+  });\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "parent_menu",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "tree1",
+       "root": "{\
+  text: '全部',\
+  MENU_ID: '-1',\
+  expanded: true\
+}",
+       "width": "300",
+       "viewConfig": "app.treeViewConfig\
+",
+       "region": "west",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "fields": "['text', 'MENU_NAME', 'MENU_ID', 'PARENT_MENU', 'ORDER_INDEX']",
+        "url": "m?xwl=system/admin/wbMenu/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "treestore",
+       "events": {
+        "success": "Wb.selFirst(app.tree1);",
+        "beforeload": "var node = operation.node;\
+operation.params.parentId = node.isRoot() ? -1 : operation.node.data.MENU_ID;"
+       }
+      }],
+      "type": "tree",
+      "events": {
+       "selectionchange": "\
+app.selNode = selected[0];",
+       "itemdblclick": "app.parent_menu.setValue(record.data.MENU_ID);\
+app.grid1.store.load({\
+    params:{parentMenu:record.data.MENU_ID}\
+});"
+      }
+     },
+     {
+      "configs": {
+       "itemId": "grid1",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=system/admin/wbMenu/selectWbMenu"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "id",
+           "hidden": "true",
+           "dataIndex": "MENU_ID",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "row",
+           "xtype": "rownumberer",
+           "text": "序号",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "menuName",
+           "dataIndex": "MENU_NAME",
+           "text": "菜单名称",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "menuurl",
+           "dataIndex": "MENU_URL",
+           "width": "300",
+           "text": "菜单url",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "menuType",
+           "renderer": "if(value==0){\
+  return '菜单';\
+}\
+if(value==1){\
+  return '功能';\
+}\
+if(value==2){\
+  return '子系统';\
+}",
+           "dataIndex": "MENU_TYPE",
+           "text": "菜单类型",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "parentMenu",
+           "hidden": "true",
+           "dataIndex": "PARENT_MENU",
+           "text": "上级节点",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "orderIdex",
+           "dataIndex": "ORDER_INDEX",
+           "text": "排序",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "// app.navKey = new Ext.KeyNav({\
+//   viewport: app.viewport1,\
+//   J: {\
+//     ctrl: true,\
+//     fn: function() {\
+//      // app.newBtn.fireEvent('click');\
+//     }\
+//   }\
+// });"}
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "菜单维护",
+ "iconCls": "menu_icon",
+ "inframe": false,
+ "pageLink": ""
+}

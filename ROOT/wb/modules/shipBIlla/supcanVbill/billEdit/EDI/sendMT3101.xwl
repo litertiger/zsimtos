@@ -1,0 +1,105 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var vId = app.get(\"vId\"),\
+  cntr = app.get(\"cntr\"),\
+  efId = app.get(\"efId\"),\
+  tenancy_id = app.get(\"sys.TENANCY_ID\"),\
+  cntrIso = app.get(\"cntrIso\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\"),\
+  ieId = app.get(\"ieId\");\
+var voyageNo, cShipName, eShipName, head = \"<Head>\",\
+  order = \"\",\
+  i = 0,\
+  j = 0,\
+  eta, crew = \"\",\
+  xml = \"\",\
+  callSign = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+    dateName=DateUtil.format(javaDate,'yyyyMMddHHmmssuuu'),\
+    dateName1=DateUtil.format(javaDate,'yyyyMMddHHmmss');;\
+xml += '<?xml version=\"1.0\" encoding=\"UTF-8\" ?>';\
+xml += '<Manifest xmlns=\"urn:Declaration:datamodel:standard:CN:MT3101:1\">';\
+head += '<MessageID>CN_MT3101_5721618120004_'+dateName+'<\/MessageID>';\
+head += '<FunctionCode>2<\/FunctionCode>';\
+head += '<MessageType>MT3101<\/MessageType>';\
+head += '<SenderID>5721618120004_SP03030001<\/SenderID>';\
+head += '<ReceiverID>EPORT<\/ReceiverID>';\
+head += '<SendTime>' + dateName + '<\/SendTime>';\
+head += '<Version>1.0<\/Version><\/Head>';\
+xml += head;\
+order += \"<Declaration>\";\
+///////////////////////////////\
+var rs = app.run(\"select M.VESSEL_CODE,LOB_VYG voyageNo, sysdate NOW,nvl(ATA,ETA) ETA,nvl(ATD,ETD) ETD, c.CALL_SIGN,\" +\
+  \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"'\");\
+if (rs.next()) {\
+  voyageNo = rs.getString(\"VOYAGENO\");\
+  cShipName = rs.getString(\"VESSEL_NAME\");\
+  eShipName = rs.getString(\"E_NAME\");\
+  eta = rs.getString(\"ETA\");\
+  callSign = rs.getString(\"CALL_SIGN\");\
+}\
+order += \"<DeclarationOfficeID>0101<\/DeclarationOfficeID>\";\
+order += \"<BorderTransportMeans>\";\
+order += \"<JourneyID>\" + voyageNo + \"<\/JourneyID>\";\
+order += \"<TypeCode>1<\/TypeCode>\";\
+order += \"<ID>5721500015<\/ID>\";\
+order += \"<Name>\"+eShipName+\"<\/Name><\/BorderTransportMeans>\";\
+\
+order += \"<UnloadingLocation><ID>\" + callSign + \"<\/ID>\";\
+order += \"<ArrivalDate>\" + cShipName + \"<\/ArrivalDate><\/UnloadingLocation>\";\
+//\
+\
+\
+var rsCntr = app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, CNTR_ID,CNTR_ISO,E_F_ID ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where main_flag=1 and TENANCY_ID='\" + tenancy_id + \"' and I_E_ID='\" + ieId + \"' and VID='\" + vId + \"' and BILL_ID IN(select ID from VBILL_HEAD where phase='2' and VID='\"+vId+\"')\");\
+while (rsCntr.next()) {\
+  cntr = rsCntr.getString('CNTR');\
+  cntrIso = rsCntr.getString('CNTR_ISO');\
+  efId = rsCntr.getString('E_F_ID');\
+\
+  order += \"<TransportEquipment>\";\
+  order += \"<EquipmentIdentification>\";\
+  order += \"<ID>\" + cntr + \"<\/ID>\";\
+  order += \"<\/EquipmentIdentification>\";\
+  order += \"<CharacteristicCode>\" + cntrIso + \"<\/CharacteristicCode>\";\
+  order += \"<FullnessCode>\" + efId + \"<\/FullnessCode>\";\
+  order += \"<\/TransportEquipment>\";\
+\
+}\
+\
+order += \"<\/Declaration>\";\
+order += \"<\/Manifest>\";\
+request.setAttribute(\"fileName\", \"CN_MT3101_5721618120004_\"+ dateText );\
+request.setAttribute(\"message\", xml + order + crew);\
+request.setAttribute(\"suffix\", '');\
+app.run(\"update VBILL_HEAD_E set YD='1' where ID IN(SELECT ID from VBILL_HEAD where phase='2' and VID='\"+vId+\"')\");\
+Load.download(request, response);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "出口运抵",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

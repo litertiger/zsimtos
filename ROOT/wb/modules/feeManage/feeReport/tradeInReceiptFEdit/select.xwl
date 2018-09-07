@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+\
+var sql = \" and r.tenancy_id='\" + tenancyid + \"'    \";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and f_on>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and f_on<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.cntrid))\
+  sql += \" and CNTR_ID='\" + data.cntrid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and r.CNTR='\" + data.CNTR + \"'\";\
+sql += \" order by f_on asc\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT r.CNTR,\
+       r.CNTR_SIZE,\
+       F_BY,\
+       TO_CHAR(F_ON,'yyyy-MM-dd HH24:MI:SS') F_ON,\
+       CASE\
+          WHEN WORK_TYPE IN ('EOFI', 'EOEI', 'EOTC') THEN 'E'\
+          WHEN WORK_TYPE IN ('FOFI', 'FOTC', 'FOEI') THEN 'F'\
+       END\
+          E_F_C,\
+       CASE\
+          WHEN WORK_TYPE IN ('EOFI', 'FOFI', 'FITC') THEN 'F'\
+          WHEN WORK_TYPE IN ('EOEI', 'FOEI', 'EITC') THEN 'E'\
+       END\
+          E_F_I,\
+          r.PHASE,\
+          CNTR_OPERATOR_COD,\
+          SHIPPER_CONSIGNEE,\
+          WORK_TYPE||(case when b.GROSSWT-decode(r.CNTR_SIZE,20,24000,27000)>0 THEN '(超重)' else '' end) WORK_TYPE,\
+          CMDY_CODE,\
+          DECODE(r.I_E_ID,'I','进口','E','出口') I_E_ID,\
+          r.BILL_NO\
+  FROM receipt r left join CNTR_WEIGHT_REC b on r.id=b.receipt_id WHERE 1=1 {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

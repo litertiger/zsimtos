@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "Wb.apply(app, {\
+  /**\
+   * 加载任务，并把相关参数数据发送到客户端。\
+   * @param {String} taskId 任务id号。\
+   */\
+  reloadTask: function(taskId) {\
+    var triggers, trigger, data = app.get(),\
+      TaskManager = com.wb.tool.TaskManager;\
+    TaskManager.loadTask(taskId, data.TASK_NAME,\
+      data.INTERVAL_TYPE, data.INTERVAL_EXPRESS, data.CLASS_NAME,\
+      data.SERVER_SCRIPT, DateUtil.strToDate(data.BEGIN_DATE), DateUtil.strToDate(data.END_DATE));\
+    if (TaskManager.scheduler) {\
+      Wb.sleep(Var.getInt('sys.task.waitFireDelay'));\
+      triggers = TaskManager.scheduler.getTriggersOfJob(taskId, org.quartz.Scheduler.DEFAULT_GROUP);\
+      trigger = triggers && triggers.length ? triggers[0] : null;\
+      WebUtil.send(response, Wb.encode({\
+        PREVIOUS: trigger ? trigger.getPreviousFireTime() : null,\
+        NEXT: trigger ? trigger.getNextFireTime() : null,\
+        TASK_ID: taskId\
+      }));\
+    } else {\
+      WebUtil.send(response, Wb.encode({\
+        PREVIOUS: null,\
+        NEXT: null,\
+        TASK_ID: taskId\
+      }));\
+    }\
+  }\
+});",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "公共类",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

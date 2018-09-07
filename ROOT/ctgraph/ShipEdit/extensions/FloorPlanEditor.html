@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Floor Plan Editor</title>
+<!-- Copyright 1998-2016 by Northwoods Software Corporation. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="go.js"></script>
+<link href="../assets/css/goSamples.css" rel="stylesheet" type="text/css"/>
+<script src="DrawCommandHandler.js"></script>
+<script src="RotateMultipleTool.js"></script>
+<script src="ResizeMultipleTool.js"></script>
+<script src="GuidedDraggingTool.js"></script>
+<script src="initVar.js"></script>
+<script src="contain.js"></script>
+<script src="main.js"></script>
+ <link rel="stylesheet"href="main.css"type="text/css"/>
+
+
+</head>
+<body onload="init()">
+<div>
+    <div id="currentFile">(Unsaved File)</div>
+    <div id="menuBar">
+    <ul id="nav">
+        <li><a href="#">File</a>
+            <ul>
+                <li><a href="#" onclick="newDocument()">New</a></li>
+                <li><a href="#" onclick="openDocument()">Open...</a></li>
+                <li><a href="#" onclick="saveDocument()">Save</a></li>
+                <li><a href="#" onclick="saveDocumentAs()">Save As...</a></li>
+                <li><a href="#" onclick="removeDocument()">Delete...</a></li>
+            </ul>
+        </li>
+        <li><a href="#">Edit</a>
+            <ul>
+                <li><a id="Rename" href="#" onclick="rename()">Rename</a></li>
+                <li><a id="A1" href="#" onclick="myDiagram.commandHandler.undo()">Undo</a></li>
+                <li><a id="Redo" href="#" onclick="myDiagram.commandHandler.redo()">Redo</a></li>
+                <li><a id="Cut" href="#" onclick="myDiagram.commandHandler.cutSelection()">Cut</a></li>
+                <li><a id="Copy" href="#" onclick="myDiagram.commandHandler.copySelection()">Copy</a></li>
+                <li><a id="Paste" href="#" onclick="myDiagram.commandHandler.pasteSelection()">Paste</a></li>
+                <li><a id="Delete" href="#" onclick="myDiagram.commandHandler.deleteSelection()">Delete</a></li>
+                <li><a id="SelectAll" href="#" onclick="myDiagram.commandHandler.selectAll()">Select All</a></li>
+            </ul>
+        </li>
+        <li><a href="#">Align</a>
+            <ul >
+                <li><a id="AlignLeft" href="#" onclick="myDiagram.commandHandler.alignLeft()">Left Sides</a></li>
+                <li><a id="AlignRight" href="#" onclick="myDiagram.commandHandler.alignRight()">Right Sides</a></li>
+                <li><a id="AlignTop" href="#" onclick="myDiagram.commandHandler.alignTop()">Tops</a></li>
+                <li><a id="AlignBottom" href="#" onclick="myDiagram.commandHandler.alignBottom()">Bottoms</a></li>
+                <li><a id="AlignCenterX" href="#" onclick="myDiagram.commandHandler.alignCenterX()">Center X</a></li>
+                <li><a id="AlignCenterY" href="#" onclick="myDiagram.commandHandler.alignCenterY()">Center Y</a></li>
+            </ul>
+        </li>
+        <li><a href="#">Space</a>
+            <ul >
+                <li><a id="AlignRow" href="#" onclick="myDiagram.commandHandler.alignRow(askSpace())">In Row...</a></li>
+                <li><a id="AlignColumn" href="#" onclick="myDiagram.commandHandler.alignColumn(askSpace())">In Column...</a></li>
+            </ul>
+        </li>
+        <li><a href="#">Rotate</a>
+            <ul>
+                <li><a id="Rotate45" href="#" onclick="myDiagram.commandHandler.rotate(45)">45°</a></li>
+                <li><a id="Rotate_45" href="#" onclick="myDiagram.commandHandler.rotate(-45)">-45°</a></li>
+                <li><a id="Rotate90" href="#" onclick="myDiagram.commandHandler.rotate(90)">90°</a></li>
+                <li><a id="Rotate_90" href="#" onclick="myDiagram.commandHandler.rotate(-90)">-90°</a></li>
+                <li><a id="Rotate180" href="#" onclick="myDiagram.commandHandler.rotate(180)">180°</a></li>
+            </ul>
+        </li>
+        <li><a href="#">Options</a>
+            <ul>
+                <li><a href="#"><input id="grid" type="checkbox" name="options" value="grid" checked="checked" onclick="updateGridOption()">Grid</a></li>
+                <li><a href="#"><input id="guidelines" type="checkbox" name="options" value="0" checked="checked" onclick="updateGuidelinesOption()">Guidelines</a></li>
+                <li><a href="#"><input id="snap" type="checkbox" name="options" value="0" checked="checked" onclick="updateSnapOption()">Snapping</a></li>
+                <li><a href="#">Arrow Keys >></a>
+                    <form >
+                        <ul>
+                            <li><a href="#"><input type="radio" name="arrow" id="move" onclick="arrowMode()" checked="checked">Move</a></li>
+                            <li><a href="#"><input type="radio" name="arrow" id="select" onclick="arrowMode()">Select</a></li>
+                            <li><a href="#"><input type="radio" name="arrow" id="scroll" onclick="arrowMode()">Scroll</a></li>
+                        </ul>
+                    </form>
+                </li>
+            </ul>
+        </li>
+        <li><a href="#" onclick="window.open('FloorPlanMonitor.html')">Monitor</a></li>
+    </ul>
+    </div><!--END menu bar -->
+
+    <div id="PaletteAndDiagram" style="position: relative; overflow: hidden; width: 100%;">
+        <div id="sideBar" style="float:left; width:15%; min-height: 300px; text-align:center">
+            <div class="handle">Palette:</div>
+            <div id="myPaletteDiv" style="border:solid 1px gray; width: 100%; min-height: 380px"></div>
+            <div class="handle">Overview:</div>
+            <div id="myOverviewDiv" style="border:solid 1px gray; width: 100%; height:150px;"></div>
+        </div>
+        <div id="myDiagramDiv" style="position: absolute; border: solid 1px gray; width:85%; height: 100%; min-height:300px; margin-left:15%; background-color:white"></div>
+    </div>
+
+    <div id="openDocument" class="draggable">
+      <div id="openDraggableHandle" class="handle">Open File</div>
+      <div id="openText" class="elementText">Choose file to open...</div>
+      <select id="mySavedFiles" class="mySavedFiles" ></select>
+      <br />
+      <button id="openBtn" class="elementBtn" type="button" onclick="loadFile()" style="margin-left:70px">Open</button>
+      <button id="cancelBtn"class="elementBtn" type="button" onclick="closeElement('openDocument')" >Cancel</button>
+    </div>
+
+    <div id="removeDocument" class="draggable">
+        <div id="removeDraggableHandle" class="handle">Delete File</div>
+        <div id="removeText" class="elementText">Choose file to remove...</div>
+        <select id="mySavedFiles2" class="mySavedFiles" ></select>
+        <br />
+        <button id="removeBtn" class="elementBtn" type="button" onclick="removeFile()" style="margin-left:70px">Remove</button>
+        <button id="cancelBtn2"class="elementBtn" type="button" onclick="closeElement('removeDocument')">Cancel</button>
+    </div>
+
+</div>
+</body>
+</html>

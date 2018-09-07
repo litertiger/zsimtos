@@ -1,0 +1,94 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var billId = app.get('billId');\
+// var username = app.get(\"sys.username\"),\
+//   TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+// app.run(\"INSERT INTO BLUK_BILL \" +\
+//   \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES,\" +\
+//   \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+//   \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+//   \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID)\" +\
+//   \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+//   \"        VBILL_HEAD.PIECES, VLOAD_LIST.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+//   \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+//   \"        VLOAD_LIST.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,'OTP' \" +\
+//   \"   FROM VLOAD_LIST, VBILL_HEAD \" +\
+//   \"   WHERE VLOAD_LIST.ID = VBILL_HEAD.bkct_id  and  VBILL_HEAD.ID ={?ID?} \" +\
+//   \"  and  VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'  and \" +\
+//   \" not exists(select 1 from   BLUK_BILL  where  BILL_ID=VBILL_HEAD.ID)\", {\
+//     arrayData: new org.json.JSONArray(billId)\
+//   });\
+\
+\
+var billId = app.get('billId');\
+var username = app.get(\"sys.username\"),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+var rs=Wb.getRecords(app.run(\"select IPIECES from BLUK_BILL WHERE BILL_ID={?ID?}\")),num=0;\
+for(var i=0;i<rs.length;i++){\
+\tnum+=rs[i].IPIECES;\
+}\
+if(rs.length==0){\
+\tnum=0;\
+}\
+app.run(\"select 1 from vbill_head where pieces=\"+num+\" and ID={?ID?} \",{errorText:\"已经全部入库！\"});\
+// app.run(\"INSERT INTO BLUK_BILL \" +\
+//   \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES,\" +\
+//   \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+//   \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+//   \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID)\" +\
+//   \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+//   \"        VBILL_HEAD.PIECES-\"+num+\" PIECES , VLOAD_LIST.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+//   \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+//   \"        VLOAD_LIST.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,'OTP' \" +\
+//   \"   FROM VLOAD_LIST, VBILL_HEAD \" +\
+//   \"   WHERE VLOAD_LIST.ID = VBILL_HEAD.id  and  VBILL_HEAD.ID ={?ID?} \" +\
+//   \"  and  VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'   \" );\
+\
+\
+// app.run(\"INSERT INTO BLUK_BILL \" +\
+//   \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, IPIECES,\" +\
+//   \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+//   \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+//   \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID,PIECES)\" +\
+//   \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+//   \"        VBILL_HEAD.PIECES-\"+num+\" PIECES , VLOAD_LIST.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+//   \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+//   \"        VLOAD_LIST.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,'OTP',VBILL_HEAD.PIECES  \" +\
+//   \"   FROM VLOAD_LIST, VBILL_HEAD \" +\
+//   \"   WHERE VLOAD_LIST.ID = VBILL_HEAD.id  and  VBILL_HEAD.ID ={?ID?} \" +\
+//   \"  and  VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'   \" );\
+\
+\
+app.run(\"INSERT INTO BLUK_BILL \" +\
+  \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, IPIECES,\" +\
+  \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+  \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+  \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID,PIECES,CNTR,TYPE)\" +\
+  \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+  \"        VBILL_HEAD.PIECES-\"+num+\" PIECES , VLOAD_LIST.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+  \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+  \"        VLOAD_LIST.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,'OTP',VBILL_HEAD.PIECES,VLOAD_LIST.CNTR,'P'  \" +\
+  \"   FROM VLOAD_LIST, VBILL_HEAD \" +\
+  \"   WHERE VLOAD_LIST.BILL_ID = VBILL_HEAD.id  and  VBILL_HEAD.ID ={?ID?} \" +\
+  \"  and  VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'   \" );\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "按照单确认入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

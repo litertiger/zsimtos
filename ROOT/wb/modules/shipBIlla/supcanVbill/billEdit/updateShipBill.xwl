@@ -1,0 +1,100 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, id = SysUtil.getId() ,TENANCY_ID=app.get(\"TENANCY_ID\"),\
+    ieId=app.get(\"ieId\");\
+  data = app.get(),vIdOld=app.get(\"vIdOld\");\
+var jsarray = Wb.decode(request.getParameter('IDS'));\
+var billArray = Wb.decode(request.getParameter('BILLNOS'));\
+\
+var VID = request.getParameter('VID'),newId=\"\",phase=\"\";\
+\
+var  rows=new Array();\
+var  rows2=new Array();\
+\
+for(var i=0;i<jsarray.length;i++){\
+  \
+  var jsobject={ID:jsarray[i]};\
+  if(i>0)\
+    newId+=\",\";\
+    newId+=\"'\"+jsarray[i]+\"'\";\
+    \
+\trows[i]=jsobject;\
+  rows2[i]={BILL_NO:billArray[i]};\
+}\
+app.run(\"select 1 from  vbill_head where ID in (\"+newId+\") and VID='\"+vIdOld+\"' and bill_type ='P' \",\
+        {  errorText: '拼柜不能用此功能换船。'});\
+app.run(\"select 1 from  move_list where cntr_id in (select cntr_ID from vload_list where bill_id in(\"+newId+\")) and to_POS_TYP='V' and move_type='MOV' and CARRIER_CALL='\"+vIdOld+\"' and  phase  in ('PLN','SND','EXE','FIN')\",\
+        {  errorText: '存在已执行的指令不能换船。'});\
+\
+var  rs=app.run(\"select cntr from  vload_list where cntr_id in (select cntr_ID from vload_list where bill_id in(\"+newId+\"))  and VID='\"+VID+\"' \"\
+       );\
+while(rs.next()){\
+ Wb.error(rs.getString(\"CNTR\")+'已经存在，请先删除改柜。');\
+}\
+\
+app.run(\"update VBILL_HEAD set VID='\"+VID+\"' where ID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows)),\
+  transaction:'start'\
+  });\
+app.run(\"update VLOAD_LIST set VID='\"+VID+\"' where BILL_ID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows))\
+  });\
+\
+app.run(\"update VBILL_HEAD set VID='\"+VID+\"' where P_BILLNO  in(select BILL_NO  from VBILL_HEAD  where  ID= {?ID?})  and VID='\"+vIdOld+\"'\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows)),\
+  transaction:'start'\
+  });\
+app.run(\"update VLOAD_LIST set VID='\"+VID+\"' where cntr_id in( select cntr_id from VLOAD_LIST where BILL_ID={?ID?} )  and VID='\"+vIdOld+\"' \", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows)),\
+  transaction:'start'\
+  });\
+\
+app.run(\"update ACCOUNTS_DETAILS set VID={?VID?} where VID='\"+vIdOld+\"' and BILL_NO={?BILL_NO?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows2))\
+  });\
+\
+app.run(\"update port_cntr set I_DSHIP_NO=(case when {?ieId?}='I' then {?VID?} else I_DSHIP_NO end), E_DSHIP_NO=(case when {?ieId?}='E' then {?VID?} else E_DSHIP_NO end)  where ID in( select cntr_id from VLOAD_LIST where BILL_ID={?ID?})\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows))\
+  });\
+\
+// app.run(\"delete  from  move_list where cntr_id in (select cntr_ID from vload_list where bill_id in(\"+newId+\")) and vid='\"+VID+\"' and  phase='PLN'\");\
+\
+app.run(\"{call bill_lcl_id({?vId?},'\"+TENANCY_ID+\"',{?ieId?})}\");\
+\
+try{\
+\
+    for(var i=0;i<jsarray.length;i++){\
+     request.setAttribute(\"vid\",app.get(\"vId\"));\
+     request.setAttribute(\"billNo\",billArray[i]);\
+     Wb.newClass(\"accountDetailService\").updVidByBillNo(request);\
+ }  \
+\
+}catch(e){ }\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "更改提单船号",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

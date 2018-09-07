@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select ru.*,r.GATEOUT_TIME_T,r.cntr_iso,r.consignee,r.CNTR_OPERATOR_COD from receipt_updwp ru left join receipt r on ru.rid=r.id where ru.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and ru.cntr like '%\" + data.CNTR + \"%'\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and trunc(ru.created_on)>=trunc(to_timestamp('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss.ff'))\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and trunc(ru.created_on)<=trunc(to_timestamp('\" + data.edate + \"','yyyy-mm-dd hh24:mi:ss.ff'))\";\
+if (!Wb.isEmpty(data.PHASE))\
+  sql += \" and ru.phase='\" + data.PHASE + \"'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and r.cntr_operator_cod='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (nature == \"5\")\
+  sql += \" and r.cntr_operator_cod='\" + customcode + \"'\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "基础查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

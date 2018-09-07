@@ -1,0 +1,422 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "roles",
+      "split": "true",
+      "width": "200",
+      "region": "west",
+      "title": "角色列表",
+      "collapsible": "true",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "url": "m?xwl=system/admin/perm/role-list"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "treestore"
+     }],
+     "type": "tree",
+     "events": {"selectionchange": "var role = selected[0];\
+if (role) {\
+  app.modules.setDisabled(false);\
+  app.currentRole = role.data.ROLE_ID;\
+  app.setModules(app.modules.getRootNode());\
+}"}
+    },
+    {
+     "configs": {
+      "itemId": "modules",
+      "root": "{\
+  fileName: 'Root'\
+}",
+      "disabled": "true",
+      "region": "center",
+      "rootVisible": "false",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "fields": "['text', 'path', 'fileName']",
+        "url": "m?xwl=system/admin/perm/module-list"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "treestore",
+       "events": {
+        "load": "function addFileName(node) {\
+  if (node.childNodes && node.childNodes.length)\
+    Wb.each(node.childNodes, addFileName);\
+  else\
+    node.data.text += '(' + node.data.fileName + ')';\
+}\
+Wb.each(records, addFileName);",
+        "beforeload": "operation.params.path = operation.node.data.path;"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true"
+       },
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "permitBatchBtn",
+          "tooltip": "允许访问选择的所有模块 (Ctrl/Shift 多选)",
+          "text": "批量允许",
+          "iconCls": "application_add_icon"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.setPerms(app.modules.getSelection(), true);"}
+        },
+        {
+         "configs": {
+          "itemId": "prohibitBatchBtn",
+          "tooltip": "禁止访问选择的所有模块 (Ctrl/Shift 多选)",
+          "text": "批量禁止",
+          "iconCls": "application_delete_icon"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.setPerms(app.modules.getSelection(), false);"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "expandAllBtn",
+          "tooltip": "展开选择模块的全部子模块",
+          "text": "全部展开",
+          "iconCls": "plus_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.mask(null, null, 1);\
+setTimeout(function() {\
+  Wb.expand(app.modules);\
+  Wb.unmask();\
+}, 50);"}
+        },
+        {
+         "configs": {
+          "itemId": "collapseAllBtn",
+          "tooltip": "收缩选择模块的全部子模块",
+          "text": "全部收缩",
+          "iconCls": "minus_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.collapse(app.modules);"}
+        },
+        {
+         "configs": {
+          "itemId": "item2",
+          "text": "-"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "combo",
+          "onTriggerClick": "app.modules.selectPath('/Root/' + this.getValue(), 'fileName');",
+          "emptyText": "模块",
+          "flex": "1",
+          "triggerCls": "x-form-search-trigger",
+          "displayField": "title",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{\
+  itemTpl: [\
+    '<div>{fullPath}<\/div>'\
+  ]\
+}",
+          "valueField": "fullFile"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "fields": "['path', 'title', 'file', 'parentFile', {\
+  name: 'fullPath',\
+  convert: function(v, rec) {\
+    var data = rec.data;\
+    if (data.path)\
+      return data.path.substring(1) + '/' + data.title;\
+    else return data.title;\
+  }\
+}, {\
+  name: 'fullFile',\
+  convert: function(v, rec) {\
+    var data = rec.data;\
+    if (data.parentFile)\
+      return data.parentFile.substring(1) + '/' + data.file;\
+    else return data.file;\
+  }\
+}]",
+           "url": "m?xwl=system/admin/perm/search-module"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {
+          "beforequery": "if (plan.query.indexOf('/') != -1 || plan.query.indexOf('\\\\') != -1) {\
+  plan.combo.collapse();\
+  return false;\
+}",
+          "select": "combo.onTriggerClick();"
+         }
+        },
+        {
+         "configs": {
+          "itemId": "legend",
+          "headerScript": "'-', {\
+  xtype: 'tbtext',\
+  text: '<table style=\"border:1px solid gray;background:white;\"><tr>' +\
+    '<td style=\"width:12px;background:blue;\"><\/td><td style=\"color:blue;\">允许<\/td>' +\
+    '<td style=\"width:12px;background:gray;\"><\/td><td style=\"text-decoration:line-through;color:gray;\">禁止<\/td>' +\
+    '<td style=\"width:12px;background:#333;\"><\/td><td>部分<\/td>' +\
+    '<\/tr><\/table>'\
+}"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "clientscript"
+        }
+       ],
+       "type": "toolbar"
+      }
+     ],
+     "type": "tree",
+     "events": {
+      "selectionchange": "var module = selected[0];\
+app.allows.setDisabled(!module);\
+if (module) {\
+  app.currentModule = module.data.path;\
+  Wb.setTitle(app.allows, module.data.text);\
+  app.setRoles(module);\
+}",
+      "checkchange": "Wb.setChecked(node, !checked, app.modules);\
+app.setPerms([node], checked);",
+      "itemexpand": "if (app.currentRole)\
+  app.setModules(node); //必须每次展现后进行设置，因为收缩时跳过设置"
+     }
+    },
+    {
+     "configs": {
+      "itemId": "allows",
+      "split": "true",
+      "width": "260",
+      "disabled": "true",
+      "region": "east",
+      "title": "可访问",
+      "collapsible": "true",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "url": "m?xwl=system/admin/perm/module-role-list"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "treestore"
+     }],
+     "type": "tree",
+     "events": {"checkchange": "Wb.setChecked(node, !checked, app.allows);\
+app.setPerms([app.modules.getSelection()[0]], checked, node.data.ROLE_ID);"}
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  /**\
+   * 获取所有模块的权限数据。\
+   */\
+  getPerms: function() {\
+    Wb.request({\
+      url: 'm?xwl=system/admin/perm/get-perm',\
+      success: function(resp) {\
+        app.rolesList = Wb.decode(resp.responseText);\
+      }\
+    });\
+  },\
+  /**\
+   * 设置批量模块权限，并立即设置写入后台。\
+   * @param {NodeInterface[]} choice 选择的节点列表。\
+   * @param {Boolean} checked 选择状态。\
+   * @param {String [setRole] 设置的角色，默认为角色列表选择的角色。\
+   */\
+  setPerms: function(choice, checked, setRole) {\
+    function doSetPerm() {\
+      Wb.request({\
+        url: 'm?xwl=system/admin/perm/set-perms',\
+        params: {\
+          path: Wb.pluck(nodes, 'path'),\
+          role: role,\
+          checked: checked\
+        },\
+        success: function() {\
+          var roles, path;\
+          Ext.suspendLayouts();\
+          Wb.each(nodes, function(node) {\
+            path = node.data.path;\
+            roles = app.rolesList[path];\
+            if (checked) {\
+              if (!roles) {\
+                roles = {};\
+                app.rolesList[path] = roles;\
+              }\
+              roles[role] = 1;\
+            } else {\
+              if (roles)\
+                delete roles[role];\
+            }\
+          });\
+          app.setRoles(choice[0]);\
+          app.setModules(app.modules.getRootNode());\
+          Ext.resumeLayouts(true);\
+        }\
+      });\
+    }\
+    var nodes = [],\
+      role = setRole || app.currentRole;\
+\
+    Wb.each(choice, function(node) {\
+      if (node.isLeaf())\
+        nodes.push(node);\
+    });\
+    Wb.each(choice, function(node) {\
+      if (!node.isLeaf()) {\
+        node.cascadeBy(function(child) {\
+          if (child.isLeaf())\
+            nodes.push(child);\
+        });\
+      }\
+    });\
+    nodes = Ext.Array.unique(nodes);\
+    if (nodes.length > 1) {\
+      var roleText = app.roles.getRootNode().findChild('ROLE_ID', role).data.text;\
+      Wb.confirm(Wb.format('确定要{0}角色\u201c{1}\u201d访问选择的 {2} 个模块吗？', checked ? '允许' : '禁止', roleText, nodes.length), doSetPerm);\
+    } else doSetPerm();\
+  },\
+  /**\
+   * 设置指定节点及其所有子节点的模块权限视图。\
+   * @param {NodeInterface} [base] 指定设置该节点及其所有子节点。如果为空设置所有节点。\
+   * @return {Boolean} 节点及其所有子节点是否被选中。如果节点同时存在选中和非选中节点返回null。\
+   */\
+  setModules: function(baseNode) {\
+    var hasPerm, roles, checked, allChecked = true,\
+      allUnchecked = true,\
+      rolesList = app.rolesList;\
+    Ext.suspendLayouts();\
+    baseNode.eachChild(function(node) {\
+      if (!node.data.depth)\
+        return;\
+      if (node.isLeaf()) {\
+        roles = rolesList[node.data.path];\
+        hasPerm = roles && roles[app.currentRole] == 1;\
+        Wb.setChecked(node, hasPerm, app.modules);\
+        if (hasPerm)\
+          allUnchecked = false;\
+        else\
+          allChecked = false;\
+      } else {\
+        checked = app.setModules(node);\
+        if (checked === null) {\
+          allChecked = false;\
+          allUnchecked = false;\
+        } else if (checked)\
+          allUnchecked = false;\
+        else\
+          allChecked = false;\
+      }\
+    });\
+    if (allChecked)\
+      checked = true;\
+    else if (allUnchecked)\
+      checked = false;\
+    else\
+      checked = null;\
+    Wb.setChecked(baseNode, checked, app.modules);\
+    Ext.resumeLayouts(true);\
+    return checked;\
+  },\
+  /**\
+   * 设置指定模块可访问角色的权限视图。\
+   * @param {NodeInterface} node 模块节点。\
+   */\
+  setRoles: function(node) {\
+    function isChecked(role) {\
+      var roles, hasPerm, checked,\
+        allUnchecked = true,\
+        allChecked = true,\
+        rolesList = app.rolesList;\
+      node.cascadeBy(function(child) {\
+        if (child.isLeaf()) {\
+          roles = rolesList[child.data.path];\
+          hasPerm = roles && roles[role] == 1;\
+          if (hasPerm)\
+            allUnchecked = false;\
+          else\
+            allChecked = false;\
+        }\
+      });\
+      if (allChecked)\
+        checked = true;\
+      else if (allUnchecked)\
+        checked = false;\
+      else\
+        checked = null;\
+      return checked;\
+    }\
+    Ext.suspendLayouts();\
+    app.allows.getRootNode().eachChild(function(child) {\
+      Wb.setChecked(child, isChecked(child.data.ROLE_ID), app.allows);\
+    });\
+    Ext.resumeLayouts(true);\
+  }\
+});\
+app.getPerms();"}
+ }],
+ "roles": {},
+ "title": "权限设置",
+ "iconCls": "option_icon",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,121 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var count = 0;
+ function OnReady(id)
+ {
+   count++;
+   if(count != 2) return;
+ 
+   AFPager.func("Build", "treelist/pager3.xml");
+   AF.func("Build", "report/xmlsheet11.xml");
+   var h = AF.func("GetHandle", "ds1");
+   AFPager.func("BindPager", h + "\r\n ID0");
+ }
+
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+   if(id=='AFPager' && Event == 'Pager') {
+    AF.func("calc", "");
+   }
+ }
+
+ function openother()
+ {
+   AF.func("Build", "report/xmlsheet11-2.xml");
+   var h = AF.func("GetHandle", "ds1");
+   AFPager.func("BindPager", h + "\r\n ID0 \r\n currentPage=0");
+ }
+</script>
+</head>
+
+<body topmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.上方是自由表头(Freeform)的分页器, 该分页器和报表的 ds1 数据源绑定； <br>
+<b>2</b>.此处的分页器和树列表(Treelist)用到的分页器是同一个东西，原理相近，您也可以参考树列表的分页显示的例子； <br>
+</td>
+</tr>
+</table>
+
+<div style="position:relative;width:85%;height:32px">
+	<script>insertFreeForm('AFPager', 'border=none')</script>
+</div>
+<div style="position:relative;width:85%;height:470px">
+	<script>insertReport('AF', '')</script>
+</div>
+<br>
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col>
+<tr>
+<td align=center></td>
+<td><b>3</b>.中心数据源的报表也可以使用分页，可打开另一个使用了中心数据源报表:  <input type="button" onClick="openother( )" value=" 例子2 " /> <br>
+</td></tr></table>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<br><b>1</b>.分页器的 <a href='treelist/pager3.xml' target=_blank>XML描述文件</a>：<br>
+<br><b>2</b>.源码如下：<br>
+<pre class='cpp'>
+var count=0;
+function OnReady(id)
+{
+ count++;
+ if(count != 2) return;
+ 
+ //2个控件都打开各自的模板
+ AFPager.func("Build", "treelist/pager3.xml");
+ AF.func("Build", "report/xmlsheet11.xml");
+ //取得 ds1 数据源的句柄
+ var h = AF.func("GetHandle", "ds1");
+ //绑定, 一旦绑定将触发一个“Pager”分页事件
+ AFPager.func("BindPager", h + "\r\n ID0 \r\n currentPage=0");
+}
+ 
+//事件入口
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AFPager' && Event == 'Pager') {
+  //响应分页事件：仅需要执行计算
+  AF.func("calc", "");
+ }
+}</pre>
+<br>
+<b>3</b>.数据源的URL书写规则：<br>
+<b>3.1</b>. 可选规则一： URL中包含 "@rows" 和 "@startrow" (或 "@Page") 的宏。请打开该报表 ds1 数据源设置，可以看到其URL如下：<br>
+<img src='res/illu53.png'/><br>
+该数据源在取数时，分页器会将这3个宏替换成真正的数字的，这3个宏的含义为：每页行数、从第几行开始、页序；<br>
+<br>
+<b>3.2</b>. 可选规则二： URL中包含名为 "rows" 和 "startrow" (或 "Page") 的属性，比如：<br>
+http://www.supcan.cn/DotNet/access.aspx?<b>rows=12&startRow=12</b><br>
+当数据源取数时，分页器能将 rows 和 startRow、page 参数的值替换成真正的值，例如:<br>
+http://www.supcan.cn/DotNet/access.aspx?<b>rows=20&startRow=0</b><br>
+<br>
+<b>3.3</b>. 可选规则三： URL中不包含上述分页参数或宏，比如：<br>
+http://www.supcan.cn/DotNet/access.aspx<br>
+当数据源取数时，分页器会去修改这个URL，追加 rows、startRow 和 page 参数，例如:<br>
+http://www.supcan.cn/DotNet/access.aspx?<b>rows=20&startRow=0&page=0</b><br>
+<br>
+<b>4</b>.数据源返回的数据的格式：<br>
+XML或JSON数据中，须包含名为 "totalRows" 的属性，即总行数，用于分页器的初始构造，写法请对照本例的真实XML数据: <a href='http://www.supcan.cn/DotNet/access.aspx?sleep=1&startRow=0&rows=5'  target=_blank>http://www.supcan.cn/DotNet/access.aspx?startRow=0&rows=5</a><br>
+也可以采用其它的写法，文档请参见树列表的文档: <a href='doc/dev/treelist2.htm?103#Tag3' target=_blank>6.分页/6.2 总行数</a>.<br>
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

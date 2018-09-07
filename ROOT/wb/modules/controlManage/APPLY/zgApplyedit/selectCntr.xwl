@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var cntroperator = app.get(\"sys.GOV_CODE\");\
+var TRADE_ID = \"\";\
+var co = data.CNTR_OPERATOR_COD;\
+if (Wb.isEmpty(co))\
+  co = cntroperator;\
+if (Wb.isEmpty(data.query)) {\
+  var sql = \"select * from port_cntr where 1=2\";\
+  request.setAttribute(\"sql\", sql);\
+} else {\
+  var sql = \"select * from port_cntr where tenancy_id='\" + tenancyid + \"' and phase='ACT'\" +\
+    \" and CNTR_OPERATOR_COD='\" + co + \"' and CNTR like '%'||{?query?}||'%'\";\
+  sql += \" and id not in(select cntr_id from receipt where phase not in('FIN','CNL') and tenancy_id='\" + tenancyid + \"' and cntr like '%'||{?query?}||'%')\";\
+  request.setAttribute(\"sql\", sql);\
+}"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "查询箱子",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,57 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var tableName='C_CY_TYPE';\
+var tableName='C_BLUK';\
+var tableName=app.get('tableName');\
+//app.get('C_BLUK');\
+var rs=app.run(\"select KV_SQL ,jndi from  CODE_SET where TABLE_NAME='\"+tableName+\"'\",{jndi:'jdbc/basecode'}),sql,jndis,TENANCY_ID=app.get('sys.TENANCY_ID');\
+if(rs.next()){\
+  sql = rs.getString(\"KV_SQL\");\
+  jndis= rs.getString(\"JNDI\");\
+}\
+else{\
+  sql=\" select SYS_KEY, SYS_VALUE ,JT'  TENANCY_ID from S_CODE where  SYS_CATEGORY='\"+tableName+\"'\";\
+  jndis='jdbc/basecode'; \
+}\
+app.log(\"ddd\");\
+var data = Wb.decode(DbUtil.getData(app.run(\"select * from (\"+sql+\") where TENANCY_ID='\"+TENANCY_ID+\"' or TENANCY_ID='JT'\",{jndi:jndis}), request));\
+\
+var TreeList = {\
+  Properties: {\
+    isShowGrid: false,\
+    isAutoFitWidth: true,\
+    headerHeight: 0\
+  },\
+  Cols: [{\
+    name: 'K',\
+    width: '100'\
+  }, {\
+    name: 'V',\
+    width: '100'\
+  }]\
+};\
+TreeList.Table = data;\
+app.send({\
+  TreeList: TreeList\
+});",
+   "loginRequired": "true"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1
+ },
+ "title": "硕正树形下拉",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,71 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var lastModified, urlFile = new File(Base.path, 'wb/system/url.json'),\
+  IOUtilsCopy = org.apache.commons.io.IOUtils.copy,\
+  ZipEntry = com.syspatch.zip.ZipEntry;\
+\
+if (app.get('lastModified') == -1)\
+  lastModified = null;\
+else\
+  lastModified = app.getJavaDate('lastModified');\
+response.setHeader(\"content-type\", \"application/force-download\");\
+response.setHeader(\"content-disposition\", \"attachment;\" + WebUtil.encodeFilename(request, FileUtil.addExtension(app.get('filename'), 'zip')));\
+zipModules([urlFile].concat(Java.from(Base.modulePath.listFiles())), response.getOutputStream(), lastModified);\
+response.flushBuffer();\
+\
+//导出指定修改日期的所有模块到输出流\
+function zipModules(files, outputStream, lastModified) {\
+  var zipStream = new com.syspatch.zip.ZipOutputStream(outputStream);\
+\
+  zipStream.fileCharset = Var.getString(\"sys.locale.filenameCharset\");\
+  try {\
+    Wb.each(files, function(file) {\
+      zip(file, zipStream, file.getName(), lastModified);\
+    });\
+  } finally {\
+    zipStream.close();\
+  }\
+}\
+\
+//导出指定修改日期的文件到压缩文件流\
+function zip(source, zipStream, base, lastModified) {\
+  var entry;\
+\
+  if (lastModified && source != urlFile && !FileUtil.checkLastModified(source, lastModified))\
+    return;\
+  if (source.isDirectory()) {\
+    entry = new ZipEntry(base + '/');\
+    entry.setTime(source.lastModified());\
+    zipStream.putNextEntry(entry);\
+    if (!StringUtil.isEmpty(base))\
+      base += '/';\
+    var fileList = FileUtil.listFiles(source);\
+    Wb.each(fileList, function(file) {\
+      zip(file, zipStream, base + file.getName(), lastModified);\
+    });\
+  } else {\
+    entry = new ZipEntry(base);\
+    entry.setTime(source.lastModified());\
+    zipStream.putNextEntry(entry);\
+    var inputStream = new java.io.FileInputStream(source);\
+    try {\
+      IOUtilsCopy(inputStream, zipStream);\
+    } finally {\
+      inputStream.close();\
+    }\
+  }\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "导出模块",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

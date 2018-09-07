@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var ids = Wb.decode(app.get(\"ids\"));\
+app.run(\"update move_list set enable_id=0 where (id={?id?} or queue_id={?id?}) and phase <> 'FIN'\", {\
+  transaction: \"commit\",\
+  arrayData: ids.map(function(id) {\
+    return {\
+      id: id\
+    };\
+  })\
+});\
+\
+\
+var taskId = app.get(\"taskId\"),\
+  username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"),\
+  type = app.get('type'); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+var mess = \"ship.\" + ship;\
+if(type == 'MOVE')\
+  mess = 'cy.#';\
+var sqlCntrs = '';\
+//发送消息\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_instruction\", mess, {\
+      info: {\
+        type: \"disc\",\
+        action: \"batch\",\
+        senduser: username,\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: taskId\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "禁用任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

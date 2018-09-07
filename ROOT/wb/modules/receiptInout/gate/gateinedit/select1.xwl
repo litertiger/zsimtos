@@ -1,0 +1,84 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select R.ID RID,P.ID PID,R.IN_CAR,R.IN_CAR_HP,R.IN_CAMPI,R.IN_TRAY_NO,R.IN_DRIVER_ID,R.IN_DRIVER_NAME,\" +\
+  \"R.CNTR,R.CNTR_SIZE,R.CNTR_TYPE,R.SCALE_WEIGHT,R.F_CNTR,R.NO_CNTR,R.OOG_ID,P.DANG_ID,R.REEF_ID,P.ON_POWER,\" +\
+  \"P.REQS_POWER,P.BUNDL_ID,R.CATEGORY_ID,R.CNTR_ID,p.RELEASE_ID,R.NOTES,R.CNTR_ISO,R.E_F_ID,R.BILL_NO,P.CNTR_OWNER,\" +\
+  \"R.CNTR_OPERATOR,R.VID,R.POD,R.SPOD,R.DOOR_DIRECTION,R.CMDY_CODE,R.GROS_WEIGHT,R.SPEC_STOW,R.SEAL_NO,R.SEAL_NO2,\" +\
+  \"R.DRIVERLICENSE,R.OUTCARTEAM,R.CARGO_WT,R.TRUCK_COM,R.TRADE_ID,R.I_E_ID,R.TEMP_SET,R.IMDG,R.WORK_TYPE,P.WEIGHT,\" +\
+  \"nvl(P.YARD_POSITION,nvl(v2.berth_code,v2.o_berth_code))YARD_POSITION,R.T_ADDRESS,R.F_ADDRESS,'ti' TS\" +\
+  \" from receipt r left join port_cntr p on r.cntr_id=p.id left join vload_list vl on vl.cntr_id=p.id and vl.i_e_id=p.i_e_id\" +\
+  \" left join vessel_visit v2 on v2.id=vl.vid\" +\
+  \" where p.tenancy_id='\" + tenancyid + \"' and r.id='\" + data.rid + \"'\" +\
+  \" and (vl.main_flag=1 or vl.id is null) and r.phase='EXE' and r.work_type not in('YOYI','FOFI','FITC','EITC')\" +\
+  \" order by r.created_on\";\
+var result = Wb.getRecords(app.run(sql));\
+if (result.length > 0) {\
+  app.send(result);\
+} else {\
+  sql = \"select nvl(rf.id,R.ID)RID,P.ID PID,nvl(rf.OUT_CAR,R.OUT_CAR) IN_CAR,nvl(rf.OUT_CAR_HP,R.OUT_CAR_HP) IN_CAR_HP,\" +\
+    \"nvl(rf.OUT_CAMPI,r.OUT_CAMPI) IN_CAMPI,nvl(rf.OUT_TRAY_NO,r.OUT_TRAY_NO) IN_TRAY_NO,\" +\
+    \"nvl(rf.OUT_DRIVER_ID,r.OUT_DRIVER_ID) IN_DRIVER_ID,nvl(rf.OUT_DRIVER_NAME,r.OUT_DRIVER_NAME) IN_DRIVER_NAME,\" +\
+    \"nvl(rf.CNTR,r.CNTR) CNTR,nvl(rf.CNTR_SIZE,r.CNTR_SIZE) CNTR_SIZE,nvl(rf.NO_CNTR,r.NO_CNTR)NO_CNTR,\" +\
+    \"nvl(rf.CNTR_TYPE,r.CNTR_TYPE) CNTR_TYPE,nvl(rf.SCALE_WEIGHT,r.SCALE_WEIGHT) SCALE_WEIGHT,nvl(rf.OOG_ID,r.OOG_ID) OOG_ID,\" +\
+    \"P.DANG_ID,nvl(rf.REEF_ID,r.REEF_ID) REEF_ID,P.ON_POWER,P.REQS_POWER,P.BUNDL_ID,nvl(rf.CATEGORY_ID,r.CATEGORY_ID)CATEGORY_ID,\" +\
+    \"nvl(rf.CNTR_ID,r.CNTR_ID) CNTR_ID,nvl(rf.NOTES,r.NOTES) NOTES,nvl(rf.CNTR_ISO,r.CNTR_ISO) CNTR_ISO,\" +\
+    \"nvl(rf.BILL_NO,r.BILL_NO) BILL_NO,P.CNTR_OWNER,nvl(rf.CNTR_OPERATOR,r.CNTR_OPERATOR) CNTR_OPERATOR,nvl(rf.VID,r.VID) VID,\" +\
+    \"nvl(rf.POD,r.POD) POD,nvl(rf.SPOD,r.SPOD) SPOD,nvl(rf.DOOR_DIRECTION,r.DOOR_DIRECTION) DOOR_DIRECTION,\" +\
+    \"nvl(rf.CMDY_CODE,r.CMDY_CODE) CMDY_CODE,nvl(rf.GROS_WEIGHT,r.GROS_WEIGHT) GROS_WEIGHT,p.RELEASE_ID,\" +\
+    \"nvl(rf.SPEC_STOW,r.SPEC_STOW) SPEC_STOW,nvl(rf.SEAL_NO,r.SEAL_NO) SEAL_NO,nvl(rf.SEAL_NO2,r.SEAL_NO2) SEAL_NO2,\" +\
+    \"nvl(rf.DRIVERLICENSE,r.DRIVERLICENSE) DRIVERLICENSE,nvl(rf.OUTCARTEAM,r.OUTCARTEAM) OUTCARTEAM,\" +\
+    \"nvl(rf.CARGO_WT,r.CARGO_WT) CARGO_WT,nvl(rf.TRUCK_COM,r.TRUCK_COM) TRUCK_COM,nvl(rf.TRADE_ID,r.TRADE_ID) TRADE_ID,\" +\
+    \"nvl(rf.I_E_ID,r.I_E_ID) I_E_ID,P.YARD_POSITION,nvl(rf.TEMP_SET,r.TEMP_SET) TEMP_SET,nvl(rf.IMDG,r.IMDG) IMDG,\" +\
+    \"nvl(rf.WORK_TYPE,r.WORK_TYPE) WORK_TYPE,P.WEIGHT,nvl(rf.T_ADDRESS,r.T_ADDRESS) T_ADDRESS,\" +\
+    \"nvl(rf.F_ADDRESS,r.F_ADDRESS) F_ADDRESS,'shou' TS,case when nvl(rf.WORK_TYPE,r.WORK_TYPE)='FOEI'\" +\
+    \" or nvl(rf.WORK_TYPE,r.WORK_TYPE)='EOEI' or nvl(rf.WORK_TYPE,r.WORK_TYPE)='EITC' then 'E'\" +\
+    \" when nvl(rf.WORK_TYPE,r.WORK_TYPE)='EOFI' or nvl(rf.WORK_TYPE,r.WORK_TYPE)='FOFI' or\" +\
+    \" nvl(rf.WORK_TYPE,r.WORK_TYPE)='FITC' then 'F' end E_F_ID\" +\
+    \" from receipt r left join port_cntr p on r.cntr_id=p.id left join receipt rf on r.id=rf.rid2\" +\
+    \" where p.tenancy_id='\" + tenancyid + \"' and r.id='\" + data.rid + \"'\" +\
+    \" and ((r.phase='OUT' and r.work_type<>'YOYI') or (r.phase='EXE' and r.work_type in('FITC','EITC')))\" +\
+    \" order by rf.created_on desc\";\
+  var result = Wb.getRecords(app.run(sql));\
+  if (result.length > 0) {\
+    app.send(result);\
+  } else {\
+    var sql = \"select r.id RID,r.cntr_id PID,r.CNTR,r.CNTR_ID,r.IN_CAR,r.IN_CAR_HP,r.IN_CAMPI,r.IN_TRAY_NO,r.IN_DRIVER_ID,\" +\
+      \"r.IN_DRIVER_NAME,r.OUT_CAR,r.OUT_CAR_HP,r.OUT_CAMPI,r.OUT_TRAY_NO,r.OUT_DRIVER_ID,r.OUT_DRIVER_NAME,r.F_ADDRESS YARD_POSITION,\" +\
+      \"r.BILL_NO,r.DRIVERLICENSE,r.OUTCARTEAM,r.NO_CNTR,r.I_E_ID,r.CNTR_ISO,r.E_F_ID,r.WORK_TYPE,r.CNTR_SIZE,R.CNTR_OWNER,\" +\
+      \"r.CNTR_OPERATOR,r.CNTR_TYPE,r.VID,r.POD,r.SPOD,r.TRUCK_COM,r.DOOR_DIRECTION,r.CMDY_CODE,r.GROS_WEIGHT,r.CARGO_WT,\" +\
+      \"r.SPEC_STOW,r.SEAL_NO,r.SEAL_NO2,r.OOG_ID,r.REEF_ID,r.CATEGORY_ID,r.TRADE_ID,r.TEMP_SET,r.IMDG,r.T_ADDRESS,r.NOTES,\" +\
+      \"'shou' TS from receipt r\" +\
+      \" where r.phase='EXE' and r.id='\" + data.rid + \"' and r.work_type='YOYI'\";\
+    var result = Wb.getRecords(app.run(sql));\
+    app.send(result);\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

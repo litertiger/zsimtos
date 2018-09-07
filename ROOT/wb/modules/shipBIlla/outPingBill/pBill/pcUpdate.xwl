@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var tableName=app.get(\"tableName\"), columnName=app.get(\"columnName\"),tenancy_id=app.get(\"sys.TENANCY_ID\"),username=app.get(\"sys.username\"),\
+ shipNo=app.get(\"shipNo\"),  COLCOD= app.get(\"COLCOD\"),COLVALUE= app.get(\"COLVALUE\"),sql;//cod 是代码 value 是显示值\
+    \
+\
+var customArray=[\"CNTR_OPERATOR\",\"SHIPPER\",\"CONSIGNEE\",\"RECEIVER\"];\
+if(Wb.indexOf(customArray,columnName)>=0){\
+sql=\"update  \"+tableName+\" set \"+columnName+\"='\"+COLVALUE+\"', \"+columnName+\"_COD ='\"+COLCOD+\"' where   \"+columnName+\"={?FIELDNAME?}  and  VID='\"+shipNo+\"' \";\
+app.run(\"insert  into   C_CUSTOMER_NAME (ID, C_ID, CUS_NAME, TENANCY_ID, CREATED_MAN, CREATED_ON, UPDATED_MAN, UPDATED_ON, GOV_CODE) \"+\
+ \" select sys_guid(),CODE,{?FIELDNAME?},'\"+tenancy_id+\"','\"+username+\"',sysdate,'',sysdate, GOV_CODE from C_CUSTOMER where CODE={?COLCOD?} \"+\
+        \" and not exists(select 1 from C_CUSTOMER_NAME where CUS_NAME={?FIELDNAME?} )\",{jndi:'jdbc/basecode'});\
+}\
+else\
+sql=\"update  \"+tableName+\" set \"+columnName+\"='\"+COLCOD+\"'  where   \"+columnName+\"={?FIELDNAME?} and  VID='\"+shipNo+\"' \";\
+app.run(sql);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "批量修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

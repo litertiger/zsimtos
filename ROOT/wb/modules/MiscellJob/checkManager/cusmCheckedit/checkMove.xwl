@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var cks = Wb.decode(data.cks);\
+app.run(\"update cusm_check set phase='SND' where 1=2\", {\
+  transaction: 'start'\
+});\
+var cntrs = new Array();\
+Wb.each(cks, function(ck) {\
+  var sql = \"select cntr from cusm_check where tenancy_id='\" + tenancyid + \"'\" +\
+    \" and (phase<>'PLN' or phase<>'FIN') and cntr_id='\" + ck.CNTR_ID + \"'\";\
+  var oldcks = Wb.decode(DbUtil.getData(app.run(sql), request));\
+  if (oldcks.length >0) {\
+    cntrs.push(ck.CNTR);\
+  } \
+   app.run(\"update cusm_check set phase='SND' where checkid='\" + ck.CHECKID + \"'\");\
+  if(data.ISPONDERATION_PRJ=='1'){\
+  app.run(\" INSERT INTO ZS_IMTOS.CNTR_WEIGHT_PLN \"+\
+          \"   (POS, CNTR_ID, ID, INFO_TYPE, INSTRUCT_TYPE, WT_CMD_DATE, VID, \"+\
+          \"  VOYAGE_NO, BILL_ID, I_E_ID, BILL_NO, CNTR, CNTR_SIZE, CNTR_TYPE, \"+\
+          \"  E_F_ID, TENANCY_ID, REMARK, CREATED_ON, CREATED_BY, UPDATED_ON, \"+\
+          \"   UPDATED_BY, APPLI_COMPANY) \"+\
+  \" SELECT NULL, CUSM_CHECK.CNTR_ID, SYS_GUID(), {?INFO_TYPE?}, '3', SYSDATE, DECODE(IO_STATUS,'I',I_DSHIP_NO,E_DSHIP_NO), NULL, \"+\
+  \"       NULL, PORT_CNTR.I_E_ID, CUSM_CHECK.BILL_NO, PORT_CNTR.CNTR, PORT_CNTR.CNTR_SIZE, PORT_CNTR.CNTR_TYPE, 'F', \"+\
+  \"        CUSM_CHECK.TENANCY_ID, '查验过磅', SYSDATE, '\"+username+\"', SYSDATE, '\"+username+\"', \"+\
+  \"        {?APPLI_COMPANY?} \"+\
+  \"   FROM CUSM_CHECK,PORT_CNTR \"+\
+  \"  WHERE CUSM_CHECK.CNTR_ID=PORT_CNTR.ID AND CHECKID='\"+ck.CHECKID+\"'\");\
+    \
+ app.run(\"INSERT INTO cntr_pound_edi \\\
+            (ID, bill_id, bill_no, qd_time, sendid, i_e_id, tenancy_id,CNTR) \"+\
+         \"SELECT SYS_GUID (), vload_list.bill_id, vload_list.bill_no, SYSDATE, 0,\\\
+          vload_list.i_e_id, vload_list.tenancy_id,port_cntr.CNTR \\\
+     FROM port_cntr, vload_list \\\
+    WHERE port_cntr.ID = vload_list.cntr_id \\\
+      AND port_cntr.i_e_id = vload_list.i_e_id \\\
+      and  port_cntr.ID='\"+ck.CNTR_ID+\"'\");\
+}\
+});\
+app.log(cntrs);\
+if (cntrs.length > 0) {\
+  app.set(\"cntrs\", Wb.encode(cntrs));\
+  app.execute(\"m?xwl=controlManage/task/worktaskcraneedit/insertTask\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "check": 1,
+  "SWB": 1
+ },
+ "title": "生成移箱任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

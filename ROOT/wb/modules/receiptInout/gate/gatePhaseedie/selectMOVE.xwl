@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select * from move_list where cntr like '%\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"' and move_type='MOV'\" +\
+  \"   and  trunc(created_on)>=trunc(sysdate-30) and handle_id in(select id from receipt where cntr like '%\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"')\";\
+if (data.ts == \"ti\")\
+  sql += \" and from_pos_typ='B' and to_pos_typ='G'\";\
+else\
+  sql += \" and from_pos_typ='G' and to_pos_typ='B'\";\
+sql += \" union all \" +\
+  \"select * from move_list where queue_id in\" +\
+  \"(select id from move_list where cntr like '%\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"' and move_type='MOV'\";\
+if (data.ts == \"ti\")\
+  sql += \" and from_pos_typ='B' and to_pos_typ='G'\";\
+else\
+  sql += \" and from_pos_typ='G' and to_pos_typ='B'\";\
+sql += \" and handle_id in(select id from receipt where cntr like '%\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"'))\";\
+\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "ZSBF": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

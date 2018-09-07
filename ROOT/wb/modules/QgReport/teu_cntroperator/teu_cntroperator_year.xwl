@@ -1,0 +1,128 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sdate = data.sdate;\
+var edate = data.edate;\
+if (Wb.isEmpty(sdate))\
+  sdate = '2018-07-01';\
+if (Wb.isEmpty(edate))\
+  edate = '2018-07-31';\
+var smonth = sdate.substring(0, 7);\
+var sql = \"select\\
+\" +\
+  \"round(((sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2.25 else 0 end))\\
+\" +\
+  \"/decode((sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)),0,1,\\
+\" +\
+  \"(sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)))-1)*100,2)||'%'ZS,\\
+\" +\
+  \"round(((sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2.25 else 0 end))\\
+\" +\
+  \"/decode((sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)),0,1,\\
+\" +\
+  \"(sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)))-1)*100,2)||'%'XL,\\
+\" +\
+  \"round(((sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2.25 else 0 end))\\
+\" +\
+  \"/decode((sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)),0,1,\\
+\" +\
+  \"(sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)))-1)*100,2)||'%'SW,\\
+\" +\
+  \"round(((sum(case when cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')='\" + smonth + \"' then 2.25 else 0 end))\\
+\" +\
+  \"/decode((sum(case when cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)),0,1,\\
+\" +\
+  \"(sum(case when cntr_siz_cod='20' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm') then 2.25 else 0 end)))-1)*100,2)||'%'AL\\
+\" +\
+  \"from t_sas_ship_thruput t\\
+\" +\
+  \"where (to_char(bill_date,'yyyy-mm')=to_char(add_months(to_date('\" + sdate + \"','yyyy-mm-dd'),-12),'yyyy-mm')\\
+\" +\
+  \"or to_char(bill_date,'yyyy-mm')='\" + smonth + \"')\";\
+if (!Wb.isEmpty(data.trade_id))\
+  sql += \" and trade_id='\" + data.trade_id + \"'\";\
+\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  ZS = '',\
+  XL = '',\
+  SW = '',\
+  AL = '';\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  ZS = rsn.getString(\"ZS\");\
+  XL = rsn.getString(\"XL\");\
+  SW = rsn.getString(\"SW\");\
+  AL = rsn.getString(\"AL\");\
+  xml += \"<ZS>\" + ZS + \"<\/ZS>\";\
+  xml += \"<XL>\" + XL + \"<\/XL>\";\
+  xml += \"<SW>\" + SW + \"<\/SW>\";\
+  xml += \"<AL>\" + AL + \"<\/AL>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

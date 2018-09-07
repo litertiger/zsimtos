@@ -1,0 +1,117 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var type = \"测试派车类型\"; //这里先写死了，来自s_code中的Car_type \
+\
+\
+var sql = \"select r.*,/*p.yard_position,*/ ca.name s_address,CC.NAME CUSTOMER_NAME,\" +\
+  \"case when (SELECT SUM (amount) FROM ACCOUNTS_DETAILS ad WHERE AD.BUSSINESS_CODE = r.id AND ad.FEE_LIST_ID ='0222')>0 then '1' else '0' end chargeflag,\" +\
+  \" (SELECT SUM(amount) FROM ACCOUNTS_DETAILS ad WHERE AD.BUSSINESS_CODE = r.id AND ad.FEE_LIST_ID = '0222') amount,cd.empname IN_DRIVER,cd1.empname OUT_DRIVER, \" +\
+  \"case when (select sum(check_flag) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id)<>(select count(0) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id) and (select sum(check_flag) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id)=0\" +\
+  \" then '0' when  (select sum(check_flag) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id)=(select count(0) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id) and (select sum(check_flag) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id)>0 then '1'\" +\
+  \" when (select count(0) from WORK_BILL_TRUCK_DRIVER where FROM_SOURCE_ID=r.id)=0 then '0' else '2' end wcheck_flag \" +\
+  \"from RECEIPT r /*left join port_cntr p on r.cntr_id=p.id */ left join c_driver cd on cd.empno=r.IN_DRIVER_ID left join c_driver cd1 on cd1.empno=r.OUT_DRIVER_ID\" +\
+  \" left join c_address ca on ca.id=r.s_adress LEFT JOIN C_CUSTOMER CC ON R.ACCOUNT_CUSTOMER_CODE= CC.CODE \" +\
+  \" where r.tenancy_id='\" + tenancyid + \"' and r.work_type not in('YOYI') \";\
+if (!Wb.isEmpty(data.id))\
+  sql += \" and r.id='\" + data.id + \"'\";\
+if (data.txtnotime == \"0\")\
+  sql += \" and r.GATEIN_TIME_S is not null\";\
+if (data.txtnocustomercode == \"1\")\
+  sql += \" and r.ACCOUNT_CUSTOMER_CODE is null\";\
+if (!Wb.isEmpty(data.tbpdate))\
+  sql += \" and r.GATEOUT_TIME_T>=to_date('\" + data.tbpdate.substring(0, 10) + \"','yyyy-MM-dd')\";\
+if (!Wb.isEmpty(data.tbpdate1))\
+  sql += \" and r.GATEOUT_TIME_T<=to_date('\" + data.tbpdate1.substring(0, 10) + \"','yyyy-MM-dd')+1\";\
+if (!Wb.isEmpty(data.tbTRADE_ID)) {\
+  sql += \" and r.TRADE_ID='\" + data.tbTRADE_ID + \"'\";\
+}\
+if (!Wb.isEmpty(data.tbWORK_TYPE)) {\
+  sql += \" and r.WORK_TYPE='\" + data.tbWORK_TYPE + \"'\";\
+}\
+if (!Wb.isEmpty(data.tbPHASE)) {\
+  //   if (data.tbPHASE == \"PLN\")\
+  //     sql += \" and r.PHASE in('PLN','EXE','GET','OUT','RTN')\";\
+  //   else\
+  sql += \" and r.PHASE='\" + data.tbPHASE + \"'\";\
+}\
+ var sql1 = \"\";\
+if (!Wb.isEmpty(data.tbsalary)) {\
+ \
+  if (!Wb.isEmpty(data.tbpdate))\
+    sql1 += \" and r2.GATEOUT_TIME_T>=to_date('\" + data.tbpdate.substring(0, 10) + \"','yyyy-MM-dd')\";\
+  if (!Wb.isEmpty(data.tbpdate1))\
+    sql1 += \" and r2.GATEOUT_TIME_T<=to_date('\" + data.tbpdate1.substring(0, 10) + \"','yyyy-MM-dd')+1\";\
+  if (data.tbsalary == 1)\
+    sql += \" and (exists(select 1 from WORK_BILL_TRUCK_DRIVER w,RECEIPT r2 where w.from_source_id = r2.id and  w.from_source_id = r.id \" + sql1 + \") )\";\
+  if (data.tbsalary == 0)\
+    sql += \" and (not exists(select 1 from WORK_BILL_TRUCK_DRIVER w,RECEIPT r2 where w.from_source_id = r2.id and  w.from_source_id = r.id \" + sql1 + \") )\"+\
+    \"AND not EXISTS (SELECT 1 FROM RECEIPT r2 WHERE r2.in_driver_id = '999' AND r2.out_driver_id = '999' and r2.id=r.id )\" +\
+  \" AND not EXISTS (SELECT 1 FROM RECEIPT r2 WHERE  r2.in_driver_id = '外  来(00)' AND r2.out_driver_id = '外  来(00)' and r2.id=r.id )\" +\
+    \" AND not EXISTS (SELECT 1 FROM RECEIPT r2 WHERE  r2.in_driver_id = 'zzzz' AND r2.out_driver_id = 'zzzz' and r2.id=r.id )\" +\
+    \" AND not EXISTS (SELECT 1 FROM RECEIPT r2 WHERE  r2.in_driver_id = 'zzzz' AND r2.out_driver_id = '999' and r2.id=r.id )\" +\
+        \" AND not EXISTS (SELECT 1 FROM RECEIPT r2 WHERE  r2.in_driver_id is null AND r2.out_driver_id = '999' and r2.id=r.id )\" +\
+  \"AND not EXISTS (SELECT 1 FROM RECEIPT r2 WHERE  r2.in_driver_id = '外  来(00)' AND r2.out_driver_id = '999' and r2.id=r.id )\";\
+}\
+if (!Wb.isEmpty(data.tbcheck)) {\
+  if (data.tbcheck == 1)\
+    sql += \" and (exists(select 1 from WORK_BILL_TRUCK_DRIVER w,RECEIPT r2 where w.from_source_id = r2.id and w.check_flag=1 and  w.from_source_id = r.id \" + sql1 + \") )\";\
+  if (data.tbcheck == 0)\
+    sql += \" and (not exists(select 1 from WORK_BILL_TRUCK_DRIVER w,RECEIPT r2 where w.from_source_id = r2.id and w.check_flag=1 and  w.from_source_id = r.id \" + sql1 + \") )\";\
+}\
+if (!Wb.isEmpty(data.tbI_E_ID))\
+  sql += \" and r.I_E_ID='\" + data.tbI_E_ID + \"'\";\
+if (nature == \"5\")\
+  sql += \" and (r.cntr_operator_cod='\" + customcode + \"' or r.car_team='\" + customcode + \"')\";\
+else if (nature == \"6\")\
+  sql += \" and r.car_team='\" + customcode + \"' and shipper_way=3\";\
+// else\
+//   sql += \" and shipper_way=1 \";\
+if (!Wb.isEmpty(data.txtCNTR_NO_R)) {\
+  sql += \" AND r.cntr like '%\" + data.txtCNTR_NO_R + \"%'\";\
+  //   var allcntr = (data.txtCNTR_NO_R.split(\",\"));\
+  //   sql += \" and(1=2\";\
+  //   Wb.each(allcntr, function(cntr) {\
+  //     if (!Wb.isEmpty(cntr))\
+  //       sql += \" or r.cntr like '%\" + cntr + \"%'\";\
+  //   });\
+  //   sql += \")\";\
+}\
+\
+sql += \" order by r.GATEIN_TIME_S desc\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "查询设备交接单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

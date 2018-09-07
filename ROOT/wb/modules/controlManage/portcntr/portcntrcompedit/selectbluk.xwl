@@ -1,0 +1,71 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),\
+  tenancyid = app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select bb.cntr,bb.goods,bb.CFSINOUT,bb.UNIT,bb.SHIPPER,bb.PIECES,bb.CFSTIME\" +\
+  \" from bluk_bill bb left join port_cntr p on p.id=bb.cntr_id\" +\
+  \" where bb.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
+if (nature == '5')\
+  sql += \" and p.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+if (!Wb.isEmpty(data.cntrid))\
+  sql += \" and p.id='\" + data.cntrid + \"'\";\
+\
+if (data.ls == \"1\") {\
+  sql += \" union all\" +\
+    \" select bb.cntr,bb.goods,bb.CFSINOUT,bb.UNIT,bb.SHIPPER,bb.PIECES,bb.CFSTIME\" +\
+    \" from bluk_bill bb left join port_cntr_his p on p.id=bb.cntr_id\" +\
+    \" where bb.tenancy_id='\" + tenancyid + \"'\";\
+  if (!Wb.isEmpty(data.CNTR))\
+    sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
+  if (nature == '5')\
+    sql += \" and p.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+  if (!Wb.isEmpty(data.cntrid))\
+    sql += \" and p.id='\" + data.cntrid + \"'\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSWNH": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "ZK": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "仓库信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

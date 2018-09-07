@@ -1,0 +1,69 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql,data = app.get();\
+sql ='';\
+var edate = data.edate + ' 23:59:59';\
+if(!Wb.isEmpty(data.cnumber)){\
+  sql += ' and instr(c.cntr,{?cnumber?}) > 0';\
+}\
+if(!Wb.isEmpty(data.sdate)){\
+  sql += ' and d.REGTIME >= {?timestamp.sdate?}';\
+}\
+if(!Wb.isEmpty(data.edate)){\
+  sql += \" and d.REGTIME <= to_date('\"+edate+\"','YYYY-MM-DD HH24:MI:SS')\";\
+}\
+request.setAttribute('sql',sql);\
+\
+/*\
+\
+,(SELECT P.OUT_PORT_TIME FROM PORT_CNTR_NEW P WHERE D.CNTR = P.CNTR\
+ AND P.CNTR_TYPE IN ('RF','RH')) ATA,(SELECT P.IN_PORT_TIME FROM PORT_CNTR_NEW P WHERE D.CNTR = P.CNTR\
+ AND P.CNTR_TYPE IN ('RF','RH')) ATD\
+ */",
+   "description": "这个是备份的sql，未加入对应的进港时间，出港时间，出口提单号，进口运单号\
+SELECT c.ID,c.CNTR,c.CNTR_ID,c.OPERTYPE,c.CURRTEMP\
+,c.DEGREES,c.CREATED_BY,c.CREATED_ON,c.UPDATED_BY,c.UPDATED_ON,c.REGTIME,\
+D.CREATED_BY AS CREATE_BY,D.CREATED_ON CREATE_ON,D.UPDATED_BY UPDATE_BY,D.UPDATED_ON UPDATE_ON\
+,c.BILL_NO,c.CHECK_ON,c.I_E_ID,c.CHECK_BY,c.CHECK_FLAG,ABS(FLOOR(CEIL((C.REGTIME-D.REGTIME)*24*60)/60)) AS HOURS,D.OPERTYPE AS FLAG,\
+D.REGTIME AS DTIME\
+FROM CNTR_REEFINFO c LEFT JOIN \
+CNTR_REEFINFO D  ON C.ID =  D.POWERON_ID and D.OPERTYPE = 'F'\
+WHERE c.TENANCY_ID = '{#sys.TENANCY_ID#}' AND C.POWERON_ID IS NULL AND C.OPERTYPE = 'T'"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "\
+SELECT  c.ID,c.CNTR,c.CNTR_ID,c.OPERTYPE,c.CURRTEMP\
+,c.DEGREES,c.CREATED_BY,c.CREATED_ON,c.UPDATED_BY,c.UPDATED_ON,c.REGTIME,C.E_F_ID,\
+D.CREATED_BY AS CREATE_BY,D.CREATED_ON CREATE_ON,D.UPDATED_BY UPDATE_BY,D.UPDATED_ON UPDATE_ON\
+,c.BILL_NO,c.CHECK_ON,c.I_E_ID,c.CHECK_BY,c.CHECK_FLAG,ABS(FLOOR(CEIL((C.REGTIME-D.REGTIME)*24*60)/60)) AS HOURS,D.OPERTYPE AS FLAG，\
+D.REGTIME AS DTIME,DECODE(L.I_E_ID,'I',L.BILL_NO)\
+I_BILL_NO,decode(l.I_E_ID,'E',l.BILL_NO) E_BILL_NO,c.IS_PREPARE, d.ID FID\
+FROM CNTR_REEFINFO C LEFT JOIN \
+ VLOAD_LIST L ON  C.cntr_id = L.cntr_id AND  c.I_E_ID=l.I_E_ID AND C.CNTR = L.CNTR   and ( l.main_flag=1  or  lcl_id=1 )\
+LEFT JOIN CNTR_REEFINFO D  ON  D.POWERON_ID = C.ID\
+WHERE c.TENANCY_ID = 'ZSG' AND C.POWERON_ID IS NULL AND C.OPERTYPE = 'T' \
+{#sql#} \
+\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSGEHELE": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

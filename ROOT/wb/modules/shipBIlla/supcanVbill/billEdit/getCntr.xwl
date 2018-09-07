@@ -1,0 +1,83 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var  jsObject={},ieId=app.get(\"ieId\"),message=\"\",cntrOpt=\"\",TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+\
+// var rs=app.run(\"select  VESSEL_NAME , (case  when {?ieId?}='I' then  IC_CALL else OC_CALL end ) CALL from   PORT_CNTR ,VESSEL_VOYAGE,VESSEL_VISIT where \"+\
+// \"  VESSEL_VOYAGE.ID=VESSEL_VISIT.VID and VESSEL_VISIT.ID=(case  when {?ieId?}='I' then  I_DSHIP_NO else E_DSHIP_NO end ) and CNTR={?cntrNo?} and \"+\
+// \" (case  when {?ieId?}='I' then  I_DSHIP_NO else E_DSHIP_NO end )<>{?vid?} and  PORT_CNTR.TENANCY_ID= '\"+TENANCY_ID+\"' \" );\
+// if(rs.next()){\
+// \tmessage=\"此箱已经存在\"+rs.getString(\"VESSEL_NAME\")+\"航次号\"+rs.getString(\"CALL\")+\"，不能录入舱单<\/br>\";\
+// }\
+var cntrRs=app.run(\"select bill_no from  vload_list where cntr={?cntrNo?} and BILL_NO<>{?billNo?} and vID={?vid?} and tenancy_id='\"+TENANCY_ID+\"'  and lcl_id=0\");\
+if(cntrRs.next()){\
+\tmessage=\"此箱已经存在\"+cntrRs.getString(\"BILL_NO\")+\"，不能录入舱单<\/br>\";\
+}\
+if(ieId=='E'){\
+\tvar rs=app.run(\" select E_F_ID,I_E_ID,CNTR_OPERATOR_COD,CNTR_OWNER_COD,CNTR_OWNER,ID,trade_id from  PORT_CNTR  where  CNTR={?cntrNo?} and TENANCY_ID= '\"+TENANCY_ID+\"' \");\
+if(rs.next()){\
+    cntrOpt=rs.getString(\"CNTR_OPERATOR_COD\");\
+  \
+   jsObject={CNTR_OPERATOR_COD:cntrOpt};\
+\
+  if(rs.getString(\"E_F_ID\")=='F' &&rs.getString(\"I_E_ID\")=='I'){\
+    jsObject.message=\"此柜是进口整柜不能做出口！<\/br>\";\
+    app.send(jsObject);\
+    return;\
+  }\
+    if(rs.getString(\"TRADE_ID\")!=app.get(\"tradeId\")){\
+    jsObject.message=\"柜内外贸属性不符，不能录入舱单！<\/br>\";\
+    app.send(jsObject);\
+    return;\
+  }\
+}\
+else{\
+  message=\"必须在场箱才能出口<\/br>\";\
+  jsObject.message=message;\
+  app.send(jsObject);\
+  return;\
+  }\
+}\
+\
+// var rs=Wb.getRecords(app.run( \"select   CNTR ID,CNTR_ISO ,CNTR_SIZE, CNTR_TYPE,E_F_ID,SEAL_NO  from  VLOAD_LIST  \"+ \
+//           \" where VID={?vid?} and main_flag='1' and CNTR={?cntrNo?} and I_E_ID={?ieId?} and BILL_NO<> {?billNo?} and  TENANCY_ID= '\"+TENANCY_ID+\"' \"));\
+var result=app.run(\" select CNTR_OWNER_COD,CNTR_OWNER, port_cntr.ID ,CNTR_ISO ,CNTR_SIZE, CNTR_TYPE ,E_F_ID,CNTR,SEAL_NO from   port_cntr where    cntr={?cntrNo?} and TENANCY_ID= '\"+TENANCY_ID+\"' and PHASE!='RET' \");\
+\
+if(result.next()){\
+  jsObject={CNTR_OWNER_COD:result.getString(\"CNTR_OWNER_COD\"),CNTR_OWNER:result.getString(\"CNTR_OWNER\"),CNTR_OPERATOR_COD:cntrOpt,CNTR_ID:result.getString('ID'),TYPE:1,CNTR_ISO:result.getString(\"CNTR_ISO\") ,CNTR_SIZE:result.getString(\"CNTR_SIZE\"), \
+            CNTR_TYPE:result.getString(\"CNTR_TYPE\"),E_F_ID:result.getString(\"E_F_ID\"),CNTR:result.getString(\"CNTR\") ,SEAL_NO:result.getString(\"SEAL_NO\")};\
+}\
+else{//新箱子\
+    jsObject={TYPE:0,CNTR_ID:SysUtil.getId()};\
+}\
+\
+  jsObject.message=message;\
+  app.send(jsObject);\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "检验箱信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

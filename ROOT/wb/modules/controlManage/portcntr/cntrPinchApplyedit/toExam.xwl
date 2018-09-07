@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var aid = data.ID;\
+  var map=new HashMap();\
+\
+\
+if (app.get(\"type\")=='FIN' ){\
+app.run(\"update PINCH_CABINET_APPLY set  phase ='FIN',CHECK_BY='\" + username + \"',CHECK_ON=sysdate where id='\" + aid + \"'\");\
+app.run(\"update vload_list  set SPLIT_ID=1 where cntr_id={?CNTR_ID?}  and I_E_ID='E' and lcl_id=1\");\
+app.run(\"update vload_list_d  set SPLIT_ID=1 where cntr_id={?CNTR_ID?}  and I_E_ID='E' and lcl_id=1\");\
+  var rs=app.run(\"select bill_no from vload_list where  cntr_id={?CNTR_ID?} and main_flag=1 and I_E_ID='E' and lcl_id=1  \");\
+  if(rs.next())\
+  {\
+    map.put(\"billNo\",rs.getString(\"BILL_NO\"));//提单号必须是main_flag=1\
+    var result = Wb.newClass(\"dubboForShip\").call(request, map);\
+  }\
+\
+\
+  \
+}else if (app.get(\"type\")=='CNL' ){ \
+app.run(\"update PINCH_CABINET_APPLY set  phase ='CNL',CANCLE_BY='\" + username + \"',CANCLE_ON=sysdate where id='\" + aid + \"'\");\
+app.run(\"update vload_list  set SPLIT_ID=0 where cntr_id={?CNTR_ID?}  and I_E_ID='E' and lcl_id=1\");\
+  app.run(\"update vload_list_d  set SPLIT_ID=0 where cntr_id={?CNTR_ID?}  and I_E_ID='E' and lcl_id=1\");\
+\
+}\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "审核",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,84 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var whereSql = '',TENANCY_ID=app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+var data = app.get();\
+\
+if (nature == '5') //表示驳船\
+  whereSql += \" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\" + govCode + \"' \";\
+// var sql=\"SELECT vbill_head.*,vbill_head_e.CB,vbill_head_e.LH, decode(vbill_head_e.SJ_YP,'1','已发','未发') SJ_YP ,decode(vbill_head_e.YP,'1','已发','未发') YP,vbill_head_e.YD,vbill_head_e.SIGN_DATE,vbill_head_e.KL,CASE WHEN BUZ_ORDER.QD_BY IS NOT NULL THEN 1 WHEN  BUZ_ORDER.QD_BY IS NULL THEN 0 ELSE 0 END QD_BY,  \"+\
+//      \"    (SELECT   wm_concat (cntr_size || '*' || COUNT (1)) \"+\
+//      \"         FROM vload_list \"+\
+//      \"       WHERE vload_list.bill_id = vbill_head.ID  and VID='\"+shipNo+\"'\"+\
+//      \"    GROUP BY cntr_size) CNTRNUMS \"+\
+//   \"  FROM vbill_head,vbill_head_e,BUZ_ORDER where VID='\"+shipNo+\"'  and vbill_head.I_E_ID='\"+ieId+\"'  \"+whereSql+\" and   vbill_head.TENANCY_ID='\"+TENANCY_ID+\"' \"+\
+//  \" and  ( main_flag=1 or vbill_head.lCL_ID=1 ) and PHASE<>'9' and vbill_head.id=vbill_head_e.id(+) and BUZ_ORDER.bill_id(+)=vbill_head.id\";\
+\
+var sql = \"SELECT vbill_head.*,VLOAD_LIST.CNTR,VLOAD_LIST.CNTR_SIZE,VLOAD_LIST.CNTR_TYPE,vbill_head_e.CB,vbill_head_e.LH, decode(vbill_head_e.SJ_YP,'1','已发','未发') SJ_YP ,decode(vbill_head_e.YP,'1','已发','未发') YP,vbill_head_e.YD,vbill_head_e.SIGN_DATE,vbill_head_e.KL,  \" +\
+  \"    (SELECT   wm_concat (cntr_size || '*' || COUNT (1)) \" +\
+  \"         FROM vload_list \" +\
+  \"       WHERE vload_list.bill_id = vbill_head.ID \" +\
+  \"    GROUP BY cntr_size) CNTRNUMS,buz_order.QD_BY,buz_order.QD_ON \" +\
+  \"  FROM vbill_head,vbill_head_e,VESSEL_VISIT,VLOAD_LIST,buz_order  where ( vbill_head.main_flag=1 or vbill_head.lCL_ID=1 ) AND vbill_head.id = buz_order.bill_id(+)  and VBILL_HEAD.PHASE<>'9' and vbill_head_e.id(+)=vbill_head.id and VBILL_HEAD.VID=VESSEL_VISIT.ID(+) and VBILL_HEAD.ID=VLOAD_LIST.BILL_ID(+) and   vbill_head.TENANCY_ID='\"+TENANCY_ID+\"'\" +\
+  \"AND to_char(ETA,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59'\"+whereSql;\
+\
+\
+if (!Wb.isEmpty(data.billType)) {\
+  if (data.billType === 'P')\
+    sql += \" and VBILL_HEAD.BILL_TYPE = '\" + data.billType + \"' \t\";\
+  else\
+    sql += \" and VBILL_HEAD.BILL_TYPE = '\" + data.billType + \"' and  VBILL_HEAD.MAIN_FLAG=1\";\
+} else\
+  sql += \" and (VBILL_HEAD.BILL_TYPE = 'P'\tOR VBILL_HEAD.MAIN_FLAG=1)\";\
+\
+if (!Wb.isEmpty(data.billNo)) {\
+  sql += \" and VBILL_HEAD.BILL_NO LIKE '%'||{?billNo?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.cntrNo)) {\
+  sql += \" and VLOAD_LIST.CNTR LIKE '%'||{?cntrNo?}||'%'\";\
+}\
+\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD)) {\
+  sql += \" and VBILL_HEAD.CNTR_OPERATOR_COD like '%'||{?CNTR_OPERATOR_COD?}||'%'\";\
+}\
+\
+if (!Wb.isEmpty(data.ieId)) {\
+  sql += \" and VBILL_HEAD.I_E_ID ='\" + data.ieId + \"'\t\";\
+}\
+\
+if (!Wb.isEmpty(data.tradeId)) {\
+  sql += \" and VBILL_HEAD.TRADE_ID like '%'||{?tradeId?}||'%'\";\
+}\
+\
+if (!Wb.isEmpty(data.voyageNo)) {\
+  sql += \" and VESSEL_VISIT.VID={?voyageNo?}\";\
+}\
+\
+app.log(sql);\
+var s = Wb.getRecords(app.run(sql));\
+app.send(s);",
+   "loginRequired": "true"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "加载舱单状态",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

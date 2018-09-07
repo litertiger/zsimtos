@@ -1,0 +1,81 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "if (!app.get('file__name').toLowerCase().endsWith('.zip'))\
+  throw '模块文件包格式须为 \".zip\"。';\
+var zipStream = new com.syspatch.zip.ZipInputStream(app.get('file')),\
+  UrlBuffer = com.wb.common.UrlBuffer,\
+  mergeUrl, mergePerm, mergeFolder, urlMap, srcModule, dstModule, z, f, name, urlAdded, relPath;\
+\
+try {\
+  zipStream.fileCharset = Var.getString(\"sys.locale.filenameCharset\");\
+  mergeUrl = app.getBool('mergeUrl');\
+  mergePerm = app.getBool('mergePerm');\
+  mergeFolder = app.getBool('mergeFolder');\
+  while ((z = zipStream.getNextEntry()) !== null) {\
+    name = z.getName();\
+    if (z.isDirectory()) {\
+      name = name.substring(0, name.length() - 1);\
+      f = new File(Base.modulePath, name);\
+      if (!f.exists())\
+        FileUtil.syncCreate(f, true);\
+    } else {\
+      if (!urlMap && name == 'url.json') {\
+        urlMap = getUrlMap(zipStream);\
+        continue;\
+      }\
+      f = new File(Base.modulePath, name);\
+      //导入url捷径\
+      if (mergeUrl && urlMap) {\
+        relPath = FileUtil.getModulePath(f);\
+        url = urlMap[relPath];\
+        if (!Wb.isEmpty(url)) {\
+          if (!urlAdded) urlAdded = true;\
+          UrlBuffer.put(url, relPath);\
+        }\
+      }\
+      if (f.exists()) {\
+        if (name == 'folder.json' || name.endsWith('/folder.json')) {\
+          if (!mergeFolder)\
+            continue;\
+        } else if (!mergePerm && name.endsWith('.xwl')) {\
+          //覆盖模块权限\
+          srcModule = Wb.readJson(f);\
+          dstModule = Wb.decode(StringUtil.getStringA(zipStream));\
+          dstModule.roles = srcModule.roles;\
+          FileUtil.syncSave(f, Wb.encode(dstModule));\
+          continue;\
+        }\
+      } else\
+        FileUtil.syncCreate(f, false);\
+      FileUtil.syncSave(f, StringUtil.getStringA(zipStream));\
+    }\
+  }\
+  if (urlAdded)\
+    UrlBuffer.save();\
+} finally {\
+  zipStream.close();\
+}\
+\
+//获取以文件名为key,url为value的对象\
+function getUrlMap(stream) {\
+  var object = Wb.decode(StringUtil.getStringA(stream));\
+  map = {};\
+  Wb.each(object, function(k, v) {\
+    map[v] = k;\
+  });\
+  return map;\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "导入模块",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,79 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var dispname = app.get(\"sys.dispname\");\
+if (data.iscntr == \"1\") {\
+  var cntr = Wb.getRecords(app.run(\"select cntr from port_cntr where id='\" + data.id + \"'\"));\
+  if (data.col == \"i_e_id\") {\
+    app.run(\"update port_cntr set i_e_id=decode(i_e_id,'I','E','E','I') where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱进出口,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"e_f_id\") {\
+    app.run(\"update port_cntr set e_f_id=decode(e_f_id,'F','E','E','F') where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱空重,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"trade_id\") {\
+    app.run(\"update port_cntr set trade_id=decode(trade_id,'1','2','2','1') where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱内外贸,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"phase\") {\
+    app.run(\"update port_cntr set phase='\" + data.phase + \"' where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱状态为:\" + data.phase + \",箱:\" + cntr[0].CNTR + \",修改人:\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"yard_position\") {\
+    if (data.yard_position == \"null\" || data.yard_position == \"NULL\") {\
+      app.run(\"update port_cntr set yard_position='' where id='\" + data.id + \"'\");\
+      app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱位置为空,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+    } else {\
+      app.run(\"update port_cntr set yard_position='\" + data.yard_position + \"' where id='\" + data.id + \"'\");\
+      app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱位置为'||'\" + data.yard_position + \",箱:'||'\" + cntr[0].CNTR + \"'||',修改人:'||'\" + dispname + \"',sysdate)\");\
+    }\
+  } else if (data.col == \"cntr_operator\") {\
+    app.run(\"update port_cntr set CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"',\" +\
+      \"CNTR_OPERATOR='\" + data.CNTR_OPERATOR + \"' where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改箱代理'||'\" + data.CNTR_OPERATOR + \",箱:'||'\" + cntr[0].CNTR + \"'||',修改人:'||'\" + dispname + \"',sysdate)\");\
+  }\
+} else {\
+  var cntr = Wb.getRecords(app.run(\"select cntr from receipt where id='\" + data.id + \"'\"));\
+  if (data.col == \"phase\") {\
+    app.run(\"update receipt set phase='\" + data.phase + \"' where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改单状态,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"e_f_id\") {\
+    app.run(\"update receipt set e_f_id=decode(e_f_id,'F','E','E','F') where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改单空重,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"work_type\") {\
+    app.run(\"update receipt set work_type='\" + data.WORK_TYPE + \"' where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改单类型,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"f_address\") {\
+    app.run(\"update receipt set f_address='\" + data.F_ADDRESS + \"' where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改单返厂位置,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"cntr_id\") {\
+    app.run(\"update receipt set cntr_id='\" + data.cntr_id + \"' where id='\" + data.id + \"'\");\
+    app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改单cntrid,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+  } else if (data.col == \"dadui\") {\
+    app.run(\"update receipt set rid1='\" + data.rid1 + \"' where id='\" + data.rid + \"'\");\
+    app.run(\"update receipt set rid1='\" + data.rid + \"' where id='\" + data.rid1 + \"'\");\
+  }else if(data.col == \"trade_id\"){\
+  \
+      app.run(\"update receipt set trade_id=decode(trade_id,'1','2','2','1') where  id='\" + data.id + \"'\");\
+      app.run(\"insert into aaa(CAP_XML,create_on) values('特权修改单内外贸属性,箱:'||'\" + cntr[0].CNTR + \",修改人:'||'\" + dispname + \"',sysdate)\");\
+\
+  }\
+}\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

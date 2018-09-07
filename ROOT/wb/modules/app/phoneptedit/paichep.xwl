@@ -1,0 +1,124 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+\
+var old = Wb.getRecords(app.run(\"select * from receipt where id='\" + data.ID + \"'\"));\
+if (old[0].SH == \"1\")\
+  throw \"设备交接单已审核,不能修改\";\
+if (Wb.isEmpty(data.S_ADRESS))\
+  throw \"交货地址不能为空\";\
+if (Wb.isEmpty(data.SHIPPER_WAY))\
+  throw \"承运方式不能为空\";\
+if ((nature == 5 || nature == 6) && (data.SHIPPER_WAY == \"1\" || old[0].SHIPPER_WAY == \"1\"))\
+  throw \"船公司和车队无权派车码头承运的设备交接单\";\
+//验证拖车\
+var sql = \"select * from c_truck where truck_no='\" + data.IN_CAR + \"' and tenancy_id='\" + tenancyid + \"'\";\
+var result = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (result.length < 1)\
+  throw \"车辆\" + data.IN_CAR + \"系统未备案\";\
+sql = \"select * from c_truck where truck_no='\" + data.OUT_CAR + \"' and tenancy_id='\" + tenancyid + \"'\";\
+result = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (result.length < 1)\
+  throw \"车辆\" + data.OUT_CAR + \"系统未备案\";\
+//验证拖卡\
+sql = \"select * from c_tray where tray_no='\" + data.IN_CAMPI + \"' and tenancy_id='\" + tenancyid + \"'\";\
+result = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (result.length < 1)\
+  throw \"拖卡\" + data.IN_CAMPI + \"系统未备案\";\
+sql = \"select * from c_tray where tray_no='\" + data.OUT_CAMPI + \"' and tenancy_id='\" + tenancyid + \"'\";\
+result = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (result.length < 1)\
+  throw \"拖卡\" + data.OUT_CAMPI + \"系统未备案\";\
+//验证司机\
+sql = \"select * from c_driver where empno='\" + data.IN_DRIVER_ID + \"' and tenancy_id='\" + tenancyid + \"'\";\
+result = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (result.length < 1)\
+  throw \"司机\" + data.IN_DRIVER_ID + \"系统未备案\";\
+sql = \"select * from c_driver where empno='\" + data.OUT_DRIVER_ID + \"' and tenancy_id='\" + tenancyid + \"'\";\
+result = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (result.length < 1)\
+  throw \"司机\" + data.OUT_DRIVER_ID + \"系统未备案\";\
+\
+var pt_type = \"\";\
+var carteam = Wb.getRecords(app.run(\"select truck_unit from c_truck where tenancy_id='\" + tenancyid + \"' and truck_no='\" + data.IN_CAR + \"'\"));\
+if (data.SHIPPER_WAY == \"1\") { //码头承运\
+  if (Wb.isEmpty(old[0].SHIP_CONSIGN_COD))\
+    throw \"错误:货主为空\";\
+  if (carteam[0].TRUCK_UNIT == \"HYLY\")\
+    pt_type = \"1\";\
+  else\
+    pt_type = \"2\";\
+} else { //驳船承运\
+  if (carteam[0].TRUCK_UNIT == \"HYLY\" && old[0].CNTR_OPERATOR_COD == \"CK\")\
+    pt_type = \"4\";\
+  else if (data.CAR_TEAM == \"HYLY\" && old[0].CNTR_OPERATOR_COD != \"CK\")\
+    throw \"错误:驳船承运,不能选择码头车辆\";\
+  else if (data.CAR_TEAM != \"HYLY\")\
+    pt_type = \"3\";\
+}\
+//派车\
+app.run(\"update receipt set PHASE=decode(PHASE,'PLN','EXE',PHASE),PC_BY='\" + username + \"',PC_ON=sysdate,\" +\
+  \"IN_CAR='\" + data.IN_CAR + \"',IN_CAMPI='\" + data.IN_CAMPI + \"',IN_DRIVER_ID='\" + data.IN_DRIVER_ID + \"',\" +\
+  \"OUT_CAR='\" + data.OUT_CAR + \"',OUT_CAMPI='\" + data.OUT_CAMPI + \"',OUT_DRIVER_ID='\" + data.OUT_DRIVER_ID + \"',\" +\
+  \"CAR_TEAM=(select truck_unit from c_truck where tenancy_id='\" + tenancyid + \"' and truck_no='\" + data.IN_CAR + \"'),\" +\
+  \"shipper_way=\" + data.SHIPPER_WAY + \",S_ADRESS='\" + data.S_ADRESS + \"',\" +\
+  \"FEI_ADDDRESS=(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id='\" + data.S_ADRESS + \"')\" +\
+  \" where ID='\" + data.ID + \"'\", {\
+    transaction: 'start'\
+  });\
+\
+var acccus = Wb.getRecords(app.run(\"select f_get_defPayer('\" + data.ID + \"')fee from dual\"));\
+app.run(\"update receipt set ACCOUNT_CUSTOMER_CODE='\" + acccus[0].FEE.split(\"@\")[0] + \"',\" +\
+  \"ACCOUNT_CUSTOMER='\" + acccus[0].FEE.split(\"@\")[1] + \"' where id='\" + data.ID + \"'\");\
+\
+app.run(\"update c_truck set TRAY_NO='\" + data.IN_CAMPI + \"',TRUCKER_NO='\" + data.IN_DRIVER_ID + \"',\" +\
+  \"TRUCKER_NAM='\" + data.IN_DRIVER_NAME + \"' where TRUCK_NO='\" + data.IN_CAR + \"'\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+\
+app.run(\"update c_truck set TRAY_NO='\" + data.OUT_CAMPI + \"',TRUCKER_NO='\" + data.OUT_DRIVER_ID + \"',\" +\
+  \"TRUCKER_NAM='\" + data.OUT_DRIVER_NAME + \"' where TRUCK_NO='\" + data.OUT_CAR + \"'\", {\
+    jndi: \"jdbc/basecode\",\
+    transaction: 'commit'\
+  });\
+app.log(\"计费接口\");\
+var map = new HashMap();\
+map.put(\"rpId\", data.RID);\
+Wb.newClass(\"dubboForReceipt\").call(request, map);\
+app.send({\
+  success: true\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "SWB": 1
+ },
+ "title": "派车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

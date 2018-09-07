@@ -1,0 +1,283 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "dockedItems"},
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "tbarGrid",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "sdate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "开始时间",
+          "labelWidth": "80"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "edate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "结束时间",
+          "labelWidth": "80"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "billNo",
+          "labelAlign": "right",
+          "fieldLabel": "提单号",
+          "labelWidth": "60"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "owner",
+          "labelAlign": "right",
+          "fieldLabel": "货主",
+          "displayField": "OWNER",
+          "labelWidth": "40",
+          "anyMatch": "true"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=feeManage/feeReport/BULKZHGZ_BALANCECOPY/OWNER"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "BILL_TYPE",
+          "labelAlign": "right",
+          "fieldLabel": "提单属性",
+          "keyName": "BILL_TYPE",
+          "width": "140",
+          "labelWidth": "65"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "selBtn",
+          "text": "查询",
+          "iconCls": "search_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+AF1.func(\"SeparateView\", \"2 \\r\\
+ 0\"); //前3行上下分屏\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var feeids = \"\";\
+var feegroup = \"\";\
+\
+// var sql = ' AND 1=1';\
+var sql = \" AND H.TENANCY_ID='\" + tenancyid + \"' \" +\
+  \" and V.SHIP_DT>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and V.SHIP_DT<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */ // if (!Wb.isEmpty(app.cboMoney.getValue())) {\
+//   if (app.cboMoney.getValue() == \"1\")\
+//     sql += \" and AD.BUSSINESS_CODE is not null\";\
+//   if (app.cboMoney.getValue() == \"2\")\
+//     sql += \" and AD.BUSSINESS_CODE is null\";\
+// }\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */\
+if (!Wb.isEmpty(app.billNo.getValue())) {\
+  sql += \" AND H.BILL_NO LIKE '%\" + app.billNo.getValue() + \"%'\";\
+}\
+\
+if (!Wb.isEmpty(app.BILL_TYPE.getValue())) {\
+  sql += \" AND H.BILL_TYPE ='\" + app.BILL_TYPE.getValue() + \"'\";\
+}\
+\
+if (!Wb.isEmpty(app.owner.getValue()))\
+  sql += \" AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) LIKE '%\" + app.owner.getValue() + \"%'\";\
+sql += \" AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%迅成船厂%'  AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%迅成船廠%'\";\
+sql += \" AND ( DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%陈彬彬%' and   h.goods_notes not like '%废钢%')\";\
+sql += \"AND DECODE (h.i_e_id,  'I', h.consignee,  'E', h.shipper) NOT LIKE '%中山岩谷%'\";\
+sql+=\" AND NOT EXISTS(SELECT 1 FROM ACCOUNTS_DETAILS WHERE BILL_NO =H.BILL_NO AND PAY_FLAG =1 )\";\
+// sql+=\" AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='\"+tenancyid+\"' and nvl(b.account_type,1)<>2 WHERE ((A.code =DECODE (h.i_e_id,'I', h.consignee_cod,'E', h.shipper_cod ) and DECODE (h.i_e_id,'I', h.consignee,'E', h.shipper) not like '%野村%') or (DECODE (h.i_e_id,'I', h.consignee,'E', h.shipper) like '%野村%') and H.i_e_id='E'))\";\
+sql+=\" AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='\"+tenancyid+\"' and nvl(b.account_type,1)<>2 WHERE A.code =DECODE (h.i_e_id,'I', h.consignee_cod,'E', h.shipper_cod ))\";\
+// sql+=\" AND (H.BILL_TYPE='P' OR (H.BILL_TYPE='S' AND H.I_E_ID='E' AND DECODE (h.i_e_id,'I', h.consignee_COD,'E', h.shipper_COD) IN('000002','000091','000840','ZSYG','YGMY','000303','000802','001029','000825','002003','000050','000559','000072')\t))\";\
+sql+=\" AND (H.BILL_TYPE='P' OR ( H.BILL_TYPE = 'S' AND ((H.I_E_ID = 'I' AND DECODE (h.i_e_id,'I', h.consignee_COD,'E', h.shipper_COD) NOT IN('000002','000091','000840','ZSYG','YGMY','000303','000802','001029','000825','002003','000050','000559','000072','000310','DGDF')) or H.I_E_ID='E')    ))\";\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "array"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    //自动行列汇总\
+    m.func(\"SubscribeEvent\", \"Clicked\");\
+    m.func(\"Build\", '/supcan/report/fee/monthly_balance_ofZHCopy.xml?' + 'version1.16');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&v0.32\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  var AF = document.getElementById(opt);\
+  if (Event == 'WorkSheetSelChanged' && p2 == 0) {\
+    if (p1 == 0) {\
+      AF.func(\"DeleteWorksheet\", \"1\");\
+      if (AF.func(\"GetSources\", \"\").indexOf(\"ds2\"))\
+        AF.func(\"DeleteDS\", \"ds2\");\
+    }\
+\
+  } else if (Event != \"Clicked\")\
+    return;\
+\
+  var sheetIndex = AF.func(\"GetCurrentWorksheet\", \"\");\
+  if (sheetIndex == 0) { //第一个工作表的事件\
+    //过滤 \"科目代码\" 超链接以外的事件\
+    if (p4 != \"HID\") return;\
+    var arr = p3.split(\"@\");\
+    //arr[0]日期arr[1]vid\
+    //切换到第二个工作表：明细表\
+    AF.func(\"appendWorksheet\", \"/supcan/report/fee_report/bill_details.xml \\r\\
+ sheetName=222222; isOpenDialog=true\");\
+    AF.func(\"SetWorksheetName\", \"2 \\r\\
+ 舱单明细\");\
+    AF.func(\"SetCellData\", \"A1 \\r\\
+\" + arr[0].split(\" \")[0] + \"舱单明细\");\
+    var whereSql = \" and trunc(VV.CREATED_ON) =to_date(\" + arr[0] + \",'yyyy-MM-dd') and vv.id='\" + arr[1] + \"'\";\
+    AF.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql + \";eeee=\" + new Date() + \";tenancyId=\" + tenancyid);\
+    AF.func(\"calc\", \"range=current\");\
+  }\
+};\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */\
+var today = new Date();\
+var year = today.getFullYear();\
+var month = today.getMonth() + 1;\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "中航高珠散拼结算表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

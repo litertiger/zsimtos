@@ -1,0 +1,80 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "sys.dialog.openFile"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "win",
+    "dialog": "true",
+    "focusControl": "fileNameText",
+    "resizable": "true",
+    "width": "1000",
+    "title": "选择文件",
+    "iconCls": "explorer_icon",
+    "height": "450",
+    "maximizable": "true"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "fileModule",
+     "file": "file"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "xwl"
+   }],
+   "type": "window",
+   "events": {
+    "hide": "Ext.callback(app.hideEvent, app, [app]);",
+    "afterrender": "app.fileModule.fileNameBar.setVisible(true);\
+app.fileModule.statusBar.setVisible(false);\
+app.fileModule.dblClickFileHandler = app.done;",
+    "show": "Ext.callback(app.showEvent, app, [app]);",
+    "ok": "app.done();"
+   }
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  show: function(callback, params) {\
+    var selModel = app.fileModule.fileGrid.selModel;\
+    selModel.deselectAll();\
+    selModel.setSelectionMode(params.multiSelect ? 'MULTI' : 'SINGLE');\
+    app.multiSelect = params.multiSelect;\
+    app.fileModule.multiSelect = params.multiSelect;\
+    app.fileModule.fileNameText.forceSelection = params.forceSelection;\
+    app.fileModule.fileNameText.setValue('');\
+    app.showEvent = params.show;\
+    app.hideEvent = params.hide;\
+    app.callback = callback;\
+    app.autoClose = params.autoClose;\
+    app.extName = params.extName;\
+    if (params.title)\
+      app.win.setTitle(params.title);\
+    else\
+      app.win.setTitle('选择文件');\
+    app.win.show();\
+    if (params.file)\
+      app.fileModule.selectPath(Wb.getPath(params.file));\
+  },\
+  done: function() {\
+    if (app.fileModule.fileNameText.getValue()) {\
+      var filenames = app.fileModule.getFileNames(app.extName);\
+      if (!app.multiSelect)\
+        filenames = filenames[0];\
+      Ext.callback(app.callback, app, [filenames, app.win]);\
+      if (Wb.getBool(app.autoClose, true))\
+        app.win.close();\
+    } else\
+      Wb.warn('文件名称不能为空。');\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "打开对话框",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

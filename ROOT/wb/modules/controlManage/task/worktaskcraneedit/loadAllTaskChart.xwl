@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "if (!Ag.lastTaskUpdate || (new Date() - Ag.lastTaskUpdate) > 50000) {\
+  var cat = Ag.getResultObj(app.run(\"select sys_key ,sys_value from s_code where sys_category='TASK_TYPE'\", {\
+    jndi: \"jdbc/basecode\"\
+  }));\
+  var rows = [];\
+  for (var key in cat) {\
+    rows.push({\
+      CAT: cat[key],\
+      PLN: 0,\
+      SND: 0,\
+      TMP: 0,\
+      EXE: 0,\
+      FIN: 0\
+    });\
+  }\
+  var result = app.run(\"select t.task_type cat,m.phase,count(0) num from move_list m,task t where t.tenancy_id={?sys.TENANCY_ID?} and t.id=m.queue_id and m.move_type='MOV' and trunc(nvl(t.end_execute,sysdate))=trunc(sysdate) group by t.task_type,m.phase\");\
+  var set = Ag.getResultSet(result);\
+  set.metaData.fields = [\"CAT\", \"PLN\", \"SND\", 'TMP', 'EXE', 'FIN'];\
+  set.rows = set.rows.reduce(function(arr, row) {\
+    var find = false;\
+    for (var i in arr) {\
+      if (arr[i].CAT === cat[row.CAT]) {\
+        find = true;\
+        arr[i][row.PHASE] = row.NUM;\
+        break;\
+      }\
+    }\
+    return arr;\
+  }, rows);\
+  Ag.taskResult = set;\
+  Ag.lastTaskUpdate = new Date();\
+}\
+\
+app.send(Ag.taskResult);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "加载加载全码头任务进度柱状图",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

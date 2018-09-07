@@ -1,0 +1,191 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//var jsonStr = Wb.newClass(\"billService\").callBillFee(request,\"GF2017757601B\",\"BSIU9623307\",\"0107\");\
+//var jsonStr = Wb.newClass(\"billService\").callBillFee(request,\"GF2017757601B\");\
+\
+\
+//var jsonStr = Wb.newClass(\"storeRecordService\").callBillFee(request,\"0043DIJSVV88F\");\
+//app.log(jsonStr);\
+\
+var map = new HashMap();\
+var result;\
+/**舱单\
+//按传入条件计算费用并写入计费明细\
+//map.put(\"vid\", \"11ff14fb-2199-4d97-ba3e-a8b4bb93d84e\");\
+//map.put(\"ieId\", \"I\");\
+map.put(\"billNo\", \"03CK180809523\");\
+var result = Wb.newClass(\"dubboForShip\").call(request, map);*/\
+\
+//散货舱单\
+//map.put(\"vid\", \"59D21A7814193A35E050A8C0666F1831\");\
+//map.put(\"billNo\", \"TM2017091156\");\
+//map.put(\"ieId\", \"I\");\
+//Wb.newClass(\"dubboForShip\").call(request, map);\
+\
+//map.put(\"billNo\", \"03ES170816911\");\
+\
+//费用查询\
+/*按传入条件计算费用并返回json串，不写入计费明细\
+map.put(\"billNo\", \"CK2017685001\");\
+map.put(\"itemId\", \"0101\");\
+map.put(\"cntr\", null);\
+var feeDetail = Wb.newClass(\"dubboForShip\").findFeeByItemId(request, map);\
+app.send(feeDetail);*/\
+/**舱单费调用\
+//map.put(\"billNo\", \"HU20170630101\");\
+map.put(\"cntr\", \"WINU9080563\");\
+map.put(\"shipperId\", \"1702060001CU\");\
+var ids = Wb.newClass(\"dubboForShip\").callBackFeeId(request, map);\
+app.log(ids);*/\
+/**重箱堆存\
+map.put(\"billNo\", \"GF2018814006\");\
+map.put(\"lclId\", \"0\");\
+map.put(\"cntr\", \"TRLU8104159,\");\
+map.put(\"planTime\", \"2018-03-28\");\
+Wb.newClass(\"dubboForCargoStore\").call(request,map);*/\
+//var ids = Wb.newClass(\"dubboForCargoStore\").callBackFeeId(request,map);\
+//app.log(ids);\
+/**出闸确认\
+map.put(\"billNo\", \"TM2018011171\");\
+map.put(\"cntr\", \"KWLU2151793\");\
+//map.put(\"planTime\", \"2018-01-28\");\
+var result = Wb.newClass(\"dubboForCargoStore\").checkFeeByTakeOut(request,map);\
+app.log(result);*/\
+\
+/**外贸空箱堆存\
+map.put(\"companyId\", \"ES\");\
+map.put(\"timeOn\", \"2018-04-01\");\
+map.put(\"timeEnd\",\"2018-04-30\");\
+map.put(\"tradeId\", \"1\");\
+map.put(\"cntr\", \"WHSU5097970\");\
+result = Wb.newClass(\"dubboForFreeStore\").call(request, map);*/\
+\
+/**内贸堆存\
+map.put(\"companyId\", \"HD\");\
+map.put(\"timeOn\", \"2018-05-01\");\
+map.put(\"timeEnd\",\"2018-05-31\");\
+map.put(\"tradeId\", \"2\");\
+//map.put(\"cntr\", \"WHSU5097970\");\
+result = Wb.newClass(\"dubboForInnerStore\").call(request, map);\
+*/\
+\
+/**拼柜散货堆存\
+map.put(\"billNo\", \"WA2018032042P\");\
+map.put(\"planTime\", \"2018-03-23\");\
+map.put(\"lclId\", \"1\");\
+Wb.newClass(\"dubboForCargoStore\").call(request,map);*/\
+\
+/**大宗（拼柜）散货堆存*/\
+// map.put(\"billNo\", \"03ES180524121\");//提单号\
+// map.put(\"planTime\", \"2018-05-29 17:45:08\");//预提时间，可空系统默认当前时间\
+// map.put(\"lclId\", \"1\");//堆存类别0=整柜1=散货和拼柜\
+// map.put(\"weight\", \"561\");//重量\
+// map.put(\"volume\", \"2.49\");//体积\
+// map.put(\"outStoreId\", \"6D50D2A07E2812F0E0530C03A8C0DB55\");//出库编号\
+// result = Wb.newClass(\"dubboForCargoStore\").call(request,map);\
+\
+/**拖运费\
+//map.put(\"rpId\", \"4f09114f-8fc0-4695-a2e7-7704fb3c8804\");\
+map.put(\"rpId\", \"38643720-b2c0-430d-9c90-05f8e176f5f8\");\
+result = Wb.newClass(\"dubboForReceipt\").call(request,map);*/\
+\
+/*批量整船计费\
+var sql = \"select ID, I_E from VESSEL_VISIT where TENANCY_ID='ZSG' \"+\
+    \"and eta>to_date('2018-05-02 00:00:00','yyyy-MM-dd HH24:mi:ss') \"+\
+     \"and eta<to_date('2018-05-31 23:59:59','yyyy-MM-dd HH24:mi:ss') \"+\
+    \" and EXISTS \"+\
+\"(SELECT 1 FROM vbill_head \"+\
+\"WHERE vid=VESSEL_VISIT.id AND BILL_TYPE='P' AND trade_id=1 AND I_E='E')\";\
+     //\" and ((I_E='I' and ITRADE_ID='2') or (I_E='E' and ETRADE_ID='2'))\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  //java.lang.Thread.sleep(5000);\
+  map.put(\"vid\", data.ID);\
+  map.put(\"ieId\", data.I_E);\
+  result += Wb.newClass(\"dubboForShip\").call(request, map);\
+});*/\
+/*批量设备单计费\
+var sql = \"select ID from RECEIPT where TENANCY_ID='ZSG' \"+\
+    \"and created_on>to_date('2018-05-01 00:00:00','yyyy-MM-dd HH24:mi:ss') \"+\
+     \"and created_on<to_date('2018-05-31 23:59:59','yyyy-MM-dd HH24:mi:ss')\"+\
+    \" and work_type='EITC' and pt_type=1 and trade_id=1\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  //java.lang.Thread.sleep(2000);\
+  map.put(\"rpId\", data.ID);\
+  result += Wb.newClass(\"dubboForReceipt\").call(request, map);\
+});*/\
+\
+/**插电费*/\
+//map.put(\"billNo\", \"03ES180528076\");\
+//map.put(\"cntr\", \"TRIU8896278\");\
+map.put(\"cntrId\", \"719F76BB3B5CDA98E0530C03A8C087CC\");\
+map.put(\"ieId\", \"I\");\
+result=Wb.newClass(\"dubboForMarkCool\").call(request,map);\
+\
+/**设备单转关计空箱费\
+map.put(\"rpId\", \"e7790d92-f11b-4823-be64-939d01136f3c\");\
+Wb.newClass(\"dubboForLandTC\").call(request,map);*/\
+\
+/**整柜拆入库\
+map.put(\"billNo\", \"GF2018819407\");\
+map.put(\"cntr\", \"OOLU0105415,\");\
+map.put(\"isStorage\", \"1\");\
+Wb.newClass(\"dubboForShip\").call(request, map);*/\
+\
+/**散货拖运（rpId是BLUK_TRUCK_M主键）\
+map.put(\"rpId\", \"9047ffad-4e86-4478-9d3f-1ca382c01a96\");\
+var result = Wb.newClass(\"dubboForBulkCar\").call(request, map);\
+*/\
+/**\
+*未计费设备单费用重计\
+\
+var sql = \
+\"SELECT r.ID\"+\
+  \" FROM RECEIPT r\"+\
+ \" WHERE r.work_type in ('EOEI','EOFI','FOEI','FOFI')\"+\
+       \" AND r.TENANCY_ID = 'ZSG'\"+\
+       \" AND NOT EXISTS\"+\
+              \" (SELECT BUSSINESS_CODE\"+\
+                \" FROM ACCOUNTS_DETAILS\"+\
+                \" WHERE TENANCY_ID = 'ZSG' AND BUSSINESS_CODE = r.id)\"+\
+       \" AND  GATEOUT_TIME_T IS NOT NULL \"+\
+       \" AND r.GATEOUT_TIME_T >= TO_DATE ('2018-05-01 00:00:00', 'yyyy-mm-dd hh24:mi:ss')\"+\
+       \" AND R.GATEOUT_TIME_T <=   TO_DATE ('2018-05-31 00:00:00', 'yyyy-mm-dd hh24:mi:ss')\"+\
+       \" and r.TRADE_ID = 1 AND S_ADRESS IS NOT NULL AND FEI_ADDDRESS IS NOT NULL AND S_ADRESS<>'大冲' \";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  //java.lang.Thread.sleep(2000);\
+  map.put(\"rpId\", data.ID);\
+  Wb.newClass(\"dubboForReceipt\").call(request, map);\
+});\
+*/\
+/**/\
+if(result.success === true){\
+  app.send(\"计费成功!\");\
+}else{\
+  app.send(result.msg);\
+}\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

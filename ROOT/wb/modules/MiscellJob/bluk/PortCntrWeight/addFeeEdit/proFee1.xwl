@@ -1,0 +1,95 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var javaDate = new JavaDate();\
+var data = app.get();\
+var tenancyId = app.get('sys.TENANCY_ID'), //cboP 发票类型  txtSETTLEMENT_CODE 发票号 ACCOUNT_CUSTOMER_ID 发票抬头\
+  feeId = app.get(\"feeId\"),\
+  cboP = app.get('cboP'),\
+  txtSETTLEMENT_CODE = app.get('txtSETTLEMENT_CODE'),\
+  ACCOUNT_CUSTOMER_ID = app.get('ACCOUNT_CUSTOMER_ID'),\
+  zdId = tenancyId + \"\" + DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  fPId = tenancyId + \"FP\" + DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  cod = app.get(\"cod\"),\
+  name = app.get(\"name\"),\
+  username = app.get(\"sys.username\");\
+app.log(\"ACCOUNT_CUSTOMER_ID:\" + ACCOUNT_CUSTOMER_ID);\
+app.log(\"txtSETTLEMENT_CODE:\" + txtSETTLEMENT_CODE);\
+app.log(\"cboP:\" + cboP);\
+app.log(\"name:\" + name);\
+app.log(\"cod:\" + cod);\
+app.log(\"BILL_NO:\" + data.BILL_NO);\
+\
+var arrayData = new Array();\
+var datas = Wb.decode(data.datas);\
+var l = Wb.getRecords(app.run(\"select INVOICE_TYPE from accounts_details group by INVOICE_TYPE where ID in(\" + feeId + \")\"));\
+for (var i = 0; i < l.length; i++) {\
+  var id = SysUtil.getId();\
+  if (s[i].INVOICE_TYPE == datas[i].INVOICE_TYPE) {\
+    arrayData.push({\
+      csbId: id,\
+      fee_id: datas[i].ID,\
+      INVOICE_TYPE: invoiceType[i]\
+    });\
+  }\
+}\
+\
+\
+//   app.run(\"INSERT INTO c_settlement_body \" +\
+//     \"    (ID, invoice_name, unit, actual_count, no_tax_rate, no_tax_amount,\" +\
+//     \"     tax_rate, tax_amount, total_amount, remark, tenancy_id,\" +\
+//     \"      invoice_type, bill_no, created_by, created_on, updated_by,\" +\
+//     \"     updated_on, enabled, account_customer_id, payment_type,\" +\
+//     \"      settle_status)\" +\
+//     \"  SELECT '\" + zdId + \"', '\" + name + \"'||'现金开票', '0', '1', SUM (amount), SUM (amount), 6,\" +\
+//     \"         SUM (amount) * 6 / 100,  SUM (amount),'', '\" + tenancyId + \"', '2', '\" + data.BILL_NO + \"',\" +\
+//     \"         '\" + username + \"', SYSDATE, '\" + username + \"', SYSDATE, '1',\" +\
+//     \"          '\" + cod + \"', '1', '2'\" +\
+//     \"    FROM accounts_details\" +\
+//     \"  WHERE ID in(\" + feeId + \") \");\
+\
+//   app.run(\"insert into   C_SETTLEMENT_DETAIL (ID, DETAILS_ID, TENANCY_ID, BODY_ID) \" +\
+//     \" select sys_guid(),ID,'\" + tenancyId + \"', '\" + zdId + \"' from accounts_details WHERE ID in(\" + feeId + \") \");\
+\
+//   // app.run(\"INSERT INTO C_SETTLEMENT_HEAD \"+\
+//   //         \"     (ID, ACCOUNT_CUSTOMER_ID, PAYMENT_CUSTOMER_ID, SETTLEMENT_CODE,\"+\
+//   //         \"     PAYMENT_TYPE, TOTAL_AMOUNT, SETTLEMENT_STATUS, MERGE_TO, ENABLED,\"+\
+//   //         \"     IS_MANUAL, TICKET_DATE, TENANCY_ID, INVOICE_STATUS, INVOICE_TYPE,\"+\
+//   //         \"     BILL_NO, SETTLE_BY, SETTLE_ON, DELETE_BY, DELETE_ON, TAX_RATE,\"+\
+//   //         \"     INVOICE_CODE)\"+\
+//   //   \" SELECT '\"+fPId+\"','\"+eval(cod)+\"','\"+eval(cod)+\"','\"+txtSETTLEMENT_CODE+\"','0',sum(AMOUNT),'1','','1','1',sysdate,'\"+tenancyId+\"','1',\"+\
+//   //   \" 0,'\"+data.BILL_NO+\"','\"+username+\"',sysdate,'',null,6,''\"+\
+//   //   \"   FROM ACCOUNTS_DETAILS\"+\
+//   //   \"  WHERE ID in(\"+feeId+\")\");\
+\
+//   app.run(\"INSERT INTO C_SETTLEMENT_HEAD \" +\
+//     \"     (ID, ACCOUNT_CUSTOMER_ID, PAYMENT_CUSTOMER_ID, SETTLEMENT_CODE,\" +\
+//     \"     PAYMENT_TYPE, TOTAL_AMOUNT, SETTLEMENT_STATUS, MERGE_TO, ENABLED,\" +\
+//     \"     IS_MANUAL, TICKET_DATE, TENANCY_ID, INVOICE_STATUS, INVOICE_TYPE,\" +\
+//     \"     BILL_NO, SETTLE_BY, SETTLE_ON, DELETE_BY, DELETE_ON, TAX_RATE,\" +\
+//     \"     INVOICE_CODE)\" +\
+//     \" SELECT '\" + fPId + \"','\" + ACCOUNT_CUSTOMER_ID + \"','\" + ACCOUNT_CUSTOMER_ID + \"','\" + txtSETTLEMENT_CODE + \"','0',sum(AMOUNT),'1','','1','1',sysdate,'\" + tenancyId + \"','1',\" +\
+//     \" 0,'\" + data.BILL_NO + \"','\" + username + \"',sysdate,'',null,6,''\" +\
+//     \"   FROM ACCOUNTS_DETAILS\" +\
+//     \"  WHERE ID in(\" + feeId + \")\");\
+\
+//   app.run(\"insert into  C_SETTLEMENT_HEAD_CONTACT (ID, HEAD_ID, BODY_ID, TENANCY_ID)\" +\
+//     \" values( sys_guid(),'\" + fPId + \"','\" + zdId + \"','\" + tenancyId + \"')\");\
+\
+//   app.run(\"update ACCOUNTS_DETAILS set SETTLE_STATUS=2,PAY_FLAG=1,SETTLEMENT_CODE='\" + txtSETTLEMENT_CODE + \"',SETTLE_ON=SYSDATE,SETTLE_BY='\" + username + \"' where ID IN(\" + feeId + \")\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "生成账单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,75 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, tenancyId = app.get('sys.TENANCT_ID')===null?'ZSG':app.get('sys.TENANCT_ID'),ID=app.get(\"ID\"),val='@',\
+  cod = app.get('cod'),name=app.get('name'),type=app.get('type');\
+\
+app.log(tenancyId);\
+\
+var fldId=app.get(\"fldId\"),sql;\
+if(type==='1')//增加\
+ {sql =\" update C_CONTRACT_ITEM_RULE_CONDITION  set  COMPARE_VAL=decode(nvl(COMPARE_VAL,'@'),'@','',COMPARE_VAL||',')||'\"+cod+\"',\"+\
+       \"  COMPARE_NAME= decode(nvl(COMPARE_NAME,'@'),'@','',COMPARE_NAME||',')||'\"+name+\"' where  ID='\"+ID+\"' \";\
+app.run(sql);\
+}\
+  else {\
+    \
+    \
+      var rs=app.run(\"select  ','||COMPARE_VAL||',' COMPARE_VAL, ','||COMPARE_NAME||',' COMPARE_NAME  from C_CONTRACT_ITEM_RULE_CONDITION where  id='\"+ID+\"' \");\
+    if(rs.next())\
+    {\
+      var  COMPARE_VAL=rs.getString(\"COMPARE_VAL\");\
+      var  COMPARE_NAME=rs.getString(\"COMPARE_NAME\");\
+       \
+       COMPARE_VAL=COMPARE_VAL.replace( ','+cod+',',\",\");\
+       COMPARE_NAME=COMPARE_NAME.replace( ','+name+',',\",\");\
+        app.log(\"2222222=\"+COMPARE_NAME);\
+      var  valarray=COMPARE_VAL.split(',');\
+      var  namearray=COMPARE_NAME.split(',');\
+        \
+\t\t\tvar COMPARE_VAL=\"\",COMPARE_NAME=\"\";\
+      for(var  i=0;i< valarray.length;i++)\
+      {\
+//         app.log(Wb.isEmpty(valarray[i]));\
+          if(!Wb.isEmpty(valarray[i]))\
+              COMPARE_VAL+=valarray[i]+\",\";\
+      }\
+        for(var  i=0;i< namearray.length;i++)\
+      {\
+          if(!Wb.isEmpty(namearray[i]))\
+              COMPARE_NAME+=namearray[i]+\",\";\
+      }\
+//               app.log(\"44444=\"+COMPARE_NAME);\
+\
+      COMPARE_VAL=COMPARE_VAL.substr(0,COMPARE_VAL.length()-1);\
+      COMPARE_NAME=COMPARE_NAME.substr(0,COMPARE_NAME.length()-1);\
+//         app.log(\"44444=\"+COMPARE_NAME);\
+\
+    }\
+    sql=\" update C_CONTRACT_ITEM_RULE_CONDITION  set  COMPARE_VAL='\"+COMPARE_VAL+\"',\"+\
+      \"   COMPARE_NAME='\"+COMPARE_NAME+\"'     where  ID='\"+ID+\"' \";\
+    app.run(sql);\
+\
+  }\
+\
+\
+\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "修改费率设置",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

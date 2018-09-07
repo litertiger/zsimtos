@@ -1,0 +1,65 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var billId = app.get('billId');\
+var username = app.get(\"sys.username\"),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+// var rs=Wb.getRecords(app.run(\"select nvl(IPIECES,0) IPIECES from BLUK_BILL WHERE BILL_ID={?ID?}\")),num=0;\
+// for(var i=0;i<rs.length;i++){\
+// \tnum+=rs[i].IPIECES;\
+// }\
+// if(rs.length==0){\
+// \tnum=0;\
+// }\
+\
+var rs=app.run(\"select sum(nvl(quty,0)) quty from bluk_goods where bill_id={?ID?}\"),num=0;\
+while(rs.next()){\
+\tnum=rs.getInt('QUTY');\
+}\
+app.run(\"select 1 from vbill_head where pieces=\"+num+\" and ID={?ID?} \",{errorText:\"已经全部入库！\"});\
+\
+var rb=Wb.getRecords(app.run(\"select CFSBILL_ID from bluk_bill where (LOCATION is null or IPIECES is null) and bill_id={?ID?}\")),ids=\"\";\
+for(var i=0;i<rb.length;i++){\
+  ids+=\"'\"+rb[i].CFSBILL_ID+\"',\";\
+}\
+if(rb.length==0){\
+\tids=\"''\";\
+}else{\
+\tids=ids.slice(0,ids.length-1);\
+  app.run(\"delete from bluk_bill where CFSBILL_ID in (\"+ids+\")\");\
+}\
+\
+\
+\
+\
+app.run(\"INSERT INTO BLUK_BILL \" +\
+  \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, IPIECES,\" +\
+  \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+  \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+  \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID,PIECES,CNTR)\" +\
+  \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+  \"        VBILL_HEAD.PIECES-\"+num+\" PIECES , VLOAD_LIST.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+  \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+  \"        VLOAD_LIST.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,'OTP',VBILL_HEAD.PIECES,VLOAD_LIST.CNTR  \" +\
+  \"   FROM VLOAD_LIST, VBILL_HEAD \" +\
+  \"   WHERE VLOAD_LIST.BILL_ID = VBILL_HEAD.id  and  VBILL_HEAD.ID ={?ID?} \" +\
+  \"  and  VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'   \" );\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "按照单确认入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

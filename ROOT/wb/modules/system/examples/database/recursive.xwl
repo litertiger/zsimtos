@@ -1,0 +1,87 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "quoted": "true",
+     "itemId": "text",
+     "text": "本例以SQL Server数据库为例演示基于SQL的递归查询，其他数据库请参考各自手册。\
+请在数据库浏览器中分别创建下述两个数据库函数：\
+--查询指定部门id及其所有子部门记录函数:\
+create function getDept(@dept_id numeric(3))\
+returns table\
+as\
+return (with dept_view as(\
+select DEPT_ID, DEPT_NAME, PARENT_DEPT from WB_EMP_DEPT WHERE DEPT_ID=@dept_id\
+union all\
+select a.DEPT_ID, a.DEPT_NAME, a.PARENT_DEPT FROM WB_EMP_DEPT as a, dept_view as b WHERE a.PARENT_DEPT=b.DEPT_ID\
+)\
+select * from dept_view\
+);\
+--查询部门路径函数：\
+create function getDeptPath(@dept_id numeric(3))\
+returns nvarchar(1000)\
+as\
+begin\
+declare @dept_name as nvarchar(1000)\
+select @dept_name = DEPT_NAME from WB_EMP_DEPT where DEPT_ID = @dept_id\
+while exists (select 1 from WB_EMP_DEPT where DEPT_ID = @dept_id and PARENT_DEPT <> -1)\
+begin\
+select @dept_id = b.DEPT_ID, @dept_name = b.DEPT_NAME + '->' + @dept_name from WB_EMP_DEPT a, WB_EMP_DEPT b\
+where a.DEPT_ID = @dept_id and a.PARENT_DEPT = b.DEPT_ID\
+end\
+return @dept_name\
+end;\
+\
+--查询部门编号为15及其所有子部门的记录\
+var sb = new StringBuilder(),\
+  addComma = false,\
+  rs = app.run('select * from getDept(15)');\
+while (rs.next()) {\
+  if (addComma)\
+    sb.append(',');\
+  else\
+    addComma = true;\
+  sb.append(rs.getString('DEPT_NAME'));\
+}\
+--查询部门编号为10的路径\
+rs = app.run('select dbo.getDeptPath(10)');\
+rs.next();\
+sb.append('\\
+路径为：' + rs.getString(1));\
+app.send(sb);"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "string"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "xwl1",
+      "file": "m?xwl=system/sys/dialog/dev/script-editor"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "xwl"
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "app.xwl1.setValue(\"{#text#}\", 'txt', true);"}
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "递归查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

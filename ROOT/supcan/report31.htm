@@ -1,0 +1,77 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ AF.func("Build", "report/xmlsheet2.xml");
+}
+</script>
+</head>
+
+<body topmargin=4>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.和上一个demo差不多，但有多个下拉条件，且这2个下拉之间还有逻辑关系。最终是在点击快捷“开始查询”后执行查询的;<br>
+<b>2</b>: 报表是从数据源实时加载。技术实现请参考下面的“技术分析区”.</td>
+</tr></table>
+
+<div style="position:relative;width:98%;height:480px">
+	<script>insertReport('AF', 'separatebar=40%')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1.字典</b><br>
+　　报表中共有2个字典：区域和国家， “区域”字典是手工输入的，直接设死了；而“国家”字典则来自数据源ds2，ds2数据源是带参数的，这个参数的含义是区域，例如欧洲、亚洲：<br>
+<center><img src='res/illu28.png'></center>
+<br><br>
+
+<b>2."区域"下拉</b><br>
+　　D2单元格采用了下拉、“区域”字典：<br>
+<center><img src='res/illu29.png'></center>
+注：不能选“下拉后需自动计算”，因为是多条件的.<br>
+<br><br>
+
+<b>3.“国家”下拉</b><br>
+　　F2单元格选择了国家的字典，由于国家字典是带1个参数的，所以需要输入参数，我们输入了“D2”，表示内容来自D2单元格：<br>
+<center><img src='res/illu30.png'></center>
+　　可见，F2单元格和D2单元格建立了关联，一旦“区域”有变动，“国家”字典和下拉内容也会跟着刷新：动态从数据源中获得数据.<br>
+<br><br>
+
+<b>4.取数公式</b><br>
+　　B4单元格输入了取数公式，它将发起数据源的取数请求：<br>
+　　　　<b>=datarow('ds1',F2,H2)</b><br>
+　　可见，ds1数据源有2个参数：“国家”和“仅100吨以上的货物”，其内容分别取自F2单元格和H2单元格。<br>
+　　F2单元格即下拉的“国家”；H2单元格为复选框(Checkbox)，它的数值是0或1。<br>
+<br><br>
+
+
+<b>5.“超链接”处理</b><br>
+　　“开始查询”单元格设为超链接，超链接的设置你可以看下：<br>
+<center><img src='res/illu31.png'></center>
+<br><br>
+
+
+<b>6.后端的服务</b><br>
+　　请参见 <a href="reportdata/GetOrder3.aspx.txt" target=_blank>C#源码</a>，它模拟了从数据库取数.<br>
+<br><br>
+
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

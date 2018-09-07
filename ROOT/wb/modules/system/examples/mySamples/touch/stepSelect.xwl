@@ -1,0 +1,90 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "viewport1"},
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "trade",
+      "autoSelect": "true",
+      "options": "[{text:'内贸',value:'内'},{text:'外贸',value:'外'}]",
+      "label": "内外贸",
+      "clearIcon": "false",
+      "docked": "top"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "tselect",
+     "events": {"change": "var s = app.area.getStore();\
+s.filter('trade',newValue,true);"}
+    },
+    {
+     "configs": {
+      "itemId": "area",
+      "autoSelect": "true",
+      "displayField": "name",
+      "label": "区域",
+      "valueField": "id",
+      "clearIcon": "false",
+      "docked": "top"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "fields": "['id','name','trade']"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "tstore"
+     }],
+     "type": "tselect",
+     "events": {"change": "var s = app.addr.getStore();\
+s.filter('ARID',newValue);"}
+    },
+    {
+     "configs": {
+      "itemId": "addr",
+      "autoSelect": "true",
+      "displayField": "NAME",
+      "label": "地址",
+      "valueField": "ID",
+      "clearIcon": "false",
+      "docked": "top"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "createInstance": "true",
+       "autoLoad": "true",
+       "pageSize": "1000",
+       "url": "m?xwl=receiptInout/receipt/receiptedit/selectADRESS"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "tstore",
+      "events": {"load": "var area= [];\
+store.each(function(r){\
+  if(!Ext.Array.some(area,function(a){ return a.id == r.data.ARID;}))\
+    area.push({id:r.data.ARID,name:r.data.AREANAME,trade:r.data.TRADE_ID});\
+});\
+app.area.updateOptions(area);"}
+     }],
+     "type": "tselect"
+    }
+   ],
+   "type": "tviewport"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

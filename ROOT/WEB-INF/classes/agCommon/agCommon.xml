@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="agCommon">
+    <!-- 查询子系统-->
+    <select id="selectRole" resultType="map" parameterType="Map">
+         SELECT *
+            FROM wb_menu
+           WHERE menu_id IN
+                    (SELECT DISTINCT parent_menu
+                       FROM wb_menu wm, wb_role_resource wrr
+                      WHERE     wm.menu_id = wrr.menu_id
+                            AND wrr.role_id = #{roleId,jdbcType=VARCHAR}
+                            AND wm.parent_menu IN
+                                   (SELECT menu_id
+                                      FROM wb_menu
+                                     WHERE parent_menu =#{menuida,jdbcType=VARCHAR}AND menu_type = '0'))
+        ORDER BY order_index
+    </select>
+    <!-- 基础查询子系统-->
+    <select id="selectRole1" resultType="map" parameterType="Map">
+        select wm.*,role_id from wb_menu wm,wb_role_resource wrr where wm.menu_id=wrr.menu_id
+        and wm.parent_menu = #{menuId,jdbcType=VARCHAR} and wrr.role_id= #{roleId,jdbcType=VARCHAR}
+        order by order_index
+    </select>
+    <!-- -->
+    <select id="selectRoleA" resultType="map" parameterType="Map">
+        SELECT *
+            FROM wb_menu
+           WHERE menu_id IN
+                    (SELECT DISTINCT parent_menu
+                       FROM wb_menu wm, wb_role_resource wrr
+                      WHERE     wm.menu_id = wrr.menu_id
+                            AND wrr.role_id IN (SELECT role_id
+                                                  FROM wb_user_role
+                                                 WHERE user_id = #{userId,jdbcType=VARCHAR})
+                            AND wm.parent_menu IN
+                                   (SELECT menu_id
+                                      FROM wb_menu
+                                     WHERE     parent_menu = #{menuida,jdbcType=VARCHAR}
+                                           AND menu_type = '0'))
+        ORDER BY order_index
+    </select>
+    <select id="selectRoleA1" resultType="map" parameterType="Map">
+         SELECT DISTINCT wm.*, role_id
+            FROM wb_menu wm, wb_role_resource wrr
+           WHERE     wm.menu_id = wrr.menu_id
+                 AND wm.parent_menu = #{menuId,jdbcType=VARCHAR}
+                 AND wrr.role_id IN (SELECT role_id
+                                       FROM wb_user_role
+                                      WHERE user_id = #{userId,jdbcType=VARCHAR})
+        ORDER BY order_index
+    </select>
+
+</mapper>

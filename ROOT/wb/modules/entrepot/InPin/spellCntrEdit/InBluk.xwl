@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//更新goods表,插入到inout多条数据（传过来数组），还有就是更新作业票\
+var dispname=app.get(\"sys.dispname\");\
+var data = app.get();\
+var s = Wb.decode(data.datas);\
+var map = new HashMap();\
+if (s.length < 0) {\
+  return;\
+}\
+\
+app.run(\"update BLUK_GOODS set QUTY={?QUTY?},OUTTIME=sysdate,OUTQUTY={?OUTQUTY?},IMPEXP='E' where ID={?ID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas),\
+  transaction: 'start'\
+});\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID,WEIGHT,VOLUME,STORE_TIME,BILL_NO,INOUT_ID,SIGNERCFS)values({?ID?},'1',{?OUTNUM?},{?TRUCK_NO?},{?RELEASE_NO?},{?SEAL_NO?},{?CFSBILL_ID?},{?WEIGHT?},{?VOLUME?},sysdate,{?BILL_NO?},{?INOUT_ID?},'\"+dispname+\"')\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        select sys_guid(),SHIPPER,BILL_ID,sysdate,{?timestamp.WORKDATE?},{?CFS_ID?},{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'','' from BLUK_GOODS where BILL_ID={?billId?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+//拼柜状态的变化\
+app.run(\"update BLUK_CUSTOM_MAIN set PHASE='FIN' where TRUCK={?TRUCK?} AND ID={?PID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+app.run(\"update BLUK_CUSTOM_DETAIL set PHASE='FIN' WHERE PID={?PID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas),transaction:\"commit\"\
+});\
+\
+for (var i = 0; i < s.length; i++) {\
+  map.put(\"billNo\", s[i].BILL_NO+\"\");//提单号\
+  map.put(\"planTime\", \"\");//预提时间，可空系统默认当前时间\
+  map.put(\"lclId\", \"1\"); //堆存类别0=整柜1=散货和拼柜\
+  map.put(\"weight\", s[i].WEIGHT+\"\"); //重量\
+  map.put(\"volume\", s[i].VOLUME+\"\"); //体积\
+  map.put(\"outStoreId\", s[i].INOUT_ID+\"\"); //出库编号\
+  var result=Wb.newClass(\"dubboForCargoStore\").call(request, map);\
+  app.run(\"insert into BULK_LOG(ID,NOTES,BILL_NO,CREATED_ON,CREATED_BY,CFSBILL_ID,TYPE,INQUTY)VALUES(SYS_GUID(),'\"+new JSONObject(result)+\"','\"+s[i].BILL_NO+\"',sysdate,{?sys.username?},'\"+s[i].INOUT_ID+\"','拼柜散货出库',{?QUTY?})\");\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

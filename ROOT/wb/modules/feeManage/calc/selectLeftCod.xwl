@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, tenancyId = app.get('sys.TENANCT_ID')===null?'ZSG':app.get('sys.TENANCT_ID'),ID=app.get(\"ID\"),val='@',\
+  jndis = 'default';\
+app.log(tenancyId);\
+\
+var fldId=app.get(\"fldId\");\
+if(fldId=='CNTR_SIZE')\
+  fldId='C_CNTR_SIZE';\
+else if(fldId=='C_ADDRESS')\
+  fldId='C_ADDRESS';\
+var rs = app.run(\"select ID, TABLE_NAME, KV_SQL, COD_SQL, JNDI, NOTE from CODE_SET where  TABLE_NAME='\"+fldId+\"'\", {\
+  jndi: 'jdbc/basecode'\
+});  \
+if (rs.next()) {\
+  sql = rs.getString(\"KV_SQL\");\
+  app.log(sql);\
+\
+  jndis = rs.getString(\"JNDI\");\
+  app.log(jndis);\
+\
+} else\
+  sql = \" select  SYS_KEY K, SYS_VALUE V ,'JT' tenancy_ID from   S_CODE where SYS_CATEGORY={?fldId?} \";\
+app.log(jndis);\
+ var  ms= app.run(\"select  nvl(COMPARE_VAL,'@') COMPARE_VAL from  C_CONTRACT_ITEM_RULE_CONDITION where  ID='\"+ID+\"'\");\
+if (ms.next()) {\
+   val= ms.getString(\"COMPARE_VAL\");\
+  \
+}\
+\
+// var rms= app.run( ,\
+//          {jndi:jndis});\
+app.send(app.output(\"select * from  (\" + sql + \") where (tenancy_id='\" + tenancyId + \"' or tenancy_id='JT') \"+\
+                    \"  and ( k like '%'||{?query?}||'%' or  V like '%'||{?query?}||'%') and instr('\"+val+\"' ,K)=0\", {\
+  jndi: jndis,createColumns:false\
+}));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "左侧树表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

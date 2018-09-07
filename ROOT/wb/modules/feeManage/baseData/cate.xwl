@@ -1,0 +1,584 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "customWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "408",
+     "height": "432"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "x": "8",
+       "width": "240",
+       "y": "8",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "DESCRIPTION",
+       "fieldLabel": "费类名称",
+       "x": "24",
+       "width": "280",
+       "y": "8",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "IS_ALL",
+       "pickList": "[[0,'不包干'],[1,'包干']]",
+       "fieldLabel": "是否包干",
+       "x": "24",
+       "width": "240",
+       "y": "40",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "fieldLabel": "描述",
+       "x": "24",
+       "width": "312",
+       "y": "248",
+       "labelWidth": "60",
+       "height": "84"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "x": "216",
+       "width": "240",
+       "y": "320",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "EFFECTIVED",
+       "pickList": "[[0,'草稿'],[1,'已生效'],[2,'已迁出'],[3,'已禁用'],[4,'历史版本']]",
+       "fieldLabel": "规则状态",
+       "x": "24",
+       "width": "240",
+       "y": "72",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "ENABLED",
+       "pickList": "[[0,'失效'],[1,'有效']]",
+       "fieldLabel": "是否有效",
+       "x": "24",
+       "width": "240",
+       "y": "104",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "BIZ_SCOPE",
+       "fieldLabel": "业务范围",
+       "x": "24",
+       "width": "312",
+       "y": "168",
+       "labelWidth": "60",
+       "height": "70"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "BYAGENT",
+       "pickList": "[[0,'货主'],[1,'船公司']]",
+       "fieldLabel": "付费方",
+       "x": "24",
+       "width": "240",
+       "y": "136",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "app.tableName.setValue(\"C_BASE_CATEGORY\");\
+var values = Wb.getValue([app.customWin]);\
+var cid = app.ID.getValue();\
+var url = \"\";\
+if(cid === \"\"){\
+  url = \"m?xwl=feeManage/category/java/insert\";\
+}else{\
+  url = \"m?xwl=feeManage/category/java/update\";\
+}\
+Wb.request({\
+  url: url,\
+  params: values,\
+  success: function(resp) {\
+    app.grid1.store.load({\
+\t\tout: app.panel1\
+\t});\
+    app.customWin.hide();\
+  }\
+});  "}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel11",
+       "split": "true",
+       "region": "north",
+       "height": "300"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "toolbar1",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "addBtn",
+           "text": "新增",
+           "iconCls": "record_add_icon",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "Wb.reset(app.customWin);\
+app.customWin.setTitle('添加 - 费类');\
+app.customWin.setIconCls('record_add_icon');\
+app.customWin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+         },
+         {
+          "configs": {
+           "itemId": "editBtn",
+           "text": "编辑",
+           "iconCls": "record_edit_icon",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要修改的记录');\
+  return;\
+}\
+app.customWin.setIconCls('record_edit_icon');\
+app.customWin.setTitle('修改-费类');\
+app.customWin.show();\
+Wb.setValue(app.customWin,rec.data); \
+\
+//把记录数据应用到窗口\
+app.isEdit = true;"}
+         },
+         {
+          "configs": {
+           "itemId": "delBtn",
+           "text": "删除",
+           "iconCls": "record_delete_icon",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要删除的记录');\
+  return;\
+}\
+var param ={\
+  url : 'm?xwl=feeManage/category/java/delete',\
+  params:{id: rec.data.ID, tableName : \"C_BASE_CATEGORY\"},\
+//   failure :function(){\
+//     alert('数据已被使用，不能删除！');\
+//   },\
+  titleField:'DESCRIPTION'\
+};\
+\
+Wb.del(app.grid1, param);\
+\
+\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "queryBtn",
+           "text": "查询",
+           "iconCls": "ajax_icon",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "\
+app.grid1.store.load({\
+  out: app.toolbar1\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "grid1",
+         "region": "center"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=feeManage/category/java/queryAll"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "id",
+             "hidden": "true",
+             "dataIndex": "ID",
+             "text": "编号"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "name",
+             "dataIndex": "DESCRIPTION",
+             "width": "150",
+             "text": "名称"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "isAll",
+             "renderer": "if(value == 1){\
+  return \"包干\";\
+}else{\
+  return \"不包干\";\
+}",
+             "dataIndex": "IS_ALL",
+             "text": "是否包干"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "col_EFFECTIVED",
+             "renderer": "if(value == 0){\
+  return \"草稿\";\
+}\
+if(value == 1){\
+  return \"已生效\";\
+}\
+if(value == 2){\
+  return \"已迁出\";\
+}\
+if(value == 3){\
+  return \"已禁用\";\
+}\
+if(value == 4){\
+  return \"历史版本\";\
+}",
+             "dataIndex": "EFFECTIVED",
+             "text": "规则状态"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "col_ENABLED",
+             "renderer": "if(value == 0){\
+  return \"失效\";\
+}\
+if(value == 1){\
+  return \"有效\";\
+}",
+             "dataIndex": "ENABLED",
+             "text": "是否有效"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "col_BIZ_SCOPE",
+             "dataIndex": "BIZ_SCOPE",
+             "width": "150",
+             "text": "业务范围"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "remark",
+             "dataIndex": "NOTES",
+             "width": "150",
+             "text": "描述"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "col_BYAGENT",
+             "renderer": "if(value == 0){\
+  return \"货主\";\
+}\
+if(value == 1){\
+  return \"船公司\";\
+}",
+             "dataIndex": "BYAGENT",
+             "width": "360",
+             "text": "是否船公司付费"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "createuser",
+             "dataIndex": "CREATEUSER",
+             "width": "120",
+             "text": "创建人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "createtime",
+             "dataIndex": "CREATETIME",
+             "width": "120",
+             "text": "创建时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid",
+        "events": {"itemclick": "//app.customerGrid.store.load();\
+Wb.request({\
+    url: 'm?xwl=feeManage/category/sql/queryCantact',\
+    params: {CATEGORY_ID : record.data.ID},\
+    success: function(resp) {\
+      var roleRec;\
+      var selRecs = [];\
+      var roles = Wb.decode(resp.responseText);\
+      Wb.each(roles.rows, function(data) {\
+        roleRec = Wb.find(app.customerGrid.store, 'ID', data.CHARGING_ID);\
+        if (roleRec){\
+          selRecs.push(roleRec);\
+        }\
+      });\
+      app.customerGrid.setSelection(selRecs);\
+      \
+    }\
+});\
+"}
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel2",
+       "split": "false",
+       "hidden": "true",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "toolbar1",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "saveBtn",
+          "text": "保存费目",
+          "iconCls": "save_icon",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "  var ids=new Array();\
+     var sels = app.grid1.getSelection();\
+     var sels2 = app.customerGrid.getSelection();\
+    Wb.each(sels2,function (sel){\
+\t  ids.push(sel.data.ID);\
+\t});\
+    Wb.request({\
+      url: 'm?xwl=feeManage/feeReportItem/java/insertContact',\
+      params: {ids:ids,ID:sels[0].data.ID}, //合并窗口和记录数据作为参数，后者为默认值\
+      success: function() {\
+         alert(\"保存成功\");\
+      }\
+    });"}
+        }],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "customerGrid",
+         "submitSelect": "true",
+         "selType": "checkboxmodel",
+         "sortableColumns": "false",
+         "simpleSelect": "true",
+         "pagingBar": "false",
+         "region": "center",
+         "multiSelect": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "remoteSort": "true",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "params": "{fldId:'C_BASE_CHARGING_ITEM'}",
+           "url": "m?xwl=system/common/codeSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "id",
+             "hidden": "true",
+             "dataIndex": "COD",
+             "text": "编号"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "name",
+             "dataIndex": "CNAME",
+             "width": "150",
+             "text": "费目"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid",
+        "events": {"afterrender": "//grid.store.load();"}
+       }
+      ],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "费用大类",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

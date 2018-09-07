@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select b.bill_no,b.qd_by,b.qd_on,b.I_E_ID,b.cntr_operator,b.shipper,b.goods_notes,b.BILL_TYPE,\" +\
+  \"nvl((select PIECES from vbill_head where bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"'),0) PIECES,\" +\
+  \"nvl((select sum(INQUTY) INQUTY from bluk_goods where\" +\
+  \" bill_no='\" + data.bill_no + \"' and tenancy_id='\" + tenancyid + \"'),0) INQUTY,\" +\
+  \"(select count(*) from buz_order_item b20 where b20.bill_no='\" + data.bill_no + \"'\" +\
+  \" and b20.cntr_size='20' and tenancy_id='\" + tenancyid + \"') cntr20,\" +\
+  \"(select count(*) from buz_order_item b40 where b40.bill_no='\" + data.bill_no + \"'\" +\
+  \" and b40.cntr_size='40' and tenancy_id='\" + tenancyid + \"') cntr40,\" +\
+  \"(select count(*) from buz_order_item b45 where b45.bill_no='\" + data.bill_no + \"'\" +\
+  \" and b45.cntr_size='45' and tenancy_id='\" + tenancyid + \"') cntr45,\" +\
+  \"(select count(*) from buz_order_item ball where ball.bill_no='\" + data.bill_no + \"'\" +\
+  \" and tenancy_id='\" + tenancyid + \"') cntrnum\" +\
+  \" from buz_order b left join buz_order_item bi on b.id=bi.order_id\" +\
+  \" where b.bill_no='\" + data.bill_no + \"' and b.tenancy_id='\" + tenancyid + \"' and b.trade_id='2'\" +\
+  \" group by b.shipper,b.cntr_operator,b.goods_notes,b.BILL_TYPE,b.bill_no,b.I_E_ID,b.qd_by,b.qd_on\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "箱数量统计",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

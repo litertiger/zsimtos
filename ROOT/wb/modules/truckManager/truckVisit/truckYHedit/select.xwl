@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+\
+\
+var sql = \"select r.in_car,\" +\
+  \"nvl(sum(decode(r.over_id,'0',a.distance*2)),0) distance,\" +\
+  \"nvl((sum(decode(r.over_id,'0',a.distance*2))*t.yh)/100,0) yh,\" +\
+  \"nvl(sum(decode(r.over_id,'1',a.distance*2)),0) cz_distance,\" +\
+  \"nvl((sum(decode(r.over_id,'1',a.distance*2))*t.cz_yh)/100,0) cz_yh,\" +\
+  \"nvl(sum(decode(r.over_id,'0',a.distance*2)),0)\" +\
+  \"+nvl(sum(decode(r.over_id,'1',a.distance*2)),0) all_distance,\" +\
+  \"nvl((sum(decode(r.over_id,'0',a.distance*2))*t.yh)/100,0)\" +\
+  \"+nvl((sum(decode(r.over_id,'1',a.distance*2))*t.cz_yh)/100,0) all_yh\" +\
+  \" from receipt r left join c_address a on r.s_adress=a.id left join c_truck t on r.in_car=t.truck_no\" +\
+  \" where r.tenancy_id='\" + tenancyid + \"' and r.phase='FIN' and work_type not in('YOYI')\" +\
+  \" and r.pc_on>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and r.pc_on<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') and t.cancel_flag='0'\";\
+if (!Wb.isEmpty(data.ismy)) //查询车辆类型\
+  sql += \" and t.ismy='\" + data.ismy + \"'\";\
+sql += \" group by r.in_car,t.yh,t.cz_yh order by r.in_car\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

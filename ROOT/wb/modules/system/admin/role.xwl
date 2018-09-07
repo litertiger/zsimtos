@@ -1,0 +1,123 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "newBtn",
+        "tooltip": "添加新的角色 (Ctr+E)",
+        "text": "添加",
+        "iconCls": "record_add_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "var win = Wb.insert(app.grid1, {\
+  url: 'm?xwl=system/admin/role/insert'\
+});\
+win.down('#STATUS').setValue(1);"}
+      },
+      {
+       "configs": {
+        "itemId": "editBtn",
+        "tooltip": "修改选择的角色",
+        "text": "修改",
+        "iconCls": "record_edit_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "var win = Wb.edit(app.grid1, {\
+  url: 'm?xwl=system/admin/role/update',\
+  titleField: 'ROLE_NAME'\
+});\
+win.down('#ROLE_ID').setReadOnly(true);\
+win.down('#ROLE_NAME').focus(true, true);"}
+      },
+      {
+       "configs": {
+        "itemId": "delBtn",
+        "tooltip": "删除选择的角色",
+        "text": "删除",
+        "iconCls": "record_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.del(app.grid1, {\
+  url: 'm?xwl=system/admin/role/delete',\
+  titleField: 'ROLE_NAME'\
+});"}
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "grid1",
+      "region": "center",
+      "loadColumns": "none",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "remoteSort": "true",
+       "autoLoad": "true",
+       "pageSize": "-1",
+       "sorters": "'ROLE_ID'",
+       "url": "m?xwl=system/admin/role/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store",
+      "events": {"success": "if (!store.columnsDone) {\
+  var roleIdCol = Wb.getColumn(store, 'ROLE_ID'),\
+    roleNameCol = Wb.getColumn(store, 'ROLE_NAME');\
+  delete roleIdCol.hidden;\
+  delete roleIdCol.showInMenu;\
+  roleIdCol.renderer = roleNameCol.renderer;\
+  delete roleNameCol.renderer;\
+  Wb.loadColumns(store);\
+  store.columnsDone = true;\
+}"}
+     }],
+     "type": "grid",
+     "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+    }
+   ],
+   "type": "viewport",
+   "events": {"afterrender": "app.navKey = new Ext.KeyNav({\
+  viewport: app.viewport1,\
+  E: {\
+    ctrl: true,\
+    fn: function() {\
+      app.newBtn.fireEvent('click');\
+    }\
+  }\
+});"}
+  }],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "角色配置",
+ "iconCls": "user_group_icon",
+ "inframe": false,
+ "pageLink": ""
+}

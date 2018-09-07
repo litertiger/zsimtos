@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+if (!Wb.isEmpty(data.SHIP_CONSIGN_COD)) {\
+  var s = Wb.decode(data.SHIP_CONSIGN_COD),\
+    ss = \"\";\
+  if (s.length > 0) {\
+    for (var i = 0; i < s.length; s++) {\
+      ss += \"'\" + s[i] + \"',\";\
+    }\
+  }\
+  if (ss.length > 0) {\
+    ss = ss.substring(0, ss.length - 1);\
+  }\
+}\
+var sql = \"\";\
+if (!Wb.isEmpty(data.sdate) && !Wb.isEmpty(data.edate)) {\
+  sql += \" and (select eta from vessel_visit where id=vbill_head.vid and rownum=1)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-MM-dd HH24:MI:SS')\" +\
+    \" and (select eta from vessel_visit where id=vbill_head.vid and rownum=1)<=to_date('\" + data.edate + \" 23:59:59','yyyy-MM-dd HH24:MI:SS')\";\
+}\
+\
+if (!Wb.isEmpty(data.billNo)) {\
+  sql += \" and BILL_NO={?billNo?}\";\
+}\
+\
+if (!Wb.isEmpty(data.tradeId)) {\
+  sql += \" and trade_Id={?tradeId?}\";\
+}\
+if (!Wb.isEmpty(data.ieId)) {\
+  sql += \" and I_E_ID={?ieId?}\";\
+}\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD)) {\
+  sql += \" and CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?}\";\
+}\
+if (!Wb.isEmpty(data.SHIP_CONSIGN_COD) && s.length > 0) {\
+  sql += \" and DECODE(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD) in(\" + ss + \")\";\
+}\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select vbill_head.*,DECODE(FEE_ID,0,'未计费',1,'已计费') FEE_ID, DECODE(I_E_ID,'I',CONSIGNEE,'E',SHIPPER) hz from vbill_head where bill_type='S' and TENANCY_ID='{#sys.TENANCY_ID#}'{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

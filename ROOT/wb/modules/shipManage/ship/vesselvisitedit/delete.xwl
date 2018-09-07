@@ -1,0 +1,95 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username');\
+var id = \"\";\
+\
+//奥海或集团账号直接判断删除所有数据\
+if (tenancyid === 'AT' || tenancyid === 'JT') {\
+  id = data.AID;\
+  if (data.ZSGUPD == 1 || data.XLGUPD == 1 || data.SWGUPD == 1) {\
+    Wb.error('港口修改过动态数据,不能删除该数据');\
+  } else {\
+    //先删子表\
+    app.run(\"delete from VESSEL_VISIT where VID='\" + data.AID + \"'\", {\
+      transaction: \"start\" //开始事务\
+    });\
+    //再删主表\
+    app.run(\"delete from VESSEL_VOYAGE where ID='\" + data.AID + \"'\", {\
+      transaction: 'commit'\
+    });\
+  }\
+} else { //码头账号只删除自己的数据\
+  if (data.ATENANCY_ID == \"AT\"&&username!='admin') {\
+    Wb.error('码头不能删除港澳船调数据');\
+  } else {\
+    //先删子表\
+    app.run(\"delete from VESSEL_VISIT where VID='\" + data.AID + \"'\", {\
+      transaction: \"start\" //开始事务\
+    });\
+    //再删主表\
+    app.run(\"delete from VESSEL_VOYAGE where ID='\" + data.AID + \"'\", {\
+      transaction: 'commit'\
+    });\
+    //     id = data.BID;\
+    //     app.run(\"delete from VESSEL_VISIT where ID='\" + data.BID + \"'\", {\
+    //       transaction: \"start\" //开始事务\
+    //     });\
+    //     var otherdata = DbUtil.getData(app.run(\"select count(*) rnum from vessel_visit where vid='\" + data.AID + \"'\"), request);\
+    //     if (Wb.decode(otherdata)[0].RNUM <= 1) { //如果只剩下1条记录,就全部删除\
+    //       app.run(\"delete from VESSEL_VISIT where VID='\" + data.AID + \"'\");\
+    //       app.run(\"delete from VESSEL_VOYAGE where ID='\" + data.AID + \"'\");\
+    //     }\
+  }\
+}\
+// app.run(\"update vessel_visit set id='' where 1=2\", {\
+//   transaction: 'commit'\
+// });\
+//==============发送消息==============\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_vessel\", \"ship.\" + data.VESSEL_CODE, {\
+      info: {\
+        type: \"vesselVisit\",\
+        action: \"delete\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"vesselVisit\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: id\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "删除航次",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

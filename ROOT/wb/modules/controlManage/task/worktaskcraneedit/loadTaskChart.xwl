@@ -1,0 +1,141 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select cntr_size||decode(e_f_id,'E','尺吉','尺重') cat,phase,count(0) num \\\
+from move_list where queue_id={?QUEUE_ID?} and phase<>'CNL' group by cntr_size,e_f_id,phase\");\
+var set = Ag.getResultSet(result);\
+set.metaData.fields = [\"CAT\", \"PLN\", \"SND\", 'TMP', 'EXE', 'FIN', 'NUM', 'VNUM'];\
+set.rows = set.rows.reduce(function(arr, row) {\
+  var find = false;\
+  for (var i in arr) {\
+    if (arr[i].CAT === row.CAT) {\
+      find = true;\
+      arr[i][row.PHASE] = row.NUM;\
+      arr[i].NUM += row.NUM;\
+      break;\
+    }\
+  }\
+  if (!find) {\
+    var r = {\
+      CAT: row.CAT,\
+      PLN: 0,\
+      SND: 0,\
+      TMP: 0,\
+      EXE: 0,\
+      FIN: 0,\
+      NUM: 0,\
+      VNUM: 0\
+    };\
+    r[row.PHASE] = row.NUM;\
+    r.NUM = row.NUM;\
+    arr.push(r);\
+  }\
+  return arr;\
+}, [{\
+  CAT: \"20尺吉\",\
+  PLN: 0,\
+  SND: 0,\
+  TMP: 0,\
+  EXE: 0,\
+  FIN: 0,\
+  NUM: 0,\
+  VNUM: 0\
+}, {\
+  CAT: \"40尺吉\",\
+  PLN: 0,\
+  SND: 0,\
+  TMP: 0,\
+  EXE: 0,\
+  FIN: 0,\
+  NUM: 0,\
+  VNUM: 0\
+}, {\
+  CAT: \"45尺吉\",\
+  PLN: 0,\
+  SND: 0,\
+  TMP: 0,\
+  EXE: 0,\
+  FIN: 0,\
+  NUM: 0,\
+  VNUM: 0\
+}, {\
+  CAT: \"20尺重\",\
+  PLN: 0,\
+  SND: 0,\
+  TMP: 0,\
+  EXE: 0,\
+  FIN: 0,\
+  NUM: 0,\
+  VNUM: 0\
+}, {\
+  CAT: \"40尺重\",\
+  PLN: 0,\
+  SND: 0,\
+  TMP: 0,\
+  EXE: 0,\
+  FIN: 0,\
+  NUM: 0,\
+  VNUM: 0\
+}, {\
+  CAT: \"45尺重\",\
+  PLN: 0,\
+  SND: 0,\
+  TMP: 0,\
+  EXE: 0,\
+  FIN: 0,\
+  NUM: 0,\
+  VNUM: 0\
+}]);\
+\
+result = app.run(\"select v.cntr_size||decode(v.e_f_id,'E','尺吉','尺重') cat,count(0) vnum \\\
+from vload_list v,task t where v.vid = t.carrier_call and t.id={?QUEUE_ID?} and main_flag=1 group by v.cntr_size,v.e_f_id\");\
+var rows = Ag.getResultSet(result, true);\
+Wb.each(rows, function(row) {\
+  var find = false;\
+  for (var i in set.rows) {\
+    if (set.rows[i].CAT == row.CAT) {\
+      find = true;\
+      set.rows[i].VNUM = row.VNUM;\
+      break;\
+    }\
+  }\
+  if (!find) {\
+    var r = {\
+      CAT: row.CAT,\
+      PLN: 0,\
+      SND: 0,\
+      TMP: 0,\
+      EXE: 0,\
+      FIN: 0,\
+      NUM: 0,\
+      VNUM: row.VNUM\
+    };\
+    set.rows.push(r);\
+  }\
+});\
+\
+app.send(set);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "加载任务进度柱状图",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

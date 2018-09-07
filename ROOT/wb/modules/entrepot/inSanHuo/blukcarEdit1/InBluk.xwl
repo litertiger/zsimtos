@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//更新goods表,插入到inout多条数据（传过来数组），还有就是更新作业票\
+var data=app.get();\
+var dispname=app.get(\"sys.dispname\");\
+app.run(\"update BLUK_GOODS set QUTY={?QUTY?},OUTTIME=sysdate,OUTQUTY={?OUTQUTY?},IMPEXP='E' where ID={?ID?}\",{arrayData: new org.json.JSONArray(data.datas),transaction: 'start'} );\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID,STORE_TIME, VOLUME, WEIGHT,BILL_NO,INOUT_ID,SIGNERCFS)values({?ID?},'1',{?NUM?},{?TRUCK_NO?},{?RELEASE_NO?},{?SEAL_NO?},{?CFSBILL_ID?},sysdate, {?VOLUME?}, {?WEIGHT?},{?BILL_NO?},{?INOUT_ID?},'\"+dispname+\"')\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        select sys_guid(),SHIPPER,BILL_ID,sysdate,{?timestamp.WORKDATE?},{?CFS_ID?},{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'','' from BLUK_GOODS where BILL_ID={?billId?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+//拼柜状态的变化\
+// app.run(\"update BLUK_TRUCK set PHASE='FIN' where TRUCK={?TRUCK?} AND ID={?TID?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+// app.run(\"update BLUK_APPLY set PHASE='FIN' WHERE ID={?PID?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"update BLUK_TRUCK_M set PHASE='FIN',RELEASE_ORDER={?RELEASE_NO?} where TRUCK={?TRUCK?} AND ID={?TID?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"update BLUK_TRUCK_D set PHASE='FIN' where PID={?TID?}\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"update BLUK_APPLY_D set PHASE='FIN' WHERE INSTR({?PID?},ID)>0\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+app.run(\"update BLUK_APPLY_M set PHASE='FIN' WHERE ID IN(SELECT P_ID FROM BLUK_APPLY_D WHERE INSTR({?PID?},ID)>0)\",{arrayData: new org.json.JSONArray(data.datas)});\
+\
+var s = Wb.decode(data.datas);\
+var map = new HashMap();\
+if (s.length < 0) {\
+  return;\
+}\
+for (var i = 0; i < s.length; i++) {\
+  map.put(\"billNo\", s[i].BILL_NO+\"\");//提单号\
+  map.put(\"planTime\", \"\");//预提时间，可空系统默认当前时间\
+  map.put(\"lclId\", \"1\"); //堆存类别0=整柜1=散货和拼柜\
+  map.put(\"weight\", s[i].WEIGHT+\"\"); //重量\
+  map.put(\"volume\", s[i].VOLUME+\"\"); //体积\
+  map.put(\"outStoreId\", s[i].INOUT_ID+\"\"); //出库编号\
+  var result=Wb.newClass(\"dubboForCargoStore\").call(request, map);\
+  app.run(\"insert into BULK_LOG(ID,NOTES,BILL_NO,CREATED_ON,CREATED_BY,CFSBILL_ID,TYPE)VALUES(SYS_GUID(),'\"+result+\"','\"+s[i].BILL_NO+\"',sysdate,{?sys.username?},'\"+s[i].INOUT_ID+\"','内贸大宗散货出库')\");\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

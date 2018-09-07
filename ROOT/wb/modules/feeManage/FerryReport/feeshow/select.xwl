@@ -1,0 +1,56 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\",\
+  i = 0;\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+var feeSql = \"select ID,DESCRIPTION from C_BASE_CHARGING_ITEM where TENANCY_ID='\" + tenancyid + \"'\",\
+  params = \"\";\
+if (!Wb.isEmpty(data.ID)) {\
+  feeSql += \" AND ID IN(\"+data.ID+\")\";\
+}\
+if (!Wb.isEmpty(data.DESCRIPTION)) {\
+  feeSql += \" AND DESCRIPTION LIKE '%'||{?DESCRIPTION?}||'%'\";\
+}\
+var rs = app.run(feeSql);\
+while (rs.next()) {\
+  i++;\
+  params += \" ,case when FEE_LIST_ID='\" + rs.getString('ID') + \"' THEN AMOUNT END fee\" + i + \"\";\
+}\
+// app.log(\"feeSql:========\" + feeSql);\
+// app.log(\"feeIds:========\" + data.feeIds);\
+sql = \"select distinct IS_JK,decode(vh.bill_type,'S',bo.BD_ON,bi.BD_ON) BD_ON,vh.CMDY_CODE,vh.TRANSIT,vh.vid,vh.bill_no,vl.cntr,vh.CNTR_OPERATOR_COD,decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER) GOOD_OWNER,\" +\
+  \"vh.TRADE_ID,vh.I_E_ID,vh.GOODS_NOTES,vl.CARGO_TYPE,decode(vh.BILL_TYPE,'C',vl.WEIGHT,vh.WEIGHT) WEIGHT,vh.VOLUME,vh.PIECES,vh.POD,vh.POL,vh.SPOD,vh.ZF_ID,vh.BILL_TYPE,\" +\
+  \"v1.VESSEL_NAME,vl.CNTR_TYPE,vl.CNTR_SIZE,vl.SEAL_NO,vh.CONSIGNEE,vh.SHIPPER,bo.QD_BY,bo.QD_ON,\" +\
+  \"decode(vh.i_e_id,'I',LIB_VYG,'E',LOB_VYG)LOB_VYG,vl.CNTR_OWNER,/*decode(vh.I_E_ID,'I',ETA,'E',ETD)*/ETA,COLINE,ACCOUNTS_DETAILS.AMOUNT\" +\
+    \" \" + params + \"\t\" +\
+  \" FROM VBILL_HEAD vh,VLOAD_LIST vl,VESSEL_VISIT v2,vessel_voyage v1,(select distinct BD_ON,QD_ON,QD_BY,BILL_ID,BILL_NO FROM buz_order) bo,\" +\
+  \"     (select distinct BD_ON,CNTR,BILL_NO FROM BUZ_ORDER_ITEM) BI,ACCOUNTS_DETAILS\" +\
+  \" WHERE vh.ID=vl.BILL_ID(+) AND vh.id=bo.bill_id(+) and vh.bill_no=bo.bill_no(+) and vh.VID=v2.ID(+) and v2.vid=v1.id(+)\" +\
+  \" and vh.TENANCY_ID='\" + tenancyid + \"' and  vh.phase<>'9' and vl.bill_no=bi.bill_no(+) and vl.cntr=bi.cntr(+) \" +\
+  \" and (vh.bill_no=ACCOUNTS_DETAILS.BILL_NO OR VL.CNTR=ACCOUNTS_DETAILS.CNTR) AND FEE_LIST_ID IN(\" + data.feeIds + \")\";\
+\
+sql += data.conditionSql;\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'), //租户id\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select t.*,decode(apply_type,'OTO',TO_OPERATOR,'OTI',FROM_OPERATOR,'ITO',FROM_OPERATOR)TO_OPERATOR \\\
+from cntr_apply t where tenancy_id='\" + tenancyid + \"' and apply_type in('OTO','OTI','ITO')\";\
+if (nature == \"5\" || nature == \"6\")\
+  sql += \" and (APPLY_OPERATOR_COD='\" + govCode + \"' or TO_OPERATOR_COD='\" + govCode + \"')\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and APPLY_DATE>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and APPLY_DATE<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (data.col == \"APPLY_TYPE\") {\
+  if (data.v == \"内贸转外贸\")\
+    sql += \" and APPLY_TYPE='ITO'\";\
+  if (data.v == \"外贸转内贸\")\
+    sql += \" and APPLY_TYPE='OTI'\";\
+  if (data.v == \"柜转让\")\
+    sql += \" and APPLY_TYPE='OTO'\";\
+  if (!Wb.isEmpty(data.v) && data.v != \"内贸转外贸\" && data.v != \"外贸转内贸\" && data.v != \"柜转让\")\
+    sql += \" and APPLY_TYPE='不知道'\";\
+}\
+if (data.col == \"CNTR\") {\
+  if (!Wb.isEmpty(data.v))\
+    sql += \" and id in(select aid from cntr_apply_list where cntr_id in(select id from port_cntr_new where cntr like '%\" + data.v + \"%'))\";\
+}\
+if (data.col == \"E_F_ID\") {\
+  if (!Wb.isEmpty(data.v) && data.v != \"空\" && data.v != \"空箱\" &&\
+    data.v != \"吉\" && data.v != \"吉箱\" && data.v != \"重\" && data.v != \"重箱\")\
+    sql += \" and APPLY_TYPE='不知道'\";\
+  if (data.v == \"空\" || data.v == \"空箱\" || data.v == \"吉\" || data.v == \"吉箱\")\
+    sql += \" and id in(select aid from cntr_apply_list where cntr_id in(select id from port_cntr where E_F_ID='E'))\";\
+  if (data.v == \"重\" || data.v == \"重箱\")\
+    sql += \" and id in(select aid from cntr_apply_list where cntr_id in(select id from port_cntr where E_F_ID='F'))\";\
+}\
+sql += \" order by apply_date desc\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基础查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

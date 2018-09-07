@@ -1,0 +1,28 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var item, buffer = com.wb.common.KVBuffer.buffer,\
+  data = app.get(),\
+  keyName = data.KEY_NAME;\
+app.run('select 1 from WB_KEY where KEY_NAME={?KEY_NAME?}', {\
+  errorText: '键名 \u201c' + keyName + '\u201d 已经存在。'\
+});\
+app.run(\"insert into WB_KEY values({?sys.id?},{?KEY_NAME?},'1','value',{?integer.TYPE?})\", {\
+  transaction: 'start' //事务用于保证缓存更新的同步\
+});\
+item = new java.util.concurrent.ConcurrentHashMap();\
+item.put(data.TYPE == '1' ? '1' : SysUtil.javaInt(1), 'value');\
+buffer.put(keyName, item);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "添加",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

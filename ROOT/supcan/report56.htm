@@ -1,0 +1,76 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'List' || id=='') {
+   var template="{'Properties': {'editAble':'false', 'rowheight':'24'}, 'cols':[{'name':'id', 'width':'100', 'text':'报表'}, {'name':'filename', 'width':'0.1', 'text':'文件名'}]}";
+   List.func("Build", template);
+   var data="[{'id':'示例报表1', 'filename':'report/report1.xml'}, {'id':'示例报表2', 'filename':'report/xmlsheet5.xml'}, {'id':'示例报表3', 'filename':'report/report0.xml'}, {'id':'示例报表4', 'filename':'report/center1.xml'}]";
+   List.func("Load", data);
+  }
+  if(id == 'Report' || id=='') {
+   Report.func("DisplayAsPrintSetup", "ok.Text=保存; cancel.Visible=false; isNeedTitle=true");
+   Report.func("Build", "report/report12.xml");
+  }
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id == 'List') {
+    if(Event == 'SelChanged') {
+     var filename = List.func("GetCellData", p1 + "\r\n filename");
+     Report.func("Build", filename);
+    }
+  }
+ }
+</script>
+</head>
+
+<body topmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>上方是硕正树列表，切换当前行，下方的硕正报表就能加载相应报表，并同时显示其打印配置参数.<br>
+</td>
+</tr>
+<tr height=4><td/></tr>
+</table>
+
+<div style="position:relative;width:600px;height:122px">
+	<script>insertTreeList('List', '')</script>
+</div>
+<br>
+<div style="position:relative;width:455;height:438px">
+	<script>insertReport('Report', 'border=none;Rebar=Main')</script>
+</div>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.该功能用到了报表的 DisplayAsPrintSetup 函数，具体请参考函数帮助文档;<br>
+<b>2</b>.点击“保存”，本示例并不会直接保存报表，它将触发 PrintSetupBeforeUpdated 和 PrintSetupUpdated 事件，您可以在事件中去实现保存功能;<br>
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

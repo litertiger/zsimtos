@@ -1,0 +1,56 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "  SELECT VESSEL_VOYAGE.VESSEL_NAME,\
+         VESSEL_VISIT.ETA,\
+         C_VESSEL_CODE.NRT,\
+         SUM (VBILL_HEAD.WEIGHT+cntrWeight) WEIGHT,\
+         CASE\
+            WHEN SUM (VBILL_HEAD.WEIGHT+cntrWeight) - NVL (C_VESSEL_CODE.NRT, 0) > 0 THEN '超重'\
+            WHEN SUM (VBILL_HEAD.WEIGHT+cntrWeight) - NVL (C_VESSEL_CODE.NRT, 0) <= 0 THEN '正常'\
+            ELSE '其他'\
+         END N\
+    FROM (SELECT sum(weight)/1000 weight, (SELECT SUM (DECODE (cntr, '20', 2.5, 4))\
+                        FROM vload_list\
+                       WHERE bill_id = vbill_head.ID) cntrWeight,VID,tenancy_id,I_E_ID\
+  FROM vbill_head group by ID ,VID,tenancy_id,I_E_ID)VBILL_HEAD,\
+         VESSEL_VISIT,\
+         VESSEL_VOYAGE,\
+         C_VESSEL_CODE\
+   WHERE     C_VESSEL_CODE.ID = VESSEL_VOYAGE.VESSEL_CODE\
+         AND VESSEL_VOYAGE.ID = VESSEL_VISIT.VID\
+         AND VESSEL_VISIT.ID = VBILL_HEAD.VID\
+         AND VBILL_HEAD.I_E_ID = 'E'\
+\t\t AND VBILL_HEAD.TENANCY_ID='{#sys.TENANCY_ID#}'\
+\t\t AND VESSEL_VOYAGE.VESSEL_NAME LIKE '%'||{?name?}||'%' \
+\t\t AND to_char(ETA,'yyyy-MM-dd HH24:MI:SS') BETWEEN  {?sdate?} \
+           AND  {?edate?} \
+GROUP BY VESSEL_VOYAGE.VESSEL_NAME,\
+         VESSEL_VISIT.ETA,\
+         C_VESSEL_CODE.NRT\
+         \
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

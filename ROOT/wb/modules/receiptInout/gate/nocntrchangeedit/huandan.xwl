@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var oldr = Wb.getRecords(app.run(\"select bill_no,SHIP_ORDER from receipt where id='\" + data.oldrid + \"'\"));\
+var newr = Wb.getRecords(app.run(\"select bill_no,SHIP_ORDER from receipt where id='\" + data.newrid + \"'\"));\
+app.run(\"update receipt set bill_no='\" + oldr[0].BILL_NO + \"',SHIP_ORDER='\" + oldr[0].SHIP_ORDER + \"' where id='\" + data.newrid + \"'\");\
+app.run(\"update receipt set bill_no='\" + newr[0].BILL_NO + \"',SHIP_ORDER='\" + newr[0].SHIP_ORDER + \"' where id='\" + data.oldrid + \"'\");\
+app.run(\"insert into aaa(CAP_XML,create_on)\" +\
+  \" values ('不订箱号改单,'||'\" + oldr[0].BILL_NO + \"'||'换'||'\" + newr[0].SHIP_ORDER + \",操作人:'||'\" + username + \"',sysdate)\", {\
+    transaction: 'commit'\
+  });"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "换单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

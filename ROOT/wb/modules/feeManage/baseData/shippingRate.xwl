@@ -1,0 +1,500 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "rateWin",
+     "dialog": "true",
+     "width": "344",
+     "height": "216"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "allowBlank": "false",
+       "labelWidth": "50",
+       "valueField": "VESSEL_CODE",
+       "itemId": "VESSEL_CODE",
+       "labelAlign": "right",
+       "fieldLabel": "船名",
+       "x": "64",
+       "width": "248",
+       "displayField": "VESSEL_NAME",
+       "y": "16",
+       "anyMatch": "true",
+       "forceSelection": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=feeManage/baseData/shippingRate/vessel_code"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "allowBlank": "false",
+       "labelWidth": "90",
+       "valueField": "SHIPPER_CODE",
+       "itemId": "SHIPPER_CODE",
+       "labelAlign": "right",
+       "fieldLabel": "客户名称",
+       "x": "25",
+       "width": "288",
+       "displayField": "SHIPPER",
+       "y": "48",
+       "anyMatch": "true",
+       "forceSelection": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=feeManage/baseData/shippingRate/SHIPP"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "RATE_TYPE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "pickList": "[\
+  ['1', '吨/天'],\
+  ['2', '吨/小时']\
+]",
+       "fieldLabel": "费用类型",
+       "x": "36",
+       "width": "278",
+       "y": "80",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "RATE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "费率",
+       "x": "66",
+       "width": "248",
+       "y": "112",
+       "labelWidth": "50",
+       "decimalPrecision": "2",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "ID",
+       "x": "88",
+       "width": "240",
+       "y": "160",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "if (!Wb.verify(app.rateWin)) {\
+  return;\
+}\
+\
+var data = { //获取到船名，公司名称 \
+  VESSEL_NAME: app.VESSEL_CODE.getRawValue(),\
+  SHIPPER: app.SHIPPER_CODE.getRawValue()\
+};\
+var value = Wb.apply(Wb.getValue(app.rateWin), data); //将结果级拼接到一起\
+if (Wb.isEmpty(app.ID.getValue()) === true) {\
+  //执行插入\
+  Wb.request({\
+    url: 'm?xwl=feeManage/baseData/shippingRate/insert',\
+    params: value,\
+    success: function(resp) {\
+      win.close();\
+      app.findBtn.fireEvent('click');\
+      Wb.tip('保存成功！');\
+    }\
+  });\
+} else {\
+  var id = app.ID.getValue();\
+  Wb.request({\
+    url: 'm?xwl=feeManage/baseData/shippingRate/update',\
+    params: value,\
+    success: function(resp) {\
+      win.close();\
+      app.findBtn.fireEvent('click');\
+      Wb.tip('保存成功！');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {"itemId": "rateGrid"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=feeManage/baseData/shippingRate/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTENANCY_ID",
+           "dataIndex": "TENANCY_ID",
+           "text": "租户ID",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colVESSEL_CODE",
+           "hidden": "true",
+           "dataIndex": "VESSEL_CODE",
+           "text": "驳船代码",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colVESSEL_NAME",
+           "dataIndex": "VESSEL_NAME",
+           "width": "150",
+           "text": "驳船公司",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSHIPPER_CODE",
+           "hidden": "true",
+           "dataIndex": "SHIPPER_CODE",
+           "text": "客户代码",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colSHIPPER",
+           "dataIndex": "SHIPPER",
+           "width": "300",
+           "text": "客户名称",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colRATE_TYPE",
+           "renderer": "if(value ==1){\
+  return '吨/天';\
+}else if(value ==2){\
+  return '吨/小时';\
+}",
+           "dataIndex": "RATE_TYPE",
+           "text": "费率类型",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colRATE",
+           "dataIndex": "RATE",
+           "text": "费率",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCREATED_BY",
+           "dataIndex": "CREATED_BY",
+           "text": "创建人",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCREATED_ON",
+           "dataIndex": "CREATED_ON",
+           "width": "120",
+           "text": "创建时间",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colUPDATED_BY",
+           "dataIndex": "UPDATED_BY",
+           "text": "修改人",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colUPDATED_ON",
+           "dataIndex": "UPDATED_ON",
+           "width": "120",
+           "text": "修改时间",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "VESSEL_NAME",
+           "labelAlign": "right",
+           "fieldLabel": "船名",
+           "x": "72",
+           "width": "160",
+           "displayField": "VESSEL_NAME",
+           "y": "16",
+           "labelWidth": "40",
+           "anyMatch": "true",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=feeManage/baseData/shippingRate/vessel_code"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo",
+          "events": {"specialkey": "if(e.getKey() == 13){\
+  app.findBtn.fireEvent('click');\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "SHIPPER",
+           "labelAlign": "right",
+           "fieldLabel": "客户名",
+           "x": "53",
+           "width": "260",
+           "displayField": "SHIPPER",
+           "y": "48",
+           "labelWidth": "60",
+           "anyMatch": "true",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=feeManage/baseData/shippingRate/SHIPP"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo",
+          "events": {"specialkey": "if(e.getKey() == 13){\
+  app.findBtn.fireEvent('click');\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "findBtn",
+           "textAlign": "center",
+           "text": "查找",
+           "iconCls": "zoom_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.rateGrid.store.load({\
+  out: app.tbar\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "addBtn",
+           "text": "添加",
+           "iconCls": "record_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var win = new Ext.window.Window(app._rateWin);\
+win.setIconCls(\"record_add_icon\");\
+win.setTitle(\"添加\");\
+win.show();\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "updateBtn",
+           "textAlign": "right",
+           "text": "修改",
+           "iconCls": "record_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rec = app.rateGrid.getSelection()[0];\
+if (!rec) {\
+  Wb.warn(\"请选择一条需要修改的记录\");\
+  return;\
+}\
+\
+\
+var win = new Ext.window.Window(app._rateWin);\
+app.VESSEL_CODE.forceSelection = false;\
+app.SHIPPER_CODE.forceSelection = false;\
+app.VESSEL_CODE.store.load();\
+app.SHIPPER_CODE.store.load();\
+Wb.setValue(win, rec.data);\
+win.setIconCls(\"record_edit_icon\");\
+win.setTitle(\"修改\");\
+app.VESSEL_CODE.forceSelection = true;\
+app.SHIPPER_CODE.forceSelection = true;\
+win.show();"}
+         },
+         {
+          "configs": {
+           "itemId": "delete",
+           "textAlign": "right",
+           "text": "删除",
+           "iconCls": "record_delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rec = app.rateGrid.getSelection()[0];\
+if (!rec) {\
+  Wb.warn(\"请选择一条需要修改的记录\");\
+  return;\
+}\
+Wb.confirm(\"您确定要删除这条记录吗？\", function() {\
+  Wb.request({\
+    url: 'm?xwl=feeManage/baseData/shippingRate/delete',\
+    params: {\
+      ID: rec.data.ID\
+    },\
+    success: function(resp) {\
+      app.findBtn.fireEvent('click');\
+      Wb.tip('删除成功!');\
+    }\
+  });\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemdblclick": "app.updateBtn.fireEvent('click');"}
+     }],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "靠泊费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

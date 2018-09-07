@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+\
+var visit = Wb.getRecords(app.run(\"select v2.id,v1.vessel_code,v2.i_e,to_char(v2.eta,'yyyy-mm-dd')eta\\
+\" +\
+  \"from vessel_visit v2 left join vessel_voyage v1 on v2.vid=v1.id\\
+\" +\
+  \"where v1.id='\" + data.zId + \"'\"));\
+\
+Wb.each(visit, function(v) {\
+  app.run(\"insert into voyage_crew(ID,VID,CID,DUTY,CALL_IN)\\
+\" +\
+    \"select sys_guid(),'\" + v.ID + \"',cid,duty,sysdate from voyage_crew\\
+\" +\
+    \"where vid in(select id from(select v2.id from vessel_visit v2 left join vessel_voyage v1 on v2.vid=v1.id\\
+\" +\
+    \"where v2.tenancy_id='\" + tenancyid + \"' and trunc(v2.eta)<to_date('\" + v.ETA + \"','yyyy-mm-dd')\\
+\" +\
+    \"and v1.vessel_code='\" + v.VESSEL_CODE + \"' order by v2.eta desc)where rownum=1)\\
+\" +\
+    \"and not exists(select vid from voyage_crew vc where vc.vid='\" + v.ID + \"')\");\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "船员默认插入航次",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

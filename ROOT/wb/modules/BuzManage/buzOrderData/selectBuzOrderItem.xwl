@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \" \";\
+\
+if(Wb.isEmpty(data.cntr) && Wb.isEmpty(data.billNo))\
+  sql += \" and 1=0\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and CNTR_ID = ( select id from port_cntr where cntr='\"+data.cntr+\"')\";\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and boi.BILL_NO ='\" + data.billNo + \"'\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select boi.bill_no,cntr,cntr_size,cntr_type,boi.bd_by,boi.bd_on,decode(bo.qd_by,'',0,1) qd_bool,bo.qd_by,bo.qd_on,cntr_id \
+from buz_order_item boi,buz_order bo \
+where boi.order_id=BO.ID and boi.tenancy_id='{#sys.TENANCY_ID#}' {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "查询签到信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

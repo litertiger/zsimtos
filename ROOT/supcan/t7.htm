@@ -1,0 +1,115 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+
+  if(id == 'AF' || id=='') {
+    AF.func("Build", "treelist/t12.xml");
+  }
+  if(id == 'AF2' || id=='') {
+    AF2.func("Build", "treelist/t12_2.xml");
+  }
+ }
+
+ 
+ var bFixBottom=false;
+ function fixTotal()
+ {
+  bFixBottom = !bFixBottom;
+  AF.func("SetProp", "isFixTotalRow \r\n " + bFixBottom);
+ }
+ function addTotalRow()
+ {
+	AF.func("SetColProp", "productID\r\n totalExpress2 \r\n ='均 价'");
+	AF.func("SetColProp", "total\r\n totalExpress2 \r\n =@average");
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.横向逻辑关系：单价、数量、金额三者之间有运算逻辑；数量、库存量、实际可用数三者间也有计算逻辑；<br>
+<b>2</b>.纵向逻辑关系：合计行；<br>
+<b>3</b>.在粗体列中任意输入数据，查看横向、纵向数据的变化；<br>
+</td></tr>
+<tr height=7><td/><td/></tr>
+</table>
+
+<div style="position:relative;width:881px;height:240px">
+	<script>insertTreeList('AF', '')</script>
+</div>
+注：也可以让合计行紧挨底边(不滚动)：<input type="button" value=" 切换 " onClick="fixTotal()">; 　　允许有多个合计行：<input type="button" value=" 多个合计行 " onClick="addTotalRow()">
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.分析Treelist的<a href="treelist/t12.xml" target=_blank>XML描述文件</a>，横向逻辑关系表达式就在&lt;express&gt;中, 这2句表达式是其关键:<br>
+<pre class='xml'>
+&lt;TreeList&gt;
+ &lt;Properties editAble="true" rowHeight="22" addRowAble="true" totalBgColor="#ffff00"&gt;
+  &lt;expresses&gt;
+   &lt;!-- 金额 ＝ 单价 X 数量 --&gt;
+   &lt;express&gt;total=round(price*num, 2)&lt;/express&gt;
+   &lt;!-- 单价 ＝ 金额 / 数量 --&gt;
+   &lt;express&gt;price=round(total/num, 4)&lt;/express&gt;
+   ...(略)</pre>
+为什么要写2句表达式呢?  那是因为第二句相当于是告诉硕正组件： 金额的变化将影响单价、而不是影响数量！<br>
+<br>
+<b>2</b>.纵向的逻辑：合计表达式，在名为“total”的列的属性中：<br>
+<pre class='xml'>
+...
+&lt;Col name="total" datatype="double" decimal="2" totalExpress="=@sum"&gt;总价&lt;/Col&gt;
+...</pre>
+上面出现的 round( )函数、@origin宏、@sum宏 的含义请参见“开发文档”之“公共内容”.
+<br>
+<br>
+<br>
+<b>3</b>.下面是更复杂的横向计算例子，有更多的列参与计算，表达式需要辅以 isAlone 属性才能正确计算， 请参考<a href="treelist/t12_2.xml" target=_blank>XML模板文件<a/><br>
+<Center><div style="position:relative;width:620px;height:140px">
+	<script>insertTreeList('AF2', '')</script>
+</div></Center>
+其计算的逻辑关系为：<br>
+　　总金额 = 含税单价 X 数量<br>
+　　未税单价 = 含税单价 / (1+税率)<br>
+这4个列，任何一个列的变化都会影响到其它列， "isAlone" 属性的含义为右侧列的输入变化单独影响左侧列：<br>
+<pre class='xml'>
+&lt;expresses&gt;
+ &lt;!-- 含税单价、未税单价、数量 变化将影响 总金额 --&gt;
+ &lt;express isAlone="true"&gt;总金额 = 含税单价 * 数量&lt;/express&gt;
+ &lt;express isAlone="true"&gt;总金额 = 未税单价 * (1+税率) * 数量&lt;/express&gt;
+ &lt;!-- 总金额、数量 变化将影响 含税单价、未税单价 --&gt;
+ &lt;express isAlone="true"&gt;含税单价 = 总金额 / 数量&lt;/express&gt;
+ &lt;express isAlone="true"&gt;未税单价 = 总金额 / 数量 / (1+税率)&lt;/express&gt;
+ &lt;!-- 两个单价会相互影响 --&gt;
+ &lt;express isAlone="true"&gt;含税单价 = 未税单价 * (1+税率)&lt;/express&gt;
+ &lt;express isAlone="true"&gt;未税单价 = 含税单价 / (1+税率)&lt;/express&gt;
+&lt;/expresses&gt;</pre>
+<br>
+</td></tr></table>
+<br>
+<table border=0 cols=2 border=0 width=97%>
+<tr valign=top><td align=right><img src='res/boy.gif'></td><td align=left>使用够简单吧！</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

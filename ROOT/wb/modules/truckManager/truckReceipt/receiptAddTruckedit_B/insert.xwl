@@ -1,0 +1,102 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+\
+app.run(\"update receipt set IN_CAR={?IN_CAR?},IN_CAR_HP={?IN_CAR_HP?},IN_CAMPI={?IN_CAMPI?},IN_TRAY_NO={?IN_TRAY_NO?},\" +\
+  \"IN_DRIVER_ID={?IN_DRIVER_ID?},IN_DRIVER_NAME={?IN_DRIVER_NAME?},OUT_CAR={?OUT_CAR?},OUT_CAR_HP={?OUT_CAR_HP?},\" +\
+  \"OUT_CAMPI={?OUT_CAMPI?},OUT_TRAY_NO={?OUT_TRAY_NO?},OUT_DRIVER_ID={?OUT_DRIVER_ID?},OUT_DRIVER_NAME={?OUT_DRIVER_NAME?}\" +\
+  \" where 1=2\");\
+//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓车次数据处理↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓\
+//判断修改的值为去程车\
+if (Wb.isEmpty(upd[\"#IN_CAR\"]) && (upd[\"#IN_CAR\"] != upd.IN_CAR)) {\
+  var tvid = SysUtil.getId();\
+  var instv = \"insert into truck_visit(id,tenancy_id,in_car,IN_CAMPI,in_driver_id,GATEIN_NO_T,GATEIN_TIME_T,phase)\" +\
+    \" values('\" + tvid + \"','\" + tenancyid + \"','\" + cntrsdata[0].IN_CAR + \"','\" + cntrsdata[0].IN_CAMPI + \"',\" +\
+    \"'\" + cntrsdata[0].IN_DRIVER_ID + \"','\" + data.cfs + \"',sysdate,'EXE')\";\
+  app.run(instv);\
+}\
+//判断truck_visit是否有数据,没有insert,有则update\
+var seltruckvisit = \"select * from truck_visit where in_car='\" + cntrsdata[0].IN_CAR + \"' and phase='EXE'\" +\
+  \" and tenancy_id='\" + tenancyid + \"'\";\
+var truckvisit = Wb.decode(DbUtil.getData(app.run(seltruckvisit), request));\
+if (truckvisit.length > 0) {\
+  //执行修改\
+  tvid = truckvisit[0].ID;\
+  var updtv = \"update truck_visit set in_car='\" + cntrsdata[0].IN_CAR + \"',in_driver_id='\" + cntrsdata[0].IN_DRIVER_ID + \"'\" +\
+    \" IN_CAMPI='\" + cntrsdata[0].IN_CAMPI + \"' where id='\" + truckvisit[0].ID + \"'\";\
+  app.run(updtv);\
+} else {\
+  //执行插入\
+  tvid = SysUtil.getId();\
+  var instv = \"insert into truck_visit(id,tenancy_id,in_car,IN_CAMPI,in_driver_id,GATEIN_NO_T,GATEIN_TIME_T,phase)\" +\
+    \" values('\" + tvid + \"','\" + tenancyid + \"','\" + cntrsdata[0].IN_CAR + \"','\" + cntrsdata[0].IN_CAMPI + \"',\" +\
+    \"'\" + cntrsdata[0].IN_DRIVER_ID + \"','\" + data.cfs + \"',sysdate,'EXE')\";\
+  app.run(instv);\
+}\
+//插入truck_receipt关系表\
+Wb.each(cntrsdata, function(cs) {\
+  var insvrsql = \"insert into truck_receipt(id,tvid,rpid,DIRECTION,CNTR,FETCHTYPE,BILL_NO)\" +\
+    \"values(sys_guid(),'\" + tvid + \"','\" + cs.RID + \"','F','\" + cs.CNTR + \"','GO','\" + cs.BILL_NO + \"')\";\
+  app.run(insvrsql);\
+});\
+//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑车次数据处理↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑\
+\
+//发送微信消息\
+Wb.each(upds, function(upd) {\
+  if (Wb.isEmpty(upd[\"#IN_DRIVER_ID\"]) || (upd[\"#IN_DRIVER_ID\"] != upd.IN_DRIVER_ID && !Wb.isEmpty(upd.IN_DRIVER_ID))) {\
+    var now = new Date();\
+    var year = now.getFullYear();\
+    var month = now.getMonth() + 1;\
+    var day = now.getDate();\
+    var h = now.getHours().toString();\
+    var pstime = \"\";\
+    if (h.length == 1) {\
+      h = \"0\" + h;\
+    }\
+    var m = now.getMinutes().toString();\
+    if (m.length == 1) {\
+      m = \"0\" + m;\
+    }\
+    var s = now.getSeconds().toString();\
+    if (s.length == 1) {\
+      s = \"0\" + s;\
+    }\
+    if (!Wb.isEmpty(upd.PLAN_STIME))\
+      pstime = upd.PLAN_STIME;\
+    else\
+      pstime = year + \"-\" + month + \"-\" + day + \" \" + (parseInt(h) + 1);\
+    var message = \"箱号:\" + upd.CNTR + \"已被安排给您托送\" +\
+      \"\\\\
+计划送货时间:\" + pstime +\
+      \"\\\\
+送货地址:\" + upd.S_ADRESS +\
+      \"\\\\
+本次消息推送时间:\" + year + \"-\" + month + \"-\" + day + \" \" + h + \":\" + m + \":\" + s;\
+    //发送微信消息\
+    app.sendMessage(\"qu_wechat\", '{\"ID\":\"600015\",\"MESSAGE\":\"' + message + '\",\"DIRVER_NO\":\"' + upd.IN_DRIVER_ID + '\"}');\
+  }\
+});\
+\
+app.send(ids); //把id列表发送到客户端以同步到表格",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "派车添加车次",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

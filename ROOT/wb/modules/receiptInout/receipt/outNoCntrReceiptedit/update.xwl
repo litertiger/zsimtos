@@ -1,0 +1,71 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get(\"sys.username\");\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var nature = app.get(\"sys.NATURE\");\
+var trade = data.TRADE_ID;\
+var fcntr = 0;\
+if (trade == \"1\" || nature != \"5\") {\
+  fcntr = 1;\
+}\
+var ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and phase<>'PLN' and phase<>'FIN'\"));\
+if (ckrow.length > 0) {\
+  app.send({\
+    ok: false,\
+    msg: \"设备交接单已经作业,不能修改\"\
+  });\
+  return;\
+}\
+ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and phase='FIN'\"));\
+if (ckrow.length > 0) {\
+  app.send({\
+    ok: false,\
+    msg: \"设备交接单已经完成,不能修改\"\
+  });\
+  return;\
+}\
+ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and F_CNTR=1 and trade_id='2'\"));\
+if (ckrow.length > 0) {\
+  app.send({\
+    ok: false,\
+    errstr: \"设备交接单已经放箱,不能修改\"\
+  });\
+  return;\
+}\
+app.run(\"update receipt set CNTR_ISO={?CNTR_ISO?},CNTR_SIZE={?CNTR_SIZE?},CNTR_TYPE={?CNTR_TYPE?},WORK_TYPE={?WORK_TYPE?},\" +\
+  \"PLAN_STIME={?TIMESTAMP.PLAN_STIME?},PT_TYPE={?SHIPPER_WAY?},CNTR_OPERATOR={?CNTR_OPERATOR?},\" +\
+  \"CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?},T_ADDRESS={?T_ADDRESS?},F_ADDRESS={?F_ADDRESS?},S_ADRESS={?S_ADRESS?},\" +\
+  \"SHIPPER_COD={?SHIPPER_COD?},SHIPPER={?SHIPPER?},CONSIGNEE_COD={?CONSIGNEE_COD?},CONSIGNEE={?CONSIGNEE?},\" +\
+  \"ACCOUNT_CUSTOMER_CODE={?ACCOUNT_CUSTOMER_CODE?},ACCOUNT_CUSTOMER={?ACCOUNT_CUSTOMER?},POD={?POD?},POL={?POL?},\" +\
+  \"SPOD={?SPOD?},UPDATED_BY='\" + username + \"',UPDATED_ON=sysdate,VID={?VID?},LINE={?LINE?},SHIPPER_WAY={?SHIPPER_WAY?},\" +\
+  \"LINE_COD={?LINE_COD?},SHIP_ORDER={?SHIP_ORDER?},MBILL_NO={?MBILL_NO?},YZC_ON={?TIMESTAMP.YZC_ON?},CAR_TEAM={?CAR_TEAM?},\" +\
+  \"FEI_ADDDRESS=(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id={?S_ADRESS?}),\" +\
+  \"SHIP_CONSIGN_COD={?SHIPPER_COD?},SHIPPER_CONSIGNEE={?SHIPPER?},F_CNTR=\" + fcntr + \",\" +\
+  \"F_ON=(case \" + fcntr + \" when 1 then sysdate end),F_BY=(case \" + fcntr + \" when 1 then '\" + username + \"' end)\" +\
+  \" where ID={?ID?}\");\
+app.send({\
+  success: true,\
+  errstr: \"完成\"\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

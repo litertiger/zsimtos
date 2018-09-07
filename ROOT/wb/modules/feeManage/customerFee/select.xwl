@@ -1,0 +1,134 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var nature = request.getSession().getAttribute('sys.NATURE'), //2码头3驳船\
+  TENANCY_ID = request.getSession().getAttribute('sys.TENANCY_ID'),\
+  CREATEUSER = request.getSession().getAttribute('sys.username'),\
+  ORG_ID = request.getSession().getAttribute('sys.ORG_ID');\
+// app.log(nature);\
+// app.log(TENANCY_ID);\
+// app.log(CREATEUSER);\
+\
+\
+var sql = \"\";\
+if (!Wb.isEmpty(data.name1)) {\
+  sql += \"  and  (NAME like '%'||{?name1?}||'%'    or  CODE like '%'||{?name1?}||'%'   or  GOV_CODE like '%'||{?name1?}||'%')   \";\
+}\
+if (!Wb.isEmpty(data.type)) {\
+  sql += \"  and  (CLIENT_TYPE like '%'||{?type?}||'%'  )   \";\
+}\
+\
+if (!Wb.isEmpty(data.createtime1)) {\
+  var dat = data.createtime1.substring(0, 10);\
+  sql += \" and CREATETIME >= to_date('\";\
+  sql += dat;\
+  sql += \" 00:00:00','yyyy-mm-dd HH24:MI:SS')\";\
+}\
+if (!Wb.isEmpty(data.createtime2)) {\
+  var dat = data.createtime2.substring(0, 10);\
+  //app.log(dat);\
+  sql += \" and CREATETIME <= to_date('\";\
+  sql += dat;\
+  sql += \" 23:59:59','yyyy-mm-dd HH24:MI:SS')\";\
+}\
+\
+if (!Wb.isEmpty(data.accountType)) {\
+  sql += \" and b.ACCOUNT_TYPE={?accountType?} \";\
+}\
+if (!Wb.isEmpty(data.protocol) && data.protocol != \"[]\") {\
+  sql += \" and b.DEFAULT_PROTOCOL= {?protocol?} \";\
+}\
+\
+// if (nature == '2') //码头\
+//   sql += \" and  TENANCY_ID='\" + TENANCY_ID + \"'\";\
+// //else if (nature == '3'||nature=='4'||nature=='1') //驳船\
+//   //sql += \" and  CREATEUSER='\" + CREATEUSER + \"'\";\
+// else if(nature=='5'){\
+// \tsql += \" and  b.TENANCY_ID='\" + TENANCY_ID + \"' AND b.ORG_ID='\"+ORG_ID+\"'\";\
+// }\
+if (nature == '5') {\
+  sql += \" and  b.TENANCY_ID='\" + TENANCY_ID + \"' AND b.ORG_ID='\" + ORG_ID + \"'\";\
+} else {\
+  //sql+=\"and b.ORG_NAME=decode('ZSG','ZSG','中山港','XLG','XLG','小榄港','SWG','SWG','神湾港','','','中山港')\";\
+  sql += \"and ( b.ORG_NAME is  null or b.ORG_NAME=decode('\" + TENANCY_ID + \"','ZSG','中山港','XLG','小榄港','SWG','神湾港','','中山港'))\";\
+}\
+\
+//组织机构查询\
+// if(data.ORG_CODE==null && TENANCY_ID=='ZSG'){\
+// \tsql+=\" and (instr(CLIENT_TYPE,'AG')>0 OR instr(CLIENT_TYPE,'TU')>0)\";\
+// }else if(data.ORG_CODE!=null || data.ORG_CODE!=''){\
+//   var rs=Wb.getRecords(app.run(\"select * from AUTH_ORGANIZATION where PARENT_ID='\"+data.orgId+\"' and (ORG_TYPE=5 or ORG_TYPE=6)\"));\
+//   if(rs.length==1){\
+// \tsql+=\" and code='\"+data.ORG_CODE+\"'\";\
+//   }else if(rs.length>1){\
+//     var ids=\"\";\
+//   \tfor(var i=0;i<rs.length;i++){\
+//     \tids+=\"'\"+rs[i].ORG_CODE+\"',\";\
+//     }\
+//     ids=ids.slice(0, ids.length - 1);\
+//     sql+=\" and code in(\"+ids+\")\";\
+//   }\
+\
+// }\
+\
+if (!Wb.isEmpty(data.ORG_NAME)) {\
+\
+  if (data.parentId == 'ZSG') {\
+    app.log(data.parentId);\
+  } else {\
+    var rs = Wb.getRecords(app.run(\"select * from AUTH_ORGANIZATION where PARENT_ID='\" + data.orgId + \"'\"));\
+    if (rs.length == 0) {\
+      sql += \" and code='\" + data.ORG_CODE + \"'\";\
+    } else if (rs.length > 0) {\
+      var ids = \"\";\
+      for (var i = 0; i < rs.length; i++) {\
+        ids += \"'\" + rs[i].ORG_CODE + \"',\";\
+      }\
+      ids = ids.slice(0, ids.length - 1);\
+      sql += \" and code in(\" + ids + \")\";\
+    }\
+  }\
+  //   app.log(data.orgId);\
+  //   app.log(data.ORG_CODE);\
+  //   app.log(data.ORG_NAME);\
+}\
+\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "SELECT a.ID, a.ORG_ID, CODE, NAME, SHORT_NAME, E_CODE, E_SHORT_NAME, ABLETIME,\
+       CLIENT_TYPE, AREA_CODE, AREA, ADDRESS, ZIP, BIZ_LINKMAN, TEL, TELEX,\
+       FAX, FINANCE_LINKMAN, EMAIL, EMAIL_FILE, FILE_FORMAT, WEBSITE,\
+       b.EMPTY_PRICE_TYPE, b.MIN_CONTAINER,\
+       decode(b.DEFAULT_PROTOCOL,'[\"\"]','',b.DEFAULT_PROTOCOL) DEFAULT_PROTOCOL, b.CREDIT_LIMIT,\
+       b.PROTOCOL_ABLETIME, b.PAY_TYPE, b.ACCOUNT_TYPE, b.RESERVE_PRICE, REMARK,\
+       CREATEUSER, CREATETIME, UPDATEUSER, UPDATETIME, DELETED,\
+       REGEDIT_STATUS, GOV_CODE, a.TENANCY_ID, PAR_ORG_ID, STATE_FLAG,SUBCOMPANY,b.I_E_ID_FEE, decode(b.CNTR_OPERATOR_CODS,'[\"\"]','',CNTR_OPERATOR_CODS) CNTR_OPERATOR_CODS \
+  FROM C_CUSTOMER a,C_CUSTOMER_CONTACT b where a.id=b.c_id(+) \
+{#whereSql#}\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

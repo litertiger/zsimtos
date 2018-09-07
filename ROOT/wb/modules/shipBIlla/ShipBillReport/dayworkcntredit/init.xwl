@@ -1,0 +1,80 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+app.run(\"delete from tmp_rpt_day_work_cntr where tenancy_id='\" + tenancyid + \"' and trunc(report_day)=to_date('\" + data.sdate + \"','yyyy-mm-dd')\");\
+var sql = \"insert into tmp_rpt_day_work_cntr(id,tenancy_id,report_day,i_e_id,vid,vessel_name,\\
+\" +\
+  \"vessel_voyage,berth_code,berth_name,cntr_operator_cod,ata,endwork,cntr_f_20,cntr_f_40,cntr_f_45,\\
+\" +\
+  \"cntr_e_20,cntr_e_40,cntr_e_45,sum_teu,sum_weitht,created_by,created_on,trade_id)\\
+\" +\
+  \"select sys_guid(),'\" + tenancyid + \"',to_date('\" + data.sdate + \"','yyyy-mm-dd'),vl.i_e_id,v2.id,v1.vessel_name,\\
+\" +\
+  \"decode(vl.i_e_id,'I',v2.lib_vyg,v2.lob_vyg)vyg,\\
+\" +\
+  \"decode(vl.i_e_id,'I',v2.berth_code,v2.o_berth_code)berth_code,b.berth_name,\\
+\" +\
+  \"vl.cntr_operator_cod,nvl(v2.ata,v2.eta)ata,ENDWORK,\\
+\" +\
+  \"sum(case when vl.e_f_id='F' and vl.cntr_size='20' then 1 end)F20,\\
+\" +\
+  \"sum(case when vl.e_f_id='F' and vl.cntr_size='40' then 1 end)F40,\\
+\" +\
+  \"sum(case when vl.e_f_id='F' and vl.cntr_size='45' then 1 end)F45,\\
+\" +\
+  \"sum(case when vl.e_f_id='E' and vl.cntr_size='20' then 1 end)E20,\\
+\" +\
+  \"sum(case when vl.e_f_id='E' and vl.cntr_size='40' then 1 end)E40,\\
+\" +\
+  \"sum(case when vl.e_f_id='E' and vl.cntr_size='45' then 1 end)E45,\\
+\" +\
+  \"(sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0)))teu,\\
+\" +\
+  \"sum(vl.weight)/1000 weight,'\" + username + \"',sysdate,vl.trade_id\\
+\" +\
+  \"from vload_list vl left join vessel_visit v2 on v2.id=vl.vid left join vessel_voyage v1 on v1.id=v2.vid\\
+\" +\
+  \"left join c_berth b on b.id=decode(vl.i_e_id,'I',v2.berth_code,v2.o_berth_code) and b.tenancy_id=vl.tenancy_id\\
+\" +\
+  \"where trunc(nvl(v2.eta,v2.ata))=to_date('\" + data.sdate + \"','yyyy-mm-dd') and vl.tenancy_id='ZSG' and vl.main_flag=1\\
+\" +\
+  \"and not exists(select id from tmp_rpt_day_work_cntr t where t.tenancy_id='\" + tenancyid + \"' and trunc(t.report_day)=to_date('\" + data.sdate + \"','yyyy-mm-dd') and t.vid=v2.id and t.cntr_operator_cod=vl.cntr_operator_cod)\\
+\" +\
+  \"group by v1.vessel_name,vl.cntr_operator_cod,vl.i_e_id,v2.id,\\
+\" +\
+  \"decode(vl.i_e_id,'I',v2.lib_vyg,v2.lob_vyg),decode(vl.i_e_id,'I',v2.berth_code,v2.o_berth_code),b.berth_name,\\
+\" +\
+  \"nvl(v2.ata,v2.eta),ENDWORK,vl.trade_id\\
+\" +\
+  \"order by v1.vessel_name\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+\
+app.run(\"delete from tmp_rpt_day_work_cntr t where trunc(report_day)=to_date('\" + data.sdate + \"','yyyy-mm-dd') and tenancy_id='\" + tenancyid + \"'\\
+\" +\
+  \"and (select count(1) from move_list where carrier_call=t.vid and move_type='MOV' and phase='FIN')=0\");\
+\
+app.run(\"update tmp_rpt_day_work_cntr t set TALLY_MAN=(select wm_concat(distinct u.display_name) from move_list m left join (select bus_id,act_by from (select bus_id,act_by, row_number () over (partition by bus_id order by act_on) r  from bus_action where act_cod in ('TDIS', 'VDIS', 'VLOD') ) where r=1) a on m.id=a.bus_id left join wb_user u on a.act_by=u.user_name where carrier_call=t.vid and move_type='MOV' and phase='FIN')\\
+\" +\
+  \"where trunc(report_day)=to_date('\" + data.sdate + \"','yyyy-mm-dd') and t.tenancy_id='\" + tenancyid + \"'\");\
+\
+app.run(\"update tmp_rpt_day_work_cntr t set CRANE=(select wm_concat(distinct CRANE) from move_list where carrier_call=t.vid and move_type='MOV' and phase='FIN')\\
+\" +\
+  \"where trunc(report_day)=to_date('\" + data.sdate + \"','yyyy-mm-dd') and t.tenancy_id='\" + tenancyid + \"'\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "初始化数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,46 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">10.XML提交格式规范</p><hr color=#2266ee size=1>
+　　和Treelist类似，通过调用函数GetChangedXML( )，能取得输入内容的XML包，使得应用服务器能作相应处理，函数中参数level为提交级别，分如下3种：<br>
+　　级别0：生成当前全部、最新内容(不包括修改前的原始内容);<br>
+　　级别1：仅生成被修改过的Input的内容(包括原始内容);<br>
+　　级别2：生成全部Input的内容(包括原始内容);<br>
+<br>
+　　级别0最常用，并且XML规范最简单，如下所示：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;!-- id在XML描述文件中定义 --&gt;
+&lt;form level="0" id="?" key="?" 自定义属性="?" &gt;
+ &lt;row&gt;
+  &lt;!-- id处为input真实的id，Text为输入的内容 --&gt;
+  &lt;id&gt;Text&lt;/id&gt;
+  ...
+ &lt;/row&gt;
+&lt;/form&gt;</pre>
+<br>
+　　级别1、2的内容规定如下：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;!-- id 在XML描述文件中定义 --&gt;
+&lt;form level="?" id="?" key="?" 自定义属性="?" &gt;
+ &lt;!-- 通过Load( )加载的是&lt;modifiedRow&gt;、否则就是&lt;newRow&gt; --&gt;
+ &lt;modifiedRow、newRow&gt;
+  &lt;row key="?"&gt;
+   &lt;!-- id处为input的id, origin为原始值(被修改前)，isModified仅用于级别2, Text为修改后的值 --&gt;
+   &lt;id origin="?" isModified="false"&gt;Text&lt;/id&gt;
+   ...
+  &lt;/row&gt;
+ &lt;/modifiedRow、newRow&gt;
+&lt;/form&gt;</pre>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">警告：应用服务器端开发的程序不应过于依赖级别 1/2 中的 origin 的内容(被修改前)，因为需要考虑并发.</p>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

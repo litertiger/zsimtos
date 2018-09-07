@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var map = new HashMap();\
+var sql, result;\
+if(!Wb.isEmpty(data.billno)){\
+  sql = \"select m.ID from BLUK_TRUCK_M m,BLUK_TRUCK_D d where m.TENANCY_ID={?sys.TENANCY_ID?}\"+\
+  \" and d.pid=m.id and d.bill_no='\"+data.billno+\"' \";\
+}else{\
+  sql = \"select BLUK_TRUCK_M.ID from BLUK_TRUCK_M,BLUK_APPLY_D where BLUK_TRUCK_M.TENANCY_ID={?sys.TENANCY_ID?} \"+\
+      \" AND INSTR(BLUK_TRUCK_M.PID,BLUK_APPLY_D.ID)>0 \" +\
+    \" and BLUK_TRUCK_M.created_on>to_date('\" + data.sdate + \" 00:00:00','yyyy-MM-dd HH24:mi:ss') \" +\
+    \" and BLUK_TRUCK_M.created_on<to_date('\" + data.edate + \" 23:59:59','yyyy-MM-dd HH24:mi:ss')\";\
+  if(!Wb.isEmpty(data.customerId)){\
+      sql+=\" and BLUK_APPLY_D.SHIPPER_COD='\"+data.customerId+\"'\t\";\
+  }\
+}\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records, function(data) {\
+  //java.lang.Thread.sleep(5000);\
+  map.put(\"rpId\", data.ID);\
+  Wb.newClass(\"dubboForBulkCar\").call(request, map);\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"JCB": 1},
+ "title": "散货派车计费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+var username = app.get(\"sys.username\");\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = app.get('sys.NATURE');\
+var GOV_CODE = app.get('sys.GOV_CODE');\
+\
+sql = \"select id from vbill_head where TENANCY_ID='\" + tenancyid + \"' and BILL_NO='\" + data.billNo + \"'\";\
+if (nature == 5)\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+var bill = Wb.getRecords(app.run(sql));\
+if (bill.length < 1) {\
+  throw \"没有找到提单\";\
+} else {\
+  if (data.type == \"f\") {\
+    app.run(\"update vbill_head_e set FX=1,FX_BY='\" + username + \"',FX_ON=sysdate where id='\" + bill[0].ID + \"'\");\
+  } else {\
+    app.run(\"update vbill_head_e set FX=0,FX_BY='',FX_ON='' where id='\" + bill[0].ID + \"'\");\
+  }\
+  sql = \"select vh.id,vh.vid,vh.vessel_name,vh.CNTR_OPERATOR,vh.bill_no,decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER)CS,\" +\
+    \"vh.i_e_id,vh.trade_id,vh.zf_id,vh.pol,vh.pod,vh.bill_type,decode(vh.I_E_ID,'I',NVL(V2.ATA,v2.eta),'E',NVL(ATD,ETD)) ETA,\" +\
+    \"vh.goods_notes,vh.cargo_type,e.fx,vh.RELEASE_ID,vh.CIQ_ID\" +\
+    \" from vbill_head vh inner join vbill_head_e e on vh.id=e.id left join vessel_visit v2 on vh.vid=v2.id\" +\
+    \" where vh.id='\" + bill[0].ID + \"'\";\
+  bill = Wb.getRecords(app.run(sql));\
+  app.send(bill);\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

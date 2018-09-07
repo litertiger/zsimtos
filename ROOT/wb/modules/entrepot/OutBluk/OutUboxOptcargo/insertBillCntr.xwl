@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var billId = app.get('billId');\
+var username = app.get(\"sys.username\"),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+var rs=Wb.getRecords(app.run(\"select IPIECES from BLUK_BILL WHERE BILL_ID={?ID?}\")),num=0;\
+for(var i=0;i<rs.length;i++){\
+\tnum+=rs[i].IPIECES;\
+}\
+if(rs.length==0){\
+\tnum=0;\
+}\
+app.run(\"select 1 from vbill_head where pieces=\"+num+\" and ID={?ID?} \",{errorText:\"已经全部入库！\"});\
+\
+\
+app.run(\"INSERT INTO BLUK_BILL \" +\
+  \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, IPIECES,\" +\
+  \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+  \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+  \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID,PIECES,CNTR)\" +\
+  \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+  \"        VBILL_HEAD.PIECES , VBILL_HEAD.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+  \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+  \"        VBILL_HEAD.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO,'','INS',VBILL_HEAD.PIECES,''  \" +\
+  \"   FROM VBILL_HEAD \" +\
+  \"   WHERE VBILL_HEAD.ID ={?ID?} \" +\
+  \"  and  VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"'  \" );\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "按照单确认入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

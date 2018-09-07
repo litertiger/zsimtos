@@ -1,0 +1,511 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "head": "<!-- <script src = \"supcan/binary/dynaload.js?1013\" > <\/script>\
+<script>  var  locrec;\
+\
+function OnReady(id)\
+ {\
+ \tif(id=='AF1'){\
+       AF1.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+       AF1.func(\"Build\", '/supcan/report/bluk/bluk.xml ');\
+       AF1.func(\"DisableMenu\",\"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    }\
+  \
+ }\
+  \
+ function OnEvent(id, Event, p1, p2, p3,  p4){\
+   if(Event==\"MenuBeforePopup\"&&id==\"AF1\") {\
+   var menu =\"\";l= Wb.getSupcanMelu(AF1,\"BILL_NO\",true).length\
+  \
+   \t if(l>0){\
+          menu += \"id=4001; text='出库'; style='height:36px' \";\
+          menu += \"enabled= true \\r\\
+\";\
+          menu += \"id=4002; text='搬移';  \";\
+          menu += \"enabled= true \\r\\
+\";\
+          menu += \"id=4004; text='搬移记录'; \";\
+          menu += \"enabled= true \\r\\
+\";\
+   \t }\
+     if(Wb.getSupcanMelu(AF1,\"IMPEXP\",false)==\"拆\"){\
+          menu += \"id=4003; text='扣留'; \";\
+          menu += \"enabled= true \\r\\
+\";\
+     }\
+          AF1.func(\"AddMenu\", menu);\
+   } \
+  \
+  else if(Event==\"MenuClicked\"&&id==\"AF1\") {\
+ \
+       if(p1=='4001'){//出库\
+            \
+         var outNum= Wb.getSupcanMelu(AF1,\"OUTNUM\",true) ;\
+         var billIds= Wb.getSupcanMelu(AF1,\"BILL_ID\",true) ;\
+         var quty= Wb.getSupcanMelu(AF1,\"QUTY\",true),state =\"\";\
+         for(var i=0;i<outNum.length;i++){\
+         \t\tif(outNum[i]==null||outNum[i]==''){\
+                  state=\"请在选中的记录中输入出库数量！\"\
+                  break\
+                }\
+                 if(parseInt(outNum[i])>parseInt(quty[i])){\
+                  state=\"输入的出库数量大约库存数不能出库！\"\
+                  break\
+                }\
+         }\
+         if(state==\"\"){\
+          var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
+\
+\t\t\ttruckWin.show();\
+           \t app.TRUCKNO.focus();\
+            truckWin.mon(truckWin, 'ok', function() {\
+             Wb.request({\
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/setTruck',\
+               params: {billIds:billIds,TRUCKNO:app.TRUCKNO.getValue(),outNum:outNum},\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                app.findBtn.fireEvent('click');\
+                truckWin.close();\
+              }\
+            });\
+          });\
+          }\
+         else\
+             Wb.warn(state);\
+\t\t }else if(p1=='4002'){//搬移\
+          var banWin = new Ext.window.Window(app._banWin); //app._win指向配置对象而非实例\
+          \t banWin.show();\
+             app.OLD_POS.setValue(Wb.getSupcanMelu(AF1,\"LOCATION\",false) );\
+             var billId= Wb.getSupcanMelu(AF1,\"BILL_ID\",false) ;\
+             banWin.mon(banWin, 'ok', function() {\
+             Wb.request({ \
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/moveBluk',\
+               params: {billId:billId},\
+               out:banWin,\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                 app.findBtn.fireEvent('click');\
+                 banWin.close();\
+              }\
+            }); });\
+         \
+         }else if(p1=='4003'){//扣留\
+           \
+          \
+           var klWin = new Ext.window.Window(app._klWin); //app._win指向配置对象而非实例\
+           klWin.show();\
+          app.CFS_ID.setValue('扣留仓');\
+          app.INQUTY.setValue(Wb.getSupcanMelu(AF1,\"QUTY\",false));\
+          klWin.mon(klWin, 'ok', function() { \
+             Wb.request({ \
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/setKouLiu',\
+               params: {billId: Wb.getSupcanMelu(AF1,\"BILL_ID\",false) },\
+               out:klWin,\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                 app.findBtn.fireEvent('click');\
+                klWin.close();\
+              }\
+            }); });\
+         }\
+         else if(p1=='4004'){\
+         \tapp.banSelWin.show();\
+            app.banGrid.store.load({params:{billId:Wb.getSupcanMelu(AF1,\"BILL_ID\",false)}});\
+         }\
+\
+       }\
+   }\
+  <\/script>\
+ -->",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "anchor",
+     "itemId": "feeWin",
+     "dialog": "true",
+     "defaults": "{\
+  padding: '8 8 4 8',\
+  anchor: '100%'\
+}",
+     "width": "200",
+     "title": "添加其他费用"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "szearn",
+       "labelAlign": "right",
+       "fieldLabel": "柜货产值",
+       "labelWidth": "65",
+       "readOnly": "true",
+       "decimalPrecision": "2"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "earnbulk",
+       "labelAlign": "right",
+       "fieldLabel": "散货产值",
+       "labelWidth": "65",
+       "readOnly": "true",
+       "decimalPrecision": "2"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "othwage",
+       "labelAlign": "right",
+       "fieldLabel": "其他费用",
+       "labelWidth": "65",
+       "decimalPrecision": "2"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "absolute",
+       "itemId": "panelForm",
+       "width": "1136",
+       "region": "north",
+       "height": "40",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "cboY",
+         "allowBlank": "false",
+         "emptyText": "年",
+         "width": "60",
+         "x": "8",
+         "displayField": "YEAR",
+         "y": "8",
+         "valueField": "ID",
+         "forceSelection": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = app.cboM.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "cboM",
+         "allowBlank": "false",
+         "pickList": "[\
+  [1, \"1月\"],\
+  [2, \"2月\"],\
+  [3, \"3月\"],\
+  [4, \"4月\"],\
+  [5, \"5月\"],\
+  [6, \"6月\"],\
+  [7, \"7月\"],\
+  [8, \"8月\"],\
+  [9, \"9月\"],\
+  [10, \"10月\"],\
+  [11, \"11月\"],\
+  [12, \"12月\"]\
+]",
+         "emptyText": "月",
+         "width": "50",
+         "x": "72",
+         "y": "8",
+         "forceSelection": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = combo.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "x": "200",
+         "width": "240",
+         "y": "-16",
+         "labelWidth": "70",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "x": "416",
+         "width": "240",
+         "y": "-16",
+         "labelWidth": "70",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "truck_no",
+         "emptyText": "拖头",
+         "x": "210",
+         "width": "70",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "driver",
+         "emptyText": "司机",
+         "x": "128",
+         "width": "80",
+         "displayField": "EMPNAME",
+         "y": "8",
+         "valueField": "EMPNAME",
+         "anyMatch": "true",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=countManage/effVag/tree_TruckMonthedit/loadDriver"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "findBtn",
+         "x": "283",
+         "width": "55",
+         "y": "8",
+         "text": "查询",
+         "iconCls": "search_icon",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "button",
+        "events": {"click": "var AF1 = document.getElementById(opt);\
+if (!Wb.verify(app.panelForm))\
+  return;\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=countManage/effVag/tree_DriverMonthedit/select\", {\
+  //   cntr: app.cntr.getValue(),\
+  sdate: app.sdate.getValue(),\
+  edate: app.edate.getValue(),\
+  drivername:app.driver.getValue(),\
+  truckno:app.truck_no.getValue()\
+    //   tradeId: app.tradeId.getValue(),\
+    //   ieId: app.ieId.getValue(),\
+    //   JCStorage:app.JiCabinetStorage.getValue(),\
+    //   bargeCompany:app.bargeCompany.getValue()\
+}));\
+\
+// AF1.func(\"expand\", \"-1 \\r\\
+ true\");"}
+       },
+       {
+        "configs": {
+         "itemId": "createBtn",
+         "x": "342",
+         "width": "79",
+         "y": "8",
+         "text": "生成工资",
+         "iconCls": "db_import_icon",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "button",
+        "events": {"click": "if (!Wb.verify(app.panelForm))\
+  return;\
+var values = Wb.getValue(app.panelForm);\
+ Wb.request({\
+        url: \"m?xwl=countManage/effVag/tree_DriverMonthedit/insert\",\
+        params: Wb.applyIf(values, Wb.getData(app.panelForm, true)),\
+        success: function() {\
+          Wb.tip(\"保存成功!\");\
+          app.findBtn.fireEvent('click');\
+        }\
+      });"}
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "panel1",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "// alert(opt);\
+var mt1 = bldStr(\"BCV1.TreeList\", opt, \"\", \"99%\");\
+app.panel1.update(mt1);\
+",
+     "destroy": "delete  window[\"init\" + opt];"
+    }
+   }
+  ],
+  "type": "module",
+  "events": {"finalize": "var opt = Wb.getId();\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+//定义一个Store,绑定数据\
+var yearStore = Ext.create('Ext.data.Store', {\
+  fields: ['ID', 'YEAR'],\
+  data: years\
+});\
+//combo通过代码绑定Stroe\
+app.cboY.bindStore(yearStore);\
+var today = new Date(); //获取当前日期\
+app.cboY.setValue(today.getFullYear());\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/report/tree_dirvermonth.xml? ' + Math.random() * 1000);\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    //     m.func(\"expand\", \"-1 \\r\\
+ true\");\
+  }\
+  //   \\r\\
+ isTree=true \
+  //   m.func(\"Load\", Wb.loadSupcanData(\"m?xwl=controlManage/portcntr/cntrProcedit/select\", {\
+  //     indate: app.sdate.getValue(),\
+  //     outdate: app.edate.getValue()\
+  //   }));\
+};\
+\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  var s = document.getElementById(opt);\
+  if (Event == \"MenuBeforePopup\" && id == opt) {\
+    var menu = \"\";\
+    l = Wb.getSupcanMelu(s, \"ID\", true).length;\
+    if (l > 0) {\
+      menu += \"id=4001; text='添加其他费用';  \";\
+      menu += \"enabled= true \\r\\
+\";\
+    }\
+    s.func(\"AddMenu\", menu + \" \\r\\
+ LocateAt=top\");\
+  } else if (Event == \"MenuClicked\" && id == opt) {\
+    console.log(p1);\
+    if (p1 == '4001') {\
+      var feeWin = new Ext.window.Window(app._feeWin); //app._win指向配置对象而非实例\
+      feeWin.show();\
+      var id = Wb.getSupcanMelu(s, \"ID\", false);\
+      var cntroperatorcod = Wb.getSupcanMelu(s, \"CNTR_OPERATOR_COD\", false);\
+      var cntrowner = Wb.getSupcanMelu(s, \"CNTR_OWNER\", false);\
+      var intime = Wb.getSupcanMelu(s, \"IN_TIME\", false);\
+      var outtime = Wb.getSupcanMelu(s, \"OUT_TIME\", false);\
+      var cntr = Wb.getSupcanMelu(s, \"CNTR\", false);\
+      app.ID.setValue(Wb.getSupcanMelu(s, \"ID\", false));\
+      app.szearn.setValue(Wb.getSupcanMelu(s, \"EARN_ACTUAL\", false));\
+      app.earnbulk.setValue(Wb.getSupcanMelu(s, \"EARN_BULK\", false));\
+      app.othwage.setValue(Wb.getSupcanMelu(s, \"OTH_WAGE\", false));\
+      feeWin.mon(feeWin, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=countManage/effVag/tree_DriverMonthedit/update',\
+          out: app.feeWin,\
+          success: function(resp) {\
+            Wb.info(\"成功\");\
+            feeWin.close();\
+//             app.findBtn.fireEvent('click');\
+             var col = s.func(\"find\", \"ID='\" + id + \"'\");\
+//             console.log(col);\
+            if (col != '-1') {\
+              s.func(\"SetCellData\", \"\" + col + \" \\r\\
+ OTH_WAGE \\r\\
+ \"+app.othwage.getValue()+\"\");\
+            }\
+          }\
+        });\
+      });\
+    }\
+  }\
+};"}
+ }],
+ "roles": {"JCB": 1},
+ "title": "司机工资月度汇总",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

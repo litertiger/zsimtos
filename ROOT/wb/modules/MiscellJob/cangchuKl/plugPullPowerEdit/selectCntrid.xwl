@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var sql,data =app.get();\
+// sql = '';\
+// if(!Wb.isEmpty(data.CNTR))\
+//   sql += ' and INSTR(CNTR,{?CNTR?}) > 0';\
+// request.setAttribute('sql',sql);\
+\
+//SELECT ID,CNTR,to_char(IN_PORT_TIME,'YYYY-MM-DD') as IN_PORT_TIME,BILL_NO \
+//FROM PORT_CNTR_NEW  where CNTR_TYPE IN ('RF','RH')  AND CNTR LIKE '%'||{?query?}||'%' \
+\
+var data = app.get();\
+var tenancy_id = app.get(\"sys.TENANCY_ID\");\
+var sql = \"SELECT CNTR_ID,CNTR,to_char(v.SHIP_DT,'YYYY-MM-DD') IN_PORT_TIME, BILL_NO, I_E_ID FROM VLOAD_LIST a, V_VISIT_VOYAGE v WHERE \"+\
+\"a.VID=v.ID AND a.TENANCY_ID='\"+ tenancy_id +\"' AND a.LCL_ID='0'\";\
+if(!Wb.isEmpty(data.CNTR)){\
+  sql += \" and CNTR LIKE '%\"+ data.CNTR +\"%'\";\
+}\
+if(!Wb.isEmpty(data.I_E_ID)){\
+  sql += \" and I_E_ID='\"+ data.I_E_ID +\"'\";\
+}\
+//app.log(\"test:==========\"+sql);\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSGEHELE": 1
+ },
+ "title": "查询箱号Id",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

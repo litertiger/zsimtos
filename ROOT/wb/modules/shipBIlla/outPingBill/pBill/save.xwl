@@ -1,0 +1,114 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, id = SysUtil.getId();\
+var  data=app.get(\"data\");\
+var  vId=app.get(\"shipNo\");\
+var recs1, data = Wb.decode(app.get('data'));\
+var username=app.get(\"sys.username\");\
+var TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+var begdate = (new JavaDate()).getTime();\
+\
+recs1 = data[0].update;\
+app.set({\
+     create: Wb.encode( data[0].create),\
+     update:Wb.encode( data[0].update),\
+     destroy: Wb.encode(data[0].destroy)\
+});\
+var  billNo='';\
+recs1 = data[0].create;\
+Wb.each(recs1,\
+function(rec) {\
+    billNo+=rec.BILL_NO+\",\";\
+});\
+var  rs=app.run(\"select bill_no from vload_list where  instr('\"+billNo+\"',BILL_NO||',')>0 and vId='\"+vId+\"' \");\
+while(rs.next()){\
+\tWb.error(\"提单'\"+rs.getString(\"BILL_NO\")+\"'已经存在，不能再次增加\");\
+}\
+\
+app.update({\
+    tableName: 'VLOAD_LIST',\
+  whereFields:'BILL_ID',\
+  uniqueUpdate:false\
+\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+\
+app.update({\
+    tableName: 'VBILL_HEAD',\
+   whereFields:'ID',\
+  uniqueUpdate:false\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+var enddate = (new JavaDate()).getTime();\
+app.log(enddate-begdate);\
+app.set({\
+     create: Wb.encode( data[1].create),\
+     update:Wb.encode( data[1].update),\
+     destroy: Wb.encode(data[1].destroy)\
+});\
+app.update({\
+  tableName: 'VLOAD_LIST_D',\
+  whereFields:'ID',\
+  uniqueUpdate:false\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+\
+app.run(\"   UPDATE vbill_head SET main_flag = 0\\\
+    WHERE vid = '\"+vId+\"' AND i_e_id = 'E'  AND tenancy_id = '\"+TENANCY_ID+\"'   AND bill_type = 'P' and nvl(main_flag,1)<>0 \");\
+var enddate = (new JavaDate()).getTime();\
+app.log(enddate-begdate);\
+  app.run(\"  UPDATE vload_list  SET main_flag = 0\\\
+    WHERE    lcl_id = 1   AND i_e_id = 'E' AND tenancy_id = '\"+TENANCY_ID+\"'  AND  vid =  '\"+vId+\"'  and nvl(main_flag,1)<>0 \");\
+var enddate = (new JavaDate()).getTime();\
+app.log(enddate-begdate);\
+ app.run(\"   UPDATE vbill_head   SET main_flag = 1\\\
+    WHERE ID IN (\\\
+             SELECT   MIN (bill_id)\\\
+                 FROM vbill_head, vload_list\\\
+                WHERE vbill_head.vid =  '\"+vId+\"'\\\
+                  AND vbill_head.ID = vload_list.bill_id\\\
+                  AND vbill_head.i_e_id = 'E'\\\
+                  AND vbill_head.tenancy_id = '\"+TENANCY_ID+\"'\\\
+                  AND bill_type = 'P'\\\
+             GROUP BY cntr)  AND vid =  '\"+vId+\"'  AND i_e_id = 'E'\");\
+var enddate = (new JavaDate()).getTime();\
+// app.log(enddate-begdate);\
+ app.run(\"   UPDATE vload_list\\\
+      SET main_flag = 1\\\
+    WHERE bill_id IN (\\\
+             SELECT   MIN (bill_id)\\\
+                 FROM vbill_head, vload_list\\\
+                WHERE vbill_head.vid =  '\"+vId+\"'\\\
+                  AND vbill_head.ID = vload_list.bill_id\\\
+                  AND vbill_head.i_e_id = 'E'\\\
+                  AND vbill_head.tenancy_id = '\"+TENANCY_ID+\"'\\\
+                  AND bill_type = 'P'\\\
+             GROUP BY cntr)   AND vid =  '\"+vId+\"' AND i_e_id = 'E'\");\
+// app.run(\"insert into SYS_SERVICE_LOG(MESSAGE, OPE_MAN, OPE_DATE) values('\"+app.get('data')+\"', '\"+username+\"', sysdate)\");\
+\
+app.send([data[0].create, data[1].create]);\
+app.run(\"insert into SYS_SERVICE_LOG(MESSAGE, OPE_MAN, OPE_DATE) values({?clob.data?}, '\"+username+\"', sysdate)\");\
+\
+var enddate = (new JavaDate()).getTime();\
+// app.log(enddate-begdate);\
+// app.run(\"{call BILL_LCL_ID('\"+vId+\"','\"+TENANCY_ID+\"','E')}\");",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

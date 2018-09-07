@@ -1,0 +1,71 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \" and a.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.createBegin)) {\
+  sql += \" and e.SETTLE_ON > to_timestamp('\" + data.createBegin + \"','yyyy-MM-dd HH24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.createEnd)) {\
+  sql += \" and e.SETTLE_ON < to_timestamp('\" + data.createEnd.substring(0, 10) + \" 23:59:59.999','yyyy-MM-dd HH24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.wbUser)) {\
+  sql += \" and e.SETTLE_BY={?wbUser?}\";\
+}\
+if(!Wb.isEmpty(data.tradeId)){\
+\tsql+=\" and a.TRADE_ID={?tradeId?}\";\
+}\
+if(!Wb.isEmpty(data.billType)){\
+\tsql+=\" and a.BILL_TYPE={?billType?}\";\
+}\
+if(!Wb.isEmpty(data.cntrs)){\
+\tsql+=\" and a.CNTR={?cntrs?}\";\
+}\
+whereSql = \"SELECT sum(amount) TA,a.SETTLEMENT_CODE\t\" +\
+  \"  FROM ACCOUNTS_DETAILS a,   \" +\
+  \"       C_SETTLEMENT_DETAIL b,  \" +\
+  \"       C_SETTLEMENT_BODY c,\t\t\" +\
+  \"       C_SETTLEMENT_HEAD_CONTACT d,\t\" +\
+  \"       C_SETTLEMENT_HEAD e\t\" +\
+  \" WHERE     a.id = b.DETAILS_ID\t\" +\
+  \"       AND b.BODY_ID = c.ID\t\" +\
+  \"       AND c.id = d.BODY_ID\t\" +\
+  \"       AND d.HEAD_ID = e.id\t\" +\
+  \"       AND a.PAYMENT_TYPE = 1\t\" +\
+  \"       AND a.PAY_FLAG = 1\" + sql;\
+whereSql += \"  group by a.SETTLEMENT_CODE\";\
+// app.run(\"SELECT a.SETTLEMENT_CODE\t\" +\
+//   \"  FROM ACCOUNTS_DETAILS a,   \" +\
+//   \"       C_SETTLEMENT_DETAIL b,  \" +\
+//   \"       C_SETTLEMENT_BODY c,\t\t\" +\
+//   \"       C_SETTLEMENT_HEAD_CONTACT d,\t\" +\
+//   \"       C_SETTLEMENT_HEAD e\t\" +\
+//   \" WHERE     a.id = b.DETAILS_ID\t\" +\
+//   \"       AND b.BODY_ID = c.ID\t\" +\
+//   \"       AND c.id = d.BODY_ID\t\" +\
+//   \"       AND d.HEAD_ID = e.id\t\" +\
+//   \"       AND a.PAYMENT_TYPE = 1\t\" +\
+//   \"       AND a.PAY_FLAG = 1\t\");\
+var rs = Wb.getRecords(app.run(whereSql));\
+var tamount = 0;\
+for (var i = 0; i < rs.length; i++) {\
+  tamount += rs[i].TA;\
+}\
+app.send(\"总金额：\" + tamount + \",发票数：\" + rs.length);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

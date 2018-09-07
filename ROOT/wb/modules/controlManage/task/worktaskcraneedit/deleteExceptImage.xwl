@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select url from except_image where id={?id?}\");\
+if (result && result.next()) {\
+  var url = result.getString('url');\
+  if (url) {\
+    Wb.each(url.split(','), function(p) {\
+      //删除图片\
+      new File(Base.path + p)['delete']();\
+    });\
+  }\
+}\
+\
+app.run(\"delete except_image where id={?id?} \", {\
+  transaction: \"commit\"\
+});\
+var client = new RabbitClient();\
+try {\
+  var send = client.open() && client.routeSend(\"ex_task\", '#', {\
+    info: {\
+      type: \"task\",\
+      action: \"delete\",\
+      senduser: app.get(\"sys.username\"),\
+      sendmodule: \"taskMointor\",\
+      sendtime: (new Date()).getTime()\
+    },\
+    data: {\
+      id: app.get('id')\
+    }\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "删除异常图片",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

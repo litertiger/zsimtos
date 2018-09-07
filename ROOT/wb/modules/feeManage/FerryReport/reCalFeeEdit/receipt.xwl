@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var map = new HashMap();\
+var sql = \"select ID from RECEIPT where TENANCY_ID={?sys.TENANCY_ID?} \";\
+if(!Wb.isEmpty(data.cntr)){\
+\tsql+=\" and CNTR='\"+data.cntr+\"'\";\
+} else {\
+    sql += \"and created_on>to_date('\"+data.sdate+\" 00:00:00','yyyy-MM-dd HH24:mi:ss') \"+\
+     \"and created_on<to_date('\"+data.edate+\" 23:59:59','yyyy-MM-dd HH24:mi:ss')\"+\
+     \" and work_type not in('YOYI','FUTC')\";\
+//     \" and work_type<>'YOYI' and trade_id='\"+data.tradeId+\"' and outcarteam='\"+data.truckType+\"' and oservice<>'ZS2SZD'\"+\
+//     \" and i_e_id='\"+data.ieId+\"' AND CNTR_OPERATOR_COD='\"+data.cntrOperatorCod+\"' \"+\
+//     \" and decode(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD)='\"+data.customerId+\"'\";\
+    if(!Wb.isEmpty(data.tradeId)){\
+        sql+=\" and trade_id='\"+data.tradeId+\"'\";\
+    }\
+    if(!Wb.isEmpty(data.truckType)){\
+        sql+=\" and outcarteam='\"+data.truckType+\"'\";\
+    }\
+    if(!Wb.isEmpty(data.ieId)){\
+        sql+=\" and i_e_id='\"+data.ieId+\"'\";\
+    }\
+    if(!Wb.isEmpty(data.cntrOperatorCod)){\
+        sql+=\" and CNTR_OPERATOR_COD='\"+data.cntrOperatorCod+\"'\t\";\
+    }\
+    if(!Wb.isEmpty(data.customerId)){\
+        sql+=\" and SHIP_CONSIGN_COD='\"+data.customerId+\"'\";\
+    }\
+}\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  map.put(\"rpId\", data.ID);\
+  Wb.newClass(\"dubboForReceipt\").call(request, map);\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"JCB": 1},
+ "title": "设备单计费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

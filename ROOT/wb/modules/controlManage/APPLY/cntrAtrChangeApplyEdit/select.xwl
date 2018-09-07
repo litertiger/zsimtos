@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+var sql = \"select * from cntr_apply where tenancy_id='\" + tenancyid + \"' and apply_type='CNATR'\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and trunc(APPLY_DATE)=to_date('\" + data.sdate + \"','yyyy-mm-dd')\";\
+if (nature == \"5\" || nature == \"6\")\
+  sql += \" and APPLY_OPERATOR_COD='\" + govCode + \"'\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "基础查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

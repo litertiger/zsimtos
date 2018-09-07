@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \" WHERE 1=1 \";\
+\
+if (!Wb.isEmpty(data.BILL_NO)) {\
+  sql += \"  and  BILL_NO like '%'||{?BILL_NO?}||'%'   \";\
+}\
+if (!Wb.isEmpty(data.ORDER_NO)) {\
+  sql += \"  and  ORDER_NO like '%'||{?ORDER_NO?}||'%'   \";\
+}\
+if (!Wb.isEmpty(data.ACCOUNT_CUSTOMER_CODE)) {\
+  sql += \"  and  TRUCKFEE_PAYER like '%'||{?ACCOUNT_CUSTOMER_CODE?}||'%'   \";\
+}\
+if (!Wb.isEmpty(data.PAYMENT_TYPE)) {\
+  sql += \"  and  PAYER  like '%'||{?PAYMENT_TYPE?}||'%'  \";\
+}\
+if (!Wb.isEmpty(data.createBegin)) {\
+  sql += \" and CREATED_ON>=to_timestamp('\" + data.createBegin + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.createEnd)) {\
+  sql += \" and CREATED_ON<to_timestamp('\" + data.createEnd.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.cancelFlag)) {\
+  sql += \"  and CANCEL_FLAG={?cancelFlag?}  \";\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT * FROM VBILL_HEAD_OTH {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"SWB": 1},
+ "title": "查询提单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

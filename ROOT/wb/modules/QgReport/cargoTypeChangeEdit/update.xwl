@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+app.log(data.ids);\
+// app.run(\"update PORT_CNTR set CNTR_OWNER={?CNTR_OWNER?} where ID in(\"+data.ids+\")\",{transaction:\"start\"});\
+// app.run(\"update VLOAD_LIST set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID in(\"+data.ids+\")\");\
+// app.run(\"update RECEIPT set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID in(\"+data.ids+\")\");\
+\
+\
+\
+var tenancyId = app.get('sys.TENANCY_ID');\
+app.run(\"update VBILL_HEAD set CMDY_CODE={?CMDY_CODE?} where ID in(\" + data.ids + \")  and TENANCY_ID={?sys.TENANCY_ID?} AND I_E_ID={?ieId?}\", {\
+  transaction: \"start\"\
+});\
+app.run(\"update T_SAS_SHIP_THRUPUT set CMDY_CODE={?CMDY_CODE?} where SHIP_NO={?VID?} and BILL_NO={?BILL_NO?} and TENANCY_ID={?sys.TENANCY_ID?} AND I_E_ID={?ieId?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

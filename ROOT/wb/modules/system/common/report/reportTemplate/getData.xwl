@@ -1,0 +1,106 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var whereSql = app.get(\"whereSql\"),\
+  whereSql2 = app.get(\"whereSql2\"),\
+  kvMap = [],\
+  tenancyId = app.get(\"tenancyId\"),\
+    \
+  st, //\" and r.id='03f24934-b678-4b41-a644-9c87146adc13'\",//EPPZ_TITLE\
+ \
+  columns, vcolumns, c = [],\
+  v = [],\
+  rs = app.run(\"select   SQL, E_COLUMN, C_COLUMN, JNDI,COLUMNS, VCOLUMNS from  SUPCAN_DATA_SOURCE where COD={?COD?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+// app.log(whereSql);\
+var xml = \"<?xml version='1.0' encoding='UTF-8'?> <DataRoot>\",\
+  eColumn;\
+var URLDecoder = java.net.URLDecoder;\
+if (Wb.isEmpty(whereSql))\
+  whereSql = \"  and 1=1\";\
+if (Wb.isEmpty(whereSql2) || whereSql2 == '@para2')\
+  whereSql2 = \"  and 1=1\";\
+whereSql = URLDecoder.decode(whereSql, \"utf-8\");\
+whereSql2 = URLDecoder.decode(whereSql2, \"utf-8\");\
+// app.log(whereSql);\
+\
+if (rs.next()) {\
+  var sql = rs.getString(1);\
+  columns = rs.getString(\"COLUMNS\");\
+  vcolumns = rs.getString(\"VCOLUMNS\");\
+  if (columns != null) {\
+    c = columns.split(\"@\");\
+    v = vcolumns.split(\"@\");\
+  }\
+  for (var m = 0; m < v.length; m++) {\
+    kvMap.push(com.wb.common.KVBuffer.getMap(v[m], tenancyId));\
+\
+  }\
+  \
+  sql = sql.replaceAll(\"@whereSql@\", whereSql);\
+  sql = sql.replaceAll(\"@whereSql2@\", whereSql2);\
+  // app.log(sql);\
+  var st = sql.replaceAll(\"'\", \"\");\
+\
+  var rsn = app.run(sql, {\
+      jndi: rs.getString(\"JNDI\")\
+    }),\
+    eColumn = rs.getString(2);\
+  var es = eColumn.split(\",\");\
+//   app.log(kvMap);\
+  var begdate = (new JavaDate()).getTime(),countnum=0;\
+  while (rsn.next()) {\
+    xml += \" <Record>\";\
+\
+    for (var i = 0; i < es.length; i++) {\
+      st = rsn.getString(es[i]);\
+      var state = true;\
+      if (st == null || st === \"\")\
+        st = \" \";\
+      if (c.length > 0) {\
+        for (var j = 0; j < c.length; j++) {\
+          if (es[i] == c[j]) {\
+            var jsonStr = kvMap[j];\
+            var name = jsonStr.get(rsn.getString(es[i]));\
+           \
+            if (name != null) {\
+              state = false;\
+              xml += \"<\" + es[i] + \">\" + name + \"<\/\" + es[i] + \">\";\
+              continue;\
+            }\
+          }\
+        }\
+        if (state)\
+          xml += \"<\" + es[i] + \">\" + st + \"<\/\" + es[i] + \">\";\
+      } else\
+        xml += \"<\" + es[i] + \">\" + st + \"<\/\" + es[i] + \">\";\
+    }\
+    if(countnum>=20000){\
+     xml += \" <\/Record>\";\
+      break;\
+    \
+    }else\
+    xml += \" <\/Record>\";\
+    countnum++;\
+  }\
+}\
+xml += \"<\/DataRoot>\";\
+var enddate = (new JavaDate()).getTime();\
+// app.log((enddate - begdate) / 1000);\
+app.send(xml);",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "加载数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

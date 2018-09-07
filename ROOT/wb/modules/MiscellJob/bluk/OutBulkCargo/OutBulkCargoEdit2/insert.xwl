@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, WEIGHT, \\\
+  CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, CNTR_OPERATOR,\\\
+  CARGO_TYPE, SHIPPER_COD,ID,TRADE_ID)\\\
+  values({?BILL_ID?}, {?GOODS?}, 'I', {?SHIPPER?}, {?UNIT?}, {?PIECES?}, {?OUTQUTY?}, {?PIECES?}, sysdate, {?OUTTIME?}, {?LOCATION?}, {?CFS_ID?}, {?WEIGHT?}, {?CFSBILLNO?}, {?VOLUME?},\\\
+{?CFSBILL_ID?},{?sys.TENANCY_ID?}, sysdate, sysdate, {?sys.username?}, {?sys.username?}, {?BILL_NO?}, {?CNTR_OPERATOR?}, {?CARGO_TYPE?}, {?SHIPPER_COD?},{?sys.id?},'2')\",{transaction: 'start'});\
+// app.run(\"insert into BLUK_INOUT (INID,OUTID,OUTFLAG,PIECES) values ({?CFSBILL_ID?},sys_guid(),{?OUTFLAG?},{?double.PIECES?})\");\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO,CFSBILL_ID) values({?sys.id?},\"+\
+      \"  '0',{?PIECES?},{?TRUCK_NO?},{?CFSBILL_ID?})\");\
+\
+app.run(\"update MOVE_LISTB set PHASE='FIN' where MOVE_TYPE IN('DIS','DRB') AND QUEUE_ID={?ID?} AND PHASE<>'FIN' AND (TRANSPORTER1={?TRUCK_NO?} OR TRANSPORTER2={?TRUCK_NO?})\");\
+// {?sys.id?}\
+\
+//插入作业票\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        values(sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?TYPE1?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'',{?PORC_COUNT?})\");"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "response1",
+    "string": "{\"success\":true}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "response"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

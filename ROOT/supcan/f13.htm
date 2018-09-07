@@ -1,0 +1,156 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script>
+var freeformXML="<freeform><properties bgColor='white'/><objects>\
+<img src='res/how.bmp' x='20' width='10' y='20' isUseOriSize='true'/>\
+<text x='90' y='25' width='300' height='80' isMultiLine='true' text='你好!\r\n这是自定义的对话框, 是根据一段Freeform的XML创建的，点击下面的确认或取消关闭.'/>\
+<input type='checkbox' x='100' y='.bottom' width='120' height='26' text='这是Checkbox'/>\
+<input id='ok' type='button' x='98' y='.bottom' width='100' height='26' text='确认'/>\
+<input id='cancel' type='button' x='208' y='.top' width='100' height='26' text='取消'/>\
+</objects></freeform>";
+
+function OnReady(id)
+{
+	AF.func("Build", "treelist/t6.xml");
+	AF.func("Load", "treelistdata/data2.json.txt");
+}
+ 
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+	//Firefox的多线程对话框关闭事件
+	if(Event == "UserEvent") {
+		if(p1 == "demo1") {
+			if(p4 != "") AF.func("msgFloat", "Hello, 你按下了 id 为 " +p4+ " 的按钮");
+		}
+		else if(p1 == "demo2") {
+			if(p4 == "yes") {
+				var row = AF.func("GetCurrentRow", "");
+			  var data = AF.func("GetDialogValues", "");
+			  AF.func("SetRowCellData", row + "\r\n" + data);
+			}
+		}
+		return;
+	}
+	
+	//非模式对话框中的freeform的事件
+	if(AF.func("isInnerDialogOpen", "")==1) {
+		if(Event == "ButtonClicked") {
+			if(p1 == 'yes' || p1=='no') {
+				if(p1 == 'yes') {
+					var h = AF.func("GetHandle", "InnerDialog");		//取得Freeform句柄
+					if(AF.func(h + "Validate", "") == 0) return;		//调用扩展函数：freeform的验证
+					var data = AF.func(h + "Export", "content=asData");  //调用扩展函数：取得输入的内容
+					AF.func("SetRowCellData",  AF.func("GetCurrentRow", "") + "\r\n" + data);  //赋给Treelist
+				}
+			}
+			else if(p1=='ok' || p1=='cancel')
+				AF.func("msgFloat", "Hello, 你按下了 id 为 " +p1+ " 的按钮");
+			AF.func("closeInnerDialog", "");   //关闭非模式对话框
+		}
+		return;
+	}
+
+	//Treelist的事件
+	if(Event=="Clicked" && p4=="button") {
+		if(p2 == 'btn')
+			demo2(true);   //模式对话框
+		else if(p2=='ShipName')
+			demo2(false);  //非模式对话框
+	}
+}
+
+function demo1(bModel)
+{
+	AF.func("SetDialogFreeform", freeformXML);
+	if(bModel) {
+		//打开模式对话框
+		AF.func("SetDialogPara", "Title=自定义对话框;ExtWidth=30");
+		if($isIE || $isChrome) {
+			//非 Firefox
+			var ret = AF.func("OpenDialog", "");
+			if(ret != "") AF.func("msgFloat", "Hello, 你按下了 id 为 " +ret+ " 的按钮");
+		}
+		else {
+			//Firefox, 必须另起线程执行
+			AF.func("DeclareAsynch", "p1=demo1");
+			AF.func("OpenDialog", "");
+		}
+	}
+	else {
+		//打开非模式对话框
+		AF.func("SetDialogPara", "width=380;height=170;bgColor=#aaccff;alpha=100");
+		AF.func("OpenInnerDialog", "");
+	}
+}
+ 
+function demo2(bModel)
+{
+	//指定要打开的对话框的freeform
+	AF.func("SetDialogFreeform", "treelist/freeform_dialog.xml");
+	//取得当前行的整行数据
+	var row = AF.func("GetCurrentRow", "");
+	var initdata=AF.func("Export", "asData\r\nrow="+row);
+	if(bModel) {
+		//模式对话框
+		AF.func("SetDialogPara", "Title=自定义对话框;ExtWidth=10;IdOk=yes");
+		if($isIE || $isChrome) {
+			//非 Firefox
+      var ret = AF.func("OpenDialog", initdata);
+		  if(ret == "yes") {  //"确认"按钮：将对话框中的数据回存到Treelist
+			  var data = AF.func("GetDialogValues", "");
+			  AF.func("SetRowCellData", row + "\r\n" + data);
+		  }
+		}
+		else {
+			//Firefox, 必须另起线程执行
+			AF.func("DeclareAsynch", "p1=demo2");
+      AF.func("OpenDialog", initdata);
+		}
+	}
+	else {
+		//打开非模式对话框
+		AF.func("SetDialogPara", "width=320;ExtWidth=10;bgColor=#aaaaaa");
+		AF.func("OpenInnerDialog", initdata);
+	}
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=4 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.这是html的&lt;input&gt;按钮，请试着点击:  <input type=button value=" 弹出模式对话框 " onClick="demo1(true)"> 或 <input type=button value=" 弹出非模式对话框 " onClick="demo1(false)">;<br>
+<b>2</b>.点击下面Treelist中的"审核"按钮，能弹出自定义<b>模式对话框</b>；点击或“船名”输入框内的按钮，能弹出自定义<b>非模式对话框</b>;<br>
+<b>3</b>.在对话框中输入后，点“确认”保存，内容将更新到Treelist中;<br>
+<b>4</b>.测试验证效果：在对话框中，将“单证号”清除，再点“确认”;
+</td>
+</tr>
+</table>
+<br>
+<div style="position:relative;width:90%">
+	<script>insertTreeList('AF', '', '300px')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.本源码略为复杂，请自行分析html的源代码.<br>
+<b>2</b>.源码中有 Firefox 浏览器的区分，如果您的项目支持 Firefox 浏览器，请关注源码中和 Firefox 相关的部分，因为 Firefox 必须在单独的线程中打开模式对话框.<br>
+</td></tr></table>
+
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

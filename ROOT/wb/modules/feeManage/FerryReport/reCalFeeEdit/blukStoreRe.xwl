@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var map = new HashMap();\
+var sql, result;\
+if(!Wb.isEmpty(data.billno)){\
+  sql = \"select goods.bill_no, out.WEIGHT, out.VOLUME, out.INOUT_ID, out.STORE_TIME from BLUK_INOUT out,BLUK_GOODS goods,VBILL_HEAD head \"+\
+    \" where goods.TENANCY_ID={?sys.TENANCY_ID?} and out.id=goods.id and out.STORE_TIME is not null \"+\
+  \" and goods.bill_no='\"+data.billno+\"' and out.outflag=1\";\
+}else{\
+  sql = \"select goods.bill_no, out.WEIGHT, out.VOLUME, out.INOUT_ID, out.STORE_TIME from BLUK_INOUT out,BLUK_GOODS goods,VBILL_HEAD head \"+\
+    \" where goods.TENANCY_ID={?sys.TENANCY_ID?} and out.id=goods.id and out.outflag=1 and head.ID=goods.BILL_ID \"+\
+    \" and out.STORE_TIME>=to_date('\" + data.sdate + \" 00:00:00','yyyy-MM-dd HH24:mi:ss') \" +\
+    \" and out.STORE_TIME<=to_date('\" + data.edate + \" 23:59:59','yyyy-MM-dd HH24:mi:ss')\";\
+  if(!Wb.isEmpty(data.customerId)){\
+      sql+=\" and (head.SHIPPER_COD='\"+data.customerId+\"' or head.CONSIGNEE_COD='\" + data.customerId + \"')\";\
+  }\
+  if(data.billType == 'P'){\
+      sql+=\" and goods.CFS_ID in ('INP','OTP')\";\
+  }\
+  if(data.billType == 'S'){\
+      sql+=\" and goods.CFS_ID in ('INS')\";\
+  }\
+  if(!Wb.isEmpty(data.cntrOperatorCod)){\
+      sql+=\" and head.CNTR_OPERATOR_COD='\"+data.cntrOperatorCod+\"')\";\
+  }\
+}\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records, function(data) {\
+\
+  map.put(\"billNo\", data.BILL_NO);//提单号\
+  map.put(\"lclId\", \"1\");//堆存类别0=整柜1=散货和拼柜\
+  map.put(\"planTime\", (data.STORE_TIME+\"\").substring(0, 19));\
+  map.put(\"weight\", data.WEIGHT === \"\"? \"0\":data.WEIGHT+\"\");//重量\
+  map.put(\"volume\", data.VOLUME === \"\"? \"0\":data.VOLUME+\"\");//体积\
+  map.put(\"outStoreId\", data.INOUT_ID);//出库编号\
+  result = Wb.newClass(\"dubboForCargoStore\").call(request,map);\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "散货堆存费用重计",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

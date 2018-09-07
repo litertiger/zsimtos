@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var sql, data=app.get(), nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\"),tenancy=app.get(\"sys.TENANCY_ID\");\
+\
+sql =\"   vbill_head.TENANCY_ID='\"+tenancy+\"' and  vbill_head.VID={?shipNo?}  and vbill_head.I_E_ID='E'\";\
+if (!Wb.isEmpty(data.cntrId)) {\
+  sql += \"  and vbill_head.CNTR_ID ={?cntrId?} and vbill_head.I_E_ID='E'\";\
+} \
+\
+if(nature=='5')//表示驳船\
+  sql+=\" and  vbill_head.CNTR_OPERATOR_COD='\"+govCode+\"' \";\
+sql+=\"  and  (( vbill_head.ZF_ID=1 and vbill_head.main_flag=0 ) or  ( vbill_head.ZF_ID=0) )  \";\
+// if(nature=='5')//表示驳船\
+//   sql+=\" and exists (select  1 from  BULK_CONTRACT  where CNTR_OPERATOR_COD='\"+govCode+\"' and BULK_CONTRACT.ID = BULK_CONTRACT_DT.BKCT_ID )  \";\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "dictTableNames": "WB_USER",
+    "sql": "SELECT vbill_head.VOYAGE_NO,vbill_head.MBILL_NO,QUANTITY,BILL_TYPE,vbill_head.ID ,vbill_head.SPOD,vbill_head.bill_no, shipper_cod, shipper, consignee_cod,\
+vbill_head.pieces, vbill_head.weight, vbill_head.volume, pkg, vbill_head.consignee, vbill_head.goods_notes, vbill_head.cmdy_code,\
+vbill_head.cargo_type, is_bluk, is_load_cntr, is_allow_bluk,\
+vbill_head.main_flag, vbill_head.lcl_id, vbill_head.cntr_id,\
+vbill_head.cntr_operator_cod, vbill_head.i_e_id, vbill_head.phase ,\
+vbill_head.created_by, vbill_head.created_on, vbill_head.updated_by,\
+vbill_head.updated_on, vbill_head.trade_id, vbill_head.vid, vbill_head.pol, vbill_head.pod, vbill_head.tenancy_id, vbill_head.cntr_operator, vbill_head.line,\
+vbill_head.line_cod,vbill_head.coline,vbill_head.cntr_owner,vbill_head.cntr_owner_cod\
+FROM vbill_head, vbill_head_e\
+WHERE vbill_head.ID = vbill_head_e.ID \
+and  {#whereSql#}\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "提单信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

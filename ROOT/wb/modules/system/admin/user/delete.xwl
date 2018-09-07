@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var userIds = [],\
+  recs = Wb.decode(request.getParameter('destroy'));\
+\
+Wb.each(recs, function(rec) {\
+  if (rec.USER_ID == 'admin')\
+    Wb.error('不能删除默认管理员帐户。');\
+  userIds.push(rec.USER_ID);\
+});\
+\
+app.run('delete from WB_USER where USER_ID={?USER_ID?}', {\
+  arrayName: 'destroy',\
+  transaction: 'start' //开始事务\
+});\
+\
+app.run('delete from WB_USER_ROLE where USER_ID={?USER_ID?}', {\
+  arrayName: 'destroy'\
+});\
+\
+Wb.each(recs, function(rec) {\
+  request.setAttribute('likeId', '%@' + rec.USER_ID);\
+  app.run('delete from WB_VALUE where VAL_ID like {?likeId?}');\
+  app.run('delete from WB_RESOURCE where RES_ID like {?likeId?}');\
+});\
+\
+//移除会话\
+com.wb.common.Session.removeSession(userIds);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "contract": 1,
+  "basic": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

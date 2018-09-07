@@ -1,0 +1,74 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ AF.func("Build", "report/xmlsheet6.xml");
+ AF.func("SubscribeEvent", "Clicked");
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == 'Clicked')
+ {
+  //通过超链接打开对话框，显示二维码
+  if(p4 == 'Model') {
+     AF.func("SetDialogFreeForm", "treelist/qr2.xml");
+     AF.func("SetDialogPara", "alpha=160;width=500;height=300;ExtWidth=0;");
+     var url = 'http://wap.baidu.com/ssid=0/s?word=' + encodeURIComponent(p3);
+     AF.func("OpenInnerDialog", "{'URL':'" +p3+ "', 'QR':'" +url+ "'}");
+  }
+ }
+ else if(Event == "ButtonClicked")
+ {
+  //关闭对话框
+  if(p1 == 'Close') {
+     AF.func("closeInnerDialog", "");
+  }
+ }
+}
+</script>
+</head>
+
+<body topmargin=4>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请点击工具条中的“重新计算”( <img src='res/calc.bmp'> )按钮，以加载数据；<br>
+<b>2</b>.<b>G</b> 列“产地”在后端数据库中是以类似 1、2.. 的代码表示的(可以查看加载的<a href="treelistdata/car.xml" target=_blank>数据</a>)，通过字典表的映射(类似主-外键)显示成中文;<br>
+<b>3</b>.最后的 <b>I</b> 列“排量”是独立的，内容不来自数据源，但和 <b>E</b> 列内容通过计算公式相关联；<br>
+<b>4</b>."型号" 列是超链接列, 您可以点击超链接，这是采用硕正自由表头(Freeform)实现的弹窗，演示了如何动态生成二维码的简易方法；<br>
+</td>
+</tr></table>
+
+<div style="position:relative;width:98%;height:490px">
+	<script>insertReport('AF', '')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.数据源中，"Picture"列的数据内容是URL， 在表格中是对应到D列，D4单元格的“显示格式”中，选择了以图片显示;<br>
+<br>
+<b>2</b>.I列相当于是计算列，H4单元格的表达式是：<br>
+　　=if(@E4&lt;2,'小排量',if(@E4&gt;3,'大排量','中'))<br>
+<br>
+<b>3</b>.G列采用了字典(即下拉框选择录入)，请打开工具箱查看字典。当然，字典内容也可以来自数据源 - 动态从数据库加载;<br>
+<br>
+<b>4</b>.关于超链接、对话框以及二维码的实现，都在本页的 OnEvent( ) 函数中，请您查看 html 源码自行分析.<br>
+<br><br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

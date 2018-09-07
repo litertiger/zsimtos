@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "//同意时流程转向下一个节点。\
+//退回时此例仅标注状态，实际业务中可把流程退回到某个节点由用户修改申请数据，或重新发起新的申请。\
+//审批结果可另存到单独的表中以作为历史数据作进一步处理\
+var route, recs = Wb.decode(app.get('grid1')),\
+  reject = app.getBool('reject'),\
+  comment = app.get('comment');\
+Wb.each(recs, function(rec) {\
+  route = Flow.create(rec.ROUTE_ID);\
+  route.set('comment', comment);\
+  //route.set('comment',route.get('comment')+'\\
+'+comment);审批意见可视业务需要累积\
+  if (reject) {\
+    route.set('STATUS', '拒绝');\
+    //route.to(node);可以根据业务需要把流程流转到某个节点\
+  } else {\
+    route.next(); //流转到下一个节点\
+  }\
+  route.commit();\
+});",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "审批",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

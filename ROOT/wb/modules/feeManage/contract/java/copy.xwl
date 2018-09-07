@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var json =  Wb.newClass(\"contractService\").copyContract(request,app.get());\
+//以下为图片上传代码\
+//2、定义变量部分\
+var os, files = app.getFiles('FILE_PATH');\
+var IOUtils = org.apache.commons.io.IOUtils;\
+//时间格式\
+//var dateFormat = Wb.decode(json).dateFormat;\
+var dateFormat = DateUtil.format(new java.util.Date(), \"yyyyMMddhhmmss\");//格式化时间戳作为保存文件名前缀\
+var path = \"/upload/contract/\";//保存路径为target\\模板名下\\upload\\contract\
+var newName = \"\";//新文件名\
+var originalNames = \"\";//原始文件名\
+var originalNameArr;//原始文件名数组\
+var filePaths = \"\";\
+var filePathArr;\
+var num = 0;//保存文件名后缀\
+//3、定义新文件名并保存上传文件\
+Wb.each(files, function(file) {\
+  if (!file) return;\
+  num++;\
+  var fileName = \"\";\
+  if(num<10){\
+    fileName = dateFormat + \"0\" + num;\
+  }else{\
+    fileName = dateFormat + \"\" + num;\
+  }\
+  newName = fileName + (file.name.substring(file.name.lastIndexOf('.'), file.name.length));\
+  originalNames += file.name +\",\";//原始文件名\
+  filePaths += path + newName +\",\";//文件存储路径\
+  var os = new java.io.FileOutputStream(new File(Base.path + path, newName)); //在应用根目录创建文件输出流\
+  try {\
+    //file.size为上传的文件大小\
+    IOUtils.copy(file.stream, os);\
+  } finally {\
+    os.close();\
+  }\
+});\
+//写附件表\
+var username =app.get('sys.username');\
+originalNameArr = originalNames.split(\",\");\
+filePathArr = filePaths.split(\",\");\
+for(var i=0; i<originalNameArr.length-1; i++){\
+  app.run(\"insert into C_IMAGE(ID, M_ID, M_NAME, CREATE_NAM, CREATE_TIM, UPDATE_MAN, UPDATE_TIM, TABLE_NAME, PATH) values ('\"+\
+        com.ag.util.UUIDUtil.getUUID()+\"','\"+Wb.decode(json).id+\"','\"+originalNameArr[i]+\"','\"+username+\"',sysdate,\"+\
+        \"'\"+username+\"',sysdate,'C_CONTRACT','\"+filePathArr[i]+\"')\",{jndi:\"jdbc/basecode\"});\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,42 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var billId=app.get(\"billId\");\
+app.log(billId);\
+var s = Wb.decode(billId),\
+  ids = \"\";\
+for (var i = 0; i < s.length; i++) {\
+  if (i == s.length - 1)\
+    ids += \"'\" + s[i].BILL_NO + \"'\";\
+  else\
+    ids += \"'\" + s[i].BILL_NO + \"',\";\
+}\
+if(s.length==0){\
+\tids=\"''\";\
+}\
+app.log(ids);\
+app.run(\"delete from work_bill where BILL_ID={?BILL_ID?}\",{arrayData: new org.json.JSONArray(billId)});\
+//已经签到不能取消入库\
+//select QD_BY,QD_ON from BUZ_ORDER  ，签到人和签到时间同时为空或有值\
+app.run(\"select 1 from BUZ_ORDER where QD_BY is not null AND BILL_NO in(\"+ids+\")\",{errorText:\"已经签到不能取消入库！\"});\
+app.run(\"delete from BLUK_BILL where bill_id={?BILL_ID?}\",{arrayData: new org.json.JSONArray(billId)});\
+app.run(\"delete from BLUK_GOODS WHERE BILL_ID={?BILL_ID?}\",{arrayData: new org.json.JSONArray(billId)});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "批量删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,260 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var map = new HashMap();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+var id, idc = [],\
+  idu = [],\
+  idd = [],\
+  rec = Wb.decode(request.getParameter('create'));\
+reu = Wb.decode(request.getParameter('update'));\
+red = Wb.decode(request.getParameter('destroy'));\
+//组数据\
+Wb.each(rec, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  idc.push({\
+    ID: id,\
+    BILL_NO: app.get('BILL_NO'),\
+    PID: rec.PID,\
+    PIECES: rec.PIECES,\
+    WEIGHT: rec.WEIGHT,\
+    TRUCK: rec.TRUCK,\
+    TRAY: rec.TRAY,\
+    DRIVER: rec.DRIVER,\
+    TRUCK_NO: rec.TRUCK_NO,\
+    FEI_ADDDRESS: rec.FEI_ADDDRESS,\
+    S_ADRESS: rec.S_ADRESS,\
+    PLAN_STIME: rec.PLAN_STIME,\
+    NOTE: rec.NOTE,\
+    VOLUME: rec.VOLUME\
+  });\
+  pid = rec.PID;\
+});\
+Wb.each(reu, function(rec) {\
+  idu.push({\
+    ID: rec.ID,\
+    WEIGHT: rec.WEIGHT,\
+    PIECES: rec.PIECES,\
+    PID: rec.PID,\
+    BILL_NO: app.get('BILL_NO'),\
+    TRUCK: rec.TRUCK,\
+    TRAY: rec.TRAY,\
+    DRIVER: rec.DRIVER,\
+    TRUCK_NO: rec.TRUCK_NO,\
+    FEI_ADDDRESS: rec.FEI_ADDDRESS,\
+    S_ADRESS: rec.S_ADRESS,\
+    PLAN_STIME: rec.PLAN_STIME,\
+    NOTE: rec.NOTE,\
+    VOLUME: rec.VOLUME\
+  });\
+});\
+Wb.each(red, function(rec) {\
+  idd.push({\
+    ID: rec.ID,\
+    PID: rec.PID\
+  });\
+});\
+app.log(idc);\
+app.log(idu);\
+app.log(idd);\
+\
+//一车多票的情况\
+if (data.state == '1') {\
+  app.log(\"1车多票\");\
+  //校验件数和重量\
+  if (data.len != 0) {\
+    var rs = app.run(\"select sum(weight) weight,sum(pieces) pieces  from BLUK_APPLY_D where instr({?PID?},ID)>0\");\
+    while (rs.next()) {\
+      var WEIGHT = rs.getInt('WEIGHT');\
+      var PIECES = rs.getInt('PIECES');\
+      //判断重量大小\
+      if (WEIGHT < data.sw) {\
+        app.error(\"重量大于计划重量！\" + \"多了\" + (data.sw - WEIGHT));\
+        return;\
+      } else if (WEIGHT > data.sw) {\
+        app.error(\"重量小于计划重量！\" + \"少了\" + (WEIGHT - data.sw));\
+        return;\
+      }\
+      //判断件数多少\
+      if (data.sp > PIECES) {\
+        app.error(\"件数大于计划件数！\" + \"多了\" + (data.sp - PIECES));\
+        return;\
+      }\
+      if (data.sp < PIECES) {\
+        app.error(\"件数小于计划件数！\" + \"少了\" + (PIECES - data.sp));\
+        return;\
+      }\
+    }\
+  }\
+\
+  if (idu.length > 0) {\
+    app.run(\"update BLUK_TRUCK_M set TRUCK={?TRUCK?}, TRUCK_NO={?TRUCK_NO?}, TRAY={?TRAY?}, DRIVER={?DRIVER?}, WEIGHT={?WEIGHT?},\" +\
+      \"PIECES={?PIECES?}, FEI_ADDDRESS={?FEI_ADDDRESS?}, S_ADRESS={?S_ADRESS?}, PLAN_STIME={?timestamp.PLAN_STIME?}, NOTE={?NOTE?}, \" +\
+      \"VOLUME={?VOLUME?}, RELEASE_ORDER={?RELEASE_ORDER?} where ID={?ID?}\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idu)),\
+        transaction: \"commit\"\
+      });\
+\
+    //生成散货实际作业表数据\
+    app.run(\"delete from BLUK_TRUCK_WORK where FROM_ID={?ID?} AND  TENANCY_ID={?sys.TENANCY_ID?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idu))\
+    });\
+    app.run(\"insert into BLUK_TRUCK_WORK(ID, TENANCY_ID, PID, FROM_ID, BILL_NO, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT,\" +\
+      \"PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, NOTE, PHASE, VOLUME, RELEASE_ORDER, CON_FLAG,\" +\
+      \" AUTO_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON,SHIPPER_COD,SHIPPER)\" +\
+      \" values(sys_guid(),{?sys.TENANCY_ID?},{?AMID?},{?ID?},(select wm_concat(BILL_NO) FROM BLUK_APPLY_D WHERE P_ID={?AMID?}),{?TRUCK?},{?TRUCK_NO?},\" +\
+      \"{?TRAY?},{?DRIVER?}, {?WEIGHT?},{?PIECES?}, {?FEI_ADDDRESS?}, {?S_ADRESS?},(SELECT MAX(APPLYDATE) FROM BLUK_APPLY_D WHERE P_ID={?AMID?}\t),{?NOTE?},{?PHASE?},{?VOLUME?},\" +\
+      \" {?RELEASE_ORDER?}, 1,'1', {?sys.username?}, sysdate, {?sys.username?}, sysdate,{?SHIPPER_COD?},{?SHIPPER?})\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idu))\
+      });\
+\
+    app.run(\"update C_TRUCK set TRAY_NO={?TRAY?},TRUCKER_NAM={?DRIVER?} where TRUCK_NO={?TRUCK?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idu)),\
+      jndi: \"jdbc/basecode\"\
+    });\
+  }\
+} else {\
+  app.log(\"1票多车\");\
+  //校验件数和重量（1申请多车）\
+  if (data.len != 0) {\
+    if (data.sw > data.aw) {\
+      app.error(\"重量大于计划重量！\" + \"多了\" + (data.sw - data.aw));\
+      return;\
+    }\
+    if (data.sw < data.aw) {\
+      app.error(\"重量小于计划重量！\" + \"少了\" + (data.aw - data.sw));\
+      return;\
+    }\
+\
+    if (data.sp > data.ap) {\
+      app.error(\"件数大于计划件数！\" + \"多了\" + (data.sp - data.ap));\
+      return;\
+    }\
+    if (data.sp < data.ap) {\
+      app.error(\"件数小于计划件数！\" + \"少了\" + (data.ap - data.sp));\
+      return;\
+    }\
+  }\
+  //\
+  if (idc.length > 0) {\
+    app.run(\"insert into BLUK_TRUCK_M(ID, PID, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT, PIECES, FEI_ADDDRESS, S_ADRESS,\" +\
+      \"PLAN_STIME, TENANCY_ID, NOTE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, \" +\
+      \"PHASE, VOLUME, RELEASE_ORDER, CON_FLAG)\" +\
+      \"values({?ID?},{?PID?},{?TRUCK?}, {?TRUCK_NO?}, {?TRAY?}, {?DRIVER?}, {?WEIGHT?}, {?PIECES?}, {?FEI_ADDDRESS?}, {?S_ADRESS?},\" +\
+      \"{?timestamp.PLAN_STIME?}, {?sys.TENANCY_ID?}, {?NOTE?}, '\" + username + \"', sysdate, '\" + username + \"', sysdate,\" +\
+      \"'EXE', {?VOLUME?}, {?RELEASE_ORDER?}, 0)\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idc)),\
+        transaction: \"start\"\
+      });\
+    app.run(\"insert into BLUK_TRUCK_D(ID, PID, BILL_NO, WEIGHT, PIECES, TENANCY_ID, CREATED_BY, CREATED_ON,\" +\
+      \"UPDATED_BY, UPDATED_ON, PHASE, VOLUME)\" +\
+      \"values(SYS_GUID(), {?ID?}, {?BILL_NO?}, {?WEIGHT?}, {?PIECES?}, '\" + tenancyId + \"', '\" + username + \"', SYSDATE, \" +\
+      \"'\" + username + \"', SYSDATE, 'PLN', {?VOLUME?})\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idc))\
+      });\
+    app.run(\"insert into BLUK_APPLY_TRUCK(ID, TID, CREATED_ON, CREATED_BY, UPDATED_ON, UPDATED_BY)\" +\
+      \"values({?PID?},{?ID?},sysdate,'\" + username + \"', SYSDATE,'\" + username + \"')\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idc)),\
+        transaction: \"commit\"\
+      });\
+\
+    //生成散货实际作业表数据\
+    app.run(\"insert into BLUK_TRUCK_WORK(ID, TENANCY_ID, PID, FROM_ID, BILL_NO, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT,\" +\
+      \"PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, NOTE, PHASE, VOLUME, RELEASE_ORDER, CON_FLAG,\" +\
+      \" AUTO_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON,SHIPPER_COD,SHIPPER)\" +\
+      \" values(sys_guid(),{?sys.TENANCY_ID?},{?AMID?},{?ID?},(select wm_concat(BILL_NO) FROM BLUK_APPLY_D WHERE P_ID={?AMID?}),{?TRUCK?},{?TRUCK_NO?},\" +\
+      \"{?TRAY?},{?DRIVER?}, {?WEIGHT?},{?PIECES?}, {?FEI_ADDDRESS?}, {?S_ADRESS?},(SELECT MAX(APPLYDATE) FROM BLUK_APPLY_D WHERE P_ID={?AMID?}\t),{?NOTE?},{?PHASE?},{?VOLUME?},\" +\
+      \" {?RELEASE_ORDER?}, 0,'1', {?sys.username?}, sysdate, {?sys.username?}, sysdate,{?SHIPPER_COD?},{?SHIPPER?})\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idc))\
+      });\
+\
+    app.run(\"update C_TRUCK set TRAY_NO={?TRAY?},TRUCKER_NAM={?DRIVER?} where TRUCK_NO={?TRUCK?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idc)),\
+      jndi: \"jdbc/basecode\"\
+    });\
+\
+  }\
+  if (idu.length > 0) {\
+    app.run(\"update BLUK_TRUCK_M set TRUCK={?TRUCK?}, TRUCK_NO={?TRUCK_NO?}, TRAY={?TRAY?}, DRIVER={?DRIVER?}, WEIGHT={?WEIGHT?},\" +\
+      \"PIECES={?PIECES?}, FEI_ADDDRESS={?FEI_ADDDRESS?}, S_ADRESS={?S_ADRESS?}, PLAN_STIME={?timestamp.PLAN_STIME?}, NOTE={?NOTE?}, \" +\
+      \"VOLUME={?VOLUME?}, RELEASE_ORDER={?RELEASE_ORDER?} where ID={?ID?}\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idu)),\
+        transaction: \"start\"\
+      });\
+    app.run(\"update BLUK_TRUCK_D set  WEIGHT={?WEIGHT?}, PIECES={?PIECES?},VOLUME={?VOLUME?} WHERE PID={?ID?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idu)),\
+      transaction: \"commit\"\
+    });\
+\
+\
+\
+    //生成散货实际作业表数据\
+    app.run(\"delete from BLUK_TRUCK_WORK where FROM_ID={?ID?} AND  TENANCY_ID={?sys.TENANCY_ID?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idu))\
+    });\
+    app.run(\"insert into BLUK_TRUCK_WORK(ID, TENANCY_ID, PID, FROM_ID, BILL_NO, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT,\" +\
+      \"PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, NOTE, PHASE, VOLUME, RELEASE_ORDER, CON_FLAG,\" +\
+      \" AUTO_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON,SHIPPER_COD,SHIPPER)\" +\
+      \" values(sys_guid(),{?sys.TENANCY_ID?},{?AMID?},{?ID?},(select wm_concat(BILL_NO) FROM BLUK_APPLY_D WHERE P_ID={?AMID?}),{?TRUCK?},{?TRUCK_NO?},\" +\
+      \"{?TRAY?},{?DRIVER?}, {?WEIGHT?},{?PIECES?}, {?FEI_ADDDRESS?}, {?S_ADRESS?},(SELECT MAX(APPLYDATE) FROM BLUK_APPLY_D WHERE P_ID={?AMID?}\t),{?NOTE?},{?PHASE?},{?VOLUME?},\" +\
+      \" {?RELEASE_ORDER?}, 0,'1', {?sys.username?}, sysdate, {?sys.username?}, sysdate,{?SHIPPER_COD?},{?SHIPPER?})\", {\
+        arrayData: new org.json.JSONArray(Wb.encode(idu))\
+      });\
+\
+    app.run(\"update C_TRUCK set TRAY_NO={?TRAY?},TRUCKER_NAM={?DRIVER?} where TRUCK_NO={?TRUCK?}\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idu)),\
+      jndi: \"jdbc/basecode\"\
+    });\
+  }\
+\
+}\
+\
+if (idd.length > 0) {\
+\
+  app.run(\"delete from BLUK_TRUCK_WORK where FROM_ID={?ID?} AND  TENANCY_ID={?sys.TENANCY_ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd))\
+  });\
+\
+  app.run(\"delete from BLUK_TRUCK_D WHERE PID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd)),\
+    transaction: \"start\"\
+  });\
+  app.run(\"delete from BLUK_APPLY_TRUCK WHERE instr({?PID?},ID)>0 AND TID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd))\
+  });\
+  app.run(\"delete from BLUK_TRUCK_M WHERE ID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd)),\
+    transaction: \"commit\"\
+  });\
+\
+  app.run(\"update BLUK_APPLY_M SET PHASE ='PLN' WHERE ID in(select P_id from BLUK_APPLY_D where INSTR({?PID?},ID)>0 \" +\
+    \" and not exists(select 1 from BLUK_TRUCK_M WHERE INSTR(PID,BLUK_APPLY_D.ID)>0 ))\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idd))\
+    });\
+\
+  app.run(\"update BLUK_APPLY_D SET PHASE ='PLN' WHERE INSTR({?PID?},ID)>0\" +\
+    \" and not exists(select 1 from BLUK_TRUCK_M WHERE INSTR(PID,BLUK_APPLY_D.ID)>0 )\", {\
+      arrayData: new org.json.JSONArray(Wb.encode(idd))\
+    });\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "check": 1,
+  "xlcd": 1
+ },
+ "title": "保存派车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

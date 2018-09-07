@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//var affectedCount = app.run('update WB_MISC set INT_FIELD=35 where 1=0'); //update语句返回影响记录数\
+var id, billNo='',lclFlag='0',billType ,\
+  result = app.run('select ID ,BILL_NO,MAIN_FLAG,BILL_TYPE from VBILL_HEAD where  ID  in (select BILL_ID from  VLOAD_LIST  where VID={?vId?} and CNTR={?cntr?}) and I_E_ID={?ieId?} order by MAIN_FLAG desc'); //获得结果集\
+if (result.next()) {//默认取一个拼箱作为主提单号\
+  billNo=result.getString('BILL_NO'); //提单号\
+  lclFlag=result.getString('MAIN_FLAG'); //主单标识\
+    billType=result.getString('BILL_TYPE');\
+  id=result.getString('ID'); //主单标识\
+}\
+if(lclFlag=='0'||billType!='P'){\
+   app.run(\"update  VBILL_HEAD set  BILL_TYPE='P', MAIN_FLAG= 1 where  ID ='\"+id+\"'\"); //更新提单主单标识\
+   app.run(\"update  VLOAD_LIST set  LCL_ID=1,  MAIN_FLAG= 1 where  BILL_ID ='\"+id+\"'  and  CNTR={?cntr?}\"); //更新箱主单标识\
+ }\
+app.send({BILL_NO:billNo}); //发送到客户端"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "核查拼箱状态",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

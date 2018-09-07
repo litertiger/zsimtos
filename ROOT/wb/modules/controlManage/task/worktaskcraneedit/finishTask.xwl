@@ -1,0 +1,110 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select count(0) from move_list where queue_id={?id?} and phase not in('FIN' ,'CNL','TMP') and MOVE_TYPE='MOV'\");\
+var count;\
+if (result && result.next()) {\
+  count = result.getInt(1);\
+}\
+if (count > 0)\
+  throw (\"尚有指令未完成\");\
+var rs = app.run(\"select  CARRIER_CALL from  TASK where ID={?id?}\");\
+if (rs.next()) {\
+  app.set('vid', rs.getString(\"CARRIER_CALL\"));\
+}\
+\
+\
+app.run(\"update vessel_visit set endwork=sysdate where id in (select carrier_call from  task where id={?id?})\", {\
+  transaction: \"start\"\
+});\
+if (app.get(\"taskType\") == 'VIN') {\
+//   app.run(\"Select 1 from vload_list where  vid={?vid?} and  i_e_id='I' and CNTR_OWNER_COD is  null and tenancy_id={?sys.TENANCY_ID?}\", {\
+//     errorText: '箱主没有,不能完成确认'\
+//   });\
+//   app.run(\"call pro_unload_edi('I',{?vid?},{?sys.TENANCY_ID?},{?sys.username?})\");\
+} else if (app.get(\"taskType\") == 'VOUT') {\
+    var reCntr = app.run(\"select   wm_concat(port_cntr.cntr ) cntr from   vload_list,port_cntr \\\
+    where vload_list.cntr_id=port_cntr.ID and   vload_list.trade_id<>port_cntr.trade_id and  Vid in (select carrier_call from  task where id={?id?})\");\
+    while (reCntr.next()) {\
+      if(!Wb.isEmpty(reCntr.getString('CNTR')))\
+     Wb.error(\"箱号：\"+reCntr.getString('CNTR')+\"内外贸属性不符\");\
+    }\
+  var cntrNum = Wb.getRecords(app.run(\"select  count(distinct cntr) NUM from  vload_list where vId={?vid?} and  main_flag=1 and i_E_ID='E' and tenancy_id={?sys.TENANCY_ID?}\"));\
+  var moveNum = Wb.getRecords(app.run(\"select  count(distinct cntr ) NUM from  move_list where  queue_id={?id?} and phase='FIN'\"));\
+  app.log(\"11\" + cntrNum[0].NUM);\
+  app.log(cntrNum[0].NUM - moveNum[0].NUM);\
+  if (cntrNum[0].NUM - moveNum[0].NUM != 0)\
+    Wb.error(\"舱单和指令箱不一致\");\
+//   app.run(\"select 1 from port_cntr where ID in(select  cntr_id from  move_list where queue_id={?id?}) and RELEASE_ID ='0'\", {\
+//     errorText: '有箱子未放行不能核销'\
+//   });\
+\
+  app.run(\"select 1 from VESSEL_VISIT where id={?vid?} and  OS_SD=0\", {\
+    errorText: '舱单未锁定不能核销'\
+  });\
+\
+  \
+  \
+//     request.setAttribute(\"moveType\", 'VO'); //set参数\
+//     request.setAttribute(\"queueId\", app.get(\"id\"));\
+//     app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+\
+ \
+  app.run(\"insert into PORT_CNTR_HIS(ID, TENANCY_ID, CNTR, PHASE, CATEGORY_ID, TRADE_ID, I_E_ID, E_F_ID, CNTR_ISO, LINE, CNTR_OPERATOR, CNTR_OWNER, IB_MODE, I_TOOL_NO, SAFE_WT, SCALE_WT, SEAL_NO, SEAL_NO2, SEAL_NO3, SEAL_NO4, CNTR_HIGHT, CNTR_LENGTH, SHIP_NO, IB_CARRIER_OP, I_DSHIP_NO, IB_DCARRIER_OP, OB_MODE, O_TOOL_NO, OB_CARRIER_OP, E_DSHIP_NO, OB_DCARRIER_OP, OPL, ORIGIN, POD, POL, SPOD, RETURN_LOC, TRUCKING_CO, DATASOURCE, ARR_POSITION, YARD_POSITION, PLANNED_POSITION, CY_AREA_NO, CY_BAY_NO, CY_ROW_NO, CY_TIER_NO, AGENT1, AGENT2, BILL_NO, CARGO_WT, CMDY_CODE, CONSIGNEE, CONSIGNEE_NAME, SHIPPER, SHIPPER_NAME, EXAM_STATUS, DANG_ID, IMDG, UNDG, DIRECT_ID, SPEC_STOW, SPEC_STOW2, SPEC_STOW3, WEIGHT, TEMP_SET, TEMP_MIN, TEMP_MAX, REEF_ID, ON_POWER, REQS_POWER, REEFER_TYPE, ALARM, CO2_LEVEL, DEFROST_TEMP, FAULT_CODE, FUEL_LEVEL, HUMIDITY_LEVEL, O2_LEVEL, LAST_REMARK, LAST_SET_TEMP, LAST_SUPPLY_TEMP, LAST_READ_TEMP, OVERHEIGHT, OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT, OOG_ID, BUNDL_ID, APPTTIME, IN_PORT_TIME, DWELL_DAYS, EC_INTIME, LAST_MOVE, LOAD_TIME, ON_POWER_TIME, OFF_POWER_TIME, OUT_PORT_TIME, PRETIME, RELEASE_ID, EXIT_CUSTOM_ID, EMERGENCY_ID, CUSTOM_TYPE, TRANS_TYPE, CONDITION_ID, SEALED_ID, LCL_ID, CIQ_ID, PTI_ID, CHECK_ID, LOCK_ID, PRE_TAK_ID, TRANS_ID, DELV_TERM, HNDL_REASON, ARRBOOKINGNBR, BOOKINGNBR, RELEASENBR, SEQUENCE, NOTES, UPDATED_ON, CREATED_ON, CNTR_SIZE, CNTR_TYPE, CREATED_BY, UPDATED_BY, CNTR_OPERATOR_COD, LINE_COD, BOUND_POSITION, PIECES, VOLUME, SEND_EDI, O_BILL_NO, IN_JGQ, FORM_ID, EDI_BACK, CNTR_OWNER_COD) \\\
+           select ID, TENANCY_ID, CNTR, PHASE, CATEGORY_ID, TRADE_ID, I_E_ID, E_F_ID, CNTR_ISO, LINE, CNTR_OPERATOR, CNTR_OWNER, IB_MODE, I_TOOL_NO, SAFE_WT, SCALE_WT, SEAL_NO, SEAL_NO2, SEAL_NO3, SEAL_NO4, CNTR_HIGHT, CNTR_LENGTH, SHIP_NO, IB_CARRIER_OP, I_DSHIP_NO, IB_DCARRIER_OP, OB_MODE, O_TOOL_NO, OB_CARRIER_OP, E_DSHIP_NO, OB_DCARRIER_OP, OPL, ORIGIN, POD, POL, SPOD, RETURN_LOC, TRUCKING_CO, DATASOURCE, ARR_POSITION, YARD_POSITION, PLANNED_POSITION, CY_AREA_NO, CY_BAY_NO, CY_ROW_NO, CY_TIER_NO, AGENT1, AGENT2, BILL_NO, CARGO_WT, CMDY_CODE, CONSIGNEE, CONSIGNEE_NAME, SHIPPER, SHIPPER_NAME, EXAM_STATUS, DANG_ID, IMDG, UNDG, DIRECT_ID, SPEC_STOW, SPEC_STOW2, SPEC_STOW3, WEIGHT, TEMP_SET, TEMP_MIN, TEMP_MAX, REEF_ID, ON_POWER, REQS_POWER, REEFER_TYPE, ALARM, CO2_LEVEL, DEFROST_TEMP, FAULT_CODE, FUEL_LEVEL, HUMIDITY_LEVEL, O2_LEVEL, LAST_REMARK, LAST_SET_TEMP, LAST_SUPPLY_TEMP, LAST_READ_TEMP, OVERHEIGHT, OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT, OOG_ID, BUNDL_ID, APPTTIME, IN_PORT_TIME, DWELL_DAYS, EC_INTIME, LAST_MOVE, LOAD_TIME, ON_POWER_TIME, OFF_POWER_TIME, sysdate, PRETIME, RELEASE_ID, EXIT_CUSTOM_ID, EMERGENCY_ID, CUSTOM_TYPE, TRANS_TYPE, CONDITION_ID, SEALED_ID, LCL_ID, CIQ_ID, PTI_ID, CHECK_ID, LOCK_ID, PRE_TAK_ID, TRANS_ID, DELV_TERM, HNDL_REASON, ARRBOOKINGNBR, BOOKINGNBR, RELEASENBR, SEQUENCE, NOTES, UPDATED_ON, CREATED_ON, CNTR_SIZE, CNTR_TYPE, CREATED_BY, UPDATED_BY, CNTR_OPERATOR_COD, LINE_COD, BOUND_POSITION, PIECES, VOLUME, SEND_EDI, O_BILL_NO, IN_JGQ, FORM_ID, EDI_BACK, CNTR_OWNER_COD  from  port_cntr  where ID in (select  cntr_id from  move_list where queue_id={?id?} and phase='FIN'  ) \");\
+  app.run(\"delete  from   port_cntr   where ID in (select  cntr_id from  move_list where queue_id={?id?}  and phase='FIN') \");\
+  app.run(\"update move_list set phase='CNL',updated_on=sysdate,updated_by={?sys.username?} where   \"+\
+          \" cntr_id in(select  cntr_id from  move_list where queue_id={?id?})  and phase not in ('FIN','CNL','TMP') \");\
+  app.run(\"update receipt set PHASE='FIN' where PHASE='RET' and  cntr_id in(select  cntr_id from  move_list where queue_id={?id?})  and phase  in ('FIN','TMP') \");\
+  //   app.run(\"call pro_unload_edi('E',{?vid?},{?sys.TENANCY_ID?},{?sys.username?})\");\
+\
+}\
+//删除对应船的堆场计划\
+app.run(\"delete from  boundary_d where vid={?vid?}\");\
+//修改任务状态为完成\
+app.run(\"update task set end_execute=sysdate,phase='FIN' where id={?id?}\", {\
+  transaction: \"commit\"\
+});\
+\
+var client = new RabbitClient();\
+try {\
+  var send = client.open() && client.routeSend(\"ex_task\", '#', {\
+    info: {\
+      type: \"task\",\
+      action: \"delete\",\
+      senduser: app.get(\"sys.username\"),\
+      sendmodule: \"taskMointor\",\
+      sendtime: (new Date()).getTime()\
+    },\
+    data: {\
+      id: app.get('id')\
+    }\
+  });\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "完成任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

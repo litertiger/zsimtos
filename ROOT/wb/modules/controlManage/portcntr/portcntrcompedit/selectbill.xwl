@@ -1,0 +1,77 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),\
+  tenancyid = app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+sql = \"select vv2.VESSEL_NAME,vv2.IB_VYG,vv2.OB_VYG,nvl(vv1.BERTH_CODE,vv1.O_BERTH_CODE)BERTH_CODE,vv1.LIB_VYG,\" +\
+  \"vv1.LOB_VYG,vh.POL,vh.POD,vh.SPOD,vl.CNTR,vl.BILL_NO,\" +\
+  \"vh.GOODS_NOTES,vl.CNTR_SIZE,vl.I_E_ID,vh.SHIPPER,vh.CONSIGNEE,vh.CNTR_OPERATOR,vl.TRADE_ID,vL.CNTR_OWNER_COD,\" +\
+  \"decode(vl.i_e_id,'I',vv1.ETA,vv1.ETD)ETA\" +\
+  \" from vload_list vl left join vbill_head vh on vl.bill_id=vh.id left join port_cntr p on vl.cntr_id=p.id\" +\
+  \" left join vessel_visit vv1 on vl.vid=vv1.id left join vessel_voyage vv2 on vv1.vid=vv2.id\" +\
+  \" where vl.tenancy_id = '\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
+if (nature == '5')\
+  sql += \" and vl.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+if (!Wb.isEmpty(data.cntrid))\
+  sql += \" and p.id='\" + data.cntrid + \"'\";\
+if (data.ls == \"1\") {\
+  sql += \" union all\" +\
+    \" select vv2.VESSEL_NAME,vv2.IB_VYG,vv2.OB_VYG,nvl(vv1.BERTH_CODE,vv1.O_BERTH_CODE)BERTH_CODE,vv1.LIB_VYG,vv1.LOB_VYG,vh.POL,vh.POD,vh.SPOD,vl.CNTR,vl.BILL_NO,\" +\
+    \"vh.GOODS_NOTES,vl.CNTR_SIZE,vl.I_E_ID,vh.SHIPPER,vh.CONSIGNEE,vh.CNTR_OPERATOR,vl.TRADE_ID,vL.CNTR_OWNER_COD,\" +\
+    \"decode(vl.i_e_id,'I',vv1.ETA,vv1.ETD)ETA\" +\
+    \" from vload_list vl left join vbill_head vh on vl.bill_id=vh.id left join port_cntr_his p on vl.cntr_id=p.id\" +\
+    \" left join vessel_visit vv1 on vl.vid=vv1.id left join vessel_voyage vv2 on vv1.vid=vv2.id\" +\
+    \" where vl.tenancy_id = '\" + tenancyid + \"'\";\
+  if (!Wb.isEmpty(data.CNTR))\
+    sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
+  if (nature == '5')\
+    sql += \" and vl.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+  if (!Wb.isEmpty(data.cntrid))\
+    sql += \" and p.id='\" + data.cntrid + \"'\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSWNH": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "ZK": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "舱单信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

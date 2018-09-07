@@ -1,0 +1,125 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff><div id="Tag3"/>
+<br>
+<p class="sz3">9.3.上报汇总模版</p>
+　　硕正报表从1.0.99.0开始，支持上报汇总模式(在线演示第八部分 “报表上传汇总”)的移动端实现了，这意味着在手机上也能输入了，且数据格式和PC端无差别、上报的后端接收程序也完全通用.<br>
+　　调用 105 功能号转换成 html 的过程，比普通查询用的报表略为复杂: 它必须依赖模版进行.<br>
+　　手机上报的在线演示例子在 “5.体验五” 、 “6.体验六” 中，该例子后端的程序和模版包是：<a href="uploadmobile.zip" target=_blank>uploadmobile.zip</a>，您解开看下，下面将针对这个包展开说明。<br>
+<br>
+<p class="sz4">9.3.1 模版分析</p>
+　　包中的模版文件是 template_upload.txt：<br>
+<pre class='xml'>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+ &lt;head&gt;
+  &lt;meta name="viewport" content="width=&lt;!--SUPCAN_REPORT_MAXWidth--&gt;, initial-scale=1, minimum-scale=0.5"&gt;
+  &lt;script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"&gt;&lt;/script&gt;
+  &lt;script src="../uploadxml.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+   var SupcanUploadURL = "&lt;!--SUPCAN_REPORT_UploadURL--&gt;";
+   var SupcanWorksheetName = "&lt;!--SUPCAN_REPORT_WorkSheetName--&gt;";
+   &lt;!--SUPCAN_REPORT_JS--&gt;
+  &lt;/script&gt;
+  &lt;style&gt;
+   &lt;!--SUPCAN_REPORT_STYLE prefix="dx"--&gt;
+   input{ width: 95%; margin: 1; padding: 0; }
+   select{ width: 95%; margin: 1; padding: 0; }
+  &lt;/style&gt;
+ &lt;/head&gt;
+ &lt;body&gt;
+  &lt;!--SUPCAN_REPORT_dMain--&gt;
+  &lt;div style="text-align:center"&gt;
+   &lt;input type="button" id="idok" value=" 提交 " style="width:100px; height:28px"&gt;
+  &lt;/div&gt;
+ &lt;/body&gt;
+&lt;/html&gt;</pre>
+　　可见，模版是基于 HTML5、借助 jquery 实现的. <br>
+　　第4行，用到了占位符 &lt;!--SUPCAN_REPORT_MAXWidth--&gt;，viewport 没有使用 HTML5 默认的 device-width, 相当于告诉手机浏览器，当报表宽度超宽时自动伸展显示, 当然你也可以试试改回 device-width, 看看效果会怎样。<br>
+　　第8行的占位符 &lt;!--SUPCAN_REPORT_UploadURL--&gt; 将被替换成后端 aspx 中规定的上报目的地 URL。<br>
+　　这个模版比较简单，但引用的 uploadxml.js 稍为复杂，这个 js 文件是硕正提供的，其功能是处理下拉、遍历 html 元素生成上报的 XML 串, 部署时请注意相对URL的位置: 它是相对于最终生成的 html，而不是这个模版的位置。<br>
+　　你可以先直接使用这个模版，并对其做些样式的美化润色工作.<br>
+<br>
+<p class="sz4">9.3.2 uploadxml.js分析</p>
+<pre class='cpp'>
+ ...
+ //按钮事件: ajax 上报 XML 数据
+ $("#idok").click(function() {
+  var xml = Supcan_genXML();
+  $.ajax({url: SupcanUploadURL,  data: xml,  type: 'POST',  contentType: "text/xml",  dataType: "text",
+   success : function(data) {
+    if(data == "")
+     alert("申请成功!	");
+    else {  //验证未通过
+     var cellname = "";
+     var index = data.indexOf(":");
+     if(index != -1) {
+       cellname = data.substr(0, index);
+       data = data.substring(index + 1);
+     }
+     alert(data);
+     //焦点定位
+     if(cellname != null) $("[cellname='" +cellname+ "']").focus().select();
+    }
+   },
+   error : function(xhr, ajaxOptions, thrownError) { alert("提交失败: " + thrownError + "状态码: " + xhr.status); }
+  });
+ });...</pre>
+　　这是点击 “提交” 触发的事件，这个部分源码类似于PC端开发中的 GetUploadXML 函数功能。<br>
+　　第4行调用了 Supcan_genXML() 函数获取完整的XML, 下面部分是 ajax 上传的实现. <br>
+　　第5行的变量 SupcanUploadURL 值来自模版的占位符. <br>
+　　下方代码是处理下拉、生成XML串的一些细节，请自行分析. <br>
+<br>
+<p class="sz4">9.3.3 C#源码分析</p>
+　　在此分析 up.aspx 中的2个功能：动态转换功能，和收集上报XML并对其验证的功能。<br>
+　　动态转换功能和前面的例子相比，基本类似，只是需要指定模版文件和 uploadURL 参数：<br>
+<pre class='cpp'>
+ //创建报表服务
+ ...
+ //生成临时文件，同时删除1小时前的垃圾文件
+ String TempFilename = dll.func("CacheDirUtility", "isCreateTempFile=true;ext=htm; DeleteEarlierFile=1h");
+ 
+ //指定模版文件, 它位于当前目录下
+ String TemplateFilename = Server.MapPath("template_upload.txt");
+ 
+ //规定 uploadURL 参数: html 的 ajax 上传数据的URL，它将替换模版中的 &lt;!--SUPCAN_REPORT_UploadURL--&gt; 占位符
+ String uploadURL = BaseDir + "dotnet/up.aspx?func=33&uid=" +uid;
+ 
+ //打开报表
+ dll.func("build", "report/uploadmobile.xml");
+ 
+ //转换
+ dll.func("callfunc", "105\r\n type=htm; Template=" +TemplateFilename+ "; uploadURL=" + uploadURL + "; filename=" + TempFilename);
+ ...</pre>
+<br>
+　　收集上报XML并对其验证的功能, 也集成在这个 aspx 文件中，用 URL 中的 func 参数做条件判断:<br>
+<pre class='cpp'>
+ //打开报表
+ dll.func("build", "report/uploadmobile.xml");
+ 
+ //分支：功能号33，请求验证
+ if(pageFunc == "33") {
+  //取得 ajax 上传的 XML 串，它位于 http body 中
+  Stream postData = Request.InputStream;
+  StreamReader sr = new StreamReader(postData);
+  String xml= sr.ReadToEnd();
+  sr.Close();
+  
+  //验证
+  dll.func("RebuildTabOrder", "");
+  dll.func("SetUploadXML", xml + "\r\n autoCalc=none");
+  String Err = dll.func("callfunc", "50 \r\n isReport=one");	//验证, 只需要返回一条错误
+  //关闭报表服务
+  dll.CloseService();
+  Response.Write(Err);  //写错误信息到 Response, Err为空串表示通过验证
+  Response.End();
+  return;
+ }</pre>
+　　在实际使用中，如果验证通过了，那么下一步通常就是对该XML进行解析，并分离出各个数据将其保存到数据库中。本例略去了这个过程。<br>
+<br>
+<br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

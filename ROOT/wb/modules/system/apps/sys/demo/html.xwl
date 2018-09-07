@@ -1,0 +1,106 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "card",
+     "itemId": "container1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "main",
+       "html": "<div style='padding:8px;line-height:2;'>\
+  <p>这是主页面，可以设计任意样式的HTML5页面。<\/p>\
+  <p>所有事件都在根容器container1中监听（在painted事件中设置）。<\/p>\
+  <p>以下值将在点击[跳转]按钮时，传递到子页面中。<\/p>\
+  <div><input itemId='text1' placeholder='请输入字符' style='width:100%;'/><\/div>\
+  <div><input itemId='number1' type='number' placeholder='请输入数字' style='width:100%;'/><\/div>\
+  <div style='margin-top:20px;background:#43C475;color:white;cursor:pointer;text-align:center;' tap='toSub1'>跳转<\/div>\
+<\/div>",
+       "scrollable": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "tcontainer"
+     },
+     {
+      "configs": {
+       "itemId": "sub1",
+       "html": "<div style='padding:8px;line-height:2;'>\
+  <p>确定要提交以下值到back模块吗？<\/p>\
+  <p itemId='p1'><\/p>\
+  <p itemId='p2'><\/p>\
+  <div style='margin-top:20px;background:#43C475;color:white;cursor:pointer;text-align:center;' tap='submit'>提交<\/div>\
+  <div style='margin-top:20px;background:gray;cursor:pointer;text-align:center;' tap='toHome'>返回主页面<\/div>\
+<\/div>",
+       "scrollable": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "tcontainer"
+     }
+    ],
+    "type": "tcontainer",
+    "events": {"painted": "element.on({\
+  singletap: function(e, node) {\
+    var tap = Ext.fly(node).getAttribute('tap');\
+    if (tap)\
+      app[tap](e, node);\
+  },\
+  doubletap: function() {\
+    Wb.info('双击事件');\
+  }\
+\
+  //更多事件请参考Element\
+});"}
+   }],
+   "type": "tviewport"
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  toSub1: function() {\
+    var vals = Wb.getInputValue(app.main);\
+    if (!vals.text1)\
+      Wb.warn('请输入字符。');\
+    else if (!vals.number1)\
+      Wb.warn('请输入数字。');\
+    else {\
+      var p1, p2;\
+      app.params = vals;\
+      app.container1.setActiveItem(app.sub1);\
+      p1 = app.sub1.element.down('[itemId=p1]');\
+      p2 = app.sub1.element.down('[itemId=p2]');\
+      p1.setHtml('字符值：' + vals.text1);\
+      p2.setHtml('数字值：' + vals.number1);\
+    }\
+  },\
+  toHome: function() {\
+    app.container1.setActiveItem(app.main);\
+  },\
+  submit: function() {\
+    Wb.request({\
+      url: 'm?xwl=system/apps/sys/demo/html/back',\
+      params: Wb.getInputValue(app.main),\
+      success: function(resp) {\
+        Wb.info(resp.responseText);\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {},
+ "title": "HTML页面",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

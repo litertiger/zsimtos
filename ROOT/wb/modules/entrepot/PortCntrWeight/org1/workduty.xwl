@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"select 1 from C_EMPLOYEE_TEAM where TEAM_NAME={?TEAM_NAME?}\",{errorText:\"不能初始化！\",jndi: \"jdbc/basecode\"});\
+\
+app.run(\"insert into C_EMPLOYEE_TEAM(ID, ETM_CLASS, TEAM_NAME, TEAM_TYPE, PID, DEPT, TENANCY_ID, NOTE, ORDER_INDEX)\"+\
+        \"select sys_guid(),'',ORG_NAME,'',PARENT_ID,'',TENANCY_ID,'','' start with id={?ID?} connect by prior id = parent_id\");\
+\
+// app.run(\"delete from C_EMPLOYEE_TEAM where PID={?PARENT_ID?}\");\
+\
+// app.run(\"update C_EMPLOYEE_TEAM set PID='-1' where PID={?ID?}\");\
+\
+\
+\
+\
+app.run(\"INSERT INTO BLUK_BILL \" +\
+  \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, IPIECES,\" +\
+  \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+  \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+  \"      UPDATED_BY,BILL_NO,CNTR_ID,CFS_ID,PIECES,CNTR,TYPE)\" +\
+  \"  SELECT SYS_GUID (),'E', VBILL_HEAD.ID, VBILL_HEAD.GOODS_NOTES, NULL,\" +\
+  \"        VBILL_HEAD.PIECES PIECES , VLOAD_LIST.CNTR_OPERATOR, sysdate, 'EXE', NULL,\" +\
+  \"        VBILL_HEAD.WEIGHT, VBILL_HEAD.VOLUME,null, VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+  \"        VLOAD_LIST.TENANCY_ID, SYSDATE, SYSDATE, {?sys.username?}, {?sys.username?},VBILL_HEAD.BILL_NO,VLOAD_LIST.CNTR_ID,'OTP',VBILL_HEAD.PIECES,VLOAD_LIST.CNTR,'P'  \" +\
+  \"   FROM VLOAD_LIST, VBILL_HEAD \" +\
+  \"   WHERE VLOAD_LIST.BILL_ID = VBILL_HEAD.id  \" +\
+  \"  and  VLOAD_LIST.TENANCY_ID={?sys.TENANCY_ID?} \"+\
+  \"  and not exists(select 1 from BLUK_BILL WHERE BILL_ID =VBILL_HEAD.ID) and CNTR like '%'||{?cntr?}||'%' AND (SELECT nvl(atd,etd) FROM VESSEL_VISIT WHERE ID=VBILL_HEAD.VID)>=trunc(sysdate)\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

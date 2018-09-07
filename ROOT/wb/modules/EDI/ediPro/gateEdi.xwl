@@ -1,0 +1,817 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//交换发送方send//交换接收方accept（少CN周一问）\
+var javaDate = new JavaDate();\
+var date = DateUtil.format(javaDate, 'yyMMdd:HHmm');\
+var date1 = DateUtil.format(javaDate, 'yyyyMMddHHmm');\
+var date2 = DateUtil.format(javaDate, 'yyyyMMddHHmmssuu');\
+var t = DateUtil.format(javaDate, 'yyyyMMdduu');\
+var tenancyId = app.get('sys.TENANCY_ID'),\
+  send = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+if (tenancyId == 'ZSG') {\
+  send = 'CNZSN';\
+} else if (tenancyId == 'XLG') {\
+  send = 'CNXLG';\
+} else if (tenancyId == 'SWG') {\
+  send = 'CNSWG';\
+}\
+//变量\
+var title = \"\";\
+var heads = \"\";\
+var ss = \"\";\
+var head = \"\",\
+  ran, ieId = \"\",\
+  inoutType = \"\",\
+  i = 0,\
+  cntrOwnerCod = \"\";\
+var rs = app.run(\"select IN_OUT_TYPE,E_F_ID,CNTR_OWNER_COD,POD,POL,CNTR,CNTR_ISO,I_E_ID,NVL(WEIGHT,0) WEIGHT,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,BILL_NO,TO_CHAR(IN_OUT_TIME,'yyyyMMddHHmm') IN_OUT_TIME from IN_OUT_EDI WHERE COSCO=1 ORDER BY IN_OUT_TYPE asc,E_F_ID asc\");\
+while (rs.next()) {\
+  if (rs.getString(\"E_F_ID\") != ieId || rs.getString(\"IN_OUT_TYPE\") != inoutType) {\
+    if (ieId != \"\" && inoutType != \"\") {\
+      head += \"UNZ+\" + i + \"+\" + s + \"'\\r\\
+\";\
+      app.log(\"while\");\
+      app.log(head);\
+      heads += head + \",\";\
+      var s = t + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);\
+      head = \"UNB+UNOA:2+\" + send + \"+COSCOCN+\" + date + \"+\" + s + \"'\\r\\
+\";\
+    } else {\
+      var s = t + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);\
+      head = \"UNB+UNOA:2+\" + send + \"+COSCOCN+\" + date + \"+\" + s + \"'\\r\\
+\";\
+    }\
+    ieId = rs.getString(\"E_F_ID\");\
+    inoutType = rs.getString(\"IN_OUT_TYPE\");\
+    i = 0;\
+  }\
+  i++;\
+  cntrOwnerCod = rs.getString(\"CNTR_OWNER_COD\");\
+  ss = rs.getString(\"CNTR_OWNER_COD\");\
+\
+  if (ieId == \"4\" && inoutType == \"IN\") {\
+    //空箱进闸========================================================================================================空进\
+    title = \"E_IN_\";\
+    head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+    //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+    head += \"BGM+34+1+9'\\r\\
+\";\
+    //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+    head += \"TDT+20++1+++++'\\r\\
+\";\
+    //收、发位置9卸货港11装货港\
+    //     if (rs.getString(\"POD\") != \"\") {\
+    //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POL\") != \"\") {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+    //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+    // DTM+178:201612220905:203'\
+    // DTM+133:201612220905:203'\
+    head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+    head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+    //160政党认同166美国NMFCA (SCAC) \
+    //     head += \"NAD+CA+\" + rs.getString(\"CNTR_OWNER_COD\") + \":160:166'\\r\\
+\";\
+    head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+    //货物明细GID\
+    head += \"GID+00001'\\r\\
+\";\
+    //SGP拆分物品摆放位置\
+    head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+    //EQD\tCN--集装箱\t\t柜的类型\
+    head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + rs.getString(\"E_F_ID\") + \"'\\r\\
+\";\
+    //RFF+提单号\
+    head += \"RFF+BM:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+    //DTM\tEffective Date/time有效时间（少）\
+    head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+    //LOC\
+    //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+    //       head += \"LOC+9+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+    //       head += \"LOC+11+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+9+'\\r\\
+\";\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //MEA+WT++KGM:14690'\
+      head += \"MEA+WT++KGM:\" + rs.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+      // SEL+CB097468+CA'\t铅封号\
+      head += \"SEL+\" + rs.getString(\"SEAL_NO\") + \"+CA'\\r\\
+\";\
+    }\
+    //TDT\t1--内陆运输\t3-公路运输\
+    head += \"TDT+1++3+++++'\\r\\
+\";\
+    //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+    head += \"CNT+16:0001'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+      head += \"UNT+19+\" + s + \"'\\r\\
+\";\
+    } else {\
+      head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+    }\
+  } else if (ieId != \"4\" && inoutType == \"IN\") {\
+    //重箱进闸========================================================================================================重进\
+    title = \"F_IN_\";\
+    head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+    //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+    head += \"BGM+34+1+9'\\r\\
+\";\
+    //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+    head += \"TDT+20++1+++++'\\r\\
+\";\
+    //收、发位置9卸货港11装货港\
+    //     if (rs.getString(\"POD\") != \"\") {\
+    //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POL\") != \"\") {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+    //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+    // DTM+178:201612220905:203'\
+    // DTM+133:201612220905:203'\
+    head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+    head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+    //160政党认同166美国NMFCA (SCAC) \
+    head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+    //货物明细GID\
+    head += \"GID+00001'\\r\\
+\";\
+    //SGP拆分物品摆放位置\
+    head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+    //EQD\tCN--集装箱\t\t柜的类型\
+    head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + rs.getString(\"E_F_ID\") + \"'\\r\\
+\";\
+    //RFF+提单号\
+    head += \"RFF+BN:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+    //DTM\tEffective Date/time有效时间（少）\
+    head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+    //LOC\
+    //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+    //       head += \"LOC+9+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+    //       head += \"LOC+11+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+9+'\\r\\
+\";\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //MEA+WT++KGM:14690'\
+      head += \"MEA+WT++KGM:\" + rs.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+      // SEL+CB097468+CA'\t铅封号\
+      head += \"SEL+\" + rs.getString(\"SEAL_NO\") + \"+CA'\\r\\
+\";\
+    }\
+    //TDT\t1--内陆运输\t3-公路运输\
+    head += \"TDT+1++3+++++'\\r\\
+\";\
+    //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+    head += \"CNT+16:0001'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+      head += \"UNT+19+\" + s + \"'\\r\\
+\";\
+    } else {\
+      head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+    }\
+  } else if (ieId == \"4\" && inoutType == \"OUT\") {\
+    //空箱出闸========================================================================================================空出\
+    title = \"E_OUT_\";\
+    head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+    //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+    head += \"BGM+36+1+9'\\r\\
+\";\
+    //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+    head += \"TDT+20++1+++++'\\r\\
+\";\
+    //收、发位置9卸货港11装货港\
+    //     if (rs.getString(\"POD\") != \"\") {\
+    //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POL\") != \"\") {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+    // DTM+178:201612220905:203'\
+    // DTM+133:201612220905:203'\
+    head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+    head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+    //160政党认同166美国NMFCA (SCAC) \
+    head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+    //货物明细GID\
+    head += \"GID+00001'\\r\\
+\";\
+    //SGP拆分物品摆放位置\
+    head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+    //EQD\tCN--集装箱\t\t柜的类型\
+    head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + rs.getString(\"E_F_ID\") + \"'\\r\\
+\";\
+    //RFF+提单号\
+    head += \"RFF+BN:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+    //DTM\tEffective Date/time有效时间（少）\
+    head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+    //LOC\
+    //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+    //       head += \"LOC+9+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+    //       head += \"LOC+11+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+9+'\\r\\
+\";\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //MEA+WT++KGM:14690'\
+      head += \"MEA+WT++KGM:\" + rs.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+      // SEL+CB097468+CA'\t铅封号\
+      head += \"SEL+\" + rs.getString(\"SEAL_NO\") + \"+CA'\\r\\
+\";\
+    }\
+    //TDT\t1--内陆运输\t3-公路运输\
+    head += \"TDT+1++3+++++'\\r\\
+\";\
+    //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+    head += \"CNT+16:0001'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+      head += \"UNT+19+\" + s + \"'\\r\\
+\";\
+    } else {\
+      head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+    }\
+  } else if (ieId != \"4\" && inoutType == \"OUT\") {\
+    //重箱出闸========================================================================================================重出\
+    title = \"E_OUT_\";\
+    head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+    //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+    head += \"BGM+36+1+9'\\r\\
+\";\
+    //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+    head += \"TDT+20++1+++++'\\r\\
+\";\
+    //收、发位置9卸货港11装货港\
+    //     if (rs.getString(\"POD\") != \"\") {\
+    //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POL\") != \"\") {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+    // DTM+178:201612220905:203'\
+    // DTM+133:201612220905:203'\
+    head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+    head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+    //160政党认同166美国NMFCA (SCAC) \
+    head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+    //货物明细GID\
+    head += \"GID+00001'\\r\\
+\";\
+    //SGP拆分物品摆放位置\
+    head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+    //EQD\tCN--集装箱\t\t柜的类型\
+    head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + rs.getString(\"E_F_ID\") + \"'\\r\\
+\";\
+    //RFF+提单号\
+    head += \"RFF+BM:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+    //DTM\tEffective Date/time有效时间（少）\
+    head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+    //LOC\
+    //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+    //       head += \"LOC+9+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+    //     }\
+    //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+    //       head += \"LOC+11+'\\r\\
+\";\
+    //     } else {\
+    //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+    //     }\
+    head += \"LOC+9+'\\r\\
+\";\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //MEA+WT++KGM:14690'\
+      head += \"MEA+WT++KGM:\" + rs.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+      // SEL+CB097468+CA'\t铅封号\
+      head += \"SEL+\" + rs.getString(\"SEAL_NO\") + \"+CA'\\r\\
+\";\
+    }\
+    //TDT\t1--内陆运输\t3-公路运输\
+    head += \"TDT+1++3+++++'\\r\\
+\";\
+    //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+    head += \"CNT+16:0001'\\r\\
+\";\
+    if (rs.getString(\"I_E_ID\") == \"2\") {\
+      //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+      head += \"UNT+19+\" + s + \"'\\r\\
+\";\
+    } else {\
+      head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+    }\
+\
+  }\
+}\
+head += \"UNZ+\" + i + \"+\" + s + \"'\";\
+app.log(\"===\");\
+app.log(head);\
+var value = heads.split(',');\
+request.setAttribute(\"fileName\", \"COSCO_\" + title + date2);\
+request.setAttribute(\"message\", head);\
+Load.download(request, response);\
+request.setAttribute(\"fileName\", \"COSCO_\" + title + date2);\
+request.setAttribute(\"message\", value[0]);\
+Load.download(request, response);\
+request.setAttribute(\"fileName\", \"COSCO_\" + title + date2);\
+request.setAttribute(\"message\", value[1]);\
+Load.download(request, response);\
+request.setAttribute(\"fileName\", \"COSCO_\" + title + date2);\
+request.setAttribute(\"message\", value[2]);\
+Load.download(request, response);\
+app.send(value[0] + value[1] + value[2] + head);\
+\
+// //交换发送方send//交换接收方accept（少CN周一问）\
+// var javaDate = new JavaDate();\
+// var date = DateUtil.format(javaDate, 'yyMMdd:HHmm');\
+// var date1 = DateUtil.format(javaDate, 'yyyyMMddHHmm');\
+// var date2 = DateUtil.format(javaDate, 'yyyyMMddHHmmssuu');\
+// var t = DateUtil.format(javaDate, 'yyyyMMdduu');\
+// var tenancyId = app.get('sys.TENANCY_ID'),\
+//   send = \"\";\
+// var Load = com.ag.edi.EdiDownLoad;\
+// if (tenancyId == 'ZSG') {\
+//   send = 'CNZSN';\
+// } else if (tenancyId == 'XLG') {\
+//   send = 'CNXLG';\
+// } else if (tenancyId == 'SWG') {\
+//   send = 'CNSWG';\
+// }\
+// //变量\
+// var heads = \"\";\
+// var ss = \"\";\
+// var head = \"\",\
+//   ran, ieId = \"\",\
+//   inoutType = \"\",\
+//   i = 0,\
+//   cntrOwnerCod = \"\";\
+// var rs = app.run(\"select IN_OUT_TYPE,E_F_ID,CNTR_OWNER_COD,POD,POL,CNTR,CNTR_ISO,DECODE(I_E_ID,'I',3,'E',2) I_E_ID,WEIGHT,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,BILL_NO,IN_OUT_TIME from IN_OUT_EDI WHERE COSCO=0 ORDER BY IN_OUT_TYPE asc,E_F_ID asc\");\
+// while (rs.next()) {\
+//   if (rs.getString(\"E_F_ID\") != ieId || rs.getString(\"IN_OUT_TYPE\") != inoutType) {\
+//     if (ieId != \"\" && inoutType != \"\") {\
+//       head += \"UNZ+\" + i + \"+\" + s + \"'\\r\\
+\";\
+//       app.log(\"while\");\
+//       app.log(head);\
+//       heads += head + \",\";\
+//       var s = t + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);\
+//       head = \"UNB+UNOA:2+\" + send + \"+COSCOCN+\" + date + \"+\" + s + \"'\\r\\
+\";\
+//     } else {\
+//       var s = t + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);\
+//       head = \"UNB+UNOA:2+\" + send + \"+COSCOCN+\" + date + \"+\" + s + \"'\\r\\
+\";\
+//     }\
+//     ieId = rs.getString(\"E_F_ID\");\
+//     inoutType = rs.getString(\"IN_OUT_TYPE\");\
+//     i = 0;\
+//   }\
+//   i++;\
+//   cntrOwnerCod = rs.getString(\"CNTR_OWNER_COD\");\
+//   ss = rs.getString(\"CNTR_OWNER_COD\");\
+\
+//   if (ieId == \"E\" && inoutType == \"IN\") {\
+//     //空箱进闸========================================================================================================空进\
+//     head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+//     //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+//     head += \"BGM+34+1+9'\\r\\
+\";\
+//     //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+//     head += \"TDT+20++1+++++'\\r\\
+\";\
+//     //收、发位置9卸货港11装货港\
+//     //     if (rs.getString(\"POD\") != \"\") {\
+//     //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POL\") != \"\") {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+//     //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+//     // DTM+178:201612220905:203'\
+//     // DTM+133:201612220905:203'\
+//     head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+//     head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+//     //160政党认同166美国NMFCA (SCAC) \
+//     //     head += \"NAD+CA+\" + rs.getString(\"CNTR_OWNER_COD\") + \":160:166'\\r\\
+\";\
+//     head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+//     //货物明细GID\
+//     head += \"GID+00001'\\r\\
+\";\
+//     //SGP拆分物品摆放位置\
+//     head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+//     //EQD\tCN--集装箱\t\t柜的类型\
+//     head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + \"\" + \"'\\r\\
+\";\
+//     //RFF+提单号\
+//     head += \"RFF+BM:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+//     //DTM\tEffective Date/time有效时间（少）\
+//     head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+//     //LOC\
+//     //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+//     //       head += \"LOC+9+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+//     //       head += \"LOC+11+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+9+'\\r\\
+\";\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     //TDT\t1--内陆运输\t3-公路运输\
+//     head += \"TDT+1++3+++++'\\r\\
+\";\
+//     //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+//     head += \"CNT+16:0001'\\r\\
+\";\
+//     //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+//     head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+//   } else if (ieId == \"F\" && inoutType == \"IN\") {\
+//     //重箱进闸========================================================================================================重进\
+//     head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+//     //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+//     head += \"BGM+34+1+9'\\r\\
+\";\
+//     //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+//     head += \"TDT+20++1+++++'\\r\\
+\";\
+//     //收、发位置9卸货港11装货港\
+//     //     if (rs.getString(\"POD\") != \"\") {\
+//     //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POL\") != \"\") {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+//     //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+//     // DTM+178:201612220905:203'\
+//     // DTM+133:201612220905:203'\
+//     head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+//     head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+//     //160政党认同166美国NMFCA (SCAC) \
+//     head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+//     //货物明细GID\
+//     head += \"GID+00001'\\r\\
+\";\
+//     //SGP拆分物品摆放位置\
+//     head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+//     //EQD\tCN--集装箱\t\t柜的类型\
+//     head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + \"\" + \"'\\r\\
+\";\
+//     //RFF+提单号\
+//     head += \"RFF+BN:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+//     //DTM\tEffective Date/time有效时间（少）\
+//     head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+//     //LOC\
+//     //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+//     //       head += \"LOC+9+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+//     //       head += \"LOC+11+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+9+'\\r\\
+\";\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     //MEA+WT++KGM:14690'\
+//     head += \"MEA+WT++KGM:\" + rs.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+//     // SEL+CB097468+CA'\t铅封号\
+//     head += \"SEL+\" + rs.getString(\"SEAL_NO\") + \"+CA'\\r\\
+\";\
+//     //TDT\t1--内陆运输\t3-公路运输\
+//     head += \"TDT+1++3+++++'\\r\\
+\";\
+//     //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+//     head += \"CNT+16:0001'\\r\\
+\";\
+//     //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+//     head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+//   } else if (ieId == \"E\" && inoutType == \"OUT\") {\
+//     //空箱出闸========================================================================================================空出\
+//     head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+//     //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+//     head += \"BGM+36+1+9'\\r\\
+\";\
+//     //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+//     head += \"TDT+20++1+++++'\\r\\
+\";\
+//     //收、发位置9卸货港11装货港\
+//     //     if (rs.getString(\"POD\") != \"\") {\
+//     //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POL\") != \"\") {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+//     // DTM+178:201612220905:203'\
+//     // DTM+133:201612220905:203'\
+//     head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+//     head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+//     //160政党认同166美国NMFCA (SCAC) \
+//     head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+//     //货物明细GID\
+//     head += \"GID+00001'\\r\\
+\";\
+//     //SGP拆分物品摆放位置\
+//     head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+//     //EQD\tCN--集装箱\t\t柜的类型\
+//     head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + \"\" + \"'\\r\\
+\";\
+//     //RFF+提单号\
+//     head += \"RFF+BN:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+//     //DTM\tEffective Date/time有效时间（少）\
+//     head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+//     //LOC\
+//     //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+//     //       head += \"LOC+9+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+//     //       head += \"LOC+11+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+9+'\\r\\
+\";\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     //TDT\t1--内陆运输\t3-公路运输\
+//     head += \"TDT+1++3+++++'\\r\\
+\";\
+//     //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+//     head += \"CNT+16:0001'\\r\\
+\";\
+//     //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+//     head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+//   } else if (ieId == \"F\" && inoutType == \"OUT\") {\
+//     //重箱出闸========================================================================================================重出\
+//     head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+//     //34为进闸，36为出闸，44为卸船，46为装船  9代表ORIGINAL\
+//     head += \"BGM+36+1+9'\\r\\
+\";\
+//     //400N代表航次航向 BOTC代表船舶呼号 BINGHE代表船名\
+//     head += \"TDT+20++1+++++'\\r\\
+\";\
+//     //收、发位置9卸货港11装货港\
+//     //     if (rs.getString(\"POD\") != \"\") {\
+//     //       head += \"LOC+11+\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POL\") != \"\") {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     //133Departure date/time, estimated 出发日期/时间，估计178Arrival date/time, actual到达日期/时间，实际\
+//     // DTM+178:201612220905:203'\
+//     // DTM+133:201612220905:203'\
+//     head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+//     head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+//     //160政党认同166美国NMFCA (SCAC) \
+//     head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+//     //货物明细GID\
+//     head += \"GID+00001'\\r\\
+\";\
+//     //SGP拆分物品摆放位置\
+//     head += \"SGP+\" + rs.getString(\"CNTR\") + \"'\\r\\
+\";\
+//     //EQD\tCN--集装箱\t\t柜的类型\
+//     head += \"EQD+CN+\" + rs.getString(\"CNTR\") + \"+\" + rs.getString(\"CNTR_ISO\") + \":102:5++\" + rs.getString(\"I_E_ID\") + \"+\" + \"\" + \"'\\r\\
+\";\
+//     //RFF+提单号\
+//     head += \"RFF+BM:\" + rs.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+//     //DTM\tEffective Date/time有效时间（少）\
+//     head += \"DTM+7:\" + rs.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+//     //LOC\
+//     //     if (rs.getString(\"POL\") == \"\" || rs.getString(\"POL\") == null) {\
+//     //       head += \"LOC+9+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+9+\" + rs.getString(\"POL\") + \"'\\r\\
+\";\
+//     //     }\
+//     //     if (rs.getString(\"POD\") == \"\" || rs.getString(\"POD\") == null) {\
+//     //       head += \"LOC+11+'\\r\\
+\";\
+//     //     } else {\
+//     //       head += \"LOC+11\" + rs.getString(\"POD\") + \"'\\r\\
+\";\
+//     //     }\
+//     head += \"LOC+9+'\\r\\
+\";\
+//     head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+//     //TDT\t1--内陆运输\t3-公路运输\
+//     head += \"TDT+1++3+++++'\\r\\
+\";\
+//     //CNT\tCNT+16(设备总数):0001(集装箱总数)'\
+//     head += \"CNT+16:0001'\\r\\
+\";\
+//     //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+//     head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+//   }\
+// }\
+// head += \"UNZ+\" + i + \"+\" + s + \"'\";\
+// app.log(\"===\");\
+// app.log(head);\
+// var value = heads.split(',');\
+// request.setAttribute(\"fileName\", ss + \"_\" + ieId + \"_\" + inoutType + \"_\" + date2);\
+// request.setAttribute(\"message\", head);\
+// Load.download(request, response);\
+// request.setAttribute(\"fileName\", ss + \"_\" + ieId + \"_\" + inoutType + \"_\" + date2);\
+// request.setAttribute(\"message\", value[0]);\
+// Load.download(request, response);\
+// request.setAttribute(\"fileName\", ss + \"_\" + ieId + \"_\" + inoutType + \"_\" + date2);\
+// request.setAttribute(\"message\", value[1]);\
+// Load.download(request, response);\
+// request.setAttribute(\"fileName\", ss + \"_\" + ieId + \"_\" + inoutType + \"_\" + date2);\
+// request.setAttribute(\"message\", value[2]);\
+// Load.download(request, response);\
+// app.send(value[0] + value[1] + value[2] + head);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "EDI进出闸",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

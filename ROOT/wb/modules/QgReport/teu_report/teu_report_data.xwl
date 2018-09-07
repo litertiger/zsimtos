@@ -1,0 +1,347 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sdate = data.sdate;\
+var edate = data.edate;\
+if (Wb.isEmpty(sdate))\
+  sdate = '2018-05-01';\
+if (Wb.isEmpty(edate))\
+  edate = '2018-07-31';\
+var year = sdate.substring(0, 4) + \"-01-01\";\
+var sql = \"select c.port_name,\\
+\" +\
+  \"decode(sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0)),0,'',\\
+\" +\
+  \"sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0)))TEU,\\
+\" +\
+  \"to_char((sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0)))\\
+\" +\
+  \"/sum(decode(sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0)),0,1,\\
+\" +\
+  \"sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0))))OVER()*100,'9990.99')||'%' BI,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' then 2.25 else 0 end))FTEU,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' then 2.25 else 0 end))\\
+\" +\
+  \"/sum(decode(sum(case when vl.cntr_size='20' and vl.e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' then 2.25 else 0 end)))OVER()*100,'9990.99')||'%' FBI,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' then 2.25 else 0 end))\\
+\" +\
+  \"/(decode(sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0)),0,1,\\
+\" +\
+  \"sum(decode(vl.cntr_size,'20',1,0))+sum(decode(vl.cntr_size,'40',2,0))+sum(decode(vl.cntr_size,'45',2.25,0))))*100,'9990.99')||'%' FBA,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.e_f_id='E' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='E' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='E' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='E' then 2.25 else 0 end))ETEU,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end))TEU1,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end))\\
+\" +\
+  \"/sum(decode(sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end)))OVER()*100,'9990.99')||'%' BI1,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='1' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='1' then 2.25 else 0 end))FTEU1,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='1' then 2.25 else 0 end))\\
+\" +\
+  \"/sum(decode(sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='1' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='1' then 2.25 else 0 end)))OVER()*100,'9990.99')||'%' FBI1,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='1' then 2.25 else 0 end))\\
+\" +\
+  \"/decode(sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='1' then 2.25 else 0 end))*100,'9990.99')||'%' FBA1,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.e_f_id='E' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='E' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='E' and vl.trade_id='1' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='E' and vl.trade_id='1' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='E' and vl.trade_id='1' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='E' and vl.trade_id='1' then 2.25 else 0 end))ETEU1,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end))TEU2,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end))\\
+\" +\
+  \"/sum(decode(sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end)))OVER()*100,'9990.99')||'%' BI2,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='2' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='2' then 2.25 else 0 end))FTEU2,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='2' then 2.25 else 0 end))\\
+\" +\
+  \"/sum(decode(sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='2' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='2' then 2.25 else 0 end)))OVER()*100,'9990.99')||'%' FBI2,\\
+\" +\
+  \"to_char((sum(case when vl.cntr_size='20' and vl.e_f_id='F' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='F' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='F' and vl.trade_id='2' then 2.25 else 0 end))\\
+\" +\
+  \"/decode(sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end),0,1,\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.trade_id='2' then 2.25 else 0 end))*100,'9990.99')||'%' FBA2,\\
+\" +\
+  \"decode(sum(case when vl.cntr_size='20' and vl.e_f_id='E' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='E' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='E' and vl.trade_id='2' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when vl.cntr_size='20' and vl.e_f_id='E' and vl.trade_id='2' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='40' and vl.e_f_id='E' and vl.trade_id='2' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when vl.cntr_size='45' and vl.e_f_id='E' and vl.trade_id='2' then 2.25 else 0 end))ETEU2\\
+\" +\
+  \"from vload_list vl left join vessel_visit v2 on v2.id=vl.vid left join c_port c on c.id=decode(vl.i_e_id,'I',pol,pod)\\
+\" +\
+  \"where vl.main_flag=1\\
+\" +\
+  \"and trunc(v2.eta)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(v2.eta)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\";\
+if (!Wb.isEmpty(data.tenancyId))\
+  sql += \"and vl.tenancy_id='\" + data.tenancyId + \"'\\
+\";\
+if (!Wb.isEmpty(data.i_e_id))\
+  sql += \"and vl.i_e_id='\" + data.i_e_id + \"'\\
+\";\
+sql += \"group by c.port_name\";\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  PORT_NAME = '',\
+  TEU = 0,\
+  BI = '',\
+  FTEU = 0,\
+  FBI = '',\
+  FBA = '',\
+  ETEU = 0,\
+  TEU1 = 0,\
+  BI1 = '',\
+  FTEU1 = 0,\
+  FBI1 = '',\
+  FBA1 = '',\
+  ETEU1 = 0,\
+  TEU2 = 0,\
+  BI2 = '',\
+  FTEU2 = 0,\
+  FBI2 = '',\
+  FBA2 = '',\
+  ETEU2 = 0;\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  PORT_NAME = rsn.getString(\"PORT_NAME\");\
+  TEU = rsn.getString(\"TEU\");\
+  BI = rsn.getString(\"BI\");\
+  FTEU = rsn.getString(\"FTEU\");\
+  FBI = rsn.getString(\"FBI\");\
+  FBA = rsn.getString(\"FBA\");\
+  ETEU = rsn.getString(\"ETEU\");\
+  TEU1 = rsn.getString(\"TEU1\");\
+  BI1 = rsn.getString(\"BI1\");\
+  FTEU1 = rsn.getString(\"FTEU1\");\
+  FBI1 = rsn.getString(\"FBI1\");\
+  FBA1 = rsn.getString(\"FBA1\");\
+  ETEU1 = rsn.getString(\"ETEU1\");\
+  TEU2 = rsn.getString(\"TEU2\");\
+  BI2 = rsn.getString(\"BI2\");\
+  FTEU2 = rsn.getString(\"FTEU2\");\
+  FBI2 = rsn.getString(\"FBI2\");\
+  FBA2 = rsn.getString(\"FBA2\");\
+  ETEU2 = rsn.getString(\"ETEU2\");\
+  xml += \"<PORT_NAME>\" + PORT_NAME + \"<\/PORT_NAME>\";\
+  xml += \"<TEU>\" + TEU + \"<\/TEU>\";\
+  xml += \"<BI>\" + BI + \"<\/BI>\";\
+  xml += \"<FTEU>\" + FTEU + \"<\/FTEU>\";\
+  xml += \"<FBI>\" + FBI + \"<\/FBI>\";\
+  xml += \"<FBA>\" + FBA + \"<\/FBA>\";\
+  xml += \"<ETEU>\" + ETEU + \"<\/ETEU>\";\
+  xml += \"<TEU1>\" + TEU1 + \"<\/TEU1>\";\
+  xml += \"<BI1>\" + BI1 + \"<\/BI1>\";\
+  xml += \"<FTEU1>\" + FTEU1 + \"<\/FTEU1>\";\
+  xml += \"<FBI1>\" + FBI1 + \"<\/FBI1>\";\
+  xml += \"<FBA1>\" + FBA1 + \"<\/FBA1>\";\
+  xml += \"<ETEU1>\" + ETEU1 + \"<\/ETEU1>\";\
+  xml += \"<TEU2>\" + TEU2 + \"<\/TEU2>\";\
+  xml += \"<BI2>\" + BI2 + \"<\/BI2>\";\
+  xml += \"<FTEU2>\" + FTEU2 + \"<\/FTEU2>\";\
+  xml += \"<FBI2>\" + FBI2 + \"<\/FBI2>\";\
+  xml += \"<FBA2>\" + FBA2 + \"<\/FBA2>\";\
+  xml += \"<ETEU2>\" + ETEU2 + \"<\/ETEU2>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

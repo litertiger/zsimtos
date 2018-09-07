@@ -1,0 +1,199 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "absolute",
+    "itemId": "main",
+    "flat": "true",
+    "width": "448",
+    "height": "180"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "allowBlank": "false",
+      "itemId": "username",
+      "labelAlign": "right",
+      "fieldLabel": "@Str.username",
+      "width": "296",
+      "x": "16",
+      "y": "32",
+      "fieldStyle": "padding-left:28px;background-image:url(wb/images/app/user.png);background-repeat:no-repeat;background-position:left center;",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    },
+    {
+     "configs": {
+      "allowBlank": "false",
+      "itemId": "password",
+      "labelAlign": "right",
+      "fieldLabel": "@Str.password",
+      "width": "296",
+      "x": "16",
+      "y": "64",
+      "inputType": "password",
+      "fieldStyle": "padding-left:28px;background-image:url(wb/images/app/password.png);background-repeat:no-repeat;background-position:left center;",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    },
+    {
+     "configs": {
+      "allowBlank": "false",
+      "itemId": "verifyCode",
+      "labelAlign": "right",
+      "fieldLabel": "@Str.verifyCode",
+      "width": "200",
+      "x": "16",
+      "y": "96",
+      "fieldStyle": "padding-left:28px;background-image:url(wb/images/app/check.png);background-repeat:no-repeat;background-position:left center;",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    },
+    {
+     "configs": {
+      "itemId": "verifyImage",
+      "alt": "@Str.verifyCode",
+      "width": "90",
+      "x": "222",
+      "y": "97",
+      "style": "cursor:pointer;",
+      "title": "@Str.clickChangeVC",
+      "height": "20"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "image",
+     "events": {"click": "app.changeVC();\
+app.verifyCode.focus(true, true);"}
+    },
+    {
+     "configs": {
+      "stretch": "false",
+      "itemId": "iconImage",
+      "src": "wb/images/app/login.png",
+      "width": "100",
+      "x": "328",
+      "y": "20",
+      "height": "124"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "image"
+    },
+    {
+     "configs": {
+      "itemId": "saveNameCheck",
+      "boxLabel": "@Str.saveUserName",
+      "width": "192",
+      "x": "120",
+      "y": "128",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "check",
+     "events": {"change": "if (!newValue)\
+  Ext.util.Cookies.clear('sys.username');"}
+    }
+   ],
+   "type": "panel",
+   "events": {
+    "beforerender": "app.verifyEnabled = '{#Var.sys.session.verifyImage.enabled#}' === 'true';\
+if (app.verifyEnabled)\
+  app.verifyImage.src = 'm?xwl=system/sys/session/get-verify-image';\
+else {\
+  app.username.y += 10;\
+  app.password.y += 20;\
+  app.verifyCode.hidden = true;\
+  app.verifyImage.hidden = true;\
+}",
+    "afterrender": "var username = Wb.getCookie('sys.username');\
+Wb.monEnter(panel, function() {\
+  app.login();\
+});\
+app.saveNameCheck.setValue(!!username);\
+if (Wb.isEmpty(username)) {\
+  //单独timeout防止focus任务被cancel\
+  setTimeout(function() {\
+    app.username.focus();\
+  }, 50);\
+} else {\
+  app.username.setValue(username);\
+  setTimeout(function() {\
+    app.password.focus();\
+  }, 50);\
+}"
+   }
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  changeVC: function() {\
+    app.verifyImage.setSrc('m?xwl=system/sys/session/get-verify-image&' + Wb.getId());\
+  },\
+  /**\
+   * 登录成功后的回调函数。可通过重载该方法来实现执行不同的回调功能。\
+   * @param {Object} resp 包含响应数据的XMLHttpRequest对象。\
+   */\
+  loginSuccess: function(resp) {\
+    if (app.saveNameCheck.getValue())\
+      Wb.setCookie('sys.username', app.username.getValue());\
+    window.location = app.main.referUrl || resp.responseText;\
+  },\
+  login: function() {\
+    if (!Wb.verify(app.main))\
+      return;\
+    Wb.request({\
+      url: 'm?xwl=system/sys/session/verify',\
+      out: app.main,\
+      message: Str.processLogin,\
+      showError: false,\
+      success: app.loginSuccess,\
+      failure: function(resp) {\
+        if (app.verifyEnabled)\
+          app.changeVC();\
+        Wb.except(resp, function() {\
+          var s = resp.responseText;\
+          switch (s) {\
+            case Str.vcInvalid:\
+            case Str.vcExpired:\
+              if (!app.verifyCode.hidden)\
+                app.verifyCode.focus(true, true);\
+              break;\
+            case Str.passwordInvalid:\
+              app.password.focus(true, true);\
+              break;\
+            default:\
+              app.username.focus(true, true);\
+              break;\
+          }\
+        });\
+      }\
+    });\
+  },\
+  reset: function() {\
+    Wb.reset(app.main);\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "登录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

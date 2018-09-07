@@ -1,0 +1,78 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var nature = request.getSession().getAttribute('sys.NATURE'), //2码头3驳船\
+  TENANCY_ID = request.getSession().getAttribute('sys.TENANCY_ID'),\
+  CREATEUSER = request.getSession().getAttribute('sys.username'),\
+    ORG_ID = request.getSession().getAttribute('sys.ORG_ID');\
+// app.log(nature);\
+// app.log(TENANCY_ID);\
+// app.log(CREATEUSER);\
+var sql = \"\";\
+if (!Wb.isEmpty(data.name1)) {\
+  sql += \"  and  (NAME like '%'||{?name1?}||'%'    or  CODE like '%'||{?name1?}||'%'   or  GOV_CODE like '%'||{?name1?}||'%')   \";\
+}\
+if (!Wb.isEmpty(data.type)) {\
+  sql += \"  and  (CLIENT_TYPE like '%'||{?type?}||'%'  )   \";\
+}\
+if (!Wb.isEmpty(data.createtime2)) {\
+  var dat = data.createtime2.substring(0, 10);\
+  //app.log(dat);\
+  sql += \" and CREATETIME < to_date('\";\
+  sql += dat;\
+  sql += \" 23:59:59','yyyy-mm-dd HH24:MI:SS')\";\
+}\
+// if (nature == '2') //码头\
+//   sql += \" and  TENANCY_ID='\" + TENANCY_ID + \"'\";\
+// //else if (nature == '3'||nature=='4'||nature=='1') //驳船\
+//   //sql += \" and  CREATEUSER='\" + CREATEUSER + \"'\";\
+// else if(nature=='5'){\
+// \tsql += \" and  b.TENANCY_ID='\" + TENANCY_ID + \"' AND b.ORG_ID='\"+ORG_ID+\"'\";\
+// }\
+if(nature=='5'){\
+\tsql+=\" and  b.TENANCY_ID='\" + TENANCY_ID + \"' AND b.ORG_ID='\"+ORG_ID+\"'\";\
+}else{\
+\t//sql+=\"and b.ORG_NAME=decode('ZSG','ZSG','中山港','XLG','XLG','小榄港','SWG','SWG','神湾港','','','中山港')\";\
+  sql+=\"and ( b.ORG_NAME is  null or b.ORG_NAME=decode('\"+TENANCY_ID+\"','ZSG','中山港','XLG','小榄港','SWG','神湾港','','中山港'))\";\
+}\
+\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "SELECT a.ID, a.ORG_ID, CODE, NAME, SHORT_NAME, E_CODE, E_SHORT_NAME, ABLETIME,\
+       CLIENT_TYPE, AREA_CODE, AREA, ADDRESS, ZIP, BIZ_LINKMAN, TEL, TELEX,\
+       FAX, FINANCE_LINKMAN, EMAIL, EMAIL_FILE, FILE_FORMAT, WEBSITE,\
+       b.EMPTY_PRICE_TYPE, b.MIN_CONTAINER,\
+       b.DEFAULT_PROTOCOL, b.CREDIT_LIMIT,\
+       b.PROTOCOL_ABLETIME, b.PAY_TYPE, b.ACCOUNT_TYPE, b.RESERVE_PRICE, REMARK,\
+       CREATEUSER, CREATETIME, UPDATEUSER, UPDATETIME, DELETED,\
+       REGEDIT_STATUS, GOV_CODE, a.TENANCY_ID, PAR_ORG_ID, STATE_FLAG\
+  FROM C_CUSTOMER a,C_CUSTOMER_CONTACT b where a.id=b.c_id(+) and INSTR(CLIENT_TYPE,'CM')>0\t\
+\
+{#whereSql#}\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

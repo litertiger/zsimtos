@@ -1,0 +1,697 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "editWin",
+     "dialog": "true",
+     "editWin": "true",
+     "closeAction": "hide"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "absolute",
+      "itemId": "panel1",
+      "width": "481",
+      "height": "256",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "ORG_NAME",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "名称",
+        "x": "0",
+        "width": "192",
+        "y": "8",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "SEQ_NO",
+        "labelAlign": "right",
+        "fieldLabel": "排序号",
+        "x": "200",
+        "width": "216",
+        "y": "8",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "ICONCLS",
+        "labelAlign": "right",
+        "fieldLabel": "图标",
+        "x": "200",
+        "width": "216",
+        "y": "40",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "DESCRIPTION",
+        "labelAlign": "right",
+        "fieldLabel": "描述",
+        "x": "0",
+        "width": "416",
+        "y": "112",
+        "height": "107"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "textarea"
+      },
+      {
+       "configs": {
+        "tagConfigs": "{\
+  getValue: function() {\
+   \
+    if (this.value)\
+      return 1;\
+    else\
+      return 0;\
+  }\
+  \
+}",
+        "itemId": "IS_EXTERNAL",
+        "labelAlign": "right",
+        "fieldLabel": "外部客户",
+        "x": "8",
+        "width": "136",
+        "y": "72",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "check",
+       "events": {"change": "// if(check.checked){\
+// \tapp.ORG_CODE.setVisible(true);\
+// }else{  \
+//   if(typeof(app.ORG_CODE)!='undefined')\
+// \tapp.ORG_CODE.setVisible(false);\
+// }"}
+      },
+      {
+       "configs": {
+        "itemId": "ORG_TYPE",
+        "allowBlank": "false",
+        "labelAlign": "right",
+        "fieldLabel": "类型",
+        "x": "0",
+        "width": "192",
+        "keyName": "ORG_TPE",
+        "y": "40",
+        "value": "2",
+        "forceSelection": "true",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "TENANCY_ID",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "租户编号",
+        "x": "0",
+        "width": "240",
+        "y": "216",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "PARENT_ID",
+        "hidden": "true",
+        "x": "376",
+        "width": "241",
+        "y": "272",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": " matchFieldWidth:false",
+        "itemId": "ORG_CODE",
+        "labelAlign": "right",
+        "fieldLabel": "客户代码",
+        "x": "200",
+        "width": "216",
+        "y": "72",
+        "displayField": "CNAME",
+        "listConfig": "{width:250}",
+        "valueField": "CODE",
+        "height": "22"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=system/common/clientSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store",
+        "events": {"beforeload": "\
+if(app.ORG_TYPE.getValue()=='1')\
+operation.params={fldId:'JT',query:operation.params.query};\
+if(app.ORG_TYPE.getValue()=='2')\
+  operation.params={fldId:'MT',query:operation.params.query};\
+if(app.ORG_TYPE.getValue()=='3')\
+  operation.params={fldId:'CO',query:operation.params.query};\
+if(app.ORG_TYPE.getValue()=='4')\
+  operation.params={fldId:'CE',query:operation.params.query};\
+if(app.ORG_TYPE.getValue()=='5')\
+  operation.params={fldId:'AG',query:operation.params.query};\
+\
+  \
+"}
+       }],
+       "type": "combo",
+       "events": {"select": "app.ORG_NAME.setValue(combo.getRawValue());"}
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=entrepot/PortCntrWeight/org1/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+    }\
+  });\
+} else {\
+//   var rec = app.tree1.getSelection()[0];\
+//   if(!Wb.isEmpty(rec.data.ID)){\t\
+// \tapp.PARENT_ID.setValue(rec.data.ID);\
+// \t}\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=entrepot/PortCntrWeight/org1/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+        var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+     \
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "border",
+      "itemId": "panel_basic",
+      "split": "true",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel1",
+        "split": "true",
+        "width": "200",
+        "region": "west"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "tree1",
+         "root": "{   text: 'TPCT',LEVELS:1 }",
+         "title": "部门表",
+         "iconCls": "org_icon",
+         "tools": "Wb.getTreeTools()",
+         "rootVisible": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=entrepot/PortCntrWeight/org1/tree-select"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "treestore",
+          "events": {
+           "load": "Wb.selFirst(app.tree1); //首次加载时选择首个节点",
+           "beforeload": "var node = operation.node;//获取树的节点\
+operation.params.parentDept = node.isRoot() ? 'TPCT': operation.node.data.TENANCY_ID;//父亲部门是以节点的什么数据开始的\
+operation.params.level =node.data.ID;//将每层的id赋值给level\
+// alert(operation.params.level);"
+          }
+         },
+         {
+          "configs": {
+           "itemId": "viewConfig",
+           "markDirty": "false"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tableview"
+         }
+        ],
+        "type": "tree",
+        "events": {
+         "itemclick": "app.SID.setValue(record.data.ID);\
+app.TENANCY_ID.setValue(record.data.TENANCY_ID);\
+app.PARENT_ID.setValue(record.data.ID);\
+app.grid1.store.load({\
+\tparams:{SID:record.data.ID}\t\
+});\
+//初始化\
+app.IDS.setValue(record.data.ID);\
+app.text.setValue(record.data.text);\
+// Wb.info(\"text:\"+record.data.text+\"-pid:\"+record.data.PARENT_ID+\"-ID:\"+record.data.ID);\
+\
+",
+         "selectionchange": "if (contextOwner) {\
+  contextOwner.selDept = selected[0];\
+  if (contextOwner.loadData)\
+    contextOwner.loadData();\
+}"
+        }
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "border",
+        "itemId": "panel2",
+        "split": "true",
+        "region": "center",
+        "height": "300"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "toolbar1",
+          "region": "north"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "newBtn",
+            "tooltip": "添加新的记录 (Ctrl+E)",
+            "text": "添加",
+            "iconCls": "record_add_icon"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var r=app.tree1.getSelection();\
+\
+if( r.length==0||r[0].data.text=='TPCP') {Wb.info('请选择组织机构'); return ;}\
+else{\
+app.SID.setValue(r[0].data.ID);\
+app.TENANCY_ID.setValue(r[0].data.TENANCY_ID);\
+app.PARENT_ID.setValue(r[0].data.ID);\
+}\
+app.editWin.setTitle('添加 - 组织');\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+app.TENANCY_ID.setValue('{#sys.TENANCY_ID#}');\
+// var rec = app.tree1.getSelection()[0];\
+// if(!Wb.isEmpty(rec.data.ID)){\t\
+// \tapp.PARENT_ID.setValue(rec.data.ID);\
+// }\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "editBtn",
+            "tooltip": "修改选择的数据",
+            "text": "修改",
+            "iconCls": "record_edit_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle('修改 - 组织');\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "delBtn",
+            "tooltip": "删除选择的记录",
+            "text": "删除",
+            "iconCls": "record_delete_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=entrepot/PortCntrWeight/org1/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'ORG_NAME');"}
+          },
+          {
+           "configs": {
+            "itemId": "item1",
+            "text": "-"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item"
+          },
+          {
+           "configs": {
+            "itemId": "SID",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "createInstanceBtn",
+            "text": "初始化班组",
+            "iconCls": "object_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "if (app.text.getValue() == '生产安技部') {\
+  var datas = [];\
+  for (var i = 0; i < app.grid1.store.getCount(); i++) {\
+    var record = app.grid1.store.getAt(i);\
+    datas.push({\
+      TEAM_NAME: record.data.ORG_NAME,\
+      PID: '-1',\
+      TENANCY_ID: app.TENANCY_ID.getValue(),\
+      ORDER_INDEX: i + 1,\
+      ID: record.data.ID\
+    });\
+  }\
+//   console.log(datas);\
+  Wb.request({\
+    url: 'm?xwl=entrepot/PortCntrWeight/org1/insertWorkDuty',\
+    params: {\
+      datas: datas,\
+      PID: app.PARENT_ID.getValue()\
+    },\
+    success: function(resp) {\
+      Wb.info(\"初始化成功！\");\
+    }\
+  });\
+} else {\
+  Wb.warn(\"请选择正确的节点！\");\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "IDS",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "text",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "item2",
+            "text": "初始化",
+            "iconCls": "object_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sel = app.grid1.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"请选择一条数据！\");\
+  return;\
+}\
+\
+Wb.confirm(\"确定进行初始化吗？\", function() {\
+  Wb.request({\
+    url: 'm?xwl=entrepot/PortCntrWeight/org1/workduty',\
+    params: {\
+      ID: sel[0].data.ID,\
+      PARENT_ID: sel[0].data.PARENT_ID,\
+      TEAM_NAME: sel[0].data.ORG_NAME\
+    },\
+    success: function(resp) {\
+      Wb.info(\"初始化成功！\");\
+    }\
+  });\
+});\
+\
+\
+\
+\
+// if (app.text.getValue() == '生产安技部') {\
+//   var datas = [];\
+//   for (var i = 0; i < app.grid1.store.getCount(); i++) {\
+//     var record = app.grid1.store.getAt(i);\
+//     datas.push({\
+//       TEAM_NAME: record.data.ORG_NAME,\
+//       PID: '-1',\
+//       TENANCY_ID: app.TENANCY_ID.getValue(),\
+//       ORDER_INDEX: i + 1,\
+//       ID: record.data.ID\
+//     });\
+//   }\
+// //   console.log(datas);\
+//   Wb.request({\
+//     url: 'm?xwl=entrepot/PortCntrWeight/org1/workduty',\
+//     params: {\
+//       ID:app.IDS.getValue(),\
+//       PARENT_ID: app.PARENT_ID.getValue(),\
+//       TEAM_NAME:app.text.getValue()\
+//     },\
+//     success: function(resp) {\
+//       Wb.info(\"初始化成功！\");\
+//     }\
+//   });\
+// } else {\
+//   Wb.warn(\"请选择正确的节点！\");\
+// }"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {
+          "itemId": "grid1",
+          "region": "center",
+          "multiSelect": "true"
+         },
+         "expanded": false,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=entrepot/PortCntrWeight/org1/select"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "id",
+              "hidden": "true",
+              "dataIndex": "ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "orgName",
+              "dataIndex": "ORG_NAME",
+              "text": "名称"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "tenancyIdcolumn",
+              "dataIndex": "TENANCY_ID",
+              "text": "租户编号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "parentId",
+              "hidden": "true",
+              "dataIndex": "PARENT_ID"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "seqNocolumn",
+              "dataIndex": "SEQ_NO",
+              "text": "序列号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "iconclscolumn",
+              "dataIndex": "ICONCLS",
+              "text": "图标"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "descriptioncolumn",
+              "dataIndex": "DESCRIPTION",
+              "text": "描述"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "isExternalcolumn",
+              "xtype": "checkcolumn",
+              "dataIndex": "IS_EXTERNAL",
+              "text": "外部客户"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "orgTypecolumn",
+              "dataIndex": "ORG_TYPE",
+              "keyName": "ORG_TPE",
+              "text": "类型"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "orgCodecolumn",
+              "dataIndex": "ORG_CODE",
+              "text": "代码"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid",
+         "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+        }
+       ],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "组织机构维护",
+ "iconCls": "application_view_tile_icon",
+ "inframe": false,
+ "pageLink": ""
+}

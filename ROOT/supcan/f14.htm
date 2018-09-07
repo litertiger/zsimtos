@@ -1,0 +1,101 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var count=0;
+ function OnReady(id)
+ {
+  count++;
+  if(count != 2) return;
+
+  AF2.func("Build", "treelist/freeform6.xml");
+  AF1.func("Build", "treelist/orders2.xml");
+  AF1.func("Load", "treelistdata/orders.txt \r\n FadeInStep=0");
+  AF1.func("SetColProp", "CustomerId \r\n displayMask \r\n ");
+  AF1.func("SetColProp", "CustomerId \r\n fontIndex \r\n 0");
+  AF1.func("SelectRow", "0");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id=='AF1') {
+   if( Event == "SelChanged" ) {
+    var colName="";
+    while(true) {
+     colName = AF1.func("GetNextValidCol", colName);
+     if(colName=="") break;
+     var data = AF1.func("GetCellData", p1 + "\r\n" + colName);
+     AF2.func("SetValue", colName+ "\r\n" +data);
+     }
+   }
+  }
+  else {
+   if( Event == "EditChanged" ) {
+    var data = AF2.func("getValue", p1);
+    var row = AF1.func("GetCurrentRow", "");
+    AF1.func("SetCellData", row +"\r\n"+ p1 +"\r\n"+ data);
+   }
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff leftmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.切换Treelist的当前行，下面的Freeform中的内容会跟着变化；<br>
+<b>2</b>.在Freeform中输入，内容会更新到Treelist；</td>
+</tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<div style="position:relative;width:900">
+	<script>insertTreeList('AF1', '', '215px')</script>
+</div>
+<div style="position:relative;width:900">
+	<script>insertFreeForm('AF2', '', '130px')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.切换Treelist的当前行，Freeform的内容会跟着变化；<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF1') {
+  if( Event == "SelChanged" ) { //事件：当前行切换
+   var colName="";
+   //逐个列，取出内容，填入Freeform
+   while(true) {
+    colName = AF1.func("GetNextValidCol", colName);
+    if(colName=="") break;
+    var data = AF1.func("GetCellData", p1 + "\r\n" + colName);
+    AF2.func("SetValue", colName+ "\r\n" +data);
+   }
+  }
+ }
+ else if(id=='AF2') {
+  if( Event == "EditChanged" ) { //内容在输入
+   var data = AF2.func("getValue", p1);
+   var row = AF1.func("GetCurrentRow", "");
+   AF1.func("SetCellData", row +"\r\n"+ p1 +"\r\n"+ data);
+  }
+ }
+}</pre>
+</td>
+<td/></tr>
+</table>
+</td></tr></table>
+
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

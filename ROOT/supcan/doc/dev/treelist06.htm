@@ -1,0 +1,166 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>6.分页</p><hr color=#2266ee size=1>
+　　在页面中每次加载数千条记录，通常被认为是不明智的，有必要使用分页。<br>
+　　实现分页的关键，是XML描述文档的&lt;Properties&gt;中的 dataURL 须包含 @rows 宏、和二选一的@page、@startRow宏 (分别表示每页行数、页序号、开始行序号)，例如指定开始行：<br>
+　　　　dataURL="../getdata/action?count=<b>@rows</b>&from=<b>@startRow</b>"<br>
+　　或指定页序：<br>
+　　　　dataURL="../getdata/action?count=<b>@rows</b>&page=<b>@page</b>"<br>
+　　最终这些宏会被 Treelist 自动转换成数字的.<br>
+<div id="Tag2"/>
+<p class='sz3'>6.1 分页方案</p>
+　　Supcan Treelist有二种分页方案：依赖外部Freeform Pager(自由表头的分页器)的方案、垂直滚动条即滚即刷新的内部分页方案.<br>
+　　第一个方案中，数据的分页刷新完全是由外部分页器触发的，所以在此不作详细分析，请参考演示页“分页方案(一)”，以及上方的
+"Freeform XML文档规范"的“Pager”小节内容。<br>
+　　采用该方案的优点是分页直观，用户体验好，结合Freeform的渲染功能可以做出各种漂亮的分页器。像demo页中那样，Freeform中除了有分页器，还有些功能小图标，相当于可以把Freeform作为工具条使用。<br>
+<br>
+　　第二个方案的分页完全是由Treelist内部处理的，不与外部分页器绑定。<br>
+　　该方案的数据刷新实际上是分段刷新，刷新的时机是：尚未加载的数据行，在需要显示时加载.<br>
+　　采用该方案的优点是简单，需要写的js很少。<br>
+<br>
+　　要采用分页功能，后端C#/Java必须开发出相应的功能；不管采用上述哪种方案，从后端开发角度看，是完全一样的。<br>
+<br>
+<div id="Tag3"/>
+<hr>
+<br>
+<p class='sz3'>6.2 总行数</p>
+　　分页显示时，通常需要先取得数据的总行数，硕正提供二种获取总行数的方法：<br>
+　　方法一：在服务器返回的首个数据包中夹带总行数：安插一个名为"totalRows"的元素或属性，例如：<br>
+<pre class='xml'>
+&lt;root&gt;
+ &lt;resultSet totalRows="12000"&gt;
+   &lt;record&gt;
+    ...
+   &lt;/record&gt;
+   &lt;record&gt;
+    ...
+   &lt;/record&gt;
+   ...
+  &lt;/resultSet&gt;
+ &lt;/root&gt;</pre>
+　　该XML包表明了总行数是12000行，或者这样写也可以:
+<pre class='xml'>
+&lt;root&gt;
+ &lt;totalRows&gt;12000&lt;/totalRows&gt;
+ &lt;resultSet&gt;
+   &lt;record&gt;
+    ...
+   &lt;/record&gt;
+   &lt;record&gt;
+    ...
+   &lt;/record&gt;
+   ...
+  &lt;/resultSet&gt;
+ &lt;/root&gt;</pre>
+ 　　对于JSON格式，可以是：<br>
+ <pre class='cpp'>
+{"totalRows": 12000, "Record": [
+ {"Country":"France", "OrderID":"10248", "CustomerID":"VINET"},
+ {"Country":"Germany", "OrderID":"10249", "CustomerID":"TOMSP"},
+ {"Country":"Brazil", "OrderID":"10250", "CustomerID":"HANAR"}
+]}</pre>
+ 　　或：<br>
+ <pre class='cpp'>
+{"Record": [
+ {"Country":"France", "OrderID":"10248", "CustomerID":"VINET"},
+ {"Country":"Germany", "OrderID":"10249", "CustomerID":"TOMSP"},
+ {"Country":"Brazil", "OrderID":"10250", "CustomerID":"HANAR"}
+], "totalRows": 12000}</pre>
+　　方法二：在XML中定义 "totalRows" 属性(或在页面中通过SetProp函数动态设置)，这是一个独立的普通URL，例如：totalRows = "../stock/search1.aspx?tag=23"，服务器只要返回总行数即可。
+但这种方案的缺点显而易见：需要访问二遍服务器，影响性能.<br><br>
+<br>
+<div id="Tag33"/>
+<hr>
+<br>
+<p class='sz3'>6.3 其它功能</p>
+<p class='sz5'>6.3.1 全部打印</p>
+　　在企业应用中，有这么一种常见的需求：以分页显示，但是调用菜单的“打印”、“转换输出”时，却要求得到全部的数据。<br>
+　　为了实现这个功能，我们采用这样的做法：<br>
+1.请调用EnableMenu( )函数，激活exportAll、printAll子菜单，这样右键菜单就变成了如下的菜单项了：<br>
+<center><img src='image/treelist10.png'></center>
+2.如果用户选择了“转换输出全部页”、“打印全部页” 或 “打印预览全部页”菜单项，控件将抛出"RequestAllPages"事件；<br>
+3.您需要响应这个事件：取得全部数据(Load( ));<br>
+　　事件返回后，控件将接下去做该做的事情。<br>
+<br>
+<p class='sz5'>6.3.2</b> 服务端排序</p>
+　　默认情况下，排序操作是在客户端进行的，如果要在服务器端实现排序，那么需要在&lt;Properties&gt;中定义IsRemoteSort="true"。<br>
+　　在触发的“Sort”事件中，你需要重新向服务器发送请求。 结合Treelist的demo页"17.分页方案(一)"，你可以将 OnReady( ) 和 OnEvent( ) 事件改成：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ if(id=='AF1') {
+  bReadyAF1 = true;
+  AF1.func("Build", "treelist/t1.xml");
+  //这行指定要求服务端排序
+  AF1.func("SetProp", "IsRemoteSort \r\n1");
+ }
+ ...(略)
+}
+ 
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF1' && Event=='Sort' && p1=='1') {
+  //取得当前的排序串
+  var sort=AF1.func("GetProp", "sort");
+  //修改取数URL, 它会立即刷新的
+  AF2.func("SetObjectProp", "ID0 \r\n dataURL \r\n http://localhost/DotNet/rcds.aspx?startRow=@startRow&rows=@rows&sort="+sort);
+ }
+ ...(略)
+}</pre>
+　　在源码的第18行，sort=? 的条件子句，已包含了排序串，诸如"date a,custid d,price d"，需要你后端去解析.<br>
+<br>
+<div id="Tag34"/>
+<hr>
+<br>
+<p class='sz3'>6.4 ajax取数</p>
+　　含有分页器的分页数据流转过程是：分页器负责从后端取数，并把数据交给绑定的Treelist显示。<br>
+　　但也有这样的场景：程序员希望自己通过ajax取数，并把数据交给分页器或Treelist显示.  对于这样的场景，硕正套件也是支持的，以演示页"18.分页方案(一)"为例，需要修改的实现代码和原理分析如下：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ ...
+ //前面部分略 
+ 
+ if(bReadyAF1 && bReadyAF2) {
+  //绑定
+  var h = AF1.func("GetHandle", "");
+  AF2.func("BindPager", h + "\r\n ID0");
+ 
+  //取得分页器的 "每页行数" 属性
+  var pgrows = AF2.func("GetObjProp", "ID0 \r\n PageRows");
+  //拼装出取第一页数据的URL
+  var url = "http://www.supcan.cn/DotNet/access.aspx?sleep=1&startRow=0&rows=" + pgrows;
+  //通过ajax取得数据串(注：这里是通过download全局函数模拟ajax的)
+  var xml = AF1.func("download", url + "\r\n toString=1;isEcho=0");
+  //把XML数据串交给分页器
+  AF2.func("SetObjectProp", "ID0\r\n dataURL \r\n" +xml);
+ }
+}</pre>
+　　上述代码仅仅是取得第一页的数据，当用户点击分页器的页码时，会触发"Pager"事件，所以还需要解决"Pager"事件：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF2') {
+  if(Event=="Pager") {
+   //p2,p3参数分别为开始行和每页行数
+   var url = "http://www.supcan.cn/DotNet/access.aspx?sleep=1&startRow=" +p2+ "&rows=" + p3;
+   //通过ajax取得数据串(注：这里是通过download全局函数模拟ajax的)
+   var xml = AF1.func("download", url + "\r\n toString=1;isEcho=0");
+   //有如下2种方法转交数据:
+   //方法一：把数据给分页器
+   AF2.func("SetObjectProp", "ID0\r\n dataURL \r\n" +xml);
+   //方法二：也可以直接把数据给Treelist
+   AF1.func("load", xml);
+   return;
+ }
+ ...(其它事件：略)
+}</pre>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

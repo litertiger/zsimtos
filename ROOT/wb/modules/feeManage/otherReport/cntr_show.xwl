@@ -1,0 +1,185 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "cboIE",
+         "pickList": "[\
+  ['', '全部'],\
+  ['I', '进口'],\
+  ['E', '出口']\
+]",
+         "width": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboTRADE",
+         "pickList": "[\
+  ['', '全部'],\
+  ['1', '外贸'],\
+  ['2', '内贸']\
+]",
+         "width": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboLINETYPE",
+         "pickList": "[\
+  ['', '全部'],\
+  ['1', '水转'],\
+  ['2', '内贸'],\
+  ['3', 'GPS']\
+]",
+         "width": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var sql = \" and tenancy_id='\" + tenancyid + \"'\" +\
+  \" and BILL_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and BILL_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(app.cboIE.getValue()))\
+  sql += \" and i_e_id='\" + app.cboIE.getValue() + \"'\";\
+if (!Wb.isEmpty(app.cboTRADE.getValue()))\
+  sql += \" and trade_id='\" + app.cboTRADE.getValue() + \"'\";\
+if (!Wb.isEmpty(app.cboLINETYPE.getValue()))\
+  sql += \" and LINE_TYPE='\" + app.cboLINETYPE.getValue() + \"'\";\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var today = new Date(); //获取当前日期\
+app.sdate.setValue(today);\
+app.edate.setValue(today);\
+app.cboIE.setValue('I');\
+app.cboTRADE.setValue(\"1\");\
+app.cboLINETYPE.setValue(\"\");\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/fee/cntr_show.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&sdfa=\" + Math.round(Math.random() * 100));\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1
+ },
+ "title": "集装箱吞吐量汇总",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"update remitting set R_ID={?R_ID?},REM_DATE={?timestamp.REM_DATE?},REM_CUS={?REM_CUS?},PAYER={?PAYER?},\" +\
+  \"VESSEL_NAME={?VESSEL_NAME?},VOYAGENO={?VOYAGENO?},BILL_NO={?BILL_NO?},CARGO_NAME={?CARGO_NAME?},\" +\
+  \"VOLUME={?VOLUME?},WEIGHT={?WEIGHT?},PIECES={?PIECES?},UPDATED_BY='\" + username + \"',UPDATED_ON=sysdate,\" +\
+  \"REM_CUS_COD={?REM_CUS_COD?},PAYER_COD={?PAYER_COD?},R_TYPE={?R_TYPE?} \" +\
+  \"where ID={?ID?}\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+app.run(\"delete from remitting_item where c_id={?ID?}\");\
+\
+var sqlitem = \"insert into remitting_item(ID,C_ID,CNTR,FEEITEM,MONERY,AD_ID) \" +\
+  \"select sys_guid(),{?ID?},CNTR,FEE_LIST_ID,CONTRACT_RATE,ID \" +\
+  \"from accounts_details where id in (\" + data.ids + \")\";\
+app.run(sqlitem);\
+\
+var accs = Wb.decode(DbUtil.getData(app.run(\"select ACCOUNT_CUSTOMER_CODE from accounts_details\" +\
+  \" where id in (\" + data.itemids + \")\"), request));\
+var atsql = \"select account_type from c_customer where code='\" + accs[0].ACCOUNT_CUSTOMER_CODE + \"'\";\
+var custom = Wb.decode(DbUtil.getData(app.run(atsql, {\
+  jndi: 'jdbc/basecode'\
+}), request));\
+var account_type = 1;\
+if (!Wb.isEmpty(custom))\
+  account_type = custom[0].ACCOUNT_TYPE;\
+var clearid = \"update accounts_details set remitting_flag='',remittingitem_id='',PAYMENT_CUSTOMER_CODE=ACCOUNT_CUSTOMER_CODE,\" +\
+  \"PAYMENT_CUSTOMER_NAM=ACCOUNT_CUSTOMER_NAM,PAYMENT_TYPE=\" + account_type + \" where id in (\" + data.itemids + \")\";\
+app.run(clearid);\
+\
+atsql = \"select account_type from c_customer where code='\" + data.PAYER_COD + \"'\";\
+custom = Wb.decode(DbUtil.getData(app.run(atsql, {\
+  jndi: 'jdbc/basecode'\
+}), request));\
+account_type = 1;\
+if (!Wb.isEmpty(custom[0].ACCOUNT_TYPE))\
+  account_type = custom[0].ACCOUNT_TYPE;\
+var sqlacitem = \"\";\
+if (data.radioVessle == \"true\")\
+  sqlacitem = \"update accounts_details ad set remittingitem_id=(select id from remitting_item ri where ri.ad_id=ad.id),\" +\
+  \"remitting_flag='0',payment_customer_code={?PAYER_COD?},payment_customer_nam={?PAYER?},PAYMENT_TYPE=\" + account_type +\
+  \" where ad.id in (\" + data.ids + \")\";\
+if (data.radioCustom == \"true\")\
+  sqlacitem = \"update accounts_details ad set remittingitem_id=(select id from remitting_item ri where ri.ad_id=ad.id),\" +\
+  \"remitting_flag='1',payment_customer_code={?PAYER_COD?},payment_customer_nam={?PAYER?},PAYMENT_TYPE=\" + account_type +\
+  \" where ad.id in (\" + data.ids + \")\";\
+app.run(sqlacitem);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

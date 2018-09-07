@@ -1,0 +1,115 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get('sys.NATURE');\
+var customcode = app.get('sys.GOV_CODE');\
+var sqlcntr = \"select ID,PHASE from port_cntr where tenancy_id='\" + tenancyid + \"'\" +\
+  \" and cntr like '%\" + data.CNTR + \"%' and (phase='ACT' or phase='OUT')\";\
+if (nature == \"5\")\
+  sqlcntr += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+var cntrs = Wb.decode(DbUtil.getData(app.run(sqlcntr), request));\
+if (Wb.isEmpty(cntrs)) {\
+  app.send({\
+    msg: data.CNTR + \"没有找到箱子或箱子不在场\",\
+    success: false\
+  });\
+  return;\
+}\
+if (cntrs.length > 1) {\
+  app.send({\
+    msg: \"查到了多个关于\" + data.CNTR + \"的箱子,请输入更精确的箱号\",\
+    success: false\
+  });\
+  return;\
+}\
+var kl = Wb.getRecords(app.run(\"select LOCK_ID from port_cntr where id='\" + cntrs[0].ID + \"' and LOCK_ID='1'\"));\
+if (kl.length > 0) {\
+  app.send({\
+    success: false,\
+    msg: \"箱子:\" + data.CNTR + \"被扣留\"\
+  });\
+  return;\
+}\
+//转关进\
+if (cntrs[0].PHASE == \"OUT\") {\
+  var zgjsql = \"select p.ID CNTR_ID,p.TENANCY_ID,p.CNTR,p.CATEGORY_ID,p.TRADE_ID,p.I_E_ID,p.E_F_ID,p.CNTR_ISO,\" +\
+    \"p.CNTR_OWNER,p.CNTR_OWNER_COD,p.CNTR_OPERATOR,p.SEAL_NO,p.SEAL_NO2,p.SEAL_NO3,p.SEAL_NO4,p.CNTR_HIGHT,p.PHASE,\" +\
+    \"p.CNTR_LENGTH,p.POD,p.POL,p.SPOD,p.CMDY_CODE,p.CONSIGNEE,p.SHIPPER,p.DANG_ID,p.IMDG,p.UNDG,p.SPEC_STOW,\" +\
+    \"p.SPEC_STOW2,p.SPEC_STOW3,p.TEMP_SET,p.TEMP_MIN,p.TEMP_MAX,p.REEF_ID,p.HUMIDITY_LEVEL,p.OVERHEIGHT,p.OVERBACK,\" +\
+    \"p.OVERLEFT,p.OVERRIGHT,p.OOG_ID,p.CNTR_SIZE,p.CNTR_TYPE,p.CNTR_OPERATOR_COD,p.ON_POWER,p.SHIPPER_NAME,p.SHIPPER,\" +\
+    \"p.CONSIGNEE_NAME,p.CONSIGNEE,p.YARD_POSITION,ca.APPLY_TYPE\" +\
+    \" from cntr_apply_list zg left join port_cntr p on zg.cntr_id=p.id left join cntr_apply ca on ca.id=zg.aid\" +\
+    \" where p.tenancy_id='\" + tenancyid + \"' and ca.APPLY_TYPE='ZGJ' and zg.phase='ACK'\" +\
+    \" and CNTR like '%\" + data.CNTR + \"%' and p.phase='OUT'\";\
+  if (nature == \"5\")\
+    zgjsql += \" and p.CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+  var zgjcntr = DbUtil.getData(app.run(zgjsql), request);\
+  if (Wb.decode(zgjcntr).length == 1)\
+    app.send({\
+      cntr: zgjcntr,\
+      success: true\
+    });\
+  if (Wb.decode(zgjcntr).length > 1)\
+    app.send({\
+      msg: \"查到了多个关于\" + data.CNTR + \"的箱子,请输入更精确的箱号\",\
+      success: false\
+    });\
+  if (Wb.decode(zgjcntr).length < 1)\
+    app.send({\
+      msg: data.CNTR + \"箱子没有转关申请\",\
+      success: false\
+    });\
+}\
+//转关出\
+if (cntrs[0].PHASE == \"ACT\") {\
+  var zgjsql = \"select p.ID CNTR_ID,p.TENANCY_ID,p.CNTR,p.CATEGORY_ID,p.TRADE_ID,p.I_E_ID,p.E_F_ID,p.CNTR_ISO,\" +\
+    \"p.CNTR_OWNER,p.CNTR_OWNER_COD,p.CNTR_OPERATOR,p.SEAL_NO,p.SEAL_NO2,p.SEAL_NO3,p.SEAL_NO4,p.CNTR_HIGHT,p.PHASE,\" +\
+    \"p.CNTR_LENGTH,p.POD,p.POL,p.SPOD,p.CONSIGNEE,p.SHIPPER,p.DANG_ID,p.IMDG,p.UNDG,p.SPEC_STOW,\" +\
+    \"p.SPEC_STOW2,p.SPEC_STOW3,p.TEMP_SET,p.TEMP_MIN,p.TEMP_MAX,p.REEF_ID,p.HUMIDITY_LEVEL,p.OVERHEIGHT,p.OVERBACK,\" +\
+    \"p.OVERLEFT,p.OVERRIGHT,p.OOG_ID,p.CNTR_SIZE,p.CNTR_TYPE,p.CNTR_OPERATOR_COD,p.ON_POWER,p.SHIPPER_NAME,p.SHIPPER,\" +\
+    \"p.CONSIGNEE_NAME,p.CONSIGNEE,p.YARD_POSITION,ca.APPLY_TYPE\" +\
+    \" from cntr_apply_list zg left join port_cntr p on zg.cntr_id=p.id left join cntr_apply ca on ca.id=zg.aid\" +\
+    \" where p.tenancy_id='\" + tenancyid + \"' and ca.APPLY_TYPE='ZGC' and zg.phase='ACK'\" +\
+    \" and CNTR like '%\" + data.CNTR + \"%' and p.phase='ACT'\";\
+  if (nature == \"5\")\
+    zgjsql += \" and p.CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+  var zgjcntr = DbUtil.getData(app.run(zgjsql), request);\
+  if (Wb.decode(zgjcntr).length == 1)\
+    app.send({\
+      cntr: zgjcntr,\
+      success: true\
+    });\
+  if (Wb.decode(zgjcntr).length > 1)\
+    app.send({\
+      msg: \"查到了多个关于\" + data.CNTR + \"的箱子,请输入更精确的箱号\",\
+      success: false\
+    });\
+  if (Wb.decode(zgjcntr).length < 1)\
+    app.send({\
+      msg: data.CNTR + \"箱子没有转关申请\",\
+      success: false\
+    });\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "查询箱子",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

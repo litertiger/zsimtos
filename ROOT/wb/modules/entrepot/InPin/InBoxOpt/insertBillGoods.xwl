@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var username = app.get(\"sys.username\"),\
+   TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+   rs;\
+var idArray = new Array();\
+var state, states, a, b;\
+rs = app.run(\"select CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES, LOCATION, GOODSATTR, SHIPPERHANDLER, SIGNERCFS, \" +\
+  \"CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, CFS_ID, RECEIPTNO, TRUCKNO, WEIGHT, CFSBILLNO, VOLUME,\" +\
+  \"LCL_ID, SHIPPER, OUTFLAG, IMPEXP, PLANQUTY, SOURCE_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY \" +\
+  \"from BLUK_BILL where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"' \");\
+while (rs.next()) {\
+  idArray.push({\
+    BILL_ID: rs.getString('BILL_ID')\
+  });\
+  state = rs.getString('TASKSTATUS');\
+}\
+\
+app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, \" +\
+  \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\" +\
+  \"  select BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, sysdate, '', LOCATION, CFS_ID, \" +\
+  \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\" + username + \"', '\" + username + \"' from BLUK_BILL\" +\
+  \"  where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"' and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?})\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+  });\
+app.run(\"update BLUK_BILL set TASKSTATUS='FIN' where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\", {\
+  transaction: 'start'\
+});\
+states = app.run(\"select TASKSTATUS from BLUK_BILL where LCL_ID={?LCL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+while (states.next()) {\
+  a = states.getString('TASKSTATUS');\
+  if (a == \"EXE\") {\
+    b = 0;\
+  } else {\
+    b = 1;\
+  }\
+}\
+if (b == 1) {\
+  app.run(\"update BLUK_PLAN set TASKSTATUS='FIN' where ID={?IDS?} and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "按照单确认入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

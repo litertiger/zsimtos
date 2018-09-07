@@ -1,0 +1,65 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//精确查找\
+var sql, data = app.get(),\
+  tenancyid = app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+sql = \"select id,cntr,trunc(CREATED_ON) IN_PORT_TIME,0 hx from port_cntr where tenancy_id = '\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and cntr = '\" + data.CNTR + \"'\";\
+//去掉驳船验证\
+//if (nature == '5') {\
+//  sql += \" and CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+//}\
+if (data.ls == \"1\") {\
+  sql += \" union all\" +\
+    \" select id,cntr,trunc(CREATED_ON) IN_PORT_TIME,1 hx from port_cntr_his where tenancy_id = '\" + tenancyid + \"'\";\
+  if (!Wb.isEmpty(data.CNTR))\
+    sql += \" and cntr = '\" + data.CNTR + \"'\";\
+//  if (nature == '5')\
+//    sql += \" and CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSWNH": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "ZK": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "左侧grid查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

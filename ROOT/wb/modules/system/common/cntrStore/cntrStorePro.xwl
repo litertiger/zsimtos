@@ -1,0 +1,184 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var username = app.get('sys.username')==null?\"admin\":app.get('sys.username');\
+if(app.get(\"moveType\") == \"VO\")\
+{\
+ app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY='\"+username+\"',\"+\
+        \" UPDATED_ON=SYSDATE ,CANCEL_ID=1 where CNTR_ID \"+\
+         \" in(select  cntr_id from  move_list where queue_id={?queueId?}  and phase='FIN') \");\
+     \
+\treturn;\
+}\
+\
+\
+\
+var  tenancy,rs= app.run(\"select ID ,TENANCY_ID,cntr from  port_cntr where  ID={?cntrId?} \"+\
+                         \" union all select ID ,TENANCY_ID,cntr from  port_cntr_his where  ID={?cntrId?}  \"),cntrId,cntr ;\
+if(rs.next())\
+{\
+ cntrId=rs.getString(\"ID\");\
+ tenancy=rs.getString(\"TENANCY_ID\");\
+ cntr = rs.getString(\"CNTR\");\
+}\
+else\
+{\
+return \"沒有找到在場箱！\";\
+}\
+var moveType = app.get(\"moveType\") === null ? 'TE': app.get('moveType'),\
+ efId = app.get(\"efId\");\
+\
+\
+\
+var sqlArray = new Array();\
+\
+sqlArray.push({\
+    moveType: moveType,\
+    cntrId: cntrId,\
+    cntr: cntr,\
+    tenancy: tenancy,\
+    username: username\
+});\
+\
+if(moveType=='QD'){\
+  var  rs=app.run(\"select  1 from CNTR_STORE_RECORD where  cntr_id='\"+cntrId+\"'  and MOVE_TYPE='QD' \");\
+  if(rs.next()){\
+   app.run(\"update CNTR_STORE_RECORD set OUT_TIME={?TIMESTAMP.ytDate?} , UPDATED_BY={?username?}, UPDATED_ON=sysdate where CNTR_ID='\"+cntrId+\"' and QD='QD' \");\
+   app.run(\"update CNTR_STORE_RECORD set IN_TIME={?TIMESTAMP.ytDate?} , UPDATED_BY={?username?}, UPDATED_ON=sysdate where CNTR_ID='\"+cntrId+\"' and  MOVE_TYPE='QD'  \");\
+\
+  \
+  }\
+  else if(efId=='F'){\
+   app.run(\"update CNTR_STORE_RECORD set OUT_TIME={?TIMESTAMP.ytDate?} , UPDATED_BY={?username?}, QD='QD',UPDATED_ON=sysdate where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+      app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" +\
+              \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \
+              \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" +\
+              \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" +\
+              \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \
+               \"  SELECT SYS_GUID(), ID, CNTR,{?TIMESTAMP.ytDate?}, NULL, NULL, null, \" +\
+              \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, 'E', \" + \
+              \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \
+              \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \
+              \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+          arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+  \
+      });    }\
+  return;\
+}\
+\
+var  rs =app.run(\" select 1 from port_cntr A ,CNTR_STORE_RECORD B  where \"+\
+                 \"  A.I_E_ID=B.I_E_ID  and  A.E_F_ID =B.E_F_ID and \"+\
+                 \"  A.TRADE_ID=B.TRADE_ID and a.CNTR_OPERATOR_COD=b.CNTR_OPERATOR_COD \"+\
+                 \"  and   A.ID=B.cntr_id and   A.ID='\"+cntrId+\"'  \");\
+\
+if(!rs.next()){//找不到，先修改结束时间，再插入一条\
+  \
+  if (moveType == \"VO\"||moveType == \"ZC\"||moveType == \"FOTC\"||moveType == \"EOTC\") { //注销\
+      app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY='\"+username+\"', UPDATED_ON=SYSDATE ,CANCEL_ID=1 where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+\
+  }\
+  else{\
+      app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+      app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        e_f_id, CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+          arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+      });\
+    }\
+}\
+ DbUtil.close(rs);\
+\
+\
+// if (moveType == \"VI\") { //卸船\
+//     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"     (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"    SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), {?cntrId?}, CNTR,SYSDATE, NULL, NULL, CONSIGNEE_COD, \" + \"        VLOAD_LIST.CNTR_OPERATOR_COD, VLOAD_LIST.LINE_COD, VLOAD_LIST.LINE_COD, VLOAD_LIST.CNTR_ISO, VLOAD_LIST.TRADE_ID, VLOAD_LIST.I_E_ID, \" + \"       VLOAD_LIST.E_F_ID, VLOAD_LIST.CNTR_SIZE, VLOAD_LIST.CNTR_TYPE, VLOAD_LIST.REEF_ID, VLOAD_LIST.DANG_ID, VLOAD_LIST.LCL_ID, VLOAD_LIST.BILL_NO, \" + \"       VLOAD_LIST.CMDY_CODE, NULL, VLOAD_LIST.OOG_ID, VLOAD_LIST.OVER_ID, {?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?}  \" + \"   FROM VBILL_HEAD, VLOAD_LIST \" + \"  WHERE VBILL_HEAD.ID = VLOAD_LIST.BILL_ID AND VLOAD_LIST.CNTR_ID={?cntrId?} and VLOAD_LIST.main_flag=1 and VBILL_HEAD.I_E_ID='I'\", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+// } else if (moveType == \"VO\") { //装船\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, DERATE_FLAG=1,UPDATED_ON=SYSDATE ,CANCEL_ID=1 where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+// }\
+// // else if (moveType == \"FO\") { //重出 重箱堆存费计算完毕，生成空箱堆存费\
+// //     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+// //     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+// //         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+// //     });\
+\
+// // } \
+// else if (moveType == \"FOTC\") { //重出不回 重箱堆存费计算完毕\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+// //     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, SYSDATE, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+// //         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+// //     });\
+// } \
+// else if (moveType == \"EOTC\") { //空出不回 空箱堆存费计算完毕\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+// //     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, SYSDATE, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+// //         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+// //     });\
+// } \
+// else if (moveType == \"FITC\") { //重进 重箱堆存费计算完毕，生成空箱堆存费\
+//     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+// } \
+// else if (moveType == \"EITC\") { //空进 重箱堆存费计算完毕，生成空箱堆存费\
+//     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+// } \
+\
+// else if (moveType == \"CE\") { //拆空 重箱堆存费计算完毕，生成空箱堆存费\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+//     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+\
+// } \
+//  else if (moveType == \"ZF\") { //装箱 重箱堆存费计算完毕，生成空箱堆存费\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+//     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        'E', CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+// } \
+// else if (moveType == \"21\") { //内外贸转换\
+//      app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+//      app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        e_f_id, CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR WHERE ID= {?cntrId?} \", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+// }\
+// else if (moveType == \"12\") { //外内贸转换\
+//      app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+//      app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        e_f_id, CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR WHERE ID= {?cntrId?} \", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+    \
+// } else if (moveType == \"CV\") { //箱属变更\
+//      app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+//      app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        e_f_id, CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR WHERE ID= {?cntrId?} \", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+// } else if (moveType == \"ZC\") { //注销\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY='\"+username+\"', UPDATED_ON=SYSDATE ,CANCEL_ID=1 where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+\
+// }\
+// else { //闸口设备交接单生成新\
+//     app.run(\"update CNTR_STORE_RECORD set OUT_TIME=sysdate, UPDATED_BY={?username?}, UPDATED_ON=SYSDATE where CNTR_ID='\"+cntrId+\"' and OUT_TIME is null \");\
+//     app.run(\"INSERT INTO CNTR_STORE_RECORD \" + \"  (ID, CNTR_ID, CNTR, IN_TIME, OUT_TIME, SETTLEMENT_TIME, \" + \"   SHIPPER_COD, CNTR_OPERATOR_COD, CNTR_OWNER, LINE, CNTR_ISO, \" + \"   TRADE_ID, I_E_ID, E_F_ID, CNTR_SIZE, CNTR_TYPE, REEF_ID, DANG_ID, \" + \"    LCL_ID, BILL_NO, CMDY_CODE, DWELL_DAYS, OOG_ID, OVER_ID, \" + \"    CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID,MOVE_TYPE) \" + \"  SELECT SYS_GUID(), ID, CNTR,SYSDATE, NULL, NULL, null, \" + \"        CNTR_OPERATOR_COD, LINE_COD, LINE_COD, CNTR_ISO, TRADE_ID, I_E_ID, \" + \"        e_f_id, CNTR_SIZE, CNTR_TYPE, 0, 0, 0, BILL_NO, \" + \"        null, NULL, 0, 0,{?username?}, SYSDATE, {?username?}, SYSDATE, {?tenancy?},{?moveType?} \" + \"   FROM PORT_CNTR \" + \"  WHERE ID= {?cntrId?}\", {\
+//         arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+//     });\
+\
+// } "
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1
+ },
+ "title": "箱堆存触发",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

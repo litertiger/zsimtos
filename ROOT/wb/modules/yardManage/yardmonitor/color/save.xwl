@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select tenancy_id,color from c_palette_color where category_id={?id?} and key={?KEY?} and nvl(tenancy_id,{?sys.TENANCY_ID?})={?sys.TENANCY_ID?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+var oldColor, oldTenancyId;\
+if (result)\
+  while (result.next())\
+    if (result.getString('tenancy_id') == app.get('sys.TENANCY_ID') || !oldColor) {\
+      oldColor = result.getString('color');\
+      oldTenancyId = result.getString('tenancy_id');\
+    }\
+if (app.get('COLOR') == oldColor) //值未变化,不需要修改数据库\
+  return true;\
+var rows = 0;\
+if (oldTenancyId == app.get('sys.TENANCY_ID'))\
+  rows = app.run(\"update c_palette_color set color={?COLOR?} where category_id={?id?} and key={?KEY?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+else\
+  rows = app.run(\"insert  into  c_palette_color(category_id,key,color,tenancy_id) values ({?id?}, {?KEY?},{?COLOR?},{?sys.TENANCY_ID?})\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+app.send({\
+  success: rows === 1\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "yard": 1,
+  "HSEDI": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "颜色分类",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

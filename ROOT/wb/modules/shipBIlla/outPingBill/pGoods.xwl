@@ -1,0 +1,1588 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  CNTR_SIZE_VOLUMN: StringUtil.text(com.wb.common.KVBuffer.getList('CNTR_SIZE', request)),\
+  C_PKG: StringUtil.text(com.wb.common.KVBuffer.getList('C_PKG', request))\
+});\
+\
+app.set({\
+  ieId: 'E',\
+  tradeId: '1'\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "split": "true",
+      "width": "300",
+      "region": "west"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel1",
+       "region": "center",
+       "height": "300"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "grid1",
+        "viewConfig": "{\
+  plugins: {\
+    ptype: 'gridviewdragdrop',\
+  },\
+  listeners: {\
+    beforedrop: function(node, data, om, dp, dh) {\
+      dh.cancelDrop();\
+      var c = data.records.length,oldVid=\"\",\
+        IDS = [],\
+        state = true;\
+      Wb.each(data.records, function(rec) {\
+       IDS.push({ID:rec.data.ID,MAIN_GLAG:rec.data.ID});\
+        oldVid=rec.data.VID;\
+      /*    if (rec.data.PHASE == 0)\
+            IDS.push({ID:rec.data.ID,MAIN_GLAG:rec.data.ID});\
+          else {\
+            Wb.warn(\"已经提交码头，不能移动！\");\
+            state = false;\
+          }*/\
+         if (rec.data.IS_LOAD_CNTR == 1){\
+         Wb.warn(\"已经装箱，不能移动！\");\
+           state = false;\
+       }\
+                   \
+        })\
+        //console.log(data);//提单的信息\
+        console.log(om);//箱的信息\
+      if (state == true) {\
+        Ext.Msg.show({\
+          title: '移动提单',\
+          msg: '移动提单' + c + \"条至\" + om.data.VESSEL_NAME + \"\",\
+          buttons: Ext.MessageBox.OKCANCEL,\
+          fn: function(btn) {\
+            if (btn == 'ok') {\
+              dh.cancelDrop();\
+              Wb.remove(app.contextOwner.billGrid);\
+              Wb.request({\
+                url: 'm?xwl=shipBIlla/outPingBill/pBill/changeShip',\
+                params: {\
+                  BILLS: IDS,//老提单主键\
+                  vId:om.data.ID,\
+                  oldVid:oldVid\
+                },\
+                success: function(resp) {\
+                  Wb.info(\"成功\");\
+                  app.billGrid.store.load({\
+                    params: {\
+                      ID: om.data.ID,\
+                      shipNo: app.shipNo.getValue()\
+                    }\
+                  });\
+                  // app.contextOwner.cntrGrid.removeAll(); \
+                }\
+              });\
+            }\
+          }\
+        });\
+      }\
+\
+    }\
+\
+  }\
+}",
+        "region": "center",
+        "title": "航次信息"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=system/common/selectShip/select"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": false,
+         "children": [
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column111",
+            "renderer": "\
+if(value=='1')\
+  return \"<font color='red'>锁定<\/font>\";\
+else \
+  return '未锁定';\
+  ",
+            "dataIndex": "IS_SD",
+            "width": "40",
+            "text": "状态"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VESSEL_NAME1",
+            "dataIndex": "VESSEL_NAME",
+            "text": "船名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TRADE_IDCOLUMN",
+            "dataIndex": "TRADE_ID",
+            "width": "50",
+            "keyName": "TRADE_ID",
+            "text": "内外贸"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "IB_VYG11",
+            "dataIndex": "CALL",
+            "text": "航次号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "IB_VYG1",
+            "dataIndex": "VYG",
+            "text": "艘次号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "QPHASE1",
+            "dataIndex": "PHASE",
+            "keyName": "VESSEL_PHASE",
+            "width": "50",
+            "text": "状态"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CALL_SIGN1",
+            "dataIndex": "CALL_SIGN",
+            "text": "呼号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column12",
+            "dataIndex": "ETD",
+            "width": "140",
+            "text": "预计离港时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "ETA1",
+            "dataIndex": "ETA",
+            "width": "140",
+            "text": "预计到港时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BERTH_CODE1",
+            "dataIndex": "BERTH_CODE",
+            "text": "泊位"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BERTH_WAY1",
+            "dataIndex": "BERTH_WAY",
+            "text": "靠泊方式"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NEXT_PORT1",
+            "dataIndex": "NEXT_PORT",
+            "text": "下一港"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PHASE1",
+            "dataIndex": "PHASE",
+            "text": "状态"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        },
+        {
+         "configs": {
+          "itemId": "tbar",
+          "padding": "0,0,0,0",
+          "cls": "border-width:0px",
+          "dock": "top"
+         },
+         "expanded": false,
+         "children": [
+          {
+           "configs": {
+            "itemId": "QPHASE",
+            "hidden": "true",
+            "labelAlign": "right",
+            "fieldLabel": "@Str.PHASE",
+            "width": "120",
+            "x": "240",
+            "y": "32",
+            "labelWidth": "40",
+            "height": "22"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "combo"
+          },
+          {
+           "configs": {
+            "itemId": "date",
+            "labelAlign": "right",
+            "fieldLabel": "时间",
+            "width": "140",
+            "labelWidth": "40"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "date",
+           "events": {"select": "//alert(app.QPHASE.getTextValue());\
+\
+app.seekMenu.fireEvent('click');\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "cancelBtn",
+            "hidden": "true",
+            "text": "撤销",
+            "iconCls": "redo_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button"
+          },
+          {
+           "configs": {
+            "itemId": "freshenBtn",
+            "text": "刷新",
+            "iconCls": "refresh_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"click": "  app.seekMenu.fireEvent('click');\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "eShipName",
+            "hidden": "true",
+            "fieldLabel": "@Str.VESSEL_NAME",
+            "width": "120",
+            "labelWidth": "50"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "voyage",
+            "hidden": "true",
+            "fieldLabel": "@Str.VOYAGE_NO",
+            "width": "120",
+            "labelWidth": "50"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "tradeId",
+            "hidden": "true",
+            "width": "120",
+            "labelWidth": "50",
+            "value": "{#tradeId#}"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "seekMenu",
+            "hidden": "true",
+            "text": "@Str.find",
+            "iconCls": "search_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.grid1.store.load({\
+  out:app.tbar\
+});\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "shipIeId",
+            "hidden": "true",
+            "value": "{#ieId#}"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "I_E_ID",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "billId",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }
+         ],
+         "type": "toolbar"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "cntrList = null;\
+app.setShipMes(record);\
+app.IS_SD.setValue(record.get(\"IS_SD\"));\
+if (record.get(\"IS_SD\") == 1) {\
+  app.goodsGrid.down(\"#tbar\").setDisabled(true);\
+//   app.billGrid.down(\"#tbar\").setDisabled(true);\
+} else {\
+  app.goodsGrid.down(\"#tbar\").setDisabled(false);\
+//   app.billGrid.down(\"#tbar\").setDisabled(false);\
+}"}
+      }],
+      "type": "panel"
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "layout": "border",
+      "itemId": "panel11",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel121",
+        "width": "800",
+        "title": "货物信息",
+        "region": "south",
+        "height": "300"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "goodsGrid",
+         "selType": "checkboxmodel",
+         "editable": "true",
+         "multiSelect": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "url": "m?xwl=shipBIlla/outPingBill/pGoods/goodsSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {
+           "itemId": "tbar",
+           "normalName": "billTbar"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "importBtn",
+             "hidden": "true",
+             "tooltip": "导入提单 (Ctrl+E)",
+             "text": "导入",
+             "iconCls": "import_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "// var r=app.shipXwl.grid1.getSelection()[0];\
+// if(!r){\
+//   Wb.warn(\"请先选船！\");\
+//   return ;\
+// }\
+\
+if(app.ieId=='I'){\
+    app.fileWIn.setTitle('EDI报文导入');\
+\tapp.uploadBtn.setText('EDI导入');\
+}\
+else{\
+ app.fileWIn.setTitle('出口EXCEL导入');\
+ app.uploadBtn.setText('EDI导入');\
+}\
+app.fileWIn.show();"}
+           },
+           {
+            "configs": {
+             "itemId": "newBtn",
+             "tooltip": "添加新的记录",
+             "text": "@Str.add",
+             "iconCls": "record_add_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var dang = 0,\
+  trans, pieces = 0,\
+  wgt = 0,\
+  volume = 0,\
+  pod = null;\
+if ('GF' == '{#sys.GOV_CODE#}' || 'EH' == '{#sys.GOV_CODE#}' || 'WA' == '{#sys.GOV_CODE#}') {\
+  pod = 'HKQYZS';\
+}\
+\
+Wb.add(app.goodsGrid, {\
+  BILL_ID: app.billId.getValue(),\
+  ID: Wb.getId(),\
+  TENANCY_ID: '{#sys.TENANCY_ID#}',\
+  FITTIN_TIME: app.date.getValue(),\
+  UPDATED_BY: '{#sys.username#}',\
+  CREATED_BY: '{#sys.username#}'\
+}, \"last\", 1, false);"}
+           },
+           {
+            "configs": {
+             "itemId": "delBtn",
+             "tooltip": "删除选择的记录",
+             "text": "@Str.del",
+             "iconCls": "record_delete_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "Wb.remove(app.goodsGrid);\
+"}
+           },
+           {
+            "configs": {
+             "itemId": "findBtn",
+             "hidden": "true",
+             "tooltip": "查询提单 ",
+             "text": "查询",
+             "iconCls": "search_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "// if(app.batch.getValue()==''){\
+//   Wb.warn(\"请选择批次\");\
+//   return;\
+// }\
+// app.billGrid.store.load({\
+// params:{shipNo:app.shipNo.getValue(),ieId:app.ieId}\
+// });\
+// app.cntrGrid.store.load({\
+// params:{shipNo:app.shipNo.getValue(),ieId:app.ieId}\
+// });\
+// if(app.ieId=='I')\
+//   app.portCntrGrid.store.load({\
+// params:{shipNo:app.shipNo.getValue(),ieId:app.ieId}\
+// });"}
+           },
+           {
+            "configs": {
+             "itemId": "saveCntrBtn",
+             "tooltip": "保存所有的更改",
+             "text": "保存",
+             "iconCls": "save_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "\
+if (!Wb.verifyGrid(app.goodsGrid))\
+  return;\
+// console.log(Wb.getModified(app.goodsGrid));\
+\
+var state = true;\
+var rs = Wb.getModified(app.goodsGrid).create;\
+var rs1 = Wb.getModified(app.goodsGrid).destroy;\
+var rs2 = Wb.getModified(app.goodsGrid).update;\
+\
+Wb.request({\
+  url: \"m?xwl=shipBIlla/outPingBill/pGoods/save\",\
+  params: {\
+    data: [Wb.getModified(app.goodsGrid)],\
+    shipNo: app.shipNo.getValue()\
+  },\
+  method: 'post',\
+  success: function(resp) {\
+    cntrList = null;\
+    app.goodsGrid.store.load({\
+      params: {\
+        BILL_ID: app.billId.getValue()\
+      }\
+    });\
+    Wb.info('成功');\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "saveCntrBtn1",
+             "tooltip": "初始化货物",
+             "text": "初始化货物",
+             "iconCls": "ok_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rows = app.billGrid.getSelection(),ID=\"\";\
+if(rows.length==0)\
+{\
+\tWb.warn(\"请选中提单！\");\
+\treturn ;\
+}\
+else\
+{\
+\tfor(var  i=0;i<rows.length;i++){\
+      if(i>0)\
+        ID+=\",\";\
+        ID+=\"'\"+rows[i].data.ID+\"'\";\
+    }\
+\tWb.request({\
+      url: 'm?xwl=shipBIlla/outPingBill/pGoods/pcUpdate',\
+         params: {ID:ID},\
+       success: function(resp) {\
+         Wb.info(\"初始化成功\");\
+       \
+       }\
+ });\
+}"}
+           },
+           {
+            "configs": {
+             "itemId": "container1",
+             "hidden": "true"
+            },
+            "expanded": false,
+            "children": [
+             {
+              "configs": {"itemId": "shipNo"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {"itemId": "ID"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {"itemId": "IS_SD"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {"itemId": "shipName"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             },
+             {
+              "configs": {"itemId": "voyageNo"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }
+            ],
+            "type": "container"
+           }
+          ],
+          "type": "toolbar"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "rowNumCol",
+             "xtype": "rownumberer",
+             "width": "30",
+             "text": "@Str.No"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CARGO_NAME99",
+             "dataIndex": "CARGO_NAME",
+             "width": "80",
+             "text": "货物描述"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNCOD2314",
+             "dataIndex": "CNCOD",
+             "width": "80",
+             "keyName": "C_COUNTRY",
+             "text": "国籍代码"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "keyName": "C_COUNTRY",
+              "anyMatch": "true"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTRumn19",
+             "dataIndex": "CNTR",
+             "width": "100",
+             "text": "<font color='red'>*<\/font>箱号"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowBlank": "false",
+              "displayField": "CNTR",
+              "valueField": "CNTR",
+              "multiSelect": "true"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "url": "m?xwl=shipBIlla/outPingBill/pGoods/selectBillCntr"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store",
+              "events": {"beforeload": "operation.params.BILL_ID=app.billId.getValue();"}
+             }],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "MARKS99",
+             "dataIndex": "MARKS",
+             "width": "80",
+             "text": "唛头"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowBlank": "false"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PIECES99",
+             "dataIndex": "PIECES",
+             "width": "80",
+             "text": "件数"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowBlank": "false"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "WEIGHT21",
+             "dataIndex": "WEIGHT",
+             "text": "重量"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowBlank": "false"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PKGmn151",
+             "dataIndex": "PKG",
+             "width": "80",
+             "keyName": "C_PKG",
+             "text": "包装"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowBlank": "false",
+              "keyName": "C_PKG",
+              "anyMatch": "true"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "combo",
+             "events": {"select": "// var sels = app.cntrGrid.getSelection();\
+// selRec = sels[0];\
+// var store = app.cntrGrid.getStore();\
+// var rowIndex = store.indexOf(selRec);\
+// var rec = app.cntrGrid.store.getAt(rowIndex);\
+// console.log(records);\
+// rec.set('CNTR_OWNER_COD',records[0].data.ID);\
+// rec.set('CNTR_OWNER',records[0].data.CNAME);"}
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "DNOCol",
+             "dataIndex": "DNO",
+             "width": "80",
+             "text": "危品号"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "HSCODmn11",
+             "dataIndex": "HSCOD",
+             "width": "60",
+             "text": "海关税则编号"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "HTNOmn15",
+             "dataIndex": "HTNO",
+             "width": "100",
+             "text": "海关编号"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "REMARK1283",
+             "dataIndex": "REMARK",
+             "width": "80",
+             "text": "备注"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "textarea"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "TAYNOmn1813",
+             "dataIndex": "TAYNO",
+             "width": "40",
+             "text": "拖运编号"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid",
+        "events": {
+         "itemclick": "var ms = app.goodsGrid.store.getModifiedRecords();\
+if (ms != \"\") {\
+//   Wb.confirm(\"请先保存数据\", function() {\
+//     app.saveCntrBtn.fireEvent('click');\
+//   });\
+} else {\
+//   app.billGrid.store.load({\
+//     params: {\
+//       cntrId: record.data.CNTR_ID == \"\" ? \"@@\" : record.data.CNTR_ID,\
+//       shipNo: app.shipNo.getValue()\
+//     }\
+//   });\
+}\
+cntrList = record;",
+         "tagEvents": "{\
+  beforeedit: function(editor, e, eOpts) { //e是整个grid，e.record是点击要编辑的行\
+    if (e.record.data.PHASE=='2'||app.IS_SD.getValue()=='1') {\
+      return false;\
+    }  else {\
+      return true;\
+    }\
+  }\
+}"
+        }
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel12",
+        "width": "800",
+        "title": "提单信息",
+        "region": "center",
+        "height": "300"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "billGrid",
+         "selType": "checkboxmodel",
+         "mergeRows": "true",
+         "pagingBar": "false",
+         "text": "提单",
+         "gridLine": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "url": "m?xwl=shipBIlla/outPingBill/pGoods/billSelect"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "rowNumCol",
+             "xtype": "rownumberer",
+             "width": "30",
+             "text": "@Str.No"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PHASE12",
+             "renderer": "if(value==='1'){\
+\treturn '提交';\
+}else if(value==='2'){\
+\treturn '锁定';\
+}else{\
+\treturn '初稿';\
+}",
+             "dataIndex": "PHASE",
+             "width": "40",
+             "disabled": "true",
+             "text": "状态"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "BILL_NO991",
+             "renderer": "return value;",
+             "dataIndex": "BILL_NO",
+             "width": "120",
+             "text": "二程提单"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "allowBlank": "false",
+              "itemId": "editor",
+              "width": "200",
+              "x": "0",
+              "y": "8"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER99",
+             "hidden": "true",
+             "dataIndex": "SHIPPER_COD",
+             "width": "80",
+             "text": "<font color='red'>*<\/font>发货人代码"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SHIPPER991",
+             "dataIndex": "SHIPPER",
+             "width": "150",
+             "text": "<font color='red'>*<\/font>发货人"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "hideTrigger": "true",
+              "tagConfigs": " matchFieldWidth:false",
+              "itemId": "editor",
+              "allowBlank": "false",
+              "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+              "displayField": "CNAME",
+              "listConfig": "{width:450}",
+              "valueField": "CNAME"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "params": "{fldId:'CE'}",
+               "url": "m?xwl=system/common/client/clientSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo",
+             "events": {"select": "var rec=app.billGrid.getSelection()[0];\
+rec.set('SHIPPER_COD',records[0].data.ID);\
+// this.value=combo.getRawValue();\
+"}
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE99111",
+             "dataIndex": "GOODS_NOTES",
+             "width": "150",
+             "text": "货物名称"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {"itemId": "editor"},
+             "expanded": false,
+             "children": [],
+             "type": "textarea"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PIECESmn161",
+             "dataIndex": "PIECES",
+             "width": "70",
+             "text": "件数"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowDecimals": "true",
+              "decimalPrecision": "2",
+              "maxLength": "1000000"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PKG99",
+             "dataIndex": "PKG",
+             "width": "80",
+             "keyName": "C_PKG",
+             "text": "包装"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "keyName": "C_PKG"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "WEIGHTmn16",
+             "dataIndex": "WEIGHT",
+             "width": "70",
+             "text": "重量"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowDecimals": "true",
+              "decimalPrecision": "2",
+              "maxLength": "1000000"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "VOLUMEmn18",
+             "dataIndex": "VOLUME",
+             "width": "40",
+             "text": "体积"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowDecimals": "true",
+              "maxValue": "9999999",
+              "decimalPrecision": "3"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE991",
+             "dataIndex": "CONSIGNEE",
+             "width": "150",
+             "text": "收货人"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "hideTrigger": "true",
+              "itemId": "editor",
+              "allowBlank": "false",
+              "displayField": "CNAME",
+              "valueField": "ID"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "params": "{fldId:'CE'}",
+               "url": "m?xwl=system/common/client/clientSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo",
+             "events": {"select": "var rec=app.billGrid.getSelection()[0];\
+rec.set('CONSIGNEE_COD',combo.getValue());\
+this.value=combo.getRawValue();\
+"}
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CONSIGNEE9911",
+             "dataIndex": "CARGO_TYPE",
+             "width": "150",
+             "keyName": "CARGO_TYPE",
+             "text": "货类代码"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "allowBlank": "false",
+              "keyName": "CARGO_TYPE"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "combo",
+             "events": {"select": "var rec=app.billGrid.getSelection()[0];\
+rec.set('CONSIGNEE_COD',combo.getValue());\
+this.value=combo.getRawValue();\
+"}
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_OWNER_IDmn151",
+             "hidden": "true",
+             "dataIndex": "CNTR_OWNER",
+             "width": "150",
+             "text": "箱主"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "CNAME",
+              "valueField": "ID"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "message": "   ",
+               "params": "{fldId:'CM'}",
+               "url": "m?xwl=system/common/client/clientSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "IS_LOAD_CNTR12",
+             "renderer": "if(value==1){\
+  metaData.tdAttr = 'style=\"background:#FF0000;\"';\
+return '<input type=\"checkbox\" name=\"IS_LOAD_CNTR\" checked=\"checked\" disabled=\"true\"/> ';}\
+else\
+  return '<input type=\"checkbox\" name=\"IS_LOAD_CNTR\"  disabled=\"true\" /> ';",
+             "xtype": "checkcolumn",
+             "hidden": "true",
+             "dataIndex": "IS_LOAD_CNTR",
+             "width": "40",
+             "disabled": "true",
+             "text": "装箱"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "IS_BLUK123",
+             "renderer": "if(value==1){\
+  metaData.tdAttr = 'style=\"background:#FF0000;\"';\
+return '<input type=\"checkbox\" name=\"IS_BLUK\" checked=\"checked\" disabled=\"true\"/> ';}\
+else\
+  return '<input type=\"checkbox\" name=\"IS_BLUK\"  disabled=\"true\" /> ';",
+             "xtype": "checkcolumn",
+             "hidden": "true",
+             "dataIndex": "IS_BLUK",
+             "width": "40",
+             "disabled": "true",
+             "text": "入库"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "IS_BLUK1231",
+             "hidden": "true",
+             "dataIndex": "IPIECES",
+             "width": "40",
+             "disabled": "true",
+             "text": "入库数"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "IS_ALLOW_BLUK1231",
+             "renderer": "if(value==1){\
+  metaData.tdAttr = 'style=\"background:#FF0000;\"';\
+return '<input type=\"checkbox\" name=\"IS_ALLOW_BLUK\" checked=\"checked\" disabled=\"true\"/> ';}\
+else\
+  return '<input type=\"checkbox\" name=\"IS_ALLOW_BLUK\"  disabled=\"true\" /> ';",
+             "xtype": "checkcolumn",
+             "hidden": "true",
+             "dataIndex": "IS_ALLOW_BLUK",
+             "width": "70",
+             "disabled": "true",
+             "text": "取消装箱"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "LINE1283",
+             "hidden": "true",
+             "dataIndex": "LINE",
+             "width": "150",
+             "text": "船公司"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "CNAME",
+              "valueField": "ID"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "message": "   ",
+               "params": "{fldId:'NO'}",
+               "url": "m?xwl=system/common/client/clientSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "COLINE98",
+             "hidden": "true",
+             "dataIndex": "COLINE",
+             "text": "合作船公司",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_OWNER_CODE21",
+             "hidden": "true",
+             "dataIndex": "CNTR_OWNER_COD"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid",
+        "events": {
+         "itemclick": "app.goodsGrid.store.load({\
+  params: {\
+\tBILL_ID:record.data.ID\
+  }\
+});\
+app.billId.setValue(record.data.ID);",
+         "tagEvents": "  beforeedit: function(editor, e, eOpts) { //e是整个grid，e.record是点击要编辑的行\
+    if (e.record.data.PHASE=='2'||app.IS_SD.getValue()=='1') {\
+      return false;\
+    }  else {\
+      return true;\
+    }\
+  }"
+        }
+       }],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "border": "false",
+      "itemId": "printPanel",
+      "width": "0",
+      "region": "east",
+      "height": "0"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport",
+   "events": {"afterrender": "app.navKey = new Ext.KeyNav({\
+  viewport: app.viewport1,\
+  E: {\
+    ctrl: true,\
+    fn: function() {\
+      app.newBtn.fireEvent('click');\
+    }\
+  }\
+});"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "\
+app.shipIeId.setValue('E');\
+app.eShipName.addListener(\"specialkey\", function(field, e) {\
+  if (e.getKey() == e.ENTER)\
+\
+    app.seekMenu.fireEvent('click');\
+});\
+app.voyage.addListener(\"specialkey\", function(field, e) {\
+  if (e.getKey() == e.ENTER)\
+    app.seekMenu.fireEvent('click');\
+});\
+var d = new Date();\
+//d.setDate(d.getDate()+30);\
+//app.eatEnddate.setValue(d);\
+//d.setDate(d.getDate()-70);\
+app.date.setValue(d);\
+app.QPHASE.setValue('Y');\
+//alert(app.QPHASE.getValue());\
+//app.QPHASE.getTextValue();\
+\
+app.seekMenu.fireEvent('click');",
+   "initialize": "var supcanId = Wb.getId();\
+app.CNTR_SIZE_VOLUMN = Wb.decode(\"{#CNTR_SIZE_VOLUMN#}\"); //Wb.getCustomerByCode(); // Wb.decode(\"{#C_CUSTOM#}\");\
+// alert(app.CNTR_SIZE_VOLUMN);\
+app.ieId = '{#ieId#}', // '{#ieId#}',\
+  app.tradeId = '{#tradeId#}', //'{#tradeId#}',\
+  app.pkg = Wb.decode(\"{#C_PKG#}\"),\
+  app.billType = 'C'; //'{#billType#}';\
+var columnName, tableName, cntrList;\
+var customArray = [\"CNTR_OPERATOR\", \"SHIPPER\", \"CONSIGNEE\", \"RECEIVER\"];\
+var comboxArray = [\"CNTR_OPERATOR\", \"SHIPPER\", \"CONSIGNEE\", \"RECEIVER\", \"POD\", \"POL\", \"SPOD\"];\
+Wb.apply(app, {\
+  //选船信息传递\
+  setShipMes: function(rec) {\
+    locrec = rec;\
+    app.loadrec = locrec;\
+    app.shipNo.setValue(rec.data.ID);\
+    app.shipName.setValue(rec.data.VESSEL_NAME);\
+\
+    app.voyageNo.setValue(rec.data.VYG);\
+    if (app.ieId == 'I')\
+      app.portCntrGrid.store.load({\
+        params: {\
+          shipNo: app.shipNo.getValue(),\
+          ieId: app.ieId\
+        }\
+      });\
+    app.billGrid.store.load({\
+      params: {\
+        shipNo: app.shipNo.getValue(),\
+        ieId: app.ieId\
+      }\
+    });\
+//     app.cntrGrid.store.load({\
+//       params: {\
+//         shipNo: app.shipNo.getValue(),\
+//         ieId: app.ieId\
+//       }\
+//     });\
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "舱单货增加",
+ "iconCls": "table_icon",
+ "inframe": false,
+ "pageLink": ""
+}

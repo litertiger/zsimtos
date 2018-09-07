@@ -1,0 +1,85 @@
+<web-app>
+
+     <session-config>  
+         <session-timeout>600 </session-timeout>  
+    </session-config>  
+    <filter>
+        <description>WebBuilder Filter</description>
+        <display-name>Base</display-name>
+        <filter-name>Base</filter-name>
+        <filter-class>com.wb.common.Base</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Base</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <display-name>Archetype Created Web Application</display-name>
+    <welcome-file-list>
+        <welcome-file>index</welcome-file>
+    </welcome-file-list>
+    <servlet>
+        <servlet-name>appServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:applicationContext.xml,classpath:edi-service.xml</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>appServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <!-- 连接池监控 start -->
+    <servlet>
+        <servlet-name>DruidStatView</servlet-name>
+        <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+        <!-- 允许清空统计数据 -->
+        <init-param>
+            <param-name>resetEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <!-- 用户名
+        <init-param>
+            <param-name>loginUsername</param-name>
+            <param-value>admin</param-value>
+        </init-param> -->
+        <!-- 密码
+        <init-param>
+            <param-name>loginPassword</param-name>
+            <param-value>admin</param-value>
+        </init-param>-->
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DruidStatView</servlet-name>
+        <url-pattern>/druid/*</url-pattern>
+    </servlet-mapping>
+    <filter>
+        <filter-name>DruidWebStatFilter</filter-name>
+        <filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+        <init-param>
+            <param-name>exclusions</param-name>
+            <param-value>*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>profileEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>principalSessionName</param-name>
+            <param-value>sys.user</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>DruidWebStatFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- 连接池监控 end -->
+    <!-- 连接池 JNDI naming -->
+    <!--<resource-ref>-->
+        <!--<description>Oracle DB Connection</description>-->
+        <!--<res-ref-name>jdbc/OracleDataSource</res-ref-name>-->
+        <!--<res-type>javax.sql.DataSource</res-type>-->
+        <!--<res-auth>Container</res-auth>-->
+    <!--</resource-ref>-->
+</web-app>

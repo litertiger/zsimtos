@@ -1,0 +1,116 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get('name');\
+var sql = \"\";\
+\
+sql = \"SELECT SEND_ID, RELEASE_ID, bluk_custom_main.id,truck, truck_no, seale_no, plan_time,\\\
+       (SELECT wm_concat ('提单号码:'||bill_no || '-货名：' || good_notes || '- 件数' || pieces) \\\
+          FROM bluk_custom_detail\\\
+         WHERE bluk_custom_main.ID \\\
+ = pid) name,(select sum(weight) from bluk_custom_detail a where a.pid=bluk_custom_main.id) weight,\\\
+(select sum(pieces) from bluk_custom_detail a where a.pid=bluk_custom_main.id) pieces,PHASE\\\
+  FROM bluk_custom_main where bluk_custom_main.TRUCK like '%'||''||'%'\";\
+\
+// sql = \"SELECT DISTINCT bluk_custom_main.id,\\\
+//        truck,\\\
+//        truck_no,\\\
+//        seale_no,\\\
+//        plan_time,\\\
+//        (SELECT wm_concat (\\\
+//                      '提单号码:'\\\
+//                   || bill_no\\\
+//                   || '-货名：'\\\
+//                   || good_notes\\\
+//                   || '- 件数'\\\
+//                   || pieces)\\\
+//           FROM bluk_custom_detail\\\
+//          WHERE bluk_custom_main.ID = pid)\\\
+//           name,\\\
+//        (SELECT SUM (weight)\\\
+//           FROM bluk_custom_detail a\\\
+//          WHERE a.pid = bluk_custom_main.id)\\\
+//           weight,\\\
+//        (SELECT SUM (pieces)\\\
+//           FROM bluk_custom_detail a\\\
+//          WHERE a.pid = bluk_custom_main.id)\\\
+//           pieces,\\\
+// (SELECT SUM (VOLUME)\\\
+//           FROM bluk_custom_detail a\\\
+//          WHERE a.pid = bluk_custom_main.id)\\\
+//           VOLUME,\\\
+//        bluk_custom_main.PHASE,bluk_custom_detail.PHASE APHASE,bluk_custom_main.RELEASE_ID,bluk_custom_detail.SHIPPER \\\
+//   FROM bluk_custom_main,bluk_custom_detail\\\
+//  WHERE bluk_custom_main.ID=bluk_custom_detail.PID AND bluk_custom_main.TRUCK LIKE '%' || '' || '%'\t\";\
+//and bluk_custom_main.phase<>'FIN'已出库\
+\
+sql = \"SELECT distinct bluk_custom_main.SEND_ID, bluk_custom_main.RELEASE_ID, bluk_custom_main.id,\\\
+       truck,\\\
+       truck_no,\\\
+       seale_no,\\\
+       plan_time,\\\
+       fcontact(bluk_custom_main.id)\\\
+          name,\\\
+       (SELECT SUM (weight)\\\
+          FROM bluk_custom_detail a\\\
+         WHERE a.pid = bluk_custom_main.id)\\\
+          weight,\\\
+       (SELECT SUM (pieces)\\\
+          FROM bluk_custom_detail a\\\
+         WHERE a.pid = bluk_custom_main.id)\\\
+          pieces,\\\
+(SELECT SUM (VOLUME)\\\
+          FROM bluk_custom_detail a\\\
+         WHERE a.pid = bluk_custom_main.id)\\\
+          VOLUME,\\\
+       bluk_custom_main.PHASE,bluk_custom_detail.PHASE APHASE,bluk_custom_main.RELEASE_ID,fcontact2(bluk_custom_main.id) SHIPPER,fcontact3(bluk_custom_main.id) biiis \\\
+  FROM bluk_custom_main,bluk_custom_detail\\\
+ WHERE bluk_custom_main.ID=bluk_custom_detail.PID AND bluk_custom_main.TRUCK LIKE '%' || '' || '%' AND bluk_custom_main.PHASE <>'CAN'\t\";\
+\
+var d=app.get();\
+if(!Wb.isEmpty(d.types)){\
+  if(d.types=='0')\
+\tsql+=\" and bluk_custom_main.phase='PLN'\";\
+  if(d.types=='1')\
+\tsql+=\" and bluk_custom_main.phase='FIN'\";\
+  if(d.types=='2')\
+\tsql+=\" and bluk_custom_main.phase<>'YSB'\";\
+  if(d.types=='3')\
+\tsql+=\" and bluk_custom_main.phase='YSB'\";\
+}\
+\
+if(!Wb.isEmpty(d.mdate)){\
+\tsql+=\" and trunc(PLAN_TIME)=to_date('\"+d.mdate+\"','yyyy-MM-dd')\";\
+}\
+\
+if (data != \"\") {\
+  sql += \" and bluk_custom_main.TRUCK like '%'||'\" + data + \"'||'%' order by bluk_custom_main.PLAN_TIME asc\";\
+} else {\
+  sql += \" order by bluk_custom_main.PLAN_TIME asc\";\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

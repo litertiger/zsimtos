@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\",\
+  data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+sql = \" and w.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.workdate))\
+  sql += \" and w.beg_work_tim>=to_date('\" + data.workdate.split(\".\")[0] + \"','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and w.beg_work_tim<=to_date('\" + data.workdate.split(\" \")[0] + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.date))\
+  sql += \" and w.beg_work_tim<=to_date('\" + data.date.split(\".\")[0] + \"','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and w.end_work_tim>=to_date('\" + data.date.split(\".\")[0] + \"','yyyy-mm-dd hh24:mi:ss')\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select w.*,case w.w_type when '0' then '操作人员' when '1' then '车头' when '2' then '拖卡' when '3' then '场内机械设备' end wtype\
+from work_on_duty w where w.w_type='0' {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "操作人员查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

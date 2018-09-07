@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],username=app.get(\"sys.username\"),\
+  recs = Wb.decode(request.getParameter('create'));\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+\
+var recss = Wb.decode(request.getParameter('update')),\
+  datas = [];\
+var errors=\"\";\
+Wb.each(recss,function(rec){\
+  if(Wb.isEmpty(rec.CNTR_OWNER_COD))\
+    errors=\"箱主代码不能为空\";\
+  datas.push({\
+\tID:rec.ID,\
+    CNTR_OWNER:rec.CNTR_OWNER,\
+    CNTR_OWNER_COD:rec.CNTR_OWNER_COD\
+    \
+  });\
+});\
+if(!Wb.isEmpty(errors))\
+Wb.error(errors);\
+app.run(\"update VLOAD_LIST set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID={?ID?}\",{arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+app.run(\"update RECEIPT set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?} where CNTR_ID={?ID?}\",{arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+// app.log(recss);\
+// app.log(data.ids);\
+\
+\
+app.run(\"insert into PORT_CNTR_LOG(CNTR_ID, CNTR, MESSAGE, UPDATED_ON, UPDATED_BY) \\\
+        select ID, CNTR, 'shipBIlla/ShipBillReport/cntrInforApplyEdit/update箱主变更'||CNTR_OWNER_COD||{?CNTR_OWNER_COD?}, sysdate, '\"+username+\"' from port_cntr where ID={?ID?}\",\
+        {arrayData: new org.json.JSONArray(Wb.encode(datas))}\
+        );\
+\
+app.run(\"update PORT_CNTR set CNTR_OWNER={?CNTR_OWNER?},CNTR_OWNER_COD={?CNTR_OWNER_COD?}  where ID={?ID?}\",\
+        {arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

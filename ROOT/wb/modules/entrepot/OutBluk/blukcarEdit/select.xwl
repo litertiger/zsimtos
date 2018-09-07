@@ -1,0 +1,153 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get('name');\
+var phase = app.get('cboPHASE');\
+var sql = \"\";\
+\
+// sql = \"SELECT BLUK_TRUCK.ID,BLUK_TRUCK.PID,truck, truck_no, \\\
+//        (SELECT wm_concat ('提单号码:'||bill_no || '-货名：' || GOOD_NOTES || '- 件数' || BLUK_TRUCK.pieces) \\\
+//           FROM BLUK_APPLY\\\
+//          WHERE BLUK_APPLY.ID \\\
+//  = BLUK_TRUCK.pid) name,(select sum(weight) from BLUK_TRUCK a where a.id=BLUK_TRUCK.id) weight,\\\
+// (select sum(pieces) from BLUK_TRUCK a where a.id=BLUK_TRUCK.id) pieces,PHASE\\\
+//   FROM BLUK_TRUCK where BLUK_TRUCK.TRUCK like '%'||''||'%'\";\
+\
+\
+// sql = \"SELECT BLUK_TRUCK.ID,\\\
+//        BLUK_TRUCK.PID,\\\
+//        truck,\\\
+//        truck_no,\\\
+//        (SELECT wm_concat (\\\
+//                      '提单号码:'\\\
+//                   || bill_no\\\
+//                   || '-货名：'\\\
+//                   || GOOD_NOTES\\\
+//                   || '- 件数'\\\
+//                   || BLUK_TRUCK.pieces)\\\
+//           FROM BLUK_APPLY\\\
+//          WHERE BLUK_APPLY.ID = BLUK_TRUCK.pid)\\\
+//           name,\\\
+//        (SELECT SUM (weight)\\\
+//           FROM BLUK_TRUCK a\\\
+//          WHERE a.id = BLUK_TRUCK.id)\\\
+//           weight,\\\
+//        (SELECT SUM (pieces)\\\
+//           FROM BLUK_TRUCK a\\\
+//          WHERE a.id = BLUK_TRUCK.id)\\\
+//           pieces,\\\
+// \t\tnvl((SELECT SUM (VOLUME)\\\
+//           FROM BLUK_TRUCK a\\\
+//          WHERE a.id = BLUK_TRUCK.id)\\\
+//           ,0) VOLUME,\\\
+//        BLUK_TRUCK.PHASE,\\\
+//        BLUK_APPLY.PHASE APHASE,BLUK_TRUCK.RELEASE_ORDER,BLUK_APPLY.SHIPPER \\\
+//   FROM BLUK_TRUCK,BLUK_APPLY\\\
+//  WHERE BLUK_TRUCK.PID=BLUK_APPLY.ID AND    BLUK_TRUCK.TRUCK LIKE '%' || '' || '%'\";\
+\
+sql = \"select to_char(BLUK_APPLY_D.APPLYDATE,'yyyy-MM-dd') APPLYDATE,BLUK_TRUCK_M.ID,BLUK_TRUCK_M.PID,truck,truck_no,\\\
+(SELECT wm_concat (\\\
+                     '提单号码:'\\\
+                  || BLUK_APPLY_D.bill_no\\\
+                  || '-货名：'\\\
+                  || BLUK_APPLY_D.GOOD_NOTES\\\
+                  || '- 件数'\\\
+                  || BLUK_APPLY_D.pieces)\\\
+          FROM BLUK_APPLY_D\\\
+         WHERE INSTR(BLUK_TRUCK_M.PID,BLUK_APPLY_D.ID)>0)\\\
+          name,\\\
+          BLUK_TRUCK_M.weight,\\\
+          BLUK_TRUCK_M.pieces,\\\
+          BLUK_TRUCK_M.VOLUME,\\\
+          BLUK_TRUCK_M.PHASE,\\\
+          BLUK_TRUCK_M.RELEASE_ORDER ,\\\
+          (SELECT wm_concat(SHIPPER) FROM BLUK_APPLY_D WHERE INSTR(BLUK_TRUCK_M.PID,BLUK_APPLY_D.ID)>0) SHIPPER \\\
+           FROM BLUK_TRUCK_M,BLUK_APPLY_D where  INSTR(BLUK_TRUCK_M.PID,BLUK_APPLY_D.ID)>0 and  BLUK_TRUCK_M.TRUCK LIKE '%' || '' || '%' and BLUK_APPLY_D.APPLYDATE is not null\";\
+\
+sql=\"  SELECT TO_CHAR (BLUK_APPLY_D.APPLYDATE, 'yyyy-MM-dd') APPLYDATE, BLUK_TRUCK_M.ID, BLUK_TRUCK_M.PID, truck,truck_no,\\\
+         (SELECT wm_concat ('提单号码:'|| BLUK_APPLY_D.bill_no|| '-货名：' || BLUK_APPLY_D.GOOD_NOTES || '- 件数'|| BLUK_APPLY_D.pieces)\\\
+            FROM BLUK_APPLY_D WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0) name,\\\
+         BLUK_TRUCK_M.weight,\\\
+         (select wm_concat('提单号:'||bill_no||'入库数:'||inquty) from bluk_goods where bill_no IN(SELECT BILL_NO\\\
+            FROM BLUK_APPLY_D WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0)) inquty, \\\
+         BLUK_TRUCK_M.pieces,\\\
+                 (SELECT wm_concat ('提单号:' || bill_no || '出库数:' || outquty) FROM bluk_goods WHERE bill_no IN (SELECT BILL_NO\\\
+            FROM BLUK_APPLY_D WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0)) outquty,\\\
+         BLUK_TRUCK_M.VOLUME,\\\
+         BLUK_TRUCK_M.PHASE,\\\
+         BLUK_TRUCK_M.RELEASE_ORDER,\\\
+         (SELECT wm_concat (SHIPPER)\\\
+            FROM BLUK_APPLY_D\\\
+           WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0)\\\
+            SHIPPER\\\
+    FROM BLUK_TRUCK_M, BLUK_APPLY_D\\\
+   WHERE     INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0\\\
+         AND BLUK_TRUCK_M.TRUCK LIKE '%' || '' || '%'\\\
+         AND BLUK_APPLY_D.APPLYDATE IS NOT NULL\";\
+\
+sql=\"  SELECT TO_CHAR (BLUK_APPLY_D.APPLYDATE, 'yyyy-MM-dd') APPLYDATE, BLUK_TRUCK_M.ID, BLUK_TRUCK_M.PID, truck,truck_no,\\\
+         (SELECT wm_concat ('提单号码:'|| BLUK_APPLY_D.bill_no|| '-货名：' || BLUK_APPLY_D.GOOD_NOTES || '- 件数'|| BLUK_APPLY_D.pieces)\\\
+            FROM BLUK_APPLY_D WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0) name,\\\
+         BLUK_TRUCK_M.weight,\\\
+         (select wm_concat(inquty) from bluk_goods where bill_no IN(SELECT BILL_NO\\\
+            FROM BLUK_APPLY_D WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0)) inquty, \\\
+         BLUK_TRUCK_M.pieces,\\\
+                 (SELECT wm_concat (outquty) FROM bluk_goods WHERE bill_no IN (SELECT BILL_NO\\\
+            FROM BLUK_APPLY_D WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0)) outquty,\\\
+         BLUK_TRUCK_M.VOLUME,\\\
+         BLUK_TRUCK_M.PHASE,\\\
+         BLUK_TRUCK_M.RELEASE_ORDER,\\\
+         (SELECT wm_concat (SHIPPER)\\\
+            FROM BLUK_APPLY_D\\\
+           WHERE INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0)\\\
+            SHIPPER\\\
+    FROM BLUK_TRUCK_M, BLUK_APPLY_D\\\
+   WHERE     INSTR (BLUK_TRUCK_M.PID, BLUK_APPLY_D.ID) > 0\\\
+         AND BLUK_TRUCK_M.TRUCK LIKE '%' || '' || '%'\\\
+         AND BLUK_APPLY_D.APPLYDATE IS NOT NULL\";\
+\
+if(!Wb.isEmpty(phase)){\
+\tsql+=\" and BLUK_TRUCK_M.phase='\"+phase+\"'\";\
+}\
+if(!Wb.isEmpty(app.get('sdate'))){\
+\tsql+=\" and APPLYDATE>=to_date('\"+app.get('sdate')+\" 00:00:00','yyyy-MM-dd hh24:mi:ss')\t\";\
+}\
+if(!Wb.isEmpty(app.get('edate'))){\
+\tsql+=\" and APPLYDATE<=to_date('\"+app.get('edate')+\" 23:59:59','yyyy-MM-dd hh24:mi:ss')\t\";\
+}\
+// if (data != \"\") {\
+//   sql += \" and BLUK_APPLY_D.BILL_NO like '%'||'\" + data + \"'||'%' group by to_char(BLUK_APPLY_D.APPLYDATE,'yyyy-MM-dd'), BLUK_TRUCK_M.id,BLUK_TRUCK_M.pid,truck,truck_no,BLUK_TRUCK_M.weight,BLUK_TRUCK_M.pieces,volume,BLUK_TRUCK_M.phase,RELEASE_ORDER\";\
+// } else {\
+//   sql += \" group by to_char(BLUK_APPLY_D.APPLYDATE,'yyyy-MM-dd'),BLUK_TRUCK_M.id,BLUK_TRUCK_M.pid,truck,truck_no,BLUK_TRUCK_M.weight,BLUK_TRUCK_M.pieces,volume,BLUK_TRUCK_M.phase,RELEASE_ORDER,BLUK_APPLY_D.APPLYDATE order by BLUK_APPLY_D.APPLYDATE desc\";\
+// }\
+if (data != \"\") {\
+  sql += \" and BLUK_APPLY_D.BILL_NO like '%'||'\" + data + \"'||'%' group by to_char(BLUK_APPLY_D.APPLYDATE,'yyyy-MM-dd'), BLUK_TRUCK_M.id,BLUK_TRUCK_M.pid,truck,truck_no,BLUK_TRUCK_M.weight,BLUK_TRUCK_M.pieces,volume,BLUK_TRUCK_M.phase,RELEASE_ORDER,BLUK_APPLY_D.bill_no\";\
+} else {\
+  sql += \" group by to_char(BLUK_APPLY_D.APPLYDATE,'yyyy-MM-dd'),BLUK_TRUCK_M.id,BLUK_TRUCK_M.pid,truck,truck_no,BLUK_TRUCK_M.weight,BLUK_TRUCK_M.pieces,volume,BLUK_TRUCK_M.phase,RELEASE_ORDER,BLUK_APPLY_D.APPLYDATE,BLUK_APPLY_D.bill_no order by BLUK_APPLY_D.APPLYDATE desc\";\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

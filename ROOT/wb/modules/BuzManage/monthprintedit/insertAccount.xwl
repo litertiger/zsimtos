@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //生成ID\
+var sql = \"insert into accounts_details(id,tenancy_id,BUSSINESS_CODE,CUSTOMER_ID,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER_NAM,\" +\
+  \"PAYMENT_CUSTOMER_CODE,PAYMENT_CUSTOMER_NAM,CNTR_OPERATOR_COD,AMOUNT,ACTUAL_JOB_COUNT,\" +\
+  \"BILL_NO,CNTR,FEE_LIST_ID,PAYMENT_TYPE,PAY_FLAG,INVOICE_TYPE,CREATED_BY,CREATED_ON,IS_MANUAL,TRADE_ID,I_E_ID)\" +\
+  \" select sys_guid(),'\" + tenancyid + \"','\" + data.billid + \"',SHIP_CONSIGN_COD,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER,\" +\
+  \"ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER,CNTR_OPERATOR_COD,\" + data.AMOUNT + \",\" + data.ACTUAL_JOB_COUNT + \",\" +\
+  \"BILL_NO,CNTR,'\" + data.FEE_LIST_ID + \"',2,0,\" +\
+  \"(select bi.id from c_base_charging_item fm left join c_base_invoice bi on bi.id=fm.invoice_type\" +\
+  \" where fm.id='\" + data.FEE_LIST_ID + \"'),'\" + username + \"',sysdate,1,'\" + data.trade + \"',I_E_ID\" +\
+  \" from receipt where id='\" + data.billid + \"' and tenancy_id='\" + tenancyid + \"'\";\
+app.run(sql);\
+app.send({\
+  success: true,\
+  msg: \"补充费用完成\"\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "ZSGWCD": 1,
+  "SWB": 1
+ },
+ "title": "添加费用明细",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

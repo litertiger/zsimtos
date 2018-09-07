@@ -1,0 +1,708 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+ \
+  ieId:'I',\
+  tradeId:'1',\
+  billType:'C' \
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1",
+      "split": "true",
+      "width": "300",
+      "region": "west"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid1",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=MiscellJob/bluk/InPin/unBox/selectShipPlan"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "checkcolumn",
+           "dataIndex": "CREATED",
+           "width": "40",
+           "disabled": "true",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "VESSEL_NAME1",
+           "dataIndex": "VESSEL_NAME",
+           "text": "船名",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column",
+          "events": {"tagEvents": "headerclick:function(ct,column,e, t,eOpts   ){\
+  Wb.setColWin(column,app.grid1.store);\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "IB_VYG1",
+           "dataIndex": "VYG",
+           "text": "艘次号",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "QPHASE1",
+           "dataIndex": "PHASE",
+           "keyName": "VESSEL_PHASE",
+           "width": "50",
+           "text": "状态",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CALL_SIGN1",
+           "dataIndex": "CALL_SIGN",
+           "text": "呼号",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "PHASE1",
+           "dataIndex": "PHASE",
+           "text": "状态",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {
+         "itemId": "tbar",
+         "padding": "0,0,0,0",
+         "cls": "border-width:0px",
+         "dock": "top"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "date",
+           "labelAlign": "right",
+           "fieldLabel": "时间",
+           "width": "140",
+           "labelWidth": "40"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "date",
+          "events": {"select": "//alert(app.QPHASE.getTextValue());\
+\
+app.seekShipMenu.fireEvent('click');\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "c_type",
+           "pickList": "[['1','拆箱计划'],['2','拼箱计划']]",
+           "emptyText": "计划类型",
+           "width": "100",
+           "disabled": "true",
+           "value": "1"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo",
+          "events": {"select": "if(app.c_type.getValue()=='1')\
+app.ieId='I';\
+else\
+app.ieId='E';"}
+         },
+         {
+          "configs": {
+           "itemId": "seekShipMenu",
+           "text": "查找",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.grid1.store.load({\
+  out:app.tbar\
+});\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "eShipName",
+           "hidden": "true",
+           "fieldLabel": "@Str.VESSEL_NAME",
+           "width": "120",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "voyage",
+           "hidden": "true",
+           "fieldLabel": "航次",
+           "width": "120",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "I_E_ID",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "popupMenu",
+         "normalName": "shipMenu"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "cruShipBtn",
+           "text": "生成当前",
+           "iconCls": "ok_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.shipMenu.selectRow.data,\
+  url = \"\"; \
+if (app.c_type.getValue() == '1') {\
+  // app.ieId='I';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/genShipChaPlan\";\
+} else {\
+  app.ieId = 'E';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/genShipPinPlan\";\
+}\
+\
+Wb.request({\
+  url: url,\
+  params: {\
+    vIds: [rowData.ID],\
+    ieId: app.ieId\
+  },\
+  success: function(resp) {\
+    Wb.info('成功');\
+    app.grid1.getSelectionModel().select(app.shipMenu.selectRow.index1);\
+    var row = app.grid1.getSelection();\
+    row[0].set(\"CREATED\", 1);\
+    row[0].commit();\
+    app.seekShipMenu.fireEvent('click');\
+    app.cntrGrid.store.load({\
+      params: {\
+        vid: rowData.ID,\
+        ieId: '{#ieId#}'\
+      }\
+    });\
+\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "allShipBtn",
+           "text": "生成全部",
+           "iconCls": "ok_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.shipMenu.selectRow.data,\
+  url = \"\"; //selectRow在popupMenu的show事件中设置\
+if (app.c_type.getValue() == '1') {\
+  app.ieId = 'I';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/genShipChaPlan\";\
+} else {\
+  app.ieId = 'E';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/genShipPinPlan\";\
+}\
+\
+var s = app.grid1.store,\
+  vIds = [];\
+for (var i = 0; i < s.getCount(); i++) {\
+  vIds.push(s.getAt(i).data.ID);\
+}\
+Wb.request({\
+  url: url,\
+  params: {\
+    vIds: vIds,\
+    ieId: app.ieId\
+  },\
+  success: function(resp) {\
+    Wb.info('成功');\
+    app.grid1.getSelectionModel().selectAll();\
+    app.seekShipMenu.fireEvent('click');\
+    app.cntrGrid.store.load({\
+      params: {\
+        vid: rowData.ID,\
+        ieId: '{#ieId#}'\
+      }\
+    });\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "cCruShipBtn",
+           "hidden": "true",
+           "text": "取消当前",
+           "iconCls": "cancel_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.shipMenu.selectRow.data,\
+  url = \"\"; //selectRow在popupMenu的show事件中设置\
+if (app.c_type.getValue() == '1') {\
+  app.ieId = 'I';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/cancelShipChaPlan\";\
+} else {\
+  app.ieId = 'E';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/genShipPinPlan\";\
+}\
+\
+Wb.request({\
+  url: url,\
+  params: {\
+    vIds: [rowData.ID],\
+    ieId: app.ieId\
+  },\
+  success: function(resp) {\
+    Wb.info('成功');\
+    app.grid1.getSelectionModel().select(app.shipMenu.selectRow.index1);\
+    var row = app.grid1.getSelection();\
+    row[0].set(\"CREATED\", 1);\
+    row[0].commit();\
+ app.seekShipMenu.fireEvent('click');\
+    app.cntrGrid.store.load({\
+      params: {\
+        vid: rowData.ID,\
+        ieId: '{#ieId#}'\
+      }\
+    });\
+\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "cAllShipBtn",
+           "hidden": "true",
+           "text": "取消全部",
+           "iconCls": "cancel_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.shipMenu.selectRow.data,\
+  url = \"\";\
+if (app.c_type.getValue() == '1') {\
+  app.ieId = 'I';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/cancelShipChaPlan\";\
+} else {\
+  app.ieId = 'E';\
+  url = \"m?xwl=MiscellJob/bluk/InPin/unBox/genShipPinPlan\";\
+}\
+\
+var s = app.grid1.store,\
+  vIds = [];\
+for (var i = 0; i < s.getCount(); i++) {\
+\
+  vIds.push(s.getAt(i).data.ID);\
+}\
+Wb.request({\
+  url: url,\
+  params: {\
+    vIds: vIds,\
+    ieId: app.ieId\
+  },\
+  success: function(resp) {\
+    Wb.info('成功');\
+    app.grid1.getSelectionModel().selectAll();\
+    app.cntrGrid.store.load();\
+    app.seekShipMenu.fireEvent('click');\
+  }\
+});"}
+         }
+        ],
+        "type": "menu",
+        "events": {"show": "var rows = app.grid1.getSelection();\
+app.cruShipBtn.setDisabled(rows.length != 1);\
+app.allShipBtn.setDisabled(rows.length != 1);\
+\
+menu.selectRow = rows[0];"}
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "\
+app.cntrGrid.store.load( { params:{vid:record.get(\"ID\"),ieId:app.ieId}});\
+"}
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel11",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "cntrGrid",
+       "editable": "true",
+       "disabled": "false",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=MiscellJob/bluk/InPin/unBox/cntrSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "SEQ_NOmn141",
+           "xtype": "rownumberer",
+           "dataIndex": "SEQUENCE",
+           "width": "40",
+           "text": "序号",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_OPER_IDmn1511",
+           "dataIndex": "TASKSTATUS",
+           "width": "85",
+           "text": "状态",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTRumn19",
+           "dataIndex": "CNTR",
+           "width": "100",
+           "text": "箱号",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_SIZECol",
+           "dataIndex": "CNTR_SIZE",
+           "width": "60",
+           "text": "尺寸",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_TYPEmn11",
+           "dataIndex": "CNTR_TYPE",
+           "width": "60",
+           "text": "箱型",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SEAL_NOmn13",
+           "dataIndex": "SEAL_NO",
+           "width": "100",
+           "text": "铅封",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_OPER_IDmn15",
+           "dataIndex": "CNTR_OPERATOR",
+           "width": "120",
+           "text": "箱代理",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_OPER_IDmn151",
+           "dataIndex": "VANNINGDV",
+           "width": "60",
+           "keyName": "I_E_ID",
+           "text": "进/出",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {
+         "itemId": "tbar",
+         "padding": "0,0,0,0",
+         "hidden": "true",
+         "normalName": "cntrTbar",
+         "cls": "border-width:0px",
+         "dock": "top"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "QPHASE",
+           "hidden": "true",
+           "labelAlign": "right",
+           "fieldLabel": "@Str.PHASE",
+           "width": "120",
+           "x": "240",
+           "y": "32",
+           "labelWidth": "40",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "cancelBtn",
+           "hidden": "true",
+           "text": "撤销",
+           "iconCls": "redo_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button"
+         },
+         {
+          "configs": {
+           "itemId": "saveBtn",
+           "text": "保存",
+           "iconCls": "save_all_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "  app.seekMenu.fireEvent('click');\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "eShipName",
+           "hidden": "true",
+           "fieldLabel": "@Str.VESSEL_NAME",
+           "width": "120",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "voyage",
+           "hidden": "true",
+           "fieldLabel": "航次",
+           "width": "120",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "seekMenu",
+           "hidden": "true",
+           "text": "@Str.find",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.cntrGrid.store.load({\
+  out:app.cntrTbar\
+});\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "I_E_ID",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "popupMenu",
+         "hidden": "true",
+         "normalName": "cntrMenu"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "cntrChaiBtn",
+          "hidden": "true",
+          "normalName": "cntrBuildReciptBtn",
+          "text": "按箱生成拆箱计划",
+          "iconCls": "ok_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "\
+// receipt='3';\
+// app.receiptWin.show();\
+"}
+        }],
+        "type": "menu",
+        "events": {"show": "var rows = app.cntrGrid.getSelection();\
+var state=rows.length != 1;//不等于1不能\
+if(!state){\
+app.cntrBuildReciptBtn.setDisabled(state);//设备交接单\
+menu.selectRow = rows[0];\
+}\
+else{\
+app.cntrBuildReciptBtn.setDisabled(state);//设备交接单\
+}"}
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "\
+// app.billGrid.store.load( { params:{CNTR_NO:record.get(\"CNTR\")}});\
+"}
+     }],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var d = new Date();\
+\
+app.date.setValue(d);\
+app.seekShipMenu.fireEvent('click');",
+   "initialize": "app.ieId='I';\
+"
+  }
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "basic": 1
+ },
+ "title": "进口拆箱计划",
+ "iconCls": "blue-forklift_icon",
+ "inframe": false,
+ "pageLink": ""
+}

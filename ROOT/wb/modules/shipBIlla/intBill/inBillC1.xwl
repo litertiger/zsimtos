@@ -1,0 +1,4148 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  BILL_STATE: StringUtil.text(com.wb.common.KVBuffer.getList('BILL_STATE',request)),\
+  JSESSIONID:request.getSession().getId(),\
+  Path:request.getContextPath()\
+});\
+app.set({\
+ \
+  ieId:'I',\
+  tradeId:'2',\
+  billType:'C' \
+});\
+"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "table",
+     "itemId": "cntrWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "250",
+     "title": "拼箱转箱",
+     "modal": "true"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "NEWCNTR_NO",
+      "fieldLabel": "箱号"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "table",
+     "itemId": "posWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "250",
+     "title": "设置堆场位置",
+     "modal": "true"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "PLANNED_POSITION",
+      "fieldLabel": "堆场位置"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "receiptWin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "800",
+     "title": "设备交接单",
+     "modal": "false",
+     "height": "432"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:3}",
+       "itemId": "receiptPanel",
+       "defaults": "{   labelWidth: 80,   width: 240,   margin: '4 8 4 8' }",
+       "x": "8",
+       "width": "780",
+       "y": "8",
+       "frame": "true",
+       "height": "134"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TENANCY_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "租户"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "tagConfigs": " matchFieldWidth:false",
+         "pageSize": "50",
+         "labelWidth": "80",
+         "queryCaching": "true",
+         "listConfig": "{width:250}",
+         "valueField": "ID",
+         "queryDelay": "3",
+         "minChars": "2",
+         "itemId": "CONSIGNEE",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>收货人",
+         "x": "0",
+         "y": "70",
+         "displayField": "CNAME",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "params": "{fldId:'CE'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "app.RECEIVER_COD.setValue(combo.getValue());\
+app.RECEIVER.setValue(combo.getRawValue());"}
+       },
+       {
+        "configs": {
+         "itemId": "CONSIGNEE_COD",
+         "hidden": "true",
+         "labelAlign": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "itemId": "S_ADRESS",
+         "allowBlank": "false",
+         "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      地址\
+    <\/td>\
+    <td>\
+      距离\
+    <\/td>\
+    <td>\
+      区域\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {NAME}\
+      <\/td>\
+      <td>\
+        {DISTANCE}\
+      <\/td>\
+      <td>\
+        {AREANAME}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+         "labelAlign": "right",
+         "fieldLabel": "交货地址",
+         "displayField": "NAME",
+         "listConfig": "{\
+  width: 300\
+}",
+         "valueField": "ID"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "url": "m?xwl=receiptInout/receipt/receiptedit/selectADRESS"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "app.FEI_ADDDRESS.setValue(records[0].data.ARID);"}
+       },
+       {
+        "configs": {
+         "itemId": "FEI_ADDDRESS",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "计费区域",
+         "keyName": "C_AREA",
+         "readOnly": "true",
+         "anyMatch": "true"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "PLAN_STIME",
+         "labelAlign": "right",
+         "fieldLabel": "送货时间",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "datetime"
+       },
+       {
+        "configs": {
+         "itemId": "SHIPPER_WAY",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['1', \"码头承运\"],\
+  ['3', \"驳船承运\"]\
+]",
+         "fieldLabel": "承运方式",
+         "value": "'3'",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "if (combo.getValue() == '1'){\
+  app.CAR_TEAM.setValue(\"HYLY\");\
+  app.PT_TYPE.setValue('1');\
+}else\
+   app.PT_TYPE.setValue('3');"}
+       },
+       {
+        "configs": {
+         "itemId": "T_ADDRESS",
+         "labelAlign": "right",
+         "fieldLabel": "提箱地点",
+         "keyName": "C_CFS"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "F_ADDRESS",
+         "labelAlign": "right",
+         "fieldLabel": "返场地址",
+         "keyName": "C_CFS"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "PHASE",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "状态",
+         "disabled": "true",
+         "value": "PLN"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "WORK_TYPE",
+         "labelAlign": "right",
+         "fieldLabel": "作业方式",
+         "keyName": "WORK_WAY"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "PT_TYPE",
+         "labelAlign": "right",
+         "fieldLabel": "派车方式",
+         "keyName": "PT_TYPE"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "CAR_TEAM",
+         "labelAlign": "right",
+         "fieldLabel": "车队",
+         "displayField": "CNAME",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "url": "m?xwl=receiptInout/receipt/receiptedit/selectCarTeam"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "CONTRACT_PHONE",
+         "labelAlign": "right",
+         "fieldLabel": "联系电话"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CONTRACT_MAN",
+         "labelAlign": "right",
+         "fieldLabel": "联系人"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel11",
+       "x": "8",
+       "width": "780",
+       "y": "144",
+       "frame": "true",
+       "height": "240"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "cntrReceiptGrid",
+        "selType": "checkboxmodel",
+        "editable": "true",
+        "disabled": "false",
+        "multiSelect": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": false,
+         "children": [
+          {
+           "configs": {
+            "itemId": "SEQ_NOmn141",
+            "xtype": "rownumberer",
+            "dataIndex": "SEQUENCE",
+            "width": "40",
+            "text": "序号"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTRumn19",
+            "dataIndex": "CNTR",
+            "width": "100",
+            "text": "箱号"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_ISOmn1211",
+            "dataIndex": "CNTR_ISO",
+            "width": "75",
+            "text": "箱规格"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_SIZECol",
+            "dataIndex": "CNTR_SIZE",
+            "width": "80",
+            "text": "尺寸"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_TYPEmn11",
+            "dataIndex": "CNTR_TYPE",
+            "width": "60",
+            "text": "箱型"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "E_F_IDmn12",
+            "dataIndex": "E_F_ID",
+            "width": "40",
+            "text": "空重"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SEAL_NOmn13",
+            "dataIndex": "SEAL_NO",
+            "width": "70",
+            "text": "铅封"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PIECESmn14",
+            "dataIndex": "PIECES",
+            "width": "40",
+            "text": "件数"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_OPER_IDmn15",
+            "dataIndex": "CNTR_OPERATOR",
+            "width": "85",
+            "text": "箱代理"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "WEIGHTmn16",
+            "dataIndex": "WEIGHT",
+            "width": "70",
+            "text": "重量"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VOLUMEmn18",
+            "dataIndex": "VOLUME",
+            "width": "40",
+            "text": "体积"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "DANG_FALGn181",
+            "xtype": "checkcolumn",
+            "dataIndex": "DANG_FALG",
+            "width": "40",
+            "disabled": "true",
+            "text": "危品"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REEF_FLAGmn1811",
+            "xtype": "checkcolumn",
+            "dataIndex": "REEF_FLAG",
+            "width": "40",
+            "disabled": "true",
+            "text": "冷冻"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "LCL_FLAGmn18121",
+            "xtype": "checkcolumn",
+            "dataIndex": "LCL_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "拼箱"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TEMP_SETmn20",
+            "dataIndex": "TEMP_SET",
+            "width": "80",
+            "text": "温度"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TEMP_MINmn201",
+            "dataIndex": "TEMP_MIN",
+            "width": "80",
+            "text": "最小温度"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TEMP_MAXmn2011",
+            "dataIndex": "TEMP_MAX",
+            "width": "80",
+            "text": "最大温度"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "IMDGmn2012",
+            "dataIndex": "IMDG",
+            "width": "80",
+            "text": "海事危品"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BUNDL_IDmn1813",
+            "xtype": "checkcolumn",
+            "dataIndex": "BUNDL_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "折叠"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "STUFF_IDmn18131",
+            "xtype": "checkcolumn",
+            "dataIndex": "STUFF_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "拆箱"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "RELEASE_IDCOLUMN",
+            "xtype": "checkcolumn",
+            "dataIndex": "RELEASE_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "放行"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "EXIT_CUSTOM_IDmn18133",
+            "xtype": "checkcolumn",
+            "dataIndex": "EXIT_CUSTOM_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "退关"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "EMERGENCY_IDmn1813",
+            "xtype": "checkcolumn",
+            "dataIndex": "EMERGENCY_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "加急"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "WGO_IDmn18121",
+            "xtype": "checkcolumn",
+            "dataIndex": "WGO_ID",
+            "width": "50",
+            "disabled": "true",
+            "text": "WGO"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "V2V_IDmn18122",
+            "xtype": "checkcolumn",
+            "dataIndex": "V2V_ID",
+            "width": "60",
+            "disabled": "true",
+            "text": "船过船"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "V2G_IDmn18123",
+            "xtype": "checkcolumn",
+            "dataIndex": "V2G_ID",
+            "width": "40",
+            "disabled": "true",
+            "text": "直取"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_OWNER_IDmn151",
+            "dataIndex": "CNTR_OWNER_ID",
+            "width": "70",
+            "text": "箱主"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OVERFRONTmn161",
+            "dataIndex": "OVERFRONT",
+            "width": "70",
+            "text": "前超"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OVERHEIGHTmn1611",
+            "dataIndex": "OVERHEIGHT",
+            "width": "70",
+            "text": "超高"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OVERBACKmn1612",
+            "dataIndex": "OVERBACK",
+            "width": "70",
+            "text": "后超"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OVERLEFTmn1613",
+            "dataIndex": "OVERLEFT",
+            "width": "70",
+            "text": "左超"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OVERRIGHTmn1614",
+            "dataIndex": "OVERRIGHT",
+            "width": "70",
+            "text": "右超"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "ACKWARD_CARGOmn20111",
+            "dataIndex": "ACKWARD_CARGO",
+            "width": "80",
+            "text": "大件货"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        },
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/cntrReceiptSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }
+       ],
+       "type": "grid"
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var billMessage={};\
+\
+  var cntr=[],Vid;\
+  var rows = app.cntrReceiptGrid.getSelection(),billId;\
+  for(var i=0;i<rows.length;i++)\
+  {\
+    cntr.push(rows[i].data.CNTR);\
+    Vid=rows[i].data.VID;\
+    billId=rows[i].data.BILL_ID;\
+  }\
+\
+  \
+  \
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/buildReceipt',\
+  params:{cntrId:cntr,ieId:ieId,Vid:Vid,billId:billId},\
+  out:app.receiptPanel,\
+  success: function(resp) {\
+  Wb.info('成功');\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "receiptCntrWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "800",
+     "title": "设备交接单生成舱单",
+     "modal": "false",
+     "height": "432"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "cntrProBillGrid",
+      "selType": "checkboxmodel",
+      "editable": "false",
+      "x": "8",
+      "width": "768",
+      "y": "8",
+      "multiSelect": "true",
+      "height": "360"
+     },
+     "expanded": false,
+     "children": [
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "CNTRumn19",
+          "dataIndex": "CNTR",
+          "width": "100",
+          "text": "箱号"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_ISOmn1211",
+          "dataIndex": "CNTR_ISO",
+          "width": "75",
+          "text": "箱规格"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_SIZECol",
+          "dataIndex": "CNTR_SIZE",
+          "width": "80",
+          "text": "尺寸"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_TYPEmn11",
+          "dataIndex": "CNTR_TYPE",
+          "width": "60",
+          "text": "箱型"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "E_F_IDmn12",
+          "dataIndex": "E_F_ID",
+          "width": "40",
+          "text": "空重"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SEAL_NOmn13",
+          "dataIndex": "SEAL_NO",
+          "width": "70",
+          "text": "铅封"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PIECESmn14",
+          "dataIndex": "PIECES",
+          "width": "40",
+          "text": "件数"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_OPER_IDmn15",
+          "dataIndex": "CNTR_OPERATOR",
+          "width": "85",
+          "text": "箱代理"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_OPER_IDmn151",
+          "dataIndex": "SHIPPER",
+          "width": "85",
+          "text": "发货人"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_OPER_IDmn1511",
+          "dataIndex": "CONSIGNEE",
+          "width": "85",
+          "text": "收货人"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "WEIGHTmn16",
+          "dataIndex": "WEIGHT",
+          "width": "70",
+          "text": "重量"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "VOLUMEmn18",
+          "dataIndex": "VOLUME",
+          "width": "40",
+          "text": "体积"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "DANG_FALGn181",
+          "xtype": "checkcolumn",
+          "dataIndex": "DANG_FALG",
+          "width": "40",
+          "disabled": "true",
+          "text": "危品"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_OWNER_IDmn151",
+          "dataIndex": "CNTR_OWNER_ID",
+          "width": "70",
+          "text": "箱主"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=shipBIlla/supcanVbill/billStateEdit/receiptCntr"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "window",
+    "events": {"ok": "var rec = app.cntrProBillGrid.getSelection(),\
+  consee = \"\";\
+for (var i = 0; i < rec.length; i++) {\
+  if (i == 0)\
+    consee = rec[i].data.SHIPPER;\
+  else if (consee != rec[i].data.SHIPPER) {\
+    Wb.warn(\"您选择的箱子发货人不一致\");\
+    return;\
+  }\
+\
+}\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/getId',\
+  params: {\
+    ieId: ieId\
+  },\
+  success: function(resp) {\
+    var re = Wb.decode(resp.responseText);\
+    Wb.run({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billWin',\
+      contextOwner: app,\
+      success: function(appOld) {\
+        appOld.billWin.title = '新增-提单';\
+        var win = new Ext.window.Window(appOld._billWin); //_window1为配置对象，window1为实例\
+        win.show();\
+        Wb.setValue(win, rec[0].data);\
+        app.optype = 'insert';\
+        appOld.ID.setValue(re.rows[0].ID);\
+        appOld.BILL_NO.setValue(re.rows[0].BILL_NO);\
+        appOld.I_E_ID.setValue(ieId);\
+        appOld.TRADE_ID.setValue(tradeId);\
+        appOld.BILL_TYPE.setValue(billType);\
+        appOld.PHASE.setValue(\"0\");\
+        appOld.PAYER.setValue(\"1\");\
+        appOld.DELV_TERM.setValue(\"CFS-CFS\");\
+\
+        if ('{#sys.NATURE#}' == '5') {\
+\
+          Wb.loadComboAdd(appOld.CNTR_OPERATOR_COD, [{\
+              \"ID\": \"'{#sys.GOV_CODE#}'\",\
+              \"CNAME\": \"'{#sys.GOV_CODE#}'\"\
+            }],\
+            function() {\
+              appOld.CNTR_OPERATOR_COD.setValue('{#sys.GOV_CODE#}');\
+              appOld.CNTR_OPERATOR.setValue('{#sys.GOV_CODE#}');\
+            });\
+\
+\
+          //appOld.cn.setValue(phase);\
+        } else {\
+\
+          Wb.loadComboAdd(appOld.CNTR_OPERATOR_COD, [{\
+              \"ID\": rec[0].data.CNTR_OPERATOR_COD,\
+              \"CNAME\": rec[0].data.CNTR_OPERATOR\
+            }],\
+            function() {\
+              appOld.CNTR_OPERATOR_COD.setValue(rec[0].data.CNTR_OPERATOR_COD);\
+              appOld.CNTR_OPERATOR.setValue(rec[0].data.CNTR_OPERATOR);\
+            });\
+\
+        }\
+\
+        function forCntr() {\
+          for (var i = 0; i < rec.length; i++) {\
+            Wb.add(appOld.cntrGrid, {\
+              CNTR: rec[i].data.CNTR,\
+              ID: Wb.guid(),\
+              CARGO_TYPE: 'P',\
+              CNTR_ID: rec[i].data.CNTR_ID,\
+              BILL_NO: appOld.BILL_NO.getValue(),\
+              BILL_ID: appOld.ID.getValue(),\
+              SEQUENCE: i + 1,\
+              PHASE: appOld.PHASE.getValue(),\
+              I_E_ID: appOld.I_E_ID.getValue(),\
+              E_F_ID: 'F',\
+              VID: app.shipNo.getValue(),\
+              LINE: rec[i].data.LINE,\
+              CNTR_OPERATOR: appOld.CNTR_OPERATOR.getValue(),\
+              VOYAGE_NO: app.voyageNo.getValue(),\
+              CNTR_SIZE: rec[i].data.CNTR_SIZE,\
+              CNTR_TYPE: rec[i].data.CNTR_TYPE,\
+              CNTR_ISO: rec[i].data.CNTR_ISO,\
+              CNTR_OWNER: rec[i].data.LINE,\
+              CNTR_OWNER_COD: rec[i].data.LINE_COD,\
+              LINE_COD: rec[i].data.LINE_COD,\
+              CNTR_OPERATOR_COD: appOld.CNTR_OPERATOR_COD.getValue(),\
+              CATEGORY_ID: appOld.I_E_ID.getValue(),\
+              POD: appOld.POD.getValue(),\
+              POL: appOld.POL.getValue(),\
+              SPOD: appOld.SPOD.getValue(),\
+              TRADE_ID: appOld.TRADE_ID.getValue(),\
+              LCL_ID: 0,\
+              MAIN_FLAG: 1,\
+              TRANS_ID: 0,\
+              SPLIT_ID: 0,\
+              DANG_ID: 0,\
+              REEF_ID: 0,\
+              BUNDL_ID: 0,\
+              STUFF_ID: 0,\
+              RELEASE_ID: 0,\
+              EXIT_CUSTOM_ID: 0,\
+              EMERGENCY_ID: 0,\
+              WGO_ID: 0,\
+              V2V_ID: 0,\
+              V2G_ID: 0,\
+              UPDATED_ON: new Date(),\
+              CREATED_ON: new Date(),\
+              TENANCY_ID: '{#sys.TENANCY_ID#}',\
+              UPDATED_BY: '{#sys.username#}',\
+              CREATED_BY: '{#sys.username#}'\
+            }, \"last\", 1, false);\
+\
+\
+          }\
+        }\
+\
+\
+        setTimeout(forCntr, \"1000\");\
+\
+\
+\
+\
+      }\
+    });\
+\
+  }\
+\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "fenSelWin",
+     "closeAction": "hide",
+     "width": "792",
+     "title": "分单查看",
+     "modal": "true",
+     "height": "320"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "billSelGrid",
+       "selType": "checkboxmodel",
+       "editable": "true",
+       "x": "8",
+       "width": "448",
+       "y": "0",
+       "text": "提单",
+       "gridLine": "true",
+       "region": "center",
+       "height": "272"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/fenBillSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "saveCntrBtn",
+           "tooltip": "保存所有的更改",
+           "text": "@Str.save",
+           "iconCls": "save_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (!Wb.verifyGrid(app.billSelGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.billSelGrid,\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/saveFenBill',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.billSelGrid, Wb.decode(resp.responseText));\
+  }\
+});\
+\
+\
+\
+\
+\
+   "}
+         },
+         {
+          "configs": {
+           "itemId": "btnprints",
+           "text": "打印",
+           "iconCls": "printer_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.billSelGrid.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择要打印的分单\");\
+  return;\
+}\
+Wb.each(sels, function(sel) {\
+  Wb.request({\
+    url: \"m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/printBIllDate\",\
+    params: {\
+      zfId: \"0\",\
+      vId: sel.data.VID,\
+      billId: sel.data.ID,\
+      billType: \"C\"\
+    },\
+    success: function(resp) {\
+      var result = Wb.decode(resp.responseText);\
+      var LODOP = getLodop();\
+      if (null === LODOP) return;\
+      var MT = \"\";\
+      if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+        MT = '中山港';\
+      else if ('{#sys.TENANCY_ID#}' == 'XLG')\
+        MT = '小榄港';\
+      else if ('{#sys.TENANCY_ID#}' == 'SWG')\
+        MT = '神湾港';\
+      LODOP.PRINT_INIT(\"\"); //初始化\
+      //=================头部分==================\
+      LODOP.ADD_PRINT_RECT(15, 30, 50, 30, 0, 1); //总单分单框框\
+      LODOP.ADD_PRINT_TEXT(18, 35, 57, 20, \"分单\"); //总单或分单\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+      LODOP.ADD_PRINT_TEXT(60, 85, 280, 25, \"中山港航集团股份有限公司\"); //表格名称\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+      LODOP.ADD_PRINT_TEXT(85, 87, 280, 25, MT + \"国际货柜码头货物运单\"); //表格名称\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 14);\
+      LODOP.ADD_PRINT_BARCODE(30, 660, 260, 70, \"Code39\", result.bill[0].BILL_NO); //条形码\
+      LODOP.ADD_PRINT_TEXT(105, 670, 400, 25, \"装运单号：\" + result.bill[0].BILL_NO); //装运单号\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+      //================最外侧矩形================\
+      //参数说明,距离上边像素1,距离做左边像素1,距离上边像素2,距离左边像素2,线种类(0代表直线),线粗\
+      LODOP.ADD_PRINT_LINE(150, 30, 150, 1050, 0, 1); //最外侧矩形上边线\
+      LODOP.ADD_PRINT_LINE(150, 30, 750, 30, 0, 1); //最外侧矩形下边线\
+      LODOP.ADD_PRINT_LINE(750, 30, 750, 1050, 0, 1); //最外侧矩形左边线\
+      LODOP.ADD_PRINT_LINE(150, 1050, 750, 1050, 0, 1); //最外侧矩形右边线\
+      //================矩形内部结构==============\
+      LODOP.ADD_PRINT_LINE(190, 30, 190, 200, 0, 1); //发货人左侧横线\
+      LODOP.ADD_PRINT_LINE(190, 230, 190, 655, 0, 1); //发货人右侧横线\
+      LODOP.ADD_PRINT_LINE(190, 685, 190, 1050, 0, 1); //收货人右侧横线\
+      LODOP.ADD_PRINT_LINE(230, 30, 230, 1050, 0, 1); //发货人下方横线\
+      LODOP.ADD_PRINT_LINE(270, 30, 270, 1050, 0, 1); //货物名称下方横线\
+      LODOP.ADD_PRINT_LINE(400, 30, 400, 540, 0, 1); //装船时间,船名等上方横线\
+      LODOP.ADD_PRINT_LINE(440, 30, 440, 200, 0, 1); //装船时间,船名等下方横线\
+      LODOP.ADD_PRINT_LINE(580, 30, 580, 540, 0, 1); //海关物监签章上方横线\
+      LODOP.ADD_PRINT_LINE(150, 100, 230, 100, 0, 1); //起运港右侧竖线\
+      LODOP.ADD_PRINT_LINE(150, 200, 750, 200, 0, 1); //发货人左侧竖线\
+      LODOP.ADD_PRINT_LINE(150, 230, 230, 230, 0, 1); //发货人右侧竖线\
+      LODOP.ADD_PRINT_LINE(150, 655, 270, 655, 0, 1); //收货人左侧竖线\
+      LODOP.ADD_PRINT_LINE(150, 685, 230, 685, 0, 1); //收货人右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 260, 400, 260, 0, 1); //件数右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 310, 400, 310, 0, 1); //包装右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 395, 400, 395, 0, 1); //体积右侧竖线\
+      LODOP.ADD_PRINT_LINE(190, 480, 400, 480, 0, 1); //货物毛重右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 540, 750, 540, 0, 1); //唛头右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 700, 270, 700, 0, 1); //规格右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 795, 270, 795, 0, 1); //封条号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(190, 900, 270, 900, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(230, 950, 270, 950, 0, 1); //规格右侧竖线\
+      LODOP.ADD_PRINT_LINE(400, 370, 750, 370, 0, 1); //船公司签章右侧竖线\
+      //=================内容================\
+      LODOP.ADD_PRINT_TEXT(160, 38, 100, 25, \"起运港\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(157, 207, 25, 100, \"发货人\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(160, 238, 100, 25, \"全称：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(157, 662, 25, 100, \"收货人\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(160, 693, 100, 25, \"全称：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 38, 100, 25, \"目的港\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 238, 100, 25, \"地址：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 485, 100, 25, \"电话：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 693, 100, 25, \"地址：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 905, 100, 25, \"电话：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 60, 100, 25, \"货物名称\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 210, 100, 25, \"件数\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 265, 100, 25, \"包装\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(232, 330, 100, 25, \"体 积\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(250, 311, 100, 25, \"（立方米）\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(232, 403, 100, 25, \"货物毛重\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(250, 403, 100, 25, \"（公斤）\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(232, 488, 100, 25, \"唛头/\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(250, 485, 100, 25, \"合同号\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 555, 100, 25, \"集装箱号码\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 660, 100, 25, \"规格\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 712, 100, 25, \"封条号码\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 805, 100, 25, \"集装箱号码\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 910, 100, 25, \"规格\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(240, 965, 100, 25, \"封条号码\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(405, 40, 120, 60, \"装船时间、船名、地点、箱量\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+      LODOP.ADD_PRINT_TEXT(445, 42, 100, 25, \"船名：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(458, 42, 100, 25, \"日期：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(471, 42, 100, 25, \"泊：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(484, 42, 100, 25, \"箱量：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(523, 42, 100, 25, \"总柜数：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(415, 215, 100, 25, \"集装箱签到\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(415, 385, 120, 25, \"船务公司签章\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(595, 45, 120, 25, \"报关信息\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(620, 42, 100, 25, \"运输工具号：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(635, 42, 100, 25, \"航次号：\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(595, 215, 100, 25, \"检验检疫章\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(595, 385, 100, 25, \"海关签章\");\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      //=================数据================\
+      LODOP.ADD_PRINT_TEXT(160, 110, 100, 25, result.bill[0].POL); //起运港\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(160, 290, 320, 25, result.bill[0].SHIPPER); //发货人全称\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(160, 745, 320, 25, result.bill[0].CONSIGNEE); //收货人全称\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(192, 110, 100, 25, result.bill[0].SPOD); //目的港\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -5); //行间距\
+      LODOP.ADD_PRINT_TEXT(200, 290, 200, 25, result.bill[0].CONTRACT_ADDRESS); //发货人地址\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 537, 100, 25, result.bill[0].CONTRACT_TEL); //发货人电话\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 745, 200, 25, result.bill[0].NOTIFIER_ADDRESS); //收货人地址\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(200, 957, 100, 25, result.bill[0].NOTIFIER_TEL); //收货人电话\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(280, 40, 170, 70, result.bill[0].GOODS_NOTES); //货物\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(285, 205, 100, 25, result.bill[0].PIECES); //件数\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(285, 265, 100, 25, Wb.kv(result.bill[0].PKG, app.pkg)); //包装\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(285, 315, 100, 25, result.bill[0].VOLUME); //体积\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(285, 400, 100, 25, result.bill[0].WEIGHT); //货物毛重\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(285, 485, 100, 25, \"\"); //合同号*******************************************************\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+      LODOP.ADD_PRINT_TEXT(445, 80, 100, 25, result.bill[0].VESSEL_NAME); //船名\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(458, 80, 100, 25, result.bill[0].CREATED_ON.substring(0, 10)); //日期\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(471, 70, 100, 25, MT); //泊\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(484, 80, 100, 25, result.bill[0].CNTR20); //20箱量\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(497, 80, 100, 25, result.bill[0].CNTR40); //40箱量\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(510, 80, 100, 25, result.bill[0].CNTR45); //45箱量\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(523, 90, 100, 25, result.csum[0].CNTR_COUNT); //总柜数\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(620, 110, 100, 25, result.bill[0].EDI_CALL_SIGN); //运输工具号\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      LODOP.ADD_PRINT_TEXT(635, 90, 100, 25, result.bill[0].LOB_VYG); //航次号\
+      LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+      //===========循环集装箱===========\
+      //集装箱双数\
+      if (result.cntr.length % 2 == 0 && result.cntr.length > 0) {\
+        //左边\
+        LODOP.ADD_PRINT_LINE(270, 655, 270 + result.cntr.length / 2 * 25, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 270 + result.cntr.length / 2 * 25, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 270 + result.cntr.length / 2 * 25, 795, 0, 1); //封条号码右侧竖线\
+        for (var i = 0; i < result.cntr.length / 2; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[i].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+        //右边\
+        LODOP.ADD_PRINT_LINE(270, 900, 270 + result.cntr.length / 2 * 25, 900, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 950, 270 + result.cntr.length / 2 * 25, 950, 0, 1); //规格右侧竖线\
+        for (var i = result.cntr.length / 2; i < result.cntr.length; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + ((i + 1) - result.cntr.length / 2) * 25, 795, 270 + ((i + 1) - result.cntr.length / 2) * 25, 1050, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 915, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+      }\
+      //集装箱单数\
+      if (result.cntr.length % 2 == 1) {\
+        if (result.cntr.length == 1) {\
+          LODOP.ADD_PRINT_LINE(270, 655, 295, 655, 0, 1); //集装箱号码右侧竖线\
+          LODOP.ADD_PRINT_LINE(270, 700, 295, 700, 0, 1); //规格右侧竖线\
+          LODOP.ADD_PRINT_LINE(270, 795, 295, 795, 0, 1); //封条号码右侧竖线\
+          LODOP.ADD_PRINT_LINE(295, 540, 295, 795, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273, 550, 120, 25, result.cntr[0].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273, 660, 120, 25, result.cntr[0].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+        if (result.cntr.length > 1) {\
+          //左边\
+          LODOP.ADD_PRINT_LINE(270, 655, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 655, 0, 1); //集装箱号码右侧竖线\
+          LODOP.ADD_PRINT_LINE(270, 700, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 700, 0, 1); //规格右侧竖线\
+          LODOP.ADD_PRINT_LINE(270, 795, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 795, 0, 1); //封条号码右侧竖线\
+          for (var i = 0; i < parseInt(result.cntr.length / 2) + 1; i++) {\
+            LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+            LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+            LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+            LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+            LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+          }\
+          //右边\
+          LODOP.ADD_PRINT_LINE(270, 900, 270 + parseInt(result.cntr.length / 2) * 25, 900, 0, 1); //集装箱号码右侧竖线\
+          LODOP.ADD_PRINT_LINE(270, 950, 270 + parseInt(result.cntr.length / 2) * 25, 950, 0, 1); //规格右侧竖线\
+          for (var i = parseInt(result.cntr.length / 2) + 1; i < result.cntr.length; i++) {\
+            LODOP.ADD_PRINT_LINE(270 + (i - parseInt(result.cntr.length / 2)) * 25, 795, 270 + (i - parseInt(result.cntr.length / 2)) * 25, 1050, 0, 1); //集装箱号码下方横线\
+            LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+            LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 915, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+            LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+            LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+          }\
+        }\
+      }\
+      //设置横向打印\
+      LODOP.SET_SHOW_MODE(\"LANDSCAPE_DEFROTATED\", 1);\
+      LODOP.SET_PRINT_PAGESIZE(2, \"\", \"\", \"\");\
+      //LODOP.PRINT_DESIGN(); //设计器\
+      //LODOP.PREVIEW(); //预览\
+      LODOP.PRINT(); //打印\
+      if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+        Wb.request({ //锁定舱单\
+          url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/lockBill',\
+          params: {\
+            ID: [sel.data.ID]\
+          },\
+          success: function(resp) {\
+            app.billSelGrid.store.load({\
+              params: {\
+                TENANCY_ID: '{#sys.TENANCY_ID#}',\
+                billNo: sel.data.P_BILLNO,\
+                vId: sel.data.VID\
+              }\
+            });\
+          }\
+        });\
+    }\
+  });\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "RELEASE_ID991",
+           "renderer": "if( value==1 )\
+  return \"<font color='red'>放行<\/font>\";\
+else\
+    return \"未放行\";",
+           "dataIndex": "RELEASE_ID",
+           "width": "40",
+           "text": "放行"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_NO9911",
+           "dataIndex": "BILL_NO",
+           "width": "130",
+           "text": "二程提单"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_TYPEE99",
+           "dataIndex": "GOODS_NOTES",
+           "width": "150",
+           "text": "货名"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "WEIGHTmn16",
+           "dataIndex": "WEIGHT",
+           "width": "70",
+           "text": "重量"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "number"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "PIECESmn14",
+           "dataIndex": "PIECES",
+           "width": "40",
+           "text": "件数"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "number"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "actionColumns",
+           "xtype": "actioncolumn",
+           "width": "60",
+           "align": "center"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "items"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "delAction",
+              "handler": "Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/deleteFenBill',\
+  params: {billId:record.get(\"ID\"),vId:app.vId.getValue(),pBillNo:app.pBillNo.getValue()},\
+  success: function(resp) {}\
+});\
+ ",
+              "tooltip": "删除",
+              "iconCls": "cancel_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "-",
+              "tooltip": "删除",
+              "width": "12"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "printAction",
+              "handler": "Wb.request({\
+  url: \"m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/printBIllDate\",\
+  params: {\
+    zfId: \"0\",\
+    vId: record.get(\"VID\"),\
+    billId: record.get(\"ID\"),\
+    billType: \"C\"\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    var LODOP = getLodop();\
+    if (null === LODOP) return;\
+    var MT = \"\";\
+    if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+      MT = '中山港';\
+    else if ('{#sys.TENANCY_ID#}' == 'XLG')\
+      MT = '小榄港';\
+    else if ('{#sys.TENANCY_ID#}' == 'SWG')\
+      MT = '神湾港';\
+    LODOP.PRINT_INIT(\"\"); //初始化\
+    //=================头部分==================\
+    LODOP.ADD_PRINT_RECT(15, 30, 95, 28, 0, 1); //总单分单框框\
+    LODOP.ADD_PRINT_TEXT(18, 35, 100, 20, \"进口分单\"); //总单或分单\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    LODOP.ADD_PRINT_TEXT(60, 85, 280, 25, \"中山港航集团股份有限公司\"); //表格名称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    LODOP.ADD_PRINT_TEXT(85, 87, 280, 25, MT + \"国际货柜码头货物运单\"); //表格名称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 14);\
+    LODOP.ADD_PRINT_BARCODE(30, 660, 260, 70, \"Code39\", result.bill[0].BILL_NO); //条形码\
+    LODOP.ADD_PRINT_TEXT(105, 670, 400, 25, \"装运单号：\" + result.bill[0].BILL_NO); //装运单号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    //================最外侧矩形================\
+    //参数说明,距离上边像素1,距离做左边像素1,距离上边像素2,距离左边像素2,线种类(0代表直线),线粗\
+    LODOP.ADD_PRINT_LINE(150, 30, 150, 1050, 0, 1); //最外侧矩形上边线\
+    LODOP.ADD_PRINT_LINE(150, 30, 750, 30, 0, 1); //最外侧矩形下边线\
+    LODOP.ADD_PRINT_LINE(750, 30, 750, 1050, 0, 1); //最外侧矩形左边线\
+    LODOP.ADD_PRINT_LINE(150, 1050, 750, 1050, 0, 1); //最外侧矩形右边线\
+    //================矩形内部结构==============\
+    LODOP.ADD_PRINT_LINE(190, 30, 190, 200, 0, 1); //发货人左侧横线\
+    LODOP.ADD_PRINT_LINE(190, 230, 190, 655, 0, 1); //发货人右侧横线\
+    LODOP.ADD_PRINT_LINE(190, 685, 190, 1050, 0, 1); //收货人右侧横线\
+    LODOP.ADD_PRINT_LINE(230, 30, 230, 1050, 0, 1); //发货人下方横线\
+    LODOP.ADD_PRINT_LINE(270, 30, 270, 1050, 0, 1); //货物名称下方横线\
+    LODOP.ADD_PRINT_LINE(400, 30, 400, 540, 0, 1); //装船时间,船名等上方横线\
+    LODOP.ADD_PRINT_LINE(440, 30, 440, 200, 0, 1); //装船时间,船名等下方横线\
+    LODOP.ADD_PRINT_LINE(580, 30, 580, 540, 0, 1); //海关物监签章上方横线\
+    LODOP.ADD_PRINT_LINE(150, 100, 230, 100, 0, 1); //起运港右侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 200, 750, 200, 0, 1); //发货人左侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 230, 230, 230, 0, 1); //发货人右侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 655, 270, 655, 0, 1); //收货人左侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 685, 230, 685, 0, 1); //收货人右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 260, 400, 260, 0, 1); //件数右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 310, 400, 310, 0, 1); //包装右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 395, 400, 395, 0, 1); //体积右侧竖线\
+    LODOP.ADD_PRINT_LINE(190, 480, 400, 480, 0, 1); //货物毛重右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 540, 750, 540, 0, 1); //唛头右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 700, 270, 700, 0, 1); //规格右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 795, 270, 795, 0, 1); //封条号码右侧竖线\
+    LODOP.ADD_PRINT_LINE(190, 900, 270, 900, 0, 1); //集装箱号码右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 950, 270, 950, 0, 1); //规格右侧竖线\
+    LODOP.ADD_PRINT_LINE(400, 370, 750, 370, 0, 1); //船公司签章右侧竖线\
+    //=================内容================\
+    LODOP.ADD_PRINT_TEXT(160, 38, 100, 25, \"起运港\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(157, 207, 25, 100, \"发货人\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 238, 100, 25, \"全称：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(157, 662, 25, 100, \"收货人\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 693, 100, 25, \"全称：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 38, 100, 25, \"目的港\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 238, 100, 25, \"地址：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 485, 100, 25, \"电话：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 693, 100, 25, \"地址：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 905, 100, 25, \"电话：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 60, 100, 25, \"货物名称\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 210, 100, 25, \"件数\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 265, 100, 25, \"包装\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 330, 100, 25, \"体 积\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 311, 100, 25, \"（立方米）\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 403, 100, 25, \"货物毛重\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 403, 100, 25, \"（公斤）\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 488, 100, 25, \"唛头/\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 485, 100, 25, \"合同号\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 555, 100, 25, \"集装箱号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 660, 100, 25, \"规格\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 712, 100, 25, \"封条号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 805, 100, 25, \"集装箱号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 910, 100, 25, \"规格\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 965, 100, 25, \"封条号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(405, 40, 120, 60, \"装船时间、船名、地点、箱量\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+    LODOP.ADD_PRINT_TEXT(445, 42, 100, 25, \"船名：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(458, 42, 100, 25, \"日期：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(471, 42, 100, 25, \"泊：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(484, 42, 100, 25, \"箱量：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(523, 42, 100, 25, \"总柜数：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(415, 215, 100, 25, \"集装箱签到\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(415, 385, 120, 25, \"船务公司签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 45, 120, 25, \"报关信息\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(620, 42, 100, 25, \"运输工具号：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(635, 42, 100, 25, \"航次号：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(595, 215, 100, 25, \"检验检疫章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 385, 100, 25, \"海关签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    //=================数据================\
+    LODOP.ADD_PRINT_TEXT(160, 110, 100, 25, result.bill[0].POL); //起运港\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 290, 320, 25, result.bill[0].SHIPPER); //发货人全称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 745, 320, 25, result.bill[0].CONSIGNEE); //收货人全称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(192, 110, 100, 25, result.bill[0].SPOD); //目的港\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -5); //行间距\
+    LODOP.ADD_PRINT_TEXT(200, 290, 200, 25, result.bill[0].CONTRACT_ADDRESS); //发货人地址\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 537, 100, 25, result.bill[0].CONTRACT_TEL); //发货人电话\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 745, 200, 25, result.bill[0].NOTIFIER_ADDRESS); //收货人地址\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 957, 100, 25, result.bill[0].NOTIFIER_TEL); //收货人电话\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(280, 40, 170, 70, result.bill[0].GOODS_NOTES); //货物\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 205, 100, 25, result.bill[0].PIECES); //件数\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 265, 100, 25, Wb.kv(result.bill[0].PKG, app.pkg)); //包装\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 315, 100, 25, result.bill[0].VOLUME); //体积\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 400, 100, 25, result.bill[0].WEIGHT); //货物毛重\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 485, 100, 25, \"\"); //合同号*******************************************************\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(445, 80, 100, 25, result.bill[0].VESSEL_NAME); //船名\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(458, 80, 100, 25, result.bill[0].CREATED_ON.substring(0, 10)); //日期\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(471, 70, 100, 25, MT); //泊\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(484, 80, 100, 25, result.bill[0].CNTR20); //20箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(497, 80, 100, 25, result.bill[0].CNTR40); //40箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(510, 80, 100, 25, result.bill[0].CNTR45); //45箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(523, 90, 100, 25, result.csum[0].CNTR_COUNT); //总柜数\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(620, 110, 100, 25, result.bill[0].EDI_CALL_SIGN); //运输工具号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(635, 90, 100, 25, result.bill[0].LOB_VYG); //航次号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    //===========循环集装箱===========\
+    //集装箱双数\
+    if (result.cntr.length % 2 == 0 && result.cntr.length > 0) {\
+      //左边\
+      LODOP.ADD_PRINT_LINE(270, 655, 270 + result.cntr.length / 2 * 25, 655, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 700, 270 + result.cntr.length / 2 * 25, 700, 0, 1); //规格右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 795, 270 + result.cntr.length / 2 * 25, 795, 0, 1); //封条号码右侧竖线\
+      for (var i = 0; i < result.cntr.length / 2; i++) {\
+        LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[i].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+      //右边\
+      LODOP.ADD_PRINT_LINE(270, 900, 270 + result.cntr.length / 2 * 25, 900, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 950, 270 + result.cntr.length / 2 * 25, 950, 0, 1); //规格右侧竖线\
+      for (var i = result.cntr.length / 2; i < result.cntr.length; i++) {\
+        LODOP.ADD_PRINT_LINE(270 + ((i + 1) - result.cntr.length / 2) * 25, 795, 270 + ((i + 1) - result.cntr.length / 2) * 25, 1050, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 915, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+    }\
+    //集装箱单数\
+    if (result.cntr.length % 2 == 1) {\
+      if (result.cntr.length == 1) {\
+        LODOP.ADD_PRINT_LINE(270, 655, 295, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 295, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 295, 795, 0, 1); //封条号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(295, 540, 295, 795, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273, 550, 120, 25, result.cntr[0].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273, 660, 120, 25, result.cntr[0].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+      if (result.cntr.length > 1) {\
+        //左边\
+        LODOP.ADD_PRINT_LINE(270, 655, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 795, 0, 1); //封条号码右侧竖线\
+        for (var i = 0; i < parseInt(result.cntr.length / 2) + 1; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+        //右边\
+        LODOP.ADD_PRINT_LINE(270, 900, 270 + parseInt(result.cntr.length / 2) * 25, 900, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 950, 270 + parseInt(result.cntr.length / 2) * 25, 950, 0, 1); //规格右侧竖线\
+        for (var i = parseInt(result.cntr.length / 2) + 1; i < result.cntr.length; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i - parseInt(result.cntr.length / 2)) * 25, 795, 270 + (i - parseInt(result.cntr.length / 2)) * 25, 1050, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 915, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+      }\
+    }\
+    //设置横向打印\
+    LODOP.SET_SHOW_MODE(\"LANDSCAPE_DEFROTATED\", 1);\
+    LODOP.SET_PRINT_PAGESIZE(2, \"\", \"\", \"\");\
+    //LODOP.PRINT_DESIGN(); //设计器\
+    LODOP.PREVIEW(); //预览\
+    //LODOP.PRINT(); //打印\
+    if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+      Wb.request({ //锁定舱单\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/lockBill',\
+        params: {\
+          ID: [record.get(\"ID\")]\
+        },\
+        success: function(resp) {\
+          app.billSelGrid.store.load({\
+            params: {\
+              TENANCY_ID: '{#sys.TENANCY_ID#}',\
+              billNo: record.get(\"P_BILLNO\"),\
+              vId: record.get(\"VID\")\
+            }\
+          });\
+        }\
+      });\
+  }\
+});",
+              "tooltip": "打印",
+              "iconCls": "printer_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "app.cntrSelGrid.store.load({params:{billId:record.get(\"ID\")}});"}
+     },
+     {
+      "configs": {
+       "itemId": "cntrSelGrid",
+       "selType": "rowmodel",
+       "editable": "true",
+       "x": "456",
+       "width": "320",
+       "y": "0",
+       "disabled": "false",
+       "region": "west",
+       "title": "箱信息",
+       "height": "272"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/fenCntrSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "CNTRumn19",
+           "dataIndex": "CNTR",
+           "width": "100",
+           "text": "箱号"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_TYPEmn111",
+           "dataIndex": "CNTR_SIZE",
+           "width": "60",
+           "text": "尺寸"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_TYPEmn11",
+           "dataIndex": "CNTR_TYPE",
+           "width": "60",
+           "text": "箱型"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "E_F_IDmn12",
+           "dataIndex": "E_F_ID",
+           "width": "40",
+           "text": "空重"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SEAL_NOmn13",
+           "dataIndex": "SEAL_NO",
+           "width": "70",
+           "text": "铅封"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     },
+     {
+      "configs": {
+       "itemId": "pBillNo",
+       "hidden": "true",
+       "x": "8",
+       "width": "240",
+       "y": "8",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "fenWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "632",
+     "title": "生成分单",
+     "modal": "true",
+     "height": "248"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "GOODS_NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "货名",
+       "x": "0",
+       "width": "400",
+       "y": "8",
+       "labelWidth": "80",
+       "height": "86"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "MARKS",
+       "labelAlign": "right",
+       "fieldLabel": "唛头",
+       "x": "0",
+       "width": "400",
+       "y": "88",
+       "labelWidth": "80",
+       "height": "101"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "tagConfigs": " matchFieldWidth:false",
+       "keyName": "C_CARGO_KIND",
+       "labelWidth": "80",
+       "listConfig": "{width:250}",
+       "valueField": "K",
+       "queryDelay": "500",
+       "itemId": "CMDY_CODE",
+       "labelAlign": "right",
+       "fieldLabel": "货物种类",
+       "x": "400",
+       "width": "200",
+       "y": "48",
+       "displayField": "V",
+       "anyMatch": "true",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "BILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "提单号码",
+       "x": "400",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PIECES",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "maxValue": "9999999",
+       "fieldLabel": "件数",
+       "x": "400",
+       "width": "200",
+       "y": "88",
+       "labelWidth": "80",
+       "value": "0",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "allowDecimals": "true",
+       "allowBlank": "false",
+       "maxValue": "9999999",
+       "labelWidth": "80",
+       "decimalPrecision": "2",
+       "itemId": "WEIGHT",
+       "labelAlign": "right",
+       "fieldLabel": "重量",
+       "x": "400",
+       "width": "200",
+       "y": "112",
+       "value": "0",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "VOLUME",
+       "allowDecimals": "true",
+       "labelAlign": "right",
+       "maxValue": "9999999",
+       "fieldLabel": "体积",
+       "x": "400",
+       "width": "200",
+       "y": "144",
+       "labelWidth": "80",
+       "decimalPrecision": "2",
+       "value": "0",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "cntrId",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "提单号码",
+       "x": "400",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "P_BILLNO",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "提单号码",
+       "x": "400",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "billIdF",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "提单号码",
+       "x": "400",
+       "width": "200",
+       "y": "8",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/saveFenCntr',\
+  out:app.fenWin,\
+  success: function(resp) {\
+       Wb.info('成功');\
+    app.fenWin.hide();\
+    \
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel11",
+       "split": "true",
+       "width": "300",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "shipXwl",
+        "file": "m?xwl=shipBIlla/supcanVbill/billEdit/shipList"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "xwl"
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel2",
+       "hideMode": "visibility",
+       "width": "700",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "tbar",
+         "normalName": "billTbar",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {"itemId": "radiogroup1"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "radio1",
+             "boxLabel": "舱单柜",
+             "flex": "1",
+             "width": "60",
+             "checked": "true",
+             "value": "1"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "radio",
+            "events": {"change": "\
+// if(newValue)\
+//   app.selectState(1);"}
+           },
+           {
+            "configs": {
+             "itemId": "radio2",
+             "boxLabel": "提单柜",
+             "flex": "1",
+             "width": "60"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "radio",
+            "events": {"change": "\
+// if(newValue)\
+//   app.selectState(2);"}
+           },
+           {
+            "configs": {
+             "itemId": "radio3",
+             "boxLabel": "拼柜提单",
+             "flex": "1",
+             "width": "80",
+             "value": "3"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "radio",
+            "events": {"change": "\
+//  if(newValue){\
+// alert(app.radiogroup1.getValue());\
+\
+// alert(app.radio3.getValue());\
+//  alert(app.radio2.getValue());\
+//    alert(app.radio1.getValue());\
+//  }"}
+           }
+          ],
+          "type": "radiogroup",
+          "events": {"change": "app.selectState(app.radiogroup1.getValue());"}
+         },
+         {
+          "configs": {
+           "itemId": "newBtn",
+           "text": "新增",
+           "iconCls": "menu_icon"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "newCBtn",
+             "tooltip": "添加新的提单 (Ctrl+E)",
+             "text": "添加整柜",
+             "iconCls": "record_add_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var r=app.shipXwl.grid1.getSelection()[0];\
+if(!r){\
+  Wb.warn(\"请先选船！\");\
+  return ;\
+}\
+\
+function addC(){\
+app.addBill(\"C\");\
+}\
+app.opeType='insert';\
+app.appendState=true;\
+if(app.billType=='C'&&app.ieId.getValue()=='E'){//整船出口选设备交接单\
+  Wb.confirm(\"您确认从设备交接单交接单\",[function(){\
+    app.receiptCntrWin.show();\
+    app.cntrProBillGrid.store.load();\
+  \
+  },addC]);\
+\
+}else{\
+ app.addBill(\"C\");\
+\
+}\
+\
+"}
+           },
+           {
+            "configs": {
+             "itemId": "newPBtn",
+             "tooltip": "添加新的提单 (Ctrl+E)",
+             "text": "添加拼柜",
+             "iconCls": "record_add_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var r=app.shipXwl.grid1.getSelection()[0];\
+if(!r){\
+  Wb.warn(\"请先选船！\");\
+  return ;\
+}\
+\
+\
+app.opeType='insert';\
+app.appendState=true;   \
+ app.addBill(\"P\");\
+\
+\
+\
+"}
+           },
+           {
+            "configs": {
+             "itemId": "newEBtn",
+             "tooltip": "添加新的提单 (Ctrl+E)",
+             "text": "添加吉柜",
+             "iconCls": "record_add_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var r=app.shipXwl.grid1.getSelection()[0];\
+if(!r){\
+  Wb.warn(\"请先选船！\");\
+  return ;\
+}\
+\
+\
+\
+app.opeType='insert';\
+app.appendState=true;\
+ app.addBill(\"E\");\
+\
+"}
+           },
+           {
+            "configs": {
+             "itemId": "newSBtn",
+             "tooltip": "添加新的提单 (Ctrl+E)",
+             "text": "添加散货",
+             "iconCls": "record_add_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var r=app.shipXwl.grid1.getSelection()[0];\
+if(!r){\
+  Wb.warn(\"请先选船！\");\
+  return ;\
+}\
+\
+\
+\
+app.opeType='insert';\
+app.appendState=true;\
+ app.addBill(\"S\");\
+"}
+           }
+          ],
+          "type": "item",
+          "events": {"click": "app.newCBtn.focus();"}
+         },
+         {
+          "configs": {
+           "itemId": "editBtn",
+           "tooltip": "修改选择的提单",
+           "text": "修改",
+           "iconCls": "record_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var ID = Wb.getSupcanMelu(AF1, \"ID\", false);\
+if (ID == \"\" || ID == null) {\
+  Wb.info(\"请选中记录\");\
+  return;\
+}\
+app.opeType = 'modify';\
+app.appendState = true;\
+\
+var r = app.shipXwl.grid1.getSelection()[0];\
+if (!r) {\
+  Wb.warn(\"请先选船！\");\
+  return;\
+}\
+\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/getModifyBill',\
+  params: {\
+    id: ID\
+  },\
+  success: function(resp) {\
+    var rs = Wb.decode(resp.responseText);\
+    Wb.run({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billWin',\
+      contextOwner: app,\
+      success: function(appOld) {\
+        appOld.billWin.title = '修改-提单' + Wb.getSupcanMelu(AF1, \"BILL_NO\", false);\
+        var win = new Ext.window.Window(appOld._billWin); //_window1为配置对象，window1为实例\
+        win.show();\
+        if (Wb.getSupcanMelu(AF1, \"PHASE\", false) >= '2')\
+          appOld.okBtn.hide();\
+        else\
+          appOld.okBtn.show();\
+\
+        Wb.setValue(win, rs.rows[0]);\
+        if (rs.rows[0].LOADING_TIME == \"\" || rs.rows[0].LOADING_TIME == null)\
+          appOld.LOADING_TIME.setValue(null);\
+\
+        var govCod = rs.rows[0].CNTR_OPERATOR_COD;\
+        var govName = rs.rows[0].CNTR_OPERATOR;\
+       appOld.CNTR_OPERATOR_COD.setDisabled(true);\
+       Wb.loadComboAdd(appOld.CNTR_OPERATOR_COD, [{\
+            \"ID\": govCod,\
+            \"CNAME\": govName\
+          }],\
+          function() {\
+            appOld.CNTR_OPERATOR_COD.setValue(govCod);\
+            appOld.CNTR_OPERATOR.setValue(govName);\
+          });\
+    \
+\
+         Wb.loadComboAdd(appOld.COLINE, [{\
+            \"ID\":  rs.rows[0].COLINE_COD,\
+            \"CNAME\":  rs.rows[0].COLINE \
+          }],\
+          function() {\
+            appOld.COLINE.setValue( rs.rows[0].COLINE_COD);\
+           \
+          });\
+\
+\
+  \
+      }\
+    });\
+\
+\
+\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "delBtn",
+           "tooltip": "删除选择的提单",
+           "text": "删除",
+           "iconCls": "record_delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "\
+var ids=Wb.getSupcanMelu(AF1,\"ID\",false);\
+if(Wb.getSupcanMelu(AF1,\"PHASE\",false)>='2'){\
+  Wb.warn(\"状态已经锁定不能修改\");\
+return ;\
+}\
+function delBill(){\
+Wb.request({\
+                url: 'm?xwl=shipBIlla/supcanVbill/billEdit/delete2',\
+                params: {ID:ids,I_E_ID:app.ieId.getValue(),VID:Wb.getSupcanMelu(AF1,\"VID\",false)},\
+                success: function(resp) {\
+                 AF1.func(\"DeleteRows\", \"SEQID=1\");     }\
+              });\
+}\
+Wb.confirm(\"您确认要删除\"+Wb.getSupcanMelu(AF1,\"BILL_NO\",false)+\"提单？\",delBill);\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "mFenBtn1",
+           "text": "高级查询",
+           "iconCls": "search_again_icon"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "billMoreBtn",
+             "text": "提单查询",
+             "iconCls": "li_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "Wb.moreSupcanSelect(AF1);"}
+           },
+           {
+            "configs": {
+             "itemId": "cntrMoreBtn",
+             "text": "箱查询",
+             "iconCls": "li_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "\
+Wb.moreSupcanSelect(AF2);"}
+           }
+          ],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "printBtns",
+           "text": "打印",
+           "iconCls": "printer_icon"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "printZBtn",
+             "text": "总单",
+             "iconCls": "printer_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var l = Wb.getSupcanMelu(AF1, \"ID\", true).length;\
+if (!l > 0) {\
+  Wb.info(\"请选中一票提单\");\
+  return;\
+}\
+Wb.request({\
+  url: \"m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/printBIllDate\",\
+  params: {\
+    zfId: Wb.getSupcanMelu(AF1, \"ZF_ID\", false),\
+    vId: Wb.getSupcanMelu(AF1, \"VID\", false),\
+    billNo: Wb.getSupcanMelu(AF1, \"BILL_NO\", false),\
+    billId: Wb.getSupcanMelu(AF1, \"ID\", false),\
+    billType: Wb.getSupcanMelu(AF1, \"BILL_TYPE\", false)\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText),\
+      MT = '';\
+    var LODOP = getLodop();\
+    if (null === LODOP) return;\
+    LODOP.PRINT_INIT(\"\"); //初始化\
+    //=================头部分==================\
+    LODOP.ADD_PRINT_RECT(15, 30, 95, 28, 0, 1); //总单分单框框\
+    LODOP.ADD_PRINT_TEXT(18, 35, 100, 20, \"进口总单\"); //总单或分单\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    LODOP.ADD_PRINT_TEXT(60, 85, 280, 25, \"中山港航集团股份有限公司\"); //表格名称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+      MT = '中山港';\
+    else if ('{#sys.TENANCY_ID#}' == 'XLG')\
+      MT = '小榄港';\
+    else if ('{#sys.TENANCY_ID#}' == 'SWG')\
+      MT = '神湾港';\
+    LODOP.ADD_PRINT_TEXT(85, 87, 280, 25, MT + \"国际货柜码头货物运单\"); //表格名称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 14);\
+    LODOP.ADD_PRINT_BARCODE(30, 660, 260, 70, \"Code39\", result.bill[0].BILL_NO); //条形码\
+    LODOP.ADD_PRINT_TEXT(105, 670, 400, 25, \"装运单号：\" + result.bill[0].BILL_NO); //装运单号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    //================最外侧矩形================\
+    //参数说明,距离上边像素1,距离做左边像素1,距离上边像素2,距离左边像素2,线种类(0代表直线),线粗\
+    LODOP.ADD_PRINT_LINE(150, 30, 150, 1050, 0, 1); //最外侧矩形上边线\
+    LODOP.ADD_PRINT_LINE(150, 30, 750, 30, 0, 1); //最外侧矩形下边线\
+    LODOP.ADD_PRINT_LINE(750, 30, 750, 1050, 0, 1); //最外侧矩形左边线\
+    LODOP.ADD_PRINT_LINE(150, 1050, 750, 1050, 0, 1); //最外侧矩形右边线\
+    //================矩形内部结构==============\
+    LODOP.ADD_PRINT_LINE(190, 30, 190, 200, 0, 1); //发货人左侧横线\
+    LODOP.ADD_PRINT_LINE(190, 230, 190, 655, 0, 1); //发货人右侧横线\
+    LODOP.ADD_PRINT_LINE(190, 685, 190, 1050, 0, 1); //收货人右侧横线\
+    LODOP.ADD_PRINT_LINE(230, 30, 230, 1050, 0, 1); //发货人下方横线\
+    LODOP.ADD_PRINT_LINE(270, 30, 270, 1050, 0, 1); //货物名称下方横线\
+    LODOP.ADD_PRINT_LINE(400, 30, 400, 540, 0, 1); //装船时间,船名等上方横线\
+    LODOP.ADD_PRINT_LINE(440, 30, 440, 200, 0, 1); //装船时间,船名等下方横线\
+    LODOP.ADD_PRINT_LINE(580, 30, 580, 540, 0, 1); //海关物监签章上方横线\
+    LODOP.ADD_PRINT_LINE(150, 100, 230, 100, 0, 1); //起运港右侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 200, 750, 200, 0, 1); //发货人左侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 230, 230, 230, 0, 1); //发货人右侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 655, 270, 655, 0, 1); //收货人左侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 685, 230, 685, 0, 1); //收货人右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 260, 400, 260, 0, 1); //件数右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 310, 400, 310, 0, 1); //包装右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 395, 400, 395, 0, 1); //体积右侧竖线\
+    LODOP.ADD_PRINT_LINE(190, 480, 400, 480, 0, 1); //货物毛重右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 540, 750, 540, 0, 1); //唛头右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 700, 270, 700, 0, 1); //规格右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 795, 270, 795, 0, 1); //封条号码右侧竖线\
+    LODOP.ADD_PRINT_LINE(190, 900, 270, 900, 0, 1); //集装箱号码右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 950, 270, 950, 0, 1); //规格右侧竖线\
+    LODOP.ADD_PRINT_LINE(400, 370, 750, 370, 0, 1); //船公司签章左侧竖线\
+    //=================内容================\
+    LODOP.ADD_PRINT_TEXT(160, 38, 100, 25, \"起运港\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(157, 207, 25, 100, \"发货人\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 238, 100, 25, \"全称：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(157, 662, 25, 100, \"收货人\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 693, 100, 25, \"全称：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 38, 100, 25, \"目的港\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 238, 100, 25, \"地址：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 485, 100, 25, \"电话：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 693, 100, 25, \"地址：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 905, 100, 25, \"电话：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 60, 100, 25, \"货物名称\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 210, 100, 25, \"件数\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 265, 100, 25, \"包装\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 330, 100, 25, \"体 积\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 311, 100, 25, \"（立方米）\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 403, 100, 25, \"货物毛重\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 403, 100, 25, \"（公斤）\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 488, 100, 25, \"唛头/\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 485, 100, 25, \"合同号\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 555, 100, 25, \"集装箱号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 660, 100, 25, \"规格\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 712, 100, 25, \"封条号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 805, 100, 25, \"集装箱号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 910, 100, 25, \"规格\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 965, 100, 25, \"封条号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(405, 40, 120, 60, \"装船时间、船名、地点、箱量\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+    LODOP.ADD_PRINT_TEXT(445, 42, 100, 25, \"船名：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(458, 42, 100, 25, \"日期：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(471, 42, 100, 25, \"泊：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(484, 42, 100, 25, \"箱量：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(523, 42, 100, 25, \"总柜数：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(536, 42, 100, 25, \"报关信息\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(549, 42, 100, 25, \"运输工具号：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(562, 42, 100, 25, \"航次号：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(415, 215, 100, 25, \"船公司签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(415, 385, 100, 25, \"商务签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 45, 120, 25, \"海关物监签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 215, 100, 25, \"检验检疫章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 385, 100, 25, \"海关通关章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    //=================数据================\
+    LODOP.ADD_PRINT_TEXT(160, 110, 100, 25, result.bill[0].POL); //起运港\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 290, 320, 25, result.bill[0].SHIPPER); //发货人全称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 745, 320, 25, result.bill[0].CONSIGNEE); //收货人全称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(192, 110, 100, 25, result.bill[0].SPOD); //目的港\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -5); //行间距\
+    LODOP.ADD_PRINT_TEXT(200, 290, 200, 25, result.bill[0].CONTRACT_ADDRESS); //发货人地址\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 537, 100, 25, result.bill[0].CONTRACT_TEL); //发货人电话\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 745, 200, 25, result.bill[0].NOTIFIER_ADDRESS); //收货人地址\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 957, 100, 25, result.bill[0].NOTIFIER_TEL); //收货人电话\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(280, 40, 170, 70, result.bill[0].GOODS_NOTES); //货物\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 205, 100, 25, result.bill[0].PIECES); //件数\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 265, 100, 25, Wb.kv(result.bill[0].PKG, app.pkg)); //包装\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 315, 100, 25, result.bill[0].VOLUME); //体积\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 400, 100, 25, result.bill[0].WEIGHT); //货物毛重\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 485, 100, 25, \"\"); //合同号*******************************************************\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(445, 80, 100, 25, result.bill[0].VESSEL_NAME); //船名\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(458, 80, 100, 25, result.bill[0].CREATED_ON.substring(0, 10)); //日期\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(471, 70, 100, 25, MT); //泊\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(484, 80, 100, 25, result.bill[0].CNTR20); //20箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(497, 80, 100, 25, result.bill[0].CNTR40); //40箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(510, 80, 100, 25, result.bill[0].CNTR45); //45箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(523, 90, 100, 25, result.csum[0].CNTR_COUNT); //总柜数\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(549, 110, 100, 25, result.bill[0].EDI_CALL_SIGN); //运输工具号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(562, 90, 100, 25, result.bill[0].LOB_VYG); //航次号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    //===========循环集装箱===========\
+    //集装箱双数\
+    if (result.cntr.length % 2 == 0 && result.cntr.length > 0) {\
+      //左边\
+      LODOP.ADD_PRINT_LINE(270, 655, 270 + result.cntr.length / 2 * 25, 655, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 700, 270 + result.cntr.length / 2 * 25, 700, 0, 1); //规格右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 795, 270 + result.cntr.length / 2 * 25, 795, 0, 1); //封条号码右侧竖线\
+      for (var i = 0; i < result.cntr.length / 2; i++) {\
+        LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[i].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+      //右边\
+      LODOP.ADD_PRINT_LINE(270, 900, 270 + result.cntr.length / 2 * 25, 900, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 950, 270 + result.cntr.length / 2 * 25, 950, 0, 1); //规格右侧竖线\
+      for (var i = result.cntr.length / 2; i < result.cntr.length; i++) {\
+        LODOP.ADD_PRINT_LINE(270 + ((i + 1) - result.cntr.length / 2) * 25, 795, 270 + ((i + 1) - result.cntr.length / 2) * 25, 1050, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 907, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+      //============循环分单============\
+      if (result.billf.length > 0) {\
+        LODOP.ADD_PRINT_LINE(295 + result.cntr.length / 2 * 25, 540, 295 + result.cntr.length / 2 * 25, 785, 0, 1); //分单信息上方横线\
+        LODOP.ADD_PRINT_LINE(320 + result.cntr.length / 2 * 25, 540, 320 + result.cntr.length / 2 * 25, 785, 0, 1); //分单信息下方横线\
+        LODOP.ADD_PRINT_LINE(345 + result.cntr.length / 2 * 25, 540, 345 + result.cntr.length / 2 * 25, 785, 0, 1); //分单号下方横线\
+        LODOP.ADD_PRINT_LINE(320 + result.cntr.length / 2 * 25, 675, 345 + result.cntr.length / 2 * 25 + result.billf.length * 25, 675, 0, 1); //分单号右侧竖线\
+        LODOP.ADD_PRINT_LINE(320 + result.cntr.length / 2 * 25, 725, 345 + result.cntr.length / 2 * 25 + result.billf.length * 25, 725, 0, 1); //件数右侧竖线\
+        LODOP.ADD_PRINT_LINE(295 + result.cntr.length / 2 * 25, 785, 345 + result.cntr.length / 2 * 25 + result.billf.length * 25, 785, 0, 1); //毛重右侧竖线\
+        LODOP.ADD_PRINT_TEXT(298 + result.cntr.length / 2 * 25, 625, 120, 25, \"分单信息\");\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(326 + result.cntr.length / 2 * 25, 590, 120, 25, \"分单号\");\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+        LODOP.ADD_PRINT_TEXT(326 + result.cntr.length / 2 * 25, 689, 120, 25, \"件数\");\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+        LODOP.ADD_PRINT_TEXT(326 + result.cntr.length / 2 * 25, 741, 120, 25, \"毛重\");\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+        for (var i = 1; i <= result.billf.length; i++) {\
+          LODOP.ADD_PRINT_LINE(345 + result.cntr.length / 2 * 25 + (i * 25), 540, 345 + result.cntr.length / 2 * 25 + (i * 25), 785, 0, 1); //分单号下方横线\
+          LODOP.ADD_PRINT_TEXT(351 + result.cntr.length / 2 * 25 + (i - 1) * 25, 550, 140, 25, result.billf[i - 1].BILL_NO); //分单号\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          LODOP.ADD_PRINT_TEXT(351 + result.cntr.length / 2 * 25 + (i - 1) * 25, 690, 140, 25, result.billf[i - 1].PIECES); //件数\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          LODOP.ADD_PRINT_TEXT(351 + result.cntr.length / 2 * 25 + (i - 1) * 25, 743, 120, 25, result.billf[i - 1].WEIGHT); //毛重\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+        }\
+      }\
+    }\
+    //集装箱单数\
+    if (result.cntr.length % 2 == 1) {\
+      if (result.cntr.length == 1) {\
+        LODOP.ADD_PRINT_LINE(270, 655, 295, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 295, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 295, 795, 0, 1); //封条号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(295, 540, 295, 795, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273, 550, 120, 25, result.cntr[0].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273, 660, 120, 25, result.cntr[0].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        //============循环分单============\
+        if (result.billf.length > 0) {\
+          LODOP.ADD_PRINT_LINE(295 + result.cntr.length * 25, 540, 295 + result.cntr.length * 25, 785, 0, 1); //分单信息上方横线\
+          LODOP.ADD_PRINT_LINE(320 + result.cntr.length * 25, 540, 320 + result.cntr.length * 25, 785, 0, 1); //分单信息下方横线\
+          LODOP.ADD_PRINT_LINE(345 + result.cntr.length * 25, 540, 345 + result.cntr.length * 25, 785, 0, 1); //分单号下方横线\
+          LODOP.ADD_PRINT_LINE(320 + result.cntr.length * 25, 675, 345 + result.cntr.length * 25 + result.billf.length * 25, 675, 0, 1); //分单号右侧竖线\
+          LODOP.ADD_PRINT_LINE(320 + result.cntr.length * 25, 725, 345 + result.cntr.length * 25 + result.billf.length * 25, 725, 0, 1); //件数右侧竖线\
+          LODOP.ADD_PRINT_LINE(295 + result.cntr.length * 25, 785, 345 + result.cntr.length * 25 + result.billf.length * 25, 785, 0, 1); //毛重右侧竖线\
+          LODOP.ADD_PRINT_TEXT(298 + result.cntr.length * 25, 625, 120, 25, \"分单信息\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(326 + result.cntr.length * 25, 590, 120, 25, \"分单号\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          LODOP.ADD_PRINT_TEXT(326 + result.cntr.length * 25, 689, 120, 25, \"件数\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          LODOP.ADD_PRINT_TEXT(326 + result.cntr.length * 25, 741, 120, 25, \"毛重\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          for (var i = 1; i <= result.billf.length; i++) {\
+            LODOP.ADD_PRINT_LINE(345 + result.cntr.length * 25 + (i * 25), 540, 345 + result.cntr.length * 25 + (i * 25), 785, 0, 1); //分单号下方横线\
+            LODOP.ADD_PRINT_TEXT(351 + result.cntr.length * 25 + (i - 1) * 25, 550, 140, 25, result.billf[i - 1].BILL_NO); //分单号\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+            LODOP.ADD_PRINT_TEXT(351 + result.cntr.length * 25 + (i - 1) * 25, 690, 140, 25, result.billf[i - 1].PIECES); //件数\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+            LODOP.ADD_PRINT_TEXT(351 + result.cntr.length * 25 + (i - 1) * 25, 743, 120, 25, result.billf[i - 1].WEIGHT); //毛重\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          }\
+        }\
+      }\
+      if (result.cntr.length > 1) {\
+        //左边\
+        LODOP.ADD_PRINT_LINE(270, 655, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 795, 0, 1); //封条号码右侧竖线\
+        for (var i = 0; i < parseInt(result.cntr.length / 2) + 1; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+        //右边\
+        LODOP.ADD_PRINT_LINE(270, 900, 270 + parseInt(result.cntr.length / 2) * 25, 900, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 950, 270 + parseInt(result.cntr.length / 2) * 25, 950, 0, 1); //规格右侧竖线\
+        for (var i = parseInt(result.cntr.length / 2) + 1; i < result.cntr.length; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i - parseInt(result.cntr.length / 2)) * 25, 795, 270 + (i - parseInt(result.cntr.length / 2)) * 25, 1050, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 907, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+        //============循环分单============\
+        if (result.billf.length > 0) {\
+          LODOP.ADD_PRINT_LINE(295 + (parseInt(result.cntr.length / 2) + 1) * 25, 540, 295 + (parseInt(result.cntr.length / 2) + 1) * 25,\
+            785, 0, 1); //分单信息上方横线\
+          LODOP.ADD_PRINT_LINE(320 + (parseInt(result.cntr.length / 2) + 1) * 25, 540, 320 + (parseInt(result.cntr.length / 2) + 1) * 25,\
+            785, 0, 1); //分单信息下方横线\
+          LODOP.ADD_PRINT_LINE(345 + (parseInt(result.cntr.length / 2) + 1) * 25, 540, 345 + (parseInt(result.cntr.length / 2) + 1) * 25,\
+            785, 0, 1); //分单号下方横线\
+          LODOP.ADD_PRINT_LINE(320 + (parseInt(result.cntr.length / 2) + 1) * 25, 675, 345 + (parseInt(result.cntr.length / 2) + 1) * 25 +\
+            result.billf.length * 25, 675, 0, 1); //分单号右侧竖线\
+          LODOP.ADD_PRINT_LINE(320 + (parseInt(result.cntr.length / 2) + 1) * 25, 725, 345 + (parseInt(result.cntr.length / 2) + 1) * 25 +\
+            result.billf.length * 25, 725, 0, 1); //件数右侧竖线\
+          LODOP.ADD_PRINT_LINE(295 + (parseInt(result.cntr.length / 2) + 1) * 25, 785, 345 + (parseInt(result.cntr.length / 2) + 1) * 25 +\
+            result.billf.length * 25, 785, 0, 1); //毛重右侧竖线\
+          LODOP.ADD_PRINT_TEXT(298 + (parseInt(result.cntr.length / 2) + 1) * 25, 625, 120, 25, \"分单信息\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(326 + (parseInt(result.cntr.length / 2) + 1) * 25, 590, 120, 25, \"分单号\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          LODOP.ADD_PRINT_TEXT(326 + (parseInt(result.cntr.length / 2) + 1) * 25, 689, 120, 25, \"件数\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          LODOP.ADD_PRINT_TEXT(326 + (parseInt(result.cntr.length / 2) + 1) * 25, 741, 120, 25, \"毛重\");\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          for (var i = 1; i <= result.billf.length; i++) {\
+            LODOP.ADD_PRINT_LINE(345 + (parseInt(result.cntr.length / 2) + 1) * 25 + (i * 25), 540, 345 + (parseInt(result.cntr.length / 2) + 1) * 25 + (i * 25), 785, 0, 1); //分单号下方横线\
+            LODOP.ADD_PRINT_TEXT(351 + (parseInt(result.cntr.length / 2) + 1) * 25 + (i - 1) * 25, 550, 140, 25, result.billf[i - 1].BILL_NO); //分单号\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+            LODOP.ADD_PRINT_TEXT(351 + (parseInt(result.cntr.length / 2) + 1) * 25 + (i - 1) * 25, 690, 140, 25, result.billf[i - 1].PIECES); //件数\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+            LODOP.ADD_PRINT_TEXT(351 + (parseInt(result.cntr.length / 2) + 1) * 25 + (i - 1) * 25, 743, 120, 25, result.billf[i - 1].WEIGHT); //毛重\
+            LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+          }\
+        }\
+      }\
+    }\
+    //设置横向打印\
+    LODOP.SET_SHOW_MODE(\"LANDSCAPE_DEFROTATED\", 1);\
+    LODOP.SET_PRINT_PAGESIZE(2, \"\", \"\", \"\");\
+    //     LODOP.PRINT_DESIGN(); //设计器\
+    LODOP.PREVIEW(); //预览\
+    //LODOP.PRINT(); //打印\
+    if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+      Wb.request({ //锁定舱单\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/lockBill',\
+        params: {\
+          ID: [Wb.getSupcanMelu(AF1, \"ID\", false)]\
+        },\
+        success: function(resp) {\
+          Wb.setSupcanMelu(AF1, \"PHASE\", '锁定');\
+        }\
+      });\
+  }\
+});"}
+           },
+           {
+            "configs": {
+             "itemId": "printCBtn",
+             "text": "整柜",
+             "iconCls": "printer_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var l = Wb.getSupcanMelu(AF1, \"ID\", true).length;\
+if (!l > 0) {\
+  Wb.info(\"请选中一票提单\");\
+  return;\
+}\
+Wb.request({\
+  url: \"m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/printBIllDate\",\
+  params: {\
+    zfId: Wb.getSupcanMelu(AF1, \"ZF_ID\", false),\
+    vId: Wb.getSupcanMelu(AF1, \"VID\", false),\
+    billNo: Wb.getSupcanMelu(AF1, \"BILL_NO\", false),\
+    billId: Wb.getSupcanMelu(AF1, \"ID\", false),\
+    billType: Wb.getSupcanMelu(AF1, \"BILL_TYPE\", false)\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    var LODOP = getLodop();\
+    if (null === LODOP) return;\
+    LODOP.PRINT_INIT(\"\"); //初始化\
+    //=================头部分==================\
+    LODOP.ADD_PRINT_TEXT(60, 85, 280, 25, \"中山港航集团股份有限公司\"); //表格名称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    var MT = '';\
+    if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+      MT = '中山港';\
+    else if ('{#sys.TENANCY_ID#}' == 'XLG')\
+      MT = '小榄港';\
+    else if ('{#sys.TENANCY_ID#}' == 'SWG')\
+      MT = '神湾港';\
+    LODOP.ADD_PRINT_TEXT(85, 87, 280, 25, MT + \"国际货柜码头货物运单\"); //表格名称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 14);\
+    LODOP.ADD_PRINT_BARCODE(30, 660, 260, 70, \"Code39\", result.bill[0].BILL_NO); //条形码\
+    LODOP.ADD_PRINT_TEXT(105, 670, 400, 25, \"装运单号：\" + result.bill[0].BILL_NO); //装运单号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 16);\
+    //================最外侧矩形================\
+    //参数说明,距离上边像素1,距离做左边像素1,距离上边像素2,距离左边像素2,线种类(0代表直线),线粗\
+    LODOP.ADD_PRINT_LINE(150, 30, 150, 1050, 0, 1); //最外侧矩形上边线\
+    LODOP.ADD_PRINT_LINE(150, 30, 750, 30, 0, 1); //最外侧矩形下边线\
+    LODOP.ADD_PRINT_LINE(750, 30, 750, 1050, 0, 1); //最外侧矩形左边线\
+    LODOP.ADD_PRINT_LINE(150, 1050, 750, 1050, 0, 1); //最外侧矩形右边线\
+    //================矩形内部结构==============\
+    LODOP.ADD_PRINT_LINE(190, 30, 190, 200, 0, 1); //发货人左侧横线\
+    LODOP.ADD_PRINT_LINE(190, 230, 190, 655, 0, 1); //发货人右侧横线\
+    LODOP.ADD_PRINT_LINE(190, 685, 190, 1050, 0, 1); //收货人右侧横线\
+    LODOP.ADD_PRINT_LINE(230, 30, 230, 1050, 0, 1); //发货人下方横线\
+    LODOP.ADD_PRINT_LINE(270, 30, 270, 1050, 0, 1); //货物名称下方横线\
+    LODOP.ADD_PRINT_LINE(400, 30, 400, 540, 0, 1); //装船时间,船名等上方横线\
+    LODOP.ADD_PRINT_LINE(440, 30, 440, 200, 0, 1); //装船时间,船名等下方横线\
+    LODOP.ADD_PRINT_LINE(580, 30, 580, 540, 0, 1); //海关物监签章上方横线\
+    LODOP.ADD_PRINT_LINE(150, 100, 230, 100, 0, 1); //起运港右侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 200, 750, 200, 0, 1); //发货人左侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 230, 230, 230, 0, 1); //发货人右侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 655, 270, 655, 0, 1); //收货人左侧竖线\
+    LODOP.ADD_PRINT_LINE(150, 685, 230, 685, 0, 1); //收货人右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 260, 400, 260, 0, 1); //件数右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 310, 400, 310, 0, 1); //包装右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 395, 400, 395, 0, 1); //体积右侧竖线\
+    LODOP.ADD_PRINT_LINE(190, 480, 400, 480, 0, 1); //货物毛重右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 540, 750, 540, 0, 1); //唛头右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 700, 270, 700, 0, 1); //规格右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 795, 270, 795, 0, 1); //封条号码右侧竖线\
+    LODOP.ADD_PRINT_LINE(190, 900, 270, 900, 0, 1); //集装箱号码右侧竖线\
+    LODOP.ADD_PRINT_LINE(230, 950, 270, 950, 0, 1); //规格右侧竖线\
+    LODOP.ADD_PRINT_LINE(400, 370, 750, 370, 0, 1); //船公司签章右侧竖线\
+    //=================内容================\
+    LODOP.ADD_PRINT_TEXT(160, 38, 100, 25, \"起运港\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(157, 207, 25, 100, \"发货人\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 238, 100, 25, \"全称：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(157, 662, 25, 100, \"收货人\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 693, 100, 25, \"全称：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 38, 100, 25, \"目的港\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 238, 100, 25, \"地址：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 485, 100, 25, \"电话：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 693, 100, 25, \"地址：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 905, 100, 25, \"电话：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 60, 100, 25, \"货物名称\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 210, 100, 25, \"件数\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 265, 100, 25, \"包装\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 330, 100, 25, \"体 积\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 311, 100, 25, \"（立方米）\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 403, 100, 25, \"货物毛重\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 403, 100, 25, \"（公斤）\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(232, 488, 100, 25, \"唛头/\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(250, 485, 100, 25, \"合同号\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 555, 100, 25, \"集装箱号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 660, 100, 25, \"规格\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 712, 100, 25, \"封条号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 805, 100, 25, \"集装箱号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 910, 100, 25, \"规格\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(240, 965, 100, 25, \"封条号码\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(405, 40, 120, 60, \"装船时间、船名、地点、箱量\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 10);\
+    LODOP.ADD_PRINT_TEXT(445, 42, 100, 25, \"船名：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(458, 42, 100, 25, \"日期：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(471, 42, 100, 25, \"泊：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(484, 42, 100, 25, \"箱量：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    //     LODOP.ADD_PRINT_TEXT(484, 90, 100, 25, \" × 20＇\");\
+    //     LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    //     LODOP.ADD_PRINT_TEXT(497, 90, 100, 25, \" × 40＇\");\
+    //     LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    //     LODOP.ADD_PRINT_TEXT(510, 90, 100, 25, \" × 45＇\");\
+    //     LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(523, 42, 100, 25, \"总柜数：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(415, 215, 100, 25, \"集装箱签到\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(415, 385, 120, 25, \"船务公司签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 45, 120, 25, \"报关信息\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(620, 42, 100, 25, \"运输工具号：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(635, 42, 100, 25, \"航次号：\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(595, 215, 100, 25, \"检验检疫章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(595, 385, 100, 25, \"海关签章\");\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    //=================数据================\
+    LODOP.ADD_PRINT_TEXT(160, 110, 100, 25, result.bill[0].POL); //起运港\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 290, 320, 25, result.bill[0].SHIPPER); //发货人全称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(160, 745, 320, 25, result.bill[0].CONSIGNEE); //收货人全称\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(192, 110, 100, 25, result.bill[0].SPOD); //目的港\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -5); //行间距\
+    LODOP.ADD_PRINT_TEXT(200, 290, 200, 25, result.bill[0].CONTRACT_ADDRESS); //发货人地址\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 537, 100, 25, result.bill[0].CONTRACT_TEL); //发货人电话\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 745, 200, 25, result.bill[0].NOTIFIER_ADDRESS); //收货人地址\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(200, 957, 100, 25, result.bill[0].NOTIFIER_TEL); //收货人电话\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(280, 40, 170, 70, result.bill[0].GOODS_NOTES); //货物\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 205, 100, 25, result.bill[0].PIECES); //件数\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 265, 100, 25, Wb.kv(result.bill[0].PKG, app.pkg)); //包装\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 315, 100, 25, result.bill[0].VOLUME); //体积\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 400, 100, 25, result.bill[0].WEIGHT); //货物毛重\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(285, 485, 100, 25, \"\"); //合同号*******************************************************\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+    LODOP.ADD_PRINT_TEXT(445, 80, 100, 25, result.bill[0].VESSEL_NAME); //船名\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(458, 80, 100, 25, result.bill[0].CREATED_ON.substring(0, 10)); //日期\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(471, 70, 100, 25, MT); //泊\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(484, 80, 100, 25, result.bill[0].CNTR20); //20箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(497, 80, 100, 25, result.bill[0].CNTR40); //40箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(510, 80, 100, 25, result.bill[0].CNTR45); //45箱量\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(523, 90, 100, 25, result.csum[0].CNTR_COUNT); //总柜数\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(620, 110, 100, 25, result.bill[0].EDI_CALL_SIGN); //运输工具号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    LODOP.ADD_PRINT_TEXT(635, 90, 100, 25, result.bill[0].LOB_VYG); //航次号\
+    LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 9);\
+    //===========循环集装箱===========\
+    //集装箱双数\
+    if (result.cntr.length % 2 == 0 && result.cntr.length > 0) {\
+      //左边\
+      LODOP.ADD_PRINT_LINE(270, 655, 270 + result.cntr.length / 2 * 25, 655, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 700, 270 + result.cntr.length / 2 * 25, 700, 0, 1); //规格右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 795, 270 + result.cntr.length / 2 * 25, 795, 0, 1); //封条号码右侧竖线\
+      for (var i = 0; i < result.cntr.length / 2; i++) {\
+        LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[i].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+      //右边\
+      LODOP.ADD_PRINT_LINE(270, 900, 270 + result.cntr.length / 2 * 25, 900, 0, 1); //集装箱号码右侧竖线\
+      LODOP.ADD_PRINT_LINE(270, 950, 270 + result.cntr.length / 2 * 25, 950, 0, 1); //规格右侧竖线\
+      for (var i = result.cntr.length / 2; i < result.cntr.length; i++) {\
+        LODOP.ADD_PRINT_LINE(270 + ((i + 1) - result.cntr.length / 2) * 25, 795, 270 + ((i + 1) - result.cntr.length / 2) * 25, 1050, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 907, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+    }\
+    //集装箱单数\
+    if (result.cntr.length % 2 == 1) {\
+      if (result.cntr.length == 1) {\
+        LODOP.ADD_PRINT_LINE(270, 655, 295, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 295, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 295, 795, 0, 1); //封条号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(295, 540, 295, 795, 0, 1); //集装箱号码下方横线\
+        LODOP.ADD_PRINT_TEXT(273, 550, 120, 25, result.cntr[0].CNTR); //集装箱号码\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273, 660, 120, 25, result.cntr[0].CNTR_SIZE); //规格\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+        LODOP.ADD_PRINT_TEXT(273, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+        LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+        LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+      }\
+      if (result.cntr.length > 1) {\
+        //左边\
+        LODOP.ADD_PRINT_LINE(270, 655, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 655, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 700, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 700, 0, 1); //规格右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 795, 270 + (parseInt(result.cntr.length / 2) + 1) * 25, 795, 0, 1); //封条号码右侧竖线\
+        for (var i = 0; i < parseInt(result.cntr.length / 2) + 1; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i + 1) * 25, 540, 270 + (i + 1) * 25, 795, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 550, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 660, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + i * 25, 705, 100, 25, result.cntr[0].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+        //右边\
+        LODOP.ADD_PRINT_LINE(270, 900, 270 + parseInt(result.cntr.length / 2) * 25, 900, 0, 1); //集装箱号码右侧竖线\
+        LODOP.ADD_PRINT_LINE(270, 950, 270 + parseInt(result.cntr.length / 2) * 25, 950, 0, 1); //规格右侧竖线\
+        for (var i = parseInt(result.cntr.length / 2) + 1; i < result.cntr.length; i++) {\
+          LODOP.ADD_PRINT_LINE(270 + (i - parseInt(result.cntr.length / 2)) * 25, 795, 270 + (i - parseInt(result.cntr.length / 2)) * 25, 1050, 0, 1); //集装箱号码下方横线\
+          LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 799, 120, 25, result.cntr[i].CNTR); //集装箱号码\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - parseInt(result.cntr.length / 2) - 1) * 25, 907, 120, 25, result.cntr[i].CNTR_SIZE); //规格\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 13);\
+          LODOP.ADD_PRINT_TEXT(273 + (i - result.cntr.length / 2) * 25, 955, 100, 25, result.cntr[i].SEAL_NO); //封条\
+          LODOP.SET_PRINT_STYLEA(0, \"FontSize\", 8);\
+          LODOP.SET_PRINT_STYLEA(0, \"LineSpacing\", -3);\
+        }\
+      }\
+    }\
+    //设置横向打印\
+    LODOP.SET_SHOW_MODE(\"LANDSCAPE_DEFROTATED\", 1);\
+    LODOP.SET_PRINT_PAGESIZE(2, \"\", \"\", \"\");\
+    //LODOP.PRINT_DESIGN(); //设计器\
+    LODOP.PREVIEW(); //预览\
+    //LODOP.PRINT(); //打印\
+    if ('{#sys.TENANCY_ID#}' == 'ZSG')\
+      Wb.request({ //锁定舱单\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/lockBill',\
+        params: {\
+          ID: [Wb.getSupcanMelu(AF1, \"ID\", false)]\
+        },\
+        success: function(resp) {\
+          Wb.setSupcanMelu(AF1, \"PHASE\", '锁定');\
+        }\
+      });\
+  }\
+});"}
+           }
+          ],
+          "type": "item",
+          "events": {"click": "var l = Wb.getSupcanMelu(AF1, \"ID\", true).length;\
+if (!l > 0) {\
+  Wb.info(\"请选中一票提单\");\
+  return;\
+}\
+var zfId = Wb.getSupcanMelu(AF1, \"ZF_ID\", false);\
+var billType = Wb.getSupcanMelu(AF1, \"BILL_TYPE\", false);\
+\
+if (billType == \"C\" && zfId == 1) { //总单\
+  app.printZBtn.setVisible(true);\
+  app.printCBtn.setVisible(false);\
+}\
+if ((billType == \"C\" || billType == \"E\") && zfId == 0) { //整柜\
+  app.printZBtn.setVisible(false);\
+  app.printCBtn.setVisible(true);\
+}\
+if (billType == \"P\") { //拼柜\
+  app.printZBtn.setVisible(false);\
+  app.printCBtn.setVisible(false);\
+}\
+if (billType == \"S\") { //散货\
+  app.printZBtn.setVisible(false);\
+  app.printCBtn.setVisible(false);\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "container1",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {"itemId": "ID"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "IS_SD",
+             "hidden": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {"itemId": "shipName"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {"itemId": "serviceId"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {"itemId": "vId"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "ieId",
+             "value": "I"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {"itemId": "shipNo"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {"itemId": "voyageNo"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "container"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "layout": "absolute",
+         "itemId": "billPanel",
+         "hideMode": "visibility",
+         "region": "center",
+         "height": "350"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "layout": "absolute",
+         "itemId": "cntrPanel",
+         "split": "true",
+         "hideMode": "visibility",
+         "region": "south",
+         "height": "300"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "border": "false",
+         "itemId": "printPanel",
+         "width": "0",
+         "region": "north",
+         "height": "0"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "border": "false",
+         "itemId": "panelPrintE",
+         "width": "0",
+         "region": "south",
+         "height": "0"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "panel"
+       }
+      ],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "\
+",
+     "destroy": "delete  window[\"init\" + supcanId1];\
+delete  window[\"init\" + supcanId2];\
+"
+    }
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.shipXwl.shipIeId.setValue('{#ieId#}');\
+app.shipXwl.seekMenu.fireEvent('click');\
+\
+var mt1 = bldStr(\"BCV1.TreeList\", supcanId1, \"\", \"99%\");\
+app.billPanel.update(mt1);\
+var mt2 = bldStr(\"BCV1.TreeList\", supcanId2, \"\", \"99%\");\
+app.cntrPanel.update(mt2);\
+window[\"init\" + supcanId1] = function(id) {\
+  var m = document.getElementById(supcanId1);\
+ \
+  if (id == supcanId1) {\
+      AF1 = document.getElementById(supcanId1);\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bill/vbillHead.xml?332');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"EnableMenu\", \" curselMode \\r\\
+ true\");\
+  }\
+};\
+window[\"init\" + supcanId2] = function(id) {\
+  var m = document.getElementById(supcanId2);\
+  if (id == supcanId2) {\
+     AF2 = document.getElementById(supcanId2);\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bill/vcntr.xml?111');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"EnableMenu\", \" curselMode \\r\\
+ true\");\
+  }\
+\
+};\
+\
+window[\"event\" + supcanId1] = function(id, Event, p1, p2, p3, p4) {\
+  var AF1 = document.getElementById(supcanId1);\
+  var AF2 = document.getElementById(supcanId2);\
+\
+  if (Event == \"Clicked\" && id == supcanId1) { //事件：鼠标单击在某单元格\
+    var billId = AF1.func(\"getCellData\", p1 + \"\\r\\
+ ID  \");\
+    if (app.radiogroup1.getValue() == 1)\
+      \
+            AF2.func(\"Load\",Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        shipNo: locrec.data.ID,\
+        ieId: 'I',\
+        tradeId:tradeId,\
+        billId:billId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }) );\
+\
+  } else if (Event == \"DblClicked\" && id == supcanId1) { //事件：鼠标单击在某单元格\
+    var billId = AF1.func(\"getCellData\", p1 + \"\\r\\
+ ID \\ \");\
+    app.editBtn.fireEvent('click');\
+\
+  } else if (Event == \"MenuBeforePopup\" && id == supcanId1) {\
+    var menu = \"\",\
+      l = Wb.getSupcanMelu(AF1, \"ID\", true).length;\
+    if ((Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"0\") >= 0 || Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"初稿\") >= 0) && app.IS_SD.getValue()!='1'&&l == 1) {\
+      menu += \"id=4001; text='提交'; detail=提交舱单;\";\
+      menu += \"enabled= true \\r\\
+\";\
+    }\
+    if ((Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"1\") >= 0 || Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"提交\") >= 0) && l == 1&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4002; text='锁定';  detail=锁定舱单;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    if ((Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"2\") >= 0 || Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"锁定\") >= 0) && l == 1&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4003; text='解锁'; detail=解锁舱单;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    if (l == 1&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4004; text='生成设备交接单'; icon=supcan/treelist/buttons.zip#302.ico; detail=生成设备交接单;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    if (l == 1 && Wb.getSupcanMelu(AF1, \"ZF_ID\", false) == 1) {\
+      menu += \"id=4005; text='查看分单'; icon=supcan/treelist/buttons.zip#302.ico; detail=看看分单;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    if (l > 0&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4006; text='换船'; icon=supcan/treelist/buttons.zip#302.ico; detail=换船;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    if (l > 0 && Wb.getSupcanMelu(AF1, \"BILL_TYPE\", false) == 'P'&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4007; text='拼柜改整柜'; icon=supcan/treelist/buttons.zip#302.ico; detail=拼柜改成整柜;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    AF1.func(\"AddMenu\", menu + \" \\r\\
+ LocateAt=top\");\
+  } else if (Event == \"MenuClicked\" && id == supcanId1) {\
+    if (p1 == '4001') { //p2行号 p3字段 提交\
+      Wb.request({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/referBill',\
+        params: {\
+          ID: Wb.getSupcanMelu(AF1, \"ID\", true)\
+        },\
+        success: function(resp) {\
+          Wb.setSupcanMelu(AF1, \"PHASE\", 1,'提交');\
+        }\
+      });\
+\
+    } else if (p1 == '4002') { //锁定\
+      Wb.request({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/lockBill',\
+        params: {\
+          ID: Wb.getSupcanMelu(AF1, \"ID\", true)\
+        },\
+        success: function(resp) {\
+           Wb.setSupcanMelu(AF1, \"PHASE\", 2,'锁定');\
+        }\
+      });\
+\
+    } else if (p1 == '4003') { //解锁\
+      Wb.request({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/unLockBill',\
+        params: {\
+          ID: Wb.getSupcanMelu(AF1, \"ID\", true)\
+        },\
+        success: function(resp) {\
+                     Wb.setSupcanMelu(AF1, \"PHASE\", 0,'初稿');\
+\
+        }\
+      });\
+\
+    } else if (p1 == '4004') { //生成设备交接单\
+      var win = new Ext.window.Window(app._receiptWin);\
+      win.show();\
+      app.WORK_TYPE.setValue('FOEI');\
+      app.SHIPPER_WAY.setValue('3');\
+      app.CONSIGNEE.setValue(Wb.getSupcanMelu(AF1, \"CONSIGNEE\", false));\
+      app.CONSIGNEE_COD.setValue(Wb.getSupcanMelu(AF1, \"CONSIGNEE_COD\", false));\
+      app.cntrReceiptGrid.store.load({\
+        params: {\
+          billId: Wb.getSupcanMelu(AF1, \"ID\", false)\
+        }\
+      });\
+\
+\
+    } else if (p1 == '4005') { //查看分单\
+      app.fenSelWin.show();\
+      app.billSelGrid.store.load({\
+        params: {\
+          TENANCY_ID: '{#sys.TENANCY_ID#}',\
+          billNo: Wb.getSupcanMelu(AF1, \"BILL_NO\", false),\
+          vId: Wb.getSupcanMelu(AF1, \"VID\", false)\
+        }\
+      });\
+      app.cntrSelGrid.store.removeAll();\
+    } else if (p1 == '4006') { //计费\
+      Wb.run({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/shipVoyage',\
+        contextOwner: app,\
+        success: function(appOld) {\
+          var win = new Ext.window.Window(appOld._shipWin);\
+          win.setTitle(\"选船\");\
+          win.show();\
+          appOld.shipIeId.setValue(\"I\");\
+          appOld.tradeId.setValue(\"2\");\
+          appOld.date.setValue(app.shipXwl.date.getValue());\
+          appOld.shipGrid.store.load({\
+            params: {\
+              shipIeId: 'I',\
+              tradeId: '2',\
+              date: app.shipXwl.date.getValue()\
+            }\
+          });\
+          win.mon(win, 'ok', function() {\
+            var rec = appOld.shipGrid.getSelection();\
+             if (rec[0].data.IS_SD == 1) {\
+              Wb.warn(\"船舶已经锁定不能选择该船\");\
+              return;\
+            }\
+            if (rec.length != 1) {\
+              Wb.warn(\"必须只能选中一条船\");\
+              return;\
+            }\
+            var shipNo = rec[0].data.ID;\
+            Wb.request({\
+              url: 'm?xwl=shipBIlla/supcanVbill/billEdit/updateShipBill',\
+              params: {\
+                VID: shipNo,\
+                IDS: Wb.getSupcanMelu(AF1, \"ID\", true),\
+                vIdOld: Wb.getSupcanMelu(AF1, \"VID\", false),\
+                BILLNOS: Wb.getSupcanMelu(AF1, \"BILL_NO\", true),\
+                ieId: 'I'\
+              },\
+              success: function(resp) {\
+                Wb.info(\"成功\");\
+                win.close();\
+                AF1.func(\"DeleteRows\", \"SEQID=1\");\
+              }\
+            });\
+          });\
+        }\
+      });\
+\
+\
+    } else if (p1 == '4007') { //拼柜改整柜\
+      var win = new Ext.window.Window(app._cntrWin);\
+      win.show();\
+      app.NEWCNTR_NO.setValue('');\
+      win.mon(win, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/cntrPBill',\
+          params: {\
+            cntr: app.NEWCNTR_NO.getValue(),\
+            billIds: Wb.getSupcanMelu(AF1, \"ID\", true),\
+            TENANCY_ID: '{#sys.TENANCY_ID#}'\
+          },\
+          success: function(resp) {\
+            Wb.info(\"成功\");\
+            win.close();\
+          }\
+        });\
+      });\
+\
+    }\
+\
+  }\
+};\
+window[\"event\" + supcanId2] = function(id, Event, p1, p2, p3, p4) {\
+  var AF1 = document.getElementById(supcanId1);\
+  var AF2 = document.getElementById(supcanId2);\
+\
+  if (Event == \"Clicked\" && id == supcanId2) { //事件：鼠标单击在某单元格\
+    var cntr = AF2.func(\"getCellData\", p1 + \"\\r\\
+ CNTR \\ \");\
+    if (app.radiogroup1.getValue() == '2')\
+        AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getBillData\", {\
+        shipNo: locrec.data.ID,\
+        ieId: 'I',\
+        LCL_ID: 1,\
+        cntr: cntr,\
+        tradeId:tradeId,                    \
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+  } else if (Event == \"MenuBeforePopup\" && id == supcanId2) {\
+    var menu = \"\",\
+      l = Wb.getSupcanMelu(AF2, \"ID\", true).length;\
+    if (l > 0&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4001; text='生成分单'; icon=supcan/treelist/buttons.zip#302.ico; detail=生成分单;\";\
+      menu += \"enabled=true \\r\\
+\";    }\
+      menu += \"id=5002; text='箱动态'; style='height:20px'  detail=箱动态;\";\
+      menu += \"enabled= true \\r\\
+\";\
+\
+    if (l > 0&&app.IS_SD.getValue()!='1') {\
+      menu += \"id=4002; text='堆位设置'; icon=supcan/treelist/buttons.zip#303.ico; detail=堆位设置;\";\
+      menu += \"enabled=true \\r\\
+\";\
+    }\
+    AF2.func(\"AddMenu\", menu + \" \\r\\
+ LocateAt=top\");\
+\
+  } else if (Event == \"MenuClicked\" && id == supcanId2) {\
+    if (p1 == '4001') { //分单\
+\
+      var rows = Wb.getSupcanMelu(AF2, \"BILL_ID\", true),\
+        cntrId = Wb.getSupcanMeluStr(AF2, \"ID\"),\
+        billId = Wb.getSupcanMeluStr(AF2, \"BILL_ID\", false),\
+\
+        pBillNo = Wb.getSupcanMelu(AF2, \"BILL_NO\", false),\
+        vId = Wb.getSupcanMelu(AF2, \"VID\", false);\
+\
+      for (var i = 0; i < rows.length; i++) {\
+        if (i == 0) {\
+          billId = rows[i];\
+\
+        } else {\
+          if (billId != rows[i]) {\
+            Wb.warn(\"选中的箱不属于同一票提单不能分票！\");\
+            return;\
+          }\
+        }\
+      }\
+      Wb.request({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/getFenBillNo',\
+        params: {\
+          billNo: pBillNo,\
+          vId: vId\
+        },\
+        success: function(resp) {\
+          var res = Wb.decode(resp.responseText);\
+          app.fenWin.show();\
+          app.BILL_NO.setValue(res.rows[0].BILL_NO);\
+          app.cntrId.setValue(cntrId);\
+          app.billIdF.setValue(billId);\
+          app.P_BILLNO.setValue(pBillNo);\
+          app.BILL_NO.focus();\
+\
+        }\
+      });\
+    } else if (p1 == '4002') { //堆位\
+      var win = new Ext.window.Window(app._posWin);\
+      win.show();\
+      var cntrId = Wb.getSupcanMelu(AF2, \"CNTR\", true);\
+      app.PLANNED_POSITION.setValue('');\
+      win.mon(win, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=shipBIlla/supcanVbill/billEdit/cntrEdit/cntrSetPla',\
+          params: {\
+            cntrs: cntrId,\
+            PLANNED_POSITION: app.PLANNED_POSITION.getValue()\
+          },\
+          success: function(resp) {\
+            Wb.info(\"成功\");\
+            win.close();\
+          }\
+        });\
+      });\
+\
+    } else if (p1 == '5002') { //设置舱底柜\
+      Wb.run({\
+        url: 'm?xwl=controlManage/portcntr/control-module',\
+        params: {\
+          ID: Wb.getSupcanMelu(AF2, \"CNTR_ID\", false)\
+        },\
+        success: function(appnew) {\
+          var win = new Ext.window.Window(appnew._cntrWin);\
+          app.test = appnew.test;\
+          win.show();\
+        }\
+      });\
+\
+    }\
+\
+  }\
+\
+\
+};\
+\
+\
+\
+var mt3 = bldStr(\"LuxForm\", supcanId3, \"\", \"100%\");\
+app.printPanel.update(mt3);\
+window[\"init\" + supcanId3] = function(id) {\
+  var m = document.getElementById(supcanId3);\
+  if (id == supcanId3) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/print/GA_I.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+window[\"event\" + supcanId3] = function(id, Event, p1, p2, p3, p4) {};",
+   "initialize": "\
+var supcanId1 = Wb.getId(),\
+  supcanId2 = Wb.getId(),\
+  supcanId3=Wb.getId(),\
+    AF1 ,AF2,\
+  ieId = '{#ieId#}',\
+  tradeId = '{#tradeId#}',\
+  billType = '{#billType#}',\
+  phase = '0',\
+  receipt = '';\
+app.opeType = 'insert';\
+app.appendState = true;\
+app.billType = '{#billType#}';\
+app.BILL_STATE = Wb.decode(\"{#BILL_STATE#}\");\
+Wb.apply(app, {\
+  moreSql: function(moreSql) {\
+    app.selectState(1, moreSql);\
+  },\
+  //生成提单号码\
+  setBillNo: function() {\
+    //var billNo;\
+    // if(ieId=='I')billNo='{#sys.SHORT_COD#}'.substr(2,4);\
+    // else if(ieId=='E')billNo='{#sys.SHORT_COD#}'; \
+    // billNo+=new Date().getFullYear();\
+    Wb.request({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/checkPBill',\
+      params: {\
+        ieId: ieId\
+      },\
+      success: function(resp) {\
+        return billNo;\
+      }\
+    });\
+  },\
+  //数字相加\
+  add: function(num1, num2) {\
+    var sq1, sq2, m;\
+    try {\
+      sq1 = num1.toString().split(\".\")[1].length;\
+    } catch (e) {\
+      sq1 = 0;\
+    }\
+    try {\
+      sq2 = num2.toString().split(\".\")[1].length;\
+    } catch (e) {\
+      sq2 = 0;\
+    }\
+    m = Math.pow(10, Math.max(sq1, sq2));\
+    return (num1 * m + num2 * m) / m;\
+    //return Number(ads1) + Number(abs2);\
+  },\
+  //设置查询提单和箱信息\
+  selectState: function(state, moreSql) {\
+\
+    if (!locrec) return;\
+    \
+\
+    var AF1 = document.getElementById(supcanId1);\
+    var AF2 = document.getElementById(supcanId2);\
+    AF1.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    if (state == 0) {\
+      AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getBillData\", {\
+        state: 0,\
+        shipNo: locrec.data.ID,\
+        ieId: ieId,\
+        tradeId:tradeId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+      AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        state: 0,\
+        shipNo: locrec.data.ID,\
+        ieId: ieId,\
+        tradeId:tradeId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+    } else if (state == 1) {\
+      AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getBillData\", {\
+        shipNo: locrec.data.ID,\
+        ieId: ieId,\
+         tradeId:tradeId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+      AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        shipNo: locrec.data.ID,\
+        ieId: ieId,\
+         tradeId:tradeId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+    } else if (state == 2) {\
+      AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getBillData\", {\
+        shipNo: '11@',\
+        ieId: ieId,\
+         tradeId:tradeId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+      AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        LCL_ID: 1,\
+        shipNo: locrec.data.ID,\
+        ieId: ieId,\
+        tradeId:tradeId,\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+    }\
+  },\
+  //补零操作\
+  pad: function(num, n) {\
+    var len = num.toString().length;\
+    while (len < n) {\
+      num = \"0\" + num;\
+      len++;\
+    }\
+    return num;\
+  },\
+  //选船信息传递\
+  setShipMes: function(rec) {\
+    var state=rec.data.IS_SD==1?true:false;\
+    app.newBtn.setDisabled(state);\
+    app.editBtn.setDisabled(state);\
+    app.delBtn.setDisabled(state);\
+\t\
+    locrec = rec;\
+    app.IS_SD.setValue(rec.data.IS_SD);\
+    app.serviceId.setValue(rec.data.SERVICE);\
+    app.shipNo.setValue(rec.data.ID);\
+    app.shipName.setValue(rec.data.VESSEL_NAME);\
+    app.voyageNo.setValue(rec.data.VYG);\
+    app.pol = rec.data.POL;\
+    app.pod = rec.data.POD;\
+    app.selectState(app.radiogroup1.getValue());\
+    app.ieId.setValue(ieId);\
+    //舱单头信息\
+    Wb.request({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billTITILE',\
+      params: {\
+      \tI_E_ID:ieId,\
+        TRADE_ID:rec.data.TRADE_ID,\
+        VID:rec.data.ID\
+      },\
+      success: function(resp) {\
+        var rs=Wb.decode(resp.responseText).rows[0];\
+      \tapp.shipXwl.numberBILLNUMS.setValue(rs.BILL_NUM);\
+        app.shipXwl.numPIECES.setValue(rs.PIECES);\
+        app.shipXwl.numWEIGHT.setValue(rs.WEIGHT);\
+        app.shipXwl.numZY.setValue(0);\
+        app.shipXwl.numZUANY.setValue(0);\
+        app.shipXwl.num20C.setValue(rs.C20);\
+        app.shipXwl.num40C.setValue(rs.C40);\
+        app.shipXwl.num45C.setValue(rs.C45);\
+        app.shipXwl.num20P.setValue(rs.P20);\
+        app.shipXwl.num40P.setValue(rs.P40);\
+        app.shipXwl.num45P.setValue(rs.P45);\
+        app.shipXwl.num20E.setValue(rs.E20);\
+        app.shipXwl.num40E.setValue(rs.E40);\
+        app.shipXwl.num45E.setValue(rs.E45);\
+        app.shipXwl.numTITALE.setValue(rs.ECNTR_NUM);\
+        app.shipXwl.numALL.setValue(rs.CNTR_NUM);\
+      }\
+    });\
+  },\
+  //保存提单和箱货信息\
+  saveBill: function(appFrame) {\
+\
+    var AF1 = document.getElementById(supcanId1);\
+    var AF2 = document.getElementById(supcanId1);\
+    var url = \"\",\
+      weight = 0,\
+      pieces = 0,\
+      volume = 0;\
+    var editing = Wb.findEditing(appFrame.cntrGrid);\
+    editing.completeEdit();\
+    // var rec = app.billGrid.getSelection()[0];\
+    var values = Wb.getValue([appFrame.fieldset1, appFrame.fieldset2, appFrame.fieldset4, app.billTbar]);\
+    // if (rec) values = Wb.applyIf(values, Wb.getData(rec, true));\
+    var url = \"\";\
+    if (app.opeType == 'insert') url = \"m?xwl=shipBIlla/supcanVbill/billEdit/insert\";\
+    else if (app.opeType == 'modify') url = \"m?xwl=shipBIlla/supcanVbill/billEdit/update\";\
+    values = Wb.applyIf(values, {\
+      data: app.appendState ? [Wb.getModified(appFrame.cntrGrid)] : [{\
+        create: Wb.getData(appFrame.cntrGrid.store.getUpdatedRecords(), true),\
+        destroy: [],\
+        update: []\
+      }]\
+    });\
+    Wb.request({\
+      url: url,\
+      params: values,\
+      success: function(resp) {\
+        if (app.opeType == 'insert') {\
+          values = Wb.applyIf(values, {\
+            ID: resp.ID\
+          });\
+          AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getBillData\", {\
+            shipNo: locrec.data.ID,\
+            ieId: ieId,\
+            TENANCY_ID: '{#sys.TENANCY_ID#}'\
+          }));\
+        }\
+        if (app.opeType == 'modify') {\
+          //   Wb.update(rec, values); //同步在客户端表格中更新\
+        }\
+        var data = Wb.decode(resp.responseText);\
+        Wb.syncCreate(appFrame.cntrGrid, Wb.decode(data.create));\
+        //                   Wb.syncCreate(app.cntrGrid,  Wb.decode(data.create));\
+        app.opeType = 'modify';\
+        appFrame.billWin.close();\
+        Wb.info('成功');\
+      }\
+    });\
+\
+  },\
+  addBill: function(billType) {\
+    Wb.request({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/getId',\
+      params: {\
+        ieId: ieId\
+      },\
+      success: function(resp) {\
+        var res = Wb.decode(resp.responseText);\
+        Wb.run({\
+          url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billWin',\
+          contextOwner: app,\
+          success: function(appOld) {\
+            appOld.billWin.title = '新增-提单';\
+            var win = new Ext.window.Window(appOld._billWin); //_window1为配置对象，window1为实例\
+            win.show();\
+            app.optype = 'insert';\
+            \
+             if (billType == 'P') {\
+              appOld.MAIN_FLAG.setValue(0);\
+              appOld.LCL_ID.setValue(1);\
+           appOld.COLINE.allowBlank=false;\
+           appOld.LINE_COD.allowBlank=false;\
+            }else if (billType == 'S') {\
+              appOld.MAIN_FLAG.setValue(1);\
+              appOld.LCL_ID.setValue(0);\
+              appOld.COLINE.allowBlank=true;\
+              appOld.LINE_COD.allowBlank=true;\
+            }\
+\
+            appOld.ID.setValue(res.rows[0].ID);\
+            appOld.BILL_NO.setValue(res.rows[0].BILL_NO);\
+            appOld.I_E_ID.setValue(ieId);\
+            appOld.POL.setValue(app.pol);\
+            appOld.POD.setValue(app.pod);\
+            appOld.TRADE_ID.setValue(tradeId);\
+            appOld.BILL_TYPE.setValue(billType);\
+            appOld.PHASE.setValue(phase);\
+            appOld.PAYER.setValue(\"1\");\
+            if (ieId == 'I') appOld.DELV_TERM.setValue(\"CY-CY\");\
+            else appOld.DELV_TERM.setValue(\"CFS-CFS\");\
+            if ('{#sys.NATURE#}' == '5') {\
+              appOld.CNTR_OPERATOR_COD.setDisabled(true);\
+              appOld.CNTR_OPERATOR_COD.store.load({\
+                callback: function(r, options, success) {\
+                  if (success) {\
+                    appOld.CNTR_OPERATOR_COD.getStore().insert(0, [{\
+                      \"ID\": '{#sys.GOV_CODE#}',\
+                      \"CNAME\": '{#sys.ORG_NAME#}'\
+                    }]);\
+                    appOld.CNTR_OPERATOR_COD.setValue('{#sys.GOV_CODE#}');\
+                    appOld.CNTR_OPERATOR.setValue('{#sys.GOV_CODE#}');\
+                  }\
+                }\
+              });\
+\
+              appOld.LINE_COD.store.load({\
+                callback: function(r, options, success) {\
+                  if (success) {\
+                    appOld.LINE_COD.getStore().insert(0, [{\
+                      \"ID\": '{#sys.GOV_CODE#}',\
+                      \"CNAME\": '{#sys.ORG_NAME#}'\
+                    }]);\
+                    appOld.LINE_COD.setValue('{#sys.GOV_CODE#}');\
+                    appOld.LINE.setValue('{#sys.GOV_CODE#}');\
+                  }\
+                }\
+              });\
+              //appOld.cn.setValue(phase);\
+            } else\
+              appOld.CNTR_OPERATOR_COD.setDisabled(false);\
+          }\
+        });\
+      }\
+    });\
+  },\
+    printE: function(p1, p2) {\
+     \
+    var AFopte = document.getElementById(supcanId3);\
+    var nature = \"{#sys.NATURE#}\";\
+    var ocod = '{#sys.GOV_CODE#}';\
+    var whereSql = encodeURI(\" and v2.tenancy_id='\" + p2 + \"' and v2.id='\" + p1 + \"' \");\
+    var whereSql1 = encodeURI(\" and vh.tenancy_id='\" + p2 + \"' and vh.vid='\" + p1 + \"'\");\
+    var whereSql2 = encodeURI(\" and tenancy_id='\" + p2 + \"' and Vid='\" + p1 + \"' and phase<>'9' \");\
+       AFopte.func(\"setSource\", \"https://zsimtos.zsshipping.com/m?xwl=system/common/report/reportTemplate/dataSource&v1.1\");\
+   \
+    AFopte.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + Math.round(Math.random() * 100) + \";tenancyId=\" + p2);\
+    if (nature == \"5\" && ocod != \"HU\" && ocod != \"ES\")\
+      whereSql2 = encodeURI(\" and tenancy_id='\" + p2 + \"' and Vid='\" + p1 + \"' and  cntr_operator_cod='\" + ocod + \"' and phase<>'9' \");\
+  \
+    AFopte.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql2 + \";drr=\" + Math.round(Math.random() * 100) + \";tenancyId=\" + p2);\
+    if (nature == \"5\"  && (ocod!= \"HU\" && ocod!= \"ES\"))\
+      whereSql = encodeURI(\" and tenancy_id='\" + p2 + \"' and id='\" + p1 + \"' and cntr_operator_cod='\" + ocod + \"' and phase<>'9'\");\
+    AFopte.func(\"SetParas\", \"ds3 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + Math.round(Math.random() * 100) + \";tenancyId=\" + p2);\
+    if (nature == \"5\"  && (ocod!= \"HU\" && ocod!= \"ES\"))\
+      whereSql1 = encodeURI(\" and vh.tenancy_id='\" + p2 + \"' and vh.vid='\" + p1 + \"' and vh.cntr_operator_cod='\" + ocod + \"' and vh.phase<>'9'   \");\
+    AFopte.func(\"SetParas\", \"ds4 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + Math.round(Math.random() * 100) + \";tenancyId=\" + p2);\
+    AFopte.func(\"setCellData\", \"H2\\r\\
+\"+'{#sys.ORG_NAME#}');\
+    AFopte.func(\"setCellData\", \"H3\\r\\
+\"+'{#sys.ORG_NAME#}'); \
+    AFopte.func(\"SetParas\", \"ds4 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + Math.round(Math.random() * 100) + \";tenancyId=\" + p2);\
+          AFopte.func(\"Calc\", \"\");\
+\
+      AFopte.func(\"callfunc\", \"18\");\
+  }\
+\
+});"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "进口内贸舱单新",
+ "iconCls": "table_align_columns_icon",
+ "inframe": false,
+ "pageLink": ""
+}

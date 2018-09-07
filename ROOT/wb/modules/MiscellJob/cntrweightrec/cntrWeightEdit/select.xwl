@@ -1,0 +1,79 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var record = data.record;\
+var weigh_type = data.weigh_type;\
+var weigh_time = data.weigh_time;\
+var nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\");\
+var sdate=data.sdate+\" 00:00:00\";\
+var edate=data.edate+\" 23:59:59\";\
+\
+var sql=\"\";\
+// if(record==='false'){\
+//  sql = \"select CNTR_WEIGHT_REC.* from CNTR_WEIGHT_REC,PORT_CNTR where CNTR_WEIGHT_REC.tenancy_id='\" + tenancyid + \"'\" +\
+//   \" and CNTR_WEIGHT_REC.CNTR_ID=PORT_CNTR.ID and CNTR_WEIGHT_REC.CNTR like '%\" + data.cntr_no + \"%' \";\
+// }else{\
+//  sql = \"select * from CNTR_WEIGHT_REC where CNTR_WEIGHT_REC.tenancy_id='\" + tenancyid + \"'\" +\
+//   \" and CNTR like '%\" + data.cntr_no + \"%' \";\
+// }\
+if(record==='false'){\
+ sql = \"select CNTR_WEIGHT_REC.*,(select  max(SHIPPER) from receipt where receipt.CNTR_ID=PORT_CNTR.ID and receipt.I_E_ID='E' and phase<>'CBL' ) SHIPPER ,PORT_CNTR.CNTR_OPERATOR_COD    from CNTR_WEIGHT_REC,PORT_CNTR where CNTR_WEIGHT_REC.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and CNTR_WEIGHT_REC.CNTR_ID=PORT_CNTR.ID and (CNTR_WEIGHT_REC.CNTR like '%\" + data.cntr_no + \"%' OR  CNTR_WEIGHT_REC.BILL_NO LIKE '%\" + data.cntr_no + \"%')\";\
+}else{\
+ sql = \"select * from CNTR_WEIGHT_REC,port_cntr_new where  CNTR_WEIGHT_REC.CNTR_ID=port_cntr_new.ID   and  CNTR_WEIGHT_REC.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and (CNTR_WEIGHT_REC.CNTR like '%\" + data.cntr_no + \"%' or CNTR_WEIGHT_REC.BILL_NO LIKE '%\" + data.cntr_no + \"%') \";\
+}\
+if(weigh_type==='I'){\
+  sql+=\"and ISOUT='0'\";\
+}\
+if(weigh_type==='O'){\
+  sql+=\"and ISOUT='1'\";\
+}\
+\
+if(nature=='5'&&govCode=='CK'){\
+  sql+= \" and  CNTR_OPERATOR_COD='\"+govCode+\"'\";\
+}\
+// if(weigh_time){\
+//  sql+=\"and WEIGHTIME between {?date.weigh_time?} and {?date.end_time?}\";\
+// }\
+if(!Wb.isEmpty(data.sdate)&&!Wb.isEmpty(data.edate)){\
+  sql+=\" and WEIGHTIME between to_date('\"+sdate+\"','yyyy-MM-dd HH24:MI:SS') and to_date('\"+edate+\"','yyyy-MM-dd HH24:MI:SS')\t\";\
+}\
+\
+sql+=\" and  GROSSWT>0 \";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "ZSGGB": 1,
+  "xlwmcgs": 1,
+  "ZSJJ": 1,
+  "ZSGHUQD": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "基础查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

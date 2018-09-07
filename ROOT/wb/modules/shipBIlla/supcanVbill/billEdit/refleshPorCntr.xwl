@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, updateDate, id = SysUtil.getId(),\
+ieId = app.get(\"ieId\");\
+var username = app.get(\"sys.username\");\
+var TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+var vId = app.get(\"vId\");\
+var billNo = app.get(\"billNo\");\
+var id = app.get(\"ID\");\
+var sql=' ', data=app.get(), nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\");\
+if(ieId=='E'){\
+  if(nature=='5')//表示驳船\
+  sql+=\" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\"+govCode+\"' \";\
+  if(billNo==\"\"||billNo==null)\
+  app.run(\"update port_cntr  set  (I_E_ID, CNTR_OPERATOR,CNTR_OPERATOR_COD, OB_MODE, O_TOOL_NO,E_DSHIP_NO, POD, POL, SPOD, BILL_NO)=\"+\
+        \" ( select  I_E_ID,   CNTR_OPERATOR, CNTR_OPERATOR_COD, 'VO', VID,VID, POD, POL, SPOD, BILL_NO  from  VLOAD_LIST  where  CNTR_ID=port_cntr.ID and  VID='\"+vId+\"'  and I_E_ID='E' )  where ID\"+\
+        \" in ( select CNTR_ID  from  VLOAD_LIST where  VID='\"+vId+\"' and  TENANCY_ID='\"+TENANCY_ID+\"'  and I_E_ID='E'  \"+sql+\" ) \");\
+  else\
+    app.run(\"update port_cntr  set  (I_E_ID,  CNTR_OPERATOR,CNTR_OPERATOR_COD,  OB_MODE, O_TOOL_NO,E_DSHIP_NO, POD, POL, SPOD, BILL_NO)=\"+\
+        \" ( select  I_E_ID, CNTR_OPERATOR, CNTR_OPERATOR_COD , 'VO', VID,VID, POD, POL, SPOD, BILL_NO  from  VLOAD_LIST  where  CNTR_ID=port_cntr.ID and   bill_id='\"+id+\"'  and I_E_ID='E' )  where ID\"+\
+        \" in ( select CNTR_ID  from  VLOAD_LIST where  bill_id='\"+id+\"' and  TENANCY_ID='\"+TENANCY_ID+\"'  and I_E_ID='E'  \"+sql+\" ) \");\
+ \
+}\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "更新在场箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

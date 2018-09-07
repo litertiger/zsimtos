@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //主表ID\
+var cntrs = Wb.decode(data.cntrs);\
+app.log(data.cntrs);\
+//插入主表\
+var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+  \"FROM_OPERATOR_COD,FROM_OPERATOR,TO_OPERATOR_COD,TO_OPERATOR,CHANGE_REASON,APPLY_DATE,CREATED_BY,CREATED_ON,APPLY_NAME, TO_NAME)\" +\
+  \" values('\" + id + \"','\" + tenancyid + \"','APY',{?APPLY_TYPE?},{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
+  \"{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},{?TO_OPERATOR_COD?},{?TO_OPERATOR?},\" +\
+  \"{?CHANGE_REASON?},{?DATE.APPLY_DATE?},'\" + username + \"',sysdate,'\" + username + \"','')\";\
+app.run(sqla, {\
+  transaction: 'start'\
+});\
+//插入子表\
+var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE) values('\" + SysUtil.getId() + \"','\" + id + \"',{?CNTR_ID?},'APY')\";\
+app.run(sqll, {\
+  arrayData: data.cntrs\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "增加数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

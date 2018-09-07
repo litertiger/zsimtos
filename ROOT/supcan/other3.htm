@@ -1,0 +1,103 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox = 0;
+ function OnReady(id)
+ {
+ 	cooper();
+ }
+ function cooper()
+ {
+  countForFirefox++;
+  if(countForFirefox != 3) return;
+  AFImage.func("Build", "treelist/freeform10.xml");
+  AFChart.func("SetProp", "colors\r\n #2D68D6,#5F9FD1,#7777CC,#1D4886,#788F66,#444444")
+ }
+ 
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id!='AFImage') return;
+  if(Event == "MouseMoveIn") {
+   var s = AFImage.func("GetImagePropById", "flow \r\n" + p1 + "\r\n sale-data");
+   s = "0 \r\n DVD 销量\\r\\n" + p2 + "\r\n北京	上海	广州	深圳	重庆	杭州\r\n" + s;
+   AFChart.func("BeginST", "");
+   AFChart.func("SetSeries", s);
+   AFChart.func("EndST", "");
+  }
+ }
+
+ function OnSelType(value)
+ {
+  AFChart.func("SetProp", "chart\r\n" + value);
+ }
+</script>
+</head>
+
+<body onload="cooper( )">
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>请在下方的 Freeform(自由表头) 的图片之间慢慢滑动鼠标，观察统计图的<b>渐变式交替联动</b>效果；</td></tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<table cols=3 border=0 width=90%>
+<col width=120>
+<col>
+<col width=30>
+<col width=180>
+<tr height=340>
+<td></td>
+<td>
+	<script>insertChart('AFChart', 'bordercolor=#4499ff;borderWidth=2;borderRound=23;textArrange=1;textContent=3;coordinateBackColor=#fff4ef,#b0d9ce;backcolor=#ffffff,#e0f0ff;maxValueY=250', '340px')</script>
+</td>
+<td></td>
+<td>
+类型：<br><select onchange="OnSelType(this.value)"><option value="0">圆饼图 </option><option value="1">柱状图</option><option value="2">折线图</option><option value="3">曲线图</option><option value="4">区域图</option><option value="5">雷达图</option></select>
+</td>
+</tr>
+<tr height='20'><td/><td/><td/></tr>
+<tr height=230>
+	<td colspan='4'><script>insertFreeForm('AFImage', '', '230px')</script></td>
+</tr>
+</table>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style="line-height:21px">
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.这是下方Freeform的 <a href="treelist/freeform10.xml" target=_blank>XML模版</a> 和 <a href="treelistdata/music6.xml" target=_blank>XML数据</a>：<br>
+<b>2</b>.关键的代码：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id!='AFImage') return;  //仅关心自由表头的 ImageFlow 的事件
+ //鼠标移入事件
+ if(Event == "MouseMoveIn") {
+  //取得当前活动图片的数据(作为自定义属性附加在XML中)
+  var s = AFImage.func("GetImagePropById", "flow \r\n" + p1 + "\r\n sale-data");
+  //SetSeries函数的参数
+  s = "0 \r\n DVD 销量\\r\\n" + p2 + "\r\n北京	上海	广州	深圳	重庆	杭州\r\n" + s;
+  
+  //和上一次的数据渐变交替动画
+  AFChart.func("BeginST", "");
+  //添加或更改
+  AFChart.func("SetSeries", s);
+  //可以开始动画了
+  AFChart.func("EndST", "");
+ }
+}</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

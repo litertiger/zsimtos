@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+var ids = data.IDS.split(\",\");\
+var idsp = \"\";\
+var sql = \"update receipt set CONSIGNEE_COD='\" + data.SHIP_CONSIGN_COD + \"',CONSIGNEE='\" + data.SHIPPER_CONSIGNEE + \"',\" +\
+  \"SHIP_CONSIGN_COD='\" + data.SHIP_CONSIGN_COD + \"',SHIPPER_CONSIGNEE='\" + data.SHIPPER_CONSIGNEE + \"',\" +\
+  \"ACCOUNT_CUSTOMER='\" + data.SHIPPER_CONSIGNEE + \"',ACCOUNT_CUSTOMER_CODE='\" + data.SHIP_CONSIGN_COD + \"'\" +\
+  \" where id in(\" + data.IDS + \")\";\
+app.run(sql, {\
+  transaction: 'commit'\
+});\
+\
+Wb.each(ids, function(id) {\
+  var id1 = id.substring(1, id.length - 1);\
+  //   var acccus = Wb.getRecords(app.run(\"select f_get_defPayer('\" + id1 + \"')fee from dual\"));\
+  //   app.run(\"update receipt set ACCOUNT_CUSTOMER_CODE='\" + acccus[0].FEE.split(\"@\")[0] + \"',\" +\
+  //     \"ACCOUNT_CUSTOMER='\" + acccus[0].FEE.split(\"@\")[1] + \"' where id='\" + id1 + \"'\");\
+  app.log(id1);\
+  app.log(\"计费接口\");\
+  var map = new HashMap();\
+  map.put(\"rpId\", id1);\
+  Wb.newClass(\"dubboForReceipt\").call(request, map);\
+  app.run(\"insert into aaa(CAP_XML,create_on) values ('批量修改货主调用计费,rid:'||'\" + id1 + \"'||',操作人:'||'\" + username + \"',sysdate)\");\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

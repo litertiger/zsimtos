@@ -1,0 +1,91 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var ieId = app.get('ieId'),\
+  TENANCY_ID = app.get('sys.TENANCY_ID'),\
+  username = app.get('sys.username');\
+var createDate, id = SysUtil.getId(),\
+  shipNo = app.get('shipNo'), //app.get(\"batch\"),\
+  nature = app.get(\"sys.NATURE\"),\
+     cntrCod = app.get(\"sys.GOV_CODE\"),\
+  data = app.get();\
+var vHeandwhereSql = \"\",\
+  vListwhereSql = \"\";\
+\
+if (nature == '5') {\
+  vHeandwhereSql = \" and  VBILL_HEAD.CREATED_BY='\" + username + \"'\";\
+  vListwhereSql = \"  and  VLOAD_LIST.CREATED_BY='\" + username + \"'\";\
+}\
+\
+var  rs=app.run(\"select 1 from  vbill_head where  VID={?shipNo?} and PHASE='9' and  CONSIGNEE_COD is null\");\
+while (rs.next()) {\
+   Wb.error('存在收货人没有代码，请检查后再上传码头！');\
+\
+}\
+var  rs=app.run(\"select 1 from  vload_list where  VID={?shipNo?} and PHASE='9' and  (cntr_size is null or cntr_type is null )\");\
+while (rs.next()) {\
+   Wb.error('存在箱ISO没有转换，请检查后再上传码头！');\
+\
+}\
+var rs = app.run(\"select CNTR from zs_imtos.PORT_CNTR where TENANCY_ID='\" + TENANCY_ID + \"' and phase <>'RET'  and  CNTR in\" +\
+  \" (select  distinct CNTR  FROM VLOAD_LIST where VID={?shipNo?} \" + vListwhereSql + \" and TENANCY_ID='\" + TENANCY_ID + \"'  and VLOAD_LIST.PHASE='9' )  \", {});\
+var message = \"\";\
+while (rs.next()) {\
+  message += rs.getString(\"CNTR\") + \",\";\
+}\
+if (message != \"\") {\
+  Wb.error('有集装箱' + message + '已经在堆场不能导入码头。');\
+}\
+\
+if (ieId == 'I') //进口\
+  app.run(\"INSERT INTO ZS_IMTOS.PORT_CNTR \" +\
+  \"   (BILL_NO,CMDY_CODE,ID, TENANCY_ID, CNTR, PHASE, CATEGORY_ID, TRADE_ID, I_E_ID,\" +\
+  \"    E_F_ID, CNTR_ISO, LINE, CNTR_OPERATOR,CNTR_OPERATOR_COD, CNTR_OWNER, IB_MODE,\" +\
+  \"    I_TOOL_NO, SEAL_NO, SHIP_NO, IB_CARRIER_OP, I_DSHIP_NO,\" +\
+  \"    IB_DCARRIER_OP, POD, POL, SPOD, IMDG, UNDG, TEMP_SET, TEMP_MIN,\" +\
+  \"    TEMP_MAX, REEF_ID, OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT,\" +\
+  \"    BUNDL_ID, EMERGENCY_ID, LCL_ID,UPDATED_ON, CREATED_ON,CNTR_SIZE, CNTR_TYPE)\" +\
+  \"    SELECT  VBILL_HEAD.BILL_NO,VBILL_HEAD.GOODS_NOTES ,sys_guid(), '\" + TENANCY_ID + \"', CNTR, 'ADV', CATEGORY_ID, VLOAD_LIST.TRADE_ID, VLOAD_LIST.I_E_ID, E_F_ID,\" +\
+  \"    CNTR_ISO, nvl(VBILL_HEAD.LINE,'###'), VBILL_HEAD.CNTR_OPERATOR,VBILL_HEAD.CNTR_OPERATOR_COD, VBILL_HEAD.CNTR_OPERATOR, '船进', VLOAD_LIST.VID,\" +\
+  \"    SEAL_NO, VLOAD_LIST.VID, '', VLOAD_LIST.VID, '\" + username + \"', VBILL_HEAD.POD,\" +\
+  \"    VBILL_HEAD.POL, VBILL_HEAD.SPOD, VBILL_HEAD.IMDG, VBILL_HEAD.UNDG, VBILL_HEAD.TEMP_SET, TEMP_MIN, TEMP_MAX, REEF_ID,\" +\
+  \"    OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT, BUNDL_ID, EMERGENCY_ID,\" +\
+  \"    vbill_head.LCL_ID,sysdate,sysdate,CNTR_SIZE, CNTR_TYPE\" +\
+  \"    FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id  \" + vHeandwhereSql + \" \" +\
+  \"    and not exists( select 1 from  PORT_CNTR where  VLOAD_LIST.CNTR=PORT_CNTR.CNTR and PORT_CNTR.TENANCY_ID='\" + TENANCY_ID + \"'  and  phase<>'RET' )\" +\
+  \"    and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"'  and  vbill_head.VID={?shipNo?} \", {transaction:'start'});\
+else\
+  app.run(\"update  ZS_IMTOS.PORT_CNTR  set E_DSHIP_NO={?shipNo?} where TENANCY_ID='\" + TENANCY_ID + \"' and  CNTR  in (select VLOAD_LIST.CNTR    \" +\
+    \"  FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id \" + vHeandwhereSql + \" and  VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  vbill_head.VID={?shipNo?} )\",{transaction:'start'});\
+app.run(\"update   zs_imtos.VLOAD_LIST set CNTR_ID=(select  ID from ZS_IMTOS.PORT_CNTR where PORT_CNTR.CNTR=VLOAD_LIST.cntr and  PORT_CNTR.TENANCY_ID='\" + TENANCY_ID + \"' and  phase<>'RET') \" +\
+  \"  where    VLOAD_LIST.VID={?shipNo?} and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'  \");\
+app.run(\"update  port_cntr  set   (PIECES,WEIGHT, VOLUME)=(select sum(PIECES),sum(WEIGHT), sum(VOLUME) from VLOAD_LIST where VID={?shipNo?} and TENANCY_ID='\" + TENANCY_ID + \"' and CNTR_ID=port_cntr.ID and I_E_ID='I' )   where  I_DSHIP_NO={?shipNo?}  and I_E_ID='I' and LCL_ID=1\");\
+\
+app.run(\"update vbill_head set (PIECES,WEIGHT, VOLUME)=(select  sum(PIECES),sum(WEIGHT), sum(VOLUME)  from  vbill_head v  where v.P_BILLNO=vbill_head.BILL_NO  and VID={?shipNo?} )  where  VID={?shipNo?}   and I_E_ID='I' and TENANCY_ID='\" + TENANCY_ID + \"' and ZF_ID=1 and MAIN_FLAG=1 \");\
+app.run(\"update  vbill_head set  PHASE='1', LINE_COD=CNTR_OPERATOR_COD, LINE=CNTR_OPERATOR ,COLINE=CNTR_OPERATOR, COLINE_COD=CNTR_OPERATOR_COD   where  VID={?shipNo?} and   PHASE='9'  \" + vHeandwhereSql + \" and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' \");\
+app.run(\"update  VLOAD_LIST set  PHASE='1'  where  VID={?shipNo?} and   PHASE='9'  \" + vListwhereSql + \"  and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' \");\
+\
+app.run(\"call BILL_LCL_ID('\" + shipNo + \"','\" + TENANCY_ID + \"','I')\");",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "同步上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

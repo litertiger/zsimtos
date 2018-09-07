@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+var s = Wb.decode(app.get('datas'));\
+var amount = new Array();\
+// app.log(s);\
+for (var i = 0; i < s.length; i++) {\
+  //   var rs = Wb.getRecords(app.run(\"select F_GETBULK_FEE('\" + s[i].WEIGHT + \"','\" + s[i].SHIPPER_COD + \"','\" + s[i].FEI_ADDDRESS + \"','\" + tenancyId + \"') from dual \"));\
+  //   amount.push({\
+  //     AMOUNT: rs,\
+  //     ID: s[i].ID\
+  //   });\
+\
+  var rs = app.run(\"select F_GETBULK_FEE('\" + (s[i].WEIGHT*0.001) + \"','\" + s[i].SHIPPER_COD + \"','\" + s[i].FEI_ADDDRESS + \"','\" + tenancyId + \"') abc from dual \");\
+  while (rs.next()) {\
+    amount.push({\
+      AMOUNT: rs.getString('ABC'),\
+      ID: s[i].ID\
+    });\
+  }\
+}\
+// app.log(\"===============\");\
+// app.log(amount);\
+if (amount.length > 0) {\
+  app.run(\"update BLUK_TRUCK_WORK set AMOUNT={?AMOUNT?} where ID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(amount))\
+  });\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "JCB": 1,
+  "xlcd": 1
+ },
+ "title": "计费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

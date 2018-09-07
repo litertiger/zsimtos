@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"update VBILL_HEAD_AMEDMENT set CHECK_FLAG='0',CHECK_BY='',CHECK_ON=''\" +\
+  \"  where id in(\" + app.get('ids') + \")\");\
+\
+//  java.lang.Thread.sleep(10000); \
+\
+try {\
+  if (app.get('FEE_AMEDMENT') == '0') {\
+    Wb.newClass(\"accountDetailService\").updOnlyBillNo(request);\
+  }\
+} catch (e) {\
+  throw e;\
+}\
+\
+app.run(\"update vload_list set BILL_NO={?BILL_NO?} WHERE BILL_ID={?BILL_ID?}\", {\
+  transaction: \"start\"\
+});\
+app.run(\"update vbill_head set BILL_NO={?BILL_NO?} WHERE ID={?BILL_ID?}\", {\
+  transaction: \"commit\"\
+});\
+\
+// app.run(\"update VBILL_HEAD_AMEDMENT set CHECK_FLAG='0',CHECK_BY='',CHECK_ON=''\" +\
+//   \"  where id in(\" + app.get('ids') + \")\", {\
+//     transaction: \"start\"\
+//   });\
+// app.run(\"update vbill_head set BILL_NO={?BILL_NO?} WHERE ID={?BILL_ID?}\", {\
+//   transaction: \"commit\"\
+// });\
+// if (app.get('FEE_AMEDMENT') == '0') {\
+//   Wb.newClass(\"accountDetailService\").updOnlyBillNo(request);\
+// }"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSGSWHD": 1
+ },
+ "title": "取消受理",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

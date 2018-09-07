@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  idu = [],\
+  idd = [],\
+  recs = Wb.decode(request.getParameter('create')),\
+  recu = Wb.decode(request.getParameter('update')),\
+  recss = Wb.decode(request.getParameter('destroy'));\
+var tenancyId=app.get('sys.TENANCY_ID');\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+// app.log(recu);\
+Wb.each(recu, function(rec) {\
+  if (rec.PHASE == 'ZC' && rec['#PHASE'] == 'WH') {\
+    idd.push({\
+      ID: rec.ID\
+    });\
+  }\
+});\
+app.log(recss);\
+Wb.each(recss, function(rec) {\
+  if (rec.PHASE == 'WH') {\
+    idd.push({\
+      ID: rec.ID\
+    });\
+  }\
+});\
+\
+\
+  request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'C_MACHINE',\
+  jndi: 'jdbc/basecode',\
+  whereFields: 'ID',\
+  uniqueUpdate: false\
+});\
+\
+if (idd.length>0){\
+// \tapp.run(\"delete from MACHINE_MAINTAIN where PID={?ID?}\",{jndi:\"jdbc/basecode\",arrayData: new org.json.JSONArray(idd)});\
+  app.run(\"update MACHINE_MAINTAIN set MACH_PHASE='LS',END_DATE=SYSDATE where PID={?ID?}  AND MACH_PHASE='WH' and TENANCY_ID='\"+tenancyId+\"'\",{jndi:\"jdbc/basecode\",arrayData: new org.json.JSONArray(idd)});\
+  app.run(\"update C_MACHINE set NOTES='',END_DATE='',START_DATE='' where ID={?ID?} and TENANCY_ID='\"+tenancyId+\"'\",{jndi:\"jdbc/basecode\",arrayData: new org.json.JSONArray(idd)});\
+}\
+\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "保存拖车修改信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

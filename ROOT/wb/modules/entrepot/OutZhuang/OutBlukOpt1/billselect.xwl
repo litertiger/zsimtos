@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var rs=app.run(\"select B_NAME,COD from C_BLUK where COD='OTP'\",{jndi:\"jdbc/basecode\"}),cfs;\
+// if(rs.next()){\
+// \tcfs=rs.getString('B_NAME');\
+// }\
+// request.setAttribute('cfs',cfs);\
+\
+\
+\
+\
+var sql = \"\";\
+// var rs = app.run(\"select SUM(pieces) PIECES from BLUK_BILL where BILL_ID IN(SELECT ID FROM VBILL_HEAD WHERE VID={?VID?} AND CNTR_ID={?CNTR_ID?}) \"),\
+//   ipieces = 0;\
+var rs = app.run(\"select nvl(SUM(pieces),0) PIECES from BLUK_BILL where LCL_ID ={?LCL_ID?} \"),\
+  ipieces = 0;\
+\
+while (rs.next())\
+  ipieces = rs.getString('PIECES');\
+\
+// sql = \"select a.*,a.pieces vpieces,c.IS_ALLOW_BLUK,a.vid,\" + ipieces + \" ipieces,C.IS_LOAD_CNTR,(select sum(IPIECES) from  bluk_bill where  bill_id= a.ID) IPIECES from vbill_head a, VBILL_HEAD_E c where a.vid = {?VID?} and  a.ID = c.id and A.cntr_id={?CNTR_ID?}\";\
+sql = \"select a.*,a.pieces vpieces,c.IS_ALLOW_BLUK,a.vid,\" + ipieces + \" ipieces,C.IS_LOAD_CNTR,(select sum(IPIECES) from  bluk_bill where  bill_id= a.ID) IPIECES,a.SHIPPER,c.keeper_name from vbill_head a, VBILL_HEAD_E c where a.vid = {?VID?} and  a.ID = c.id  and A.cntr_id={?CNTR_ID?}\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1
+ },
+ "title": "提单查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

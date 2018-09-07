@@ -1,0 +1,31 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var feeListId = Wb.decode(app.get('feeListId'));\
+var ids=\"\",message=\"\";\
+for (var i = 0; i < feeListId.length; i++) {\
+\tids+=\"'\"+feeListId[i]+\"',\";\
+}\
+ids=ids.substring(0,ids.length-1);\
+// var rs=Wb.getRecords(app.run(\"select INVOICE_TYPE from C_BASE_CHARGING_ITEM  where INVOICE_TYPE is not null and id in(\"+ids+\") group by INVOICE_TYPE\"));\
+var rs=Wb.getRecords(app.run(\"SELECT  INVOICE_TYPE FROM C_base_invoice WHERE ID IN( select INVOICE_TYPE from C_BASE_CHARGING_ITEM  where INVOICE_TYPE is not null and id in(\"+ids+\")) GROUP BY INVOICE_TYPE\"));\
+\
+if(rs.length==1){\
+\tmessage=\"true\";\
+}else{\
+\tmessage=\"false\";\
+}\
+app.send(message);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

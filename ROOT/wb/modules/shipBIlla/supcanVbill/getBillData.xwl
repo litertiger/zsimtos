@@ -1,0 +1,56 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+\
+var whereSql='', data=app.get(),shipNo=app.get(\"shipNo\"),ieId=app.get(\"ieId\"),tradeId=app.get(\"tradeId\"), nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\"),\
+    TENANCY_ID=app.get(\"TENANCY_ID\");\
+if (!Wb.isEmpty(data.tradeId)) {\
+  whereSql += \"  and trade_Id ='\"+tradeId+\"'\";\
+} \
+if (!Wb.isEmpty(data.cntr)) {\
+  whereSql += \"  and vbill_head.ID in ( select BILL_ID from VLOAD_LIST where CNTR='\"+data.cntr+\"'  and  VID='\"+shipNo+\"'   and I_E_ID='\"+ieId+\"' )\";\
+} \
+if(nature=='5')//表示驳船\
+  whereSql+=\" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\"+govCode+\"' \";\
+var sql=\"SELECT vbill_head.*,decode(vbill_head_e.YP,'1','已发','未发') YP,to_char(SIGN_DATE,'yyyy-MM-dd HH24:mi:ss') SIGN_DATE,REALSE_COMPARE,  \"+\
+     \"    (SELECT   wm_concat (COUNT (1)  || '*' || cntr_size) \"+\
+     \"         FROM vload_list \"+\
+     \"       WHERE vload_list.bill_id = vbill_head.ID  and VID='\"+shipNo+\"'\"+\
+     \"    GROUP BY cntr_size)   CNTRNUMS \"+\
+  \"  FROM vbill_head,vbill_head_e where vbill_head.ID=vbill_head_e.ID(+) and  VID='\"+shipNo+\"'  and I_E_ID='\"+ieId+\"'  \"+whereSql+\" and   TENANCY_ID='\"+TENANCY_ID+\"' \"+\
+ \" and  ( main_flag=1 or lCL_ID=1 ) and PHASE<>'9'  order by vbill_head.BILL_NO\";\
+app.log(sql);\
+var s= Wb.getRecords(app.run(sql));\
+app.send(s);",
+   "loginRequired": "true"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "xlwmcgs": 1,
+  "XLBCCX": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "ZHBG": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "加载舱单数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

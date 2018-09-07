@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql=\"\";\
+var data=app.get();\
+var s=data.TIMES;\
+if(!Wb.isEmpty(data.TIMES)){\
+\tsql+=\" and trunc(CREATED_ON) =to_date('\"+s.substring(0,10)+\"','yyyy-MM-dd')\";\
+}\
+var t_id = app.get('sys.TENANCY_ID');\
+ sql += \" AND TENANCY_ID = '\"+t_id+\"'\";\
+\
+\
+request.setAttribute('sql',sql);\
+\
+//  SELECT A.* ,ACCOUNTS_DETAILS.*,(select TEAM_NAME from C_EMPLOYEE_TEAM where HAND_CODE=WORK_BILL.DEPT_ID) DEPT_ID,WORK_BILL.TYPE\
+//     FROM DEV_CNTR A,\
+//     (select BUSSINESS_CODE,wm_concat(C_BASE_CHARGING_ITEM.DESCRIPTION||':'||ACCOUNTS_DETAILS.AMOUNT) as fee_desc from \
+//     ACCOUNTS_DETAILS,C_BASE_CHARGING_ITEM \
+//     where ACCOUNTS_DETAILS.FEE_LIST_ID=C_BASE_CHARGING_ITEM.ID(+) GROUP  BY BUSSINESS_CODE  ) ACCOUNTS_DETAILS,WORK_BILL\
+//    WHERE     1 = 1\
+//          AND A.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE(+) AND A.BILL_ID=WORK_BILL.BILL_ID(+) {sql} order by phase desc, DEV_TIME desc"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select * from CNTR_OVER_MAC where 1=1 {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "truck": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

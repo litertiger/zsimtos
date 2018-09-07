@@ -1,0 +1,107 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script>
+var xx='', yy='';
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 4) return;
+   id='';
+  }
+ 
+ if(id == 'AF1' || id=='') {
+  AF1.func("Build", "report/report1.xml");
+
+  var obj = document.getElementById('div1');
+  xx = obj.offsetLeft;
+  yy = obj.offsetTop;
+ }
+ if(id == 'AF2' || id=='') {
+  AF2.func("Build", "report/report1.xml");
+  AF2.func("SeparateView", "3\r\n2");
+ }
+ if(id == 'AF3' || id=='') {
+  AF3.func("Build", "report/report1.xml");
+  AF3.func("CallFunc", "15\r\n200");
+ }
+ if(id == 'AF4' || id=='') {
+  AF4.func("Build", "report/report1.xml");
+ }
+}
+
+function show(n)
+{
+ var arr = new Array(4);
+ for(i=0; i<4; i++) {
+  arr[i] = document.getElementById('div' + (i+1));
+  arr[i].style.width='0';
+ }
+ if(n>0) {
+  arr[n].style.position="absolute";
+  arr[n].style.left=xx;
+  arr[n].style.top=yy;
+  arr[n].style.height='400px';
+ }
+ arr[n].style.width='96%';
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=5 border=0 width=100%>
+<col valign=top width=90>
+<col><col><col><col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.<a href='javascript:show(0)'>精简工具条</a></td>
+<td><b>2</b>.<a href='javascript:show(1)'>分屏冻结、折叠了工具条</a></td>
+<td><b>3</b>.<a href='javascript:show(2)'>无标尺、放大200%显示</a></td>
+<td><b>4</b>.<a href='javascript:show(3)'>无边框、无工具条</a></td>
+</tr></table>
+
+<div id='div1' style="width:96%;height:400px">
+	<script>insertReport('AF1', 'Rebar=Main')</script>
+</div>
+<div id='div2' style="width:0px;height:1px">
+	<script>insertReport('AF2', 'collapseToolbar=true')</script>
+</div>
+<div id='div3' style="width:0px;height:1px">
+	<script>insertReport('AF3', 'Rebar=Main,Print;SeperateBar=Vert;Ruler=none;PagesTabPercent=70;Main=189')</script>
+</div>
+<div id='div4' style="width:0px;height:1px">
+	<script>insertReport('AF4', 'Rebar=none;Border=none;Ruler=none;PagesTabPercent=0;SeperateBar=none')</script>
+</div>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.上面几个Report控件的唯一差异是创建参数不同，其HTML片段分别如下：<br>
+1.精简工具条：
+<pre class='xml'>insertReport('AF1', 'Rebar=Main')</pre>
+2.分屏冻结、折叠了工具条:
+<pre class='xml'>insertReport('AF2', 'collapseToolbar=true')</pre>
+分屏冻结是js实现的：
+<pre class='cpp'>AF2.func("SeparateView", "3\r\n2");  //分屏冻结</pre>
+3.无标尺、放大200%显示 (放大200%显示是js实现的，请查看页面js)：
+<pre class='xml'>insertReport('AF3', 'Rebar=Main,Print; SeperateBar=Vert; Ruler=none; PagesTabPercent=70; Main=189')</pre>
+4.无边框、无工具条：
+<pre class='xml'>insertReport('AF4', 'Rebar=none; Border=none; Ruler=none; PagesTabPercent=0; SeperateBar=none')</pre>
+</td></tr></table>
+<table border=0 cols=2 border=0 width=97%>
+<tr valign=top><td align=right><img src='res/boy.gif'></td><td align=left>使用够简单吧！</td></tr>
+</table>
+
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

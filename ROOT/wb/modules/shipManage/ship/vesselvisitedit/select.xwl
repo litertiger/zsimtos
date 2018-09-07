@@ -1,0 +1,76 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+sql = \" and b.TENANCY_ID='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.QPHASE)) {\
+  sql += \" and b.PHASE='\" + data.QPHASE + \"'\";\
+}\
+if (!Wb.isEmpty(data.names))\
+  sql += \" and (a.VESSEL_NAME like '%'||{?names?}||'%' or a.IB_VYG like '%'||{?names?}||'%'\" +\
+  \" or a.OB_VYG like '%'||{?names?}||'%' or a.SERVICE_NAME like '%'||{?names?}||'%'\" +\
+  \" or a.OSERVICE_NAME like '%'||{?names?}||'%')\";\
+if (!Wb.isEmpty(data.SETA))\
+  sql += \" and b.ETA>=to_date('\" + data.SETA + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and b.ETA<=to_date('\" + data.EETA + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.QIE))\
+  sql += \" and b.I_E='\" + data.QIE + \"'\";\
+if (Wb.isEmpty(data.QIE) && !Wb.isEmpty(data.QTRADE))\
+  sql += \" and(b.ITRADE_ID='\" + data.QTRADE + \"' or b.ETRADE_ID='\" + data.QTRADE + \"')\";\
+if (!Wb.isEmpty(data.QIE) && !Wb.isEmpty(data.QTRADE)) {\
+  if (data.QIE == \"I\")\
+    sql += \" and b.ITRADE_ID='\" + data.QTRADE + \"'\";\
+  if (data.QIE == \"E\")\
+    sql += \" and b.ETRADE_ID='\" + data.QTRADE + \"'\";\
+  if (data.QIE == \"IE\")\
+    sql += \" and(b.ITRADE_ID='\" + data.QTRADE + \"' or b.ETRADE_ID='\" + data.QTRADE + \"')\";\
+}\
+// if (nature == \"5\")\
+//   sql += \" and (b.I_OPERATOR like '%\" + customcode + \"%' or b.O_OPERATOR like '%\" + customcode + \"%')\";\
+\
+sql += \" or (a.vessel_code='ZCQ' and b.TENANCY_ID='\" + tenancyid + \"')\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select a.*,b.*,a.PHASE APHASE,a.id as AID,b.id as BID,a.tenancy_id as ATENANCY_ID,b.tenancy_id as BTENANCY_ID,\
+b.UPDATED_BY AS BUPDATED_BY,b.sb_date,\
+decode(b.I_E,'I',b.BERTH_CODE,'E',b.O_BERTH_CODE)DIS_BERTH_CODE,\
+decode(b.I_E,'I',a.service,'E',a.oservice)DIS_SERVICE,\
+decode(b.I_E,'I',b.itrade_id,'E',b.etrade_id)DIS_TRADE,\
+decode(b.I_E,'I',b.lib_vyg,'E',b.lob_vyg)DIS_LOB_VYG,\
+decode(b.I_E,'I',a.ib_vyg,'E',a.ob_vyg)DIS_OB_VYG,\
+decode(b.I_E,'I',a.INBOUND_CAPTAIN,'E',a.OUTBOUND_CAPTAIN)DIS_OUTBOUND_CAPTAIN \
+from VESSEL_VOYAGE a left join VESSEL_VISIT b on a.id=b.vid \
+where 1=1{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

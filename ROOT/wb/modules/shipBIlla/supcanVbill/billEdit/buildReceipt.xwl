@@ -1,0 +1,95 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var  cntr = [],id = SysUtil.getId(), idnew ,IDOLD;\
+var username=app.get(\"sys.username\");\
+var TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+var cntrId =Wb.decode( app.get('cntrId'));\
+\
+var billNo =app.get('BillNo'),ieId=app.get('ieId'),Vid=app.get('Vid'),type=app.get('type'),// 1 表示整船，2表示提单 3表示箱\
+      result;\
+var cntrArray;\
+ for(var i=0;i<cntrId.length;i++){\
+   var jsobject={CAR_TEAM:app.get(\"CAR_TEAM\"),ID:SysUtil.getId(),ieId:ieId,TENANCY_ID:TENANCY_ID,CONSIGNEE:app.get(\"CONSIGNEE_COD\"),CONSIGNEE:app.get(\"CONSIGNEE\"),S_ADRESS:app.get(\"S_ADRESS\"),\
+                PLAN_STIME:app.get(\"PLAN_STIME\"), T_ADDRESS:app.get(\"T_ADDRESS\"), F_ADDRESS:app.get(\"F_ADDRESS\"),FEI_ADDDRESS:app.get(\"FEI_ADDDRESS\"),\
+                PHASE:app.get(\"PHASE\"), WORK_TYPE:app.get(\"WORK_TYPE\"), PT_TYPE:app.get(\"PT_TYPE\"),CNTR:cntrId[i]};\
+    cntr.push(jsobject);\
+    if(i==0)\
+    cntrArray=\"'\"+cntrId[i]+\"'\";\
+    else\
+    cntrArray=\"',\"+cntrId[i]+\"'\";\
+\
+  }\
+   result=app.run(\"select wm_concat(to_char( CNTR)) CNTR from  VLOAD_LIST  where  cntr in(\"+cntrArray+\") and bill_Id={?billId?} and VID='\"+Vid+\"' and not exists(select 1 from PORT_CNTR where PORT_CNTR.ID=VLOAD_LIST.CNTR_ID )\");\
+  if(result.next()){\
+    var c=result.getString('CNTR'); \
+    if(!Wb.isEmpty(c))\
+     Wb.error('在场箱号为：'+result.getString('CNTR')+'不存在。');\
+  }\
+\
+var  rscus=app.run(\"SELECT bill_no  FROM vbill_head,c_customer   WHERE \\\
+            DECODE (i_e_id, 'I', consignee_cod, shipper_cod) = c_customer.code(+)\\\
+   AND vid = {?ID?} and bill_no={?BillNo?} and c_customer.code is null\\\
+   and (zf_id=1 and main_flag=1  or  nvl(zf_id,0)=0) \");//and trade_id=1\
+if(rscus.next()){\
+\tWb.error(\"舱单\"+rscus.getString(\"BILL_NO\")+\"货主代码没有维护，不能生成设备交接单\");\
+}\
+\
+\
+//生成设备交接单 OPERATOR, OPER_TIME,CHANGER, CHANGE_TIME\
+app.run(\"INSERT INTO receipt ( MBILL_NO,SHIP_ORDER ,SHIPPER_WAY,ID, VID, tenancy_id, cntr, cntr_req, category_id, trade_id, \"+\
+           \"  i_e_id, e_f_id, CNTR_ISO, CNTR_SIZE, CNTR_TYPE, cntr_hight,\"+\
+           \"  cntr_length, line,CNTR_OPERATOR_COD,CNTR_OPERATOR,  consignee_COD,\"+\
+           \"  consignee, shipper_COD, shipper, seal_no, imdg, undg,\"+\
+           \"  temp_set, temp_min, temp_max, reef_id, humidity_level,\"+\
+          \"   overheight, overfront, overback, overleft, overright, oog_id,\"+\
+          \"   spec_stow, gros_weight, net_weight, scale_weight, pod, pol, spod,\"+\
+           \"  release_no, bill_no, cmdy_code, RECEIVER,RECEIVER_COD,\"+\
+           \"  s_adress, plan_stime, t_address, f_address, phase, work_type,\"+\
+         \"    pt_type,FEI_ADDDRESS,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER,cntr_id,cargo_type,CAR_TEAM,CONTRACT_MAN,CONTRACT_PHONE,CREATED_BY, CREATED_ON)\"+\
+  \" SELECT nvl(vload_list.order_no,MBILL_NO),nvl(vload_list.order_no,MBILL_NO), {?SHIPPER_WAY?} ,SYS_GUID (), decode({?ieId?},'I',I_DSHIP_NO,E_DSHIP_NO), {?TENANCY_ID?},\"+\
+       \"   port_cntr.cntr, NULL, port_cntr.category_id, port_cntr.trade_id,\"+\
+      \"    port_cntr.i_e_id, port_cntr.e_f_id, port_cntr.CNTR_ISO, vload_list.CNTR_SIZE,\"+\
+       \"   vload_list.CNTR_TYPE, NULL, NULL, port_cntr.line,\"+\
+       \"  VBILL_HEAD.CNTR_OPERATOR_COD, VBILL_HEAD.CNTR_OPERATOR,  VBILL_HEAD.consignee_COD, VBILL_HEAD.consignee,\"+\
+       \"   VBILL_HEAD.shipper_COD, VBILL_HEAD.shipper, port_cntr.seal_no, port_cntr.imdg,\"+\
+       \"   port_cntr.undg, port_cntr.temp_set, port_cntr.temp_min,\"+\
+       \"   port_cntr.temp_max, port_cntr.reef_id, NULL, port_cntr.overheight,\"+\
+        \"  port_cntr.overfront, port_cntr.overback, port_cntr.overleft,\"+\
+       \"   port_cntr.overright, NULL, NULL, vload_list.weight,\"+\
+        \"  vload_list.weight, vload_list.weight, vload_list.pod,\"+\
+        \"  vload_list.pol, vload_list.spod, \"+\
+       \"  decode({?ieId?},'I',null,RELEASENBR),vload_list.BILL_NO,VBILL_HEAD.GOODS_NOTES,{?RECEIVER?},{?RECEIVER_COD?},{?S_ADRESS?},{?TIMESTAMP.PLAN_STIME?},{?T_ADDRESS?}, \"+\
+        \"{?F_ADDRESS?},'PLN',  {?WORK_TYPE?},{?PT_TYPE?},{?FEI_ADDDRESS?},decode({?ieId?},'I',VBILL_HEAD.consignee_cod,VBILL_HEAD.shipper_cod), \"+\
+    \"  decode({?ieId?},'I',VBILL_HEAD.consignee,VBILL_HEAD.shipper) ,port_cntr.ID ,vload_list.cargo_type,{?CAR_TEAM?},{?CONTRACT_MAN?},{?CONTRACT_PHONE?},'\"+username+\"',sysdate FROM port_cntr, vload_list,VBILL_HEAD \"+\
+  \"  WHERE decode({?ieId?},'I',I_DSHIP_NO,E_DSHIP_NO)=VLOAD_LIST.VID and  VBILL_HEAD.ID=vload_list.bill_ID \"+\
+   \"   AND port_cntr.cntr = vload_list.cntr and vload_list.MAIN_FLAG=1 and vload_list.cntr={?CNTR?} and not exists(select 1 from receipt where cntr={?CNTR?} and bill_no=VLOAD_LIST.BILL_NO and  TENANCY_ID={?TENANCY_ID?})\",{\
+ arrayData: new org.json.JSONArray(Wb.encode(cntr))\
+});\
+// app.send(cntr);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "设备交接单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

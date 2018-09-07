@@ -1,0 +1,168 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">8.自定义函数</p><hr color=#2266ee size=1>
+　　在报表的集成开发中，免不了会需要自定义一些业务函数，以简化开发。<br>
+　　自定义函数对于开发者而言，是一种抽象、归纳数据逻辑的非常好的手段。最终使用者是否能接纳自定义函数，关键要看自定义函数能否有诸如向导式帮助、实例书写参考等等方便输入的功能，如果这些问题解决不好，用户很有可能产生畏惧心理。<br>
+　　硕正报表自身已经有向导式帮助、实例书写参考等功能，只要求开发者以如下的XML格式、并通过调用AddUserFunctions( )函数，将自定义函数告诉控件即可：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;Category name="函数分类1"&gt;
+ &lt;function name="函数名" &gt;
+  &lt;usage&gt;用途说明&lt;/usage&gt;
+  &lt;detail&gt;更详细的说明，可选&lt;/detail&gt;
+  &lt;para&gt;参数1，可选&lt;/para&gt;
+  &lt;para&gt;参数2，以此类推，可选&lt;/para&gt;
+  &lt;returnDatatype&gt;返回值的数据类型，如int、double等，可选&lt;/returnDatatype&gt;
+  &lt;example&gt;示例说明，可选&lt;/example&gt;
+ &lt;/function&gt;
+ &lt;function name="函数名" &gt;
+  ...
+ &lt;/function&gt;
+ ...
+ 
+ &lt;!-- 嵌套分类 --&gt;
+ &lt;Category name="函数分类11"&gt;
+  &lt;function name="函数名" &gt;
+   ...
+  &lt;/function&gt;
+ &lt;/Category&gt;
+&lt;/Category&gt;
+&lt;Category name="函数分类2"&gt;
+ ...
+&lt;/Category&gt;</pre>
+　　通过分析上述XML，可见XML文档中允许多个函数分类(即Category)，每个类别中允许有多个函数，并支持子类别的层层嵌套。<br>
+　　一旦控件得到该函数声明XML，就会立即建立起函数的语法词法规则、在工具箱中展示这些函数、并能提供函数的即时输入帮助。<br>
+　　此外，开发者也可以将函数分散在多个XML文件中，可以分多次调用AddUserFunctions( )，分别传入不同的XML文档。<br>
+　　总之，自定义函数功能的价值在于让最终用户方便地使用业务函数：在开发者设定的范围内，指导最终用户正确地去书写、调用，以省去很多维护、定制开发的工作量。<br>
+
+<div id="Tag040801"/><br>
+<p class="sz3">8.1 简单应用</p>
+　　自定义函数最终怎么完成计算？ 控件反向调用js!<br>
+　　例如，XML中声明了如下函数名:<br>
+<pre class='xml'>
+ &lt;function name="balance" &gt;
+  &lt;para&gt;编码，可选&lt;/para&gt;
+  &lt;para&gt;月份，可选&lt;/para&gt;
+  &lt;returnDatatype&gt;double&lt;/returnDatatype&gt;
+ &lt;/function&gt;</pre>
+　　那么在页面中必须要有同名、大小写一致的js函数:<br>
+<pre class='cpp'>
+ function balance(code, mon)
+ {
+   var d;
+   ..(略)
+   return d;
+ }</pre>
+　　如果函数在处理过程中需要调用后端数据库信息，那么可以通过 Ajax 调用(必须是"同步")后端服务方式实现.<br>
+　　可见普通的自定义函数应用场景，只不过是使某些固定的js()函数的调用变得方便而已，因为自定义函数最终仍由页面的同名js函数负责执行，这在“自定义函数”演示页中已经剖析殆尽。<br>
+　　此外，如果您在 js 函数中捕获了异常，需要在报表中显示错误信息，那么您可以返回 SoapLike异常包，其格式请参考 "公共内容"中的 “<a href="pub04.htm" target=_blank>4.XML/JSON异常包</a>”。<br>
+
+<br>
+<div id="Tag040802"/><hr><br>
+<p class="sz3">8.2 高级应用</p>
+<p class="sz5">8.2.1 SetBatchFunctionURL( )</p>
+　　有一种极端的应用场景是：用户设计的报表很大，引用自定义函数会达数百处甚至上千处，如果按照上面“7.1.简单应用”的实现方式，并且假设自定义函数都是需要通过 Ajax 来完成计算，那么，最终会导致什么后果？想必您应该知道了!<br>
+　　为了解决成百上千次的 Http 请求/响应带来的网络性能瓶颈，硕正报表提供了一个批处理解决方案，方案说明如下：<br>
+<br>
+<b>1</b>.通过 js 函数 SetBatchFunctionURL( ) 设置后端批处理函数的 URL，例如:<br>
+<pre class='cpp'>
+AF.func("SetBatchFunctionURL", "../../myfuncproc.aspx");</pre>
+　　这个 URL 就是批计算的响应地址.<br>
+<br>
+<b>2</b>.开发者需要开发后端的Java/Asp.Net批处理响应程序.<br>
+　　一旦通过 SetBatchFunctionURL( ) 设置了批处理 URL，报表在计算过程中将不再调用页面的同名自定义函数，转而采用分批的方式将函数直接交由后端执行，
+分批发送的是 Http POST，并采用如下的 XML 格式:<br>
+<pre class='xml'>
+&lt;Root&gt;
+ &lt;Functions addition="附加串" &gt;
+  &lt;!-- 第一个 --&gt;
+  &lt;Function name="函数名"&gt;
+  &lt;/Function&gt;
+  &lt;!-- 第二个 --&gt;
+  &lt;Function name="函数名"&gt;
+   &lt;Para&gt;参数&lt;/Para&gt;
+   &lt;Para dataType="double"&gt;参数&lt;/Para&gt;    //备注: "dataType"自动采用原先所定义的(可选)
+  &lt;/Function&gt;
+  &lt;!-- 第三个 --&gt;
+  &lt;Function name="函数名"&gt;
+   &lt;Para&gt;参数&lt;/Para&gt;
+  &lt;/Function&gt;
+  &lt;!-- 第 n 个等等 --&gt;
+  ...
+ &lt;/Functions&gt;
+&lt;/Root&gt;</pre>
+　　其中的“函数名”、“参数”表示真实的函数名、参数。“附加串”是SetBatchFunctionURL()函数中的附加参数(相当于附言，任意串，请参考SetBatchFunctionURL()函数帮助)。<br>
+　　后端的服务程序需要解析该XML，并完成这些函数的计算，最终按如下XML格式作为响应返回:<br>
+<pre class='xml'>
+&lt;Root&gt;
+ &lt;Functions&gt;
+  &lt;Function&gt;返回值&lt;/Function&gt;
+  &lt;Function&gt;返回值&lt;/Function&gt;
+  &lt;Function&gt;返回值&lt;/Function&gt;
+  ...
+ &lt;/Functions&gt;
+&lt;/Root&gt;</pre>
+备注1: &lt;Function&gt;的顺序必须和前面请求中的XML保持一致;<br>
+备注2: &lt;Function&gt;的返回值，硕正默认是把它当作数值型的，如果您希望返回 string 型，必须在串的前后加<b>单引号</b>;<br>
+<br>
+<b>3</b>.异常处理<br>
+　　如果服务器端出现异常，建议将这个返回串按照文档 "公共内容"中的 “<a href="pub04.htm" target=_blank>4.XML/JSON异常包</a>” 的格式作封装。<br>
+　　如果服务器端在处理中，仅其中的某个或某几个函数出现异常，那么可以对 &lt;Function&gt; 单独封装, 具体可这样写：<br>
+<pre class='xml'>
+&lt;Root&gt;
+ &lt;Functions&gt;
+  &lt;Function&gt;返回值&lt;/Function&gt;
+  &lt;Function&gt;返回值&lt;/Function&gt;
+  &lt;Function&gt;
+   &lt;fault&gt;
+    &lt;faultcode&gt;错误代码&lt;/faultcode&gt;
+     &lt;faultstring&gt;错误&lt;/faultstring&gt;
+     &lt;detail&gt;详细描述&lt;/detail&gt;
+     &lt;reason&gt;错误原因&lt;/reason&gt;
+     &lt;faultactor&gt;错误角色&lt;/faultactor&gt;
+   &lt;/fault&gt;
+  &lt;/Function&gt;
+  ...
+ &lt;/Functions&gt;
+&lt;/Root&gt;</pre>
+备注: 其中&lt;fault&gt; ... &lt;/fault&gt;是 SoapLike 异常包, 表示某个函数在服务器端捕获的错误(如异常)，需要在报表的计算信息窗中加以显示;<br>
+<br>
+<p class="sz5">8.2.2 前后端混合计算</p>
+　　有时候并不是所有自定义函数都必须推送到后端计算，可能有部分函数需要在本地页面中计算，那么只要修改XML的定义，增加&lt;RunAt&gt;内容：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="UTF-8"?"&gt;
+&lt;Category name="函数分类"&gt;
+ &lt;function name="函数名" &gt;
+  &lt;usage&gt;用途说明&lt;/usage&gt;
+  &lt;detail&gt;更详细的说明，可选&lt;/detail&gt;
+  <font color=red>&lt;runAt&gt;Local&lt;/runAt&gt;</font>
+ ...</pre>
+　　凡是runAt被定义为 "Local"(或Client)的函数，都不会被发送到后端，而是通过 "8.1 简单应用" 的方式简单地在客户端计算. runAt的默认值是"Server"，即后端计算.<br>
+
+<br>
+<div id="Tag040803"/><hr><br>
+<p class="sz3">8.3 参数输入向导</p>
+　　硕正报表从1.0.64.0开始，增加了函数的向导式输入功能(输入框左侧的f(x)小按钮)：<br>
+<center><img src='image/report2.png'></center>
+　　为了方便自定义函数的输入，我们对自定义函数的XML规范作了扩充，使得参数在输入时能支持下拉选择，例如下图所示的效果：<br>
+<center><img src='image/illu38.jpg'></center>
+<br>
+　　扩充后的自定义函数XML规范增加了如下内容：<br>
+<b>1</b>.XML增加了&lt;Droplists&gt;下拉资源库节点<br>
+　　XML中须增加&lt;Droplists&gt;节点，&lt;Droplists&gt;语法和硕正Treelist树列表、Freeform自由表头中的&lt;Droplists&gt;完全一致，请参考其XML文档规范，也可以参考自定义函数演示页中的<a class="out" href='http://www.supcan.cn/reportdata/func_account.xml' target=_blank>XML例子</a>.<br>
+<br>
+<b>2</b>.参数&lt;Para&gt;增加下拉相关属性<br>
+　　增加3个属性, 例如&lt;Para <font color=red>dataType</font>="?" <font color=red>edittype</font>="?" <font color=red>droplistID</font>="?" &gt;参数&lt;/Para&gt;，其含义和可用值如下：<br>
+datatype - 可以为int, string;<br>
+edittype - 可以为droplist、editAbleDroplist、dropTreelist、editAbleDropTreelist，含义请参考树列表或自由表头文档资料;<br>
+droplistId - 指向下拉资源库的Id;<br>
+　　如果您开发过Treelist或freeform，会发现该规则很简单，相当于把Treelist、freeform的下拉语法直接搬过来了.<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

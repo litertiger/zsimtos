@@ -1,0 +1,344 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "absolute",
+    "dialog": "true",
+    "itemId": "window1",
+    "createInstance": "false",
+    "focusControl": "text1",
+    "width": "473",
+    "title": "窗口",
+    "height": "296"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "portGrid",
+     "editable": "true",
+     "width": "461",
+     "x": "0",
+     "y": "0",
+     "multiSelect": "true",
+     "height": "235"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "store",
+       "autoLoad": "false",
+       "url": "m?xwl=shipManage/ship/vesselPortEdit/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store",
+      "events": {"beforeload": "operation.params={vesselNo:app.vesselNo.getValue()};"}
+     },
+     {
+      "configs": {"itemId": "tbar"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "newBtn",
+         "tooltip": "添加新的记录",
+         "text": "@Str.add",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.add(app.portGrid, {\
+  VOYAGE_NO: app.vesselNo.getValue(),\
+  SERVICE: app.SERVICE_NAME.getValue(),\
+  I_E_ID: app.I_E_ID.getValue(),\
+  CREATED_ON: new Date(),\
+  UPDATED_ON: new Date()\
+}, \"last\", 1, false);"}
+       },
+       {
+        "configs": {
+         "itemId": "delBtn",
+         "tooltip": "删除选择的记录",
+         "text": "@Str.del",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.remove(app.portGrid);"}
+       },
+       {
+        "configs": {
+         "itemId": "item1",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "saveCntrBtn",
+         "tooltip": "保存所有的更改",
+         "text": "@Str.save",
+         "iconCls": "save_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verifyGrid(app.portGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.portGrid,\
+  url: 'm?xwl=shipManage/ship/vesselPortEdit/save',\
+  message: '正在保存中...',\
+  params: {\
+    VOYAGE_NO: app.vesselNo.getValue()\
+  },\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.portGrid, Wb.decode(resp.responseText));\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "vesselNo",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "I_E_ID",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "SERVICE_NAME",
+         "labelAlign": "right",
+         "fieldLabel": "航线",
+         "displayField": "NAME",
+         "labelWidth": "80",
+         "valueField": "ID"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {"itemId": "columns"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "rowNumCol",
+         "xtype": "rownumberer"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colI_E_ID",
+         "dataIndex": "I_E_ID",
+         "width": "60",
+         "keyName": "I_E_ID",
+         "text": "进出口"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "PORT_CODE1",
+         "dataIndex": "PORT_CODE",
+         "keyName": "C_PORT",
+         "width": "120",
+         "text": "港口"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "keyName": "C_PORT",
+          "anyMatch": "true"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "combo"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "PORT_SEQ1",
+         "dataIndex": "PORT_SEQ",
+         "width": "49",
+         "text": "港序"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "maxValue": "99999"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "SCAN_CODE1",
+         "dataIndex": "SCAN_CODE",
+         "width": "120",
+         "text": "船头港口简称字母"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "maxLength": "1"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text",
+         "events": {"change": "text.setValue(newValue.toUpperCase());"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "PORT_COLOR1",
+         "renderer": "metaData.style = 'background-color:#' + value + '';\
+return \"\";",
+         "dataIndex": "PORT_COLOR",
+         "width": "80",
+         "text": "颜色"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "editable": "true",
+          "width": "480"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "layout": "absolute",
+           "itemId": "pickComp",
+           "width": "60",
+           "height": "23"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "button",
+            "width": "60",
+            "menuType": "colormenu",
+            "text": "选色"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"menuselect": "\
+var picker = menu.up('#editor');\
+var  rec=app.portGrid.getSelection()[0];\
+rec.set(\"PORT_COLOR\",value);\
+\
+picker.collapse();\
+\
+\
+\
+"}
+          }],
+          "type": "panel"
+         }],
+         "type": "picker"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "column1",
+         "xtype": "actioncolumn",
+         "width": "50",
+         "align": "center"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {"itemId": "items"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "addAction",
+            "handler": "record.set(\"PORT_SEQ\",record.data.PORT_SEQ-1);",
+            "width": "20",
+            "tooltip": "上",
+            "iconCls": "up_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "delAction",
+            "handler": "record.set(\"PORT_SEQ\",record.data.PORT_SEQ+1);",
+            "width": "20",
+            "tooltip": "下",
+            "iconCls": "down_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }],
+        "type": "column"
+       }
+      ],
+      "type": "array"
+     }
+    ],
+    "type": "grid"
+   }],
+   "type": "window"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "挂港维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

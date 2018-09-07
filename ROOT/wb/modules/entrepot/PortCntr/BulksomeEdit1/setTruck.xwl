@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),billIds=Wb.decode(app.get(\"billIds\")),outNum=Wb.decode(app.get(\"outNum\")) ,tr=[]; //租户id\
+var pids=Wb.decode(app.get(\"PID\"));\
+var billNos=Wb.decode(app.get(\"BILLNO\"));\
+// for(var i=0;i<billIds.length;i++){\
+// tr.push({billId:billIds[i],outNum:outNum[i]});\
+// }\
+for(var i=0;i<billIds.length;i++){\
+tr.push({billId:billIds[i],outNum:outNum[i],pid:pids[i],billNo:billNos[i]});\
+}\
+// app.run(\"update BLUK_GOODS set OUTQUTY=nvl(OUTQUTY,0)+to_number({?outNum?}) ,  QUTY=QUTY-to_number({?outNum?})  where BILL_ID={?billId?}\",{\
+//          arrayData: new org.json.JSONArray(Wb.encode(tr)),\
+//          transaction:'start'\
+//         });\
+\
+// app.run(\"insert into BLUK_INOUT(INID, OUTID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO) values((select CFSBILL_ID from BLUK_GOODS where BILL_ID={?billId?}),\"+\
+//       \"  sys_guid(),'0',to_number({?outNum?}),{?TRUCKNO?},{?RELEASE_NO?})\",\
+//         {   arrayData: new org.json.JSONArray(tr)});\
+app.run(\"update BLUK_GOODS set OUTQUTY=nvl(OUTQUTY,0)+to_number({?PIECES?}) ,  QUTY=QUTY-to_number({?PIECES?})  where BILL_ID={?billId?}\",{\
+         arrayData: new org.json.JSONArray(Wb.encode(tr)),\
+         transaction:'start'\
+        });\
+app.run(\"insert into BLUK_INOUT(INID, OUTID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO) values({?pid?},\"+\
+      \"  sys_guid(),'0',{?PIECES?},{?TRUCKNO?},{?RELEASE_NO?})\",\
+        {   arrayData: new org.json.JSONArray(tr)});\
+\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        select sys_guid(),SHIPPER,BILL_ID,sysdate,{?timestamp.WORKDATE?},'','','','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'','' from BLUK_GOODS where BILL_ID={?billId?}\",\
+        {   arrayData: new org.json.JSONArray(tr)});\
+\
+//更新下状态fin\
+app.run(\"update BLUK_TRUCK set PHASE='FIN',TRUCK={?TRUCKNO?} where BILL_NO={?billNo?}\",\
+        {   arrayData: new org.json.JSONArray(tr)});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "设置出库车辆",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

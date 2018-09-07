@@ -1,0 +1,335 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "360",
+     "height": "240"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "labelAlign": "right",
+       "fieldLabel": "序列号",
+       "width": "300",
+       "x": "8",
+       "y": "16",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "DEV_NAME",
+       "labelAlign": "right",
+       "emptyText": "该项不能为空",
+       "fieldLabel": "设备名",
+       "width": "300",
+       "x": " 8",
+       "y": "48",
+       "labelWidth": "60",
+       "blankText": "该项不能为空"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "300",
+       "x": "8",
+       "y": "80",
+       "labelWidth": "60",
+       "height": "50"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cDev/cDevData/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.findMenu.fireEvent('click'); \
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cDev/cDevData/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.findMenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/cDev/cDevData/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "设备名",
+          "labelWidth": "65"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findMenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+  out:app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "addMenu",
+          "text": "新增",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.editWin.setTitle('添加 - 设备 ' );\
+app.editWin.setIconCls('record_add_icon');\
+app.ID.enable();\
+app.editWin.show();\
+Wb.verify(app.editWin);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "modifyMenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle('修改 - ' + app.selRec.data.DEV_NAME);\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+app.ID.disable();\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delMenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cDev/cDevData/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'DEV_NAME');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "rowNumCol",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "idCol",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "@Str.ID",
+          "align": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "tenantIdCol",
+          "dataIndex": "TENANT_ID",
+          "keyName": "AUTH_TENANCY",
+          "text": "租户",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "devNameCol",
+          "dataIndex": "DEV_NAME",
+          "text": "设备名",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "notesCol",
+          "dataIndex": "NOTES",
+          "text": "@Str.NOTES",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdByCol",
+          "dataIndex": "CREATED_BY",
+          "width": "70",
+          "text": "@Str.CREATED_BY",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdOnCol",
+          "dataIndex": "CREATED_ON",
+          "text": "@Str.CREATED_ON",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedByCol",
+          "dataIndex": "UPDATED_BY",
+          "width": "90",
+          "text": "@Str.UPDATED_BY",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedOnCol",
+          "dataIndex": "UPDATED_ON",
+          "text": "@Str.UPDATED_ON",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.modifyMenu.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "设备管理",
+ "iconCls": "cd_edit_icon",
+ "inframe": false,
+ "pageLink": ""
+}

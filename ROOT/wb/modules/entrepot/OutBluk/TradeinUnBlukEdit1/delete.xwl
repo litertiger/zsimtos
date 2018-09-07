@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "//使用直通式SQL语句删除数据：\
+//app.run('delete from WB_EMPLOYEE where EMPLOYEE_ID={?EMPLOYEE_ID?}', {\
+//  arrayName: 'destroy'\
+//});\
+//上面的代码建议使用以下方法，删除数据：\
+// app.update({\
+//   tableName: 'DEV_CNTR',\
+//   whereFields:'ID'\
+// });\
+\
+app.run(\"delete from DEV_CNTR where ID={?ID?}\");\
+var data = app.get();\
+app.log(\"ids:\" + data.ids);\
+var aid = \"\";\
+var rs = Wb.getRecords(app.run(\"select ID from accounts_details where BUSSINESS_CODE='\" + data.ids + \"'\"));\
+for (var i = 0; i < rs.length; i++) {\
+  aid += rs[i].ID + \",\";\
+}\
+if (aid.length > 0)\
+  Wb.newClass(\"accountDetailService\").delManualFees(request, aid + ',');",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var TRADE_ID = \"\";\
+var sql = \"\";\
+if (Wb.isEmpty(data.APPLY_TYPE)) {\
+  sql = \"select * from port_cntr where 1=2\";\
+} else {\
+  if (data.APPLY_TYPE == \"ITO\")\
+    TRADE_ID = \"2\";\
+  if (data.APPLY_TYPE == \"OTI\")\
+    TRADE_ID = \"1\";\
+  sql = \"select * from port_cntr where tenancy_id='\" + tenancyid + \"'\" +\
+    \" and CNTR like '%'||{?query?}||'%'\";\
+  if (data.APPLY_TYPE == \"ITO\" || data.APPLY_TYPE == \"OTI\")\
+    sql += \"  and((i_e_id='I' and e_f_id='E')or i_e_id='E')\" +//and phase='ACT'\
+    \" and TRADE_ID='\" + TRADE_ID + \"'\" ;\
+   // \" and id not in(select cntr_id from receipt where phase='OUT' and tenancy_id='\" + tenancyid + \"' and cntr like '%'||{?query?}||'%')\";\
+  if (nature == '5')\
+    sql += \" and CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "查询箱子",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

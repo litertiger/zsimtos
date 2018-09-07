@@ -1,0 +1,79 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//拼柜是先入库后扣留。整柜是扣留，不会有扣留的操作。\
+var username = app.get(\"sys.username\"),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  rs;\
+var dispname=app.get('sys.dispname');\
+var idArray = new Array();\
+var rs = Wb.getRecords(app.run(\"select * from BLUK_GOODS where BILL_ID={?BILL_ID?}\"));\
+if (rs.length == 0) {\
+  var id = SysUtil.getId();\
+  app.run(\"update BLUK_BILL set IPIECES={?IPIECES?}, TASKSTATUS='FIN',LOCATION={?LOCATION?},CFS_ID={?CFS_ID?},CFSTIME={?timestamp.CFSTIME?},SIGNERCFS='\" + dispname + \"',WEIGHT={?WEIGHT?},VOLUME={?VOLUME?},CFSBILLNO={?CFSBILLNO?} where CFSBILL_ID={?CFSBILL_ID?}\", {\
+    transaction: 'start'\
+  });\
+  app.run(\"insert into BLUK_GOODS(ID,CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, \" +\
+    \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\" +\
+    \"   select '\" + id + \"',CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, {?timestamp.CFSTIME?}, '', LOCATION, CFS_ID, \" +\
+    \"    WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\" + username + \"', '\" + username + \"' from BLUK_BILL\" +\
+    \"     where BILL_ID={?BILL_ID?} and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?})\");\
+  app.run(\"update BLUK_PLAN set TASKSTATUS='FIN' where ID={?LCL_ID?} and not exists(select 1 from BLUK_BILL where  TASKSTATUS<>'FIN' and LCL_ID={?LCL_ID?})\");\
+  app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO,WEIGHT, VOLUME, STORE_TIME, BILL_NO,SIGNERCFS)values('\" + id + \"','0',to_number({?IPIECES?}),'',{?CFSBILLNO?},'',{?WEIGHT?}, {?VOLUME?}, sysdate, {?BILL_NO?},'\"+dispname+\"')\");\
+\
+} else {\
+  //---------------------------------------------------------------------已经入库的类型\
+  //需要判断是否是原仓库：1原仓库（位置必须的不一样）2不同仓库\
+  var rg = app.run(\"select * from BLUK_BILL where CFS_ID={?CFS_ID?} AND BILL_NO={?BILL_NO?}\");\
+  if (!rg.next()) {\
+    app.run(\"update BLUK_BILL set IPIECES={?IPIECES?}, TASKSTATUS='FIN',LOCATION={?LOCATION?},CFS_ID={?CFS_ID?},CFSTIME={?timestamp.CFSTIME?},SIGNERCFS='\" + dispname + \"',WEIGHT={?WEIGHT?},VOLUME={?VOLUME?},CFSBILLNO={?CFSBILLNO?},KLBILL_ID=1 where CFSBILL_ID={?CFSBILL_ID?}\");\
+    //拼柜：先入库，在扣留\
+    app.run(\"update BLUK_GOODS set OUTQUTY=to_number({?IPIECES?}), QUTY=QUTY- to_number({?IPIECES?}),OUTTIME=sysdate,CFSBILLNO={?CFSBILLNO?}   where ID=(select ID from BLUK_GOODS WHERE BILL_ID={?BILL_ID?})\", {\
+      transaction: 'start'\
+    });\
+    var id = SysUtil.getId();\
+    app.run(\"insert into BLUK_GOODS(BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON, GOODS, ID, IMPEXP, INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, UPDATED_BY, UPDATED_ON, VOLUME, WEIGHT,TYPE,INQUTY)\\\
+select BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, {?CFS_ID?}, CNTR_OPERATOR, '\" + username + \"', sysdate, GOODS, '\" + id + \"', IMPEXP, to_number({?INQUTY?}), sysdate, {?LOCATION?},0, OUTTIME, to_number({?IPIECES?}), SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, '\" + username + \"', sysdate, VOLUME, WEIGHT,TYPE,to_number({?INQUTY?}) from BLUK_GOODS where ID=(select ID from BLUK_GOODS WHERE BILL_ID={?BILL_ID?})\");\
+    //出入库记录暂时不要\
+    //     app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO) values((select ID from BLUK_GOODS where ID={?ID?}),\" +\
+    //       \"  '1',to_number({?IPIECES?}),'',{?CFSBILLNO?},'')\"\
+    //     );\
+    app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO,WEIGHT, VOLUME, STORE_TIME, BILL_NO,SIGNERCFS) values((select ID from BLUK_GOODS where CFSBILL_ID={?CFSBILL_ID?} AND CFS_ID!={?CFS_ID?}),\" +\
+      \"  '1',to_number({?IPIECES?}),'',{?CFSBILLNO?},'',{?WEIGHT?}, {?VOLUME?}, sysdate, {?BILL_NO?},'\"+dispname+\"')\"\
+    );\
+    //进扣留仓\
+    app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO,WEIGHT, VOLUME, STORE_TIME, BILL_NO,SIGNERCFS) values('\" + id + \"',\" +\
+      \"  '0',to_number({?IPIECES?}),'',{?CFSBILLNO?},'',{?WEIGHT?}, {?VOLUME?}, sysdate, {?BILL_NO?},'\"+dispname+\"')\"\
+    );\
+  } else {\
+    //相同的仓库（搬移）\
+    app.run(\"update BLUK_GOODS set LOCATION={?LOCATION?}  where CFSBILL_ID={?CFSBILL_ID?}\", {\
+      transaction: 'start'\
+    });\
+    app.run(\"insert into BLUK_STATE(ID, BLUK_ID, OLD_POS, NEW_POS, MOVE_RES, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY) values \" +\
+      \"(sys_guid(), (select id from BLUK_GOODS where CFSBILL_ID={?CFSBILL_ID?}), {?OLD_POS?}, {?LOCATION?}, {?MOVE_RES?}, '\" + TENANCY_ID + \"', sysdate, sysdate,  '\" + username + \"', '\" + username + \"')\", {\
+        transaction: 'commit'\
+      });\
+\
+    //\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "更新入库信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

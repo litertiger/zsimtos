@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": " var id, ids = [];\
+ var username = app.get('sys.username');\
+ var recs = Wb.decode(request.getParameter('create'));\
+ Wb.each(recs, function(rec) {\
+   id = SysUtil.getId(); //getSeqId(0);\
+   rec.ID = id;\
+   rec.CREATED_BY = username;\
+   rec.CREATED_ON = new JavaDate();\
+   ids.push({\
+     ID: id,\
+     CREATED_BY: username,\
+     CREATED_ON: new JavaDate()\
+   });\
+ });\
+ request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+ var recs2 = Wb.decode(request.getParameter('update'));\
+\
+ Wb.each(recs2, function(rec) {\
+   rec.UPDATED_BY = username;\
+   rec.UPDATED_ON = new JavaDate();\
+   ids.push({\
+     UPDATED_BY: username,\
+     UPDATED_ON: new JavaDate()\
+   });\
+ });\
+ request.setAttribute('update', Wb.encode(recs2));\
+ app.update({\
+   tableName: 'OVER_WEIGHT'\
+ });\
+\
+ app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

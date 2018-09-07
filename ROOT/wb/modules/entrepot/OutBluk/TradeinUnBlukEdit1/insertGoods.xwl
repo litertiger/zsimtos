@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = app.get('ID');\
+var signercfd = app.get('sys.dispname');\
+var data = app.get();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+\
+\
+//RET  加装  UNEXT拆箱直提  UNBOX拆箱入库  UNPACK 拆箱换柜\
+if (data.DEV_TYPE == 'UNBOX') {\
+  app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION,\" +\
+    \"CFS_ID, WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, \" +\
+    \"CNTR_OPERATOR, CARGO_TYPE, SHIPPER_COD, ID, TRADE_ID)\" +\
+    \"values({?BILL_ID?},{?GOODS_NOTES?},'I',{?SHIPPER?},'',{?PIECES?},{?PIECES?},0,sysdate,'',{?LOCATION?},{?CFS_ID?},{?WEIGHT?}\" +\
+    \",'',{?VOLUME?},SYS_GUID(),{?sys.TENANCY_ID?},SYSDATE,sysdate,{?sys.username?},{?sys.username?},{?BILL_NO?},'',{?CARGO_TYPE?},{?SHIPPER_COD?},'\" + id + \"','2')\");\
+  //相当于做了一次入库\
+  app.run(\"insert into bluk_inout(ID, OUTFLAG, PIECES,WEIGHT, VOLUME, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID, SIGNERCFS, TENANCY_ID, TRUCKNUM, LINK_NAME,IN_WAY,CNTR,STORE_TIME,BILL_NO)\" +\
+    \"values('\" + id + \"','0',{?PIECES?},{?WEIGHT?},{?VOLUME?},{?TRUCKNO?},'','','','\" + signercfd + \"',{?sys.TENANCY_ID?},{?TRUCKNUM?},{?LINK_NAME?},'car_in',{?CNTR?},sysdate,{?BILL_NO?})\");\
+} //插入作业票\
+else if (data.DEV_TYPE == 'UNPACK') {\
+  var s = data.CNTR,\
+    ss;\
+  if (s.indexOf(',') != -1) {\
+    ss = s.split(',');\
+  }\
+  app.run(\"update  PORT_CNTR set E_F_ID='E' where  CNTR='\" + ss[0] + \"' and tenancy_id='\" + tenancyId + \"' )\");\
+  app.run(\"update  PORT_CNTR set E_F_ID='F' where  CNTR='\" + ss[1] + \"' and tenancy_id='\" + tenancyId + \"'\");\
+}\
+app.run(\"insert into WORK_BILL(BILL_NO, PIECES, WEIGHT, VOLUME,ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\" +\
+  \" DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\" +\
+  \" values( {?BILL_NO?},{?PIECES?}, {?WEIGHT?}, {?VOLUME?},sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?DEV_TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\" +\
+  \"  '','','',{?ID?},'','',{?MANNUM?},'',{?PORC_COUNT?})\");\
+app.run(\"update  DEV_CNTR set PHASE='FIN'     where  ID='\" + id + \"' \");\
+// app.run(\"update  PORT_CNTR set E_F_ID='E'     where  CNTR={?CNTR?} and tenancy_id='\"+tenancyId+\"'\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "生成入库记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

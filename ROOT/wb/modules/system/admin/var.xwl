@@ -1,0 +1,542 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "addFolderBtn",
+        "handler": "app.addFolder",
+        "tooltip": "在当前分支添加新的目录",
+        "text": "添加目录",
+        "iconCls": "folder_add_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "editFolderBtn",
+        "handler": "app.editFolder",
+        "tooltip": "修改当前选择的目录",
+        "text": "修改目录",
+        "iconCls": "folder_edit_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "delFolderBtn",
+        "handler": "app.delFolder",
+        "tooltip": "删除当前选择的目录",
+        "text": "删除目录",
+        "iconCls": "folder_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "item1",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "addVarBtn",
+        "tooltip": "在当前分支添加新的变量 (Ctrl+E)",
+        "text": "添加变量",
+        "iconCls": "record_add_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.setVar(null, true);"}
+      },
+      {
+       "configs": {
+        "itemId": "delVarBtn",
+        "handler": "app.delVar",
+        "tooltip": "删除当前选择的变量",
+        "text": "删除变量",
+        "iconCls": "record_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "setVarBtn",
+        "tooltip": "设置选择变量的值",
+        "text": "设置变量",
+        "iconCls": "property_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.setVar();"}
+      },
+      {
+       "configs": {
+        "itemId": "refreshVarBtn",
+        "tooltip": "刷新当前变量列表",
+        "text": "刷新变量",
+        "iconCls": "refresh_icon"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.grid1.store.reload();"}
+      },
+      {
+       "configs": {
+        "itemId": "item2",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "pathText",
+        "flex": "1",
+        "readOnly": "true",
+        "selectOnFocus": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "tree1",
+      "split": "true",
+      "width": "240",
+      "region": "west",
+      "title": "变量目录",
+      "tools": "Wb.getTreeTools({search:true})",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "sorters": "{\
+  property: 'text'\
+}",
+       "url": "m?xwl=system/admin/var/get-tree"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "treestore",
+      "events": {"success": "Wb.selFirst(node.getOwnerTree());"}
+     }],
+     "type": "tree",
+     "events": {"selectionchange": "var node = selected[0];\
+if (node)\
+  app.list(app.getPath(node));"}
+    },
+    {
+     "configs": {
+      "itemId": "grid1",
+      "pagingBar": "false",
+      "region": "center",
+      "title": "变量列表",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "sorters": "{\
+  property: 'name'\
+}",
+        "fields": "['name','value','remark','meta']",
+        "url": "m?xwl=system/admin/var/get-vars"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "numCol",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "nameCol",
+          "dataIndex": "name",
+          "width": "150",
+          "text": "名称"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "valueCol",
+          "dataIndex": "value",
+          "width": "230",
+          "text": "值"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "remarkCol",
+          "dataIndex": "remark",
+          "flex": "1",
+          "text": "说明"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {
+      "selectionchange": "var rec = selected[0];\
+app.pathText.setValue(rec ? app.listPath + '.' + rec.get('name') : '');",
+      "itemdblclick": "app.setVar(record, false);"
+     }
+    }
+   ],
+   "type": "viewport",
+   "events": {"afterrender": "app.navKey = new Ext.KeyNav({\
+  viewport: app.viewport1,\
+  E: {\
+    ctrl: true,\
+    fn: function() {\
+      app.addVarBtn.fireEvent('click');\
+    }\
+  }\
+});"}
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  //获取节点路径\
+  getPath: function(node) {\
+    return node.getPath('text', '.').substring(6);\
+  },\
+  addFolder: function() {\
+    var node = app.tree1.getSelection()[0],\
+      path;\
+    if (!node) {\
+      Wb.warn('请选择变量目录。');\
+      return;\
+    }\
+    path = app.getPath(node);\
+    Wb.prompt({\
+      title: '添加目录 - ' + path,\
+      iconCls: 'folder_add_icon',\
+      items: [{\
+        fieldLabel: '名称',\
+        itemId: 'name',\
+        allowBlank: false\
+      }, {\
+        boxLabel: '插入到同级节点',\
+        hideEmptyLabel: false,\
+        saveKeyname: 'sys.admin.var.insertCheck', //下次打开对话框时还原该值\
+        itemId: 'check',\
+        xtype: 'checkbox'\
+      }],\
+      handler: function(values, win) {\
+        var baseNode;\
+        if (values.check)\
+          baseNode = node.parentNode;\
+        else baseNode = node;\
+        Wb.request({\
+          url: 'm?xwl=system/admin/var/set-folder',\
+          params: Ext.apply({\
+            type: 'add',\
+            isNew: true,\
+            path: app.getPath(baseNode)\
+          }, values),\
+          success: function(resp) {\
+            Wb.append({\
+              text: values.name,\
+              children: []\
+            }, baseNode);\
+            baseNode.sort();\
+            win.close();\
+          }\
+        });\
+      }\
+    });\
+  },\
+  editFolder: function() {\
+    var node = app.tree1.getSelection()[0],\
+      path;\
+    if (!node) {\
+      Wb.warn('请选择变量目录。');\
+      return;\
+    }\
+    path = app.getPath(node);\
+    Wb.prompt({\
+      title: '修改目录 - ' + path,\
+      iconCls: 'folder_edit_icon',\
+      items: [{\
+        fieldLabel: '名称',\
+        itemId: 'name',\
+        value: node.data.text,\
+        allowBlank: false\
+      }],\
+      handler: function(values, win) {\
+        if (node.data.text == values.name) {\
+          win.close();\
+          return;\
+        }\
+        var parentNode = node.parentNode;\
+        Wb.request({\
+          url: 'm?xwl=system/admin/var/set-folder',\
+          params: {\
+            type: 'update',\
+            name: node.data.text,\
+            newName: values.name,\
+            path: app.getPath(parentNode)\
+          },\
+          success: function(resp) {\
+            Wb.update(node, {\
+              text: values.name\
+            });\
+            parentNode.sort();\
+            win.close();\
+            app.list(app.getPath(node)); //路径改变重新加载\
+          }\
+        });\
+      }\
+    });\
+  },\
+  delFolder: function() {\
+    var sel = app.tree1.getSelection()[0];\
+    Wb.confirmDo(sel, function() {\
+      Wb.request({\
+        url: 'm?xwl=system/admin/var/set-folder',\
+        params: {\
+          type: 'delete',\
+          path: app.getPath(sel)\
+        },\
+        success: function(resp) {\
+          Wb.remove(app.tree1, sel);\
+        }\
+      });\
+    }, 'text');\
+  },\
+  setVar: function(rec, isNew) {\
+    var items, meta, cfg, field;\
+    if (isNew) {\
+      rec = {\
+        data: {\
+          meta: {}\
+        }\
+      };\
+    } else {\
+      if (!rec)\
+        rec = app.grid1.getSelection()[0];\
+      if (!rec) {\
+        Wb.warn('请选择要编辑的变量。');\
+        return;\
+      }\
+    }\
+    field = {\
+      fieldLabel: '变量值',\
+      itemId: 'value',\
+      value: rec.data.value\
+    };\
+    meta = rec.data.meta;\
+    cfg = Ext.apply({}, meta);\
+    delete cfg.type;\
+    if (!isNew) {\
+      switch (meta.type) {\
+        case 'string':\
+          field.xtype = 'textfield';\
+          break;\
+        case 'bool':\
+          field.xtype = 'combo';\
+          field.forceSelection = true;\
+          field.store = [true, false];\
+          field.allowBlank = false;\
+          break;\
+        case 'int':\
+          field.xtype = 'numberfield';\
+          field.allowDecimals = false;\
+          field.allowBlank = false;\
+          break;\
+        case 'double':\
+          field.xtype = 'numberfield';\
+          field.decimalPrecision = 20;\
+          field.allowBlank = false;\
+          break;\
+        case 'enum':\
+          field.xtype = 'combo';\
+          field.forceSelection = true;\
+          field.store = meta.list;\
+          field.allowBlank = false;\
+          break;\
+      }\
+    }\
+    items = [];\
+    if (isNew) {\
+      items.push({\
+        fieldLabel: '名称',\
+        itemId: 'name',\
+        value: meta.type,\
+        allowBlank: false,\
+        store: ['string', 'bool', 'int', 'double', 'enum']\
+      }, field, {\
+        fieldLabel: '类型',\
+        itemId: 'type',\
+        xtype: 'combo',\
+        value: meta.type,\
+        allowBlank: false,\
+        saveKeyname: 'sys.admin.var.type',\
+        forceSelection: true,\
+        store: ['string', 'bool', 'int', 'double', 'enum']\
+      }, {\
+        fieldLabel: '说明',\
+        itemId: 'remark',\
+        allowBlank: false,\
+        value: rec.data.remark\
+      }, {\
+        fieldLabel: '配置',\
+        itemId: 'config',\
+        value: Ext.Object.isEmpty(cfg) ? '' : Wb.encode(cfg)\
+      });\
+    } else items = [field];\
+    Wb.prompt({\
+      title: isNew ? '添加变量 - ' + app.listPath : '设置变量 - ' + rec.data.name,\
+      iconCls: isNew ? 'record_add_icon' : 'property_icon',\
+      items: items,\
+      handler: function(values, win) {\
+        var config, type = values.type,\
+          val = values.value;\
+        switch (type) {\
+          case 'string':\
+            values.value = String(val);\
+            break;\
+          case 'int':\
+            values.value = parseInt(val, 10) || 0;\
+            break;\
+          case 'bool':\
+            values.value = Wb.parseBool(val);\
+            break;\
+          case 'double':\
+            values.value = parseFloat(val) || 0;\
+            break;\
+        }\
+        if (!isNew) {\
+          values.type = meta.type;\
+          values.name = rec.data.name;\
+        }\
+        try {\
+          if (values.config) {\
+            config = Wb.decode(values.config);\
+            if (!Ext.isObject(config))\
+              throw 'invalid json';\
+          } else\
+            config = null;\
+        } catch (e) {\
+          Wb.warn('配置项值不是有效的JSON值。', function() {\
+            win.down('#config').focus(true, true);\
+          });\
+          return;\
+        }\
+        Wb.request({\
+          url: 'm?xwl=system/admin/var/set-var',\
+          params: Ext.apply({\
+            isNew: isNew,\
+            path: app.listPath\
+          }, values),\
+          success: function(resp) {\
+            if (isNew) {\
+              Wb.add(app.grid1, Wb.apply({\
+                meta: Wb.apply({\
+                  type: values.type\
+                }, config)\
+              }, values), 'add');\
+            } else {\
+              Wb.update(rec, values);\
+            }\
+            win.close();\
+          }\
+        });\
+      }\
+    });\
+  },\
+  delVar: function() {\
+    var sels = app.grid1.getSelection();\
+    Wb.confirmDo(sels, function() {\
+      Wb.request({\
+        url: 'm?xwl=system/admin/var/del-var',\
+        params: {\
+          path: app.listPath,\
+          names: Wb.pluck(sels, 'name')\
+        },\
+        success: function(resp) {\
+          Wb.remove(app.grid1, sels);\
+        }\
+      });\
+    });\
+  },\
+  //显示指定路径目录下所有变量\
+  list: function(path) {\
+    var store = app.grid1.store;\
+    app.listPath = path;\
+    Wb.setTitle(app.grid1, path);\
+    store.removeAll();\
+    store.load({\
+      params: {\
+        path: path\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {},
+ "title": "变量配置",
+ "iconCls": "object_icon",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "//app.execute('m?xwl=shipBIlla/inEDI/proShipBIll');\
+\
+var os, files = app.getFiles('file1');\
+\
+var ieId=app.get(\"ieId\"),tradeId=app.get(\"tradeId\"),shipNo=app.get(\"shipNo\"),voyageNo=app.get(\"voyageNo\");\
+var dateForm=java.lang.System.currentTimeMillis();//DateUtil.format(new java.util.Date(),'yyyyMMddHHmmss');\
+var ediProcess = com.ag.edi.EdiProcess;\
+request.setAttribute(\"routeid\",\"edi-zsifcsum\");\
+request.setAttribute(\"ieId\", ieId);\
+request.setAttribute(\"VID\", shipNo);\
+request.setAttribute(\"VOYAGE_NO\", voyageNo);\
+request.setAttribute(\"tradeId\", tradeId);\
+var i=1,errormessage=\"\";\
+Wb.each(files, function(file) {\
+  if (!file) return;\
+  try {\
+    if(i<9)\
+    request.setAttribute(\"batchno\",dateForm+\"00\"+i);\
+     else if(i>9&&i<100)\
+    request.setAttribute(\"batchno\",dateForm+\"0\"+i);\
+     else if(i>=100)\
+    request.setAttribute(\"batchno\",dateForm+i);\
+    i++;\
+\
+     request.setAttribute(\"file1\", file.stream);\
+     request.setAttribute(\"fileName\", file.name);\
+    \
+    errormessage+= Wb.newClass(\"importShipBillEdi\").importShipBill(request,response);\
+   app.log(errormessage);\
+    //if(errormessage==\"\")\
+  } finally {\
+    //file.stream可不用关闭，系统会自动关闭\
+  }\
+});\
+app.send(errormessage);\
+\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "edi报文上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

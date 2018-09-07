@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get(\"sys.username\");\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+app.run(\"select 1 from remitting where id ={?ID?} AND R_OK=1\", {\
+  errorText: \"已经确认,不能作废托收单\"\
+});\
+app.run(\"select 1 from remitting where id ={?ID?} AND R_OK=2\", {\
+  errorText: \"已经作废\"\
+});\
+\
+var sql = \"update remitting set r_ok=2 where ID='\" + data.ID + \"'\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+app.run(\"update remitting_item set r_ok=2 where c_id='\" + data.ID + \"'\");\
+//修改费用明细\
+sql = \"update accounts_details set IS_MANUAL=1,PAYMENT_TYPE=decode(PAYMENT_TYPE,1,2,1),remittingitem_id=''\" +\
+  \" where id in (select ad_id from remitting_item where c_id='\" + data.ID + \"')\";\
+app.run(sql);\
+\
+app.run(\"insert into remitting_log values('作废结算类型转换:\" + data.ID + \"','\" + username + \"',sysdate,'\" + tenancyid + \"')\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

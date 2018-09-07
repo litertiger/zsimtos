@@ -1,0 +1,154 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "baseParams": "{abc:123}",
+    "layout": "absolute",
+    "itemId": "form1",
+    "width": "456",
+    "height": "160"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "allowBlank": "false",
+      "itemId": "file1",
+      "labelAlign": "right",
+      "fieldLabel": "上传文件",
+      "width": "360",
+      "x": "32",
+      "y": "24",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "file"
+    },
+    {
+     "configs": {
+      "itemId": "text1",
+      "labelAlign": "right",
+      "fieldLabel": "其他参数",
+      "width": "360",
+      "x": "32",
+      "y": "56",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    },
+    {
+     "configs": {
+      "itemId": "successBtn",
+      "width": "88",
+      "x": "16",
+      "y": "96",
+      "text": "上传成功",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "button",
+     "events": {"click": "//文件上传必须使用form控件,form控件可以嵌套在任何容器中，包括panel,window和viewport等。\
+if (!Wb.verify(app.form1)) //验证值是否合法\
+  return;\
+//上传数据。此方法采用multipart/form-data编码上传数据，因此后台必须通过request.getAttribute(itemId)获取指定控件数据\
+Wb.upload({\
+  form: app.form1, //上传的表单控件，必选项\
+  showProgress: true, //显示上传进度条\
+  url: 'm?xwl=system/examples/file/download-upload/process-upload&type=1',\
+  //out:[panel1, grid1],以控件列表的方式上传指定控件值\
+  //showMask: false,上传过程不显示mask\
+  //message: '正在上传中...',\
+  //mask: app.form1, //mask遮盖对象，未指定默认为全屏，前2秒透明遮盖。\
+  params: { //以json对象表达的参数列表\
+    foo: 'bar',\
+    num: 123,\
+    date: new Date()\
+  },\
+  //上传成功之后的回调方法\
+  success: function(form, action, value) {\
+    //value为服务器返回的值，action.response.responseText为服务器返回的原始值\
+    Wb.info(value);\
+  }\
+});"}
+    },
+    {
+     "configs": {
+      "itemId": "failBtn",
+      "width": "88",
+      "x": "128",
+      "y": "96",
+      "text": "上传失败",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "button",
+     "events": {"click": "if (!Wb.verify(app.form1))\
+  return;\
+//此操作将触发后台异常，但前台不会重置，类似ajax效果。\
+Wb.upload({\
+  form: app.form1,\
+  //showError: false,屏蔽自动显示的错误信息\
+  url: 'm?xwl=system/examples/file/download-upload/process-upload&type=2'\
+});"}
+    },
+    {
+     "configs": {
+      "itemId": "uploadDownloadBtn",
+      "width": "88",
+      "x": "240",
+      "y": "96",
+      "text": "上传后下载",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "button",
+     "events": {"click": "if (!Wb.verify(app.form1)) //验证值是否合法\
+  return;\
+Wb.upload({\
+  form: app.form1,\
+  showMask: false, //如果上传后下载文件，必须设置为false，否则下载后无法移除mask。（因为下载不会触发回调）\
+  url: 'download', //公共下载服务 m?xwl=system/sys/service/download\
+  params: {\
+    files: ['wb/images/site/wb.gif']\
+  }\
+});"}
+    },
+    {
+     "configs": {
+      "itemId": "downloadBtn",
+      "width": "88",
+      "x": "352",
+      "y": "96",
+      "text": "直接下载",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "button",
+     "events": {"click": "//该示例演示使用Wb.download方法下载文件，第一个参数为url，第二参数为参数对象，具体见Wb.download文档\
+//使用普通编码下载的在后台使用request.getParameter获取参数，文件上传模式使用request.getAttribute获取参数\
+Wb.download('download', {\
+  files: ['wb/images/site/wb.gif'],\
+  foo: 'bar'\
+} /*,isUpload 指定是否是上传模式方式编码*/ );"}
+    }
+   ],
+   "type": "form"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "上传下载",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var signercfd = app.get('sys.dispname');\
+\
+app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION,\\\
+CFS_ID, WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, \\\
+CNTR_OPERATOR, CARGO_TYPE, SHIPPER_COD, ID, TRADE_ID)\\\
+values({?BILL_ID?},{?GOODS?},'I',{?SHIPPER?},'',{?QUTY?},0,{?QUTY?},sysdate,'','','NSC',{?WEIGHT?},'',{?VOLUME?},SYS_GUID(),{?sys.TENANCY_ID?},SYSDATE,sysdate,{?sys.username?},{?sys.username?},{?BILL_NO?},'',{?CARGO_TYPE?},{?SHIPPER_COD?},'\" + id + \"','2')\");\
+\
+\
+\
+app.run(\"insert into bluk_inout(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID, SIGNERCFS, TENANCY_ID, TRUCKNUM, LINK_NAME,IN_WAY,IO_TYPE,STORE_TIME, VOLUME, WEIGHT,BILL_NO)\\\
+values('\"+id+\"','0',{?QUTY?},{?TRUCKNO?},'','','','\"+signercfd+\"',{?sys.TENANCY_ID?},{?TRUCKNUM?},{?LINK_NAME?},'car_in',{?IO_TYPE?},sysdate, {?VOLUME?}, {?WEIGHT?},{?BILL_NO?})\");\
+\
+\
+//插入作业票\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        values(sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'',{?PORC_COUNT?})\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

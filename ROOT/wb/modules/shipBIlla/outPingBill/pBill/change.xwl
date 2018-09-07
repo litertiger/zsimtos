@@ -1,0 +1,85 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = Wb.decode(app.get('BILLS')), username = app.get(\"sys.username\"),\
+  BILL_ID = app.get(\"BILL_ID\"),TENANCY_ID=app.get('sys.TENANCY_ID');\
+var ids = new Array(),\
+  cntrId = \"'\" + app.get(\"OLD_CNTR_ID\") + \"','\" + app.get(\"NEW_CNTR_ID\") + \"'\";\
+mainFlag = 0;\
+for (var i = 0; i < data.length; i++) {\
+  if (data[i].MAIN_FLAG == 1) {\
+    mainFlag = 1;\
+  }\
+  ids.push({\
+    ID: data[i].ID,\
+    BILL_ID: BILL_ID\
+  });\
+}\
+app.log(ids);\
+app.run(\"update VBILL_HEAD set CNTR_ID={?NEW_CNTR_ID?} ,main_flag=0 where ID ={?ID?}\", {\
+  arrayData: new org.json.JSONArray(ids),\
+  transaction: 'start'\
+});\
+app.run(\"update VLOAD_LIST set( main_flag,CNTR, CNTR_ISO,CNTR_ID, CNTR_OPERATOR, POD, POL, SPOD, CNTR_SIZE, CNTR_TYPE, CNTR_OPERATOR_COD, CNTR_OWNER, CNTR_OWNER_COD)= \" +\
+  \" ( select 0,CNTR, CNTR_ISO,CNTR_ID, CNTR_OPERATOR, POD, POL, nvl(SPOD,POD), CNTR_SIZE, CNTR_TYPE, CNTR_OPERATOR_COD, CNTR_OWNER, CNTR_OWNER_COD  from   VLOAD_LIST_D where CNTR_ID={?NEW_CNTR_ID?} )  where BILL_ID ={?ID?}\", {\
+    arrayData: new org.json.JSONArray(ids)\
+  });\
+app.run(\"INSERT INTO vload_list \" +\
+  \"      (lcl_id ,PHASE,ID,I_E_ID,bill_ID,bill_NO,VID ,TENANCY_ID, CATEGORY_ID, E_F_ID, TRADE_ID ,cntr,cntr_iso, cntr_id, cntr_operator, pod, pol, spod,\" +\
+  \"       cntr_size, cntr_type, cntr_operator_cod, cntr_owner,\" +\
+  \"        cntr_owner_cod, weight, volume, pieces,UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\" +\
+  \" SELECT 1, '0',  sys_guid(), vbill_head.I_E_ID, {?ID?},vbill_head.bill_no,vload_list_d.VID,vbill_head.TENANCY_ID, CATEGORY_ID, E_F_ID,vbill_head.TRADE_ID, cntr, cntr_iso, vload_list_d.cntr_id, vload_list_d.cntr_operator,\" +\
+  \"      vload_list_d.pod, vload_list_d.pol,  nvl(vload_list_d.SPOD,vload_list_d.POD) , cntr_size,\" +\
+  \"      cntr_type, vload_list_d.cntr_operator_cod, vload_list_d.cntr_owner,\" +\
+  \"      vload_list_d.cntr_owner_cod, vbill_head.weight, vbill_head.volume,\" +\
+  \"      vbill_head.pieces,sysdate,sysdate,'\"+username+\"','\"+username+\"'\" +\
+  \" FROM vload_list_d, vbill_head\" +\
+  \" WHERE vload_list_d.cntr_id = {?NEW_CNTR_ID?}\" +\
+  \"   AND vbill_head.ID = {?ID?}\" +\
+  \"   AND NOT EXISTS (SELECT 1\" +\
+  \"                     FROM vload_list\" +\
+  \"                   WHERE bill_id = {?ID?})\",{arrayData: new org.json.JSONArray(ids)});\
+\
+app.run(\"{call bill_lcl_id({?vId?},'\"+TENANCY_ID+\"','E')}\");\
+\
+// app.run(\"update  VBILL_HEAD  set  MAIN_FLAG=0 where CNTR_ID in (\" + cntrId + \") and VID={?vId?} and I_E_ID='E'\");\
+// app.run(\"update  VLOAD_LIST  set  MAIN_FLAG=0 where CNTR_ID in (\" + cntrId + \") and VID={?vId?} and I_E_ID='E' \");\
+// var rs = app.run(\"select  VLOAD_LIST.ID ,VLOAD_LIST.CNTR_ID,VLOAD_LIST.BILL_ID  from  VLOAD_LIST where VLOAD_LIST.CNTR_ID={?OLD_CNTR_ID?} and  VLOAD_LIST.VID={?vId?}\");\
+// if (rs.next()) {\
+//   var cntrId = rs.getString(\"CNTR_ID\");\
+//   var id = rs.getString(\"ID\");\
+//   var billId = rs.getString(\"BILL_ID\");\
+//   app.run(\"update  VBILL_HEAD  set  MAIN_FLAG=1 where ID='\" + billId + \"' \");\
+//   app.run(\"update  VLOAD_LIST  set  MAIN_FLAG=1 where ID='\" + id + \"' \");\
+\
+// }\
+// var rs = app.run(\"select  VLOAD_LIST.ID ,VLOAD_LIST.CNTR_ID,VLOAD_LIST.BILL_ID  from VLOAD_LIST where   VLOAD_LIST.CNTR_ID={?NEW_CNTR_ID?} and  VLOAD_LIST.VID={?vId?}\");\
+// if (rs.next()) {\
+//   var cntrId = rs.getString(\"CNTR_ID\");\
+//   var id = rs.getString(\"ID\");\
+//   var billId = rs.getString(\"BILL_ID\");\
+//   app.run(\"update  VBILL_HEAD  set  MAIN_FLAG=1 where ID='\" + billId + \"' \");\
+//   app.run(\"update  VLOAD_LIST  set  MAIN_FLAG=1 where ID='\" + id + \"' \");\
+\
+// }"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

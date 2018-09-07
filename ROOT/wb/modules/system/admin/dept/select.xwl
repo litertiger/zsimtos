@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var result = {},\
+  records = {},\
+  record, nodes, rs, meta;\
+\
+rs = app.run('select * from WB_DEPT order by ORDER_INDEX');\
+meta = rs.getMetaData();\
+while (rs.next()) {\
+  record = Wb.getRecord(rs, meta);\
+  Wb.apply(record, {\
+    text: record.DEPT_NAME,\
+    iconCls: 'db_field_icon'\
+  });\
+  nodes = records[record.PARENT_DEPT];\
+  if (nodes) {\
+    nodes.push(record);\
+  } else {\
+    nodes = [record];\
+    records[record.PARENT_DEPT] = nodes;\
+  }\
+}\
+\
+function createNodes(items, parentDept) {\
+  items.children = records[parentDept] || [];\
+  if (items.children.length)\
+    items.expanded = true;\
+  Wb.each(items.children, function(item) {\
+    createNodes(item, item.DEPT_ID);\
+  });\
+}\
+createNodes(result, '-1');\
+app.send(result);",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

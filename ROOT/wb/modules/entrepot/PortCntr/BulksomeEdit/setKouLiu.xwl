@@ -1,0 +1,62 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.uername');\
+\
+var tenancyid = app.get('sys.TENANCY_ID'),\
+  billId = app.get(\"billId\"); //租户id\
+\
+// app.run(\"update BLUK_GOODS set OUTQUTY=to_number({?INQUTY?}), QUTY=QUTY- to_number({?INQUTY?}),OUTTIME=sysdate,CFSBILLNO={?CFSBILLNO?}   where BILL_ID={?billId?}\", {\
+//   transaction: 'start'\
+// });\
+\
+// app.run(\"insert into BLUK_GOODS(BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON, GOODS, ID, IMPEXP, INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, UPDATED_BY, UPDATED_ON, VOLUME, WEIGHT)\\\
+// select BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, {?CFS_ID?}, CNTR_OPERATOR, '\" + username + \"', sysdate, GOODS, {?sys.id?}, IMPEXP, to_number({?INQUTY?}), sysdate, {?LOCATION?},0, OUTTIME, to_number({?INQUTY?}), SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, '\" + username + \"', sysdate, VOLUME, WEIGHT from BLUK_GOODS where BILL_ID={?billId?}\");\
+// //出入库记录暂时不要\
+// app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO) values((select ID from BLUK_GOODS where ID={?ID?}),\" +\
+//   \"  '1',to_number({?INQUTY?}),'',{?CFSBILLNO?},'')\"\
+// );\
+// //进扣留仓\
+// app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO) values({?sys.id?},\" +\
+//   \"  '0',to_number({?INQUTY?}),'',{?CFSBILLNO?},'')\"\
+// );\
+// // app.set({billId:billId});\
+// // app.set('username',username);\
+// app.execute('m?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/workBill');\
+\
+\
+app.run(\"update BLUK_GOODS set OUTQUTY=to_number({?INQUTY?}), QUTY=QUTY- to_number({?INQUTY?}),OUTTIME=sysdate,CFSBILLNO={?CFSBILLNO?}   where ID={?ID?}\", {\
+  transaction: 'start'\
+});\
+\
+app.run(\"insert into BLUK_GOODS(BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON, GOODS, ID, IMPEXP, INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, UPDATED_BY, UPDATED_ON, VOLUME, WEIGHT)\\\
+select BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, {?CFS_ID?}, CNTR_OPERATOR, '\" + username + \"', sysdate, GOODS, {?sys.id?}, IMPEXP, to_number({?INQUTY?}), sysdate, {?LOCATION?},0, OUTTIME, to_number({?INQUTY?}), SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, '\" + username + \"', sysdate, VOLUME, WEIGHT from BLUK_GOODS where ID={?ID?}\");\
+//出入库记录暂时不要\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO) values((select ID from BLUK_GOODS where ID={?ID?}),\" +\
+  \"  '1',to_number({?INQUTY?}),'',{?CFSBILLNO?},'')\"\
+);\
+//进扣留仓\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO) values({?sys.id?},\" +\
+  \"  '0',to_number({?INQUTY?}),'',{?CFSBILLNO?},'')\"\
+);\
+// app.set({billId:billId});\
+// app.set('username',username);\
+app.execute('m?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/workBill');"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "设置扣留",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

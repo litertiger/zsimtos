@@ -1,0 +1,83 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF' || id=='') {
+   AF.func("SetItemLibraryURL", "reportdata/itemlib2.xml");		//指标库
+   AF.func("CallFunc", "102 \r\n name=我的工作表;rows=20;cols=10;colwidth=90");		//动态新建表
+   AF.func("SetProp", "isUsingEditMask=true");		//开启输入校验
+   AF.func("callFunc", "309");		//切换到设定TabOrder状态
+   AF.func("CallFunc", "301\r\n5");	//打开工具箱
+  }
+ }
+ function export_import()
+ {
+  var xml = AF.func("GetFileXML", "");
+  AF2.func("build", xml);
+  AF2.func("SelectCell", "");
+  AF2.focus();
+ }
+ function view_data()
+ {
+   var data = AF2.func("getUploadXML", "");
+   alert( data );
+ }
+ function openReportOther()
+ {
+   AF.func("build", "report/uploadmobile.xml");
+   window.scrollTo(0,0);
+ }
+</script>
+</head>
+
+<body topmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请直接用鼠标将指标<font color=red>"人事资料(内嵌表格)"</font>拖入报表； <br>
+</td>
+</tr>
+<tr height=4><td/></tr>
+</table>
+
+<div style="position:relative;width:100%;height:370px">
+	<script>insertReport('AF', 'workmode=uploadDesigntime')</script>
+</div>
+<br><hr color=#2266ee size=1>
+<img src='res/arrowdown.gif'> <b>2</b>.完成设计后，可以直接在下面处于'运行时'的报表模拟测试: <input type="button" value="  将报表导入到下面  " OnMouseUp="export_import()"> <img src='res/arrowdown.gif'><br>
+<br>
+<div style="position:relative;width:100%;height:370px">
+	<script>insertReport('AF2', 'workmode=uploadruntime')</script>
+</div>
+<br>
+<b>3</b>.输入，然后查看上报的XML数据包: <input type="button" value="  查看XML数据  " OnMouseUp="view_data()"><br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.请查看<a href="reportdata/itemlib2.xml" target=_blank>“指标库”</a>;<br>
+<b>2</b>.“移动应用” 的在线演示页 “5.体验五” 中的报表模版也是利用这个指标库实现的，可以打开此例子对应的报表模版: <input type="button" value=" 打开模版 " onclick="openReportOther()">;<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

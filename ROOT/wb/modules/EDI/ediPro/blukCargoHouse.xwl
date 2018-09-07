@@ -1,0 +1,101 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var pId = app.get('ID'),\
+  tenancyId = app.get('TENANCY_ID'),\
+  name = \"\",CAP0029ID,\
+    vId=app.get('VID');\
+\
+var username=app.get('sys.username'), ReadProperties=com.ag.util.ReadProperties;\
+if(tenancyId==='ZSG'){\
+\tname=\"中山港国际货运码头\";\
+    username=\"gj001\";\
+    tenancyId='HY';\
+    path=ReadProperties.GetValueByKey(\"ZSMQPUT\");\
+\
+}else if (tenancyId === 'XLG') {\
+  name = \"小榄港国际货运码头\";\
+  tenancyId='XLG';\
+  path=ReadProperties.GetValueByKey(\"XLMQPUT\");\
+\
+} else if (tenancyId === 'SWG') {\
+  name = \"神湾港国际货运码头\";\
+  tenancyId='SWG';\
+  path=ReadProperties.GetValueByKey(\"SWMQPUT\");\
+\
+}\
+var DomCrud = com.ag.task.Util.DomCrud;\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"no\\\"?><Message xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\"><Head>\";\
+var head = \"\",\
+  order = \"\",\
+  vId, id, vgy,cntr,cntrSize;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uuu'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+    dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuuuuu');;\
+app.log(dateText);\
+head += '<MessageID>ZSENTERPRI_' + dateName1 + '<\/MessageID>';\
+head += '<FunctionCode>2<\/FunctionCode>';\
+head += '<MessageType>CAP0029<\/MessageType>';\
+head += '<SenderID>ZSENTERPRI<\/SenderID>';\
+head += '<ReceiverID/>';\
+head += '<SendTime>' + dateName + '<\/SendTime>';\
+head += '<Version>1.0<\/Version><\/Head>';\
+xml += head;\
+order += \"<Declaration>\";\
+var rs = app.run(\"select  a.ID, b.LIB_VYG,c.EDI_CALL_SIGN,a.CNTR,a.CNTR_SIZE from  BLUK_PLAN a,VESSEL_VISIT b,VESSEL_VOYAGE c where a.VID=b.ID and b.vid=c.id    and a.ID='\" + pId + \"' and a.TENANCY_ID='\" + tenancyId + \"'\");\
+// var rs = app.run(\"select  a.ID, a.VID,b.VESSEL_NAME,b.IB_VYG,a.CNTR,a.CNTR_SIZE from  BLUK_PLAN a left join VESSEL_VOYAGE b on  a.VID=b.ID  where a.ID='\" + pId + \"' and a.TENANCY_ID='\" + tenancyId + \"'\");\
+if (rs.next()) {\
+  vId = rs.getString('EDI_CALL_SIGN');\
+  id = rs.getString('ID');\
+  vgy = rs.getString('LIB_VYG');\
+  cntr = rs.getString('CNTR');\
+  cntrSize = rs.getString('CNTR_SIZE');\
+}\
+if(tenancyId==='ZSG'){\
+\
+}\
+CAP0029ID=\"CAP0029\"+dateName;\
+order += \"<Info>\";\
+order += \"<BULK_IN_ID>CAP0029\"+dateName+\"<\/BULK_IN_ID>\";\
+order += \"<ZC_TYPE>2<\/ZC_TYPE>\";\
+order += \"<IMOCODE>\"+vId+\"<\/IMOCODE>\";\
+order += \"<VOY_NO>\"+vgy+\"<\/VOY_NO>\";\
+order += \"<SHIP_NAME_CN/>\";\
+order += \"<BILL_ID/>\";\
+order += \"<CONTA_ID>\"+cntr+\"<\/CONTA_ID>\";\
+order += \"<CONTA_SIZE/>\";\
+order += \"<GOODS_NAME/>\";\
+order += \"<DECLARE_CODE>\"+tenancyId+\"<\/DECLARE_CODE>\";\
+order += \"<DECLARE_NAME>\"+name+\"<\/DECLARE_NAME>\";\
+order += \"<OPERATE_CODE>\"+tenancyId+\"<\/OPERATE_CODE>\";\
+order += \"<OPERATE_NAME>\"+name+\"<\/OPERATE_NAME>\";\
+order += \"<DECLARE_USER>\"+username+\"<\/DECLARE_USER>\";\
+order += \"<DECLARE_TIME>\"+dateText+\"<\/DECLARE_TIME><\/Info>\";\
+order += \"<\/Declaration>\";\
+order += \"<\/Message>\";\
+xml += order;\
+\
+app.run(\"update BLUK_PLAN set SEND_ID='1',CAP0029ID='\"+CAP0029ID+\"' where ID={?ID?}\");\
+\
+var a = DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0029_CUSTOMS_\" + dateName, path);//\"/edidata/MQPUT\"\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "basic": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "拼柜散货入库申报",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

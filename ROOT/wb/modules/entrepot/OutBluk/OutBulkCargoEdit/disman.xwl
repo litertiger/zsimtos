@@ -1,0 +1,87 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//判断是否签到，已经签到的需要取消。未签到的可以操作\
+//判断是否已经签到\
+var dispname = app.get('sys.dispname');\
+var data = app.get();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+app.run(\"select 1 from buz_order where bill_no={?BILL_NOS?} and qd_by is not null\", {\
+  errorText: \"已签到，不能取消入库！\"\
+});\
+\
+var rs = app.run(\"select 1 from BLUK_GOODS where bill_id in(\" + data.ids + \") and inquty>0\");\
+if (rs && rs.next()) {\
+  app.error(\"111\");\
+  //第一种情况：有库存\
+  app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID,\" +\
+    \"WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, \" +\
+    \"CNTR_OPERATOR, CARGO_TYPE, SHIPPER_COD, ID, TRADE_ID, TYPE, KLPHASE)\" +\
+    \"select {?BILL_ID?}, GOODS, IMPEXP, SHIPPER, UNIT, {?INQUTY?}, NULL, {?QUTY?}, {?timestamp.INTIME?}, null, {?LOCATION?}, {?CFS_ID?}, {?WEIGHT?},\" +\
+    \"null, {?VOLUME?}, {?MOVELISTB_ID?}, '\" + tenancyId + \"', sysdate, sysdate, {?sys.username?}, {?sys.username?}, {?BILL_NO?}, {?CNTR_OPERATOR?},\" +\
+    \"{?CARGO_TYPE?}, {?SHIPPER_COD?}, sys_guid(), {?TRADE_ID?}, {?TYPE?}, 0 from BLUK_GOODS \" +\
+    \" where BILL_ID IN(\" + data.ids + \") AND {?BILL_NO?}<>{?BILL_NOS?} \", {\
+      arrayData: new org.json.JSONArray(data.datas)\
+    });\
+  app.run(\"update BLUK_GOODS set INQUTY={?INQUTY?},QUTY={?QUTY?},WEIGHT={?WEIGHT?},VOLUME={?VOLUME?} WHERE BILL_NO={?BILL_NO?} AND BILL_ID={?BILL_ID?} \" +\
+    \" AND TENANCY_ID='\" + tenancyId + \"'\", {\
+      arrayData: new org.json.JSONArray(data.datas)\
+    });\
+\
+} else {\
+  //第二种情况：无库存\
+  app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID,\" +\
+    \"WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, \" +\
+    \"CNTR_OPERATOR, CARGO_TYPE, SHIPPER_COD, TRADE_ID, TYPE)\" +\
+    \"values({?BILL_ID?}, {?GOODS?}, 'I', {?SHIPPER?}, NULL, {?INQUTY?}, NULL, {?QUTY?}, {?timestamp.INTIME?}, null, {?LOCATION?}, {?CFS_ID?}, {?WEIGHT?},\" +\
+    \"null, {?VOLUME?}, {?CFSBILL_ID?}, '\" + tenancyId + \"', sysdate, sysdate, {?sys.username?}, {?sys.username?}, {?BILL_NO?}, {?CNTR_OPERATOR?},\" +\
+    \"{?CARGO_TYPE?}, {?SHIPPER_COD?}, {?TRADE_ID?}, 'S') \" +\
+    \"\", {\
+      arrayData: new org.json.JSONArray(data.datas)\
+    });\
+  app.run(\"update BLUK_GOODS set CFSBILL_ID={?MOVELISTB_ID?} WHERE BILL_ID={?BILL_ID?} AND not exists(select 1 from MOVE_LISTB where ID={?CFSBILL_ID?} AND HANDLE_ID={?BILL_ID?})\", {\
+    arrayData: new org.json.JSONArray(data.datas)\
+  });\
+}\
+\
+//插n条指令数据，更新一条指令\
+app.run(\"insert into MOVE_LISTB(ID, TENANCY_ID, QUEUE_ID, SEQUENCE_NO, MOVE_TYPE, PHASE, HANDLE_ID, CONTRACT_NO, CRANE, \" +\
+  \"GOODS_NOTES, CARRIER_CALL, CARRIER_TYPE, CARRIER_CODE, CARRIER_ATA, LINE, POD, POL, SPOD, \" +\
+  \"TRANSPORTER1, TRANSPORTER2, TRANSPORTER3, TRANSPORTER4, TRANSPORTER5, TRCLASS1, TRCLASS2,\" +\
+  \"TRCLASS3, TRCLASS4, TRCLASS5, FROM_POS_TYP, TO_POS_TYP, FROM_POS, TO_POS, TRADE_ID, I_E_ID, \" +\
+  \"WEIGHT, BILL_NO, SHIFTER, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, ENABLE_ID, Y2Y_ID, VOLUME,\" +\
+  \"PIECES, CARGO_TYPE, SHIPPER, CONSIGNEE, CONSIGNEE_COD, SHIPPER_COD, DIS_ID)\" +\
+  \"select {?MOVELISTB_ID?}, TENANCY_ID, QUEUE_ID, SEQUENCE_NO, MOVE_TYPE, PHASE, {?BILL_ID?}, CONTRACT_NO, CRANE,\" +\
+  \"GOODS_NOTES, CARRIER_CALL, CARRIER_TYPE, CARRIER_CODE, CARRIER_ATA, LINE, POD, POL, SPOD,\" +\
+  \"TRANSPORTER1, TRANSPORTER2, TRANSPORTER3, TRANSPORTER4, TRANSPORTER5, TRCLASS1, TRCLASS2, \" +\
+  \"TRCLASS3, TRCLASS4, TRCLASS5, FROM_POS_TYP, TO_POS_TYP, FROM_POS, TO_POS, TRADE_ID, I_E_ID,\" +\
+  \"{?WEIGHT?}, {?BILL_NO?}, SHIFTER, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, ENABLE_ID, Y2Y_ID, VOLUME,\" +\
+  \"{?INQUTY?}, CARGO_TYPE, SHIPPER, CONSIGNEE, CONSIGNEE_COD, SHIPPER_COD, DIS_ID from MOVE_LISTB where id={?CFSBILL_ID?} \" +\
+  \" AND NOT EXISTS(SELECT 1 FROM MOVE_LISTB WHERE BILL_NO={?BILL_NO?} AND HANDLE_ID={?BILL_ID?} AND id={?CFSBILL_ID?})\", {\
+    arrayData: new org.json.JSONArray(data.datas)\
+  });\
+app.run(\"update MOVE_LISTB set PIECES={?INQUTY?},WEIGHT={?WEIGHT?},VOLUME={?VOLUME?} WHERE id={?CFSBILL_ID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+app.run(\"delete from BLUK_INOUT where ID in(select ID from BLUK_GOODS where bill_id in(\" + data.ids + \")) and OUTFLAG='0'\");\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO,CFSBILL_ID,SIGNERCFS,WEIGHT,VOLUME,STORE_TIME,BILL_NO) values((select ID from BLUK_GOODS where bill_id={?BILL_ID?} and BILL_NO={?BILL_NO?}),\" +\
+  \"  '0',{?INQUTY?},{?TRUCK_NO?},{?CFSBILL_ID?},'\" + dispname + \"',{?WEIGHT?},{?VOLUME?},sysdate,{?BILL_NO?})\", {\
+    arrayData: new org.json.JSONArray(data.datas)\
+  });"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1
+ },
+ "title": "拆单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

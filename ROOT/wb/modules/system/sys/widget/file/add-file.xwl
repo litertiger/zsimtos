@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var params = app.get(),\
+  file = new File(params.path, params.name),\
+  isDir = Wb.parseBool(params.isDir),\
+  created;\
+\
+if (file.exists())\
+  Wb.error('\u201c' + params.name + '\u201d 已经存在。');\
+if (isDir)\
+  created = file.mkdir();\
+else\
+  created = file.createNewFile();\
+if (!created)\
+  Wb.error('创建 \u201c' + params.name + '\u201d 失败。');\
+app.send({\
+  icon: isDir ? null : WebUtil.encode(FileUtil.getPath(file)),\
+  type: FileUtil.getFileType(file),\
+  date: Wb.createDate(file.lastModified()),\
+  size: isDir ? null : file.length()\
+});",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "新建文件",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

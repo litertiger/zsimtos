@@ -1,0 +1,89 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// app.log(app.get('ids'));\
+var map = new HashMap();\
+var s = Wb.decode(app.get('ids'));\
+// app.log(s);\
+var data = app.get();\
+var username = app.get('sys.username');\
+var ids = \"\";\
+for (var i = 0; i < s.length; i++) {\
+  //   map.put(\"rpId\", s[0]);\
+  //   Wb.newClass(\"dubboForReceipt\").call(request, map);\
+  if (i == s.length - 1)\
+    ids += \"'\" + s[0] + \"'\";\
+  else\
+    ids += \"'\" + s[0] + \"',\";\
+}\
+if (s.length == 0) {\
+  ids = \"''\";\
+}\
+app.log(ids);\
+app.run(\"update RECEIPT set ACCOUNT_CUSTOMER=NVL({?ACCOUNT_CUSTOMER_UPD?},ACCOUNT_CUSTOMER),ACCOUNT_CUSTOMER_CODE=NVL({?ACCOUNT_CUSTOMER_CODE_UPD?},ACCOUNT_CUSTOMER_CODE),NOTES=nvl({?NOTES?},NOTES) \" +\
+  \"where ID in  (\" + ids + \") \");\
+\
+app.run(\"update ACCOUNTS_DETAILS SET IS_MANUAL=1,AMOUNT=NVL({?price?},AMOUNT),ACCOUNT_CUSTOMER_CODE=nvl({?ACCOUNT_CUSTOMER_CODE_UPD?},ACCOUNT_CUSTOMER_CODE),ACCOUNT_CUSTOMER_NAM=nvl({?ACCOUNT_CUSTOMER_UPD?},ACCOUNT_CUSTOMER_NAM) WHERE BUSSINESS_CODE in(\" + ids + \") AND FEE_LIST_ID='c7592353553349bfa008a30fcb840653'\");\
+app.run(\"insert into ACCOUNTS_DETAILS_LOG(ID,AMOUNT,CNTR_ID,NOTES) select SYS_GUID(),{?price?},ID,'\"+username+\"修改了数据' from RECEIPT\"+\
+        \" WHERE ID in(\" + ids + \") AND EXISTS(SELECT 1 FROM ACCOUNTS_DETAILS WHERE BUSSINESS_CODE in(\" + ids + \") AND FEE_LIST_ID='c7592353553349bfa008a30fcb840653')\");\
+// for (var i = 0; i < s.length; i++) {\
+//   map.put(\"rpId\", s[0]);\
+//   Wb.newClass(\"dubboForReceipt\").call(request, map);\
+// }\
+\
+\
+// var array = new Array();\
+// var price = Wb.decode(app.get('prices'));\
+// // app.log(app.get('ids'));\
+// var map = new HashMap();\
+// var s = Wb.decode(app.get('ids'));\
+// // app.log(s);\
+// var data = app.get();\
+// var username = app.get('sys.username');\
+// var ids = \"\";\
+// for (var i = 0; i < s.length; i++) {\
+//   array.push('AMOUNT', price[i]);\
+//   array.push('BUSSINESS_CODE', s[i]);\
+//   //   map.put(\"rpId\", s[0]);\
+//   //   Wb.newClass(\"dubboForReceipt\").call(request, map);\
+//   if (i == s.length - 1)\
+//     ids += \"'\" + s[0] + \"'\";\
+//   else\
+//     ids += \"'\" + s[0] + \"',\";\
+// }\
+// if (s.length == 0) {\
+//   ids = \"''\";\
+// }\
+// app.log(ids);\
+// app.run(\"update RECEIPT set ACCOUNT_CUSTOMER={?ACCOUNT_CUSTOMER_UPD?},ACCOUNT_CUSTOMER_CODE={?ACCOUNT_CUSTOMER_CODE_UPD?} \" +\
+//   \"where ID in  (\" + ids + \") \");\
+\
+// app.run(\"update ACCOUNTS_DETAILS SET AMOUNT={?AMOUNT?} WHERE BUSSINESS_CODE={?BUSSINESS_CODE?}\", {\
+//   arrayData: new org.json.JSONArray(Wb.encode(array))\
+// });\
+// app.run(\"insert into ACCOUNTS_DETAILS_LOG(ID,AMOUNT,NOTES)VALUES({?BUSSINESS_CODE?},{?AMOUNT?},'\"+username+\"修改了数据')\", {\
+//   arrayData: new org.json.JSONArray(Wb.encode(array))\
+// });\
+// for (var i = 0; i < s.length; i++) {\
+//   map.put(\"rpId\", s[0]);\
+//   Wb.newClass(\"dubboForReceipt\").call(request, map);\
+// }"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1,
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "SWB": 1
+ },
+ "title": "更新设备交接单计费对象",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,51 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var recs1, recs2, data = Wb.decode(app.get('data'));\
+//更新表1\
+recs1 = data[0].create;\
+Wb.each(recs1, function(rec) {\
+  Wb.apply(rec, {\
+    EMPLOYEE_ID: SysUtil.getId(),\
+    DEPT_ID: '0040CCVTQ71Q7' //部门ID设置为常量，仅用于演示目的\
+  });\
+});\
+app.set({\
+  create: Wb.encode(recs1),\
+  update: Wb.encode(data[0].update),\
+  destroy: Wb.encode(data[0].destroy)\
+});\
+app.update({\
+  tableName: 'WB_EMPLOYEE'\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+\
+//更新表2\
+recs2 = data[1].create;\
+Wb.each(recs2, function(rec) {\
+  rec.COMPANY_ID = SysUtil.getId();\
+});\
+app.set({\
+  create: Wb.encode(recs2),\
+  update: Wb.encode(data[1].update),\
+  destroy: Wb.encode(data[1].destroy)\
+});\
+app.update({\
+  tableName: 'WB_COMPANY'\
+});\
+\
+//更新表单数据\
+//var panelData=data[2];数据可视业务需要取用\
+app.send([recs1, recs2]);",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "保存全部",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

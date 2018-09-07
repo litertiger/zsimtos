@@ -1,0 +1,811 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "toolbarT"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "names",
+       "labelAlign": "right",
+       "fieldLabel": "名称",
+       "labelWidth": "50"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findBtn",
+       "text": "查询",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.grid2.store.load({\
+  out: app.toolbarT,\
+  params: {\
+\tP_ID:app.IDS.getValue()\
+  }\
+}); //把所有数据取出来放到out里面"}
+     },
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "添加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sel = app.grid1.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"选择一条功能代码\");\
+  return;\
+}\
+app.editwin2.setTitle('添加 - EDI转换');\
+app.editwin2.setIconCls('record_add_icon');\
+app.editwin2.show();\
+app.P_ID.setValue(sel[0].data.ID);\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "modifyBtn",
+       "text": "修改",
+       "iconCls": "record_edit_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.grid2.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin2.setTitle('修改 - ' + app.selRec.data.EXT_CODE);\
+app.editwin2.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin2, app.selRec.data);\
+app.editwin2.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+     },
+     {
+      "configs": {
+       "itemId": "deleteBtn",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.grid2.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=EDI/ediMap/second/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),\
+      tableName: 'EDI_MAPPING_T'\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+      app.grid2.store.load({\
+        params: {\
+          P_ID: app.IDS.getValue()\
+        }\
+      });\
+    }\
+  });\
+}, 'EXT_CODE');"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "dialog": "true",
+     "itemId": "editwin",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 2'\
+}",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "520",
+     "height": "130"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "EXT_CODE",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "外来代码",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "INT_CODE",
+       "allowBlank": "false",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "系统代码",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "FUN_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "功能代码",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "FUN_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "功能名称",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SENDORRECIEV",
+       "labelAlign": "right",
+       "fieldLabel": "收发标志",
+       "keyName": "SENDORRECIEV"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "MESSAGE_ID",
+       "labelAlign": "right",
+       "fieldLabel": "报文类型",
+       "keyName": "MESSAGE_ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "WHOIS",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "外部客户",
+       "keyName": "WHOIS"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "ID",
+       "width": "240",
+       "x": "40",
+       "y": "80",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "labelAlign": "right",
+       "width": "240",
+       "x": "40",
+       "y": "80",
+       "value": "EDI_MAPPING",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=EDI/ediMap/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=EDI/ediMap/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "editwin2",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 2'\
+}",
+     "autoReset": "true",
+     "closeAction": "hide",
+     "width": "270",
+     "height": "125"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "EXT_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "外来代码",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "INT_CODE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "系统代码",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "labelAlign": "right",
+       "width": "240",
+       "x": "40",
+       "y": "80",
+       "value": "EDI_MAPPING_T",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "P_ID",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin2);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=EDI/ediMap/second/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin2.close();\
+      //       app.findBtn.fireEvent('click');\
+      app.grid2.store.load({\
+        params: {\
+          P_ID: app.IDS.getValue()\
+        }\
+      });\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=EDI/ediMap/second/insert',\
+    out: app.editwin2,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid2, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin2.close();\
+      app.grid2.store.load({\
+        params: {\
+          P_ID: app.IDS.getValue()\
+        }\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel1",
+       "region": "north",
+       "height": "300"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {"itemId": "grid1"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {"itemId": "tbar"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "name",
+            "labelAlign": "right",
+            "fieldLabel": "名称",
+            "labelWidth": "50"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "findmenu",
+            "text": "查询",
+            "iconCls": "seek_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+          },
+          {
+           "configs": {
+            "itemId": "addmenu",
+            "text": "添加",
+            "iconCls": "record_add_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.editwin.setTitle('添加 - EDI转换');\
+app.editwin.setIconCls('record_add_icon');\
+app.FUN_CODE.setDisabled(false);\
+app.editwin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "modifymenu",
+            "text": "修改",
+            "iconCls": "record_edit_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin.setTitle('修改 - ' + app.selRec.data.FUN_CODE);\
+app.editwin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin, app.selRec.data);\
+app.FUN_CODE.setDisabled(true);\
+app.editwin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+          },
+          {
+           "configs": {
+            "itemId": "deletemenu",
+            "text": "删除",
+            "iconCls": "record_delete_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=EDI/ediMap/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),tableName:'EDI_MAPPING'\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'FUN_CODE');"}
+          },
+          {
+           "configs": {
+            "itemId": "IDS",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "cacheBtn",
+            "text": "缓存",
+            "iconCls": "object_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+Wb.request({\
+  url: 'm?xwl=EDI/ediMap/cache',\
+  params: {\
+    code: sels[0].data.FUN_CODE\
+  },\
+  success: function(resp) {\
+    app.grid2.store.load({\
+      params: {\
+        P_ID: app.IDS.getValue()\
+      }\
+    });\
+  }\
+});"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=EDI/ediMap/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "ID",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colFUN_CODE",
+            "dataIndex": "FUN_CODE",
+            "text": "功能代码",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colFUN_NAME",
+            "dataIndex": "FUN_NAME",
+            "text": "名称"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colSENDORRECIEV",
+            "dataIndex": "SENDORRECIEV",
+            "keyName": "SENDORRECIEV",
+            "text": "收发标志",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colMESSAGE_ID",
+            "dataIndex": "MESSAGE_ID",
+            "keyName": "MESSAGE_ID",
+            "text": "报文类型",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colWHOIS",
+            "hidden": "true",
+            "dataIndex": "WHOIS",
+            "text": "外部客户",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colCREATED_BY",
+            "dataIndex": "CREATED_BY",
+            "text": "创建人",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colCREATED_ON",
+            "dataIndex": "CREATED_ON",
+            "width": "120",
+            "text": "创建日期",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colUPDATED_BY",
+            "dataIndex": "UPDATED_BY",
+            "text": "最后修改人",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colUPDATED_ON",
+            "dataIndex": "UPDATED_ON",
+            "width": "120",
+            "text": "更新日期",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {
+        "itemclick": "app.grid2.store.load({\
+  params: {\
+    P_ID: record.data.ID\
+  }\
+});\
+app.IDS.setValue(record.data.ID);\
+// alert(app.IDS.getValue());",
+        "itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"
+       }
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel2",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "grid2",
+        "tbar": "app.toolbarT"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=EDI/ediMap/second/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "ID",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colEXT_CODE",
+            "dataIndex": "EXT_CODE",
+            "text": "外来代码",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colINT_CODE",
+            "dataIndex": "INT_CODE",
+            "text": "系统代码",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colCREATED_BY",
+            "dataIndex": "CREATED_BY",
+            "text": "创建人",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colCREATED_ON",
+            "dataIndex": "CREATED_ON",
+            "width": "120",
+            "text": "创建日期",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colUPDATED_BY",
+            "dataIndex": "UPDATED_BY",
+            "text": "最后修改人",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colUPDATED_ON",
+            "dataIndex": "UPDATED_ON",
+            "width": "120",
+            "text": "更新日期",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemdblclick": "app.modifyBtn.fireEvent('click');// 双击打开"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "HSEDI": 1,
+  "AT": 1,
+  "DCXK": 1,
+  "xlswbqt": 1
+ },
+ "title": "EDI代码映射关系",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

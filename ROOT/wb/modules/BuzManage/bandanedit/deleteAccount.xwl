@@ -1,0 +1,42 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var delfee = Wb.getRecords(app.run(\"select IS_MANUAL,pay_flag from accounts_details where id in(\" + data.ids + \")\"));\
+var err1 = 0;\
+var err2 = 0;\
+Wb.each(delfee, function(fee) {\
+  if (fee.IS_MANUAL == \"0\")\
+    err1++;\
+  if (fee.PAY_FLAG == \"1\")\
+    err2++;\
+});\
+if (err1 > 0)\
+  throw \"只能删除手动添加的费用\";\
+if (err2 > 0)\
+  throw \"有费用收费已完成,不能删除\";\
+\
+var sql = \"delete from accounts_details where id in(\" + data.ids + \")\";\
+app.run(sql);\
+app.send({\
+  ok: true\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "删除费用明细",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

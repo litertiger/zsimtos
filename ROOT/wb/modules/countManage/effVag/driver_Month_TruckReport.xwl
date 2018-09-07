@@ -1,0 +1,200 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "dockedItems"},
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "tbarGrid",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "sdate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "开始时间",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "edate",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "结束时间",
+          "labelWidth": "70"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "selBtn",
+          "text": "查询",
+          "iconCls": "search_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+//AF1.func(\"SeparateView\", \"2 \\r\\
+ 0\"); //前3行上下分屏\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var feeids = \"\";\
+var feegroup = \"\";\
+\
+var sql = \" and wbtd.in_time>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and wbtd.in_time<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') \" +\
+  \"  GROUP BY TO_CHAR (IN_TIME, 'YYYYMM'),wbtd.DRIVER_ID,cd.empname,wbtd.TRUCK_NO ) A \" +\
+  \" FULL JOIN \" +\
+  \"(  SELECT TO_CHAR (accounts_details.JOB_FINISH_DATE, 'YYYYMM') B_PDATE,M.TRUCK B_TRUCK,SUBSTR (M.DRIVER, 0, (INSTR (M.DRIVER, '(') - 1)) B_DRIVER_NAME,\" +\
+  \" SUBSTR (M.DRIVER,(INSTR (M.DRIVER, '(')-(-1)),(INSTR (M.DRIVER, ')') - (INSTR (M.DRIVER, '(')) - 1)) B_DRIVER_ID,\" +\
+  \" SUM (amount) amount,sum(ca.distance) distance \" +\
+  \" FROM ACCOUNTS_DETAILS accounts_details,BLUK_TRUCK_M m,C_ADDRESS ca, BLUK_APPLY_D D \" +\
+  \" WHERE m.id = ACCOUNTS_DETAILS.BUSSINESS_CODE \" +\
+  \" and accounts_details.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and accounts_details.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" AND ca.id = M.S_ADRESS AND INSTR (m.pid, d.id) > 0 AND accounts_details.TENANCY_ID = 'ZSG' AND FEE_LIST_ID = '688a20cb948f4df5841969e1b46d80ea'\" +\
+  \" AND M.DRIVER != '外来司机(999)' GROUP BY TO_CHAR (accounts_details.JOB_FINISH_DATE, 'YYYYMM'),M.TRUCK, M.DRIVER) B \" +\
+  \"ON  a.DRIVER_ID = b.B_DRIVER_ID AND A.DRIVER_NAME = B.B_DRIVER_NAME AND A.TRUCK_NO = B.B_TRUCK \" +\
+  \" ORDER BY TO_NUMBER (DRIVER_ID) ASC\";\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */ // if (!Wb.isEmpty(app.cboMoney.getValue())) {\
+//   if (app.cboMoney.getValue() == \"1\")\
+//     sql += \" and AD.BUSSINESS_CODE is not null\";\
+//   if (app.cboMoney.getValue() == \"2\")\
+//     sql += \" and AD.BUSSINESS_CODE is null\";\
+// }\
+/**\
+ * 文档注释。\
+ *\
+ * Example:\
+ *\
+ *     var foo = bar();\
+ *\
+ * @param {type} name1 必须参数说明。\
+ * @param {type} [name2] 可选参数说明。\
+ * @return {type} 返回值说明。\
+ */\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "array"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/report/driver_monthwages.xml?' + 'version1.2');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&v1.2\");\
+  }\
+};\
+/**\
+  * 文档注释。\
+  *\
+  * Example:\
+  *\
+  *     var foo = bar();\
+  *\
+  * @param {type} name1 必须参数说明。\
+  * @param {type} [name2] 可选参数说明。\
+  * @return {type} 返回值说明。\
+  */\
+var today = new Date();\
+var year = today.getFullYear();\
+var month = today.getMonth() + 1;\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(today);",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "司机月度汇总统计表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,180 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "container"},
+   "expanded": false,
+   "children": [],
+   "type": "container"
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  /**\
+   * 设置脚本编辑器中的脚本内容。\
+   * @param {String} value 脚本内容。\
+   * @param {String} [type] 编辑脚本的类型。仅在首次调用方法时有效。默认为js。\
+   * @param {Boolean} [readOnly] 是否只读。在每次调用该方法时均有效。默认为false。\
+   */\
+  setValue: function(value, type, readOnly) {\
+    app.valueParam = value;\
+    app.typeParam = type;\
+    app.readOnlyParam = readOnly;\
+    if (window.CodeMirror)\
+      app.doSetValue();\
+    else {\
+      Wb.addLink(['wb/libs/cm/cmirror.css', 'wb/libs/cm/cmirror.js'],\
+        app.doSetValue\
+      );\
+    }\
+  },\
+  doSetValue: function() {\
+    if (!app.editor)\
+      app.renderEditor();\
+    app.editor.setOption('readOnly', app.readOnlyParam);\
+    app.editor.setValue(app.valueParam || '');\
+    setTimeout(function() {\
+      app.editor.focus();\
+    }, 10);\
+  },\
+  renderEditor: function() {\
+    var comp = app.container;\
+    comp.update('<textarea><\/textarea>');\
+    app.editor = CodeMirror.fromTextArea(comp.el.down('textarea', true), app.getConfig());\
+    comp.mon(comp, 'resize', function(comp, width, height) {\
+      if (app.editor && !comp.destroying) {\
+        Ext.fly(app.editor.getScrollerElement()).setHeight(comp.getHeight());\
+        app.editor.refresh();\
+      }\
+    });\
+  },\
+  getConfig: function() {\
+    var config, extConfig;\
+    config = {\
+      lineNumbers: true,\
+      mode: 'text/javascript',\
+      theme: Wb.editTheme,\
+      extraKeys: {\
+        'Ctrl-/': 'toggleComment',\
+        'Ctrl-,': function(doc) {\
+          if (doc.modifyCursor)\
+            doc.setCursor(doc.modifyCursor);\
+        },\
+        'Shift-Ctrl-F': function(doc) {\
+          if (doc.options.readOnly)\
+            return;\
+          var cursor = doc.getCursor(),\
+            scroll = doc.getScrollInfo();\
+          doc.autoFormatRange({\
+            line: 0,\
+            ch: 0\
+          }, {\
+            line: Number.MAX_VALUE,\
+            ch: Number.MAX_VALUE\
+          });\
+          doc.scrollTo(scroll.left, scroll.top);\
+          doc.setCursor(cursor);\
+        }\
+      }\
+    };\
+    switch (app.typeParam || 'js') {\
+      case 'js':\
+      case 'ss':\
+        config.highlightSelectionMatches = {\
+          showToken: /\\w/\
+        };\
+        config.extraKeys['Alt-/'] = 'autocomplete';\
+        config.extraKeys['.'] = function(doc) {\
+          if (doc.options.readOnly)\
+            return;\
+          doc.replaceSelection('.');\
+          if (doc.hintTimer)\
+            clearTimeout(doc.hintTimer);\
+          doc.hintTimer = setTimeout(function() {\
+            CodeMirror.showHint(doc);\
+          }, 100);\
+        };\
+        extConfig = {\
+          mode: {\
+            name: 'text/javascript',\
+            globalVars: true\
+          },\
+          gutters: ['CodeMirror-lint-markers'],\
+          lint: true,\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'css':\
+        extConfig = {\
+          mode: 'text/css',\
+          gutters: ['CodeMirror-lint-markers'],\
+          lint: true,\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'java':\
+        config.highlightSelectionMatches = {\
+          showToken: /\\w/\
+        };\
+        extConfig = {\
+          mode: 'text/x-java',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'xml':\
+        extConfig = {\
+          mode: 'application/xml',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'html':\
+      case 'htm':\
+        extConfig = {\
+          mode: 'htmlmixed',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'jsp':\
+      case 'jspx':\
+        config.highlightSelectionMatches = {\
+          showToken: /\\w/\
+        };\
+        extConfig = {\
+          mode: 'application/x-jsp',\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'json':\
+      case 'xwl':\
+      case 'expjson':\
+        extConfig = {\
+          mode: 'application/json',\
+          gutters: ['CodeMirror-lint-markers'],\
+          matchBrackets: true\
+        };\
+        break;\
+      case 'sql':\
+        extConfig = {\
+          mode: 'text/x-sql',\
+          matchBrackets: true\
+        };\
+        break;\
+      default:\
+        extConfig = {\
+          mode: 'text/plain'\
+        };\
+    }\
+    return Ext.apply(config, extConfig);\
+  }\
+});"}
+ }],
+ "roles": {},
+ "title": "脚本编辑器",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

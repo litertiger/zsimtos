@@ -1,0 +1,83 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">9.报表转换模板</p><hr color=#2266ee size=1>
+<p class="sz3">9.1.模板和占位符</p>
+　　用 callfunc 函数调用 105 功能号，是后端动态转换的主要手段，通常情况下，直接将内容转换到一个新的 html 文件即可，但在某些情况下，需要将报表按照模板转换，即将报表 html 中的各个段落安插到另一个文件中，为此，我们定义了
+模板的规则，一个典型的模板文件内容如下：<br>
+<pre class='xml'>
+&lt;html&gt;
+&lt;head&gt;&lt;meta http-equiv=Content-Type content="text/html; charset=utf-8"&gt;
+&lt;style&gt;
+&lt;!--SUPCAN_REPORT_STYLE  prefix="dx"--&gt;&lt;/style&gt;
+&lt;script&gt;
+&lt;!--SUPCAN_REPORT_JS--&gt;
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onresize="supcan_Resize()" onload="supcan_Resize()" leftmargin="0" topmargin="0"&gt;
+&lt;!--SUPCAN_REPORT_dTitle id="dTitle"--&gt;
+&lt;!--SUPCAN_REPORT_dHeadLeft--&gt;
+&lt;!--SUPCAN_REPORT_dHead--&gt;
+&lt;!--SUPCAN_REPORT_dLeft--&gt;
+&lt;!--SUPCAN_REPORT_dMain--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+　　脚本中的注释内容 <font color=red><b>&lt;!--  ... --&gt;</b></font> 就是模板规则的核心，这些注释符相当于就是 "占位符"，最终它们会被替换成真正的内容.<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">Callfunc 调用 105 功能号，可以用 "Template" 参数指定模板，请参考报表开发文档 “4.工具条功能号”.</p>
+<br>
+<br>
+　　占位符如 "<b>&lt;!--SUPCAN_REPORT_STYLE--&gt;</b>"，其中的“<b>SUPCAN_REPORT_STYLE</b>”是有固定含义的(注意: 大小写敏感)，目前我们一共定义了 11 种：<br>
+　　这些占位符，有些是必需的、有些是可选的。<br>
+<center>
+<table border=1 cols=3>
+<tr><th>序号</th><th>占位符</th><th>用途</th><th>是否必需</th></tr>
+<tr><td align="center">1</td><td><b>&lt;!--SUPCAN_REPORT_STYLE--&gt;</b></td><td>用于放置CSS样式，报表会动态生成大量样式类, 必须写在模版的&lt;style&gt;  ..  &lt;/style&gt;中</td><td>是</td></tr>
+<tr><td align="center">2</td><td><b>&lt;!--SUPCAN_REPORT_dMain--&gt;</b></td><td>主数据区</td><td>是</td></tr>
+<tr><td align="center">3</td><td><b>&lt;!--SUPCAN_REPORT_dTitle--&gt;</b></td><td>顶部固定标题区, 用于实现报表的分层冻结显示</td><td>否</td></tr>
+<tr><td align="center">4</td><td><b>&lt;!--SUPCAN_REPORT_dHeadLeft--&gt;</b></td><td>左上角固定区, 同上</td><td>否</td></tr>
+<tr><td align="center">5</td><td><b>&lt;!--SUPCAN_REPORT_dHead--&gt;</b></td><td>上方固定区, 同上</td><td>否</td></tr>
+<tr><td align="center">6</td><td><b>&lt;!--SUPCAN_REPORT_dLeft--&gt;</b></td><td>左侧固定区, 同上</td><td>否</td></tr>
+<tr><td align="center">7</td><td><b>&lt;!--SUPCAN_REPORT_MAXHeight--&gt;</b></td><td>全部展现的总高度, 用于辅助 js 判断是否需要滚动条</td><td>否</td></tr>
+<tr><td align="center">8</td><td><b>&lt;!--SUPCAN_REPORT_MAXWidth--&gt;</b></td><td>全部展现的总宽度, 同上</td><td>否</td></tr>
+<tr><td align="center">9</td><td><b>&lt;!--SUPCAN_REPORT_JS--&gt;</b></td><td>自动生成的js片段和数据，必须出现在模版文件的&lt;script&gt;  ..  &lt;/script&gt;中</td><td>是</td></tr>
+<tr><td align="center">10</td><td><b>&lt;!--SUPCAN_REPORT_UploadURL--&gt;</b></td><td>用于上报汇总模式，ajax传输数据的目的地</td><td>上报:是</td></tr>
+<tr><td align="center">11</td><td><b>&lt;!--SUPCAN_REPORT_WorkSheetName--&gt;</b></td><td>用于上报汇总模式，工作表名</td><td>否</td></tr>
+</table>
+</center>
+<br>
+　　这些占位符中，最重要的是 &lt;!--SUPCAN_REPORT_dMain--&gt; , 它就是主体数据区，以 &lt;Table&gt; 形式填入.<br>
+　　&lt;!--SUPCAN_REPORT_STYLE--&gt;决定了每个单元格的样式，比如左右对齐、表格线宽度等等, 为了让生成的样式的类名不和您的页面中其它样式类名冲突，您可以定义名为 "prefix" 的属性，表示动态类名的前缀，例如：<br>
+<pre class='xml'>
+&lt;!--SUPCAN_REPORT_STYLE  prefix="dx"--&gt;</pre>
+　　该占位符最终可能会被替换成类似如下的串，类名是以"dx"开头的：<br>
+<pre class='xml'>
+.dx41 {
+ border-left:0px;
+ border-top:1px solid #CCCCCC;
+ border-right:0px;
+ border-bottom:0px;
+ padding-left:1px;
+}
+.dx30 {
+ border-left:0px;
+ border-top:1px solid #FFFFFF;
+ border-right:0px;
+ border-bottom:0px;
+}
+.dx42 {
+ border-left:0px;
+ border-top:1px solid #C0C0C0;
+ border-right:0px;
+ border-bottom:0px;
+ text-decoration:none;
+}
+...</pre>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

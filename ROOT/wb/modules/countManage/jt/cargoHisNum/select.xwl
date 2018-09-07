@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get(),\
+  sql = '';\
+if (!Wb.isEmpty(data.sdate)) {\
+  sql += ' AND TO_DATE(YEARMONTH,\\'YYYY-MM\\') >= TO_DATE({?sdate?},\\'YYYY-MM\\')';\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  sql += ' AND TO_DATE(YEARMONTH,\\'YYYY-MM\\') <= TO_DATE({?edate?},\\'YYYY-MM\\')';\
+}\
+if (!Wb.isEmpty(data.shipper_cod)) {\
+  sql += ' and shippper_cod={?shipper_cod?}';\
+}\
+if (!Wb.isEmpty(data.tradeId)) {\
+  if (data.tradeId != '0') {\
+    sql += ' and trade_id={?tradeId?}';\
+  }\
+}\
+if (!Wb.isEmpty(data.ieId)) {\
+    sql += ' and i_e_id={?ieId?}';\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT YEARMONTH,TRADE_ID,SHIPPPER_COD,SHIPPPER_COD,SHIPPPER,WEIGHT,CARGO_KIND_COD,CARGO_NAME,TENANCY_ID,I_E_ID,AM_PRE,AY_PRE,ID \
+FROM CARGO_HIS_NUM WHERE 1=1 {#sql#} ORDER BY YEARMONTH\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查询散货箱量",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

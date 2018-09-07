@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var result = {},\
+  records = {},\
+  record, nodes, rs, meta;\
+\
+var tenId = app.get('sys.TENANCY_ID');\
+\
+rs = app.run(\"select * from C_EMPLOYEE_TEAM where TENANCY_ID='\" + tenId + \"' order by ORDER_INDEX\", {\
+  jndi: 'jdbc/basecode'\
+});\
+meta = rs.getMetaData();\
+while (rs.next()) {\
+  record = Wb.getRecord(rs, meta);\
+  Wb.apply(record, {\
+    text: record.TEAM_NAME,\
+    iconCls: 'db_field_icon'\
+  });\
+  nodes = records[record.PID];\
+  if (nodes) {\
+    nodes.push(record);\
+  } else {\
+    nodes = [record];\
+    records[record.PID] = nodes;\
+  }\
+}\
+\
+function createNodes(items, parentMenu) {\
+  items.children = records[parentMenu] || [];\
+  if (items.children.length)\
+    items.expanded = true;\
+  Wb.each(items.children, function(item) {\
+    createNodes(item, item.ID);\
+  });\
+}\
+createNodes(result, '-1');\
+app.send(result);",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "查询树",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

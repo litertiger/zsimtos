@@ -1,0 +1,171 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, updateDate, id = SysUtil.getId() ,whereSql=\"\",\
+data = app.get();\
+datanew = app.get();\
+var recs1, data = Wb.decode(app.get('data'));\
+var username = app.get(\"sys.username\");\
+var TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+var LCL_ID = app.get(\"LCL_ID\"),\
+shipNo = app.get(\"shipNo\");\
+\
+var MAIN_FLAG = app.get(\"MAIN_FLAG\");\
+app.run(\"select 1 from VBILL_HEAD where ID={?ID?} and phase='2'\", {\
+  errorText: '提单号码 \"' + datanew.BILL_NO + '\" 已经被锁定了不能修改。'\
+});\
+// app.run(\"select 1  from VBILL_HEAD_E where ID={?ID?} and REALSE_COMPARE=1\", {\
+//   errorText: '提单号码 \"' + datanew.BILL_NO + '\" 已经核对不能修改。'\
+// });\
+if(app.get(\"TRADE_ID\")=='1')//外贸\
+  whereSql=\"\";\
+else//内贸\
+  whereSql=\" and VID={?shipNo?}\";\
+app.run(\"select 1 from VBILL_HEAD where ID<>{?ID?} and BILL_NO={?BILL_NO?} and phase<>'9' and TENANCY_ID='\"+TENANCY_ID+\"' \"+whereSql, {\
+  errorText: '提单号码 \"' + datanew.BILL_NO + '\" 已经存在不能修改。'\
+});\
+app.run(\"UPDATE vbill_head\\\
+   SET P_BILLNO = {?BILL_NO?}\\\
+ WHERE ZF_ID=1 and  P_BILLNO IN (SELECT BILL_NO\\\
+                      FROM vbill_head \\\
+                     WHERE ID = {?ID?}  AND zf_id = 1) and vID='\"+shipNo+\"' and tenancy_id='\"+TENANCY_ID+\"'\");\
+app.run(\"update vbill_head set  (SHIPPER,SHIPPER_COD ,CONSIGNEE,CONSIGNEE_COD ,CONTRACT_TEL, CONTRACT_ADDRESS,NOTIFIER_TEL, NOTIFIER_ADDRESS  )\"+\
+        \"=(select  SHIPPER,SHIPPER_COD,CONSIGNEE,CONSIGNEE_COD , CONTRACT_TEL, CONTRACT_ADDRESS,NOTIFIER_TEL, NOTIFIER_ADDRESS from vbill_head where ID={?ID?} )    \"+\
+        \" where  P_BILLNO in(SELECT BILL_NO \"+\
+        \"              FROM vbill_head  \"+\
+        \"             WHERE ID = {?ID?}  AND zf_id = 1)  and  ZF_ID=1 \");\
+var CNTR = \"''\";\
+\
+// //拼箱状态增加判断是否是第一次录入\
+// if (LCL_ID == '1') {\
+//     recs1 = data[0].create;\
+//     Wb.each(recs1,\
+//     function(rec) {\
+//         CNTR += \",'\" + rec.CNTR + \"'\";\
+//     });\
+//   if(CNTR.length>0){\
+//     var rs = app.run(\"select 1 from VLOAD_LIST where  CNTR in (\" + CNTR + \") and VID={?shipNo?}  and  bill_id<> {?ID?} and I_E_ID={?I_E_ID?}\");\
+//     if (rs.next()) { //判断箱是否存在，不存在表示MAIN_FLAG=1表示是主单\
+//         MAIN_FLAG = 0;\
+//         app.run(\"update VBILL_HEAD set BILL_TYPE='P' where BILL_NO  ={?P_BILLNO?} and VID={?shipNo?} and I_E_ID={?I_E_ID?} \", {\
+//             transaction: 'start'\
+//         });\
+//         app.run(\"update VLOAD_LIST set LCL_ID=1 where  CNTR in (\" + CNTR + \") and VID={?shipNo?} and I_E_ID={?I_E_ID?}\");\
+//     } else MAIN_FLAG = 1;\
+//   }\
+// }\
+\
+//更新提单表\
+app.run(\"update VBILL_HEAD set COLINE_COD={?COLINE_COD?}, CONTRACT_ADDRESS={?CONTRACT_ADDRESS?}, NOTIFIER_ADDRESS={?NOTIFIER_ADDRESS?}, PRE_SPOD={?PRE_SPOD?}, PRE_ETD={?TIMESTAMP.PRE_ETD?}, PRE_CUTOFF={?TIMESTAMP.PRE_CUTOFF?}, PRE_RECEIV_DATE={?TIMESTAMP.PRE_RECEIV_DATE?}, PRE_CLOSING={?TIMESTAMP.PRE_CLOSING?}, PRE_BOOKING_DATE={?TIMESTAMP.PRE_BOOKING_DATE?}, PRE_IMO={?PRE_IMO?}, PRE_DELIVERY={?PRE_DELIVERY?}, PRE_ETA={?TIMESTAMP.PRE_ETA?}, CNTR_OWNER={?CNTR_OWNER?}, CNTR_OWNER_COD={?CNTR_OWNER_COD?}, I_E_ID={?I_E_ID?},MBILL_NO={?MBILL_NO?},BILL_NO={?BILL_NO?},\" + \"SHIP_ORDER={?SHIP_ORDER?},QUANTITY={?numeric.QUANTITY?},BILL_TYPE={?BILL_TYPE?},ORDER_NO={?ORDER_NO?},\" + \"TRADE_ID={?TRADE_ID?},LINE={?LINE?},CNTR_OPERATOR={?CNTR_OPERATOR?},SHIPPER={?SHIPPER?},CONSIGNEE={?CONSIGNEE?},RECEIVER={?RECEIVER?},\" + \"PAYER={?PAYER?},TFEE_PAYER={?TFEE_PAYER?},SCALEFEE_PAYER={?SCALEFEE_PAYER?},TRUCKFEE_PAYER={?TRUCKFEE_PAYER?},SENDER={?SENDER?},\" + \"FORWARDER={?FORWARDER?},CONTRACT_MAN={?CONTRACT_MAN?},CONTRACT_TEL={?CONTRACT_TEL?},CONTRACT_PHONE={?CONTRACT_PHONE?},\" + \"CONTRACT_FAX={?CONTRACT_FAX?},NOTIFIER={?NOTIFIER?},NOTIFIER_TEL={?NOTIFIER_TEL?},NOTIFIER_PHONE={?NOTIFIER_PHONE?},\" + \"NOTIFIER_FAX={?NOTIFIER_FAX?},COLINE={?COLINE?},TRUCK_CO={?TRUCK_CO?},DELV_TERM={?DELV_TERM?},LOADING_TIME={?timestamp.LOADING_TIME?},\" + \"POD={?POD?},POL={?POL?},SPOD={?SPOD?},CMDY_CODE={?CMDY_CODE?},TRANS_TYPE={?TRANS_TYPE?},TRANS_ID={?numeric.TRANS_ID?},\" + \"MAIN_FLAG=\" + MAIN_FLAG + \",EXIT_CUSTOM_ID=nvl({?numeric.EXIT_CUSTOM_ID?},0),FEE_ID=nvl({?numeric.FEE_ID?},0),\" + \"WGO_ID={?numeric.WGO_ID?},PRE_VESSEL={?PRE_VESSEL?},PRE_VOYAGE_NO={?PRE_VOYAGE_NO?},TRANS_VOYAGE_NO={?TRANS_VOYAGE_NO?},\" + \"PRE_POL={?PRE_POL?},PRE_POD={?PRE_POD?},PHASE={?PHASE?},NOTES={?NOTES?},UPDATED_ON=sysdate,\" + \"GOODS_NOTES={?GOODS_NOTES?},PIECES={?numeric.PIECES?},WEIGHT={?numeric.WEIGHT?},LCL_ID=nvl({?numeric.LCL_ID?},0) ,\" + \"VOLUME={?numeric.VOLUME?},MARKS={?MARKS?},PKG={?PKG?},TEMP_SET={?TEMP_SET?},IMDG={?IMDG?},UNDG={?UNDG?},CARGO_TYPE={?CARGO_TYPE?},\" + \"UPDATED_BY='\" + username + \"',P_BILLNO={?P_BILLNO?},FEE_TYPE={?numeric.FEE_TYPE?},VESSEL_NAME={?VESSEL_NAME?},\" + \"VOYAGE_NO={?VOYAGE_NO?},\tLINE_COD={?LINE_COD?},CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?},SHIPPER_COD={?SHIPPER_COD?},CONSIGNEE_COD={?CONSIGNEE_COD?},\" + \"  RECEIVER_COD={?RECEIVER_COD?},PAYER_COD={?PAYER_COD?},TFEE_PAYER_COD={?TFEE_PAYER_COD?},SCALEFEE_PAYER_COD={?SCALEFEE_PAYER_COD?},\" + \" TRUCKFEE_PAYER_COD={?TRUCKFEE_PAYER_COD?},FORWARDER_COD={?FORWARDER_COD?},NOTIFIER_COD={?NOTIFIER_COD?} where ID={?ID?}\", {\
+    transaction: 'start'\
+});\
+//更新箱\
+recs1 = data[0].create;\
+Wb.each(recs1,\
+function(rec) {\
+    if (rec.I_E_ID == 'I') {rec.I_DSHIP_NO = shipNo;rec.PHASE='0';}\
+    else rec.E_DSHIP_NO = shipNo;\
+    rec.MAIN_FLAG = MAIN_FLAG;\
+    //rec.BILL_ID =  id;\
+});\
+createDate = Wb.encode(recs1);\
+//request.setAttribute('create', Wb.encode(createDate));\
+recs1 = data[0].update;\
+Wb.each(recs1,\
+function(rec) {\
+    if (rec.I_E_ID == 'I') rec.I_DSHIP_NO = shipNo;\
+    else rec.E_DSHIP_NO = shipNo;\
+    rec.MAIN_FLAG = MAIN_FLAG;\
+    delete rec.PHASE;\
+});\
+updateDate = Wb.encode(recs1);\
+app.set({\
+    create: createDate,\
+    update: Wb.encode(data[0].update),\
+    destroy: Wb.encode(data[0].destroy)\
+});\
+app.update({\
+    tableName: 'VLOAD_LIST',\
+    whereFields: 'ID',\
+   uniqueUpdate:false\
+\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+if (LCL_ID != 1 || (LCL_ID == 1 && MAIN_FLAG == 1)) {\
+    if (app.get(\"I_E_ID\") == 'E') {}//出口只更新 船号\
+    else {\
+\
+        recs1 = data[0].update;\
+        Wb.each(recs1,\
+        function(rec) {\
+            rec.ID = rec.CNTR_ID;\
+        });\
+   \
+        updateDate = Wb.encode(recs1);\
+        recs1 = data[0].create;\
+        Wb.each(recs1,\
+        function(rec) {\
+            rec.PHASE = \"ADV\";\
+        });\
+        createDate = Wb.encode(recs1);\
+        app.set({\
+            create: createDate,\
+            update: null,\
+            destroy: null\
+        });\
+        app.update({\
+            tableName: 'PORT_CNTR',\
+            whereFields: 'ID',\
+          uniqueUpdate:false\
+        });\
+\
+    }\
+}\
+app.set({\
+    create: [],\
+    update: updateDate,\
+    destroy: []\
+});\
+//更新指令箱信息\
+app.run(\"update MOVE_LIST set  CNTR={?CNTR?},CNTR_ISO={?CNTR_ISO?},CNTR_SIZE={?CNTR_SIZE?},CNTR_TYPE={?CNTR_TYPE?},OVERHEIGHT={?OVERHEIGHT?},OVERFRONT={?OVERFRONT?},OVERBACK={?OVERBACK?},OVERLEFT={?OVERLEFT?},OVERRIGHT={?OVERRIGHT?},OOG_ID=nvl({?numeric.OOG_ID?},0) ,DANG_ID={?numeric.DANG_ID?},IMDG={?IMDG?},UNDG={?UNDG?},TEMP_SET={?TEMP_SET?},TEMP_MIN={?TEMP_MIN?},TEMP_MAX={?TEMP_MAX?},REEF_ID={?numeric.REEF_ID?},BUNDL_ID={?numeric.BUNDL_ID?},LINE={?LINE?},CNTR_OPERATOR={?CNTR_OPERATOR?},POD={?POD?},POL={?POL?},SPOD={?SPOD?},TRADE_ID={?TRADE_ID?},I_E_ID={?I_E_ID?},E_F_ID={?E_F_ID?},SEAL_NO={?SEAL_NO?},\" + \"CNTR_ID={?CNTR_ID?} where TENANCY_ID={?TENANCY_ID?} and  CNTR={?#CNTR?} and BILL_NO={?BILL_NO?}\", {\
+    arrayData: new org.json.JSONArray(updateDate)\
+});\
+\
+app.run(\"update port_cntr set  CNTR={?CNTR?},CNTR_ISO={?CNTR_ISO?},CNTR_SIZE={?CNTR_SIZE?},CNTR_TYPE={?CNTR_TYPE?}, REEF_ID={?numeric.REEF_ID?},ID={?CNTR_ID?} where TENANCY_ID={?TENANCY_ID?} and  CNTR={?#CNTR?} and BILL_NO={?BILL_NO?} and I_E_ID='I'\", {\
+    arrayData: new org.json.JSONArray(updateDate)\
+});\
+app.run(\"{call BILL_LCL_ID('\"+shipNo+\"','\"+TENANCY_ID+\"','\"+app.get(\"I_E_ID\")+\"')}\");\
+\
+\
+app.send({\
+    ID: id,\
+    create: createDate\
+});\
+\
+//app.send({create:createRows,update:updatedRows,otherParams:params});//如果需要同时同步新建和修改的记录以及其他参数\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

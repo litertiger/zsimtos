@@ -1,0 +1,95 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+
+<div id="Tag80"/>
+<Table cols=2 border=0 width=100%>
+<col width=60%>
+<col width=40%>
+<tr height=91><td class="noline"/><td class="noline"><img src='image/tradechart.png'></td></tr>
+</table>
+<br>
+<h3>　<font color=#3366ff>Supcan Chart组件</font></h3><hr color=#2266ee size=1>
+　　Chart组件实现了统计图功能，目前已完成了圆饼图、柱状图、折线图、曲线图、区域图(面积图)、雷达图，能满足大多数统计的需要。<br>
+　　下图是统计图的一些基本概念和约定的说明，使用Chart组件前需要了解清楚：<br>
+<center><img src='image/chart.png'></center>
+　　数据“系列”是一组完整的数据，可以在Chart组件中显示。对于数据表(Table)而言，一个系列相当于是一行记录，或者是垂直的一列数据。“系列”和“数据项”是可以互换的。<br>
+　　统计图中可以包含1个系列，也可以包含多个系列，上图中展示了包含了4个系列的情况。<br>
+
+<div id="Tag801"/><br>
+<p class="sz1">1.创建实例</p><hr color=#2266ee size=1>
+　　Supcan Chart 组件是通过插件/加载项创建的，可以直接调用 dynaload.js 中的函数创建:<br>
+<pre class='cpp'>insertChart('AF', 'border=single; bordercolor=#4499ff; borderWidth=2; borderRound=23; backcolor=#fff5ea')</pre>
+　　其中第二个参数即 “创建参数”，决定了如何在页面上展现 Supcan Chart，创建参数中可包含多个子串，子串间以 "；" 分隔。<br>
+　　创建参数的名值对的规范如下：<br>
+<table width=98% border=1 align="center">
+<tr><th>分类</th><th>子串名</th><th>含义</th><th>可用值</th><th>默认值</th></tr>
+<tr><td rowspan="8" bgColor="#eeeeee">主要</td><td>chart</td><td>统计图类型</td><td>
+
+<table border="0">
+<col width="85">
+<col width="100">
+<col width="85">
+<col width="100">
+<tr><td class="noborder"><b>0</b> 或 <b>pie</b> </td><td class="noborder"> - 圆饼图</td><td class="noborder"><b>1</b> 或 <b>bar</b></td>  <td class="noborder"> - 柱状图</td></tr>
+<tr><td class="noborder"><b>2</b> 或 <b>line</b></td><td class="noborder"> - 折线图</td><td class="noborder"><b>3</b> 或 <b>curve</b></td><td class="noborder"> - 曲线图</td></tr>
+<tr><td class="noborder"><b>4</b> 或 <b>area</b></td><td class="noborder"> - 区域图</td><td class="noborder"><b>5</b> 或 <b>radar</b></td><td class="noborder"> - 雷达图</td></tr>
+</table>
+
+</td><td>0</td></tr>
+<tr><td>items</td><td>统计图中最多能显示数据项数量</td><td>数值<br>注1：最多不得超过155;<br>注2：超出的部分、数值小的数据项将归并到“其它”数据项</td><td>28</td></tr>
+<tr><td>textContent</td><td>显示的文字内容</td><td><b>0</b> - 不显示, &nbsp;<b>1</b> - 仅数据项名称, &nbsp;<b>2</b> - 名称、百分比, &nbsp;<b>3</b> - 名称、数值, <br>也可以是<b>表达式串</b> - 表达式中可以使用 name、data、percent 变量, 分别表示名称、数值、百分比, 例如:<br> 
+insertChart("AF", "border=none; textContent=name+': ' +data + '吨, 占总数的' + percent + '%'")<br>注：请注意里面的双引号、单引号</td><td>2</td></tr>
+<tr><td>tip</td><td>tip内容</td><td><b>none</b>(或为空) - 禁止tip<br><b>auto</b> - 自动<br><b>表达式串</b> - 请参见 textContent 属性</td><td>auto</td></tr>
+<tr><td>textArrange</td><td>文字位置</td><td><b>0</b> - 不显示, &nbsp;&nbsp;<b>1</b> - 外部且对齐, &nbsp;&nbsp;<b>2</b> - 外部, &nbsp;&nbsp;<b>3</b> - 内部<br>注：2、3仅用于圆饼图</td><td>2</td></tr>
+<tr><td>Caption</td><td>标题</td><td>文字</td><td>(无)</td></tr>
+<tr><td>titlePosition</td><td>标题和系列名的位置</td><td><b>0</b> - 不显示, &nbsp;<b>2</b> - 上方, &nbsp;<b>8</b> - 底部</td><td>2</td></tr>
+<tr><td>Colors</td><td>统计图的颜色</td><td>以逗号分隔的颜色串, 用于自定义颜色</td><td>(无)<br>自动产生</td></tr>
+
+<tr><td rowspan="4">边界</td><td>Border</td><td>边界线风格</td><td><b>none</b> - 无边界, &nbsp;<b>single</b> - 单线条边界, &nbsp;<b>3d</b> - 3D凹陷边界</td><td>single</td></tr>
+<tr><td>BorderWidth</td><td>边界线粗细</td><td>像素数</td><td>1</td></tr>
+<tr><td>BorderRound</td><td>圆角边界的直径</td><td>像素数</td><td>0</td></tr>
+<tr><td>BorderColor</td><td>边界线颜色</td><td>颜色串</td><td>0</td></tr>
+
+<tr><td rowspan="2" bgColor="#eeeeee">背景</td> <td>bgColor<br>或BackColor</td><td>整个统计图的背景色</td><td>颜色串，或以逗号分隔的2个颜色串(垂直渐变)</td><td>沿用页面上下文</td></tr>
+<tr><td>BackImage</td><td>统计图的背景图片</td><td>如下名值对，分号(;)分隔：<br>src或url - 图片URL;<br>alpha - 透明度(0-255);<br>rotate - 旋转角度(0-360);<br>arrange - 布局, 有tile(平铺) / stretch(伸展)等, 默认tile, 可参见Treelist XML文档规范中的&lt;Properties&gt;下的&lt;background&gt;.<br>例如：backImage='src=res/flag.jpg;alpha=100'</td><td>(无)</td></tr>
+
+<tr><td rowspan="4">圆饼图</td><td>PieTextColor</td><td>圆饼图的文字颜色</td><td>颜色串, "auto" 表示自动, 采用和圆饼相近的颜色</td><td>auto</td></tr>
+<tr><td>PieBorderPercent</td><td>圆饼图3D凸起(纽扣效果)大小</td><td>0到100的数字，0或100表示无纽扣效果，其中100表示完全2D(单一色)</td><td>10</td></tr>
+<tr><td>PieShadowPercent</td><td>圆饼图阴影大小</td><td>0到100的数字，0表示无阴影</td><td>2</td></tr>
+<tr><td>PieShadowAlpha</td><td>圆饼图阴影透明度</td><td>0到255的数字, 数字越小则越淡</td><td>230</td></tr>
+
+<tr><td rowspan="14" bgColor="#eeeeee">坐标类</td><td>outlinePointDiameter</td><td>数据点的小圆球的直径</td><td>像素数, 0表示不需要显示小圆球<br>备注：仅用于折线/曲线/区域图</td><td>10</td></tr>
+<tr><td>dblClickSwitchAble</td><td>鼠标双击当前系列行为</td><td>true/false, 表示在多系列显示时，双击当前系列是否切换到仅显示本系列</td><td>true</td></tr>
+<tr><td>coordinateBackColor</td><td>坐标区域背景色</td><td>ARGB颜色串，或以逗号分隔的2个ARGB颜色串(垂直渐变)<br>注1: 所谓 ARGB 颜色，例如: "#10C0D0E0", 其中前2位( "10" )是 alpha(即透明度), 后6位( "C0D0E0" ) 是 RGB, 透明度的值的范围也和颜色一样, 是从0到255(对应到16进制就是00到FF).
+半透明的颜色块好比是一层薄纱，叠加在上方，其透明度决定了颜色的浓淡<br>注2: 仅用于bar、line、curve、area</td><td>(无)</td></tr>
+<tr><td>valueMask</td><td>数值显示掩码</td><td>串，如"#,###.00", 如果不设置 valueMask, 格式将和传入的数据的格式保持一致</td><td>(无)</td></tr>
+<tr><td>valueMaskY</td><td>Y轴数值显示掩码</td><td>串，如"#,###.00"<br>注1: 仅用于bar、line、curve、area、radar</td><td>#,##0</td></tr>
+<tr><td>valueStepY<br>或 stepValueY</td><td>Y轴坐标刻度步进值</td><td>数值，0表示由插件根据实际数据生成合适的值<br>注1: 仅用于bar、line、curve、area、radar<br>注2: 间距过密，该设置将失效</td><td>0</td></tr>
+<tr><td>valueMaxY<br>或 maxValueY</td><td>强制设定Y轴坐标最大值</td><td>数值，0表示由实际数据决定<br>注1: 仅用于bar、line、curve、area、radar<br>注2: 实际数据若超过该值，该设置将失效</td><td>0</td></tr>
+<tr><td>valueMinY<br>或 minValueY</td><td>强制设定Y轴坐标最小值</td><td>数值，0表示由实际数据决定<br>注1: 仅用于bar、line、curve、area、radar<br>注2: 实际数据若超过该值，该设置将失效</td><td>0</td></tr>
+<tr><td>Overflow</td><td>宽度不够导致数据项文字重叠的处理选项</td><td><b>0</b> - 垂直错落显示; &nbsp;&nbsp;<b>1</b> - 文字倾斜45度显示<br>注：用于柱状图、曲线折线图</td><td>0</td></tr>
+<tr><td>ActiveSeries</td><td>当前高亮的活动系列</td><td>系列名，或系列的顺序号(从0开始计数)</td><td>(无)</td></tr>
+<tr><td>isDrawZero</td><td>是否显示数值为0的线条</td><td><b>1</b> 或 <b>true</b>, 全部显示;<br>
+<b>0</b> 或 <b>false</b>, 数值为零或为空的坐标处不绘制线条;<br>
+<b>2</b> 或 <b>NotNull</b>, 数值为空的坐标处不绘制线条;<br>
+注：仅用于折线/曲线/区域图</td><td>true</td></tr>
+<tr><td>LineThick</td><td>折线/曲线的线条宽度</td><td>像素数, 0 到 12</td><td>1</td></tr>
+<tr><td>BarImage</td><td>柱状图的背景图案</td><td>如下名值对，分号(;)分隔：<br>src或url - 图片URL;<br>alpha - 透明度(0-255);<br>rotate - 旋转角度(0-360);<br>arrange - 布局, 有tile(平铺) / stretch(伸展)等, 默认tile, 可参见Treelist XML文档规范中的&lt;Properties&gt;下的&lt;background&gt;.<br>例如：barImage='src=res/flag.jpg;alpha=100'</td><td>(无)</td></tr>
+<tr><td>isFillRadar</td><td>是否以颜色填充雷达图</td><td>true/false</td><td>true</td></tr>
+
+<tr><td rowspan="7">其它</td><td>isAnimate</td><td>是否以动画启动</td><td>true/false</td><td>true</td></tr>
+<tr><td>hasMenu</td><td>是否需要鼠标右键弹出菜单</td><td>true/false</td><td>true</td></tr>
+<tr><td>isUseContextFont</td><td>是否采用页面上下文字体</td><td>true/false</td><td>false</td></tr>
+<tr><td>EventLog</td><td>事件日志</td><td>文件名，建议后缀是txt, 不必带路径，系统将自动在 BC 目录下创建. 该文件能自动记录本组件实例的所有事件, 用于程序调试.<br>注：正式运行时请不要使用，因为频繁读写磁盘会导致性能下降.</td><td>无</td></tr>
+<tr><td>FuncLog</td><td>函数调用日志</td><td>文件名，建议后缀是txt, 不必带路径，系统将自动在 BC 目录下创建. 该文件能自动记录本组件实例被调用的所有函数, 用于程序调试.<br>注：正式运行时请不要使用，因为频繁读写磁盘会导致性能下降.</td><td>无</td></tr>
+<tr><td>FuncParaChars</td><td>函数日志中参数最大字数</td><td>数字，当启用函数日志时，函数的参数最多保留字数.</td><td>128</td></tr>
+<tr><td>FuncReturnChars</td><td>函数日志中返回值最大字数</td><td>数字，当启用函数日志时，函数的返回值最多保留字数.</td><td>0</td></tr>
+</table>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

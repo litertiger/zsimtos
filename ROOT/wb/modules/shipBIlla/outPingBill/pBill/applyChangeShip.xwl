@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = Wb.decode(app.get('ID')),vId=app.get(\"vId\"),oldVid=app.get(\"oldVid\"),\
+    TENANCY_ID=app.get(\"sys.TENANCY_ID\"),username=app.get(\"sys.username\");\
+var ids = new Array();\
+  mainFlag = 0;\
+\
+\
+\
+for (var i = 0; i < data.length; i++) {\
+\
+  ids.push({\
+    ID: data[i]\
+  });\
+}\
+\
+app.run(\"insert into SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO)\\\
+    select '舱单换船新船'||'\"+vId+\"'||'上一船'||'\"+oldVid+\"','\"+username+\"',sysdate, BILL_NO from  vbill_head where  ID={?ID?} \",{\
+     arrayData: new org.json.JSONArray(ids)\
+});\
+app.run(\"update VBILL_HEAD set CNTR_ID={?cntrId?},main_flag=0,VID='\"+vId+\"' where ID ={?ID?}\", {\
+  arrayData: new org.json.JSONArray(ids),\
+  transaction: 'start'\
+});\
+\
+app.run(\"delete from   VLOAD_LIST  where BILL_ID ={?ID?}\", {\
+  arrayData: new org.json.JSONArray(ids)\
+});\
+\
+app.run(\"INSERT INTO vload_list \" +\
+  \"      (lcl_id ,PHASE,ID,I_E_ID,bill_ID,BILL_NO,VID ,TENANCY_ID, CATEGORY_ID, E_F_ID, TRADE_ID ,cntr,cntr_iso, cntr_id, cntr_operator, pod, pol, spod,\" +\
+  \"       cntr_size, cntr_type, cntr_operator_cod, cntr_owner,\" +\
+  \"        cntr_owner_cod, weight, volume, pieces,UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\" +\
+  \" SELECT  1, vbill_head.PHASE,  sys_guid(), vbill_head.I_E_ID, {?ID?},vbill_head.BILL_NO,vload_list_d.VID,vbill_head.TENANCY_ID, CATEGORY_ID, E_F_ID,vbill_head.TRADE_ID, cntr, cntr_iso, vload_list_d.cntr_id, vload_list_d.cntr_operator,\" +\
+  \"      vload_list_d.pod, vload_list_d.pol,  nvl(vload_list_d.SPOD,vload_list_d.POD) , cntr_size,\" +\
+  \"      cntr_type, vload_list_d.cntr_operator_cod, vload_list_d.cntr_owner,\" +\
+  \"      vload_list_d.cntr_owner_cod, vbill_head.weight, vbill_head.volume,\" +\
+  \"      vbill_head.pieces,sysdate,sysdate,'\"+username+\"','\"+username+\"'\" +\
+  \" FROM vload_list_d, vbill_head\" +\
+  \" WHERE vload_list_d.cntr_id = {?cntrId?}   and  vload_list_d.VID='\"+vId+\"'\" +// and  vload_list_d.VID=\
+  \"   AND vbill_head.ID = {?ID?}\" +\
+  \"   AND NOT EXISTS (SELECT 1\" +\
+  \"                     FROM vload_list\" +\
+  \"                   WHERE bill_id = {?ID?})\",{arrayData: new org.json.JSONArray(ids)});\
+app.run(\"{call bill_lcl_id('\"+vId+\"','\"+TENANCY_ID+\"','E')}\");\
+app.run(\"{call bill_lcl_id('\"+oldVid+\"','\"+TENANCY_ID+\"','E')}\");\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "申请换船",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

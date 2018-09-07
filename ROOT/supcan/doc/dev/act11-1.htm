@@ -1,0 +1,58 @@
+<HTML>
+<head><title>11.1 简单差异</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>11.1 简单差异</p><hr color=#2266ee size=1>
+　　硕正套件对FireFox、Chrome和IE的支持存在着一些差异，能简单解决的差别如下：<br><br>
+<b>1. 页面 meta 声明</b><br>
+　　FireFox/Chrome的 HTML 页面必须要有&lt;meta ... &gt;的文字编码声明，例如:<br>
+<pre class='xml'>
+&lt;meta http-equiv="content-type" content="text/html; charset=gb2312"&gt;
+//或
+&lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;</pre>
+　　否则页面调用插件的函数时，参数中的中文很可能会变成乱码.<br>
+　　IE 没有此要求。<br>
+<br>
+<b>2.&lt;Form&gt;</b><br>
+　　如果您将 插件/加载项 安置在&lt;Form&gt;中，在Firefox和Chrome下没问题，但在IE中针对控件的js会有问题，例如:<br>
+<pre class='cpp'>
+...
+function OnReady(id)
+{
+ AF.func("Build", "g1.xml");
+}
+...
+&lt;form name="form1"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&gt;insertReport('AF', '')&lt;/script&gt;
+&lt;/form&gt;
+...</pre>
+　　IE执行到第4行会抛出 'AF'未定义的错误，此时改成如下写法就能成功：
+<pre class='xml'>
+...
+function OnReady(id)
+{
+ <font color=red>form1.AF</font>.func("Build", "g1.xml");
+}
+...</pre>
+　　当然，您也可以把 上面insertReport( )的语句移出form，这样就不会有这个问题了。<br>
+<br>
+
+<b>3.func的布尔型参数</b><br>
+　　如果 func 函数第二个参数为布尔型，比如：<br>
+<pre class='cpp'>var b = true;
+AF.func("GrayWindow", b);</pre>
+　　发现在 IE 下会有问题: 插件接收到的串居然是 "<font color=red>-1</font>" 了！ 这将导致函数执行结果与预期不一致。改成如下就能正常:<br>
+<pre class='cpp'>AF.func("GrayWindow", String(b));
+	或
+AF.func("GrayWindow", b + '');</pre>
+　　Chrome 和 Firefox无此问题，其它数据类型也没有这种问题。<br>
+<br>
+<b>4</b>.FireFox、Chrome页面中，插件无法感知页面上下文的字体，主要受影响的是Edit组件;<br>
+<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

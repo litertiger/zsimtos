@@ -1,0 +1,100 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var DomCrud = com.ag.task.Util.DomCrud;\
+var head = \"\",\
+  order = \"\",\
+  truck, idss, notes;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uuu'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  d = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uu'),\
+  pinTime = DateUtil.format(javaDate, 'yyyyMMdd'),\
+    pinTime1 = DateUtil.format(javaDate, 'HHmmss');;\
+\
+var cdata = [];\
+var cntr = app.get('CNTR'),\
+  tenancyId = app.get('TENANCY_ID'),\
+  name = \"\",\
+  id = \"\";\
+\
+var username = app.get('sys.username'),ReadProperties=com.ag.util.ReadProperties;\
+if (tenancyId === 'XLG') {\
+  name = \"XLG\";\
+  path=ReadProperties.GetValueByKey(\"XLMQPUT\");\
+} else if (tenancyId === 'ZSG') {\
+  name = \"HY\";\
+  path=ReadProperties.GetValueByKey(\"ZSMQPUT\");\
+} else if (tenancyId === 'SWG') {\
+  name = \"SWG\";\
+  path=ReadProperties.GetValueByKey(\"SWMQPUT\");\
+}\
+\
+//在场箱\
+var s = app.get('ids');\
+if (s != null && s != \"\") {\
+  var ids = Wb.decode(s);\
+  if (ids.length == 0)\
+    id = \"''\";\
+  for (var i = 0; i < ids.length; i++) {\
+    if (i == ids.length - 1)\
+      id += \"'\" + ids[i].ID + \"'\";\
+    else\
+      id += \"'\" + ids[i].ID + \"',\";\
+  }\
+}\
+\
+\
+var rs = Wb.getRecords(app.run(\"select form_id, ID, NOTES ,CNTR from  PORT_CNTR  where  id in (\" + id + \") and  TENANCY_ID='\" + tenancyId + \"' and send_edi='1'\"));\
+app.log(\"长度\" + rs.length);\
+for (var i = 0; i < rs.length; i++) {\
+  xml = \"\";\
+  head = \"\";\
+  order = \"\";\
+  var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"no\\\"?><Message xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\"><Head>\";\
+  head += '<MessageID>Z_' + dateName + '<\/MessageID>';\
+  head += '<FunctionCode>2<\/FunctionCode>';\
+  head += '<MessageType>CAP0061<\/MessageType>';\
+  head += '<SenderID>ZSENTERPRISES<\/SenderID>';\
+  head += '<ReceiverID/>';\
+  head += '<SendTime>' + dateName + '<\/SendTime>';\
+  head += '<Version>1.0<\/Version><\/Head>';\
+  xml += head;\
+  order += \"<Declaration>\";\
+  order += \"<REC_INFO>\";\
+  order += \"<FORM_ID>\" + rs[i].FORM_ID + \"<\/FORM_ID>\";\
+  order += \"<FEEDBACK_DATE>\"+pinTime+\"<\/FEEDBACK_DATE>\";\
+  order += \"<FEEDBACK_TIME>\" + pinTime1 + \"<\/FEEDBACK_TIME>\";\
+  order += \"<FEEDBACK_FLAG>01<\/FEEDBACK_FLAG>\";\
+  order += \"<FEEDBACK_MESS>空箱放行作废申请<\/FEEDBACK_MESS>\";\
+  order += \"<NULL_FIELD/>\";\
+  order += \"<\/REC_INFO>\";\
+  order += \"<\/Declaration>\";\
+  order += \"<\/Message>\";\
+  xml += order;\
+  var a = DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0061_CUSTOMS_\" + dateName,path);\
+//   app.log(a);\
+//   app.log(xml);\
+}\
+app.run(\"update PORT_CNTR SET send_edi='2' where id in(\" + id + \")\");\
+// app.run(\"update PORT_CNTR set SEND_EDI='2' WHERE ID={?ID?} \", {\
+//   arrayData: new org.json.JSONArray(Wb.encode(cdata))\
+// });"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

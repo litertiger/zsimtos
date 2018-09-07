@@ -1,0 +1,358 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "sys.thome",
+   "serverMethod": "com.wb.interact.Portal.initTouchHome",
+   "title": "{#Var.sys.app.title#}",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "mainMenu",
+     "width": "230",
+     "menu": " [{\
+   text: Str.logout,\
+   glyph: 'f011',\
+   handler: app.logout\
+ }, {\
+   text: Str.close,\
+   glyph: 'f00d',\
+   handler: app.close\
+ }, {\
+   text: Str.closeAll,\
+   glyph: 'f057',\
+   handler: app.closeAll\
+ }, {\
+   text: Str.refreshApps,\
+   glyph: 'f021',\
+   handler: app.refreshApps\
+ }]"
+    },
+    "expanded": true,
+    "children": [],
+    "type": "tpanel"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "card",
+      "itemId": "container"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "padding": "8",
+        "itemId": "appList",
+        "inline": "true",
+        "style": "background-color:white;",
+        "cls": "dataview-inline",
+        "itemTpl": "<table width='{[app.appIconWidth]}px' style='table-layout:fixed;color:#737373;'>\
+  <tr><td align='center' valign='middle' style='height:60px;'><div class='wb_glyph4 x-dv-item-pad' style='width:48px;height:48px;background-size:cover;background-image:url({image});'>{glyph}<\/div><\/td><\/tr>\
+  <tr><td align='center' valign='top' style='height:30px;'><div style='font-size:13px;'>{title}<\/div><\/td><\/tr>  \
+<\/table>"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "maskBindObject": "true",
+         "fields": "['title', 'image', 'glyph', 'url']",
+         "url": "m?xwl=system/sys/portal/thome/get-apps"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tdataview",
+       "events": {"itemtap": "var found, url = record.get('url');\
+\
+app.container.items.each(function(item) {\
+  if (item.__url == url) {\
+    found = true;\
+    app.container.setActiveItem(item);\
+    return;\
+  }\
+});\
+if (found)\
+  return;\
+Wb.run({\
+  url: url,\
+  success: function(scope) {\
+    Wb.each(scope, function(k, v) {\
+      if (v && (v.isViewport || v.initialConfig && v.initialConfig.isViewport)) {\
+        var newCard = app.container.add({\
+          xtype: 'container',\
+          layout: 'fit',\
+          subModuleScope: scope,\
+          listeners: {\
+            destroy: function(card) {\
+              var scope = card.initialConfig.subModuleScope;\
+              if (scope) {\
+                Wb.each(scope, function(k, v) {\
+                  if (v && v != card && !(v instanceof Ext.data.Model))\
+                    Ext.destroy(v);\
+                });\
+                Ext.Object.clear(scope);\
+              }\
+            }\
+          }\
+        });\
+        newCard.add(v);\
+        newCard.__glyph = record.get('glyph');\
+        newCard.__image = record.get('image');\
+        newCard.__title = record.get('title');\
+        newCard.__url = url;\
+        app.container.setActiveItem(newCard);\
+        return false;\
+      }\
+    });\
+  }\
+});"}
+      },
+      {
+       "configs": {
+        "padding": "8",
+        "itemId": "winList",
+        "inline": "true",
+        "style": "background-color:white;",
+        "cls": "dataview-inline",
+        "itemTpl": "<table width='{[app.appIconWidth]}px' style='table-layout:fixed;color:#737373;'>\
+  <tr><td align='center' style='height:60px;'><div class='wb_glyph4' style='width:48px;height:48px;background-size:cover;background-image:url({image});'>{glyph}<\/div><\/td><\/tr>\
+  <tr><td align='center' valign='top' style='height:30px;'><div style='font-size:13px;'>{title}<\/div><\/td><\/tr>  \
+<\/table>"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "fields": "['title', 'image', 'glyph', 'win']"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tdataview",
+       "events": {"itemtap": "app.container.setActiveItem(record.get('win'));"}
+      },
+      {
+       "configs": {
+        "itemId": "toolbar",
+        "hidden": "true",
+        "docked": "bottom"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {"itemId": "spacer1"},
+         "expanded": false,
+         "children": [],
+         "type": "tspacer"
+        },
+        {
+         "configs": {
+          "itemId": "backBtn",
+          "glyph": "f060",
+          "ui": "plain"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton"
+        },
+        {
+         "configs": {
+          "itemId": "forwardBtn",
+          "glyph": "f061",
+          "ui": "plain"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton"
+        },
+        {
+         "configs": {
+          "itemId": "menuBtn",
+          "glyph": "f0c9",
+          "ui": "plain"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "app.mainMenu.showBy(button);"}
+        },
+        {
+         "configs": {
+          "itemId": "homeBtn",
+          "glyph": "f015",
+          "ui": "plain"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "app.container.setActiveItem(app.appList);"}
+        },
+        {
+         "configs": {
+          "itemId": "winBtn",
+          "glyph": "f17a",
+          "ui": "plain"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "app.reloadWins();\
+app.container.setActiveItem(app.winList);"}
+        },
+        {
+         "configs": {"itemId": "spacer2"},
+         "expanded": false,
+         "children": [],
+         "type": "tspacer"
+        }
+       ],
+       "type": "ttoolbar"
+      }
+     ],
+     "type": "tcontainer",
+     "events": {"activeitemchange": "app.addHistory(value);"}
+    }],
+    "type": "tviewport"
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "Wb.setNavigate(app.container, app.backBtn, app.forwardBtn);\
+app.computeIconWidth();\
+if ('{#isNotLogin#}' == '1')\
+  Wb.login(function(scope) {\
+    if ('{#test#}' == '1') {\
+      scope.notSetData = true;\
+      scope.username.setValue('test');\
+      scope.password.setValue('test');\
+    }\
+  }, function() {\
+    app.toolbar.setHidden(false);\
+    app.refreshApps();\
+  });\
+else {\
+  app.toolbar.setHidden(false);\
+  app.refreshApps();\
+}",
+   "initialize": "Wb.apply(app, {\
+  /**\
+   * 添加系统返回前进按钮的历史记录。\
+   * @param {Mixed} param 参数。如果参数类型为字符串则指定为url，否则指定为控件，并以其id作为url。\
+   */\
+  addHistory: function(param) {\
+    if (param) {\
+      app.history.add({\
+        url: Ext.isString(param) ? param : param.getId()\
+      }, true);\
+    }\
+  },\
+  /**\
+   * 按系统返回前进按钮时触发的事件。用户可以重载此方法以自定义系统返回前进按钮功能。\
+   * @param {String} param 用户使用addHistory添加的参数或添加的控件itemId。\
+   */\
+  setHistory: function(param) {\
+    if (Ext.getBody().down('div[class~=x-mask]:not([class~=x-item-hidden])') || Wb.hasModalWin) {\
+      //如果存在模态窗口禁止使用导航\
+      app.disableSetHistory = true;\
+      app.addHistory(app.container.getActiveItem());\
+      return;\
+    }\
+    if (!param) {\
+      if (app.container.getActiveItem() != app.appList)\
+        app.container.setActiveItem(app.appList);\
+      else\
+        Wb.toast(Str.backToExit);\
+      return;\
+    }\
+    var item = Ext.getCmp(param);\
+    if (item)\
+      app.container.setActiveItem(item);\
+  },\
+  computeIconWidth: function() {\
+    var i, j, containerWidth = app.container.innerElement.getWidth() - 16,\
+      minVal = containerWidth,\
+      iconWidth = 80;\
+    for (i = 80; i < 100; i++) {\
+      j = containerWidth % i;\
+      if (j < minVal) {\
+        minVal = j;\
+        iconWidth = i;\
+      }\
+    }\
+    app.appIconWidth = iconWidth;\
+  },\
+  refreshApps: function() {\
+    app.appList.store.load();\
+  },\
+  close: function() {\
+    var item = app.container.getActiveItem();\
+    //外部加载的模块\
+    if (item.__url)\
+      app.container.remove(item);\
+  },\
+  closeAll: function() {\
+    app.container.items.each(function(item) {\
+      if (item.__url)\
+        app.container.remove(item);\
+    });\
+    if (app.container.getActiveItem() == app.winList)\
+      app.reloadWins();\
+  },\
+  logout: function() {\
+    Wb.request({\
+      url: 'logout',\
+      success: function(resp) {\
+        Wb.login(app.closeAll, app.refreshApps);\
+      }\
+    });\
+  },\
+  reloadWins: function() {\
+    var container = app.container,\
+      wins = [];\
+    container.items.each(function(item) {\
+      if (item.__url) {\
+        wins.push({\
+          title: item.__title,\
+          glyph: item.__glyph,\
+          image: item.__image,\
+          win: item\
+        });\
+      }\
+    });\
+    app.winList.store.applyData(wins);\
+  }\
+});\
+app.history = new Ext.app.History({\
+  listeners: {\
+    change: function(url) {\
+      if (app.disableSetHistory)\
+        app.disableSetHistory = false;\
+      else\
+        app.setHistory(url);\
+    }\
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "default": 1,
+  "basic": 1
+ },
+ "title": "移动主页",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

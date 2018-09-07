@@ -1,0 +1,57 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  errcount = 0,\
+  recs = Wb.decode(request.getParameter('create')),\
+  upds = Wb.decode(request.getParameter('update'));\
+\
+Wb.each(upds, function(upd) {\
+  if (upd.TOTALWT <= upd.TRUCKWT + upd.TRAYWT + upd.GTAREWT)\
+    errcount++;\
+});\
+if (errcount > 0) {\
+  app.send({\
+    ok: false,\
+    msg: \"总重量输入错误\"\
+  });\
+  return;\
+}\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+request.setAttribute('update', Wb.encode(upds));\
+app.update({\
+  tableName: 'CNTR_WEIGHT_REC',\
+  whereFields: 'ID',\
+  transaction: 'start',\
+  uniqueUpdate: true\
+});\
+app.send({\
+  ok: true,\
+  msg: \"保存成功\"\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZK": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

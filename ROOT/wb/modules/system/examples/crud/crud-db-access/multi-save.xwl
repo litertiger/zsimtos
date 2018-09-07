@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var defaultPassword = Encrypter.getMD5('111111'),\
+  createRows = Wb.decode(request.getParameter('create'));\
+\
+Wb.each(createRows, function(rec) {\
+  Wb.apply(rec, {\
+    KEY_ID: SysUtil.getId(),\
+    USER_ID: SysUtil.getId(),\
+    DISPLAY_NAME: rec.REAL_NAME,\
+    PASSWORD: defaultPassword,\
+    STATUS: 1,\
+    CREATE_DATE: new Date(),\
+    LOGIN_TIMES: 0\
+  });\
+});\
+\
+request.setAttribute('create', Wb.encode(createRows));\
+//默认使用app.update操作都在同一个数据库事务内\
+app.update({\
+  fieldsMap: {\
+    EMAIL: 'STAFF_EMAIL' //把客户端STAFF_EMAIL字段名称映射为数据库实际使用的字段名称EMAIL（在select语句中使用as更名了）\
+  },\
+  tableName: 'WB_STAFF'\
+});\
+\
+app.update({\
+  tableName: 'WB_USER'\
+});\
+\
+app.send(createRows); //把create中包含的数据（主要更新KEY_ID和USER_ID字段）发送到客户端以同步到表格",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "多表保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

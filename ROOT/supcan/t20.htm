@@ -1,0 +1,70 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+  AF.func("Build", "treelist/orders6.xml");
+  AF.func("Load", "treelistdata/orders.txt");
+
+  //模拟初始加载：和前面的“可编辑的下拉”例子相同
+  AF.func("SetCellData", "8 \r\n CustomerID2 \r\nWELLI");
+  AF.func("SetCellData", "9 \r\n CustomerID2 \r\nHILAA");
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=="AF" && Event=="Clicked" && p3=="DropdownButton")  document.getElementById('lb1').innerHTML = "自定义按钮事件：id = " +p4;
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.“经销商1”和“经销商2”的下拉树列表是服务器搜索的，但具备<font color=red>分页</font>功能，请在第一行的“经销商1”处输入 "a",  然后请观察弹出的下拉窗口;<br>
+<b>2</b>.“经销商2”的下拉，除了弹出窗口下方的按钮是自定义的，其余和“经销商1”一致.
+</td></tr>
+</table>
+
+<br>
+<table border=0 width=906>
+<tr height='283'><td><script>insertTreeList('AF', '', 283)</script></td></tr>
+<tr><td><Label id='lb1'>自定义按钮事件：</Label></td></tr>
+</table>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.源码分析：可查看创建该TreeList的<a href="treelist/orders6.xml" target=_blank>XML描述文件</a>；<br>
+<b>2</b>.查看被下拉引用的<a href="treelist/customer3.xml" target=_blank>经销商</a>，关注dataURL，它采用了表达式：<br>
+&nbsp;&nbsp;<font color=red>dataURL="='http://www.supcan.cn/dotnet/customer2.aspx?startRow=@startRow&rows=@rows&substr='+encodeURIComponent(data)"</font><br>
+&nbsp;&nbsp;备注：表达式中使用了分页的2个宏： @startRow 和 @rows, 系统即将其当做分页处理.<br>
+<b>3</b>.查看提供“经销商”搜索功能的服务器端的<a href="treelistdata/customer2_aspx.htm" target=_blank>C#源码</a>；<br>
+<b>4</b>.注意：后端程序程序除了实现分页服务、还必须实现对单个Key(不是输入的文字)的搜索服务, 这一点和前面的“可编辑下拉”演示页一致.<br>
+<b>5</b>."经销商2" 的自定义按钮，就由该TreeList的下拉的 "DropdownButton" 属性大串定义的：<br>
+<pre class='xml'>
+&lt;DropList id="customer3" treelist="customer3.xml" DataCol="customerid" DisplayCol="companyname"
+ Dropdownbutton = "showText=共@totalRows行，第 @page / @pages 页 ;
+  button1.id=65531; button1.align=left; 
+  button2.id=65530; button2.align=left;
+  button3.id=1; button3.align=right; button3.text=自定义功能1; button3.tip=提示功能：1; 
+  button4.id=2; button4.align=right; button4.text=自定义功能2; button4.tip=提示功能：2; button4.img=../res/block.png"
+/&gt;</pre>
+<br>
+</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

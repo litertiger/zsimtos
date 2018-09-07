@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var sql, data = app.get();\
+sql = \" TENANCY_ID='{#sys.TENANCY_ID#}'\";\t\t\
+if (!Wb.isEmpty(data.eatBegdate)) \
+  sql += \"  and  ETA>={?timestamp.eatBegdate?}\";\
+\
+if (!Wb.isEmpty(data.eatEnddate)) \
+  sql += \"  and  ETD<={?timestamp.eatEnddate?}\";\
+if (!Wb.isEmpty(data.QPHASE)) \
+  sql += \" and  PHASE  = {?QPHASE?} \";\
+\
+if (!Wb.isEmpty(data.eShipName)) \
+  sql += \" and  VESSEL_NAME  like {?eShipName?}||'%' \";\
+\
+if (!Wb.isEmpty(data.voyage)) \
+  sql += \" and (I_VYG  like {?voyage?}||'%' or O_VYG  like {?voyage?}||'%' )\";\
+if (!Wb.isEmpty(data.I_E_ID)) \
+{\
+   if(data.I_E_ID=='I')//进口\
+       sql += \" and nvl(I_SHIP_NO ,'@') <>'@'\";\
+   if(data.I_E_ID=='E')//出口\
+       sql += \" and  nvl(O_SHIP_NO ,'@') <>'@'\";\
+}\
+\
+request.setAttribute('whereSql', sql);\
+\
+\
+\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT '' RELATION, '' LEFTPARENTHESIS, '' FIELDNAME,'' OPERATOR, '' VALUE,\
+      '' RIGHTPARENTHESIS\
+  FROM DUAL\
+ WHERE 1 <> 1"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1
+ },
+ "title": "高级查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

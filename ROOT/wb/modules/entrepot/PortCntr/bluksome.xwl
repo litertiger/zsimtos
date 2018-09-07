@@ -1,0 +1,1352 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "head": "<!-- <script src = \"supcan/binary/dynaload.js?1013\" > <\/script>\
+<script>  var  locrec;\
+\
+function OnReady(id)\
+ {\
+ \tif(id=='AF1'){\
+       AF1.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+       AF1.func(\"Build\", '/supcan/report/bluk/bluk.xml ');\
+       AF1.func(\"DisableMenu\",\"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    }\
+  \
+ }\
+  \
+ function OnEvent(id, Event, p1, p2, p3,  p4){\
+   if(Event==\"MenuBeforePopup\"&&id==\"AF1\") {\
+   var menu =\"\";l= Wb.getSupcanMelu(AF1,\"BILL_NO\",true).length\
+  \
+   \t if(l>0){\
+          menu += \"id=4001; text='出库'; style='height:36px' \";\
+          menu += \"enabled= true \\r\\
+\";\
+          menu += \"id=4002; text='搬移';  \";\
+          menu += \"enabled= true \\r\\
+\";\
+          menu += \"id=4004; text='搬移记录'; \";\
+          menu += \"enabled= true \\r\\
+\";\
+   \t }\
+     if(Wb.getSupcanMelu(AF1,\"IMPEXP\",false)==\"拆\"){\
+          menu += \"id=4003; text='扣留'; \";\
+          menu += \"enabled= true \\r\\
+\";\
+     }\
+          AF1.func(\"AddMenu\", menu);\
+   } \
+  \
+  else if(Event==\"MenuClicked\"&&id==\"AF1\") {\
+ \
+       if(p1=='4001'){//出库\
+            \
+         var outNum= Wb.getSupcanMelu(AF1,\"OUTNUM\",true) ;\
+         var billIds= Wb.getSupcanMelu(AF1,\"BILL_ID\",true) ;\
+         var quty= Wb.getSupcanMelu(AF1,\"QUTY\",true),state =\"\";\
+         for(var i=0;i<outNum.length;i++){\
+         \t\tif(outNum[i]==null||outNum[i]==''){\
+                  state=\"请在选中的记录中输入出库数量！\"\
+                  break\
+                }\
+                 if(parseInt(outNum[i])>parseInt(quty[i])){\
+                  state=\"输入的出库数量大约库存数不能出库！\"\
+                  break\
+                }\
+         }\
+         if(state==\"\"){\
+          var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
+\
+\t\t\ttruckWin.show();\
+           \t app.TRUCKNO.focus();\
+            truckWin.mon(truckWin, 'ok', function() {\
+             Wb.request({\
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/setTruck',\
+               params: {billIds:billIds,TRUCKNO:app.TRUCKNO.getValue(),outNum:outNum},\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                app.findBtn.fireEvent('click');\
+                truckWin.close();\
+              }\
+            });\
+          });\
+          }\
+         else\
+             Wb.warn(state);\
+\t\t }else if(p1=='4002'){//搬移\
+          var banWin = new Ext.window.Window(app._banWin); //app._win指向配置对象而非实例\
+          \t banWin.show();\
+             app.OLD_POS.setValue(Wb.getSupcanMelu(AF1,\"LOCATION\",false) );\
+             var billId= Wb.getSupcanMelu(AF1,\"BILL_ID\",false) ;\
+             banWin.mon(banWin, 'ok', function() {\
+             Wb.request({ \
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/moveBluk',\
+               params: {billId:billId},\
+               out:banWin,\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                 app.findBtn.fireEvent('click');\
+                 banWin.close();\
+              }\
+            }); });\
+         \
+         }else if(p1=='4003'){//扣留\
+           \
+          \
+           var klWin = new Ext.window.Window(app._klWin); //app._win指向配置对象而非实例\
+           klWin.show();\
+          app.CFS_ID.setValue('扣留仓');\
+          app.INQUTY.setValue(Wb.getSupcanMelu(AF1,\"QUTY\",false));\
+          klWin.mon(klWin, 'ok', function() { \
+             Wb.request({ \
+               url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/setKouLiu',\
+               params: {billId: Wb.getSupcanMelu(AF1,\"BILL_ID\",false) },\
+               out:klWin,\
+               success: function(resp) {\
+                 Wb.info(\"成功\");\
+                 app.findBtn.fireEvent('click');\
+                klWin.close();\
+              }\
+            }); });\
+         }\
+         else if(p1=='4004'){\
+         \tapp.banSelWin.show();\
+            app.banGrid.store.load({params:{billId:Wb.getSupcanMelu(AF1,\"BILL_ID\",false)}});\
+         }\
+\
+       }\
+   }\
+  <\/script>\
+ -->",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "anchor",
+     "itemId": "applyWin",
+     "dialog": "true",
+     "defaults": "{\
+  padding: '8 8 4 8',\
+  anchor: '100%'\
+}",
+     "title": "过磅申请"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "BILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "提单号",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "BILL_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "WEIGHTIME1",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "过磅时间",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "E_F_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "空重",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "I_E_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "进出口",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "GOODS",
+       "labelAlign": "right",
+       "fieldLabel": "货物",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SHIPPER",
+       "labelAlign": "right",
+       "fieldLabel": "货主",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "WEIGHTIME",
+       "labelAlign": "right",
+       "fieldLabel": "过磅时间",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "GROSSWT",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "货重",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "anchor",
+     "itemId": "truckWin",
+     "dialog": "true",
+     "defaults": "{\
+  padding: '8 8 4 8',\
+  anchor: '100%'\
+}",
+     "title": "出库"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "TRUCKNO",
+       "labelAlign": "right",
+       "fieldLabel": "车号",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "BILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "提单号",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "RELEASE_NO",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "放行单号",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "BILL_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "labelWidth": "60"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "outNum",
+       "labelAlign": "right",
+       "fieldLabel": "出库件数",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "WEIGHT",
+       "labelAlign": "right",
+       "fieldLabel": "重量",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "VOLUME",
+       "labelAlign": "right",
+       "fieldLabel": "体积",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "OUTTIME",
+       "allowBlank": "true",
+       "labelAlign": "right",
+       "fieldLabel": "出库时间",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "MANHOUR",
+       "labelAlign": "right",
+       "fieldLabel": "人工小时",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "MANNUM",
+       "labelAlign": "right",
+       "fieldLabel": "人工人数",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "MACHINEHOUR",
+       "labelAlign": "right",
+       "fieldLabel": "机械工时",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "TYPE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "类型",
+       "keyName": "CRAFTWORK",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "DEPT_ID",
+       "labelAlign": "right",
+       "fieldLabel": "装卸班组",
+       "displayField": "TEAM_NAME",
+       "labelWidth": "60",
+       "valueField": "HAND_CODE"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=entrepot/PortCntrWeight/WorkBillEdit2/selectDeptId"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "MACHINE",
+       "labelAlign": "right",
+       "fieldLabel": "装卸机械",
+       "displayField": "RESOURCE_NAME",
+       "labelWidth": "60",
+       "valueField": "RESOURCE_ID"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=entrepot/OutBluk/OutBulkCargoEdit/selectMachine"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "WORKDATE",
+       "labelAlign": "right",
+       "fieldLabel": "作业时间",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "anchor",
+     "itemId": "banWin",
+     "dialog": "true",
+     "defaults": "{\
+  padding: '8 8 4 8',\
+  anchor: '100%'\
+}",
+     "title": "场内搬移"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "OLD_POS",
+       "fieldLabel": "原位置",
+       "disabled": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NEW_POS",
+       "fieldLabel": "新位置"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "MOVE_RES",
+       "fieldLabel": "搬移原因",
+       "maxLength": "100"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "anchor",
+     "itemId": "klWin",
+     "dialog": "true",
+     "defaults": "{\
+  padding: '8 8 4 8',\
+  anchor: '100%'\
+}",
+     "title": "扣留"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "CFS_ID",
+       "fieldLabel": "仓库",
+       "keyName": "C_BLUK"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "LOCATION",
+       "fieldLabel": "位置"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "INQUTY",
+       "fieldLabel": "件数"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "CFSBILLNO",
+       "fieldLabel": "扣留单号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "anchor",
+     "itemId": "editwin",
+     "dialog": "true",
+     "defaults": "{\
+  padding: '8 8 4 8',\
+  anchor: '100%'\
+}",
+     "title": "修改提单异常重量体积"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "YBILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "异常提单号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "YWEIGHT",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "原重量"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "NWEIGHT",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "现重量"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "YVOLUME",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "原体积"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "NVOLUME",
+       "minValue": "0",
+       "labelAlign": "right",
+       "fieldLabel": "现体积"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "banSelWin",
+     "dialog": "true",
+     "x": "150",
+     "width": "500",
+     "y": "150",
+     "title": "场内搬移",
+     "height": "300"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {"itemId": "banGrid"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=entrepot/PortCntr/KLBYEdit/moveSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column11",
+          "dataIndex": "OLD_POS",
+          "width": "80",
+          "text": "原始位置"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column12",
+          "dataIndex": "NEW_POS",
+          "width": "80",
+          "text": "新位置"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column13",
+          "dataIndex": "MOVE_RES",
+          "width": "200",
+          "text": "搬移原因"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column131",
+          "dataIndex": "CREATED_ON",
+          "width": "100",
+          "text": "搬移时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "toolbar1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "cfsId",
+         "labelAlign": "right",
+         "fieldLabel": "仓库",
+         "keyName": "C_BLUK",
+         "x": "0",
+         "width": "140",
+         "y": "8",
+         "labelWidth": "40",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "type",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['0','仓库位置'],\
+  ['1','货位'],\
+  ['2','品名'],\
+  ['3','货主'],\
+  ['4','驳船公司'],\
+  ['5','提单号'],\
+  ['6','入库时间'],\
+  ['7','出库时间'],\
+  ['8','进出口']\
+]",
+         "x": "144",
+         "width": "150",
+         "y": "8",
+         "labelWidth": "40",
+         "value": "5",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "if (records[0].data.field1 == '6' || records[0].data.field1 == '7') {\
+  app.dates.show();\
+  app.goodsName.hide();\
+  app.ship.hide();\
+  app.dates.setValue(new Date());\
+  app.edate.show();\
+  app.edate.setValue(new Date());\
+  app.ieId.hide();\
+  app.labelfg.show();\
+} else if (records[0].data.field1 == '4') {\
+  app.dates.hide();\
+  app.edate.hide();\
+  app.goodsName.hide();\
+  app.ship.show();\
+  app.ieId.hide();\
+  app.labelfg.hide();\
+}else if (records[0].data.field1 == '8') {\
+  app.dates.hide();\
+  app.edate.hide();\
+  app.goodsName.hide();\
+  app.ship.hide();\
+  app.ieId.show();\
+  app.labelfg.hide();\
+} else {\
+  app.ship.hide();\
+  app.edate.hide();\
+  app.dates.hide();\
+  app.goodsName.show();\
+  app.ieId.hide();\
+  app.labelfg.hide();\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "ieId",
+         "hidden": "true",
+         "labelAlign": "right",
+         "keyName": "I_E_ID",
+         "width": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "findBtn2",
+         "hidden": "true",
+         "x": "448",
+         "width": "88",
+         "y": "8",
+         "text": "查询",
+         "iconCls": "search_icon",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "moreBtn",
+          "text": "过滤",
+          "iconCls": "li_icon",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "var  AF1=document.getElementById(opt);\
+Wb.moreSupcanSelect(AF1);\
+      \
+\
+\
+"}
+        }],
+        "type": "button",
+        "events": {"click": "var  AF1=document.getElementById(opt);\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=entrepot/PortCntr/BulksomeEdit/select\", {\
+  type: app.type.getValue(),\
+  goodsName:app.goodsName.getValue(),\
+  cfsId:app.cfsId.getValue(),\
+  dates:app.dates.getRawValue(),\
+  ship:app.ship.getValue()\
+}));\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "goodsName",
+         "x": "296",
+         "width": "150",
+         "y": "8",
+         "isUpperCase": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "app.findBtn.fireEvent('click');"}
+       },
+       {
+        "configs": {
+         "itemId": "billIdss",
+         "hidden": "true",
+         "x": "760",
+         "width": "240",
+         "y": "8",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "dates",
+         "hidden": "true",
+         "labelAlign": "right",
+         "x": "296",
+         "width": "150",
+         "y": "8",
+         "labelWidth": "40",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "labelfg",
+         "hidden": "true",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "hidden": "true",
+         "labelAlign": "right",
+         "x": "296",
+         "width": "150",
+         "y": "8",
+         "labelWidth": "40",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "ship",
+         "hidden": "true",
+         "labelAlign": "right",
+         "x": "296",
+         "width": "150",
+         "y": "8",
+         "displayField": "NAME",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=entrepot/PortCntr/BulksomeEdit/seelctShip"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "displayAllQuty",
+         "boxLabel": "显示全部"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "check"
+       },
+       {
+        "configs": {
+         "itemId": "findBtn",
+         "xtype": "splitbutton",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "moreBtn",
+          "xtype": "button",
+          "text": "过滤",
+          "iconCls": "li_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var  AF1=document.getElementById(opt);\
+Wb.moreSupcanSelect(AF1);\
+      \
+\
+\
+"}
+        }],
+        "type": "item",
+        "events": {"click": "var AF1 = document.getElementById(opt);\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=entrepot/PortCntr/BulksomeEdit/select\", {\
+  type: app.type.getValue(),\
+  goodsName: app.goodsName.getValue(),\
+  cfsId: app.cfsId.getValue(),\
+  dates: app.dates.getRawValue(),\
+  edate: app.edate.getRawValue(),\
+  ship: app.ship.getValue(),\
+  ieId: app.ieId.getValue(),\
+  all: app.displayAllQuty.getValue()\
+}));"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "panel1",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "// alert(opt);\
+var mt1 = bldStr(\"BCV1.TreeList\", opt, \"\", \"99%\");\
+app.panel1.update(mt1);\
+",
+     "destroy": "delete  window[\"init\" + opt];"
+    }
+   }
+  ],
+  "type": "module",
+  "events": {"finalize": "// var mt1 = bldStr(\"BCV1.TreeList\", \"AF1\", \"\", \"99%\");\
+// app.panel1.update(mt1);\
+// window.OnReady = function(id) {\
+//   if (id == 'AF1') {\
+//     AF1.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+//     AF1.func(\"Build\", '/supcan/report/bluk/blukSelect.xml ');\
+//     AF1.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+//   }\
+// };\
+// var opt=Wb.getId();\
+//  window[\"init\"+opt]=  function(id){\
+//      var  m=document.getElementById(opt);\
+//      m.func(\"Build\", '/supcan/report/bluk/blukSelect.xml ');\
+//  };\
+var opt = Wb.getId();\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bluk/blukSelect1.xml?111211555');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"EnableMenu\", \"curselMode \\r\\
+ true\");\
+  }\
+  m.func(\"Load\", Wb.loadSupcanData(\"m?xwl=entrepot/PortCntr/BulksomeEdit/select\", {\
+    type: app.type.getValue(),\
+    goodsName: app.goodsName.getValue(),\
+    cfsId: app.cfsId.getValue()\
+  }));\
+};\
+\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  var s = document.getElementById(opt);\
+  if (Event == \"MenuBeforePopup\" && id == opt) {\
+    var menu = \"\";\
+    l = Wb.getSupcanMelu(s, \"BILL_NO\", true).length;\
+    if (l > 0) {\
+      menu += \"id=4004; text='修改异常重量和体积';  \";\
+      menu += \"enabled= true \\r\\
+\";\
+      menu += \"id=4001; text='过磅申请';  \";\
+      menu += \"enabled= true \\r\\
+\";\
+      menu += \"id=4002; text='出库'; style='height:36px'\";\
+      menu += \"enabled= true \\r\\
+\";\
+      menu += \"id=4003; text='取消入库(预配原因)'; style='height:36px'\";\
+      menu += \"enabled= true \\r\\
+\";\
+    }\
+    s.func(\"AddMenu\", menu + \" \\r\\
+ LocateAt=top\");\
+  } else if (Event == \"MenuClicked\" && id == opt) {\
+    if (p1 == '4001') {\
+      var applyWin = new Ext.window.Window(app._applyWin); //app._win指向配置对象而非实例\
+      applyWin.show();\
+      app.BILL_NO.focus();\
+      var billNo = Wb.getSupcanMelu(s, \"BILL_NO\", false);\
+      var billId = Wb.getSupcanMelu(s, \"BILL_ID\", false);\
+      var weightime = Wb.getSupcanMelu(s, \"WEIGHTIME\", false);\
+      var efId = Wb.getSupcanMelu(s, \"E_F_ID\", false);\
+      var ieId = Wb.getSupcanMelu(s, \"I_E_ID\", false);\
+      var goods = Wb.getSupcanMelu(s, \"GOODS\", false);\
+      var shipper = Wb.getSupcanMelu(s, \"SHIPPER\", false);\
+      app.BILL_NO.setValue(Wb.getSupcanMelu(s, \"BILL_NO\", false));\
+      app.BILL_ID.setValue(Wb.getSupcanMelu(s, \"BILL_ID\", false));\
+      app.WEIGHTIME.setValue(new Date());\
+      app.E_F_ID.setValue(Wb.getSupcanMelu(s, \"E_F_ID\", false));\
+      app.I_E_ID.setValue(Wb.getSupcanMelu(s, \"I_E_ID\", false));\
+      app.GOODS.setValue(Wb.getSupcanMelu(s, \"GOODS\", false));\
+      app.SHIPPER.setValue(Wb.getSupcanMelu(s, \"SHIPPER\", false));\
+      app.GROSSWT.setValue(Wb.getSupcanMelu(s, \"WEIGHT\", false));\
+      applyWin.mon(applyWin, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=entrepot/PortCntr/BulksomeEdit/applyWeightPln',\
+          out: app.applyWin,\
+          success: function(resp) {\
+            Wb.info(\"成功\");\
+            applyWin.close();\
+          }\
+        });\
+      });\
+    }\
+    ////=============增加出库\
+    if (p1 == '4002') { //出库\
+      var pId = Wb.getSupcanMelu(s, \"CFSBILL_ID\", false);\
+      var billNo = Wb.getSupcanMelu(s, \"BILL_NO\", false);\
+      var outNum = Wb.getSupcanMelu(s, \"OUTNUM\", false);\
+      var billIds = Wb.getSupcanMelu(s, \"BILL_ID\", false);\
+      var quty = Wb.getSupcanMelu(s, \"QUTY\", false);\
+      var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
+      truckWin.show();\
+      app.TRUCKNO.focus();\
+      app.BILL_NO.setValue(billNo);\
+      app.outNum.setValue(quty);\
+      app.WEIGHT.setValue(Wb.getSupcanMelu(s, \"WEIGHT\", false));\
+      app.VOLUME.setValue(Wb.getSupcanMelu(s, \"VOLUME\", false));\
+      app.WORKDATE.setValue(new Date());\
+      app.OUTTIME.setValue(new Date());\
+      app.TYPE.setValue('LD');\
+      truckWin.mon(truckWin, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=entrepot/PortCntr/BulksomeEdit/outBulk',\
+          params: {\
+            ID: Wb.getSupcanMelu(s, \"ID\", false),\
+            WEIGHT: Wb.getSupcanMelu(s, \"WEIGHT\", false),\
+            VOLUME: Wb.getSupcanMelu(s, \"VOLUME\", false),\
+            BILL_ID: billIds,\
+            TRUCK_NO: app.TRUCKNO.getValue(),\
+            outNum: app.outNum.getValue(),\
+            RELEASE_NO: app.RELEASE_NO.getValue(),\
+            DEPT_ID: app.DEPT_ID.getValue(),\
+            MANNUM: app.MANNUM.getValue(),\
+            MANHOUR: app.MANHOUR.getValue(),\
+            MACHINEHOUR: app.MACHINEHOUR.getValue(),\
+            PIECES: app.outNum.getValue(),\
+            MACHINE: app.MACHINE.getValue(),\
+            OUTTIME: app.OUTTIME.getValue(),\
+            PID: pId,\
+            BILL_NO: billNo,\
+            TYPE: app.TYPE.getValue()\
+          },\
+          success: function(resp) {\
+            Wb.info(\"成功\");\
+            app.findBtn.fireEvent('click');\
+            truckWin.close();\
+          }\
+        });\
+\
+      });\
+    }\
+    ////\
+    if (p1 == '4003') {\
+      var id = Wb.getSupcanMelu(s, \"ID\", false);\
+      Wb.request({\
+        url: 'm?xwl=entrepot/PortCntr/BulksomeEdit/deleteYp',\
+        params: {\
+          ID: Wb.getSupcanMelu(s, \"ID\", false),\
+          BILL_ID: Wb.getSupcanMelu(s, \"BILL_ID\", false),\
+          BILL_NO: Wb.getSupcanMelu(s, \"BILL_NO\", false),\
+          CFSBILL_ID: Wb.getSupcanMelu(s, \"CFSBILL_ID\", false)\
+        },\
+        success: function(resp) {\
+          Wb.info(\"取消入库成功！\");\
+          app.findBtn.fireEvent('click');\
+        }\
+      });\
+\
+    }\
+    //\
+    //\
+    if (p1 == 4004) {\
+      var id = Wb.getSupcanMelu(s, \"ID\", false);\
+      var billNo = Wb.getSupcanMelu(s, \"BILL_NO\", false);\
+      var editwin = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+      app.YWEIGHT.setValue(Wb.getSupcanMelu(s, \"WEIGHT\", false));\
+      app.YVOLUME.setValue(Wb.getSupcanMelu(s, \"VOLUME\", false));\
+      app.YBILL_NO.setValue(Wb.getSupcanMelu(s, \"BILL_NO\", false));\
+      editwin.show();\
+      editwin.mon(editwin, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=entrepot/PortCntr/BulksomeEdit/YbillNoData',\
+          out: editwin,\
+          params: {\
+            YID: id\
+          },\
+          success: function(resp) {\
+            Wb.info(\"成功！\");\
+            editwin.close();\
+            app.findBtn.fireEvent('click');\
+          }\
+        });\
+      });\
+    }\
+  }\
+};\
+\
+\
+// window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+//   var s = document.getElementById(opt);\
+//   if (Event == \"MenuBeforePopup\" && id == opt) {\
+//     var menu = \"\";\
+//     l = Wb.getSupcanMelu(s, \"BILL_NO\", true).length;\
+//     if (l > 0) {\
+// //       menu += \"id=4001; text='出库'; style='height:36px' \";\
+// //       menu += \"enabled= true \\r\\
+\";\
+//       menu += \"id=4002; text='搬移';  \";\
+//       menu += \"enabled= true \\r\\
+\";\
+//       menu += \"id=4004; text='搬移记录'; \";\
+//       menu += \"enabled= true \\r\\
+\";\
+//     }\
+//     if (Wb.getSupcanMelu(s, \"IMPEXP\", false) == \"拆\") {\
+//       menu += \"id=4003; text='扣留'; \";\
+//       menu += \"enabled= true \\r\\
+\";\
+//     }\
+//     s.func(\"AddMenu\", menu+ \" \\r\\
+ LocateAt=top\");\
+//   } else if (Event == \"MenuClicked\" && id == opt) {\
+\
+//     if (p1 == '4001') { //出库\
+//       var pId = Wb.getSupcanMelu(s, \"CFSBILL_ID\", true);\
+//       var billNo = Wb.getSupcanMelu(s, \"BILL_NO\", true);\
+//       var outNum = Wb.getSupcanMelu(s, \"OUTNUM\", true);\
+//       var billIds = Wb.getSupcanMelu(s, \"BILL_ID\", true);\
+//       var quty = Wb.getSupcanMelu(s, \"QUTY\", true),\
+//         state = \"\";\
+//       Wb.request({\
+//         url: 'm?xwl=MiscellJob/bluk/PortCntr/BulkEdit/checkFy',\
+//         params: {\
+//           BILL_NO: billNo[0]\
+//         },\
+//         success: function(resp) {\
+//           var rs = Wb.decode(resp.responseText);\
+//           if (rs.total === 0) {\
+//             Wb.warn(\"费用没结清！\");\
+//             state = \"费用没结清！\";\
+//             return;\
+//           } else {\
+//             console.log(rs.rows[0].BD_BY);\
+//             if (rs.rows[0].BD_BY === '') {\
+//                Wb.warn(\"费用没结清！\");\
+//               state = \"费用没结清！\";\
+//               return;\
+//             }\
+//           }\
+//           ////\
+//                 if (state == \"\") {\
+//         var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
+\
+//         truckWin.show();\
+//         app.TRUCKNO.focus();\
+//         app.billIdss.setValue(billNo[0]);\
+//         app.RELEASE_NO.focus();\
+//         app.DEPT_ID.focus();\
+//         app.MANNUM.focus();\
+//         app.MANHOUR.focus();\
+//         app.MACHINEHOUR.focus();\
+//         app.PIECES.focus();\
+//         app.WORKDATE.focus();\
+//         app.WORKDATE.setValue(new Date());\
+//         app.MACHINE.focus();\
+//         truckWin.mon(truckWin, 'ok', function() {\
+//           Wb.request({\
+//             url: 'm?xwl=MiscellJob/bluk/PortCntr/BulkEdit/setTruck',\
+//             params: {\
+//               billIds: billIds,\
+//               TRUCKNO: app.TRUCKNO.getValue(),\
+//               outNum: outNum,\
+//               RELEASE_NO: app.RELEASE_NO.getValue(),\
+//               DEPT_ID: app.DEPT_ID.getValue(),\
+//               MANNUM: app.MANNUM.getValue(),\
+//               MANHOUR: app.MANHOUR.getValue(),\
+//               MACHINEHOUR: app.MACHINEHOUR.getValue(),\
+//               PIECES: app.PIECES.getValue(),\
+//               MACHINE: app.MACHINE.getValue(),\
+//               PID: pId,\
+//               BILLNO: billNo\
+//             },\
+//             success: function(resp) {\
+//               Wb.info(\"成功\");\
+//               app.findBtn.fireEvent('click');\
+//               truckWin.close();\
+//             }\
+//           });\
+//         });\
+//       } else\
+//         Wb.warn(state);\
+//           ////\
+//         }\
+//       });\
+//     } else if (p1 == '4002') { //搬移\
+//       var banWin = new Ext.window.Window(app._banWin); //app._win指向配置对象而非实例\
+//       banWin.show();\
+//       app.NEW_POS.focus();\
+//       app.OLD_POS.setValue(Wb.getSupcanMelu(s, \"LOCATION\", false));\
+//       var billId = Wb.getSupcanMelu(s, \"BILL_ID\", false);\
+//       banWin.mon(banWin, 'ok', function() {\
+//         Wb.request({\
+//           url: 'm?xwl=MiscellJob/bluk/OutZhuang/InPin/blukSelect/moveBluk',\
+//           params: {\
+//             billId: billId,\
+//             ID:Wb.getSupcanMelu(s, \"ID\", false)\
+//           },\
+//           out: banWin,\
+//           success: function(resp) {\
+//             Wb.info(\"成功\");\
+//             app.findBtn.fireEvent('click');\
+//             banWin.close();\
+//           }\
+//         });\
+//       });\
+\
+//     } else if (p1 == '4003') { //扣留\
+\
+\
+//       var klWin = new Ext.window.Window(app._klWin); //app._win指向配置对象而非实例\
+//       klWin.show();\
+//       app.CFS_ID.setValue('扣留仓');\
+//       app.INQUTY.setValue(Wb.getSupcanMelu(s, \"QUTY\", false));\
+//        app.CFS_ID.focus();\
+//       klWin.mon(klWin, 'ok', function() {\
+//         Wb.request({\
+//           url: 'm?xwl=MiscellJob/bluk/PortCntr/BulksomeEdit/setKouLiu',\
+//           params: {\
+//             billId: Wb.getSupcanMelu(s, \"BILL_ID\", false),\
+//             ID: Wb.getSupcanMelu(s, \"ID\", false)\
+//           },\
+//           out: klWin,\
+//           success: function(resp) {\
+//             Wb.info(\"成功\");\
+//             app.findBtn.fireEvent('click');\
+//             klWin.close();\
+//           }\
+//         });\
+//       });\
+//     } else if (p1 == '4004') {\
+//       app.banSelWin.show();\
+//       app.banGrid.store.load({\
+//         params: {\
+//           billId: Wb.getSupcanMelu(s, \"BILL_ID\", false)\
+//         }\
+//       });\
+//     }\
+\
+//   }\
+// };"}
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "外贸库存查询",
+ "iconCls": "red-forklift_icon",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// SELECT A.ID,CUSTOMER_NAM, ACCOUNTS_DETAILS.BILL_NO,ACCOUNTS_DETAILS.ACTUAL_JOB_COUNT,ACCOUNTS_DETAILS.RATE,ACCOUNTS_DETAILS.AMOUNT,\
+// ACCOUNTS_DETAILS.FEE_LIST_ID,ACCOUNTS_DETAILS.CNTR,\
+// DECODE(ACCOUNTS_DETAILS.I_E_ID,'I','进口','E','出口') I_E_ID,ACCOUNTS_DETAILS.CNTR_OPERATOR_COD,\
+// (SELECT to_char(ETA,'yyyy-MM-dd') FROM VESSEL_VISIT WHERE ID=ACCOUNTS_DETAILS.VID) ETA,\
+// (SELECT TO_CHAR(F_ON,'yyyy-MM-dd')  from (select f_on,CNTR_ID,ROW_NUMBER () OVER (PARTITION BY cntr_id ORDER BY F_ON DESC) rn from RECEIPT) where  CNTR_ID = ACCOUNTS_DETAILS.CNTR_ID and rn=1) RTA,\
+// ACCOUNTS_DETAILS.SETTLE_DAYS\
+//   FROM REMITTING A, REMITTING_ITEM B, ACCOUNTS_DETAILS\
+//  WHERE A.ID = B.C_ID AND B.AD_ID = ACCOUNTS_DETAILS.ID AND R_TYPE = 'kh'\
+// and CUSTOMER_ID={?CUSTOMER_ID?}\
+\
+var data=app.get();\
+var sql=\"\";\
+if(!Wb.isEmpty(data.sdate) && !Wb.isEmpty(data.edate)){\
+ sql+=\"  and accounts_details.JOB_FINISH_DATE>=to_date('\"+data.sdate+\" 00:00:00','yyyy-mm-dd hh24:mi:ss') and accounts_details.JOB_FINISH_DATE<=to_date('\"+data.edate+\" 23:59:59','yyyy-mm-dd hh24:mi:ss')\"; \
+} \
+if(!Wb.isEmpty(data.billNo)){\
+ sql+=\"  and accounts_details.BILL_NO={?billNo?}\"; \
+} \
+if(!Wb.isEmpty(data.hz)){\
+ sql+=\"  and accounts_details.CUSTOMER_ID={?hz?}\"; \
+} \
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select accounts_details.*,\
+(select to_char(eta,'yyyy-MM-dd') from vessel_visit where id=accounts_details.vid) ETA,\
+(SELECT TO_CHAR(F_ON,'yyyy-MM-dd')  from (select f_on,CNTR_ID,ROW_NUMBER () OVER (PARTITION BY cntr_id ORDER BY F_ON DESC) rn from RECEIPT) where  CNTR_ID = ACCOUNTS_DETAILS.CNTR_ID and rn=1) RTA\
+from accounts_details where PRINTPHASE>0 and PRINTPHASE is not null\
+and bill_type='S' {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "查找费用明细",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

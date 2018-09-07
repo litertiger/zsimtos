@@ -1,0 +1,56 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'VBILL_HEAD',\
+  whereFields: 'ID',\
+  uniqueUpdate: true\
+});\
+\
+\
+var recss = Wb.decode(request.getParameter('update')),\
+  datas = [];\
+\
+Wb.each(recss, function(rec) {\
+      datas.push({\
+        BILL_NO: rec.BILL_NO,\
+        VID: rec.VID,\
+        CONSIGNEE_COD: rec.CONSIGNEE_COD,\
+        SHIPPER_COD: rec.SHIPPER_COD\
+      });\
+});\
+app.log(datas);\
+\
+\
+\
+app.run(\"update t_sas_ship_thruput set  ship_consign_cod=decode(I_E_ID,'I',{?CONSIGNEE_COD?},{?SHIPPER_COD?}) \\\
+      where bill_no={?BILL_NO?} and ship_no={?VID?} \",{arrayData: new org.json.JSONArray(Wb.encode(datas))});\
+app.send(ids); //把id列表发送到客户端以同步到表格\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "AT": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

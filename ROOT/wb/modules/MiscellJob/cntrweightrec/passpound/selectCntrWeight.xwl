@@ -1,0 +1,94 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  I_E_ID = \"\",\
+  billNo = \"\",\
+  ID = \"\",\
+  CNTR_ID = \"\",\
+  TRUCK_NO = null,\
+  TRAY_NO = null,\
+  TRUCK_WGT = null,\
+  TRAY_WGT = null,\
+  WEIGH = null;\
+  BILL_NO=null;\
+var CNTR_SIZE,CNTR_ISO,CNTR_TYPE;\
+\
+// var rs=app.run(\"select ID, TRUCK_NO, TRAY_NO ,bill_NO ,CNTR_ID from  CNTR_WEIGHT_REC where  CNTR={?cntr?} and PHASE in('PLN','SND') and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+// if(rs.next()){\
+//   TRUCK_NO=rs.getString(\"TRUCK_NO\");\
+//   TRAY_NO=rs.getString(\"TRAY_NO\");\
+//   billNo=rs.getString(\"BILL_NO\");\
+//   CNTR_ID=rs.getString(\"CNTR_ID\");\
+//    ID=rs.getString(\"ID\");\
+\
+// }\
+\
+// app.send({TRUCK_NO:TRUCK_NO,TRAY_NO:TRAY_NO,TRUCK_WGT:TRUCK_WGT,TRAY_WGT:TRAY_WGT,WEIGH:111,BILL_NO:billNo,CNTR_ID:CNTR_ID,ID:ID});\
+\
+var rs = app.run(\"select port_cntr.ID ,port_cntr.BILL_NO ,port_cntr.I_E_ID,OUT_CAR, OUT_CAMPI,port_cntr.CNTR_SIZE,port_cntr.CNTR_ISO,port_cntr.CNTR_TYPE  from port_cntr,receipt where port_cntr.ID=receipt.cntr_id(+) \" +\
+  \" and port_cntr.cntr={?cntr?} and  port_cntr.TENANCY_ID='\" + TENANCY_ID + \"'    AND nvl(receipt.phase ,'@@@')<> 'RTN'\");\
+if (rs.next()) {\
+  CNTR_ID = rs.getString(\"ID\"); \
+  BILL_NO = rs.getString(\"BILL_NO\");\
+  I_E_ID = rs.getString(\"I_E_ID\");\
+  TRUCK_NO = rs.getString(\"OUT_CAR\");\
+  TRAY_NO = rs.getString(\"OUT_CAMPI\");\
+  CNTR_SIZE = rs.getString(\"CNTR_SIZE\");\
+  CNTR_ISO = rs.getString(\"CNTR_ISO\");\
+  CNTR_TYPE = rs.getString(\"CNTR_TYPE\");\
+  if (TRUCK_NO == null || TRUCK_NO == \"\") {\
+    var rt = app.run(\"select  TRANSPORTER1 from  move_list where  TRANSPORTER1 is not null  and  TENANCY_ID='\" + TENANCY_ID + \"'   and  cntr_id='\" + CNTR_ID + \"' and  MOVE_TYPE='DRB' and PHASE='EXE'\");\
+    if (rt.next()) {\
+      TRUCK_NO = rt.getString(\"TRANSPORTER1\");\
+      var rtay = app.run(\"select TRAY_NO from c_truck where TRUCK_NO='\" + TRUCK_NO + \"' and  TENANCY_ID='\" + TENANCY_ID + \"' \", {\
+        jndi: \"jdbc/basecode\"\
+      });\
+      if (rtay.next())\
+        TRAY_NO = rtay.getString(\"TRAY_NO\");\
+    }\
+  }\
+}\
+\
+var rm = app.run(\"select  (select max(TRUCK_WGT) from  C_TRICK_V where TRUCK_NO='\" + TRUCK_NO + \"' and  TENANCY_ID='\" + TENANCY_ID + \"') TRUCK_WGT,\" +\
+  \"   (select TRAY_WGT  from  C_TRAY where TRAY_NO='\" + TRAY_NO + \"' and  TENANCY_ID='\" + TENANCY_ID + \"') TRAY_WGT ,\" +\
+  \"  (select WEIGHT  from  C_CNTR where CNTR={?cntr?}) WEIGH  from  dual \", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+if (rm.next()) {\
+  TRUCK_WGT = rm.getInt(\"TRUCK_WGT\");\
+  TRAY_WGT = rm.getInt(\"TRAY_WGT\");\
+  WEIGH = rm.getInt(\"WEIGH\");\
+}\
+app.send({\
+  TRUCK_NO: TRUCK_NO,\
+  TRAY_NO: TRAY_NO,\
+  TRUCK_WGT: TRUCK_WGT,\
+  TRAY_WGT: TRAY_WGT,\
+  WEIGH: WEIGH,\
+  BILL_NO: BILL_NO,\
+  CNTR_ID: CNTR_ID,\
+  I_E_ID: I_E_ID,\
+  CNTR_SIZE:CNTR_SIZE,\
+  CNTR_TYPE:CNTR_TYPE,\
+  CNTR_ISO:CNTR_ISO\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZK": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

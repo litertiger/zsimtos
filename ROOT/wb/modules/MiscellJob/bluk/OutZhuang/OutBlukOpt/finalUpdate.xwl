@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// app.run(\"select 1 from BULK_CONTRACT_DT where VID={?VID?} AND IS_ALLOW_BLUK=1\",{errorText:\"不能完成入库\"});\
+app.run(\"select 1 from VBILL_HEAD_E where ID IN(SELECT ID FROM VBILL_HEAD WHERE VID={?VID?} AND CNTR_ID={?CNTR_ID?}) AND IS_ALLOW_BLUK=1\",{errorText:\"不能完成入库\"});\
+// app.run(\"select 1 from VBILL_HEAD_E WHERE ID IN (SELECT ID FROM VBILL_HEAD WHERE VID={?VID?}) AND IS_LOAD_CNTR=0 \",{errorText:\"装箱出库没有全部结束\"});\
+\
+var rs=app.run(\"select IS_LOAD_CNTR from VBILL_HEAD_E WHERE ID IN (SELECT ID FROM VBILL_HEAD WHERE VID={?VID?} AND CNTR_ID={?CNTR_ID?}) \");\
+// var rs=app.run(\"select IS_LOAD_CNTR from VBILL_HEAD_E WHERE ID IN (SELECT BILL_ID FROM VLOAD_LIST WHERE VID={?VID?} AND CNTR={?CNTR?})\");\
+while(rs.next()){\
+\tif(rs.getString('IS_LOAD_CNTR')===0 || rs.getString('IS_LOAD_CNTR')===null){\
+    \tWb.error(\"装箱出库没有全部结束！\");\
+    }\
+}\
+\
+app.run(\"update BLUK_PLAN set TASKSTATUS='END' where ID={?ID?}\");\
+app.run(\"update PORT_CNTR SET LCL_ID=1,E_F_ID='F',WEIGHT={?FWEIGHT?},VOLUME={?FVOLUME?},PIECES={?PIECES?} WHERE ID={?CNTR_ID?}\");\
+// app.run(\"update BULK_CONTRACT_DT set IS_BLUK='1' where ID IN (select BILL_ID from BLUK_PLAN a,BLUK_BILL b where a.ID=b.LCL_ID and a.ID={?ID?})\");\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

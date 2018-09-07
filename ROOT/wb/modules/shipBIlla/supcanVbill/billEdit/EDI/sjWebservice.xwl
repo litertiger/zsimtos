@@ -1,0 +1,235 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var vId = app.get(\"vId\"),\
+  tenancy_id = app.get(\"tenancyId\"),\
+  ieId = app.get(\"ieId\");\
+var voyageNo, cShipName, eShipName, head = \"<Head>\",\
+  order = \"\",\
+  i = 0,\
+  j = 0,\
+  eta, crew = \"\",\
+  xml = \"\",\
+  callSign = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+ var StringEscapeUtils=   org.apache.commons.lang3.StringEscapeUtils;\
+\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmm'),\
+    dateName2 = DateUtil.format(javaDate, 'yyMMdd');\
+var MANIFESTNO='0321'+dateName2;\
+var sender_id = \"\";\
+if (tenancy_id == 'ZSG') {\
+  sender_id = \"ZSGPORT\";\
+} else if (tenancy_id == 'XLG') {\
+  sender_id = \"XLGPORT\";\
+} else if (tenancy_id == 'SWG') {\
+  sender_id = \"SWGPORT\";\
+}\
+var rs = app.run(\"select decode('\" + ieId + \"','I',LIB_VYG, LOB_VYG) voyageNo, sysdate NOW,nvl(ATA,ETA) ETA,nvl(ATD,ETD) ETD, c.CALL_SIGN,\" +\
+  \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"' and D.TENANCY_ID='\" + tenancy_id + \"'\");\
+if (rs.next()) {\
+  voyageNo = rs.getString(\"VOYAGENO\");\
+  cShipName = rs.getString(\"VESSEL_NAME\");\
+  eShipName = rs.getString(\"E_NAME\");\
+  eta = rs.getString(\"ETA\");\
+  callSign = rs.getString(\"CALL_SIGN\");\
+}\
+var text=\"\";\
+var charCode=\"\";\
+for(var i=0;i<cShipName.length;i++){\
+    charCode = cShipName.charCodeAt(i);\
+\tif (charCode >= 0 && charCode <= 128) \
+       text += cShipName[i];\
+}\
+xml += '<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\\r\\
+ ' +\
+  '<ORI_MANIFEST>\\r\\
+ ' +\
+  '<M_PRIMARY_ID>' + dateName1 + '<\/M_PRIMARY_ID>\\r\\
+ ' +\
+  '<BATCH_NO><\/BATCH_NO>\\r\\
+' +\
+  '<MANIFEST_NO>' + MANIFESTNO+text+ '<\/MANIFEST_NO>\\r\\
+' +\
+  '<DECL_KIND_CODE>MaIn<\/DECL_KIND_CODE>\\r\\
+' +\
+  '<DECL_SORT>' + ieId + '<\/DECL_SORT>\\r\\
+' +\
+  '<TRANS_NAME>' + cShipName + '<\/TRANS_NAME>\\r\\
+' +\
+  '<VOYAGE_NO>' + voyageNo + '<\/VOYAGE_NO>\\r\\
+' +\
+  '<SENDER_ID>' + sender_id + '<\/SENDER_ID>\\r\\
+' +\
+  '<DESP_PORT_CODE>344000<\/DESP_PORT_CODE>\\r\\
+' +\
+  '<ARRI_PORT_CODE>44030601<\/ARRI_PORT_CODE>\\r\\
+' +\
+  '<RESERVED_FIELD><\/RESERVED_FIELD>\\r\\
+' +\
+  '<REMARK><\/REMARK>\\r\\
+<ORI_BILL_LIST>\\r\\
+';\
+///////////////////////////////\
+var bill = \"\";\
+\
+// var rsCntr = app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, CNTR_ID,CNTR_ISO,decode(lcl_id,1,'7',decode(e_f_id,'E','4','5')) e_f_id ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where main_flag=1 and BILL_ID in(select ID from VBILL_HEAD where VID='\" + vId + \"' and   phase<>'9') order by cntr asc\");\
+\
+var rsCntr = app.run(\"select   cursor(select CNTR,CNTR_ISO ,SEAL_NO ,E_F_ID from  VLOAD_LIST D where  M.ID=D.BILL_ID  and d.phase<>'9' ) CUR ,\" +\
+  \" ID, BILL_NO,decode(I_E_ID,'I',CONSIGNEE,SHIPPER) SHIPPER ,CNTR_OPERATOR,CONSIGNEE ,POL,POD,  SPOD,GOODS_NOTES ,PIECES , \" +\
+  \" decode(bill_type,'E','吉柜', PKG)PKG ,VOLUME,MARKS ,WEIGHT,NOTIFIER,BILL_TYPE ,LOADING_TIME,PAYER\" +\
+  \" from  VBILL_HEAD M  where  M.VID='\" + vId + \"' and m.phase<>'9'    and  ((zf_id=1 and  main_flag=0) or zf_id=0)  order by bill_no asc\");\
+var i = 0, goodsNotes;\
+while (rsCntr.next()) {\
+   goodsNotes=rsCntr.getString(\"GOODS_NOTES\");\
+   if(goodsNotes!=null&&goodsNotes!=\"\")\
+     goodsNotes=goodsNotes.substr(0,44).replace(\"//\",\"\");\
+  \
+  i++;\
+  bill += ' <ORI_BILL>\\r\\
+';\
+  bill += ' <PRIMARY_ID>' + dateName1+i+'<\/PRIMARY_ID>\\r\\
+';\
+  bill += ' <BILL_NO>' + rsCntr.getString(\"BILL_NO\") + '<\/BILL_NO>\\r\\
+';\
+  bill += ' <CONSIGNOR_CNAME>' + rsCntr.getString(\"CNTR_OPERATOR\") + '<\/CONSIGNOR_CNAME>\\r\\
+';\
+  bill += ' <CONSIGNEE_CNAME>' + rsCntr.getString(\"SHIPPER\") + '<\/CONSIGNEE_CNAME>\\r\\
+';\
+  bill += ' <TRADE_COUNTRY_CODE><\/TRADE_COUNTRY_CODE>\\r\\
+';\
+  bill += ' <INSP_BILL_NO><\/INSP_BILL_NO>\\r\\
+';\
+  bill += ' <RESERVED_FIELD><\/RESERVED_FIELD>\\r\\
+';\
+  bill += ' <REMARK><\/REMARK>\\r\\
+';\
+  bill += '<ORI_BILL_GOODS_LIST>\\r\\
+' +\
+    '<ORI_BILL_GOODS>\\r\\
+' +\
+    '<SERIAL_NO>' + i + '<\/SERIAL_NO>\\r\\
+' +\
+    '<HS_CODE><\/HS_CODE>\\r\\
+' +\
+    '<GOODS_CNAME>' + goodsNotes + '<\/GOODS_CNAME>\\r\\
+' +\
+    '<MARK_NO><\/MARK_NO>\\r\\
+' +\
+    '<QTY>0<\/QTY>\\r\\
+' +\
+    '<QTY_UNIT_CODE><\/QTY_UNIT_CODE>\\r\\
+' +\
+    '<QTY_UNIT_NAME>' + rsCntr.getString(\"PKG\") + '<\/QTY_UNIT_NAME>\\r\\
+' +\
+    '<PACK_NUMBER>' + rsCntr.getString(\"PIECES\") + '<\/PACK_NUMBER>\\r\\
+' +\
+    '<PACK_TYPE_CODE><\/PACK_TYPE_CODE>\\r\\
+' +\
+    '<FACT_WEIGHT>' + rsCntr.getString(\"WEIGHT\") + '16310<\/FACT_WEIGHT>\\r\\
+' +\
+    '<ORIGIN_PLACE_CODE><\/ORIGIN_PLACE_CODE>\\r\\
+' +\
+    '<DANGER_CODE><\/DANGER_CODE>\\r\\
+' +\
+    '<CERT_TYPE_CODES><\/CERT_TYPE_CODES>\\r\\
+' +\
+    '<SHEET_TYPE_CODES><\/SHEET_TYPE_CODES>\\r\\
+' +\
+    '<RESERVED_FIELD><\/RESERVED_FIELD>\\r\\
+' +\
+    '<REMARK><\/REMARK>\\r\\
+' +\
+    '<\/ORI_BILL_GOODS>\\r\\
+' +\
+    '<\/ORI_BILL_GOODS_LIST>\\r\\
+';\
+  var rm = rsCntr.getObject(1);\
+  bill += '<ORI_BILL_CONTAINER_LIST>\\r\\
+';\
+  while (rm.next()) {\
+    bill += '<ORI_BILL_CONTAINER>\\r\\
+';\
+    bill += '<CONTAINER_CODE>' + rm.getString('CNTR') + '<\/CONTAINER_CODE>\\r\\
+';\
+    bill += '<CONTAINER_MODEL_CODE>111<\/CONTAINER_MODEL_CODE>\\r\\
+';\
+    bill += '<CONTAINERFLAG>' + rm.getString('E_F_ID') + '<\/CONTAINERFLAG>\\r\\
+';\
+    bill += '<RESERVED_FIELD><\/RESERVED_FIELD>\\r\\
+';\
+    bill += '<REMARK><\/REMARK>\\r\\
+';\
+    bill += '<\/ORI_BILL_CONTAINER>\\r\\
+';\
+    j++;\
+  }\
+  bill += '<\/ORI_BILL_CONTAINER_LIST>\\r\\
+';\
+  bill += '<\/ORI_BILL>\\r\\
+';\
+}\
+bill += '<\/ORI_BILL_LIST>\\r\\
+<\/ORI_MANIFEST>\\r\\
+';\
+\
+\
+var name = dateName + \"_send_\" + dateName + \"_zsg\"; //取文件名\
+var content = xml + bill; //取文件内容\
+app.log(content);\
+// //生成临时文件\
+// var file = '/tmp/' + name + '.xml';\
+// var tmp = new File(file);\
+// FileUtil.writeString(tmp, content);\
+// //调用下载功能\
+// var files = [];\
+// files[0] = file;\
+// app.set('zip', true);\
+// app.set('files', Wb.encode(files));\
+// app.set('downloadName', name + '.zip');\
+// app.execute('m?xwl=dev/ide/download');\
+// // tmp.delete();\
+\
+//2018/3/3（业务部）要求直接生成txt文件，不需要压缩\
+// request.setAttribute(\"fileName\", name);\
+// request.setAttribute(\"message\", content);\
+// Load.download(request, response);\
+// app.log(content);\
+\
+// var message = new com.ag.edi.EdiWebService;\
+// var hashMap = new HashMap();\
+// hashMap.put('message', content);\
+// app.log(message.invokeRemoteFuc(hashMap));\
+// app.log(content);\
+var sendWebservice=com.ag.edi.SendWebservice;\
+var s=sendWebservice.doPostSoap(content);\
+// app.log(s);\
+app.send(s);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "商检报文",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

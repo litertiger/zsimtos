@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var ret = {\
+  success: true\
+};\
+try {\
+  var result = app.run(\"select bill_no,i_e_id,goods_notes,cursor(select cntr,cntr_iso from vload_list l where bill_id=b.id) cntrs from vbill_head b where bill_no={?bill?}\");\
+  ret.data = Ag.getResultSet(result, true)[0] || {};\
+  result = app.run(\"select cntr,sum(amount) from accounts_details where bill_no={?bill?} and payment_type='1' and pay_flag='0' group by cntr\");\
+  var cntrAmount = Ag.getResultObj(result);\
+  var total = 0;\
+  Wb.each(ret.data.CNTRS, function(row) {\
+    var amount = cntrAmount[row.CNTR];\
+    if (amount) {\
+      row.AMOUNT = amount;\
+      total += amount;\
+    }\
+  });\
+  ret.data.total = total;\
+  result = app.run(\"select cntr,sum(amount) from accounts_details where bill_no={?bill?} and payment_type='1' and pay_flag='1' group by cntr\");\
+  var cntrAmount = Ag.getResultObj(result);\
+  Wb.each(ret.data.CNTRS, function(row) {\
+    var amount = cntrAmount[row.CNTR];\
+    if (amount) {\
+      row.PAYED = amount;\
+    }\
+  });\
+\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+}\
+app.send(ret);",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查询提单",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

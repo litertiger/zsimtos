@@ -1,0 +1,2340 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  BILL_STATE: StringUtil.text(com.wb.common.KVBuffer.getList('BILL_STATE',request)),\
+  JSESSIONID:request.getSession().getId(),\
+  Path:request.getContextPath()\
+});\
+app.set({ \
+  ieId:'E',\
+  tradeId:'1',\
+  billType:'C' \
+});\
+"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "table",
+     "itemId": "posWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "250",
+     "title": "设置堆场位置",
+     "modal": "true"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "PLANNED_POSITION",
+      "fieldLabel": "堆场位置"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "fenSelWin",
+     "closeAction": "hide",
+     "width": "792",
+     "title": "分单查看",
+     "modal": "true",
+     "height": "320"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "billSelGrid",
+       "editable": "true",
+       "x": "8",
+       "width": "448",
+       "y": "0",
+       "text": "提单",
+       "gridLine": "true",
+       "region": "center",
+       "height": "272"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/fenBillSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "saveCntrBtn",
+          "tooltip": "保存所有的更改",
+          "text": "@Str.save",
+          "iconCls": "save_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verifyGrid(app.billSelGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.billSelGrid,\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/saveFenBill',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.billSelGrid, Wb.decode(resp.responseText));\
+  }\
+});\
+\
+\
+\
+\
+\
+   "}
+        }],
+        "type": "toolbar"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "RELEASE_ID991",
+           "renderer": "if( value==1 )\
+  return \"<font color='red'>放行<\/font>\";\
+else\
+    return \"未放行\";",
+           "dataIndex": "RELEASE_ID",
+           "width": "40",
+           "text": "放行"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_NO9911",
+           "dataIndex": "BILL_NO",
+           "width": "130",
+           "text": "二程提单"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "BILL_TYPEE99",
+           "dataIndex": "GOODS_NOTES",
+           "width": "150",
+           "text": "货名"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "WEIGHTmn16",
+           "dataIndex": "WEIGHT",
+           "width": "70",
+           "text": "重量"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "number"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "PIECESmn14",
+           "dataIndex": "PIECES",
+           "width": "40",
+           "text": "件数"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "number"
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "actionColumns",
+           "xtype": "actioncolumn",
+           "width": "60",
+           "align": "center"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "items"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "delAction",
+              "handler": "Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/deleteFenBill',\
+  params: {billId:record.get(\"ID\"),vId:app.vId.getValue(),pBillNo:app.pBillNo.getValue()},\
+  success: function(resp) {}\
+});\
+ ",
+              "tooltip": "删除",
+              "iconCls": "cancel_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "delAction1",
+              "tooltip": "打印",
+              "iconCls": "printer_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "app.cntrSelGrid.store.load({params:{billId:record.get(\"ID\")}});"}
+     },
+     {
+      "configs": {
+       "itemId": "cntrSelGrid",
+       "selType": "rowmodel",
+       "editable": "true",
+       "x": "456",
+       "width": "320",
+       "y": "0",
+       "disabled": "false",
+       "region": "west",
+       "title": "箱信息",
+       "height": "272"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "false",
+         "url": "m?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/fenCntrSelect"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "CNTRumn19",
+           "dataIndex": "CNTR",
+           "width": "100",
+           "text": "箱号"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_TYPEmn111",
+           "dataIndex": "CNTR_SIZE",
+           "width": "60",
+           "text": "尺寸"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_TYPEmn11",
+           "dataIndex": "CNTR_TYPE",
+           "width": "60",
+           "text": "箱型"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "E_F_IDmn12",
+           "dataIndex": "E_F_ID",
+           "width": "40",
+           "text": "空重"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SEAL_NOmn13",
+           "dataIndex": "SEAL_NO",
+           "width": "70",
+           "text": "铅封"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     },
+     {
+      "configs": {
+       "itemId": "pBillNo",
+       "hidden": "true",
+       "x": "8",
+       "width": "240",
+       "y": "8",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel11",
+       "split": "true",
+       "hidden": "true",
+       "width": "350",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "layout": "border",
+        "itemId": "panel1",
+        "region": "center",
+        "height": "300"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "grid1",
+          "viewConfig": "{\
+  plugins: {\
+    ptype: 'gridviewdragdrop',\
+  },\
+  listeners: {\
+    beforedrop: function(node, data, om, dp, dh) {\
+      dh.cancelDrop();\
+      var c = data.records.length,\
+        IDS = [],\
+        state = true;\
+      Wb.each(data.records, function(rec) {\
+       IDS.push({ID:rec.data.ID,MAIN_GLAG:rec.data.ID});\
+      /*    if (rec.data.PHASE == 0)\
+            IDS.push({ID:rec.data.ID,MAIN_GLAG:rec.data.ID});\
+          else {\
+            Wb.warn(\"已经提交码头，不能移动！\");\
+            state = false;\
+          }*/\
+         if (rec.data.IS_LOAD_CNTR == 1){\
+         Wb.warn(\"已经装箱，不能移动！\");\
+           state = false;\
+       }\
+                   \
+        })\
+        //console.log(data);//提单的信息\
+        console.log(om);//箱的信息\
+      if (state == true) {\
+        Ext.Msg.show({\
+          title: '移动提单',\
+          msg: '移动提单' + c + \"条至\" + om.data.VESSEL_NAME + \"\",\
+          buttons: Ext.MessageBox.OKCANCEL,\
+          fn: function(btn) {\
+            if (btn == 'ok') {\
+              dh.cancelDrop();\
+              Wb.remove(app.contextOwner.billGrid);\
+              Wb.request({\
+                url: 'm?xwl=shipBIlla/outPingBill/pBill/changeShip',\
+                params: {\
+                  BILLS: IDS,//老提单主键\
+                  vId:om.data.ID\
+                },\
+                success: function(resp) {\
+                  Wb.info(\"成功\");\
+                  app.billGrid.store.load({\
+                    params: {\
+                      ID: om.data.ID,\
+                      shipNo: app.shipNo.getValue()\
+                    }\
+                  });\
+                  // app.contextOwner.cntrGrid.removeAll(); \
+                }\
+              });\
+            }\
+          }\
+        });\
+      }\
+\
+    }\
+\
+  }\
+}",
+          "region": "center",
+          "title": "航次信息"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "false",
+            "url": "m?xwl=RegPlat/edISelect/select"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column111",
+              "renderer": "\
+if(value=='1')\
+  return \"<font color='red'>锁定<\/font>\";\
+else \
+  return '未锁定';\
+  ",
+              "dataIndex": "IS_SD",
+              "width": "40",
+              "text": "状态"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "VESSEL_NAME1",
+              "dataIndex": "VESSEL_NAME",
+              "text": "船名"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRADE_IDCOLUMN",
+              "dataIndex": "TRADE_ID",
+              "width": "50",
+              "keyName": "TRADE_ID",
+              "text": "内外贸"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "IB_VYG11",
+              "dataIndex": "CALL",
+              "text": "航次号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "IB_VYG1",
+              "dataIndex": "VYG",
+              "text": "艘次号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "QPHASE1",
+              "dataIndex": "PHASE",
+              "keyName": "VESSEL_PHASE",
+              "width": "50",
+              "text": "状态"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CALL_SIGN1",
+              "dataIndex": "CALL_SIGN",
+              "text": "呼号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "column12",
+              "dataIndex": "ETD",
+              "width": "140",
+              "text": "预计离港时间"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "ETA1",
+              "dataIndex": "ETA",
+              "width": "140",
+              "text": "预计到港时间"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "BERTH_CODE1",
+              "dataIndex": "BERTH_CODE",
+              "text": "泊位"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "BERTH_WAY1",
+              "dataIndex": "BERTH_WAY",
+              "text": "靠泊方式"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "NEXT_PORT1",
+              "dataIndex": "SERVICE",
+              "text": "下一港"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PHASE1",
+              "dataIndex": "PHASE",
+              "text": "状态"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          },
+          {
+           "configs": {
+            "itemId": "tbar",
+            "padding": "0,0,0,0",
+            "cls": "border-width:0px",
+            "dock": "top"
+           },
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "QPHASE",
+              "hidden": "true",
+              "labelAlign": "right",
+              "fieldLabel": "@Str.PHASE",
+              "width": "120",
+              "x": "240",
+              "y": "32",
+              "labelWidth": "40",
+              "height": "22"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo"
+            },
+            {
+             "configs": {
+              "itemId": "date",
+              "labelAlign": "right",
+              "fieldLabel": "时间",
+              "width": "140",
+              "labelWidth": "40"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "date",
+             "events": {"select": "//alert(app.QPHASE.getTextValue());\
+\
+app.seekMenu.fireEvent('click');\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "cancelBtn",
+              "hidden": "true",
+              "text": "撤销",
+              "iconCls": "redo_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "button"
+            },
+            {
+             "configs": {
+              "itemId": "ieIds",
+              "labelAlign": "right",
+              "fieldLabel": "进出口",
+              "keyName": "I_E_ID",
+              "width": "130",
+              "labelWidth": "50",
+              "value": "E"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "combo",
+             "events": {"select": "app.shipIeId.setValue(this.value);\
+app.freshenBtn.fireEvent('click');"}
+            },
+            {
+             "configs": {
+              "itemId": "freshenBtn",
+              "text": "刷新",
+              "iconCls": "refresh_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "button",
+             "events": {"click": "app.seekMenu.fireEvent('click');"}
+            },
+            {
+             "configs": {
+              "itemId": "eShipName",
+              "hidden": "true",
+              "fieldLabel": "@Str.VESSEL_NAME",
+              "width": "120",
+              "labelWidth": "50"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "voyage",
+              "hidden": "true",
+              "fieldLabel": "@Str.VOYAGE_NO",
+              "width": "120",
+              "labelWidth": "50"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "tradeId",
+              "hidden": "true",
+              "width": "120",
+              "labelWidth": "50",
+              "value": "{#tradeId#}"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "seekMenu",
+              "hidden": "true",
+              "text": "@Str.find",
+              "iconCls": "search_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "app.grid1.store.load({\
+  out:app.tbar\
+});\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "shipIeId",
+              "hidden": "true",
+              "value": "I"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "I_E_ID",
+              "hidden": "true"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }
+           ],
+           "type": "toolbar"
+          },
+          {
+           "configs": {
+            "itemId": "popupMenu",
+            "normalName": "shipMenu"
+           },
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "referShipBtn",
+              "hidden": "true",
+              "text": "提交提单单",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/referShipBill',\
+  params: {ID:rowData.ID,ieId:'{#ieId#}'},\
+  success: function(resp) {\
+    Wb.toast('成功');\
+    app.contextOwner.selectState(1);\
+  }\
+});\
+\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "planUnShipBtn",
+              "text": "生成卸船计划",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+function xc(){\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/genDisShipPlan',\
+  params: {vId:rowData.ID,shipNam:rowData.VESSEL_NAME,voyageNo:rowData.VYG} ,\
+  success: function(resp) {\
+    Wb.info('成功');\
+  }\
+});\
+}\
+if(rowData.IS_XC==1){\
+Wb.confirm(\"已经卸过船是否继续卸船\",xc);\
+}else\
+xc()\
+;\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "planLoadShipBtn",
+              "text": "生成装船计划",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+\
+// Wb.run({\
+//   url: 'm?xwl=shipBIlla/supcanVbill/billEdit/loadShip/chooseCntr',\
+//    params: {vId:rowData.ID,shipNam:rowData.VESSEL_NAME,voyageNo:rowData.VYG,ieId:'E'} ,\
+//   success: function(app) {\
+//     app._window1.closeAction = 'destroy'; //默认closeAction=hide\
+//     var win = new Ext.window.Window(app._window1); //_window1为配置对象，window1为实例\
+//     win.show();\
+//   }\
+// });\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/loadShip/genLoadShipPlan',\
+  params: {vId:rowData.ID,shipNam:rowData.VESSEL_NAME,voyageNo:rowData.VYG} ,\
+  success: function(resp) {\
+    Wb.info('成功');\
+  }\
+});\
+\
+\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "unlockShipBtn",
+              "text": "解锁提单",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/unLockShipBill',\
+  params: {ID:rowData.ID,ieId:'{#ieId#}'},\
+  success: function(resp) {\
+    Wb.toast('成功');\
+        app.contextOwner.selectState(1);\
+\t\tapp.seekMenu.fireEvent('click');\
+\
+  }\
+});\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "lockShipBtn",
+              "text": "锁定提单",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+// console.log(app.shipIeId.getValue());\
+\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billStateEdit/lockShipBill',\
+  params: {ID:rowData.ID,vId:rowData.ID,ieId:app.shipIeId.getValue()},\
+  success: function(resp) {\
+    Wb.toast('成功');\
+        app.contextOwner.selectState(1);\
+\t\tapp.seekMenu.fireEvent('click');\
+  }\
+});\
+"}
+            },
+            {
+             "configs": {
+              "itemId": "ediUnShipBtn",
+              "hidden": "true",
+              "text": "生成卸船报文",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/genShipDisEdi',{vId:rowData.ID,shipNam:rowData.VESSEL_NAME,voyageNo:rowData.VYG,ieId:'E'} );"}
+            },
+            {
+             "configs": {
+              "itemId": "feeCountBtn",
+              "text": "船舶计费",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/CalFee',\
+//   params: {VID:rowData.ID,ieId:app.contextOwner.ieId.getValue()} ,\
+  params: {VID:rowData.ID,ieId:app.shipIeId.getValue()} ,\
+  success: function(resp) {\
+    Wb.info('成功');\
+  }\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "proYuPeiBtn",
+              "text": "预配报文",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/downYpLoad', {\
+  vId: rowData.ID,\
+  shipNam: rowData.VESSEL_NAME,\
+  voyageNo: rowData.VYG,\
+  ieId: 'E'\
+});\
+\
+\
+//预配，理货只有在舱单在锁定的情况下才能发送\
+// Wb.request({\
+//   url: 'm?xwl=shipBIlla/supcanVbill/billEdit/selectBillPhase',\
+//   params: {\
+//   \tVID:rowData.ID\
+//   },\
+//   success: function(resp) {\
+//   \tvar rs=Wb.decode(resp.responseText);\
+// \tif (rs.total > 0) {\
+//       Wb.each(rs.rows, function(rec) {\
+//         billNo.push({\
+//           BILL_NO: rec.BILL_NO,\
+//           BILL_ID: rec.ID\
+//         });\
+//       });\
+//       Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/downYpLoad',{vId:rowData.ID,shipNam:rowData.VESSEL_NAME,voyageNo:rowData.VYG,ieId:'E'} );\
+//     } else {\
+//       Wb.warn(\"提单不能为空\");\
+//       return;\
+//     }\
+//   }\
+// });"}
+            },
+            {
+             "configs": {
+              "itemId": "emptySBtn",
+              "text": "空箱申报",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+Wb.request({\
+  url: 'm?xwl=EDI/ediPro/emptyPro',\
+  params: {\
+    vId: rowData.ID\
+  },\
+  success: function(resp) {\
+    Wb.info(\"成功\");\
+  }\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "testBtn",
+              "text": "QP理货报文",
+              "iconCls": "add_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+if (app.ieIds.getValue() == 'I') {\
+  Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sendMT5101', {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  });\
+} else if (app.ieIds.getValue() == 'E') {\
+  Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sendMT5102', {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  });\
+}\
+// var billNo = new Array();\
+// Wb.request({\
+//   url: 'm?xwl=shipBIlla/supcanVbill/billEdit/selectBillPhase',\
+//   params: {\
+//     VID: rowData.ID\
+//   },\
+//   success: function(resp) {\
+\
+//     var rs = Wb.decode(resp.responseText);\
+//     if (rs.total > 0) {\
+//       Wb.each(rs.rows, function(rec) {\
+//         billNo.push({\
+//           BILL_NO: rec.BILL_NO,\
+//           BILL_ID: rec.ID\
+//         });\
+//       });\
+//       Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sendMT5101', {\
+//         vId: rowData.ID,\
+//         shipNam: rowData.VESSEL_NAME,\
+//         voyageNo: rowData.VYG,\
+//         ieId: 'E',\
+//         tenancyId: '{#sys.TENANCY_ID#}',\
+//         s: billNo\
+//       });\
+//     } else {\
+//       Wb.warn(\"提单不能为空\");\
+//       return;\
+//     }\
+\
+//   }\
+// });"}
+            },
+            {
+             "configs": {
+              "itemId": "tallyBtn",
+              "text": "单一窗口理货报文",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+if (app.ieIds.getValue() == 'I') {\
+  Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/onlySendMT5101', {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  });\
+} else if (app.ieIds.getValue() == 'E') {\
+  Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/onlySendMT5102', {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  });\
+}\
+// var billNo = new Array();\
+// Wb.request({\
+//   url: 'm?xwl=shipBIlla/supcanVbill/billEdit/selectBillPhase',\
+//   params: {\
+//     VID: rowData.ID\
+//   },\
+//   success: function(resp) {\
+\
+//     var rs = Wb.decode(resp.responseText);\
+//     if (rs.total > 0) {\
+//       Wb.each(rs.rows, function(rec) {\
+//         billNo.push({\
+//           BILL_NO: rec.BILL_NO,\
+//           BILL_ID: rec.ID\
+//         });\
+//       });\
+//       Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sendMT5101', {\
+//         vId: rowData.ID,\
+//         shipNam: rowData.VESSEL_NAME,\
+//         voyageNo: rowData.VYG,\
+//         ieId: 'E',\
+//         tenancyId: '{#sys.TENANCY_ID#}',\
+//         s: billNo\
+//       });\
+//     } else {\
+//       Wb.warn(\"提单不能为空\");\
+//       return;\
+//     }\
+\
+//   }\
+// });"}
+            },
+            {
+             "configs": {
+              "itemId": "portFeeBtn",
+              "text": "港建费",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+// Wb.info(rowData.ID);\
+\
+if (app.shipIeId.getValue() == 'I') {\
+  Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/gangjianfei', {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tradeId: rowData.TRADE_ID,\
+    VESSEL_CODE:rowData.VESSEL_CODE\
+  });\
+} else {\
+  Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/OutPortFee', {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tradeId: rowData.TRADE_ID,\
+    VESSEL_CODE:rowData.VESSEL_CODE\
+  });\
+}"}
+            },
+            {
+             "configs": {
+              "itemId": "threeBtn",
+              "text": "三废过机打印",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data;\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and vbill_head.vid='\"+rowData.ID+\"' \");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime());\
+// console.log('行数'+AF1.func(\"GetRows\"));\
+var row=AF1.func(\"GetRows\");\
+var rows=20-AF1.func(\"GetRows\");\
+AF1.func(\"InsertRows\",\"\"+(row-3)+\",\\r\\
+ \"+rows+\" \\r\\
+ false\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+            },
+            {
+             "configs": {
+              "itemId": "jjBtn",
+              "text": "检验检疫老接口",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+// Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice', {\
+//   vId: rowData.ID,\
+//   shipNam: rowData.VESSEL_NAME,\
+//   voyageNo: rowData.VYG,\
+//   ieId: app.ieIds.getValue(),\
+//   tenancyId:'{#sys.TENANCY_ID#}'\
+// });\
+\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice',\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+  \tWb.info(resp.responseText);\
+  }\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "ckSend",
+              "tooltip": "新商检报文发送",
+              "text": "检验检疫",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [
+              {
+               "configs": {
+                "itemId": "ckINshipBIllSend",
+                "text": "进口舱单",
+                "iconCls": "ok_icon"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "item",
+               "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+// Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice', {\
+//   vId: rowData.ID,\
+//   shipNam: rowData.VESSEL_NAME,\
+//   voyageNo: rowData.VYG,\
+//   ieId: app.ieIds.getValue(),\
+//   tenancyId:'{#sys.TENANCY_ID#}'\
+// });\
+\
+Wb.request({\
+  url: 'm?xwl=EDI/comIns/InshipBill',\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    state:'9',\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+    Wb.info(resp.responseText);\
+  }\
+});"}
+              },
+              {
+               "configs": {
+                "itemId": "ckOutShipBIllSend",
+                "text": "出口舱单",
+                "iconCls": "ok_icon"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "item",
+               "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+// Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice', {\
+//   vId: rowData.ID,\
+//   shipNam: rowData.VESSEL_NAME,\
+//   voyageNo: rowData.VYG,\
+//   ieId: app.ieIds.getValue(),\
+//   tenancyId:'{#sys.TENANCY_ID#}'\
+// });\
+\
+Wb.request({\
+  url: 'm?xwl=EDI/comIns/OutshipBill1',\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+  \tWb.info(resp.responseText);\
+  }\
+});"}
+              },
+              {
+               "configs": {
+                "itemId": "ckShipToSend",
+                "text": "出口运抵",
+                "iconCls": "ok_icon"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "item",
+               "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+// Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice', {\
+//   vId: rowData.ID,\
+//   shipNam: rowData.VESSEL_NAME,\
+//   voyageNo: rowData.VYG,\
+//   ieId: app.ieIds.getValue(),\
+//   tenancyId:'{#sys.TENANCY_ID#}'\
+// });\
+\
+Wb.request({\
+  url: 'm?xwl=EDI/comIns/shipTo',\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: 'E',\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+  \tWb.info(resp.responseText);\
+  }\
+});"}
+              },
+              {
+               "configs": {
+                "itemId": "tallySend",
+                "text": "理货报文",
+                "iconCls": "ok_icon"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "item",
+               "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+\
+var  url=\"\";\
+if(app.ieIds.getValue()==\"I\")\
+   url=\"m?xwl=EDI/comIns/tallyMT5101\";\
+  else\
+    url=\"m?xwl=EDI/comIns/tallyMT5102\";\
+Wb.request({\
+  url: url,\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+  \tWb.info(resp.responseText);\
+  }\
+});"}
+              },
+              {
+               "configs": {
+                "itemId": "loadSend",
+                "text": "装载报文",
+                "iconCls": "ok_icon"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "item",
+               "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+// Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice', {\
+//   vId: rowData.ID,\
+//   shipNam: rowData.VESSEL_NAME,\
+//   voyageNo: rowData.VYG,\
+//   ieId: app.ieIds.getValue(),\
+//   tenancyId:'{#sys.TENANCY_ID#}'\
+// });\
+\
+var  url=\"\";\
+\
+Wb.request({\
+  url: \"m?xwl=EDI/comIns/loadMT4101\",\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+  \tWb.info(resp.responseText);\
+  }\
+});"}
+              }
+             ],
+             "type": "item",
+             "events": {"click": "var rowData = app.shipMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+\
+// Wb.download('m?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice', {\
+//   vId: rowData.ID,\
+//   shipNam: rowData.VESSEL_NAME,\
+//   voyageNo: rowData.VYG,\
+//   ieId: app.ieIds.getValue(),\
+//   tenancyId:'{#sys.TENANCY_ID#}'\
+// });\
+\
+Wb.request({\
+  url: 'm?xwl=shipBIlla/supcanVbill/billEdit/EDI/sjWebservice',\
+  params: {\
+    vId: rowData.ID,\
+    shipNam: rowData.VESSEL_NAME,\
+    voyageNo: rowData.VYG,\
+    ieId: app.ieIds.getValue(),\
+    tenancyId: '{#sys.TENANCY_ID#}'\
+  },\
+  success: function(resp) {\
+  \tWb.info(resp.responseText);\
+  }\
+});"}
+            }
+           ],
+           "type": "menu",
+           "events": {"show": "var rows = app.grid1.getSelection();\
+app.referShipBtn.setDisabled(rows.length != 1);\
+app.lockShipBtn.setDisabled(rows.length != 1 || rows[0].data.IS_SD == 1);\
+app.unlockShipBtn.setDisabled(rows.length != 1 || rows[0].data.IS_SD == 0);\
+\
+//app.planUnShipBtn.setDisabled(rows[0].data.IS_XC == 1);\
+//app.ediUnShipBtn.setDisabled(rows.length != 1);\
+\
+app.planLoadShipBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'I'); //装船\
+app.planUnShipBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'E'); //卸船\
+app.ediUnShipBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'I'); //卸船\
+app.proYuPeiBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'I'); //预配\
+app.emptySBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'E'); //空箱\
+app.ckSend.setDisabled(rows.length != 1 ||  rows[0].data.TRADE_ID=='2');\
+\
+app.emptySBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'E'); //卸船\
+\
+app.jjBtn.setDisabled(rows.length != 1 || app.shipIeId.getValue() == 'E');\
+\
+if (rows.length != 0) {\
+  Wb.request({\
+    url: 'm?xwl=RegPlat/edISelect/judgeService',\
+    params: {\
+      ID: rows[0].data.SERVICE\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText).rows[0];\
+//       console.log(rs);\
+//       console.log(rows[0].data.TRADE_ID);\
+      if (rs.SERVICE_CATEGORY == '1') {\
+        if (rows[0].data.TRADE_ID == '1') {\
+          app.emptySBtn.setDisabled(false);\
+        } else {\
+          app.emptySBtn.setDisabled(true);\
+        }\
+        app.testBtn.setDisabled(true);\
+        app.tallyBtn.setDisabled(true);\
+      } else if(rs.SERVICE_CATEGORY == '3'){\
+        app.emptySBtn.setDisabled(true);\
+        app.testBtn.setDisabled(false);\
+        app.tallyBtn.setDisabled(false);\
+      }else if(rs.SERVICE_CATEGORY == '2'){\
+      \tapp.emptySBtn.setDisabled(true);\
+        app.testBtn.setDisabled(true);\
+        app.tallyBtn.setDisabled(true);\
+      }\
+    }\
+  });\
+}\
+if (rows.length != 0) {\
+  if (rows[0].data.TRADE_ID == '1') {\
+\tapp.jjBtn.setDisabled(false);\
+    app.portFeeBtn.setText(\"外贸港建费\");\
+  }else{\
+  \tapp.jjBtn.setDisabled(true);\
+    app.portFeeBtn.setText(\"内贸港建费\");\
+  }\
+}\
+\
+\
+menu.selectRow = rows[0];\
+\
+// planUnShipBtn //卸船\
+// planLoadShipBtn //装船\
+// ediUnShipBtn  //卸船报文\
+// feeCountBtn  // 计费\
+// proYuPeiBtn  // 预配报文"}
+          }
+         ],
+         "type": "grid",
+         "events": {"itemclick": "// cntrList=null;\
+app.setShipMes(record);\
+// app.IS_SD.setValue(record.get(\"IS_SD\"));\
+// if(record.get(\"IS_SD\")==1){\
+// \tapp.cntrGrid.down(\"#tbar\").setDisabled(true);\
+// \tapp.billGrid.down(\"#tbar\").setDisabled(true);\
+// }\
+// else{\
+// \tapp.cntrGrid.down(\"#tbar\").setDisabled(false);\
+// \tapp.billGrid.down(\"#tbar\").setDisabled(false);\
+// }"}
+        },
+        {
+         "configs": {
+          "layout": "border",
+          "border": "false",
+          "itemId": "panelPrinter",
+          "width": "0",
+          "region": "south",
+          "height": "0"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "panel"
+        }
+       ],
+       "type": "panel"
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel2",
+       "hideMode": "visibility",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "dockedItems"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "tbar",
+           "dock": "top"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "sdate",
+             "allowBlank": "false",
+             "labelAlign": "right",
+             "fieldLabel": "开始时间",
+             "labelWidth": "80"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "date"
+           },
+           {
+            "configs": {
+             "itemId": "edate",
+             "allowBlank": "false",
+             "labelAlign": "right",
+             "fieldLabel": "结束时间",
+             "labelWidth": "80"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "date"
+           },
+           {
+            "configs": {
+             "itemId": "billNo",
+             "labelAlign": "right",
+             "fieldLabel": "提单号",
+             "labelWidth": "50"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "cntrNo",
+             "labelAlign": "right",
+             "fieldLabel": "箱号",
+             "labelWidth": "50"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "tagConfigs": "matchFieldWidth: false",
+             "hideTrigger": "true",
+             "itemId": "CNTR_OPERATOR_COD",
+             "labelAlign": "right",
+             "fieldLabel": "船公司",
+             "displayField": "CNAME",
+             "enterKeyTriggerClick": "true",
+             "labelWidth": "50",
+             "listConfig": "{\
+  width: 250\
+}",
+             "valueField": "ID",
+             "queryDelay": "500",
+             "forceSelection": "true"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "autoLoad": "true",
+              "pageSize": "-1",
+              "params": "{fldId:'AG'}",
+              "url": "m?xwl=system/common/client/clientSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           }
+          ],
+          "type": "toolbar"
+         },
+         {
+          "configs": {
+           "itemId": "tbar1",
+           "dock": "top"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "ieId",
+             "labelAlign": "right",
+             "fieldLabel": "进出口",
+             "keyName": "I_E_ID",
+             "labelWidth": "50"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "tradeId",
+             "labelAlign": "right",
+             "fieldLabel": "内外贸",
+             "keyName": "TRADE_ID",
+             "labelWidth": "50"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "tagConfigs": " matchFieldWidth:false",
+             "queryMode": "remote",
+             "isUpperCase": "true",
+             "labelWidth": "40",
+             "listConfig": "{width:450}",
+             "valueField": "ID",
+             "queryDelay": "1",
+             "itemId": "voyageNo",
+             "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='105px'>\
+       船名\
+      <\/td>\
+      <td>\
+       进口航次号\
+      <\/td>\
+       <td>\
+       出口航次号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {VESSEL_NAME}\
+      <\/td>\
+      <td>\
+       {LIB_VYG}\
+      <\/td>\
+       <td>\
+       {LOB_VYG}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+             "labelAlign": "right",
+             "fieldLabel": "航次",
+             "displayField": "VESSEL_NAME",
+             "anyMatch": "true"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "url": "m?xwl=shipBIlla/ShipBillReport/billSelectEdit/selectVoyage"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store",
+             "events": {"beforeload": "operation.params = {\
+  sdate: app.sdate.getRawValue() + \" 00:00:00\",\
+  edate: app.edate.getRawValue() + \" 23:59:59\",\
+  ieId: app.ieId.getValue()\
+};"}
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "billType",
+             "labelAlign": "right",
+             "fieldLabel": "提单属性",
+             "keyName": "BILL_TYPE",
+             "width": "160",
+             "labelWidth": "60"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "layout": "hbox",
+             "itemId": "radio1",
+             "hidden": "true",
+             "width": "120",
+             "style": "padding-left:20px;"
+            },
+            "expanded": false,
+            "children": [
+             {
+              "configs": {
+               "itemId": "radioBill",
+               "boxLabel": "提单",
+               "flex": "1",
+               "name": "radio1",
+               "checked": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "radio"
+             },
+             {
+              "configs": {
+               "itemId": "radioCntr",
+               "boxLabel": "箱",
+               "flex": "1",
+               "name": "radio1"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "radio"
+             }
+            ],
+            "type": "container"
+           },
+           {
+            "configs": {
+             "itemId": "findbtn",
+             "text": "查找"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+// var AF1 = document.getElementById(opt);\
+\
+//加载列表\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/BillSSelect/getBillState\", {\
+  tenancyid: tenancyid,\
+  ieId:app.ieId.getValue(),\
+  sdate: app.sdate.getRawValue(),\
+  edate: app.edate.getRawValue(),\
+  CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+  billNo:app.billNo.getValue(),\
+  tradeId:app.tradeId.getValue(),\
+  voyageNo:app.voyageNo.getValue(),\
+  billType:app.billType.getValue(),\
+  bills:app.radioBill.getValue(),\
+  cntrs:app.radioCntr.getValue(),\
+  cntrNo:app.cntrNo.getValue()\
+}));\
+"}
+           },
+           {
+            "configs": {
+             "itemId": "seekZfId",
+             "hidden": "true",
+             "text": "查找主分单"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = \"\";\
+\
+\
+if(!Wb.isEmpty(app.billNo.getValue())){\
+\twhereSql = \" and BILL_NO LIKE '%'||{?billNo?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(app.cntr.getValue())){\
+\twhereSql=\" and CNTR LIKE '%'||{?cntr?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(app.CNTR_OPERATOR_COD.getValue())){\
+\twhereSql=\" and CNTR_OPERATOR_COD like '%'||{?CNTR_OPERATOR_COD?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(app.SHIP_CONSIGN_COD.getValue())){\
+\twhereSql=\" and SHIP_CONSIGN_COD like '%'||{?SHIP_CONSIGN_COD?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(app.ieId.getValue())){\
+\twhereSql=\" and I_E_ID like '%'||{?ieId?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(app.tradeId.getValue())){\
+\twhereSql=\" and TRADE_ID like '%'||{?tradeId?}||'%'\";\
+}\
+\
+\
+\
+//加载列表\
+AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/ShipBillReport/billSelectEdit/selectZF\", {\
+  tenancyid: tenancyid,\
+  ieId:app.ieId.getValue(),\
+  sdate: app.sdate.getRawValue(),\
+  edate: app.edate.getRawValue(),\
+  SHIP_CONSIGN_COD: app.SHIP_CONSIGN_COD.getValue(),\
+  CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+  billNo:app.billNo.getValue(),\
+  cntr:app.cntr.getValue(),\
+  tradeId:app.tradeId.getValue(),\
+  voyageNo:app.voyageNo.getValue(),\
+  billType:app.billType.getValue(),\
+  bills:app.radioBill.getValue(),\
+  cntrs:app.radioCntr.getValue()\
+}));"}
+           }
+          ],
+          "type": "toolbar"
+         },
+         {
+          "configs": {
+           "itemId": "tbar2",
+           "hidden": "true",
+           "dock": "top"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "cntrSize",
+             "labelAlign": "right",
+             "fieldLabel": "尺寸",
+             "keyName": "CNTR_SIZE",
+             "labelWidth": "40"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "cntrType",
+             "labelAlign": "right",
+             "fieldLabel": "箱型",
+             "keyName": "CNTR_TYPE",
+             "labelWidth": "40"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "itemId": "sealNo",
+             "labelAlign": "right",
+             "fieldLabel": "铅封号",
+             "labelWidth": "50"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "goods",
+             "labelAlign": "right",
+             "fieldLabel": "货物",
+             "labelWidth": "40"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }
+          ],
+          "type": "toolbar"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {
+         "layout": "absolute",
+         "itemId": "billPanel",
+         "hideMode": "visibility",
+         "region": "center",
+         "height": "350"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "layout": "absolute",
+         "itemId": "cntrPanel",
+         "split": "true",
+         "hideMode": "visibility",
+         "hidden": "true",
+         "region": "south",
+         "height": "300"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "panel"
+       }
+      ],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "\
+var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrinter.update(mt1);",
+     "destroy": "delete  window[\"init\" + supcanId1];\
+delete  window[\"init\" + supcanId2];\
+"
+    }
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.shipIeId.setValue('{#ieId#}');\
+app.date.setValue(new Date());\
+app.seekMenu.fireEvent('click');\
+var mt1 = bldStr(\"BCV1.TreeList\", supcanId1, \"\", \"99%\");\
+app.billPanel.update(mt1);\
+var mt2 = bldStr(\"BCV1.TreeList\", supcanId2, \"\", \"99%\");\
+app.cntrPanel.update(mt2);\
+window[\"init\" + supcanId1] = function(id) {\
+  var m = document.getElementById(supcanId1);\
+\
+  if (id == supcanId1) {\
+    AF1 = document.getElementById(supcanId1);\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bill/vbillstateBillS.xml?v2.32');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"EnableMenu\", \" curselMode \\r\\
+ true\");\
+  }\
+};\
+window[\"init\" + supcanId2] = function(id) {\
+  var m = document.getElementById(supcanId2);\
+  if (id == supcanId2) {\
+    AF2 = document.getElementById(supcanId2);\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bill/vcntrState.xml?v2.1');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"EnableMenu\", \" curselMode \\r\\
+ true\");\
+  }\
+\
+};\
+\
+\
+\
+window[\"event\" + supcanId1] = function(id, Event, p1, p2, p3, p4) {\
+  var AF1 = document.getElementById(supcanId1);\
+  if (Event == \"MenuBeforePopup\" && id == supcanId1) {\
+    var menu = \"\",\
+      l = Wb.getSupcanMelu(AF1, \"ID\", true).length,\
+      phase = Wb.getSupcanMelu(AF1, \"PHASE\", false);\
+    //     if (l == 1) {\
+    //       menu += \"id=4001; text='商检删除提单'; detail=商检删除提单;\";\
+    //       menu += \"enabled= true \\r\\
+\";\
+    //     }\
+    //     if (l == 1) {\
+    //       menu += \"id=4002; text='商检修改提单'; detail=商检修改提单;\";\
+    //       menu += \"enabled= true \\r\\
+\";\
+    //     }\
+    //     if ((Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"1\") >= 0 || Wb.getSupcanMelu(AF1, \"YP\", false).indexOf(\"已发\") >= 0) && l == 1 && '{#sys.NATURE#}' != '5') {\
+    //       menu += \"id=4012; text='预配重置';  detail=预配重置;\";\
+    //       menu += \"enabled=true \\r\\
+\";\
+    //     }\
+    //     if ((Wb.getSupcanMelu(AF1, \"PHASE\", false).indexOf(\"2\") >= 0 || Wb.getSupcanMelu(AF1, \"YP\", false).indexOf(\"未发\") >= 0) && l == 1 && '{#sys.NATURE#}' != '5') {\
+    //       menu += \"id=4013; text='预配发送';  detail=预配发送;\";\
+    //       menu += \"enabled=true \\r\\
+\";\
+    //     }\
+\
+    AF1.func(\"AddMenu\", menu + \" \\r\\
+ LocateAt=top\");\
+  } else if (Event == \"Clicked\" && id == supcanId1) {\
+    //     var url = \"m?xwl=EDI/comIns/OutshipBill\";\
+    //     if (app.ieIds.getValue() == 'I')\
+    //       url = \"m?xwl=EDI/comIns/InshipBill\";\
+    var billNo=Wb.getSupcanMelu(AF1, \"BILL_NO\", false);\
+//     AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/BillSSelect/getCntrState\", {\
+//       billNo: billNo\
+//     }));\
+    if (p1 == '4001') { //商检删除提单\
+      Wb.request({\
+        url: url,\
+        params: {\
+          vId: Wb.getSupcanMelu(AF1, \"VID\", false),\
+          ieId: app.ieIds.getValue(),\
+          state: '3',\
+          billNo: Wb.getSupcanMelu(AF1, \"BILL_NO\", false)\
+        },\
+        success: function(resp) {\
+          Wb.info(resp.responseText);\
+        }\
+      });\
+\
+    } else if (p1 == '4002') { //修改\
+      Wb.request({\
+        url: url,\
+        params: {\
+          vId: Wb.getSupcanMelu(AF1, \"VID\", false),\
+          ieId: app.ieIds.getValue(),\
+          state: '5',\
+          billNo: Wb.getSupcanMelu(AF1, \"BILL_NO\", false)\
+        },\
+        success: function(resp) {\
+          Wb.info(resp.responseText);\
+        }\
+      });\
+\
+    } else if (p1 == '4012') { //预配重置\
+      var billId = Wb.getSupcanMelu(AF1, \"ID\", false);\
+      Wb.request({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/EDI/changeYP',\
+        params: {\
+          billId: Wb.getSupcanMelu(AF1, \"ID\", false),\
+          TENANCY_ID: '{#sys.TENANCY_ID#}',\
+          YP: 0\
+        },\
+        success: function(resp) {\
+          Wb.info(\"成功\");\
+          Wb.setSupcanMelu(AF1, \"YP\", 0, '未发');\
+        }\
+      });\
+    } else if (p1 == '4013') { //预配发送\
+      var billId = Wb.getSupcanMelu(AF1, \"ID\", false);\
+      Wb.request({\
+        url: 'm?xwl=shipBIlla/supcanVbill/billEdit/EDI/changeYP',\
+        params: {\
+          billId: Wb.getSupcanMelu(AF1, \"ID\", false),\
+          TENANCY_ID: '{#sys.TENANCY_ID#}',\
+          YP: 1\
+        },\
+        success: function(resp) {\
+          Wb.info(\"成功\");\
+          Wb.setSupcanMelu(AF1, \"YP\", 1, '已发');\
+        }\
+      });\
+    }\
+  }\
+\
+};\
+var today = new Date(); //获取当前日期\
+var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+app.edate.setValue(today);",
+   "initialize": "var opt = Wb.getId();\
+var supcanId1 = Wb.getId(),\
+  supcanId2 = Wb.getId(),\
+\
+    AF1 ,AF2,\
+  ieId = '{#ieId#}',\
+  tradeId = '{#tradeId#}',\
+  billType = '{#billType#}',\
+  phase = '0',\
+  receipt = '';\
+app.opeType = 'insert';\
+app.appendState = true;\
+app.billType = '{#billType#}';\
+app.BILL_STATE = Wb.decode(\"{#BILL_STATE#}\");\
+\
+Wb.apply(app, {\
+  moreSql: function(moreSql) {\
+    app.selectState(1, moreSql);\
+    var AF1 = document.getElementById(supcanId1);\
+    var AF2 = document.getElementById(supcanId2);\
+  },\
+  //生成提单号码\
+  setBillNo: function() {\
+    //var billNo;\
+    // if(ieId=='I')billNo='{#sys.SHORT_COD#}'.substr(2,4);\
+    // else if(ieId=='E')billNo='{#sys.SHORT_COD#}'; \
+    // billNo+=new Date().getFullYear();\
+    Wb.request({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/checkPBill',\
+      params: {\
+        ieId: ieId\
+      },\
+      success: function(resp) {\
+        return billNo;\
+      }\
+    });\
+  },\
+  //数字相加\
+  add: function(num1, num2) {\
+    var sq1, sq2, m;\
+    try {\
+      sq1 = num1.toString().split(\".\")[1].length;\
+    } catch (e) {\
+      sq1 = 0;\
+    }\
+    try {\
+      sq2 = num2.toString().split(\".\")[1].length;\
+    } catch (e) {\
+      sq2 = 0;\
+    }\
+    m = Math.pow(10, Math.max(sq1, sq2));\
+    return (num1 * m + num2 * m) / m;\
+    //return Number(ads1) + Number(abs2);\
+  },\
+  //设置查询提单和箱信息\
+  selectState: function(state, moreSql) {\
+\
+    if (!locrec) return;\
+    \
+\
+    var AF1 = document.getElementById(supcanId1);\
+    var AF2 = document.getElementById(supcanId2);\
+    AF1.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    if (state == 0) {\
+      AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/edISelect/getBillState\", {\
+        state: 0,\
+        shipNo: locrec.data.ID,\
+        ieId: app.ieId.getValue(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+      AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        state: 0,\
+        shipNo: locrec.data.ID,\
+        ieId: app.ieId.getValue(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+    } else if (state == 1) {\
+      AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/edISelect/getBillState\", {\
+        shipNo: locrec.data.ID,\
+        ieId: app.ieId.getValue(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+      AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        shipNo: locrec.data.ID,\
+        ieId: app.ieId.getValue(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+    } else if (state == 2) {\
+      AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/edISelect/getBillState\", {\
+        shipNo: '11@',\
+        ieId: app.ieId.getValue(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+      AF2.func(\"Load\", Wb.loadSupcanData(\"m?xwl=shipBIlla/supcanVbill/getCntrData\", {\
+        LCL_ID: 1,\
+        shipNo: locrec.data.ID,\
+        ieId: app.ieId.getValue(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}'\
+      }));\
+    }\
+  },\
+  //补零操作\
+  pad: function(num, n) {\
+    var len = num.toString().length;\
+    while (len < n) {\
+      num = \"0\" + num;\
+      len++;\
+    }\
+    return num;\
+  },\
+  //选船信息传递\
+  setShipMes: function(rec) {\
+    var state=rec.data.IS_SD==1?true:false;\
+    app.newBtn.setDisabled(state);\
+    app.editBtn.setDisabled(state);\
+    app.delBtn.setDisabled(state);\
+\t\
+    locrec = rec;\
+    app.IS_SD.setValue(rec.data.IS_SD);\
+    app.serviceId.setValue(rec.data.SERVICE);\
+    app.shipNo.setValue(rec.data.ID);\
+    app.shipName.setValue(rec.data.VESSEL_NAME);\
+    app.voyageNo.setValue(rec.data.VYG);\
+    app.pol = rec.data.POL;\
+    app.pod = rec.data.POD;\
+    app.selectState(app.radiogroup1.getValue());\
+//     app.ieId.setValue(ieId);\
+    app.ieId.setValue(app.ieIds.getValue());\
+  },\
+  //保存提单和箱货信息\
+  saveBill: function(appFrame) {\
+\
+    var AF1 = document.getElementById(supcanId1);\
+    var AF2 = document.getElementById(supcanId1);\
+    var url = \"\",\
+      weight = 0,\
+      pieces = 0,\
+      volume = 0;\
+    var editing = Wb.findEditing(appFrame.cntrGrid);\
+    editing.completeEdit();\
+    // var rec = app.billGrid.getSelection()[0];\
+    var values = Wb.getValue([appFrame.fieldset1, appFrame.fieldset2, appFrame.fieldset4, app.billTbar]);\
+    // if (rec) values = Wb.applyIf(values, Wb.getData(rec, true));\
+    var url = \"\";\
+    if (app.opeType == 'insert') url = \"m?xwl=shipBIlla/supcanVbill/billEdit/insert\";\
+    else if (app.opeType == 'modify') url = \"m?xwl=shipBIlla/supcanVbill/billEdit/update\";\
+    values = Wb.applyIf(values, {\
+      data: app.appendState ? [Wb.getModified(appFrame.cntrGrid)] : [{\
+        create: Wb.getData(appFrame.cntrGrid.store.getUpdatedRecords(), true),\
+        destroy: [],\
+        update: []\
+      }]\
+    });\
+    Wb.request({\
+      url: url,\
+      params: values,\
+      success: function(resp) {\
+        if (app.opeType == 'insert') {\
+          values = Wb.applyIf(values, {\
+            ID: resp.ID\
+          });\
+          AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=RegPlat/edISelect/getBillState\", {\
+            shipNo: locrec.data.ID,\
+            ieId: ieId,\
+            TENANCY_ID: '{#sys.TENANCY_ID#}'\
+          }));\
+        }\
+        if (app.opeType == 'modify') {\
+          //   Wb.update(rec, values); //同步在客户端表格中更新\
+        }\
+        var data = Wb.decode(resp.responseText);\
+        Wb.syncCreate(appFrame.cntrGrid, Wb.decode(data.create));\
+        //                   Wb.syncCreate(app.cntrGrid,  Wb.decode(data.create));\
+        app.opeType = 'modify';\
+        appFrame.billWin.close();\
+        Wb.info('成功');\
+      }\
+    });\
+\
+  },\
+  addBill: function(billType) {\
+    Wb.request({\
+      url: 'm?xwl=shipBIlla/supcanVbill/billEdit/getId',\
+      params: {\
+        ieId: ieId\
+      },\
+      success: function(resp) {\
+        var res = Wb.decode(resp.responseText);\
+        Wb.run({\
+          url: 'm?xwl=shipBIlla/supcanVbill/billEdit/billWin',\
+          contextOwner: app,\
+          success: function(appOld) {\
+            appOld.billWin.title = '新增-提单';\
+            var win = new Ext.window.Window(appOld._billWin); //_window1为配置对象，window1为实例\
+            win.show();\
+            app.optype = 'insert';\
+             if (billType == 'P') {\
+              appOld.MAIN_FLAG.setValue(0);\
+              appOld.LCL_ID.setValue(1);\
+              appOld.COLINE.allowBlank(false);\
+              appOld.LINE_COD.allowBlank(false);\
+            }else if (billType == 'S') {\
+              appOld.MAIN_FLAG.setValue(0);\
+              appOld.LCL_ID.setValue(1);\
+              appOld.COLINE.allowBlank(true);\
+              appOld.LINE_COD.allowBlank(true);\
+            }\
+\
+            appOld.ID.setValue(res.rows[0].ID);\
+            appOld.BILL_NO.setValue(res.rows[0].BILL_NO);\
+            appOld.I_E_ID.setValue(ieId);\
+            appOld.POL.setValue(app.pol);\
+            appOld.POD.setValue(app.pod);\
+            appOld.TRADE_ID.setValue(tradeId);\
+            appOld.BILL_TYPE.setValue(billType);\
+            appOld.PHASE.setValue(phase);\
+            appOld.PAYER.setValue(\"1\");\
+            if (ieId == 'I') appOld.DELV_TERM.setValue(\"CY-CY\");\
+            else appOld.DELV_TERM.setValue(\"CFS-CFS\");\
+            if ('{#sys.NATURE#}' == '5') {\
+              appOld.CNTR_OPERATOR_COD.setDisabled(true);\
+              appOld.CNTR_OPERATOR_COD.store.load({\
+                callback: function(r, options, success) {\
+                  if (success) {\
+                    appOld.CNTR_OPERATOR_COD.getStore().insert(0, [{\
+                      \"ID\": '{#sys.GOV_CODE#}',\
+                      \"CNAME\": '{#sys.ORG_NAME#}'\
+                    }]);\
+                    appOld.CNTR_OPERATOR_COD.setValue('{#sys.GOV_CODE#}');\
+                    appOld.CNTR_OPERATOR.setValue('{#sys.GOV_CODE#}');\
+                  }\
+                }\
+              });\
+\
+              appOld.LINE_COD.store.load({\
+                callback: function(r, options, success) {\
+                  if (success) {\
+                    appOld.LINE_COD.getStore().insert(0, [{\
+                      \"ID\": '{#sys.GOV_CODE#}',\
+                      \"CNAME\": '{#sys.ORG_NAME#}'\
+                    }]);\
+                    appOld.LINE_COD.setValue('{#sys.GOV_CODE#}');\
+                    appOld.LINE.setValue('{#sys.GOV_CODE#}');\
+                  }\
+                }\
+              });\
+              //appOld.cn.setValue(phase);\
+            } else\
+              appOld.CNTR_OPERATOR_COD.setDisabled(false);\
+          }\
+        });\
+      }\
+    });\
+  }\
+\
+});"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "舱单查询",
+ "iconCls": "table_align_columns_icon",
+ "inframe": false,
+ "pageLink": ""
+}

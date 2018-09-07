@@ -1,0 +1,122 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var username = app.get('sys.username'),\
+  tenancyId = app.get('sys.TENANCY_ID');\
+var data = app.get();\
+\
+var s = Wb.decode(data.ss);\
+app.log(s);\
+var bodyData = s.create;\
+if (bodyData.length > 0) {\
+  var title = '{\"billNo\": \"' + data.BILL_NO + '\",' +\
+    '\"paymentCustomerCode\": \"\",' +\
+    '  \"cntrOperatorCod\": \"\",' +\
+    '\"customerId\": \"' + data.SHIPPER_COD + '\",' +\
+    ' \"iEId\":  \"\",' +\
+    ' \"tradeId\": \"' + bodyData[i].TRADE_ID + '\",' +\
+    '\"goodsNotes\": \"' + data.GOODS_NOTES + '\",' +\
+    '\"cntrType\": \"' + data.CARGO_TYPE + '\",' +\
+    '\"billType\": \"' + bodyData[i].BILL_TYPE + '\",' +\
+    ' \"jobFinishDate\": \"\",' +\
+    ' \"paymentType\": \"1\",' +\
+    ' \"notes\": \"\",';\
+  var feeBody = '\"feeBody\":[';\
+  if (bodyData.length > 0) {\
+    for (var i = 0; i < bodyData.length; i++) {\
+      app.log(bodyData[i]);\
+      feeBody += '{\"feeListId\":  \"' + bodyData[i].FEE_LIST_ID + '\",' +\
+        '\"paymentCustomerCode\": \"' + bodyData[i].PAYMENT_CUSTOMER_CODE + '\",' +\
+        '  \"cntr\": \"' + bodyData[i].CNTR + '\",' +\
+        '  \"BUSSINESS_CODE\": \"' + bodyData[i].BUSSINESS_CODE + '\",' +\
+        '  \"cntrOperatorCod\": \"' + bodyData[i].CNTR_OPERATOR_COD + '\",' +\
+        '  \"cntrSize\": \"' + bodyData[i].CNTR_SIZE + '\",' +\
+        '\"cntrType\": \"' + bodyData[i].CNTR_TYPE + '\",' +\
+        ' \"contractRate\": \"' + bodyData[i].AMOUNT + '\",' +\
+        ' \"actualJobCount\": \"' + bodyData[i].ACTUAL_JOB_COUNT + '\",' +\
+        ' \"contractAddRate\": \"100\",' +\
+        ' \"dwellDays\": \"1\",' +\
+        ' \"notes\": \"' + bodyData[i].NOTES + '\",' +\
+        ' \"amount\": \"' + bodyData[i].AMOUNT + '\"},';\
+    }\
+    feeBody = feeBody.substring(0, feeBody.length - 1);\
+    feeBody += ']';\
+  }\
+  var resultFee = title + feeBody + '}';\
+  Wb.newClass(\"accountDetailService\").addManualFees(request, resultFee);\
+  //   app.run(\"insert into BULK_LOG(ID,NOTES,CFSBILL_ID,CREATED_ON,CREATED_BY,TYPE)VALUES(SYS_GUID(),'\" + new JSONObject(sp) + \"',sys_guid(),sysdate,{?sys.username?},'散货缴费通知单添加费用')\");\
+}\
+var bodyData1 = s.update;\
+if (bodyData1.length > 0) {\
+  var title = '{\"billNo\": \"' + data.BILL_NO + '\",' +\
+    '\"paymentCustomerCode\": \"\",' +\
+    '  \"cntrOperatorCod\": \"\",' +\
+    '\"customerId\": \"' + data.SHIPPER_COD + '\",' +\
+    ' \"iEId\":  \"\",' +\
+    ' \"tradeId\": \"\",' +\
+    '\"goodsNotes\": \"' + data.GOODS_NOTES + '\",' +\
+    '\"cntrType\": \"' + data.CARGO_TYPE + '\",' +\
+    '\"billType\": \"\",' +\
+    ' \"jobFinishDate\": \"\",' +\
+    ' \"paymentType\": \"1\",' +\
+    ' \"notes\": \"\",';\
+  var feeBody = '\"feeBody\":[';\
+  if (bodyData1.length > 0) {\
+    for (var i = 0; i < bodyData1.length; i++) {\
+      app.log(bodyData[i]);\
+      feeBody += '{\"feeListId\":  \"' + bodyData1[i].FEE_LIST_ID + '\",' +\
+        '\"paymentCustomerCode\": \"' + bodyData1[i].PAYMENT_CUSTOMER_CODE + '\",' +\
+        '  \"cntr\": \"' + bodyData1[i].CNTR + '\",' +\
+        '  \"BUSSINESS_CODE\": \"' + bodyData1[i].BUSSINESS_CODE + '\",' +\
+        '  \"cntrOperatorCod\": \"' + bodyData1[i].CNTR_OPERATOR_COD + '\",' +\
+        '  \"cntrSize\": \"' + bodyData1[i].CNTR_SIZE + '\",' +\
+        '\"cntrType\": \"' + bodyData1[i].CNTR_TYPE + '\",' +\
+        ' \"contractRate\": \"' + bodyData1[i].AMOUNT + '\",' +\
+        ' \"actualJobCount\": \"' + bodyData1[i].ACTUAL_JOB_COUNT + '\",' +\
+        ' \"contractAddRate\": \"100\",' +\
+        ' \"dwellDays\": \"1\",' +\
+        ' \"notes\": \"' + bodyData1[i].NOTES + '\",' +\
+        ' \"amount\": \"' + bodyData1[i].AMOUNT + '\"},';\
+    }\
+    feeBody = feeBody.substring(0, feeBody.length - 1);\
+    feeBody += ']';\
+  }\
+  var resultFee = title + feeBody + '}';\
+  Wb.newClass(\"accountDetailService\").editManualFees(request, resultFee);\
+  //   app.run(\"insert into BULK_LOG(ID,NOTES,CFSBILL_ID,CREATED_ON,CREATED_BY,TYPE)VALUES(SYS_GUID(),'\" + new JSONObject(sp) + \"',sys_guid(),sysdate,{?sys.username?},'散货缴费通知单添加费用')\");\
+}\
+var bodyData2 = s.destroy;\
+if (bodyData2.length > 0) {\
+  var ids = \"\";\
+  for (var i = 0; i < bodyData2.length; i++) {\
+    ids += bodyData2[i].ID + \",\";\
+  }\
+  Wb.newClass(\"accountDetailService\").delManualFees(request, ids);\
+}\
+\
+\
+\
+// app.run(\" update  DEV_CNTR set DEV_TIME={?TIMESTAMP.DEV_TIME?}, BILL_NO={?BILL_NO?}, DEV_TYPE={?DEV_TYPE?}, CNTR={?CNTR?}, GOODS_NOTES={?GOODS_NOTES?}, CNTR_SIZE={?CNTR_SIZE?}, CNTR_TYPE={?CNTR_TYPE?}, \"+\
+//         \" SHIPPER={?SHIPPER?}, SHIPPER_COD={?SHIPPER_COD?}, PIECES={?PIECES?}, WEIGHT={?WEIGHT?}, VOLUME={?VOLUME?},\"+\
+//         \" CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?}, TRUCK_COD={?TRUCK_COD?}, NOTE={?NOTE?}, \"+\
+//         \" UPDATED_BY='\"+username+\"', UPDATED_ON=sysdate ,CARGO_TYPE={?CARGO_TYPE?},LINK_NAME={?LINK_NAME?}  where   ID={?ID?}  \");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSSCIMP": 1,
+  "JCB": 1,
+  "xlnmc": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

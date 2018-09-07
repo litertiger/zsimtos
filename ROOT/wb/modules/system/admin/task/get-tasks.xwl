@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var trigger, triggers, rs, meta, row, rows = [],\
+  scheduler = com.wb.tool.TaskManager.scheduler,\
+  Scheduler = org.quartz.Scheduler,\
+  isShutdown = !scheduler || scheduler.isShutdown();\
+request.setAttribute('searchCombo', '%' + (request.getParameter('searchCombo') || '') + '%');\
+rs = app.run('select * from WB_TASK where TASK_NAME like {?searchCombo?} order by TASK_NAME');\
+meta = rs.getMetaData();\
+while (rs.next()) {\
+  row = Wb.getRecord(rs, meta);\
+  if (!isShutdown) {\
+    triggers = scheduler.getTriggersOfJob(rs.getString('TASK_ID'), Scheduler.DEFAULT_GROUP);\
+    trigger = triggers && triggers.length ? triggers[0] : null;\
+    if (trigger) {\
+      Wb.apply(row, {\
+        PREVIOUS: trigger.getPreviousFireTime(),\
+        NEXT: trigger.getNextFireTime()\
+      });\
+    }\
+  }\
+  rows.push(row);\
+}\
+app.send(rows);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "获取任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

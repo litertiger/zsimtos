@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// select vload_list.*,nvl(port_cntr.SCALE_WT,0) SCALE_WT,port_cntr.weight pweight,port_cntr.volume pvolume from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and vload_list.bill_no like '%'||{?name?}||'%'"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT vload_list.cntr,vload_list.*,\
+       NVL (port_cntr.SCALE_WT, 0) SCALE_WT,\
+       port_cntr.weight pweight,\
+       port_cntr.volume pvolume,A.WEIGHTIME\
+  FROM vload_list, port_cntr,(select cntr_id,max(WEIGHTIME) WEIGHTIME,cntr from CNTR_WEIGHT_REC group by cntr_id,cntr) a\
+ WHERE vload_list.cntr_id = port_cntr.id(+)\
+ and a.cntr_id(+)=vload_list.cntr_id and  vload_list.bill_no like '%'||{?name?}||'%'\
+and exists(select 1 from vbill_head where bill_no like '%'||{?name?}||'%' and (ZF_ID=0 or (zf_id=1 and main_flag=1)))\
+and main_flag=1 and vload_list.phase<>'9'"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

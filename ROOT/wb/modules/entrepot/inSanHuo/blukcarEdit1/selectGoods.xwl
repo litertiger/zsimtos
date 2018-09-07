@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var sql=\"\";\
+var b=Wb.decode(app.get('billNo')),s=\"\";\
+for(var i=0;i<b.length;i++){\
+\tif(i==b.length-1)\
+      s+=\"'\"+b[i].BILL_NO+\"'\";\
+  else\
+    s+=\"'\"+b[i].BILL_NO+\"',\";\
+}\
+\
+\
+sql=\"select BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON, GOODS, ID, IMPEXP, \\\
+INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, UPDATED_BY, UPDATED_ON, VOLUME, \\\
+WEIGHT,nvl(QUTY,0) NUM from BLUK_GOODS where BILL_NO in(\"+s+\") AND QUTY>0 and TRADE_ID='2'\";\
+\
+// app.run(sql,{arrayData: new org.json.JSONArray(data.billNo) });\
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

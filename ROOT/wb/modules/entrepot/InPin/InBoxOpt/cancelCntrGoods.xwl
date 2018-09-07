@@ -1,0 +1,33 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var username=app.get(\"sys.username\"),TENANCY_ID=app.get(\"sys.TENANCY_ID\"),rs;\
+var  idArray=new Array();\
+rs=app.run(\"select CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES, LOCATION, GOODSATTR, SHIPPERHANDLER, SIGNERCFS, \"+\
+\"CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, CFS_ID, RECEIPTNO, TRUCKNO, WEIGHT, CFSBILLNO, VOLUME,\"+\
+\"LCL_ID, SHIPPER, OUTFLAG, IMPEXP, PLANQUTY, SOURCE_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY \"+\
+\"from BLUK_BILL where LCL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+while(rs.next()){\
+\tidArray.push({BILL_ID:rs.getString('BILL_ID'),ID:SysUtil.getId()});\
+}\
+\
+app.run(\"delete from BLUK_GOODS where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\",{transaction: 'start',arrayData: new org.json.JSONArray(Wb.encode(idArray))});\
+app.run(\"update BLUK_PLAN set TASKSTATUS='EXE' where ID={?ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+app.run(\"update BLUK_BILL set TASKSTATUS='EXE',LOCATION='',CFS_ID='',IPIECES=0 where LCL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "取消整柜入库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

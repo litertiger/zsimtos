@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var  ID =app.get(\"ID\");\
+var  cntrId =app.get(\"cntrId\");\
+\
+app.run(\"select 1 ID from  vload_list where ID in (\"+ID+\") and phase='2'\", {\
+    errorText: '已锁定不能删除。'\
+});\
+app.run(\"select 1 ID from  move_list where cntr_id  in (\"+cntrId+\") \\\
+ and ( to_POS_TYP='V' or from_POS_TYP='V' ) and move_type='MOV' and CARRIER_CALL={?vId?} and  phase  in ('PLN','SND','EXE','FIN')\\\
+\", {\
+    errorText: '存在装船指令不能删除。'\
+});\
+app.run(\"select 1 from receipt where work_type<>'YOYI' and  phase<>'CNL' and  cntr_id in (select cntr_id from vload_list where ID in (\"+ID+\") and I_E_ID='I')  \", {\
+    errorText: '已经做设备交接单不能删除，先删除交接单'\
+});\
+app.run(\"delete from  vload_list where ID in (\"+ID+\")\",{transaction: 'start'});\
+app.run(\"delete from  port_cntr where ID in( \"+cntrId+\") and I_E_ID='I' and  phase='ADV' \"+\
+         \" and not exists(select 1 from vload_list where  ID in (\"+ID+\")  and I_E_ID='E')\");\
+app.run(\"update   port_cntr set  BILL_NO=null, E_DSHIP_NO=null,SPEC_STOW=null  where ID in( \"+cntrId+\") and I_E_ID='E' \");\
+app.run(\"update  move_list set phase='CNL' where  cntr_id in (select cntr_ID from vload_list where ID in (\"+ID+\") and I_E_ID='I')\");\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "查询装船指令",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

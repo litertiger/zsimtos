@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var errmsg = \"\";\
+var sql = \"select RELEASE_ID,CIQ_ID from vbill_head where bill_no='\" + data.billno + \"'\";\
+var cntrs = Wb.decode(DbUtil.getData(app.run(sql), request));\
+\
+var paysql = \"select PAY_FLAG from accounts_details\" +\
+  \" where bill_no='\" + data.billno + \"' and PAYMENT_TYPE=1\" +\
+  \" group by PAY_FLAG\";\
+var pays = Wb.decode(DbUtil.getData(app.run(paysql), request));\
+\
+Wb.each(pays, function(pay) {\
+  if (pay.PAY_FLAG == 0)\
+    errmsg += \"费用没有结清.\";\
+});\
+Wb.each(cntrs, function(cntr) {\
+  if (cntr.RELEASE_ID == 0)\
+    errmsg += \"海关没有放行.\";\
+  if (cntr.CIQ_ID == 0)\
+    errmsg += \"商检没有放行.\";\
+});\
+if (!Wb.isEmpty(errmsg))\
+  errmsg += \"不能办单!!!\";\
+app.send(errmsg);\
+// app.send(\"\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "散货办单检查",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

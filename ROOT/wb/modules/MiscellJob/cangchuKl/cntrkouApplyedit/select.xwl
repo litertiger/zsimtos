@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get(\"sys.username\");\
+var nature = app.get(\"sys.NATURE\"); //是否为船公司账号\
+var gov_code = app.get(\"sys.GOV_CODE\"); //船公司代码\
+var sql = \"select ch.*,pc.lock_id plock,\" +\
+  \"(select display_name from wb_user where user_name=ch.created_by)creater,\" +\
+  \"(select display_name from wb_user where user_name=ch.updated_by)updater\" +\
+  \" from cntr_hold ch left join port_cntr pc on ch.cntr_id=pc.id\" +\
+  \" where ch.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and ch.cntr like '%\" + data.CNTR + \"%'\";\
+if (nature == \"5\")\
+  sql += \" and ch.created_by='\" + username + \"'\";\
+\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSJJ": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基础查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

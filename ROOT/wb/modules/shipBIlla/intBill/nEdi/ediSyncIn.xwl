@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var ieId=app.get('ieId'),TENANCY_ID=app.get('sys.TENANCY_ID'),username=app.get('sys.username');\
+var createDate, id = SysUtil.getId(),shipNo=app.get('shipNo'),//app.get(\"batch\"),\
+      nature=app.get(\"sys.NATURE\"),data = app.get();\
+var vHeandwhereSql=\"\",vListwhereSql=\"\";\
+if(  nature=='5'){\
+  vHeandwhereSql=\" and  VBILL_HEAD.CREATED_BY='\"+username+\"'\";\
+  vListwhereSql=\"  and  VLOAD_LIST.CREATED_BY='\"+username+\"'\";\
+}\
+  \
+var  rs=app.run(\"select CNTR from zs_imtos.PORT_CNTR where TENANCY_ID='\"+TENANCY_ID+\"'  and  CNTR in\"+\
+        \" (select  distinct CNTR  FROM VLOAD_LIST where VID={?shipNo?} \"+vListwhereSql+\" and TENANCY_ID='\"+TENANCY_ID+\"'  and VLOAD_LIST.PHASE='9' )  \", {\
+});\
+var message=\"\";\
+while(rs.next()){\
+ message+=rs.getString(\"CNTR\")+\",\";\
+}\
+if(message!=\"\"){\
+  Wb.error('有集装箱'+message+'已经在堆场不能导入码头。');\
+}\
+\
+if(ieId=='I')//进口\
+  app.run(\"INSERT INTO ZS_IMTOS.PORT_CNTR \" +\
+    \"   (BILL_NO,ID, TENANCY_ID, CNTR, PHASE, CATEGORY_ID, TRADE_ID, I_E_ID,\" +\
+    \"    E_F_ID, CNTR_ISO, LINE, CNTR_OPERATOR,CNTR_OPERATOR_COD, CNTR_OWNER,CNTR_OWNER_COD, IB_MODE,\" +\
+    \"    I_TOOL_NO, SEAL_NO, SHIP_NO, IB_CARRIER_OP, I_DSHIP_NO,\" +\
+    \"    IB_DCARRIER_OP, POD, POL, SPOD, IMDG, UNDG, TEMP_SET, TEMP_MIN,\" +\
+    \"    TEMP_MAX, REEF_ID, OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT,\" +\
+    \"    BUNDL_ID, EMERGENCY_ID, LCL_ID,UPDATED_ON, CREATED_ON,CNTR_SIZE, CNTR_TYPE)\" +\
+    \"    SELECT VBILL_HEAD.BILL_NO, sys_guid(), '\" + TENANCY_ID + \"', CNTR, 'ADV', CATEGORY_ID, VLOAD_LIST.TRADE_ID, VLOAD_LIST.I_E_ID, E_F_ID,\" +\
+    \"    CNTR_ISO, nvl(VBILL_HEAD.LINE,'###'), VBILL_HEAD.CNTR_OPERATOR,VBILL_HEAD.CNTR_OPERATOR_COD, VLOAD_LIST.CNTR_OWNER,VLOAD_LIST.CNTR_OWNER_COD, '船进', VLOAD_LIST.VID,\" +\
+    \"    SEAL_NO, VLOAD_LIST.VID, '', VLOAD_LIST.VID, '\" + username + \"', VBILL_HEAD.POD,\" +\
+    \"    VBILL_HEAD.POL, VBILL_HEAD.SPOD, VBILL_HEAD.IMDG, VBILL_HEAD.UNDG, VBILL_HEAD.TEMP_SET, TEMP_MIN, TEMP_MAX, REEF_ID,\" +\
+    \"    OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT, BUNDL_ID, EMERGENCY_ID,\" +\
+    \"    vbill_head.LCL_ID,sysdate,sysdate,CNTR_SIZE, CNTR_TYPE\" +\
+    \"    FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id  \"+vHeandwhereSql+\" \"+\
+    \"    and not exists( select 1 from  PORT_CNTR where  VLOAD_LIST.CNTR=PORT_CNTR.CNTR and PORT_CNTR.TENANCY_ID='\"+TENANCY_ID+\"' )\"+\
+    \"    and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  VBILL_HEAD.TENANCY_ID='\"+TENANCY_ID+\"'  and  vbill_head.VID={?shipNo?} \",{\
+    });\
+else \
+  app.run(\"update  ZS_IMTOS.PORT_CNTR  set O_DSHIP_NO={?shipNo?} where TENANCY_ID='\"+TENANCY_ID+\"' and  CNTR  in (select VLOAD_LIST.CNTR    \"+\
+          \"  FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id \"+vHeandwhereSql+\" and  VBILL_HEAD.TENANCY_ID='\"+TENANCY_ID+\"' and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  vbill_head.VID={?shipNo?} )\");\
+app.run(\"update   zs_imtos.VLOAD_LIST set CNTR_ID=(select  ID from ZS_IMTOS.PORT_CNTR where PORT_CNTR.CNTR=VLOAD_LIST.cntr and port_cntr.tenancy_id='\"+TENANCY_ID+\"' ) \"+\
+        \"  where    VLOAD_LIST.VID={?shipNo?} and VLOAD_LIST.TENANCY_ID='\"+TENANCY_ID+\"'  \");\
+app.run(\"update  port_cntr  set   (PIECES,WEIGHT, VOLUME)=(select sum(PIECES),sum(WEIGHT), sum(VOLUME) from VLOAD_LIST where VID={?shipNo?} and CNTR_ID=port_cntr.ID and I_E_ID='I' )   where  I_DSHIP_NO={?shipNo?}  and I_E_ID='I' and LCL_ID=1\");\
+\
+app.run(\"update  vbill_head set  PHASE='1'  where  VID={?shipNo?} and   PHASE='9'  \"+vHeandwhereSql+\" and VBILL_HEAD.TENANCY_ID='\"+TENANCY_ID+\"' \");\
+app.run(\"update  VLOAD_LIST set  PHASE='1'  where  VID={?shipNo?} and   PHASE='9'  \"+vListwhereSql+\"  and VLOAD_LIST.TENANCY_ID='\"+TENANCY_ID+\"' \");\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "同步上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,87 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+
+<div id="Tag0"/>
+<Table cols=2 border=0 width=100%>
+<col width=60%>
+<col width=40%>
+<tr height=91><td class="noline"/><td class="noline"><img src='image/devsh.jpg'></td></tr>
+</table>
+<h3>　<font color=#3366ff>附录二. Reg.ini配置</font></h3><hr color=#2266ee size=1>
+　　硕正套件本身是不访问操作系统的注册表的，但在运行过程中仍然需要记录某些临时信息，比如在报表的设计过程中，需要保存访问过的数据源URL，以便今后能直接在下拉框中选取。<br>
+　　这些临时信息是保存在 \Documents and settings\[用户名]\BC? (Windows 7为 \用户\[用户名]\BC? )目录下的 Reg.ini文件中的, Reg.ini就是硕正套件自己的“注册表”。<br>
+　　Reg.ini通常不需要你去关注，但有几个和开发调试有关的配置选项，需要在此说明一下。<br>
+
+
+<div id="Tag1"/><br>
+<p class="sz1">1.http日志</p>
+　　硕正套件内部有一个http日志的功能，可用于开发阶段的性能调试，它能记录套件发出的所有http请求的响应情况，诸如耗时、返回包的尺寸等。<br>
+　　该功能的最终结果是一个日志文件，位于Reg.ini同一个目录下，文件名为 <b>httplog.htm</b>. 内容大致如下:<br><br>
+<table border=1 width='100%'>
+<header>日期: 2011.08.15</header>
+<tr><th>时间</th><th>URL</th><th>StatusCode</th><th>耗时</th><th>gzip压缩</th><th align=right>返回包尺寸(kb)</th><th align=right>解压后尺寸(kb)</th><th align=right>压缩率(%)</th></tr>
+<tr><td>14:14:17</td><td>http://localhost:81/supcan/sht3.xml</td><td>200</td><td>00:00</td><td>&nbsp;</td><td align=right>10</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>14:14:24</td><td>http://localhost/supcan/data5w.xml</td><td>200</td><td>00:00.983</td><td>yes</td><td align=right>3559</td><td align=right>14694</td><td align=right>24.22</td></tr>
+<tr><td>14:14:50</td><td>http://localhost/supcan/data5w.xml</td><td>304</td><td>00:00.15</td><td>&nbsp;</td><td align=right>0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>14:14:50</td><td>http://localhost/supcan/data5w.xml</td><td>200</td><td>00:00.141</td><td>yes</td><td align=right>1446</td><td align=right>14694</td><td align=right>9.84</td></tr>
+</Table>
+<br>
+注1: 日志仅记录硕正套件发送的http请求，无法记录页面的http请求;<br>
+注2: 其中 “耗时” 的格式是“分钟：秒 . 毫秒”,  它表示从发出http请求到收到响应包的时间间隔，如果数据包是gzip压缩的，那么它还包括了解压的耗时;<br>
+注3: 硕正控件发起的http请求未必都能到达服务器，因为有的是从浏览器的Cache中直接返回的，所以http日志<b>不完全可信</b>，比如静态内容.<br>
+<br>
+　　在默认情境下，日志是关闭的，您必须手工修改 Reg.ini 文件才能启用它，增加 [httplog] 小节：<br>
+<pre class='cpp'>
+...
+[httplog]
+open = true</pre>
+　　可配置的内容说明如下：<br>
+<table border=1 width=97% align="center">
+<tr><th>可选项</th><th>含义</th><th>默认值</th></tr>
+<tr><td>open</td><td>是否打开http日志, true 或 false</td><td>false</td></tr>
+<tr><td>minKB</td><td>最小的http返回包尺寸(单位：kb)，超过该尺寸才记录</td><td>0</td></tr>
+<tr><td>redKB</td><td>如果http返回包超过该尺寸(单位：kb)，将以红色显示</td><td>无穷大</td></tr>
+<tr><td>redSeconds</td><td>如果http请求响应耗时超过该数(单位: 秒)，将以红色显示</td><td>无穷大</td></tr>
+<tr><td>logFileKB</td><td>日志文件的最大尺寸. 一旦日志文件长度超过该数，硕正套件能自动抛弃前面的一半</td><td>256</td></tr>
+<tr><td>content</td><td>true 或 false。如果为true, 所有http的响应内容都会按文件写到BC\Temp目录下，可用于调试.</td><td>false</td></tr>
+</Table>
+　　关键是 open=true，其它内容都是可选项，可以忽略。<br>
+注: <font color=red>修改了reg.ini, 未必马上生效，你需要关闭浏览器进程，在下一次打开浏览器后才能生效;</font><br>
+
+<br>
+<div id="Tag2"/><hr><br>
+<p class="sz1">2.Debug日志</p>
+　　如果程序员对 OnReady( )事件理解不透彻，那么他写的 OnReady( )脚本很有可能不符合要求，从而造成运行效率低下、页面卡死或其它问题，这也是初学者的高频问题。为了方便调试，Reg.ini 文件提供了Debug日志功能.<br>
+　　在默认情境下，Debug日志是关闭的，您必须手工修改 Reg.ini 文件才能启用它，修改内容说明如下：<br>
+<pre class='cpp'>
+...
+[Debug]
+Open=true</pre>
+　　关闭浏览器进程，再打开，运行您的所有页面，如果硕正控件发现有潜在问题，会在 Reg.ini 同一个目录下生成一个名为 <b>Debug.txt</b> 的文件，里面内容大致如下:<br>
+<pre class='cpp'>
+2012.08.31 11:09:24------------------------
+警告：在 109 毫秒内重复执行了如下函数, 有可能是OnReady( )脚本书写不妥造成:
+Build(treelist/t3_2.xml)
+...</pre>
+　　此外，如果在异步加载数据/异步计算(Report中)过程中执行了API函数，日志也会记载。当然，里面捕捉到的问题未必完全是问题。<br>
+
+
+<br>
+<div id="Tag3"/><hr><br>
+<p class="sz1">3.本地开发目录</p>
+　　在报表、Freeform表单设计过程中，通常是先把设计好的XML文件保存在本地的某个目录下的，在需要时再发布到Web服务器。<br>
+　　为了方便本地操作，允许在Reg.ini中设置这个工作目录，这样在工具条的 “打开” 和 “保存” 操作时能够先进入这个默认目录. Reg.ini工作目录配置说明如下:<br>
+<pre class='cpp'>
+...
+[Default]  　　//找到这个小节
+ReportDir=d:\tomcat\webapps\mywork   　　　//报表的默认保存目录
+FreeformDir=d:\tomcat\webapps\myforms   　　//freeform的保存目录</pre>
+注1: 修改了reg.ini, 未必马上生效，你需要关闭浏览器进程，在下一次打开浏览器后才能生效;<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

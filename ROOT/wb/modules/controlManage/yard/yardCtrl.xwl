@@ -1,0 +1,1761 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set('iso', Wb.encode(Ag.getResultObj(app.run(\"select id,cntr_size from c_cntr_iso\", {\
+  jndi: \"jdbc/basecode\"\
+}))));\
+\
+var result = app.run(\"select address from c_machine where id={?mach?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+if (result && result.next())\
+  app.set('address', result.getString('address'));"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "wndConfirm",
+     "editWin": "true",
+     "title": "堆场指令确认"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "fieldLabel": "箱号",
+       "isUpperCase": "true",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NEW_CNTR",
+       "fieldLabel": "新箱号",
+       "isUpperCase": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_ISO",
+       "fieldLabel": "尺码",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "POS",
+       "fieldLabel": "计划",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NEW_POS",
+       "allowBlank": "false",
+       "fieldLabel": "实际",
+       "isUpperCase": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TO_POS",
+       "fieldLabel": "目的",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TRUCK",
+       "fieldLabel": "拖车",
+       "isUpperCase": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "MACH",
+       "fieldLabel": "机械",
+       "readOnly": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR",
+       "fieldLabel": "驳船",
+       "readOnly": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "IE",
+       "fieldLabel": "进出",
+       "readOnly": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "prompt",
+       "readOnly": "true",
+       "fieldStyle": "color:red;font-size:24px;"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {"itemId": "ID"},
+      "expanded": false,
+      "children": [],
+      "type": "hidden"
+     },
+     {
+      "configs": {"itemId": "QUEUE_ID"},
+      "expanded": false,
+      "children": [],
+      "type": "hidden"
+     },
+     {
+      "configs": {"itemId": "MOVE_TYPE"},
+      "expanded": false,
+      "children": [],
+      "type": "hidden"
+     }
+    ],
+    "type": "window",
+    "events": {
+     "show": "if (win.down('#MOVE_TYPE').getValue() == 'LOD')\
+  win.down(\"#TO_POS\").show();\
+else\
+  win.down(\"#TO_POS\").hide();\
+if (win.taskType === 'GOUT')\
+  win.down(\"#NEW_CNTR\").show();\
+else\
+  win.down(\"#NEW_CNTR\").hide();\
+\
+Wb.request({\
+  url: 'm?xwl=yardManage/yardCtrl/getPrompt',\
+  params: {\
+    id: win.down('#ID').getValue()\
+  },\
+  success: function(resp) {\
+    win.down('#prompt').setValue(resp.responseText + win.down('#prompt').getValue());\
+  }\
+});",
+     "ok": "var data = Wb.getValue(win);\
+var grid = app.shiftList.collapsed ? app.gridCmd : app.gridShift;\
+Wb.request({\
+  url: \"m?xwl=yardManage/yardCtrl/confirm\",\
+  params: data,\
+  success: function(res) {\
+    var ret = Wb.decode(res.responseText);\
+    if (ret.success) {\
+      win.close();\
+      var record = grid.store.data.findBy(function(r, k) {\
+        return r.data.ID === data.ID;\
+      });\
+      if (record)\
+        Wb.remove(grid, [record]);\
+      Wb.request({\
+        url: \"m?xwl=yardManage/yardCtrl/getCntr\",\
+        params: {\
+          cntr: data.CNTR\
+        },\
+        success: function(res) {\
+          app.cyMap.removeCntr(data.CNTR);\
+          var row = Wb.decode(res.responseText);\
+          app.cyMap.addCntr(row);\
+        }\
+      });\
+    } else\
+      Wb.error(ret.errstr, null, null, \"确认失败\");\
+  }\
+});"
+    }
+   },
+   {
+    "configs": {
+     "itemId": "wndMove",
+     "editWin": "true",
+     "title": "堆场盘箱确认"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "fieldLabel": "箱号",
+       "isUpperCase": "true",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_ISO",
+       "fieldLabel": "尺码",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "POS",
+       "fieldLabel": "原位",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NEW_POS",
+       "allowBlank": "false",
+       "fieldLabel": "新位"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "MACH",
+       "fieldLabel": "机械",
+       "readOnly": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "OPERATOR",
+       "fieldLabel": "驳船",
+       "readOnly": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "IE",
+       "fieldLabel": "进出",
+       "readOnly": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "prompt",
+       "readOnly": "true",
+       "fieldStyle": "color:red;font-size:24px;"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     }
+    ],
+    "type": "window",
+    "events": {
+     "show": "Wb.request({\
+  url: 'm?xwl=yardManage/yardCtrl/getPromptByCntr',\
+  params: {\
+    cntr: win.down('#CNTR').getValue()\
+  },\
+  success: function(resp) {\
+    win.down('#prompt').setValue(resp.responseText + win.down('#prompt').getValue());\
+  }\
+});",
+     "ok": "var data = Wb.getValue(win);\
+if(data.POS.substr(0,2) !== data.NEW_POS.substr(0,2))\
+\treturn Wb.error('盘箱位置不在原区位', null, null, \"确认失败\");\
+Wb.request({\
+  url: \"m?xwl=yardManage/yardCtrl/moveCntr\",\
+  params: data,\
+  success: function(res) {\
+    var ret = Wb.decode(res.responseText);\
+    if (ret.success) {\
+      win.close();\
+      app.cyMap.moveCntr(win.cntr,win.pos);\
+    } else\
+      Wb.error(ret.errstr, null, null, \"确认失败\");\
+  }\
+});"
+    }
+   },
+   {
+    "configs": {
+     "itemId": "wndMach",
+     "editWin": "true",
+     "title": "选择作业机械"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "MACH",
+      "fieldLabel": "请选择机械",
+      "displayField": "MACH_NAME",
+      "queryCaching": "true",
+      "valueField": "ID"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "url": "m?xwl=yardManage/yardCtrl/machList"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     }],
+     "type": "combo"
+    }],
+    "type": "window",
+    "events": {"ok": "var data = Wb.getValue(win);\
+win.close();\
+if (app.lockShift.pressed)\
+  app.moveCntr(win.pos, data.MACH,win.cntr);\
+else\
+  app.confirm(win.pos, data.MACH);"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "numWin",
+     "width": "550",
+     "height": "400"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "cntrgrid",
+       "mergeRows": "true",
+       "pagingBar": "false",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "sdate",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "开始时间",
+           "width": "175",
+           "labelWidth": "75",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "edate",
+           "allowBlank": "false",
+           "labelAlign": "right",
+           "fieldLabel": "结束时间",
+           "width": "175",
+           "labelWidth": "75",
+           "height": "22"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "date"
+         },
+         {
+          "configs": {
+           "itemId": "transporter1",
+           "allowBlank": "false",
+           "editable": "false",
+           "fieldLabel": "机械",
+           "width": "120",
+           "displayField": "MACH_NAME",
+           "labelWidth": "50",
+           "queryCaching": "true",
+           "valueField": "ID",
+           "value": "{#mach#}"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "url": "m?xwl=yardManage/yardCtrl/machList"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "selBtn",
+           "text": "查询",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (!Wb.verify(app.numWin))\
+  return;\
+Wb.request({\
+  url: 'm?xwl=controlManage/task/mechanmoveedit/select',\
+  out: item.getRefOwner(),\
+  success: function(resp) {\
+    var data = Wb.decode(resp.responseText);\
+    Wb.setValue(app.numWin, data);\
+  }\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "fields": "['S','T','EF','N']"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "features"},
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "feature1",
+          "ftype": "summary"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "feature"
+        }],
+        "type": "array"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colcntrsize",
+           "summaryRenderer": "return \"合计\";",
+           "dataIndex": "S",
+           "width": "60",
+           "mergeRows": "true",
+           "text": "尺寸",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colmovetype",
+           "dataIndex": "T",
+           "width": "100",
+           "mergeRows": "true",
+           "text": "作业类型",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colefid",
+           "dataIndex": "EF",
+           "width": "60",
+           "text": "空重",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colcntrnum",
+           "dataIndex": "N",
+           "summaryType": "sum",
+           "width": "100",
+           "text": "箱量",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     },
+     {
+      "configs": {
+       "layout": "hbox",
+       "itemId": "panel1",
+       "region": "south"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "labelcntr",
+         "width": "200",
+         "text": "盘箱数量"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "itemId": "sft",
+         "readOnly": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "panel"
+     }
+    ],
+    "type": "window",
+    "events": {"show": "app.edate.setValue(new Date());\
+app.sdate.setValue(new Date());"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "controlArea",
+       "region": "north",
+       "height": "60"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "fieldset1",
+          "title": "指令过滤",
+          "collapsible": "true",
+          "height": "45"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "workType",
+           "fieldLabel": "作业",
+           "labelWidth": "60"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "radio1",
+             "boxLabel": "全部",
+             "width": "80",
+             "checked": "true"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio11",
+             "boxLabel": "收箱",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio12",
+             "boxLabel": "提箱",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio16",
+             "boxLabel": "卸船",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio17",
+             "boxLabel": "装船",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio13",
+             "boxLabel": "移箱",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio14",
+             "boxLabel": "移进",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           },
+           {
+            "configs": {
+             "itemId": "radio15",
+             "boxLabel": "移出",
+             "width": "80"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "radio"
+           }
+          ],
+          "type": "radiogroup",
+          "events": {"change": "app.gridCmd.store.load({\
+  out: app.tbar\
+}); "}
+         }],
+         "type": "fieldset"
+        },
+        {
+         "configs": {
+          "layout": "hbox",
+          "itemId": "fieldset2",
+          "title": "箱号过滤",
+          "collapsible": "true",
+          "height": "45"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "cntr",
+            "labelAlign": "right",
+            "fieldLabel": "箱号",
+            "width": "160",
+            "isUpperCase": "true",
+            "labelWidth": "60"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "text",
+           "events": {"specialkey": "if(e.keyCode==13)\
+{\
+  text.getRefOwner().down('#find').fireEvent('click');\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "yard",
+            "labelAlign": "right",
+            "fieldLabel": "场号",
+            "width": "100",
+            "isUpperCase": "true",
+            "labelWidth": "60",
+            "maxLength": "11"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "text",
+           "events": {"specialkey": "if(e.keyCode==13)\
+{\
+  text.getRefOwner().down('#find').fireEvent('click');\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "find",
+            "width": "40",
+            "iconCls": "seek_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "button",
+           "events": {"click": "app.address.setValue(app.yard.getValue());\
+app.gridCmd.store.load({\
+  out: app.tbar\
+}); "}
+          },
+          {
+           "configs": {
+            "itemId": "mach",
+            "value": "\"{#mach#}\""
+           },
+           "expanded": false,
+           "children": [],
+           "type": "hidden"
+          },
+          {
+           "configs": {
+            "itemId": "address",
+            "value": "\"{#address#}\""
+           },
+           "expanded": false,
+           "children": [],
+           "type": "hidden"
+          }
+         ],
+         "type": "fieldset"
+        },
+        {
+         "configs": {
+          "itemId": "logoutBtn",
+          "overflowText": "@Str.logout",
+          "tooltip": "@Str.logout",
+          "iconCls": "logout_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "function doLogout() {\
+  Wb.request({\
+    url: 'logout',\
+    success: function(resp) {\
+      Wb.unloadEvents = null;\
+      window.location.reload();\
+    }\
+  });\
+}\
+var result = Wb.onBeforeUnload();\
+if (Wb.isValue(result))\
+  Wb.confirm(result + '<br><br>' + Str.confirmLogout, doLogout);\
+else\
+  doLogout();"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "cmdArea",
+       "split": "true",
+       "width": "400",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "cmdList",
+         "split": "true",
+         "region": "center",
+         "title": "指令列表"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "gridCmd",
+          "renderRaw": "true"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "pageSize": "-1",
+            "sorters": "{ property:\"POS\",direction:\"DESC\"}",
+            "url": "m?xwl=yardManage/yardCtrl/cmdList"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {
+            "load": "if(app.selCmdId)\
+{\
+  var r = app.gridCmd.store.findRecord('ID',app.selCmdId);\
+  if(r)\
+    app.gridCmd.setSelection(r);\
+}\
+var sels = app.gridCmd.getSelection();\
+if(sels.length === 0)\
+{\
+  if(app.gridCmd.store.getCount() > 0)\
+    app.gridCmd.setSelection(app.gridCmd.store.getAt(0));\
+}",
+            "beforeload": " var sels = app.gridCmd.getSelection();\
+ if (sels && sels.length)\
+   app.selCmdId = sels[0].data.ID;"
+           }
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "MOVE_TYPE",
+              "renderer": "if (record.data.PRIORITY == 2)\
+  metaData.style = 'background-color:red;';\
+var ret;\
+switch(record.data.TASK_TYPE)\
+{\
+  case 'GIN':\
+    ret = '收箱';\
+    break;\
+  case 'GOUT':\
+    ret = '提箱';\
+    break;\
+  case 'VIN':\
+    ret = '卸船';\
+    break;\
+  case 'VOUT':\
+    ret = '装船';\
+    break;\
+  case 'MOVE':\
+    switch(value)\
+    {\
+      case 'DIS':\
+        ret = '移进';\
+        break;\
+      case 'LOD':\
+        ret = '移出';\
+        break;\
+      case 'ROR':\
+        ret = '移动';\
+        break;\
+    }\
+    break;\
+}\
+return ret;",
+              "dataIndex": "MOVE_TYPE",
+              "width": "40"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CNTR",
+              "dataIndex": "CNTR",
+              "width": "110",
+              "text": "箱号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "ISO",
+              "dataIndex": "CNTR_ISO",
+              "width": "50",
+              "text": "ISO"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "POS",
+              "renderer": "var ret = value;\
+if (value !== record.data.TO_POS)\
+  ret += '<\/br>->' + record.data.TO_POS;\
+return ret;",
+              "dataIndex": "POS",
+              "width": "80",
+              "text": "箱位"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRUCK",
+              "renderer": "var ret = value;\
+if (value !== record.data.PLAT_NO)\
+  ret += '<\/br>' + record.data.PLAT_NO;\
+return ret;",
+              "dataIndex": "TRUCK",
+              "width": "80",
+              "text": "拖车"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CNTR_OPERATOR",
+              "dataIndex": "CNTR_OPERATOR",
+              "width": "100",
+              "text": "驳船公司"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "IE",
+              "renderer": "return value == 'I' ? '进口' : value == 'E' ? '出口' : '';",
+              "dataIndex": "IE",
+              "width": "50",
+              "text": "进出"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "EF",
+              "renderer": "return value == 'F' ? '重柜' : value == 'E' ? '吉柜' : '拼柜';",
+              "dataIndex": "E_F_ID",
+              "width": "50",
+              "text": "空重"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "notes",
+              "dataIndex": "NOTES",
+              "text": "备注信息"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          },
+          {
+           "configs": {
+            "itemId": "viewConfig",
+            "enableTextSelection": "false"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "tableview"
+          }
+         ],
+         "type": "grid",
+         "events": {
+          "selectionchange": "var clearIds = [];\
+if (app.lastSelected)\
+  clearIds.push(app.lastSelected.data.QUEUE_ID);\
+if (!(selected && selected[0])) {\
+  app.gridShift.store.removeAll();\
+  return;\
+}\
+app.lastSelected = selected[0];\
+clearIds.push(app.lastSelected.data.QUEUE_ID);\
+var pos = selected[0].data.POS;\
+var areaNo = pos.substr(0, 2);\
+var bayNo = pos.substr(2, 2);\
+if (Wb.isEmpty(bayNo.trim())) {\
+  if (app.isoObj[app.lastSelected.data.CNTR_ISO] > 20)\
+    bayNo = '02';\
+  else\
+    bayNo = '01';\
+}\
+if (app.lastAreaNo !== areaNo || app.lastBayNo !== bayNo)\
+  app.switchBay(areaNo, bayNo, pos);\
+else\
+  app.cyMap.bayInfo = {\
+    selPos: pos,\
+    markPos: pos\
+  };\
+\
+if (selected[0].data.MOVE_TYPE == 'DIS') {\
+  app.gridShift.store.removeAll();\
+  return;\
+}\
+app.gridShift.store.reload({\
+  params: {\
+    cntr: selected[0].data.CNTR,\
+    queueId: selected[0].data.QUEUE_ID,\
+    rId: window.global && global.config && global.config.MACH || 'MACH',\
+    clearIds: clearIds\
+  }\
+});",
+          "afterrender": "app.gridCmd.store.load({\
+  out: app.tbar\
+}); "
+         }
+        }],
+        "type": "panel",
+        "events": {"resize": "app.gridCmd.setHeight(height-30);"}
+       },
+       {
+        "configs": {
+         "itemId": "shiftList",
+         "split": "true",
+         "collapsed": "true",
+         "region": "south",
+         "title": "翻捣列表",
+         "collapsible": "true",
+         "height": "300"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {"itemId": "gridShift"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "pageSize": "-1",
+            "url": "m?xwl=yardManage/yardCtrl/shiftList"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store",
+           "events": {"datachanged": "if (store.data.length === 0) {\
+  app.shiftList.collapse();\
+  if (app.lastSelected)\
+    app.cyMap.bayInfo = {\
+      selPos: app.lastSelected.data.POS\
+    };\
+} else {\
+  app.gridShift.selModel.select(app.gridShift.store.data.items[0]);\
+  app.shiftList.expand();\
+}"}
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "CNTR",
+              "dataIndex": "CNTR",
+              "width": "110",
+              "text": "箱号"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "FROM_POS",
+              "dataIndex": "FROM_POS",
+              "width": "80",
+              "text": "原箱位"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TO_POS",
+              "dataIndex": "TO_POS",
+              "width": "80",
+              "text": "新箱位"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CNTR_OPERATOR",
+              "dataIndex": "CNTR_OPERATOR",
+              "width": "100",
+              "text": "驳船公司"
+             },
+             "expanded": true,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          },
+          {
+           "configs": {
+            "itemId": "viewConfig",
+            "enableTextSelection": "false"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "tableview"
+          }
+         ],
+         "type": "grid",
+         "events": {"selectionchange": "if (!(selected && selected[0]))\
+  return;\
+if (selected[0] !== app.gridShift.store.data.items[0])\
+{\
+  app.gridShift.selModel.select(app.gridShift.store.data.items[0]);\
+  return;\
+}\
+var pos = selected[0].data.TO_POS;\
+var areaNo = pos.substr(0, 2);\
+var bayNo = pos.substr(2, 2);\
+if (app.lastAreaNo !== areaNo || app.lastBayNo !== bayNo)\
+  app.switchBay(areaNo, bayNo, pos);\
+else\
+  app.cyMap.bayInfo = {\
+    selPos: pos\
+  };"}
+        }],
+        "type": "panel",
+        "events": {"collapse": "\
+if(app.gridShift.store.data.length)\
+{\
+  //Wb.info('请先完成盘箱任务');\
+  app.shiftList.expand();\
+}"}
+       }
+      ],
+      "type": "panel",
+      "events": {
+       "afterrender": "if (window.nw && nw.require) {//在壳中运行,使用本地参数文件\
+  try {\
+    var cfgSize = nw.require(\"./cfgSize.json\");\
+    panel.setWidth(cfgSize.cmdAreaWidth);\
+  } catch (e) {}\
+}",
+       "resize": "if (window.nw && nw.require) { //在壳中运行,保存本地参数文件\
+  var fs = nw.require('fs');\
+  fs.writeFile('./cfgSize.json', JSON.stringify({\
+    cmdAreaWidth: width\
+  }));\
+}"
+      }
+     },
+     {
+      "configs": {
+       "itemId": "bayMap",
+       "width": "100",
+       "html": "<div id='cyMapDiv' style=\"height:100%;width:100%;background:#f3f3f3;\" ><\/div>",
+       "title": "贝图",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "toolbar11",
+        "region": "south"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "lockPos",
+          "tooltip": "锁定场位",
+          "style": "top:26px",
+          "text": "锁定",
+          "iconCls": "lock_icon",
+          "enableToggle": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button"
+        },
+        {
+         "configs": {
+          "itemId": "lockShift",
+          "tooltip": "自主盘箱",
+          "toggleHandler": "if(state)\
+  app.cmdArea.disable();\
+else\
+  app.cmdArea.enable();\
+app.cyMap.canMove = state;\
+if(app.lockPos.pressed != state)\
+  app.lockPos.toggle();",
+          "style": "top:26px",
+          "text": "盘箱",
+          "iconCls": "relation_icon",
+          "enableToggle": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button"
+        },
+        {
+         "configs": {
+          "layout": "hbox",
+          "itemId": "fieldset3",
+          "title": "切换场位",
+          "collapsible": "true",
+          "height": "45"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "cyArea",
+            "labelAlign": "right",
+            "fieldLabel": "场号",
+            "width": "110",
+            "isUpperCase": "true",
+            "labelWidth": "65"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "text",
+           "events": {"specialkey": "if(e.keyCode==13)\
+{\
+  text.getRefOwner().down('#go').fireEvent('click');\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "cyBay",
+            "labelAlign": "right",
+            "fieldLabel": "贝号",
+            "width": "110",
+            "isUpperCase": "true",
+            "labelWidth": "65",
+            "value": "01"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text",
+           "events": {"specialkey": "if(e.keyCode==13)\
+{\
+  text.getRefOwner().down('#go').fireEvent('click');\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "go",
+            "width": "40",
+            "tooltip": "转到指定位置",
+            "iconCls": "redo_icon"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "button",
+           "events": {"click": "if (app.lastAreaNo !== app.cyArea.getValue() || app.lastBayNo !== app.cyBay.getValue())\
+{\
+  var old = app.lockPos.pressed;\
+  if(old)\
+    app.lockPos.pressed = false;\
+  app.switchBay(app.cyArea.getValue(), app.cyBay.getValue());\
+  app.lockPos.pressed = old;\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "prev",
+            "width": "40",
+            "tooltip": "前一贝",
+            "iconCls": "left_icon"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "button",
+           "events": {"click": "var bayNo = app.lastBayNo * 1;\
+if (bayNo % 2 === 0)\
+  bayNo -= 3;\
+else\
+  bayNo -= 2;\
+if (bayNo > 0) {\
+  app.cyBay.setValue(Ext.String.leftPad(bayNo, 2, '0'));\
+  app.go.fireEvent('click');\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "next",
+            "width": "40",
+            "tooltip": "后一贝",
+            "iconCls": "right_icon"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "button",
+           "events": {"click": "var bayNo = app.lastBayNo * 1;\
+if (bayNo % 2 === 0)\
+  bayNo += 3;\
+else\
+  bayNo += 2;\
+app.cyBay.setValue(Ext.String.leftPad(bayNo, 2, '0'));\
+app.go.fireEvent('click');"}
+          }
+         ],
+         "type": "fieldset"
+        },
+        {
+         "configs": {
+          "itemId": "combo1",
+          "emptyText": "颜色分类",
+          "width": "120",
+          "displayField": "NAME",
+          "queryCaching": "true",
+          "valueField": "CODE",
+          "height": "50"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "pageSize": "-1",
+           "url": "m?xwl=yardManage/yardmonitor/color/category"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"change": "var key = newValue;\
+app.cyMap.setColorKey(key.toLowerCase(), app.colorMap[key]);"}
+        },
+        {
+         "configs": {
+          "itemId": "btnInfo",
+          "text": "箱信息",
+          "iconCls": "message_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "Wb.run({\
+  url: 'm?xwl=controlManage/portcntr/control-module',\
+  success: function(appnew) {\
+    if (app.cntrInfoWnd)\
+      app.cntrInfoWnd.close();\
+    app.cntrInfoWnd = new Ext.window.Window(appnew._cntrWin);\
+    // win.setPosition(\"100\",\"400\");\
+\
+    app.cntrInfoWnd.show();\
+  }\
+});"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "panel",
+      "events": {"afterrender": "var CyBayMap = window.CyBayMap || (window.exports ? window.exports.CyBayMap : null);\
+if (CyBayMap)\
+  return creatCyBayMap();\
+\
+Wb.addLink([\"ctgraph/assets/js/cyMap.min.js\"], function() {\
+  creatCyBayMap();\
+});\
+\
+function creatCyBayMap() {\
+  var area = app.address.getValue() || 'A1';\
+  var i = area.indexOf(',');\
+  if (i > 0)\
+    area = area.substr(0, i);\
+  app.lastAreaNo = area;\
+  app.lastBayNo = '01';\
+  var CyBayMap = window.CyBayMap || (window.exports ? window.exports.CyBayMap : null);\
+  var cyMap = new CyBayMap(cyMapDiv, 700, 450, \"cyMap\");\
+  app.switchBay(area, '01');\
+  //单击箱位时的回调\
+  cyMap.onSlotClick = function(pos, button) {\
+    if (app.lockShift.pressed)\
+      return;\
+    var mach = app.mach.getValue();\
+    if (!mach) {\
+      app.wndMach.show();\
+      app.wndMach.pos = pos;\
+      return;\
+    }\
+    app.confirm(pos, mach);\
+  };\
+\
+  //右击箱位时的回调\
+  cyMap.onSlotContext = function(cntr) {\
+    Wb.run({\
+      url: 'm?xwl=controlManage/portcntr/control-module',\
+      params: {\
+        CNTR: cntr.no\
+      },\
+      success: function(appnew) {\
+        if (app.cntrInfoWnd)\
+          app.cntrInfoWnd.close();\
+        app.cntrInfoWnd = new Ext.window.Window(appnew._cntrWin);\
+        // win.setPosition(\"100\",\"400\");\
+\
+        app.cntrInfoWnd.show();\
+      }\
+    });\
+  };\
+\
+  //自主移箱时的回调\
+  cyMap.onCntrMove = function(cntrs, pos) {\
+    if (!app.lockShift.pressed)\
+      return;\
+    var mach = app.mach.getValue();\
+    if (!mach) {\
+      app.wndMach.show();\
+      app.wndMach.cntr = cntrs[0];\
+      app.wndMach.pos = pos;\
+      return;\
+    }\
+    app.moveCntr(pos, mach, cntrs[0]);\
+  };\
+  app.cyMap = cyMap;\
+  app.combo1.setValue('SPEC_STOW');\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "status",
+       "region": "south"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "label1",
+         "text": "用户名：{#sys.username#}  {#sys.dispname#}  "
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "itemId": "label11",
+         "text": "机械号：{#mach#}"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "itemId": "btnNums",
+         "text": "工作量查询"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "app.numWin.show();"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "xwl1",
+       "file": "m?xwl=system/common/rabbitMq"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "xwl"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "Array.prototype.slice.call(viewport.el.dom.querySelectorAll('label')).forEach(function(e) {\
+  e.style[\"font-size\"] = \"18px\";\
+  e.style[\"font-weight\"] = \"600\";\
+});\
+Array.prototype.slice.call(viewport.el.dom.querySelectorAll('.x-btn-inner')).forEach(function(e) {\
+  e.style[\"font-size\"] = \"18px\";\
+  e.style[\"font-weight\"] = \"600\";\
+  setTimeout(function() {\
+    e.style[\"line-height\"] = '20px';\
+    e.parentElement.style.height = '20px';\
+  }, 1000);\
+});\
+Array.prototype.slice.call(viewport.el.dom.querySelectorAll('.x-btn-icon-el')).forEach(function(e) {\
+  e.style.margin = \"auto\";\
+});\
+\
+Array.prototype.slice.call(viewport.el.dom.querySelectorAll('.x-form-text')).forEach(function(e) {\
+  e.style[\"font-size\"] = \"18px\";\
+  e.style[\"font-weight\"] = \"600\";\
+  setTimeout(function() {\
+    e.style.height = '25px';\
+  }, 1000);\
+});\
+Array.prototype.slice.call(viewport.el.dom.querySelectorAll('.x-toolbar-text')).forEach(function(e) {\
+  e.style[\"font-size\"] = \"18px\";\
+  e.style[\"font-weight\"] = \"600\";\
+});\
+Array.prototype.slice.call(viewport.el.dom.querySelectorAll('.x-fieldset-header-text')).forEach(function(e) {\
+  e.style[\"font-size\"] = \"18px\";\
+  e.style[\"font-weight\"] = \"600\";\
+});\
+setTimeout(function() {\
+  if (window.chrome && chrome && chrome.extension) {\
+    /*Array.prototype.slice.call(viewport.query('textfield')).forEach(function(c) {\
+      VKI_attach(c.inputEl.dom);\
+    });*/\
+    Wb.request({\
+      url: 'm?xwl=yardManage/yardCtrl/updateOper',\
+      params: {\
+        mach: global.config.MACH\
+      }\
+    });\
+  }\
+  if (app.fieldset2.el.getRight() > viewport.el.getComputedWidth())\
+    app.fieldset1.collapse();\
+}, 500);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "var style = document.styleSheets[document.styleSheets.length - 1];\
+if (style) {\
+  style.addRule('.x-grid-row,.x-grid-data-row', 'height:40px;');\
+  style.addRule('.x-field-toolbar .x-form-trigger', 'height:30px;');\
+  style.addRule('.x-boundlist-item,.x-grid-editor .x-form-text,.x-grid-cell-inner,.x-column-header-text,.x-header-text',\
+    'height:30px;font-size: 14px;font-weight:500;');\
+}\
+app.xwl1.subscribe('/exchange/ex_instruction/cy.#', function(d) {\
+  var msg = d.body;\
+  var record = app.gridCmd.store.data.findBy(function(r, k) {\
+    return r.data.ID === msg.data.id;\
+  });\
+  switch (msg.info.action) {\
+    case 'create':\
+    case 'update':\
+      Wb.request({\
+        url: \"m?xwl=yardManage/yardCtrl/cmd\",\
+        params: Wb.apply(msg.data, {\
+          workType: app.workType.getValue(),\
+          mach: app.mach.getValue(),\
+          address: app.address.getValue()\
+        }),\
+        success: function(res) {\
+          data = Wb.decode(res.responseText);\
+          if (data && data.rows && data.rows.length) {\
+            record = app.gridCmd.store.data.findBy(function(r, k) {\
+              return r.data.ID === data.rows[0].ID;\
+            });\
+            if (!record) {\
+              var sels = app.gridCmd.getSelection();\
+              if (sels && sels.length)\
+                app.gridCmd.selModel.suspendChange = true;\
+              Wb.add(app.gridCmd, data.rows);\
+              if (sels && sels.length) {\
+                app.gridCmd.setSelection(sels);\
+                app.gridCmd.selModel.suspendChange = false;\
+              }\
+            } else\
+              Wb.update(record, data.rows[0]);\
+          }\
+        }\
+      });\
+      break;\
+    case 'delete':\
+    case 'confirm':\
+      if (record) {\
+        Wb.remove(app.gridCmd, [record], false);\
+      }\
+      break;\
+    case 'batch':\
+      app.gridCmd.store.reload();\
+      break;\
+    default:\
+      console.log(msg);\
+      break;\
+  }\
+});\
+\
+if(app.mach.getValue())\
+{\
+  app.yard.hide();\
+  app.transporter1.setReadOnly(true);\
+}",
+   "initialize": "app.isoObj = Wb.decode('{#iso#}');\
+var cntrs=\"\";\
+app.confirm = function(pos, mach) {\
+  var data;\
+  var grid = app.shiftList.collapsed ? app.gridCmd : app.gridShift;\
+  var sel = grid.getSelection();\
+  if (sel && sel[0]) {\
+    data = Wb.apply({}, sel[0].data);\
+    var truck = data.TRUCK;\
+    Wb.setValue(app.wndConfirm, Wb.applyIf({\
+      TRUCK: truck,\
+      MACH: mach,\
+      NEW_POS: pos,\
+      IE: data.IE == 'E' ? '出口' : '进口',\
+      prompt:data.NOTES\
+    }, data));\
+    app.wndConfirm.taskType = data.TASK_TYPE;\
+    app.wndConfirm.show();\
+  }\
+};\
+\
+app.moveCntr = function(pos, mach, cntr) {\
+  Wb.setValue(app.wndMove, {\
+    CNTR: cntr.no,\
+    CNTR_ISO: cntr.cntr_iso,\
+    POS: cntr.stowLoc,\
+    MACH: mach,\
+    OPERATOR: cntr.operator,\
+    IE: cntr.ie == 'E' ? '出口' : '进口',\
+    NEW_POS: pos,\
+    prompt:data.NOTES\
+  });\
+  app.wndMove.cntr = cntr;\
+  app.wndMove.pos = pos;\
+  app.wndMove.show();\
+};\
+\
+app.switchBay = function(areaNo, bayNo, pos) {\
+  if (app.lockPos.pressed)\
+    return;\
+  if(!bayNo)\
+    bayNo='01';\
+  Wb.request({\
+    url: \"m?xwl=yardManage/yardCtrl/bayInfo\",\
+    params: {\
+      areaNo: areaNo,\
+      bayNo: bayNo\
+    },\
+    success: function(res) {\
+      var info = Wb.decode(res.responseText);\
+      app.xwl1.unsubscribe('/exchange/ex_portcntr/cy.' + app.lastAreaNo + \".\" + app.lastBayNo + '.#');\
+      app.lastAreaNo = areaNo;\
+      app.lastBayNo = info.bayNo;\
+      app.cyArea.setValue(areaNo);\
+      app.cyBay.setValue(info.bayNo);\
+      app.xwl1.subscribe('/exchange/ex_portcntr/cy.' + app.lastAreaNo + \".\" + app.lastBayNo + '.#', function(d) {\
+        var msg = d.body;\
+        switch (msg.info.action) {\
+          case 'create':\
+          case 'update':\
+            Wb.request({\
+              url: \"m?xwl=yardManage/yardCtrl/getCntr\",\
+              params: msg.data,\
+              success: function(res) {\
+                app.cyMap.removeCntr(msg.data.cntr);\
+                var row = Wb.decode(res.responseText);\
+                if (row && row.stowLoc)\
+                  app.cyMap.addCntr(row);\
+                //更新指令列表里的起点位置\
+                app.gridCmd.store.data.each(function(r) {\
+                  if (r.data.CNTR === msg.data.cntr && r.data.MOVE_TYPE == 'LOD')\
+                    r.set(\"POS\", row.stowLoc);\
+                  return true;\
+                });\
+              }\
+            });\
+            break;\
+          case 'delete':\
+            app.cyMap.removeCntr(msg.data.cntr);\
+            break;\
+          default:\
+            console.log(msg);\
+            break;\
+        }\
+      });\
+      if (pos && pos.length >= 7)\
+        info.selPos = info.markPos = pos;\
+      app.cyMap.bayInfo = info;\
+    },\
+    failure: function(res) {\
+      app.cyArea.setValue(app.lastAreaNo);\
+      app.cyBay.setValue(app.lastBayNo);\
+    }\
+  });\
+};\
+\
+Wb.request({\
+  url: 'm?xwl=yardManage/yardmonitor/color/allColors',\
+  cache: false,\
+  dataType: 'json',\
+  success: function(resp) {\
+    app.colorMap = Wb.decode(resp.responseText);\
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "HSEDI": 1,
+  "SCANJB": 1,
+  "YARDCTRL": 1,
+  "xlzk": 1,
+  "XLLONG": 1,
+  "ZSYARDCONT": 1
+ },
+ "title": "堆场指令确认",
+ "iconCls": "console_icon",
+ "inframe": true,
+ "pageLink": ""
+}

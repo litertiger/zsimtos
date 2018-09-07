@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get(),\
+  whereSql = [];\
+if (data.fromDate)\
+  whereSql.push('LOG_DATE>={?timestamp.fromDate?}');\
+if (data.toDate)\
+  whereSql.push('LOG_DATE<={?timestamp.toDate?}');\
+if (data.userName)\
+  whereSql.push('USER_NAME={?userName?}');\
+if (data.ip)\
+  whereSql.push('IP={?ip?}');\
+if (data.logType)\
+  whereSql.push('LOG_TYPE={?integer.logType?}');\
+if (data.msg) {\
+  request.setAttribute('msg', '%' + data.msg + '%');\
+  whereSql.push('MSG like {?msg?}');\
+}\
+if (whereSql.length)\
+  request.setAttribute('whereSql', ' where ' + whereSql.join(' and '));",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "dictTableNames": "WB_LOG",
+    "sql": "select * from WB_LOG {#whereSql#} {#sql.orderBy#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

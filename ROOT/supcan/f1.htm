@@ -1,0 +1,75 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/freeform1.xml");
+ }
+ function getxml()
+ {
+  var xml = AF.func("GetChangedXML", "")
+  xml = xml.replace(/\r\n/g, "\\r\\n");
+  AF.func("MessageBoxFloat", xml + "\r\n icon=Information; hold=0");
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.Freeform拥有和Treelist一样的输入控件，支持计算表达式、输入掩码、各种下拉、事件, 以及Enter、Tab、Shift+Tab键的全键盘操作；<br>
+<b>2</b>.“模拟提交”实际上是取得表中的数据XML串而已，需要进一步通过Http Post给应用服务器；</td></tr>
+</table>
+
+<div style="position:relative;width:800px">
+	<script>insertFreeForm('AF', '', '350px')</script>
+</div>
+<br>
+<input type=button value="模拟提交" onClick="getxml()">
+
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.上面的Freeform是根据一个<a href="treelist/freeform1.xml" target=_blank>XML描述文件</a>创建的；<br>
+<b>2</b>.此XML简练易懂，也适合在服务器端动态生成；<br>
+<b>3</b>.源码分析：页面中创建Freeform控件实例的HTML如下，直接调用了 <a href='doc/dev/act.htm?103#Tag209' target=_blank>dynaload.js</a> 中的insertFreeForm( )函数：<br>
+<pre class='xml'>
+&lt;div style="position:relative;width:800px%;height:380px"&gt;
+ &lt;script&gt;insertFreeForm('AF', '')&lt;/script&gt;  //对象名为AF
+&lt;/div&gt;</pre>
+页面中和Freeform有关的js源码是:<br>
+<pre class='cpp'>
+ //Freeform触发的页面事件
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/freeform1.xml");
+ }
+ //按钮调用的js
+ function getxml()
+ {
+  var xml = AF.func("GetChangedXML", "")
+  xml = xml.replace(/\r\n/g, "\\r\\n");
+  AF.func("MessageBoxFloat", xml + "\r\n title=Warning; icon=Information; hold=0");
+ }
+</pre>
+</td></tr></table>
+<table border=0 cols=2 border=0 width=97%>
+<tr valign=top><td align=right><img src='res/boy.gif'></td><td align=left>使用够简单吧！</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

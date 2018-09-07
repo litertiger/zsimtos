@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var atriArr = Wb.decode(data.atriArr);\
+// app.log(atriArr);\
+var sql = \"update VBILL_HEAD set\";\
+for(i=0;i<atriArr.length;i++){\
+  var key = atriArr[i].KEY;\
+  key = escape(key);\
+  key = unescape(key);\
+//   app.log(key);\
+   if(i===0)\
+     sql += \" \"+key+\"=\"+\"'\"+atriArr[i].NEW_VALUE+\"'\";\
+   else{\
+     sql += \",\"+key+\"=\"+\"'\"+atriArr[i].NEW_VALUE+\"'\";\
+   }\
+}\
+sql +=\" where ID ='\"+data.cntrid+\"' \";\
+// app.log(sql);\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+//更新申请状态\
+sqla = \"update cntr_apply set phase='AOK' where id={?aid?}\";\
+app.run(sqla, {\
+  transaction: 'commit'\
+});\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "变更箱属性",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

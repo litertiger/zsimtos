@@ -1,0 +1,198 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "//注：serverScript在importModules之后运行，initScript在importModules之前运行\
+//app.execute('m?xwl=system/examples/basic/import-module/common-module');调用common-module模块，等效于在importModules属性中导入模块\
+request.setAttribute('addedVal', Integer.toString(app.add(3, 5))); //app.add方法在子模块import-module的serverScript内定义",
+   "itemId": "module",
+   "importModules": "[\"m?xwl=system/examples/basic/import-module/common-module\"]",
+   "description": "如何导入：\
+多选导入的子模块并拖动到module的importModules属性。\
+\
+用途：\
+使用该属性导入的模块为闭包式引用，即主模块无法访问导入模块的成员（serverScript的app对象除外）。\
+此方法主要是执行一些初始化或定义一些公共serverScript方法。\
+具体见sub-module1, sub-module2中的设置。"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "xwl1",
+     "file": "m?xwl=system/examples/basic/import-module/control-module"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "xwl"
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "window1",
+     "width": "416",
+     "title": "模块内窗口模块关闭时默认自动销毁",
+     "height": "232"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "toolbar1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "dynamicInvoke",
+         "text": "动态加载非单例窗口"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.run({\
+  url: 'm?xwl=system/examples/basic/import-module/control-module',\
+  params:{},\
+  success: function(app) {\
+    app._window1.closeAction = 'destroy'; //默认closeAction=hide\
+    var win = new Ext.window.Window(app._window1); //_window1为配置对象，window1为实例\
+    win.show();\
+   \
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "dynamicInvokeSingle",
+         "text": "动态加载单例窗口"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!app.dynamicInvokedWin) {\
+  var parentApp = app;\
+  Wb.run({\
+    url: 'm?xwl=system/examples/basic/import-module/dynamic-invoke',\
+    success: function(app) {\
+      //parentApp指向主模块app，添加到parentApp的所有控件会在主模块销毁时自动销毁\
+      var win = parentApp.dynamicInvokedWin = app.instancedWin;\
+      win.show(); //该窗口closeAction为hide，并在viewport1销毁时自动销毁该窗口\
+    }\
+  });\
+} else app.dynamicInvokedWin.show();"}
+       },
+       {
+        "configs": {
+         "itemId": "openWin",
+         "text": "打开引用模块的窗口"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var win = new Ext.window.Window(app.xwl1._window1); //_window1为配置对象，window1为实例\
+win.show(); //closeAction为destroy，在关闭时销毁"}
+       },
+       {
+        "configs": {
+         "itemId": "showDefaultWin",
+         "text": "显示自动销毁的窗口"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.window1.show(); //该窗口的关闭动作为隐藏（closeAction=hide）\
+//如果不希望窗口在模块关闭时销毁，可以把window1的引用从app中删除。由于窗口createInstance为true，因此app.window1和app._window1均指向窗口实例对象。\
+//delete app.window1;delete app._window1;//删除引用，使窗口不在模块关闭时销毁。"}
+       },
+       {
+        "configs": {
+         "itemId": "addPage",
+         "text": "添加页"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var card, cardConfig = app.xwl1._panel1;\
+cardConfig.itemId = Wb.getId(); //也可以根据业务规则标识itemId，以方便查找指定card\
+card = app.tab1.add(cardConfig); //control-module的panel1对象\
+app.tab1.setActiveTab(card);"}
+       },
+       {
+        "configs": {
+         "itemId": "uploadDialog",
+         "text": "上传文件对话框"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.run({\
+  url: 'upload',\
+  success: function(app) { //app为upload公共模块的命名空间\
+    Wb.info('上传操作请参考uploadDialog.click方法。');\
+    //上传代码请参考以下：\
+    /*\
+    app.upload({\
+      url: 'yourUrl', //上传的url，需要改为实际有效url\
+      iconCls: 'import_icon',\
+      title: '上传窗口的标题',\
+      showProgress: false, //默认为显示上传进度条\
+      params: {\
+        foo: 'bar' //上传的参数列表\
+      },\
+      beforeUpload: function() {\
+        //可选方法，在上传之前触发，return false阻止上传操作\
+      },\
+      success: function() {\
+        //可选方法，完成后触发的事件\
+      }\
+    });*/\
+  }\
+});"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "tab1",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "xwl_page",
+        "file": "m?xwl=system/examples/basic/import-module/as-sub-control"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "xwl"
+      }],
+      "type": "tab"
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "var minusVal = app.minus(7, 5); //app.minus方法在子模块import-module的initialize内定义\
+Wb.tip({\
+  html: '通过服务端公共方法计算得到：{#addedVal#}<br>通过客户端公共方法计算得到：' + minusVal,\
+  width: 230\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "引用公共模块",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

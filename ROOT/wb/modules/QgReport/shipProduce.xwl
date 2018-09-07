@@ -1,0 +1,240 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "cboTENANCYID",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"\", \"集团\"],\
+  [\"ZSG\", \"中山港\"],\
+  [\"XLG\", \"小榄港\"],\
+  [\"SWG\", \"神湾港\"]\
+]",
+         "fieldLabel": "港口",
+         "width": "120",
+         "labelWidth": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboSERVICE",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"GJ\", \"国际航线\"],\
+  [\"NZX\", \"内支线\"],\
+  [\"GN\", \"国内航线\"]\
+]",
+         "emptyText": "航线性质",
+         "width": "80",
+         "forceSelection": "true",
+         "multiSelect": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboI_E",
+         "labelAlign": "right",
+         "emptyText": "进出口",
+         "width": "60",
+         "keyName": "I_E_ID",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cboVESSEL",
+         "labelAlign": "right",
+         "emptyText": "船名",
+         "width": "110",
+         "displayField": "VESSEL_NAME",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=QgReport/shipProduce/getVessel"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "txtOWNER",
+         "emptyText": "船舶所有人"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var sql = \" and trunc(BILL_DATE)>=to_date('\" + app.sdate.getRawValue() + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(BILL_DATE)<=to_date('\" + app.edate.getRawValue() + \"','yyyy-mm-dd')\\
+\";\
+if (!Wb.isEmpty(app.cboTENANCYID.getValue()))\
+  sql += \"and t.tenancy_id='\" + app.cboTENANCYID.getValue() + \"'\\
+\";\
+if (!Wb.isEmpty(app.cboI_E.getValue()))\
+  sql += \"and t.i_e_id='\" + app.cboI_E.getValue() + \"'\\
+\";\
+if (!Wb.isEmpty(app.cboVESSEL.getValue()))\
+  sql += \"and t.SHIP_cod='\" + app.cboVESSEL.getValue() + \"'\\
+\";\
+if (!Wb.isEmpty(app.txtOWNER.getValue()))\
+  sql += \"and v.OWNER like '%\" + app.txtOWNER.getValue() + \"%'\\
+\";\
+var services = app.cboSERVICE.getValue();\
+if (!Wb.isEmpty(services)) {\
+  sql += \"and(1=2\";\
+  Wb.each(services, function(service) {\
+    if (service == \"GJ\")\
+      sql += \" or LINE_TYPE='3'\";\
+    if (service == \"NZX\")\
+      sql += \" or((LINE_TYPE='2' and trade_id='1')or LINE_TYPE='1')\";\
+    if (service == \"GN\")\
+      sql += \" or(LINE_TYPE='2' and trade_id='2')\";\
+  });\
+  sql += \")\";\
+}\
+var whereSql = encodeURI(sql);\
+var AF1 = document.getElementById(opt);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A2='\" + app.sdate.getRawValue() + \"至\" + app.edate.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "app.sdate.setValue(new Date());\
+app.edate.setValue(new Date());\
+app.cboTENANCYID.setValue(\"\");\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", 'supcan/report/qiguan/shipProduce.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"SeparateView\", \"5\\r\\
+\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "船舶运输生产完成情况汇总表（航线性质）",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

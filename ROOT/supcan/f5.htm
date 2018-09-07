@@ -1,0 +1,199 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var countForFirefox=0;
+function OnReady(id)
+{
+ cooper(id);
+}
+function onLoadPage( )
+{
+ if($isFirefox) cooper('');
+}
+function cooper(id)
+{
+ if($isFirefox) {
+  countForFirefox++;
+  if(countForFirefox != 4) return;
+  id='';
+ }
+ if(id == 'AF' || id=='') {
+  AF.func("Build", "treelist/freeform4.xml");
+ }
+ if(id == 'AF2' || id=='') {
+  AF2.func("Build", "treelist/freeform41.xml");
+  AF2.func("SetMenuItemProp", "menu1 \r\n 103 \r\n enable \r\n false");
+ }
+ if(id == 'AF3' || id=='') {
+  AF3.func("Build", "treelist/freeform42.xml");
+ }
+}
+
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ var obj1 = document.getElementById('lb1');
+ var obj2 = document.getElementById('lb2');
+ var obj3 = document.getElementById('lb3');
+ var obj4 = document.getElementById('lb4');
+ if(id=="AF" && (Event == "EditChanged" || Event == "ButtonClicked" )) {
+   obj1.innerHTML = p1 + (Event == "ButtonClicked" ? " (按钮)":"");
+   obj2.innerHTML = AF.func("getValue", p1);
+   obj3.innerHTML = AF.func("getText", p1);
+   obj4.innerHTML = "";
+
+   //可能是下拉Treelist
+   var handle = AF.func("GetHandle", p1);
+   if(handle!="") obj4.innerHTML = getRowInfo(handle);
+ }
+ else if( Event == "MenuClicked") {	//来自菜单的消息
+   obj1.innerHTML = p1;
+   obj2.innerHTML = "";
+   obj3.innerHTML = "";
+   obj4.innerHTML = "";
+ }
+}
+
+ function getRowInfo(handle)
+ {
+   var Text="";
+   var row  = AF.func(handle + "GetCurrentRow", "");
+   var sCol = AF.func(handle + "GetNextValidCol", "");
+   for(; sCol!=""; sCol=AF.func(handle + "GetNextValidCol", sCol)) {
+     Text += AF.func(handle + "GetCellData", row + "\r\n" + sCol);
+     Text +=", ";
+   }
+   return Text;
+ }
+</script>
+</head>
+
+<body onLoad='onLoadPage( )' vlink=#0000ff link=#0000ff leftmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>演示了事件、工具条及菜单、各式各样的按钮。请任意输入、点击按钮，感受控件所触发的页面事件：<br>
+</table>
+
+<div style="position:relative;width:900px">
+	<script>insertFreeForm('AF', 'border=none;isUseContextFont=false', '330px')</script>
+</div>
+
+<table cols=3 width=800 border=0>
+<col width=33%><col width=33%><col width=34%>
+<tr height=9><td/><td/><td/></tr>
+<tr height=18>
+ <td>ID: <Label id=lb1 style="color:red"></Label></td>
+ <td>值: <Label id=lb2 style="color:red"></Label></td>
+ <td>文字串: <Label id=lb3 style="color:red"></Label></td>
+</tr>
+<tr height=23><td colspan=3>选中行的整行内容(客户、城市的下拉Treelist): <Label id=lb4 style="color:red"></Label></td></tr>
+</table>
+
+<br>
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>如果您关心工具条，也可以考虑使用 Toolbar 对象，使用更为简单：<br>
+</table>
+<div style="position:relative;width:900px">
+	<script>insertFreeForm('AF2', 'border=none', '150px')</script>
+</div>
+<br>
+<div style="position:relative;width:900px">
+	<script>insertFreeForm('AF3', 'border=none', '150px')</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.可查看创建上面的 Freeform 的XML描述文件<a href="treelist/freeform4.xml" target=_blank>freeform4.xml</a>、下面工具条的XML描述文件<a href="treelist/freeform41.xml" target=_blank>freeform41.xml</a>、 <a href="treelist/freeform42.xml" target=_blank>freeform42.xml</a>；<br>
+<b>2</b>.在XML中，图片资源都在buttons.zip中，请注意硕正对图片的扩展URL的支持；<br>
+<b>3</b>.请分析源码：<br>
+<pre class='cpp'>
+var countForFirefox=0;
+function OnReady(id)
+{
+ cooper(id);
+}
+function onLoadPage( )
+{
+ if($isFirefox) cooper('');
+}
+function cooper(id)
+{
+ if($isFirefox) {
+  countForFirefox++;
+  if(countForFirefox != 4) return;
+  id='';
+ }
+ if(id == 'AF' || id=='') {
+  AF.func("Build", "treelist/freeform4.xml");
+ }
+ if(id == 'AF2' || id=='') {
+  AF2.func("Build", "treelist/freeform41.xml");
+  AF2.func("SetMenuItemProp", "menu1 \r\n 103 \r\n enable \r\n false");
+ }
+ if(id == 'AF3' || id=='') {
+  AF3.func("Build", "treelist/freeform42.xml");
+ }
+}
+
+//所有事件全部在这里：
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ var obj1 = document.getElementById('lb1');
+ var obj2 = document.getElementById('lb2');
+ var obj3 = document.getElementById('lb3');
+ var obj4 = document.getElementById('lb4');
+ if( Event == "EditChanged" || Event == "ButtonClicked" ) { //来自输入Edit、按钮
+  obj1.innerHTML = p1 + (Event == "ButtonClicked" ? " (按钮)":"");
+  obj2.innerHTML = AF.func("getValue", p1);	//值
+  obj3.innerHTML = AF.func("getText", p1);	//显示串
+  obj4.innerHTML = "";
+  //可能是下拉Treelist
+  var handle = AF.func("GetHandle", p1);	//取得下拉Treelist的句柄
+  if(handle!="") obj4.innerHTML = getRowInfo(handle);
+ }
+ else if( Event == "MenuClicked") {	//来自菜单的消息
+  obj1.innerHTML = p1;	//菜单项的ID号
+  obj2.innerHTML = "";
+  obj3.innerHTML = "";
+  obj4.innerHTML = "";
+ }
+}
+
+//js函数：显示下拉的整行内容，注意Treelist扩展函数的用法
+function getRowInfo(handle)
+{
+ var Text="";
+ var row  = AF.func(handle + "GetCurrentRow", "");
+ var sCol = AF.func(handle + "GetNextValidCol", "");
+ for(; sCol!=""; sCol=AF.func(handle + "GetNextValidCol", sCol)) {
+  Text += AF.func(handle + "GetCellData", row + "\r\n" + sCol);
+  Text +=", ";
+ }
+ return Text;
+}</pre>
+
+<b>4</b>.在下面的工具条例子中，用到了 Toolbar 对象；<br>
+<pre class='xml'>
+&lt;Toolbar id="tool1" menuId="menu1" width="9"/&gt;</pre>
+Toolbar 对象的优点是使用简单，您不必一个个加按钮；缺点是背景固定的，缺少可配置性，因为它是直接从操作系统的工具条继承过来的.<br>
+</td></tr></table>
+</center>
+<br>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

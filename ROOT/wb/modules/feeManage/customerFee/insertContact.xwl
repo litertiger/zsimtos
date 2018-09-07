@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var ID = request.getParameter('ID');\
+var TENANCY_ID = app.get('sys.TENANCY_ID');\
+\
+\
+var ids = Wb.decode(request.getParameter('ids'));\
+var names = Wb.decode(request.getParameter('names'));\
+\
+var rows = new Array();\
+for (var i = 0; i < ids.length; i++) {\
+  var jsobject = {\
+    MID: SysUtil.getId(),\
+    ID: ID,\
+    TENANCY_ID: TENANCY_ID,\
+    ORG_ID: ids[i],\
+    ORG_NAME: names[i]\
+  };\
+  rows[i] = jsobject;\
+}\
+\
+app.run(\"insert into C_CUSTOMER_CONTACT(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,I_E_ID_FEE, CNTR_OPERATOR_CODS) \" +\
+  \" select {?MID?},{?ID?}, {?TENANCY_ID?},{?ORG_ID?},{?ORG_NAME?},{?I_E_ID_FEE?}, {?CNTR_OPERATOR_CODS?} from c_customer  where ID={?ID?}    and  not exists (select 1 from C_CUSTOMER_CONTACT where  C_ID=  {?ID?}  and  org_id ={?ORG_ID?} )\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows)),\
+    jndi: \"jdbc/basecode\"\
+  });"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "生成客户关系",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

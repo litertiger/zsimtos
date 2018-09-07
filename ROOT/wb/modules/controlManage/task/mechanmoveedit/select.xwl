@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var wheresql = \"\";\
+if (!Wb.isEmpty(data.sdate)) {\
+  wheresql += \" and updated_on>=to_date('\" + data.sdate.substring(0, 19) + \"','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  wheresql += \" and updated_on<=to_date('\" + data.edate.substring(0, 10) + \" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+if (!Wb.isEmpty(data.transporter1)) {\
+  wheresql += ' and transporter1={?transporter1?}';\
+}\
+var sql = \"select  c.s,decode(c.t,'DIS','卸箱','DRB','移箱','LOD','装箱') t,decode(c.ef,'E','空','F','重') ef,nvl (n.n,0) n \\\
+from (select '20' s, 'DIS' t, 'E' ef from dual \\\
+      union select '20', 'DIS', 'F' from dual \\\
+      union select '40', 'DIS', 'E' from dual \\\
+      union select '40', 'DIS', 'F' from dual \\\
+      union select '45', 'DIS', 'E' from dual \\\
+      union select '45', 'DIS', 'F' from dual \\\
+      union select '20', 'LOD', 'E' from dual \\\
+      union select '20', 'LOD', 'F' from dual \\\
+      union select '40', 'LOD', 'E' from dual \\\
+      union select '40', 'LOD', 'F' from dual \\\
+      union select '45', 'LOD', 'E' from dual \\\
+      union select '45', 'LOD', 'F' from dual) c, \\\
+(select cntr_size s, \\\
+ move_type t, \\\
+ e_f_id ef, \\\
+ sum (1) n \\\
+ from move_list \\\
+ where move_type in ('DIS', 'LOD') \" + wheresql + \"  \\\
+ and phase = 'FIN' \\\
+ and tenancy_id = {?sys.TENANCY_ID?} \\\
+ group by cntr_size, move_type, e_f_id) n \\\
+where c.t = n.t(+) and c.s = n.s(+) and c.ef = n.ef(+) \\\
+order by c.s, c.t, c.ef\";\
+var sftsql = \"select sum(1) from move_list where move_type='SFT' and phase='FIN' and tenancy_id = {?sys.TENANCY_ID?} \" + wheresql;\
+var result = app.run(sql);\
+var cntrgridData = Wb.getRecords(result);\
+result = app.run(sftsql);\
+var sft = 0;\
+if (result && result.next())\
+  sft = result.getInt(1);\
+app.send({\
+  sft: sft,\
+  cntrgrid: cntrgridData\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

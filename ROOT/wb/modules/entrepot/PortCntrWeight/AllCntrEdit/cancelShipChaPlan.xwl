@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var ieId = app.get(\"ieId\"),\
+  username = app.get(\"sys.username\"),\
+  vid = Wb.decode(app.get(\"vIds\")),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  shipNam = app.get(\"shipNam\"),\
+  rs;\
+var idArray = new Array();\
+\
+for (var i = 0; i < vid.length; i++) {\
+  idArray.push({\
+    VID: vid[i],\
+    ieId: ieId\
+  });\
+}\
+\
+app.run(\"delete from BLUK_PLAN where VID IN(select VID  from  VLOAD_LIST where  VID={?VID?} and I_E_ID='I'  and  phase='2'  and  LCL_ID=1 and  main_flag=1 and VLOAD_LIST.TENANCY_ID='ZSG' and  exists(select 1 from   BLUK_PLAN  where  {?ieId?}= VANNINGDV and  VID={?VID?}  and BLUK_PLAN.CNTR=VLOAD_LIST.CNTR  ))\", {\
+  arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+});\
+\
+app.run(\"delete from BLUK_BILL where BILL_ID IN(SELECT BILL_ID FROM VLOAD_LIST, VBILL_HEAD   WHERE VLOAD_LIST.BILL_ID = VBILL_HEAD.ID   and  VBILL_HEAD.phase='2'   and  vload_list.VID={?VID?} and vload_list.I_E_ID={?ieId?}  and vload_list.LCL_ID=1 and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' and VLOAD_LIST.TENANCY_ID=VBILL_HEAD.TENANCY_ID and exists(select 1 from   BLUK_BILL  where   'I'= CFSINOUT and BILL_ID=vload_list.BILL_ID)) \",{\
+    arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

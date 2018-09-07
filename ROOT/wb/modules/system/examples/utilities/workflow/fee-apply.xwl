@@ -1,0 +1,423 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "applyWin",
+     "focusControl": "TITLE",
+     "resizable": "true",
+     "editWin": "true",
+     "width": "600",
+     "title": "报销申请",
+     "height": "400",
+     "maximizable": "true"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "hbox",
+       "itemId": "container1",
+       "margin": "8 8 0 8",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "label1",
+         "text": "标题："
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "tagConfigs": "/** TITLE为流程支持的关键属性，因此使用大写 **/",
+         "allowBlank": "false",
+         "itemId": "TITLE",
+         "flex": "1"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "container"
+     },
+     {
+      "configs": {
+       "layout": "hbox",
+       "itemId": "container11",
+       "margin": "8 8 0 8",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "label1",
+         "text": "备注："
+        },
+        "expanded": false,
+        "children": [],
+        "type": "label"
+       },
+       {
+        "configs": {
+         "allowBlank": "false",
+         "itemId": "memo",
+         "flex": "1"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "container"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "fieldset1",
+       "padding": "8",
+       "margin": "8",
+       "region": "center",
+       "title": "报销费用项目明细"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "submitSelect": "false",
+        "itemId": "applyGrid",
+        "editable": "true",
+        "pagingBar": "false",
+        "multiSelect": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "normalName": "applyStore",
+          "pageSize": "-1",
+          "fields": "['name', 'fee', 'remark']"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "tbar"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "newBtn",
+            "tooltip": "添加新的记录",
+            "text": "添加",
+            "iconCls": "record_add_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "Wb.addEdit(app.applyGrid);"}
+          },
+          {
+           "configs": {
+            "itemId": "delBtn",
+            "tooltip": "删除选择的记录",
+            "text": "删除",
+            "iconCls": "record_delete_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "Wb.remove(app.applyGrid);"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "rowCol",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "nameCol",
+            "dataIndex": "name",
+            "flex": "1",
+            "text": "项目名称"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "allowBlank": "false",
+             "itemId": "editor"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "feeCol",
+            "dataIndex": "fee",
+            "text": "金额"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "allowBlank": "false",
+             "itemId": "editor"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "remarkCol",
+            "dataIndex": "remark",
+            "text": "备注"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid"
+      }],
+      "type": "fieldset"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "if (app.applyStore.getCount() === 0) {\
+  Wb.warn('报销费用项目明细不能为空。');\
+  return;\
+}\
+if (Wb.verifyGrid(app.applyGrid)) {\
+  if (app.isEdit) {\
+    Wb.request({\
+      url: 'm?xwl=system/examples/utilities/workflow/fee-apply/update-apply',\
+      params: Wb.apply({}, Wb.getValue(app.applyWin), app.selRec.data),\
+      success: function(resp) {\
+        Wb.update(app.selRec, Wb.decode(resp.responseText));\
+        app.applyWin.close();\
+      }\
+    });\
+  } else {\
+    Wb.request({\
+      url: 'm?xwl=system/examples/utilities/workflow/fee-apply/create-apply',\
+      out: app.applyWin,\
+      success: function(resp) {\
+        Wb.add(app.grid1, Wb.decode(resp.responseText), 'first');\
+        app.applyWin.close();\
+      }\
+    });\
+  }\
+}"}
+   },
+   {
+    "configs": {"itemId": "window1"},
+    "expanded": false,
+    "children": [],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "toolbar1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "newBtn",
+         "tooltip": "添加新的申请",
+         "text": "添加",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.applyWin.setTitle('添加新的申请');\
+app.applyWin.setIconCls('record_add_icon');\
+app.applyStore.removeAll();\
+app.applyStore.commitChanges();\
+app.applyWin.show();\
+app.isEdit = false;"}
+       },
+       {
+        "configs": {
+         "itemId": "editBtn",
+         "tooltip": "修改选择的记录",
+         "text": "修改",
+         "iconCls": "record_edit_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.applyWin.setTitle('修改 - ' + app.selRec.data.TITLE);\
+app.applyWin.setIconCls('record_edit_icon');\
+Wb.request({\
+  url: 'm?xwl=system/examples/utilities/workflow/fee-apply/select-items',\
+  params: app.selRec.data,\
+  success: function(resp) {\
+    Wb.setValue(app.applyWin, Wb.decode(resp.responseText));\
+    app.applyWin.show();\
+    app.isEdit = true;\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "delBtn",
+         "tooltip": "删除选择的记录",
+         "text": "删除",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/examples/utilities/workflow/fee-apply/delete-apply',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'TITLE');"}
+       },
+       {
+        "configs": {
+         "itemId": "item1",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "viewBtn",
+         "tooltip": "查看当前申请的审批意见",
+         "text": "查看审批意见",
+         "iconCls": "property_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (rec)\
+  Wb.request({\
+    url: 'm?xwl=system/examples/utilities/workflow/fee-apply/select-items',\
+    params: rec.data,\
+    success: function(resp) {\
+      Wb.viewText('查看审批意见', Wb.decode(resp.responseText).comment);\
+    }\
+  });\
+else\
+  Wb.warn('请选择一条记录。');"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "grid1",
+       "region": "center",
+       "loadColumns": "none",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "remoteSort": "true",
+        "autoLoad": "true",
+        "sorters": "{property:'MODIFY_DATE',direction:'DESC'}",
+        "url": "m?xwl=system/examples/utilities/workflow/fee-apply/select-list"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store",
+       "events": {"load": "if (!store.colsLoaded) {\
+  var col = Wb.getColumn(store, 'MODIFY_DATE');\
+  col.renderer = function(value, meta, record) {\
+    var icon, status = record.get('STATUS');\
+    switch (status) {\
+      case '审批中':\
+        icon = 'start_icon';\
+        break;\
+      case '拒绝':\
+        icon = 'cancel_icon';\
+        break;\
+      case '完成':\
+        icon = 'ok_icon';\
+        break;\
+    }\
+    return Wb.getIcon(icon, status) + Wb.dateToText(value);\
+  };\
+  Wb.loadColumns(store);\
+  store.colsLoaded = true;\
+}"}
+      }],
+      "type": "grid",
+      "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "费用报销",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

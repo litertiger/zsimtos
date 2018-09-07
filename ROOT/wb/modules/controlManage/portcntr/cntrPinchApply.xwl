@@ -1,0 +1,315 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "toolbar1"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "createdate",
+       "labelAlign": "right",
+       "fieldLabel": "开始时间",
+       "width": "170",
+       "labelWidth": "70"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "enddate",
+       "labelAlign": "right",
+       "fieldLabel": "结束时间",
+       "width": "170",
+       "labelWidth": "70"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "cntr",
+       "fieldLabel": "箱号",
+       "labelWidth": "50"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "queryBtn",
+       "text": "查询",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "app.gridApply.store.load({\
+  out: app.toolbar1\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "gridApply",
+      "tbar": "app.toolbar1",
+      "disabled": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=controlManage/portcntr/cntrPinchApplyedit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTENANCY_ID",
+          "hidden": "true",
+          "dataIndex": "TENANCY_ID",
+          "text": "租户"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_BY1",
+          "dataIndex": "CNTR",
+          "text": "箱号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPHASE",
+          "renderer": "if (value == \"PLN\")\
+  return \"申请中\";\
+else if (value == \"FIN\")\
+  return \"已审核\";\
+else if (value == \"CNL\")\
+  return \"取消\";",
+          "dataIndex": "PHASE",
+          "text": "状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_BY",
+          "dataIndex": "CREATED_BY",
+          "keyName": "WB_USER",
+          "text": "申请人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "申请时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colUPDATED_BY",
+          "dataIndex": "CHECK_BY",
+          "keyName": "WB_USER",
+          "text": "审核人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colUPDATED_ON",
+          "dataIndex": "CHECK_ON",
+          "width": "120",
+          "text": "审核时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colUPDATED_BY1",
+          "dataIndex": "CANCLE_BY",
+          "keyName": "WB_USER",
+          "text": "取消人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colUPDATED_ON1",
+          "dataIndex": "CANCLE_ON",
+          "width": "120",
+          "text": "取消时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      },
+      {
+       "configs": {
+        "itemId": "popupMenu",
+        "normalName": "menuR"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "popupOK",
+          "text": "审核",
+          "iconCls": "ok_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var rowData = app.menuR.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var aid = rowData.ID;\
+Wb.confirm(\"是否审核通过\", function() {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/portcntr/cntrPinchApplyedit/toExam',\
+    params: {\
+      ID: aid,\
+      CNTR_ID: rowData.CNTR_ID,\
+       type:'FIN'\
+    },\
+    success: function() {\
+      Wb.info(\"审核完成\");\
+      app.gridApply.store.load();\
+    }\
+  });\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "popupOK1",
+          "text": "取消",
+          "iconCls": "ok_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var rowData = app.menuR.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var aid = rowData.ID;\
+Wb.confirm(\"是否取消\", function() {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/portcntr/cntrPinchApplyedit/toExam',\
+    params: {\
+      ID: aid,\
+      CNTR_ID: rowData.CNTR_ID,\
+      type:'CNL'\
+    },\
+    success: function() {\
+      Wb.info(\"取消完成\");\
+      app.gridApply.store.load();\
+    }\
+  });\
+});"}
+        }
+       ],
+       "type": "menu",
+       "events": {"show": "var rows = app.gridApply.getSelection();\
+app.popupOK.setDisabled(rows.length != 1);\
+if (rows.length > 0) {\
+  if (rows[0].data.PHASE == \"PLN\") //未审核\
+    app.popupOK.setDisabled(false);\
+  else\
+    app.popupOK.setDisabled(true);\
+  \
+  \
+  \
+}\
+menu.selectRow = rows[0];"}
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {"finalize": "app.createdate.setValue(new Date());\
+app.enddate.setValue(new Date());\
+app.gridApply.store.load({\
+  out: app.toolbar1\
+});"}
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "夹柜审核",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

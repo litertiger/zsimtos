@@ -1,0 +1,140 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var begdate = app.get(\"begdate\");\
+var enddate = app.get(\"enddate\");\
+var tradeId = app.get(\"tradeId\");\
+var nature = app.get(\"sys.NATURE\");\
+var cntrOpe = app.get(\"sys.GOV_CODE\");\
+\
+if (Wb.isEmpty(begdate))\
+  begdate = '2018-05-01';\
+if (Wb.isEmpty(enddate))\
+  enddate = '2018-05-31';\
+if (tradeId == \"all\")\
+  tradeId = \"'1','2'\";\
+else\
+  tradeId = \"'\" + tradeId + \"'\";\
+app.log(enddate + \"===\" + begdate);\
+\
+if (nature == '5')\
+  whereSql = \" and   SH_AGENT_COD='\" + cntrOpe + \"'\";\
+else\
+  whereSql = \" and 1=1\";\
+\
+var rsn = app.run(\"select DY.SHIPPER_CONSIGNEE,  DY.iteu  ,DY.eteu ,DY.teu,  SY.teu SYTEU ,QN.teu QNTEU,BNH.teu BNHTEU,QNH.teu QNHTEU from \\\
+ (select CC.NAME SHIPPER_CONSIGNEE,cc.CODE,\\\
+    nvl(sum(case when tsst.i_e_id='I'  then tsst.cntr_teu end),0)iteu,\\\
+    nvl(sum(case when tsst.i_e_id='E'  then tsst.cntr_teu end),0)eteu,\\\
+    nvl(sum( tsst.cntr_teu ),0)teu \\\
+    from t_sas_ship_thruput tsst left join c_customer cc on cc.code=tsst.SHIP_CORP_COD \\\
+    where tsst.E_F_ID='F' and tsst.bill_type='C' and tsst.trade_id in(\" + tradeId + \") \" + whereSql + \" AND tsst.TENANCY_ID='\" + tenancyid + \"'\\\
+    and bill_date>=to_date('\" + begdate + \"','yyyy-mm-dd')\\\
+    and bill_date<=to_date('\" + enddate + \"','yyyy-mm-dd')+0.9999\\\
+     group by cc.NAME ,cc.CODE) DY,\\\
+ (select CC.NAME SHIPPER_CONSIGNEE,cc.CODE,\\\
+    nvl(sum(case when tsst.i_e_id='I'  then tsst.cntr_teu end),0)iteu,\\\
+    nvl(sum(case when tsst.i_e_id='E'  then tsst.cntr_teu end),0)eteu,\\\
+    nvl(sum( tsst.cntr_teu ),0)teu \\\
+    from t_sas_ship_thruput tsst left join c_customer cc on cc.code=tsst.SHIP_CORP_COD \\\
+    where tsst.E_F_ID='F' and tsst.bill_type='C' and tsst.trade_id in(\" + tradeId + \") \" + whereSql + \"  AND tsst.TENANCY_ID='\" + tenancyid + \"'\\\
+    and tsst.bill_date>= ADD_MONTHS( to_date('\" + begdate + \"', 'YYYY-MM-DD'),-1) \\\
+    and tsst.bill_date<= ADD_MONTHS( to_date('\" + enddate + \"', 'YYYY-MM-DD'),-1)+0.9999\\\
+     group by cc.NAME ,cc.CODE) SY  ,\\\
+ (select CC.NAME SHIPPER_CONSIGNEE,cc.CODE,\\\
+    nvl(sum(case when tsst.i_e_id='I'  then tsst.cntr_teu end),0)iteu,\\\
+    nvl(sum(case when tsst.i_e_id='E'  then tsst.cntr_teu end),0)eteu,\\\
+    nvl(sum( tsst.cntr_teu ),0)teu \\\
+    from t_sas_ship_thruput tsst left join c_customer cc on cc.code=tsst.SHIP_CORP_COD \\\
+    where tsst.E_F_ID='F' and tsst.bill_type='C' and tsst.trade_id in(\" + tradeId + \")  \" + whereSql + \"  AND tsst.TENANCY_ID='\" + tenancyid + \"'\\\
+    and bill_date>= ADD_MONTHS( to_date('\" + begdate + \"', 'YYYY-MM-DD'),-12)  \\\
+    and bill_date<= ADD_MONTHS( to_date('\" + enddate + \"', 'YYYY-MM-DD'),-12) +0.9999\\\
+     group by cc.NAME ,cc.CODE ) QN , \\\
+  (select CC.NAME SHIPPER_CONSIGNEE,cc.CODE,\\\
+    nvl(sum(case when tsst.i_e_id='I'  then tsst.cntr_teu end),0)iteu,\\\
+    nvl(sum(case when tsst.i_e_id='E'  then tsst.cntr_teu end),0)eteu,\\\
+    nvl(sum( tsst.cntr_teu ),0)teu \\\
+    from t_sas_ship_thruput tsst left join c_customer cc on cc.code=tsst.SHIP_CORP_COD \\\
+    where tsst.E_F_ID='F' and tsst.bill_type='C' and tsst.trade_id in(\" + tradeId + \")  \" + whereSql + \" AND tsst.TENANCY_ID='\" + tenancyid + \"'\\\
+    and tsst.bill_date>= TRUNC(TO_DATE('\" + begdate + \"','YYYY-MM-DD HH24:MI:SS'),'YYYY')  \\\
+    and tsst.bill_date<=to_date('\" + enddate + \"','yyyy-mm-dd')+0.9999\\\
+     group by cc.NAME ,cc.CODE ) BNH ,   \\\
+  (select CC.NAME SHIPPER_CONSIGNEE,cc.CODE,\\\
+    nvl(sum(case when tsst.i_e_id='I'  then tsst.cntr_teu end),0)iteu,\\\
+    nvl(sum(case when tsst.i_e_id='E'  then tsst.cntr_teu end),0)eteu,\\\
+    nvl(sum( tsst.cntr_teu ),0)teu \\\
+    from t_sas_ship_thruput tsst left join c_customer cc on cc.code=tsst.SHIP_CORP_COD \\\
+    where tsst.E_F_ID='F' and tsst.bill_type='C' and tsst.trade_id in(\" + tradeId + \")  AND tsst.TENANCY_ID='\" + tenancyid + \"'\\\
+    and bill_date>= ADD_MONTHS(TRUNC(TRUNC(TO_DATE('\" + begdate + \"','YYYY-MM-DD HH24:MI:SS'),'YYYY'),'MM' ),-12) \\\
+    and bill_date<= ADD_MONTHS(TRUNC( to_date('\" + enddate + \"', 'YYYY-MM-DD'),'MM' ),-12)+0.9999\\\
+     group by cc.NAME ,cc.CODE ) QNH  \\\
+ where DY.CODE=SY.CODE(+) and DY.CODE=QN.CODE(+) and DY.CODE=BNH.CODE(+) and DY.CODE=QNH.CODE(+)\\\
+ order by  DY.teu desc\");\
+\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  TEU = 0,\
+  SYTEU = 0,\
+  QNTEU = 0,\
+  BNHTEU = 0,\
+  QNHTEU = 0;\
+var m = 1;\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  TEU = rsn.getString(\"TEU\");\
+  SYTEU = rsn.getString(\"SYTEU\");\
+  QNTEU = rsn.getString(\"QNTEU\");\
+  BNHTEU = rsn.getString(\"BNHTEU\");\
+  QNHTEU = rsn.getString(\"QNHTEU\");\
+\
+  xml += \"<SHIPPER_CONSIGNEE>\" + rsn.getString(\"SHIPPER_CONSIGNEE\") + \"<\/SHIPPER_CONSIGNEE>\";\
+  xml += \"<ITEU>\" + rsn.getString(\"ITEU\") + \"<\/ITEU>\";\
+  xml += \"<ETEU>\" + rsn.getString(\"ETEU\") + \"<\/ETEU>\";\
+  xml += \"<TEU>\" + TEU + \"<\/TEU>\";\
+  xml += \"<SYTEU>\" + SYTEU + \"<\/SYTEU>\";\
+  if (Wb.isEmpty(SYTEU))\
+    xml += \"<SYTEUDB><\/SYTEUDB>\";\
+  else\
+    xml += \"<SYTEUDB>\" + (TEU * 100 / SYTEU) + \"<\/SYTEUDB>\";\
+  xml += \"<QNTEU>\" + QNTEU + \"<\/QNTEU>\";\
+\
+  if (Wb.isEmpty(QNTEU))\
+    xml += \"<QNTEUDB><\/QNTEUDB>\";\
+  else\
+    xml += \"<QNTEUDB>\" + (TEU * 100 / QNTEU) + \"<\/QNTEUDB>\";\
+  xml += \"<BNHTEU>\" + BNHTEU + \"<\/BNHTEU>\";\
+  xml += \"<QNHTEU>\" + QNHTEU + \"<\/QNHTEU>\";\
+  if (Wb.isEmpty(QNHTEU))\
+    xml += \"<QNHTEUDB><\/QNHTEUDB>\";\
+  else\
+    xml += \"<QNHTEUDB>\" + (BNHTEU * 100 / QNHTEU) + \"<\/QNHTEUDB>\";\
+  xml += \"<\/Record>\";\
+\
+}\
+xml += \"<\/DataRoot>\";\
+// app.log(xml);\
+\
+var strxxml = xml;\
+app.send(strxxml);",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "商务客户统计",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

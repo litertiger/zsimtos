@@ -1,0 +1,159 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sdate = data.sdate;\
+var edate = data.edate;\
+if (Wb.isEmpty(sdate))\
+  sdate = '2018-05-01';\
+if (Wb.isEmpty(edate))\
+  edate = '2018-05-31';\
+\
+var sql = \"select nvl(j5.cargo_kind_name,(decode(c.pid,'-1',c.cargo_kind_name,'    其中：'||c.cargo_kind_name)))cargo_kind_name,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0))ZONG,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0))ZSWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0)) XLWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0)+round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0))SWWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0))IWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.zsginweight2,j5.zsginweight),0)),0))IZSWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.xlginweight2,j5.xlginweight),0)),0))IXLWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.swginweight2,j5.swginweight),0)),0))ISWWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0)\\
+\" +\
+  \"+round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0))EWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.zsgoutweight2,j5.zsgoutweight),0)),0))EZSWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.xlgoutweight2,j5.xlgoutweight),0)),0))EXLWT,\\
+\" +\
+  \"decode(round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0),0,'',\\
+\" +\
+  \"round(sum(nvl(decode(c.pid,'-1',j5.swgoutweight2,j5.swgoutweight),0)),0))ESWWT\\
+\" +\
+  \"from c_cargo_kind c left join\\
+\" +\
+  \"(select * from t_rpt_jtg_5 where report_date>=to_date('\" + sdate + \"','yyyy-mm-dd') and report_date<=to_date('\" + edate + \"','yyyy-mm-dd'))j5 on c.id=j5.cargo_kind_cod\\
+\" +\
+  \"where c.id not in('1700','1701')\\
+\";\
+if (!Wb.isEmpty(data.trade_id))\
+  sql += \"and j5.trade_id='\" + data.trade_id + \"'\\
+\";\
+sql += \"group by nvl(j5.cargo_kind_name,(decode(c.pid,'-1',c.cargo_kind_name,'    其中：'||c.cargo_kind_name))),c.seq_no\\
+\" +\
+  \"order by c.seq_no\";\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  CARGO_KIND_NAME = \"\",\
+  ZONG = 0,\
+  ZSWT = 0,\
+  XLWT = 0,\
+  SWWT = 0,\
+  IWT = 0,\
+  IZSWT = 0,\
+  IXLWT = 0,\
+  ISWWT = 0,\
+  EWT = 0,\
+  EZSWT = 0,\
+  EXLWT = 0,\
+  ESWWT = 0;\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  CARGO_KIND_NAME = rsn.getString(\"CARGO_KIND_NAME\");\
+  ZONG = rsn.getString(\"ZONG\");\
+  ZSWT = rsn.getString(\"ZSWT\");\
+  XLWT = rsn.getString(\"XLWT\");\
+  SWWT = rsn.getString(\"SWWT\");\
+  IWT = rsn.getString(\"IWT\");\
+  IZSWT = rsn.getString(\"IZSWT\");\
+  IXLWT = rsn.getString(\"IXLWT\");\
+  ISWWT = rsn.getString(\"ISWWT\");\
+  EWT = rsn.getString(\"EWT\");\
+  EZSWT = rsn.getString(\"EZSWT\");\
+  EXLWT = rsn.getString(\"EXLWT\");\
+  ESWWT = rsn.getString(\"ESWWT\");\
+  xml += \"<CARGO_KIND_NAME>\" + CARGO_KIND_NAME + \"<\/CARGO_KIND_NAME>\";\
+  xml += \"<ZONG>\" + ZONG + \"<\/ZONG>\";\
+  xml += \"<ZSWT>\" + ZSWT + \"<\/ZSWT>\";\
+  xml += \"<XLWT>\" + XLWT + \"<\/XLWT>\";\
+  xml += \"<SWWT>\" + SWWT + \"<\/SWWT>\";\
+  xml += \"<IWT>\" + IWT + \"<\/IWT>\";\
+  xml += \"<IZSWT>\" + IZSWT + \"<\/IZSWT>\";\
+  xml += \"<IXLWT>\" + IXLWT + \"<\/IXLWT>\";\
+  xml += \"<ISWWT>\" + ISWWT + \"<\/ISWWT>\";\
+  xml += \"<EWT>\" + EWT + \"<\/EWT>\";\
+  xml += \"<EZSWT>\" + EZSWT + \"<\/EZSWT>\";\
+  xml += \"<EXLWT>\" + EXLWT + \"<\/EXLWT>\";\
+  xml += \"<ESWWT>\" + ESWWT + \"<\/ESWWT>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

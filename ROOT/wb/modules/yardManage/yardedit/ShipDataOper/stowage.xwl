@@ -1,0 +1,353 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "finalHtml": "<script src='/ctgraph/es6.min.js'><\/script>\
+<script src=\"/ctgraph/main/common/filesOper.js\"><\/script>\
+<script src=\"/ctgraph/main/common/common.js\"><\/script>\
+<script src=\"ctgraph/sea-modules/seajs/sea.js\"><\/script>\
+<script>\
+  seajs.config({\
+    base : \"/ctgraph/\",\
+    alias : {\
+      \"gojs\" : \"sea-modules/gojs/go\"\
+    }\
+  });\
+  seajs.use(\"main/ct/stowage\",function(){\
+    loadColor().then(function(){\
+      var Cntr = seajs.require(\"main/ct/obj/container\");\
+      Cntr.prototype.onclick = function(){\
+        var r = app.grid1.store.findRecord('ID',this.ID);\
+        if(r)\
+          app.grid1.setSelection([r]);\
+      };\
+      var share = seajs.require(\"main/ct/obj/shareData\");\
+      share.colorCategory = 'SPEC_STOW';\
+      setTimeout(function(){\
+        var datarows = app.grid1.store.data.items.map(function(r){return r.data;});\
+        var yards = share.objMap.yard;\
+        Wb.each(datarows,function(r){\
+          if (r.POS) {\
+            var param = findSlot(yards, r);\
+            if (param) {\
+              for (var k in r)\
+                param[k] = r[k];\
+              new Cntr(param);\
+            }\
+          }\
+        });\
+      },2000);\
+    });\
+    var Yard = seajs.require('main/ct/obj/yard');\
+    Yard.prototype.ondoubleClick = function(){};\
+    for(var i=1;i<=5;++i)\
+      new Yard({X0:0,Y0:(i-1)*170,BAY_NUM:10,ROW_NUM:6,TIER_NUM:4,BAY_SEQ:0,CY_AREA_NO:i+'层'});\
+  });\
+  var myDiagram;\
+  function switchItem(item)\
+  {\
+    item.setIconCls(item.iconCls === \"accept_icon\" ? \"\" : \"accept_icon\");\
+    switchLayer(item.itemId);\
+  }\
+<\/script>"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "grid1",
+      "split": "true",
+      "editable": "false",
+      "width": "420",
+      "region": "west"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=yardManage/yardedit/ShipDataOper/stowCntr&vid={#vid#}"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "CNTR",
+          "dataIndex": "CNTR",
+          "width": "95",
+          "text": "箱号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "YPOS",
+          "dataIndex": "YPOS",
+          "width": "55",
+          "text": "场位"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "ISO",
+          "dataIndex": "CNTR_ISO",
+          "width": "45",
+          "text": "ISO"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "REEF_ID",
+          "xtype": "checkcolumn",
+          "dataIndex": "REEF_ID",
+          "width": "60",
+          "disabled": "true",
+          "text": "冷冻柜"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "POD",
+          "dataIndex": "POD",
+          "width": "50",
+          "text": "卸货港"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SPOD",
+          "dataIndex": "SPOD",
+          "width": "50",
+          "text": "目的港"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SPEC_STOW",
+          "dataIndex": "SPEC_STOW",
+          "width": "50",
+          "text": "配载要求"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "POS",
+          "dataIndex": "POS",
+          "width": "60",
+          "text": "配位"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      },
+      {
+       "configs": {
+        "itemId": "popupMenu",
+        "normalName": "menu1"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "popupComp",
+          "tooltip": "查看在场箱信息",
+          "text": "查看在场箱信息",
+          "iconCls": "property_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.run({\
+  url: 'm?xwl=controlManage/portcntr/control-module',\
+  params: {\
+    ID: app.grid1.selModel.lastFocused.data.ID\
+  },\
+  success: function(appnew) {\
+    var wins = new Ext.window.Window(appnew._cntrWin);\
+    app.test = appnew.test;\
+ // win.setPosition(\"100\",\"400\");\
+\
+    wins.show();\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "deleteBtn",
+          "tooltip": "删除位置",
+          "text": "删除",
+          "iconCls": "undo_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.confirm(\"是否要删除配载位置?\", function() {\
+  Wb.request({\
+    url: 'm?xwl=yardManage/yardedit/ShipDataOper/saveStow',\
+    params: {\
+      id: app.grid1.selModel.lastFocused.data.ID,\
+      pos: ''\
+    },\
+    success: function(resp) {\
+      Wb.info(\"成功\"); //resp.responseText);\
+      debugger;\
+      app.grid1.selModel.lastFocused.set('POS','');\
+      app.grid1.selModel.lastFocused.commit();\
+      var a = myDiagram.selection.toArray();\
+      if(a && a.length)\
+        myDiagram.remove(a[0]);\
+    }\
+  });\
+});"}
+        }
+       ],
+       "type": "menu"
+      }
+     ],
+     "type": "grid",
+     "events": {"selectionchange": "if (selected.length) {\
+  var share = seajs.require(\"main/ct/obj/shareData\");\
+  var cntrno = selected[0].data.CNTR;\
+  var cntr = Ext.Array.findBy(share.objMap.cntr || [], function(c) {\
+    return c.cntrno === cntrno;\
+  });\
+  myDiagram.clearSelection();\
+  if (cntr)\
+  {\
+    myDiagram.select(cntr.node);\
+    myDiagram.position = cntr.position;\
+  }\
+}"}
+    },
+    {
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "diagram",
+        "region": "center"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "panel",
+       "events": {"resize": "if(!oldHeight)\
+\tpanel.update('<div id=\"myDiagramDiv\" style=\"height:'+height+'px; background-color:white\"><\/div>');"}
+      },
+      {
+       "configs": {
+        "itemId": "toolbar1",
+        "region": "south"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "print",
+         "text": "打印"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "myDiagram.print();"}
+       }],
+       "type": "toolbar"
+      }
+     ],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"initialize": "app.stowCntr = function(selCntr, slot) {\
+  var data = selCntr.data;\
+  if (data.POS)\
+    Confirm(data.CNTR+'已经配载到'+data.POS+',是否改配？','重新配载').then(stowIt);\
+  else\
+    stowIt();\
+\
+  function stowIt() {\
+    var arr = slot.data.id.split('|');\
+    var pos = arr[0] + PrefixInteger(data.CNTR_SIZE > 20 ? arr[1] * 1 + 1 : arr[1], 2) + arr[2];\
+    Ajax({\
+      url: \"m?xwl=yardManage/yardedit/ShipDataOper/saveStow\",\
+      params: {\
+        id: data.ID,\
+        pos: pos\
+      }\
+    }).then(function(ret) {\
+      var Cntr = seajs.require(\"main/ct/obj/container\");\
+      var share = seajs.require(\"main/ct/obj/shareData\");\
+      var loc = slot.location.x + (data.CNTR_SIZE > 20 ? share.slotSize.width / 2 : 0) + \" \" + slot.location.y;\
+      var info = {\
+        loc: loc,\
+        cntrno: data.CNTR,\
+        tier_no: '1',\
+        siz: data.CNTR_SIZE\
+      };\
+      for (var i in data)\
+        info[i] = data[i];\
+      var cntr = new Cntr(info);\
+      myDiagram.select(cntr.node);\
+      var old = Ext.Array.findBy(share.objMap.cntr || [], function(c) {\
+        return c.cntrno === cntr.cntrno && c != cntr;\
+      });\
+      if (old)\
+        old.remove();\
+      selCntr.set('POS', pos);\
+    });\
+  }\
+};"}
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSYARD": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "配载界面",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

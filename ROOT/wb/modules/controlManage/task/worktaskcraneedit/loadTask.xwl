@@ -1,0 +1,87 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var folder = Ag.getResultSet(app.run(\"select sys_key \\\"id\\\",sys_value \\\"text\\\" from s_code where sys_category='TASK_TYPE'\", {\
+  jndi: \"jdbc/basecode\"\
+}));\
+var objCache = {};\
+var trade = app.get('trade');\
+var tradeSql = '';\
+if (trade == '1')\
+  tradeSql = \" and (decode(t.task_type,'VOUT', v.etrade_id , v.itrade_id)='1' or task_type='MOVE' or t.task_name like '%外贸%')\";\
+if (trade == '2')\
+  tradeSql = \" and (decode(t.task_type,'VOUT', v.etrade_id , v.itrade_id)='2' or task_type='MOVE' or t.task_name like '%内贸%')\";\
+\
+var task = Ag.getResultArray(app.run(\
+  \"select t. id,t.task_type,t.task_name|| '('||(select count(1)from  move_list where  queue_id=t.id)||')' ||decode(t.task_type,'VOUT',v.o_berth_code||y.oservice_name,v.berth_code||y.service_name),t.carrier_call,t.phase  \\\
+from task t,vessel_visit v,vessel_voyage y \\\
+where t.carrier_call=v.id(+) and v.vid=y.id(+) and trunc(nvl({?TIMESTAMP.date?},sysdate)) =trunc(t.created_on) and t.tenancy_id={?sys.TENANCY_ID?} and t.phase not in('FIN','CNL')\" + tradeSql + \" order by t.task_name\"));\
+Wb.each(folder.rows, function(row) {\
+  row.loaded = true;\
+});\
+Wb.each(task.rows, function(row) {\
+  var f;\
+  if (!(f = objCache[row[1]])) {\
+    f = Wb.find(folder.rows, \"id\", row[1]);\
+    if (f) {\
+      objCache[row[1]] = f;\
+      f.children = [];\
+      delete f.loaded;\
+    }\
+  }\
+  if (f) {\
+    f.children.push({\
+      id: row[0],\
+      text: row[2],\
+      type: row[1],\
+      ship: row[3],\
+      phase: row[4],\
+      leaf: true\
+    });\
+  }\
+});\
+\
+var ex = app.run(\"select e.id \\\"id\\\",cntr||'('||cntr_size||')' \\\"text\\\",cntr,cntr_size,url,vessel_name ship \\\
+from except_image e,vessel_visit v,vessel_voyage y where e.vid=v.id(+) and v.vid=y.id(+)\");\
+var exs = Wb.getRecords(ex);\
+if (exs.length) {\
+  var except = {\
+    id: 'EXCEPT',\
+    text: '异常',\
+    iconCls: 'error_icon'\
+  };\
+  Wb.each(exs, function(r) {\
+    r.leaf = true;\
+    r.loaded = true;\
+  });\
+  except.children = exs;\
+  folder.rows.unshift(except);\
+}\
+\
+folder.children = folder.rows;\
+delete folder.rows;\
+app.send(folder);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "加载任务树",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

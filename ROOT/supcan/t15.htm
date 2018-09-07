@@ -1,0 +1,127 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 3) return;
+   id='';
+  }
+  if(id == 'AF1' || id=='') {
+   AF1.func("Build", "treelist/t2.xml \r\n lazyload=true; editAble=false");
+   AF1.func("Load", "http://www.supcan.cn/DotNet/GetFin.aspx?format=byid");
+  }
+  if(id == 'AF2' || id=='') {
+   AF2.func("Build", "treelist/t2_bypid.xml");
+   AF2.func("Load", "http://www.supcan.cn/DotNet/GetFin.aspx?format=bypid");
+  }
+  if(id == 'AF3' || id=='') {
+   AF3.func("Build", "treelist/t2_bydata.xml");
+   AF3.func("Load", "http://www.supcan.cn/DotNet/GetFin.aspx?format=bydata");
+  }
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id == 'AF1' && Event == "LazyLoad") {
+   var url = "http://www.supcan.cn/DotNet/GetFin.aspx?format=byid&kmdm=" + p2;
+   AF1.func("load", url + "\r\n fillmode=insert");
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff leftmargin = 20>
+
+<center>
+<table cols=2 border=0 width=100%>
+<col valign=top width=100>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示一:</b> 通过定义 &lt;Properties <font color=red>LazyLoad="true"</font> ... &gt;属性, 树杈从后端实时加载数据；<br>
+<b>模拟场景:</b> 所有树杈在展开(Expand)前并不知道是否有子孙节点，鼠标点击树杈时通过事件动态从服务器取数；<br>
+</tr>
+</table>
+<div style="position:relative;width:850px">
+	<script>insertTreeList('AF1', '', '200px')</script>
+</div></center>
+<b>技术分析</b><br>
+<b>1</b>.OnReady事件：<br>
+<pre class='cpp'>
+if(id=='AF1') {
+ AF1.func("Build", "treelist/t2.xml \r\n lazyload=true; editAble=false"); //lazyload=true表示默认全部是树杈
+ AF1.func("Load", "http://www.supcan.cn/DotNet/GetFin.aspx?format=byid");  //从后端加载树的第一层
+}</pre>
+<b>2</b>.OnEvent事件：<br>
+<pre class='cpp'>
+if(id == 'AF1' && Event == "LazyLoad") {
+ var url = "http://www.supcan.cn/DotNet/GetFin.aspx?format=byid&kmdm=" + p2;
+ //从URL加载数据，并插入表格中
+ //因为format=byid, 所以不必指定插入的位置
+ AF1.func("load", url + "\r\n fillmode=insert");
+}</pre>
+<b>3</b>.这是类似的<a href="http://www.supcan.cn/DotNet/GetFin.aspx?format=byid&kmdm=20105" target=_blank>数据格式</a>, 由后端的<a href="treelistdata/getfin.aspx.htm" target=_blank>C#源码</a>生成.<br>
+<br><br>
+
+
+<center>
+<table cols=2 border=0 width=100%>
+<col valign=top width=100>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示二:</b> 数据格式采用treeformat=byPid, 且 LazyLoad 是一个表达式;<br>
+<b>模拟场景:</b> 可以通过表达式算得树杈的子孙行，所以不需要通过外部事件解决；<br>
+</tr>
+</table>
+<div style="position:relative;width:850px;height:200px">
+	<script>insertTreeList('AF2', '')</script>
+</div></center>
+<b>技术分析</b><br>
+<b>1</b>.该<a href="treelist/t2_bypid.xml" target=_blank>XML描述文件</a>和前面的有轻微差别，差别在：<br>
+<pre class='xml'>
+//LazyLoad是表达式
+&lt;Properties isTree="true" treeformat="byPid" lazyload="'http://www.supcan.cn/DotNet/GetFin.aspx?format=bypid&kmdm=' + id"  ...&gt;
+...
+//pid列是必需的，让其隐藏即可
+&lt;Col name="pid" isHide="absHide" /&gt;
+//id列是必需的 (即kmdm)
+&lt;Col name="id"  width="150"&gt;科目代码&lt;/Col&gt;</pre>
+<b>2</b>.这是类似的<a href="http://www.supcan.cn/DotNet/GetFin.aspx?format=bypid&kmdm=20105" target=_blank>数据格式</a>.<br>
+<br><br>
+
+
+
+<center>
+<table cols=2 border=0 width=100%>
+<col valign=top width=100>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示三:</b> 数据格式采用treeformat=byData, XML模板中含有LazyLoad列;<br>
+<b>模拟场景:</b> 知道每行是否有子孙，取子孙的URL是在每行的“LazyLoad”数据列中.<br>
+</tr>
+</table>
+<div style="position:relative;width:850px;height:200px">
+	<script>insertTreeList('AF3', '')</script>
+</div></center>
+<b>技术分析</b><br>
+<b>1</b>.该<a href="treelist/t2_bydata.xml" target=_blank>XML描述文件</a>和前面的有轻微差别，差别在：<br>
+<pre class='xml'>
+//LazyLoad是表达式
+&lt;Properties isTree="true" treeformat="byData" ...&gt;
+...
+//含有固定的LazyLoad列，让其隐藏即可
+&lt;Col name="LazyLoad" isHide="absHide" /&gt;</pre>
+<b>2</b>.这是类似的<a href="http://www.supcan.cn/DotNet/GetFin.aspx?format=bydata&kmdm=20105" target=_blank>数据格式</a>，内含取得子孙的LazyLoad的URL.<br>
+
+<br><br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

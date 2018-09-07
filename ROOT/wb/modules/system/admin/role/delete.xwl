@@ -1,0 +1,32 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var rows = Wb.decode(app.get('destroy'));\
+//检查是否包含admin和default角色，如果包含则抛出异常\
+Wb.each(rows, function(row) {\
+  if (['admin', 'default'].indexOf(row.ROLE_ID) != -1)\
+    throw Wb.format('\"%s\" 是系统保留角色，不能删除。', row.ROLE_ID);\
+});\
+//删除WB_ROLE记录\
+app.update({\
+  tableName: 'WB_ROLE'\
+});\
+//删除WB_USER_ROLE记录\
+app.run('delete from WB_USER_ROLE where ROLE_ID={?ROLE_ID?}', {\
+  arrayName: 'destroy'\
+});\
+//删除文件中的角色信息\
+com.wb.interact.Tools.delModulesPerm(request, response);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

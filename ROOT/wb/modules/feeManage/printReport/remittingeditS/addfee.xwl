@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+// app.log(data.datas);\
+// app.log(data.billNo);\
+var title = '{\"billNo\": \"' + data.billNo + '\",' +\
+  '\"paymentCustomerCode\": \"' + data.paymentCustomerCode + '\",' +\
+  '  \"cntrOperatorCod\": \"' + data.cntrOperatorCod + '\",' +\
+  '\"customerId\": \"' + data.customerId + '\",' +\
+  ' \"iEId\":  \"' + data.iEId + '\",' +\
+  ' \"tradeId\": \"' + data.tradeId + '\",' +\
+  '\"goodsNotes\": \"' + data.goodsNotes + '\",' +\
+  '\"cntrType\": \"' + data.cntrType + '\",' +\
+  '\"billType\": \"' + data.billType + '\",' +\
+  ' \"jobFinishDate\": \"' + new Date() + '\",' +\
+  ' \"paymentType\": \"' + data.paymentType + '\",' +\
+  ' \"notes\": \"' + data.notes + '\",';\
+var body = Wb.decode(data.datas);\
+var bodyData = body.create;\
+var feeBody = '\"feeBody\":[';\
+// app.log(body.create);\
+\
+if (bodyData.length > 0) {\
+  for (var i = 0; i < bodyData.length; i++) {\
+    feeBody += '{\"feeListId\":  \"' + bodyData[i].BILL_NO + '\",' +\
+      '  \"cntr\": \"\",' +\
+      '  \"cntrSize\": \"\",' +\
+      ' \"contractRate\": \"' + bodyData[i].CONTRACT_RATE + '\",' +\
+      ' \"actualJobCount\": \"' + bodyData[i].ACTUAL_JOB_COUNT + '\",' +\
+      ' \"contractAddRate\": \"' + bodyData[i].CONTRACT_ADD_RATE + '\",' +\
+      ' \"dwellDays\": \"' + bodyData[i].DWELL_DAYS + '\",' +\
+      ' \"PRINTNO\": \"' + data.PRINTNO + '\",' +\
+      ' \"amount\": \"' + bodyData[i].AMOUNT + '\"},';\
+  }\
+\tfeeBody=feeBody.substring(0,feeBody.length-1);\
+  feeBody+=']';\
+}\
+var s=title+feeBody+'}';\
+// app.log('结果:'+s);\
+var sp=Wb.newClass(\"accountDetailService\").addManualFees(request, s);\
+app.run(\"insert into BULK_LOG(ID,NOTES,CFSBILL_ID,CREATED_ON,CREATED_BY,TYPE)VALUES(SYS_GUID(),'\"+new JSONObject(sp)+\"',sys_guid(),sysdate,{?sys.username?},'散货缴费通知单添加费用')\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "添加费用",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,411 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});\
+// var tenancyId=app.get('sys.TENANCY_ID');\
+// var  rs=app.run(\"SELECT c_fee_report.notes NAME, report_path path, item_id,DESCRIPTION ITEM_NAME,TRADE_ID \\\
+//   FROM c_fee_report, c_fee_report_contact, C_BASE_CHARGING_ITEM\\\
+//  WHERE c_fee_report.ID = c_fee_report_contact.report_id  and c_fee_report_contact.ITEM_ID=C_BASE_CHARGING_ITEM.ID\\\
+//    AND c_fee_report.tenancy_id = '\"+tenancyId+\"'\"),feeList=\"\",i=0;\
+\
+// // while(rs.next()){\
+// //   feeList+='{\"NAME\":\\\"'+rs.getString(\"NAME\")+'\\\", \"PATH\":\\\"'+rs.getString(\"PATH\")+'\\\",\"ITEM_NAME\":\\\"'+rs.getString(\"ITEM_NAME\")+'\\\",\"ITEM_ID\":\\\"'+rs.getString(\"ITEM_ID\")+'\\\",\"TRADE_ID\":\\\"'+rs.getString('TRADE_ID')+'\\\"},';\
+// // }\
+// while(rs.next()){\
+// //   feeList+='{\"NAME\":\\\"'+rs.getString(\"NAME\")+'\\\", \"PATH\":\\\"'+rs.getString(\"PATH\")+'\\\",\"ITEM_NAME\":\\\"'+rs.getString(\"ITEM_NAME\")+'\\\",\"ITEM_ID\":\\\"'+rs.getString(\"ITEM_ID\")+'-'+rs.getString(\"TRADE_ID\")+'\\\",\"TRADE_ID\":\\\"'+rs.getString(\"TRADE_ID\")+'\\\"},';\
+//  feeList+='{\"NAME\":\\\"'+rs.getString(\"NAME\")+'\\\", \"PATH\":\\\"'+rs.getString(\"PATH\")+'\\\",\"ITEM_NAME\":\\\"'+rs.getString(\"ITEM_NAME\")+'\\\",\"ITEM_ID\":\\\"'+rs.getString(\"ITEM_ID\")+'\\\",\"TRADE_ID\":\\\"'+rs.getString(\"TRADE_ID\")+'\\\",\"ITEM_ID_S\":\\\"'+rs.getString(\"ITEM_ID\")+\"-\"+rs.getString('TRADE_ID')+'\\\"},';\
+// }\
+// feeList=feeList.substr(0,feeList.length-1);\
+// request.setAttribute(\"feeList\",StringUtil.text(\"[\"+feeList+\"]\"));"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "layout": "hbox",
+         "itemId": "radioMD",
+         "padding": "0 0 0 10",
+         "width": "160"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "radioM",
+           "boxLabel": "按月统计",
+           "flex": "1",
+           "name": "radioMD",
+           "checked": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  app.cboY.setVisible(true);\
+  app.cboM.setVisible(true);\
+  var today = new Date(); //获取当前日期\
+  app.cboY.setValue(today.getFullYear());\
+  app.date1.setVisible(false);\
+  app.date1.setValue(new Date());\
+  app.sdate.setValue(\"\");\
+  app.edate.setValue(\"\");\
+  app.sdate.setVisible(false);\
+  app.edate.setVisible(false);\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "radioD",
+           "boxLabel": "按天统计",
+           "flex": "1",
+           "name": "radioMD"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  var today = new Date(); //获取当前日期\
+  var days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); //获取当前月份天数\
+  app.date1.setVisible(true);\
+  app.date1.setValue(today);\
+  app.sdate.setValue(new Date());\
+  app.edate.setValue(new Date());\
+  app.cboY.setVisible(false);\
+  app.cboM.setVisible(false);\
+  app.cboM.setValue(\"\");\
+  app.sdate.setVisible(false);\
+  app.edate.setVisible(false);\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "radioS",
+           "boxLabel": "按时间段",
+           "hidden": "true",
+           "flex": "1",
+           "name": "radioMD"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  var today = new Date(); //获取当前日期\
+  var days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); //获取当前月份天数\
+  app.date1.setVisible(true);\
+  app.date1.setValue(today);\
+  app.sdate.setValue(new Date());\
+  app.edate.setValue(new Date());\
+  app.cboY.setVisible(false);\
+  app.cboM.setVisible(false);\
+  app.cboM.setValue(\"\");\
+  app.sdate.setVisible(true);\
+  app.edate.setVisible(true);\
+  app.date1.setVisible(false);\
+}"}
+         }
+        ],
+        "type": "container"
+       },
+       {
+        "configs": {
+         "itemId": "cboY",
+         "allowBlank": "false",
+         "emptyText": "年",
+         "width": "60",
+         "displayField": "YEAR",
+         "valueField": "ID",
+         "forceSelection": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "if (app.radioM.checked) {\
+  var year = app.cboY.getValue();\
+  var month = app.cboM.getValue();\
+  var sdate = new Date(year + \"-\" + month + \"-01\");\
+  app.sdate.setValue(sdate);\
+  var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+  var edate = new Date(year + \"-\" + month + \"-\" + days);\
+  app.edate.setValue(edate);\
+}\
+if (app.radioD.checked) {\
+  var date = new Date();\
+  var year = app.cboY.getValue();\
+  var month = date.getMonth() + 1;\
+  var sdate = new Date(year + \"-\" + month + \"-\" + app.cboD.getValue());\
+  app.sdate.setValue(sdate);\
+  var edate = new Date(year + \"-\" + month + \"-\" + app.cboD.getValue());\
+  app.edate.setValue(edate);\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "cboM",
+         "allowBlank": "false",
+         "pickList": "[\
+  [1, \"1月\"],\
+  [2, \"2月\"],\
+  [3, \"3月\"],\
+  [4, \"4月\"],\
+  [5, \"5月\"],\
+  [6, \"6月\"],\
+  [7, \"7月\"],\
+  [8, \"8月\"],\
+  [9, \"9月\"],\
+  [10, \"10月\"],\
+  [11, \"11月\"],\
+  [12, \"12月\"]\
+]",
+         "emptyText": "月",
+         "width": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = combo.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "date1",
+         "allowBlank": "false",
+         "width": "90"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date",
+        "events": {"select": "app.sdate.setValue(value);\
+app.edate.setValue(value);"}
+       },
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "175",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "175",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "cboI_E",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"I\", \"进口\"],\
+  [\"E\", \"出口\"]\
+]",
+         "fieldLabel": "进出口",
+         "width": "130",
+         "labelWidth": "50",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var AF1 = document.getElementById(opt);\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+AF1.func(\"SetCurrentWorkSheet\", \"0\");\
+var whereSql = \"\";\
+\
+\
+whereSql += \" rownum<5 \" ;\
+\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"range=current\");"}
+       },
+       {
+        "configs": {
+         "itemId": "backBtn",
+         "text": "返回",
+         "iconCls": "first_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "// if (!Wb.verify(app.tbarGrid))\
+//   return;\
+var AF1 = document.getElementById(opt);\
+var sheetIndex = AF1.func(\"GetCurrentWorksheet\", \"\");\
+// if (sheetIndex > 0) {\
+//   AF1.func(\"SetCurrentWorkSheet\", (sheetIndex - 1) + \"\");\
+// }\
+if (sheetIndex > 0) {\
+  AF1.func(\"SetCurrentWorkSheet\", \"0\");\
+}"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {
+    "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, '', \"100%\");\
+app.panelAcc.update(mt1);",
+    "destroy": "delete  window[\"init\" + opt];\
+"
+   }
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+// var colse=Wb.find(ms, 'ITEM_ID', \"8f46baa3ffbf4091b05c069a1af4c793\");\
+// alert(colse.NAME+\"==\"+colse.PATH);\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  var s = Math.random();\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"callfunc\", \"4\");\
+    m.func(\"SubscribeEvent\", \"Clicked\"); //预订鼠标点击事件\
+    //v1.1列汇总\
+    //v1.2行汇总\
+    //v1.3冻结表头\
+    //V1.4增加表头颜色\
+    m.func(\"Build\", '/supcan/report/bluk/test.xml?' + 'V1.4');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+//     m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&\" + Math.random() * 1000);\
+    \
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  var AF = document.getElementById(opt);\
+  AF.func(\"SeparateView\", \"3 \\r\\
+ 0\"); //前4行上下分屏\
+  if (Event == 'WorkSheetSelChanged' && p2 == 0) {\
+    if (p1 == 0) {\
+      AF.func(\"DeleteWorksheet\", \"2\");\
+      if (AF.func(\"GetSources\", \"\").indexOf(\"ds2\"))\
+        AF.func(\"DeleteDS\", \"ds2\");\
+    }\
+\
+  } else if (Event != \"Clicked\")\
+    return;\
+\
+};\
+//==============时间控件的处理=============\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+var d = new Date();\
+app.cboM.setValue(d.getMonth() + 1);\
+//定义一个Store,绑定数据\
+var yearStore = Ext.create('Ext.data.Store', {\
+  fields: ['ID', 'YEAR'],\
+  data: years\
+});\
+//combo通过代码绑定Stroe\
+app.cboY.bindStore(yearStore);\
+var today = new Date(); //获取当前日期\
+app.cboY.setValue(today.getFullYear());\
+// var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+// app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+// app.edate.setValue(today);\
+if (app.radioM.checked) {\
+  app.cboM.setVisible(true);\
+  app.date1.setVisible(false);\
+}\
+\
+var year = app.cboY.getValue();\
+var month = app.cboM.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);",
+   "initialize": "var opt = Wb.getId();\
+var mainConditionSql = \"\";"
+  }
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "华晖月结客户柜数",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

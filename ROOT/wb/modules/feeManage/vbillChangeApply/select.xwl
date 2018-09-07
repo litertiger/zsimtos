@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var sql=\"\", data = app.get();\
+\
+// sql = ' I_E_ID={?ieId?}';\
+if (!Wb.isEmpty(data.BILL_NO)) {\
+  sql += '  and BILL_NO={?BILL_NO?}';\
+} \
+if (!Wb.isEmpty(data.shipNo)) {\
+  sql += ' and VID={?shipNo?}';\
+} \
+if (!Wb.isEmpty(data.c_type)) {\
+  if(data.c_type=='3'){\
+  \tsql+=\" and INVALID_FLAG='1'\";\
+  }else if(data.c_type=='4'){\
+  \tsql+=\" and INVALID_FLAG='0'\";\
+  }else if(data.c_type=='1'){\
+  \tsql+=\" and CHECK_FLAG='1'\";\
+  }else if(data.c_type=='2'){\
+  \tsql+=\" and CHECK_FLAG='0'\";\
+  }\
+} \
+if (!Wb.isEmpty(data.date)) {\
+  var s=data.date; \
+  sql += \" and TRUNC(UPDATED_ON)=TO_DATE('\"+s.substring(0,10)+\"','yyyy-MM-dd')\";\
+} \
+request.setAttribute('whereSql', sql);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createColumns": "false",
+    "sql": "SELECT ID, TENANCY_ID, ORDER_NO, (SELECT VESSEL_NAME FROM VESSEL_VOYAGE WHERE ID=VBILL_HEAD_AMEDMENT.VID) VID, VID_NEW, AMEDMENT_TYPE, FEE_AMEDMENT, CNTR_OPERATOR_COD, BILL_ID, BILL_NO, \
+BILL_NO_NEW, REASONS, NOTES, INVALID_FLAG, INVALID_BY, INVALID_ON, CHECK_FLAG, CHECK_BY, CHECK_ON, UPDATED_ON, \
+CREATED_ON, CREATED_BY, UPDATED_BY\
+  FROM VBILL_HEAD_AMEDMENT   WHERE   TENANCY_ID='{#sys.TENANCY_ID#}'{#whereSql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "basic": 1,
+  "DCXK": 1
+ },
+ "title": "查找",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

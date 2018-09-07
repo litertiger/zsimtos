@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //生成ID\
+var buz = Wb.getRecords(app.run(\"select id from buz_order where tenancy_id='\" + tenancyid + \"' and bill_no='\" + data.billno + \"'\"));\
+if (buz.length > 0)\
+  id = buz[0].ID;\
+var sql1 = \"insert into buz_order(id,tenancy_id,bill_id,line,line_cod,CNTR_OPERATOR,CNTR_OPERATOR_COD,RECEIVER,RECEIVER_COD,\\
+\" +\
+  \"shipper,shipper_cod,pod,pol,bill_no,i_e_id,trade_id,release_id,quantity,notes,CREATED_BY,CREATED_ON,GOODS_NOTES,BILL_TYPE,\\
+\" +\
+  \"PIECES,LCL_ID,TOOL_NO)\\
+\" +\
+  \"select '\" + id + \"','\" + tenancyid + \"',vh.id,vh.line,vh.line_cod,vh.cntr_operator,vh.CNTR_OPERATOR_COD,vh.consignee,\\
+\" +\
+  \"vh.consignee_cod,vh.shipper,vh.shipper_cod,vh.pod,vh.pol,vh.BILL_NO,vh.i_e_id,vh.trade_id,vh.release_id,vh.quantity,\\
+\" +\
+  \"vh.notes,'\" + username + \"',sysdate,vh.GOODS_NOTES,vh.BILL_TYPE,vh.PIECES,vh.LCL_ID,vh.VID\\
+\" +\
+  \"from vbill_head vh left join vessel_visit v2 on vh.vid=v2.id left join vessel_voyage v1 on v2.vid=v1.id\\
+\" +\
+  \"where vh.tenancy_id='\" + tenancyid + \"' and vh.BILL_NO='\" + data.billno + \"' and vh.trade_id='1' and vh.phase<>'9'\\
+\" +\
+  \" and not exists(select bill_no from buz_order where vh.BILL_NO=buz_order.bill_no)\";\
+app.run(sql1, {\
+  transaction: 'start'\
+});\
+\
+var sql2 = \"insert into buz_order_item(id,tenancy_id,order_id,sequence,cntr,CNTR_SIZE,\" +\
+  \"CNTR_TYPE,temp_set,imdg,undg,cmdy_code,weight,volume,pieces,notes,CREATED_BY,CREATED_ON,\" +\
+  \"BILL_NO,E_F_ID,REEF_ID,DANG_ID,PAY_FLAG,CNTR_ID,LCL_ID,GOODS_NOTES,I_E_ID)\" +\
+  \"select sys_guid(),'\" + tenancyid + \"','\" + id + \"',sequence,cntr,CNTR_SIZE,CNTR_TYPE,\" +\
+  \"temp_set,imdg,undg,cmdy_code,weight,volume,pieces,notes,'\" + username + \"',sysdate,\" +\
+  \"BILL_NO,E_F_ID,REEF_ID,DANG_ID,0,CNTR_ID,LCL_ID,GOODS_NOTES,I_E_ID\" +\
+  \" from vload_list where BILL_NO='\" + data.billno + \"' and tenancy_id='\" + tenancyid + \"' and trade_id='1' and phase<>'9'\" +\
+  \" and not exists(select BILL_NO from buz_order_item where vload_list.BILL_NO=buz_order_item.BILL_NO\" +\
+  \" and vload_list.CNTR=buz_order_item.CNTR)\";\
+app.run(sql2);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "添加办单数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

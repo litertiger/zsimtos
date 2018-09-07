@@ -1,0 +1,62 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var crtp = (nature != \"5\" && nature != \"6\") ? 1 : 0;\
+var id = Wb.getRecords(app.run(\"select to_char(sysdate,'yyyyMMdd')||lpad(accounts_print_no.nextval,4,'0')id from dual\")); //生成ID\
+if (Wb.isEmpty(data.PAYER_COD)) {\
+  app.send({\
+    success: false,\
+    errmsg: \"提单没有付费方代码,数据异常\"\
+  });\
+  return;\
+}\
+//转给船公司,定义为船公司托收单,转给货主的,根据货主结算类型,定义托收单打印类型\
+var print_type = 0;\
+var paytype = Wb.getRecords(app.run(\"select decode(c1.ACCOUNT_TYPE,'',1,c1.ACCOUNT_TYPE)ACCOUNT_TYPE,CLIENT_TYPE\\
+\" +\
+  \"from c_customer c left join C_CUSTOMER_CONTACT c1 on c.id=c1.c_id where c.code='\" + data.PAYER_COD + \"' and c.tenancy_id='\" + tenancyid + \"'\"));\
+if (paytype[0].CLIENT_TYPE.indexOf(\"AG\") == -1)\
+  print_type = paytype[0].ACCOUNT_TYPE;\
+\
+var sql = \"insert into remitting(ID,REM_DATE,REM_CUS,PAYER,BILL_NO,\" +\
+  \"CREATED_BY,CREATED_ON,TENANCY_ID,REM_CUS_COD,PAYER_COD,R_TYPE,R_OK,created_type,print_type)\" +\
+  \"values('\" + id[0].ID + \"',sysdate,{?REM_CUS?},{?PAYER?},{?BILL_NO?},\" +\
+  \"'\" + username + \"',sysdate,'\" + tenancyid + \"',{?REM_CUS_COD?},{?PAYER_COD?},'ts',0,\" + crtp + \",\" + print_type + \")\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+\
+var sqlitem = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT) \" +\
+  \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,0,FEE_LIST_ID,\" + (print_type == 1 ? 1 : 2) + \",ACTUAL_JOB_COUNT,AMOUNT\" +\
+  \" from accounts_details where id in (\" + data.ids + \")\";\
+app.run(sqlitem);\
+\
+app.run(\"update accounts_details set IS_MANUAL=1 where id in (\" + data.ids + \")\");\
+\
+app.run(\"insert into remitting_log values('新增托收单:\" + id[0].ID + \"','\" + username + \"',sysdate,'\" + tenancyid + \"')\");\
+\
+app.send(id);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "基本添加记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

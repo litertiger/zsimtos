@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+var sql = \"\";\
+if (!Wb.isEmpty(data.cntr)) {\
+  sql += \"  and  (port_cntr.cntr like '%'||{?cntr?}||'%'  or  port_cntr_new.cntr like '%'||{?cntr?}||'%' )\";\
+}\
+if (!Wb.isEmpty(data.applytype)) {\
+  sql += \"  and  cntr_apply.APPLY_TYPE like '%'||{?applytype?}||'%'   \";\
+}\
+if (!Wb.isEmpty(data.applyoperator)) {\
+  sql += \"  and  cntr_apply.APPLY_OPERATOR  like '%'||{?applyoperator?}||'%'  \";\
+}\
+if (!Wb.isEmpty(data.applydate)) {\
+  sql += \" and cntr_apply.APPLY_DATE>=to_timestamp('\" + data.applydate + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+  sql += \" and cntr_apply.APPLY_DATE<to_timestamp('\" + data.applydate.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+if (nature == \"5\" || nature == \"6\")\
+  sql += \" and cntr_apply.APPLY_OPERATOR_COD='\" + govCode + \"'\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT cntr_apply.*,CNTR_APPLY_LIST.AID,CNTR_APPLY_LIST.CNTR_ID,nvl(port_cntr.cntr,port_cntr_new.cntr) cntr\
+FROM cntr_apply\
+LEFT JOIN cntr_apply_list ON cntr_apply.id = cntr_apply_list.aid\
+left join port_cntr on cntr_apply_list.cntr_id=port_cntr.id\
+left join port_cntr_new on cntr_apply_list.cntr_id=port_cntr_new.id \
+where 1=1 and cntr_apply.APPLY_DATE>=to_timestamp('2018-05-01 00:00:00.00','yyyy-mm-dd hh24:mi:ss.ff') {#sql#} \
+order by cntr_apply.apply_date desc"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

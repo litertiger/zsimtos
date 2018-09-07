@@ -1,0 +1,398 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "545",
+     "height": "212"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "allowBlank": "false",
+       "itemId": "SHORT_NAME",
+       "labelAlign": "right",
+       "emptyText": "该项不能为空",
+       "fieldLabel": "类型简称",
+       "width": "240",
+       "x": "250",
+       "y": "16",
+       "labelWidth": "80",
+       "height": "22",
+       "blankText": "该项不能为空"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "C_PKG_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "包装名称",
+       "width": "240",
+       "x": "8",
+       "y": "16",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "E_PKG_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "包装英文名",
+       "width": "240",
+       "x": "250",
+       "y": "48",
+       "labelWidth": "80",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "484",
+       "x": "8",
+       "y": "80",
+       "labelWidth": "80",
+       "height": "65"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     },
+     {
+      "configs": {
+       "itemId": "FEE_PKG_ID",
+       "labelAlign": "right",
+       "fieldLabel": "计费包装代码",
+       "width": "250",
+       "x": "-2",
+       "y": "48",
+       "displayField": "CNAME",
+       "labelWidth": "90",
+       "valueField": "ID",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "params": "{fldId:'C_PKG'}",
+        "url": "m?xwl=system/common/codeSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "value": "C_PKG"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Pkg/C_PkgEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.grid1.store.load();\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Pkg/C_PkgEdit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.grid1.store.load();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/C_Pkg/C_PkgEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "简称",
+          "labelWidth": "45"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findMenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+  out:app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "addMenu",
+          "text": "新增",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.editWin.setTitle('添加 - 包装 ' );\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "modifyMenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle('修改 - ' + app.selRec.data.C_PKG_NAME);\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delMenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Pkg/C_PkgEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),tableName:'C_PKG'\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'SHORT_NAME');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "idCol",
+          "dataIndex": "ID",
+          "text": "类型代码",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "shortNameCol",
+          "dataIndex": "SHORT_NAME",
+          "text": "类型简称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CPkgNameCol",
+          "dataIndex": "C_PKG_NAME",
+          "text": "包装名称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "EPkgNameCol",
+          "dataIndex": "E_PKG_NAME",
+          "text": "包装英文名",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "feePkgIdCol",
+          "dataIndex": "FEE_PKG_ID",
+          "keyName": "C_PKG",
+          "text": "计费包装代码",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "notesCol",
+          "dataIndex": "NOTES",
+          "text": "备注",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdByCol",
+          "dataIndex": "CREATED_BY",
+          "text": "创建人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdOnCol",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedByCol",
+          "dataIndex": "UPDATED_BY",
+          "text": "最后修改用户",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedOnCol",
+          "dataIndex": "UPDATED_ON",
+          "width": "120",
+          "text": "最后修改时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.modifyMenu.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "包装维护",
+ "iconCls": "shopping_cart_icon",
+ "inframe": false,
+ "pageLink": ""
+}

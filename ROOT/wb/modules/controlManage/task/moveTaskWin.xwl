@@ -1,0 +1,100 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "taskWin",
+    "dialog": "true",
+    "title": "新建移箱任务"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {"itemId": "panel1"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "date",
+       "allowBlank": "false",
+       "fieldLabel": "执行日期",
+       "value": "new Date()"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "MOVE_REASON",
+       "allowBlank": "false",
+       "fieldLabel": "移箱原因",
+       "keyName": "MOVE_REASON"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "TO_POS",
+       "allowBlank": "false",
+       "fieldLabel": "目标位置",
+       "isUpperCase": "true",
+       "blankText": "请输入移箱目标场位或贝位"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "needTruck",
+       "fieldLabel": "需要拖车",
+       "value": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "window",
+   "events": {
+    "show": "win.toType = \"B\";",
+    "ok": "var val = Wb.getValue(win);\
+var task = {\
+  task_type: 'MOVE',\
+  to_pos: val.TO_POS,\
+  task_name: Wb.dateToText(val.date).split(' ')[0] + '因' + val['%MOVE_REASON'] + '移至' + val.TO_POS,\
+  cntrs: win.cntrs,\
+  handle_id: win.handle_id,\
+  to_pos_typ: win.toType,\
+  needTruck: val.needTruck ? '' :'ROR',\
+  wait_untill:val.date\
+};\
+Wb.request({\
+  url: \"m?xwl=controlManage/task/worktaskcraneedit/insertTask\",\
+  params: task,\
+  success: function() {\
+    win.close();\
+  }\
+});"
+   }
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "移箱任务",
+ "iconCls": "set_icon",
+ "inframe": false,
+ "pageLink": ""
+}

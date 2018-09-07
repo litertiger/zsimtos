@@ -1,0 +1,122 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "itemId": "panelall"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "findbtn",
+         "text": "查找"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var username = \"{#sys.username#}\";\
+var AF1 = document.getElementById(opt);\
+\
+//加载列表\
+var whereSql = encodeURI(\" and t.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and created_on>=to_timestamp('\" + app.sdate.getRawValue() + \" 00:00:00.000','yyyy-mm-dd hh24:mi:ss.ff')\" +\
+  \" and created_on<=to_timestamp('\" + app.edate.getRawValue() + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime()+\";tenancyId=\"+tenancyid);\
+AF1.func(\"SetCellData\", \"B5  \\r\\
+ \"+'{#sys.dispname#}'+\"\" );\
+\
+AF1.func(\"Calc\", \"\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "panel1",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"99%\");\
+app.panel1.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var aa = Math.random();\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", \"/supcan/report/truck/truckTimelog.xml?\" + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+var today = new Date(); //获取当前日期\
+// var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+// app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+app.sdate.setValue(today);\
+app.edate.setValue(today);",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1
+ },
+ "title": "车辆出行日志",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

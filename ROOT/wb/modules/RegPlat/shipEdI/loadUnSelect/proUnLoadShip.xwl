@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var  sql=\" SELECT   CURSOR (SELECT   ID, DECODE (i_e_id, 'I', '3', 'E', '2') i_e_id,\\\
+                          DECODE (e_f_id,\\\
+                                  'E', '4',\\\
+                                  'F', '5',\\\
+                                  'P', '7'\\\
+                                 ) e_f_id, cntr, in_out_type, pod, pol,\\\
+                          gsizetoiso95 (cntr_size, cntr_type) cntr_iso,\\\
+                          weight, bill_no, seal_no,\\\
+                          TO_CHAR (in_out_time, 'yyyyMMddHH24MI') in_out_time\\\
+                     FROM un_load_edi a\\\
+                    WHERE a.vessel_name = un_load_edi.vessel_name\\\
+                      AND a.voyage_no = un_load_edi.voyage_no\\\
+                      AND cosco = 1\\\
+and  VOYAGE_NO='\"+data.VOYAGE_NO+\"' and CALL_SIGN='\"+data.CALL_SIGN+\"'  \\\
+                 ORDER BY i_e_id, cntr ASC\\\
+                ) b,\\\
+         vessel_name, voyage_no, decode(trade_id,'1', 'DCSZ2',call_sign) call_sign, e_name,\\\
+         DECODE (i_e_id, 'I', '3', 'E', '2') i_e_id, in_out_type,\\\
+         TO_CHAR (ship_date, 'yyMMdd:HH24MI') ship_date, tenancy_id\\\
+    FROM un_load_edi\\\
+   WHERE voyage_no IS NOT NULL\\\
+     AND vessel_name IS NOT NULL\\\
+     AND cosco = 1\\\
+  and  VOYAGE_NO='\"+data.VOYAGE_NO+\"' and CALL_SIGN='\"+data.CALL_SIGN+\"'  \\\
+     and rownum=1\\\
+GROUP BY vessel_name,\\\
+         voyage_no,\\\
+         call_sign,\\\
+         in_out_type,\\\
+         tenancy_id,\\\
+         TO_CHAR (ship_date, 'yyMMdd:HH24MI'),\\\
+         e_name,\\\
+         i_e_id,trade_id\";\
+\
+// sql=\"select CURSOR(SELECT ID,DECODE(I_E_ID,'I','3','E','2') I_E_ID,DECODE(E_F_ID,'E','4','F','5','P','7') E_F_ID,\\\
+// CNTR,IN_OUT_TYPE,POD,POL,GsizeToISO95(CNTR_SIZE,CNTR_TYPE) CNTR_ISO,WEIGHT,BILL_NO,SEAL_NO,TO_CHAR(IN_OUT_TIME,'yyyyMMddHH24MI') IN_OUT_TIME \\\
+// FROM UN_LOAD_EDI a WHERE     a.VESSEL_NAME = UN_LOAD_EDI.VESSEL_NAME AND a.VOYAGE_NO = UN_LOAD_EDI.VOYAGE_NO ORDER BY I_E_ID,CNTR ASC) b,\\\
+// VESSEL_NAME,VOYAGE_NO,CALL_SIGN,E_NAME,decode(I_E_ID,'I','3','E','2') I_E_ID,IN_OUT_TYPE,to_char(SHIP_DATE,'yyMMdd:HH24MI') SHIP_DATE,\\\
+// to_char(SHIP_DATE,'yyyyMMddHH24MI') SHIP_DATE1,TENANCY_ID FROM UN_LOAD_EDI where VOYAGE_NO is not null and VESSEL_NAME is not null AND COSCO=1\\\
+// and  COSCO_STATE=0 GROUP BY VESSEL_NAME, VOYAGE_NO,CALL_SIGN,IN_OUT_TYPE,TENANCY_ID\";\
+\
+app.log(sql);\
+ request.setAttribute(\"suffix\",\"txt\");\
+var  ShipInOutEdiSend=com.ag.task.edi.ShipTo.ShipInOutEdiSend;\
+var shipInOutEdiSend=new ShipInOutEdiSend();\
+shipInOutEdiSend.executeSend(sql,true,request,response);\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "SWB": 1
+ },
+ "title": "装卸船报文生成",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

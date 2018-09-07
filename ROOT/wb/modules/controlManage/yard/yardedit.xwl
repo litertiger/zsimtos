@@ -1,0 +1,288 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "jsLinks": "[\"ctgraph/sea-modules/seajs/sea.js\"]",
+   "finalHtml": "<script src='/ctgraph/es6.min.js'><\/script>\
+<script>\
+  seajs.config({\
+      base : \"/ctgraph/\",\
+      alias : {\
+          \"gojs\" : \"sea-modules/gojs/go\"\
+      }\
+  });\
+  seajs.use(\"main/ct/yardedit\");\
+  var myDiagram;\
+  function btnClick(btn) {\
+      var share = seajs.require(\"main/ct/obj/shareData\");\
+      app.btnGroup.items.items.every(function(btn){\
+        btn.removeCls('x-btn-default-large-focus');\
+        return true})\
+      btn.addCls('x-btn-default-large-focus');\
+      var id = btn.itemId.substr(3,1).toLowerCase()+btn.itemId.substr(4);\
+      switch (id) {\
+      case \"arrow\":\
+          if (share.diagram.defaultCursor !== \"default\") {\
+              share.diagram.startTransaction();\
+              share.actionCursor = \"\";\
+              share.diagram.defaultCursor = \"default\";\
+              share.diagram.commitTransaction();\
+          }\
+          break;\
+      default:\
+          if (share.diagram.defaultCursor !== \"url(\"+btn.icon+\"),default\") {\
+              share.diagram.startTransaction();\
+              share.actionCursor = id;\
+              share.diagram.defaultCursor = \"url(\"+btn.icon+\"),default\";\
+              share.diagram.commitTransaction();\
+          }\
+          break;\
+      }\
+   }\
+<\/script>\
+<script src=\"/ctgraph/main/common/filesOper.js\"><\/script>\
+<script src=\"/ctgraph/main/common/common.js\"><\/script>"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1",
+    "style": "overflow:auto"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "menuLoFile",
+        "text": "文件",
+        "iconCls": "resource_icon"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "open",
+          "text": "打开",
+          "iconCls": "open_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "myDiagram.addDiagramListener(\"Modified\", function (e) {\
+  if(myDiagram.isModified)\
+    app.prompt.setText(\"*未保存\");\
+  else\
+    app.prompt.setText(\"\");\
+});\
+loadAllEditCyObj();\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "save",
+          "text": "保存",
+          "iconCls": "save_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if(myDiagram.isModified){\
+  var a = [];\
+  myDiagram.nodes.filter(function(n){\
+    return n.isTopLevel && n.isModified;\
+  }).each(function(p){\
+    var o = {};\
+    o.id = p.data.ID;\
+    o.type = p.data.className;\
+    o.x = p.position.x;\
+    o.y = p.position.y;\
+    o.width = p.width;\
+    o.height = p.height;\
+    a.push(o);\
+  });\
+  if(a.length > 0)\
+     Ajax({\
+        url: \"m?xwl=yardManage/yardedit/updatePosition\",// 跳转到 action\
+        type: 'post',\
+        params: {objs:a},\
+        cache: false,\
+        dataType: 'json'\
+    }).then(function (ret) {\
+       if(ret.success)\
+         myDiagram.isModified = false;\
+     });\
+}"}
+        }
+       ],
+       "type": "item"
+      },
+      {
+       "configs": {"itemId": "prompt"},
+       "expanded": false,
+       "children": [],
+       "type": "label"
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "region": "center",
+      "height": "800"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "panel1",
+        "region": "west"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "layout": "vbox",
+         "itemId": "btnGroup"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "btnArrow",
+           "icon": "ctgraph/assets/img/cursor.png",
+           "tooltip": "选择",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnYard",
+           "icon": "ctgraph/assets/img/yard.png",
+           "tooltip": "龙门吊场块",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnSpecYard",
+           "icon": "ctgraph/assets/img/specyard.png",
+           "tooltip": "打堆场块",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnRoadPoint",
+           "icon": "ctgraph/assets/img/roadPoint.png",
+           "tooltip": "道路点",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnParkingLot",
+           "icon": "ctgraph/assets/img/parkingLot.png",
+           "tooltip": "停车场",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnBerth",
+           "icon": "ctgraph/assets/img/berth.png",
+           "tooltip": "泊位",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnBollard",
+           "icon": "ctgraph/assets/img/bollard.png",
+           "tooltip": "缆桩",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "btnClick(button);"}
+         },
+         {
+          "configs": {
+           "itemId": "btnRoad",
+           "icon": "ctgraph/assets/img/road.png",
+           "tooltip": "道路",
+           "scale": "large"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "button",
+          "events": {"click": "makeRoad();"}
+         }
+        ],
+        "type": "buttongroup"
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "itemId": "panelCanvas",
+        "region": "center"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "panel",
+       "events": {"resize": "if(!oldHeight)\
+\tpanel.update('<div id=\"myDiagramDiv\" style=\"height:'+height+'px; background-color:white\"><\/div>');"}
+      }
+     ],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"finalize": "console.log(app);"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "堆场编辑",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

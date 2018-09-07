@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var cntrs = Wb.decode(data.cntrs);\
+\
+//循环箱子,处理port_cntr的lock_id\
+Wb.each(cntrs, function(cntr) {\
+  app.run(\"update port_cntr set lock_id='1' where id='\" + cntr.ID + \"'\", {\
+    transaction: 'start'\
+  });\
+  app.run(\"insert into cntr_hold(ID,TENANCY_ID,CNTR_ID,CNTR,HOLDORRELEASE,HOLD_REASON,CREATED_BY,CREATED_ON,\" +\
+    \"I_E_ID,LOCK_ID)\" +\
+    \" values(sys_guid(),'\" + tenancyid + \"','\" + cntr.ID + \"','\" + cntr.CNTR + \"','H','\" + data.yy + \"',\" +\
+    \"'\" + username + \"',sysdate,'\" + cntr.I_E_ID + \"','\" + data.lockid + \"')\");\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSJJ": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "增加数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,62 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+app.log(\"=================\");\
+app.log(data.ID);\
+if (data.ID == 'qb') {\
+  //   sql = \"\";\
+  if (!Wb.isEmpty(data.sdate) && !Wb.isEmpty(data.edate)) {\
+    var s = data.sdate;\
+    var s1 = data.edate;\
+    sql += \" and PLAN_STIME>=to_date('\" + s.substring(0, 10) + \" 00:00:00','yyyy-MM-dd hh24:mi:ss' )\t\" +\
+      \"  and PLAN_STIME<=to_date('\" + s1.substring(0, 10) + \" 23:59:59','yyyy-MM-dd hh24:mi:ss' )\";\
+  }\
+} else {\
+  sql += \" and PID={?ID?}\";\
+  if (!Wb.isEmpty(data.sdate) && !Wb.isEmpty(data.edate)) {\
+    var s = data.sdate;\
+    var s1 = data.edate;\
+\
+    //     sql += \" and CREATED_ON>=to_date('\" + s.substring(0, 10) + \" 00:00:00','yyyy-MM-dd hh24:mi:ss' )\t\" +\
+    //       \"  and CREATED_ON<=to_date('\" + s1.substring(0, 10) + \" 23:59:59','yyyy-MM-dd hh24:mi:ss' )\";\
+    sql += \" and PLAN_STIME>=to_date('\" + s.substring(0, 10) + \" 00:00:00','yyyy-MM-dd hh24:mi:ss' )\t\" +\
+      \"  and PLAN_STIME<=to_date('\" + s1.substring(0, 10) + \" 23:59:59','yyyy-MM-dd hh24:mi:ss' )\";\
+  }\
+\
+  if (!Wb.isEmpty(data.bill)) {\
+    sql += \" and (select bill_no from BLUK_APPLY_D where p_id=BLUK_APPLY_D.ID) like '%'||{?bill?}||'%'\";\
+  }\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select ID, TENANCY_ID, PID, FROM_ID, BILL_NO, TRUCK, TRUCK_NO, TRAY, DRIVER, WEIGHT, \
+PIECES, FEI_ADDDRESS, S_ADRESS, PLAN_STIME, NOTE, PHASE, VOLUME, RELEASE_ORDER, CON_FLAG, AMOUNT, \
+AUTO_ID, FEE_AUTO_COMPUTE, CHECK_FLAG, CHECK_BY, CHECK_ON, SHIPPER_COD,SHIPPER,\
+CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON from BLUK_TRUCK_WORK where 1=1 {#sql#}\
+order by CHECK_FLAG asc"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "JCB": 1,
+  "xlcd": 1
+ },
+ "title": "查找散货实际作业",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get();\
+app.log(data);\
+sql = \" \";\t\t\
+if (!Wb.isEmpty(data.shipName)) \
+  sql += \" and  c_vessel_code.ID like '%'||{?shipName?}||'%'   \";\
+if (!Wb.isEmpty(data.begdate)) \
+  sql += \" and NEXT_TIME>={?TIMESTAMP.begdate?}   \";\
+if (!Wb.isEmpty(data.enddate)) \
+  sql += \" and NEXT_TIME<={?TIMESTAMP.enddate?}   \";\
+\
+\
+request.setAttribute('whereSql', sql);\
+\
+\
+\
+\
+\
+\
+\
+",
+   "serverMethod": "com.ag.aohao.EarlyWarning.getShipYjSql"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select vessel_name {#sql#} from   (SELECT vessel_name,SHORT_NAM  NAME,warning,\
+       CASE\
+          WHEN next_time - SYSDATE < warning*30\
+             THEN  '#'||c_certificate.color||'@'||to_char(next_time,'yyyy-mm-dd')\
+                                   \
+          ELSE to_char(next_time,'yyyy-mm-dd')\
+       END next_time,\
+       c_certificate.color\
+  FROM c_vessel_code, c_ship_certification, c_certificate\
+ WHERE c_vessel_code.ID = c_ship_certification.c_v_id(+)\
+       AND c_ship_certification.c_ce_id = c_certificate.ID(+)  {#whereSql#}) group by vessel_name"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "ZSG_GA": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

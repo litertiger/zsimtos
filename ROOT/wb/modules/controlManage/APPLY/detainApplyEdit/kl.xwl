@@ -1,0 +1,89 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+app.run(\"update VBILL_HEAD_E set KL=1,IS_LOAD_CNTR=0 where ID={?ID?}\");\
+//入库\
+//作业票得做一个通用的，先不做。\
+//inout\
+var id=SysUtil.getId();\
+\
+\
+app.run(\"insert into BLUK_GOODS(BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON,\\\
+        GOODS, ID, IMPEXP, INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, \\\
+UPDATED_BY, UPDATED_ON, VOLUME, WEIGHT)\\\
+        SELECT ID,BILL_NO,'P','',   '\"+id+\"','OTK'  ,CNTR_OPERATOR    ,{?sys.username?} ,sysdate,\\\
+GOODS_NOTES,{?sys.id?},'I',PIECES,SYSDATE,{?LOCATION?},'','',{?INQUTY?},SHIPPER,SHIPPER_COD,TENANCY_ID,'',\\\
+{?sys.username?} ,sysdate,VOLUME,WEIGHT from VBILL_HEAD where ID={?ID?}\");\
+\
+app.run(\"insert into BLUK_BILL(CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES, LOCATION, GOODSATTR, SHIPPERHANDLER, SIGNERCFS,\\\
+CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, CFS_ID, RECEIPTNO, TRUCKNO, WEIGHT, CFSBILLNO, VOLUME, LCL_ID, SHIPPER, OUTFLAG, IMPEXP,\\\
+PLANQUTY, SOURCE_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, IPIECES, SHIPPER_COD, CNTR_ID, CNTR,\\\
+IS_STORAGE,KLBILL_ID)\\\
+        SELECT '\"+id+\"','I',VBILL_HEAD.ID,VBILL_HEAD.GOODS_NOTES,'',   VBILL_HEAD.PIECES,{?LOCATION?}  ,'','',{?sys.username?},VBILL_HEAD.CNTR_OPERATOR    ,sysdate,'END' ,\\\
+{?REASON?},{?CFS_ID?},'',VBILL_HEAD.TRUCK_CO,VBILL_HEAD.WEIGHT,'',VBILL_HEAD.VOLUME,'',VBILL_HEAD.SHIPPER,'0','I',\\\
+'','',VBILL_HEAD.TENANCY_ID,SYSDATE,SYSDATE,{?sys.username?},{?sys.username?},VBILL_HEAD.BILL_NO,'',VBILL_HEAD.SHIPPER_COD,VLOAD_LIST.CNTR_ID,VLOAD_LIST.CNTR,'',{?KLBILL_ID?}\\\
+ from VBILL_HEAD,VLOAD_LIST where VBILL_HEAD.ID={?ID?} and VBILL_HEAD.id=VLOAD_LIST.BILL_ID\");\
+\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES)values({?sys.id?},'0',{?INQUTY?})\");\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// var data = app.get();\
+// app.run(\"update VBILL_HEAD_E set KL=1 where ID={?ID?}\");\
+// //入库\
+// //作业票得做一个通用的，先不做。\
+// //inout\
+\
+\
+// app.run(\"insert into BLUK_GOODS(BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON,\\\
+//         GOODS, ID, IMPEXP, INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, \\\
+// UPDATED_BY, UPDATED_ON, VOLUME, WEIGHT)\\\
+//         SELECT ID,BILL_NO,CARGO_TYPE,'',   '','OTK'  ,CNTR_OPERATOR    ,{?sys.username?} ,sysdate,\\\
+// GOODS_NOTES,SYS_GUID(),'I',{?INQUTY?},SYSDATE,{?NEW_LOCATION?},'','',{?INQUTY?},SHIPPER,SHIPPER_COD,TENANCY_ID,'',\\\
+// {?sys.username?} ,sysdate,'','' from VBILL_HEAD where ID={?ID?}\", {\
+//   arrayData: new org.json.JSONArray(data.goods)\
+// });\
+\
+\
+// var rs = app.run(\"select ID FROM BLUK_GOODS WHERE BILL_ID={?ID?}\");\
+// while (rs.next()) {\
+//   var id=rs.getString('ID');\
+//   app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES)values('\"+id+\"','0',{?INQUTY?})\");\
+// }"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

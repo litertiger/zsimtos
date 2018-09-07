@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// select ID,EMPNAME,EMPNO,DEPT_ID,WORK_TYPE,nvl(WORK_GROUP_NAME,'车队') TEAM_NAME,POCKETTEL,JOB,NOTE,\
+// (SELECT ID FROM c_employee_team WHERE ID='090f387e-014a-49cd-9e72-959a17928e1f') WORK_GROUP\
+// ,TO_DATE (TO_CHAR (SYSDATE, 'yyyy-MM-dd') || ' 08:00',\
+//                 'yyyy-MM-dd HH24:MI')\
+//           BEG_WORK_TIM,\
+//        TO_DATE (TO_CHAR (SYSDATE, 'yyyy-MM-dd') || ' 22:00',\
+//                 'yyyy-MM-dd HH24:MI')\
+//           END_WORK_TIM,'0' DAYSHIFT\
+// from c_employee where org_type='6' and EMPNAME like '%'||{?name?}||'%'\
+\
+\
+\
+\
+\
+//2\
+// select ID,EMPNAME,EMPNO,DEPT_ID,WORK_TYPE,nvl(WORK_GROUP_NAME,'车队') TEAM_NAME,POCKETTEL,JOB,NOTE,\
+// (SELECT ID FROM c_employee_team WHERE ID='090f387e-014a-49cd-9e72-959a17928e1f') WORK_GROUP\
+// ,NVL((SELECT BEG_WORK_TIM FROM WORK_ON_DUTY WHERE RESOURCE_ID=c_employee.EMPNO AND TRUNC(BEG_WORK_TIM)=TRUNC(SYSDATE)),TO_DATE (TO_CHAR (SYSDATE, 'yyyy-MM-dd') || ' 08:00',\
+//           'yyyy-MM-dd HH24:MI'))\
+// BEG_WORK_TIM,\
+// NVL((SELECT END_WORK_TIM FROM WORK_ON_DUTY WHERE RESOURCE_ID=c_employee.EMPNO AND TRUNC(END_WORK_TIM)=TRUNC(SYSDATE)),TO_DATE (TO_CHAR (SYSDATE, 'yyyy-MM-dd') || ' 22:00',\
+//          'yyyy-MM-dd HH24:MI'))\
+// END_WORK_TIM,NVL((SELECT DAYSHIFT FROM WORK_ON_DUTY WHERE RESOURCE_ID=c_employee.EMPNO AND TRUNC(END_WORK_TIM)=TRUNC(SYSDATE)),'0') DAYSHIFT\
+// from c_employee where org_type='6' and EMPNAME like '%'||{?name?}||'%'"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "select ID,EMPNAME,EMPNO,DEPT_ID,'车队' TEAM_NAME,\
+(SELECT ID FROM c_employee_team WHERE ID='090f387e-014a-49cd-9e72-959a17928e1f') WORK_GROUP\
+,NVL((SELECT BEG_WORK_TIM FROM WORK_ON_DUTY WHERE RESOURCE_ID=c_driver.EMPNO AND TRUNC(BEG_WORK_TIM)=TRUNC(SYSDATE)),TO_DATE (TO_CHAR (SYSDATE, 'yyyy-MM-dd') || ' 08:00',\
+          'yyyy-MM-dd HH24:MI'))\
+BEG_WORK_TIM,\
+NVL((SELECT END_WORK_TIM FROM WORK_ON_DUTY WHERE RESOURCE_ID=c_driver.EMPNO AND TRUNC(END_WORK_TIM)=TRUNC(SYSDATE)),TO_DATE (TO_CHAR (SYSDATE, 'yyyy-MM-dd') || ' 22:00',\
+         'yyyy-MM-dd HH24:MI'))\
+END_WORK_TIM,NVL((SELECT DAYSHIFT FROM WORK_ON_DUTY WHERE RESOURCE_ID=c_driver.EMPNO AND TRUNC(END_WORK_TIM)=TRUNC(SYSDATE)),'0') DAYSHIFT\
+from c_driver where TENANCY_ID='{#sys.TENANCY_ID#}' AND EMPNAME like '%'||''||'%'"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

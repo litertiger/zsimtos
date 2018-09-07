@@ -1,0 +1,74 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var date = DateUtil.format(new java.util.Date(), 'yyyy-MM-dd');\
+var beginTime = date + ' ' + \"00:01\";\
+var endTime = date + ' ' + \"23:59\";\
+var username = app.get('sys.username');\
+var tenancyid = app.get('sys.TENANCY_ID');\
+\
+var s = app.get('datas'),\
+  rid = \"\",\
+  ss;\
+if (s.length > 0) {\
+  ss = Wb.decode(s);\
+}\
+// app.log(ss);\
+//处理已经出勤的数据\
+for (var i = 0; i < ss.length; i++) {\
+  if (i === ss.length - 1) {\
+    rid += \"'\" + ss[i].RESOURCE_ID + \"'\";\
+  } else {\
+    rid += \"'\" + ss[i].RESOURCE_ID + \"',\";\
+  }\
+}\
+if (ss.length === 0) {\
+  rid = \"''\";\
+}\
+app.log(ss);\
+var rs = app.run(\"select RESOURCE_ID from work_on_duty where trunc(BEG_WORK_TIM)=trunc(sysdate) and RESOURCE_ID in(\" + rid + \")\"),\
+  is = [];\
+while (rs.next()) {\
+  is.push({\
+    RESOURCE_ID: rs.getString('RESOURCE_ID')\
+  });\
+}\
+app.log(is);\
+for (var i = ss.length - 1; i >= 0; i--) {\
+  for (var j = is.length - 1; j >= 0; j--) {\
+    if (ss[i].RESOURCE_ID == is[j].RESOURCE_ID) {\
+      ss.splice(i, 1);\
+      is.splice(j, 1);\
+    }\
+    break;\
+  }\
+}\
+app.log(ss);\
+var sql = \"insert into work_on_duty(ID,RESOURCE_ID,BEG_WORK_TIM,END_WORK_TIM,REMARK_TXT,CREATED_BY,CREATED_ON,STATUS,TENANCY_ID,W_TYPE,RESOURCE_NAME,GROUPING,OVERTIME,DAYSHIFT)\" +\
+  \"values(sys_guid(),{?RESOURCE_ID?},{?timestamp.BEG_WORK_TIM?},{?timestamp.END_WORK_TIM?},'','\" + username + \"',sysdate,'0',\" +\
+  \"'\" + tenancyid + \"',{?W_TYPE?},{?RESOURCE_NAME?},{?GROUPING?},{?OVERTIME?},{?DAYSHIFT?})\";\
+\
+app.run(sql, {\
+  arrayData: new org.json.JSONArray(Wb.encode(ss))\
+});\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1
+ },
+ "title": "出勤",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

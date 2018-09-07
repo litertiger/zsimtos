@@ -1,0 +1,360 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {"itemId": "grid1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=BuzManage/C_INVOICE_SERIALEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "IDcolumn1",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colINVOICE_TYPE",
+          "renderer": "if(value==0){\
+\treturn '专票';\
+}else if(value==2){\
+\treturn '普票';\
+}",
+          "dataIndex": "INVOICE_TYPE",
+          "text": "发票类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colINVOICE_HEAD",
+          "dataIndex": "INVOICE_HEAD",
+          "text": "发票头"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSTART_NO",
+          "dataIndex": "START_NO",
+          "text": "起始号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colEND_NO",
+          "dataIndex": "END_NO",
+          "text": "截止号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colNEXT_NO",
+          "hidden": "true",
+          "dataIndex": "NEXT_NO",
+          "text": "下一号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colENABLED",
+          "renderer": "if(value==0){\
+\treturn '不启用';\
+}else if(value==1){\
+\treturn '启用';\
+}",
+          "dataIndex": "ENABLED",
+          "text": "启用状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      },
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "名称",
+          "labelWidth": "50"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "searchBtn",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({params:{name:app.name.getValue()}});"}
+        },
+        {
+         "configs": {
+          "itemId": "addBtn",
+          "text": "新增",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.editWin.setTitle('新增' );\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+app.isEdit=false;\
+app.OPERATOR.setReadOnly(true);\
+app.OPERATOR.setValue('{#sys.username#}');\
+Wb.verify(app.editWin);"}
+        },
+        {
+         "configs": {
+          "itemId": "editBtn",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle('修改');\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selRec.data);\
+app.editWin.show();\
+app.OPERATOR.setReadOnly(true);\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=BuzManage/C_INVOICE_SERIALEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'INVOICE_HEAD');"}
+        }
+       ],
+       "type": "toolbar"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "itemId": "editWin",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 200,\
+  margin: '4 8 4 8'\
+}",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "480",
+     "bodyPadding": "4 0 4 0",
+     "height": "192"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "INVOICE_TYPE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "pickList": "[\
+  [0,'专票'],\
+  [2,'普票']\
+]",
+       "fieldLabel": "发票类型"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "INVOICE_HEAD",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "发票前置"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "START_NO",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "起始号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "END_NO",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "截止号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NEXT_NO",
+       "labelAlign": "right",
+       "fieldLabel": "下一号",
+       "disabled": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "OPERATOR",
+       "labelAlign": "right",
+       "fieldLabel": "操作员"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "ENABLED",
+       "labelAlign": "right",
+       "fieldLabel": "启用"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=BuzManage/C_INVOICE_SERIALEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.searchBtn.fireEvent('click'); \
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=BuzManage/C_INVOICE_SERIALEdit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.searchBtn.fireEvent('click');\
+    }\
+  });\
+}"}
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "SWB": 1
+ },
+ "title": "发票序号维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

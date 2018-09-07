@@ -1,0 +1,143 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "win",
+    "resizable": "true",
+    "editWin": "true",
+    "closeAction": "destroy",
+    "width": "800",
+    "title": "JavaScript 脚本编辑器",
+    "iconCls": "file_js_icon",
+    "height": "460",
+    "maximizable": "true"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {"itemId": "panel1"},
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "isConfig": "true",
+      "itemId": "bbar"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "fillItem",
+        "text": "->"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "cursorLabel",
+        "xtype": "tbtext",
+        "text": "&#160;"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      }
+     ],
+     "type": "toolbar"
+    }],
+    "type": "panel"
+   }],
+   "type": "window",
+   "events": {
+    "afterrender": "var config, panel = app.panel1;\
+panel.update('<textarea><\/textarea>');\
+config = {\
+  lineNumbers: true,\
+  theme: Wb.editTheme,\
+  highlightSelectionMatches: {\
+    showToken: /\\w/\
+  },\
+  mode: {\
+    name: 'text/javascript',\
+    globalVars: true\
+  },\
+  gutters: ['CodeMirror-lint-markers'],\
+  lint: true,\
+  matchBrackets: true,\
+  extraKeys: {\
+    'Ctrl-/': 'toggleComment',\
+    'Shift-Ctrl-F': function(doc) {\
+      if (doc.options.readOnly)\
+        return;\
+      var cursor = doc.getCursor(),\
+        scroll = doc.getScrollInfo();\
+      doc.autoFormatRange({\
+        line: 0,\
+        ch: 0\
+      }, {\
+        line: Number.MAX_VALUE,\
+        ch: Number.MAX_VALUE\
+      });\
+      doc.scrollTo(scroll.left, scroll.top);\
+      doc.setCursor(cursor);\
+    }\
+  }\
+};\
+app.editor = CodeMirror.fromTextArea(panel.el.down('textarea', true), config);\
+panel.mon(panel, 'resize', function(panel, width, height) {\
+  if (app.editor && !panel.destroying) {\
+    Ext.fly(app.editor.getScrollerElement()).setHeight(panel.body.getHeight());\
+    app.editor.refresh();\
+  }\
+});\
+app.editor.on('cursorActivity', function() {\
+  var o = app.editor.getCursor();\
+  app.cursorLabel.setText((o.line + 1) + ':' + (o.ch + 1));\
+});",
+    "ok": "if (app.callbackParam)\
+  Ext.callback(app.callbackParam, app, [app.editor.getValue(), win]);"
+   }
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  doShow: function() {\
+    app.win.show();\
+    app.editor.setValue(app.valueParam || '');\
+    setTimeout(function() {\
+      app.editor.focus();\
+    }, 10);\
+  },\
+  /**\
+   * 显示JavaScript编辑器对话框。\
+   * @param {String} title 对话框标题。\
+   * @param {String} value 编辑器中需要编辑的脚本内容。\
+   * @param {Function} callback 点击对话框确定按钮时的回调事件，可使用参数value和win，表示编辑的脚本内容和窗口对象。\
+   */\
+  show: function(title, value, callback) {\
+    app.valueParam = value;\
+    app.callbackParam = callback;\
+    if (title)\
+      app.win.setTitle(title);\
+    if (window.CodeMirror)\
+      app.doShow();\
+    else {\
+      Wb.addLink(['wb/libs/cm/cmirror.css', 'wb/libs/cm/cmirror.js'],\
+        app.doShow\
+      );\
+    }\
+  }\
+});"}
+ }],
+ "roles": {},
+ "title": "JS编辑器",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

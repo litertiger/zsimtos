@@ -1,0 +1,96 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+　AF.func("Build", "treelist/orders.xml \r\n editAble=false");
+  AF.func("Load", "treelistdata/orders.txt");
+  AF.func("deleteRows", "5\r\n100");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(Event=="MenuBeforePopup") {
+   var name1="时髦男帽";
+   var name2="时髦头巾";
+   var enable="true";
+   if(p1 != "-1") {  //右击在某行
+     name1 = "客户 " + AF.func("getCellText", p1 + "\r\n CustomerID") + " 的" + name1;
+     name2 = name2 + ", 产地：" + AF.func("getCellText", p1 + "\r\n Country");
+   }
+   else
+    enable="false";
+   var menu = "id=4001; text=" +name1+ "; icon=treelist/buttons.zip#301.ico; detail=夏季时装，优惠直销，尺寸齐全;enabled=" +enable+ "\r\n";
+   menu += "id=4002; text=" +name2+ "; icon=treelist/buttons.zip#302.ico; detail=夏季时装，优惠直销;enable=" + enable;
+   AF.func("AddMenu", menu);
+  }
+  else if(Event=="MenuClicked") {
+   AF.func("MessageBoxFloat", "触发了js事件！\\r\\n\\r\\n自定义功能号(id)：" + p1 + "\\r\\n\\r\\n行：" +p2+ ",  列："+p3);
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=4 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>鼠标右键弹出菜单中，有和业务关联的菜单项，这些菜单项是完全自定义的.<br>注：鼠标点在不同的行，弹出菜单内容是不一样的；如果点在标题区或下方的空白区，菜单内容是disable的.</td>
+</tr>
+</table>
+
+<br>
+<div style="position:relative;width:876px;height:150px">
+	<script>insertTreeList('AF', '')</script>
+</div>
+<br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.源码分析：所有秘密全部在OnEvent事件中：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //右键菜单弹出前的事件
+ if(Event=="MenuBeforePopup") {
+  var name1="时髦男帽";
+  var name2="时髦头巾";
+  var enable="true";
+  if(p1 != "-1") {  //鼠标点在某行
+   name1 = "客户 " + AF.func("getCellText", p1 + "\r\n CustomerID") + " 的" + name1;
+   name2 = name2 + ", 产地：" + AF.func("getCellText", p1 + "\r\n Country");
+  }
+  else { //鼠标点在标题区或空白区
+   enable="false";
+  }
+  
+  //拼装成菜单串
+  var menu = "id=4001; text=" +name1+ "; icon=treelist/buttons.zip#301.ico; detail=夏季时装;";
+  menu += "enabled=" +enable+ "\r\n";
+  menu += "id=4002; text=" +name2+ "; icon=treelist/buttons.zip#302.ico; detail=优惠直销;";
+  menu += "enabled=" +enable;
+  AF.func("AddMenu", menu);
+ }
+ 
+ //选中后触发的事件
+ else if(Event=="MenuClicked") {
+  AF.func("MessageBoxFloat", "触发了js事件！\\r\\n\\r\\n自定义功能号(id)：" + p1 + "\\r\\n\\r\\n行：" +p2+ ",  列："+p3);
+ }
+}</pre>
+</td></tr></table>
+
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

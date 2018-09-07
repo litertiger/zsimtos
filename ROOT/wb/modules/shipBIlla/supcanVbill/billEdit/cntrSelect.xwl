@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var sql, data = app.get(),    nature=app.get(\"sys.NATURE\"),  govCode=app.get(\"sys.GOV_CODE\"), tenancy=app.get(\"sys.TENANCY_ID\");\
+\
+sql = \"  TENANCY_ID='\"+tenancy+\"' and I_E_ID={?ieId?}  and PHASE<>'9'\";\
+if (!Wb.isEmpty(data.BILL_ID)) {\
+  sql += '  and BILL_ID={?BILL_ID?}';\
+} \
+if (!Wb.isEmpty(data.shipNo)) {\
+  sql += ' and VID={?shipNo?}';\
+} \
+if (!Wb.isEmpty(data.LCL_ID)) {\
+  sql += ' and LCL_ID=1 and  main_flag=1';\
+} \
+if(nature=='5')//表示驳船\
+  sql+=\" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\"+govCode+\"' \";\
+request.setAttribute('whereSql', sql);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createColumns": "false",
+    "sql": "select ID, TENANCY_ID, VID,VOYAGE_NO,  CNTR, CATEGORY_ID, CNTR_ISO, E_F_ID, \
+LINE, CNTR_OPERATOR, POD, POL, SPOD, CMDY_CODE, GOODS_NOTES, ACKWARD_CARGO, WEIGHT, VOLUME, PIECES, BILL_NO, ORDER_NO, TRADE_ID, OVERHEIGHT,\
+OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT, SEAL_NO, SEAL_NO2, SEAL_NO3, SEAL_NO4, TEMP_SET, TEMP_MIN, TEMP_MAX, SPEC_STOW, IMDG, UNDG, IMDG2, UNDG2,\
+IMDG3, UNDG3, IMDG4, UNDG4, SEQUENCE, ACTIONTYPE, TRANS_ID, LCL_ID, SPLIT_ID, DANG_ID, REEF_ID, BUNDL_ID, STUFF_ID, RELEASE_ID, EXIT_CUSTOM_ID, EMERGENCY_ID, \
+WGO_ID, V2V_ID, V2G_ID, DELV_TERM, TRANS_TYPE, CUSTOM_TYPE, PHASE, BILL_ID, NOTES, UPDATED_ON, CREATED_ON, CREATED_BY,\
+UPDATED_BY, CNTR_SIZE, CNTR_TYPE, LINE_COD, CNTR_OPERATOR_COD, MAIN_FLAG, I_E_ID, CNTR_ID,CARGO_TYPE,CNTR_OWNER, CNTR_OWNER_COD\
+from VLOAD_LIST where {#whereSql#} "
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "xlwmcgs": 1,
+  "XLBCCX": 1,
+  "ZSGHUQD": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "箱信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

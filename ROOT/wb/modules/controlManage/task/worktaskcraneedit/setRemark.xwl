@@ -1,0 +1,90 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"update move_list set notes={?notes?} where id={?id?}\", {\
+  transaction: \"commit\"\
+});\
+\
+\
+var username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"),\
+  id = app.get('id'),\
+  type = app.get('type'); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+\
+var mess = '';\
+switch (type) {\
+  case 'GOUT':\
+  case 'GIN':\
+    mess = 'gate.#';\
+    break;\
+  case 'VIN':\
+  case 'VOUT':\
+    mess = 'ship.' + ship;\
+    break;\
+  case 'MOVE':\
+    mess = 'cy.#';\
+    break;\
+}\
+\
+//发送消息\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_instruction\", mess, {\
+      info: {\
+        type: \"disc\",\
+        action: \"update\",\
+        senduser: username,\
+        sendmodule: \"taskMonitor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: id\
+      }\
+    }) && (mess == \"cy.#\" || client.routeSend(\"ex_instruction\", \"cy.#\", { //通知YardCtrl更新注释\
+      info: {\
+        type: \"disc\",\
+        action: \"update\",\
+        senduser: username,\
+        sendmodule: \"taskMonitor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: id\
+      }\
+    })))) app.send({\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  });\
+  app.send({\
+    success: true\
+  });\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "设置备注",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

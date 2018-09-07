@@ -1,0 +1,394 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "window1",
+     "closeAction": "hide",
+     "width": "280",
+     "title": "增删改查",
+     "modal": "true",
+     "height": "200"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "emptyText": "该项不能为空",
+       "fieldLabel": "序列号",
+       "x": "-8",
+       "width": "240",
+       "y": "16",
+       "labelWidth": "90",
+       "blankText": "该项不能为空",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "序列号",
+       "x": "-8",
+       "width": "240",
+       "y": "30",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "allowBlank": "false",
+       "emptyText": "该项不能为空",
+       "maxLengthText": "最大长度为20",
+       "labelWidth": "90",
+       "blankText": "该项不能为空",
+       "itemId": "CARGO_KIND_NAME",
+       "labelAlign": "right",
+       "fieldLabel": "货类名",
+       "width": "237",
+       "x": "-8",
+       "y": "56",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "237",
+       "x": "-8",
+       "y": "96",
+       "labelWidth": "90",
+       "maxLength": "400",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "x": "16",
+       "width": "240",
+       "y": "128",
+       "value": "C_CARGO_KIND",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.window1);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Cargo_Kind/C_Cargo_KindEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selNode, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selNode, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.grid1.store.load();\
+      app.grid1.expand();\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Cargo_Kind/C_Cargo_KindEdit/insert',\
+    out: app.window1,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+//       Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.grid1.store.load();\
+      app.grid1.expand();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "tagConfigs": "{editable:true}",
+      "itemId": "grid1",
+      "tools": "Wb.getTreeTools()",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "search",
+          "labelAlign": "right",
+          "fieldLabel": "序列号",
+          "labelWidth": "65"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "search_button",
+          "text": "搜索",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({out:app.tbar});\
+// app.grid1.store.load({\
+//   params: {\
+//     search: app.search.getValue()\
+//   }\
+// });"}
+        },
+        {
+         "configs": {
+          "itemId": "add_button",
+          "text": "增加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.reset(app.window1);\
+if(!app.selNode){\
+\tapp.PID.setValue('-1');\
+}else{\
+\tapp.PID.setValue(app.selNode.data.ID);\
+}\
+app.window1.setTitle('添加 - 货类');\
+app.window1.setIconCls('record_add_icon');\
+app.ID.setDisabled(false);\
+app.isEdit = false;\
+app.window1.show();"}
+        },
+        {
+         "configs": {
+          "itemId": "edit_button",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!app.selNode) {\
+  Wb.warn('请选择1个货类。');\
+  return;\
+}\
+app.window1.setTitle('修改 - ' + app.selNode.data.ID);\
+app.window1.setIconCls('record_edit_icon');\
+Wb.setValue(app.window1, app.selNode.data);\
+app.ID.setDisabled(true);\
+app.window1.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delete_button",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.confirm('确定要删除选择的货类和子货类吗？', function() {\
+  var ids = {};\
+  Wb.each(app.grid1.getSelection(), function(node) {\
+    node.cascadeBy(function(item) {\
+      ids[item.data.ID] = {\
+        ID: item.data.ID\
+      };\
+    });\
+  });\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Cargo_Kind/C_Cargo_KindEdit/DEL',\
+    params: {\
+      ids: Ext.Object.getValues(ids)\
+    },\
+    success: function(resp) {\
+      Wb.remove(app.grid1);\
+      app.grid1.expand();\
+    }\
+  });\
+});"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=system/codeManage/C_Cargo_Kind/C_Cargo_KindEdit/tree-select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "treestore",
+       "events": {"beforeload": "var node = operation.node;\
+operation.params={parentDept:node.isRoot() ? -1 : operation.node.data.ID, search: app.search.getValue()};"}
+      },
+      {
+       "configs": {
+        "itemId": "viewConfig",
+        "markDirty": "false"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tableview"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "hidden": "true",
+          "dataIndex": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CARGO_KIND_NAMECol",
+          "xtype": "treecolumn",
+          "dataIndex": "text",
+          "width": "300",
+          "text": "货类"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "IdCol",
+          "dataIndex": "ID",
+          "width": "130",
+          "text": "货类编号"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PIdCol1",
+          "hidden": "true",
+          "dataIndex": "PID",
+          "width": "130",
+          "text": "货类编号"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CREATED_BY",
+          "dataIndex": "CREATED_BY",
+          "width": "70",
+          "text": "创建人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "UPDATED_BY",
+          "dataIndex": "UPDATED_BY",
+          "width": "70",
+          "text": "修改人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "140",
+          "text": "创建时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "UPDATED_ON",
+          "dataIndex": "UPDATED_ON",
+          "width": "140",
+          "text": "修改时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "tree",
+     "events": {"selectionchange": "app.selNodes = selected;\
+app.selNode = selected[0];"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "货类管理",
+ "iconCls": "shopping_cart_icon",
+ "inframe": false,
+ "pageLink": ""
+}

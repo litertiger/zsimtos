@@ -1,0 +1,30 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var rs = app.run(\"select SOURCE_NAME, COD ,cursor(select SOURCE_NAME, COD from  supcan_data_source b where b.PID=a.ID ) from supcan_data_source  a  where   PID='-1'    \",{jndi:\"jdbc/basecode\"});\
+var xml = '<?xml version=\"1.0\" encoding=\"UTF-8\" ?><data>',rsm;\
+while (rs.next()) {\
+    xml += '<project text=\"' + rs.getString(1) + '\"  >';\
+    rsm = rs.getObject(3);\
+    while (rsm.next()) {\
+       xml += '<ds id=\"' + rsm.getString(2) + '\" tip=\"' + rsm.getString(1) + '\" dataURL=\"/supcanGetDate?COD='+rsm.getString(2)+'&whereSql=@para&whereSql2=@para2&task='+new Date()+'\" '+\
+          ' descURL=\"/supcanGetDesc?COD='+rsm.getString(2)+'&task='+new Date()+'\" >' + rsm.getString(1) + '<\/ds>';\
+    } \
+  xml+= '<\/project>';\
+}\
+xml+=\"<\/data>\";\
+app.send(xml);",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "加载报表数据源",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

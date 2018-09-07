@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\";\
+var data = app.get();\
+//   sql = \"select BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON, GOODS, ID, IMPEXP, \\\
+// INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, UPDATED_BY, UPDATED_ON, VOLUME, \\\
+//  WEIGHT,(select pieces from bluk_truck where ID={?TID?}) NUM from BLUK_GOODS where ID  in(\" + data.ID + \")  AND QUTY>0\";\
+  sql = \"select BILL_ID, BILL_NO, CARGO_TYPE, CFSBILLNO, CFSBILL_ID, CFS_ID, CNTR_OPERATOR, CREATED_BY, CREATED_ON, GOODS, ID, IMPEXP, \\\
+INQUTY, INTIME, LOCATION, OUTQUTY, OUTTIME, QUTY, SHIPPER, SHIPPER_COD, TENANCY_ID, UNIT, UPDATED_BY, UPDATED_ON, VOLUME, \\\
+(select WEIGHT from bluk_truck_M where ID={?TID?}) WEIGHT,(select pieces from bluk_truck_M where ID={?TID?}) NUM from BLUK_GOODS where ID  in(\" + data.ID + \")  AND QUTY>0\";\
+\
+\
+sql=\"SELECT BILL_ID,BILL_NO,CARGO_TYPE,CFSBILLNO,CFSBILL_ID,CFS_ID, CNTR_OPERATOR, CREATED_BY,CREATED_ON,GOODS,ID, IMPEXP,INQUTY,INTIME, LOCATION, OUTQUTY,\\\
+       OUTTIME, QUTY, SHIPPER, SHIPPER_COD,TENANCY_ID, UNIT,UPDATED_BY,UPDATED_ON,VOLUME,\\\
+       (SELECT case when d.WEIGHT>m.WEIGHT then M.WEIGHT else D.WEIGHT END  FROM bluk_truck_M m,bluk_apply_d d \\\
+         WHERE INSTR(M.PID,D.ID)>0 AND M.ID = {?TID?} AND D.BILL_NO=BLUK_GOODS.BILL_NO) WEIGHT,\\\
+       (SELECT case when d.PIECES>m.PIECES then M.PIECES else D.PIECES END  FROM bluk_truck_M M,bluk_apply_d D\\\
+         WHERE INSTR(M.PID,D.ID)>0 AND M.ID = {?TID?} AND D.BILL_NO=BLUK_GOODS.BILL_NO) NUM\\\
+  FROM BLUK_GOODS WHERE   id  in(\" + data.ID + \")  AND QUTY>0\";\
+\
+\
+\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

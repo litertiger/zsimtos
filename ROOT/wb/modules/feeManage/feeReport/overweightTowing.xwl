@@ -1,0 +1,505 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "cfsId",
+         "allowBlank": "true",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "仓库",
+         "keyName": "C_BLUK",
+         "width": "140",
+         "labelWidth": "45"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "app.cfsname.setValue(records[0].data.V);"}
+       },
+       {
+        "configs": {
+         "layout": "hbox",
+         "itemId": "radioMD",
+         "padding": "0 0 0 10",
+         "hidden": "true",
+         "width": "160"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "radioM",
+           "boxLabel": "按月统计",
+           "flex": "1",
+           "name": "radioMD",
+           "checked": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  app.cboY.setVisible(true);\
+  app.cboM.setVisible(true);\
+  var today = new Date(); //获取当前日期\
+  app.cboY.setValue(today.getFullYear());\
+  app.date1.setVisible(false);\
+  app.date1.setValue(new Date());\
+  app.sdate.setValue(new Date());\
+  app.edate.setValue(new Date());\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "radioD",
+           "boxLabel": "按天统计",
+           "flex": "1",
+           "name": "radioMD"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "radio",
+          "events": {"change": "if (newValue) {\
+  var today = new Date(); //获取当前日期\
+  var days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); //获取当前月份天数\
+  app.date1.setVisible(true);\
+  app.date1.setValue(today);\
+  app.sdate.setValue(new Date());\
+  app.edate.setValue(new Date());\
+  app.cboY.setVisible(false);\
+  app.cboM.setVisible(false);\
+  app.cboM.setValue(\"\");\
+}"}
+         }
+        ],
+        "type": "container"
+       },
+       {
+        "configs": {
+         "itemId": "cboY",
+         "allowBlank": "false",
+         "emptyText": "年",
+         "width": "80",
+         "displayField": "YEAR",
+         "valueField": "ID",
+         "forceSelection": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "if (app.radioM.checked) {\
+  var year = app.cboY.getValue();\
+  var month = app.cboM.getValue();\
+  var sdate = new Date(year + \"-\" + month + \"-01\");\
+  app.sdate.setValue(sdate);\
+  var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+  var edate = new Date(year + \"-\" + month + \"-\" + days);\
+  app.edate.setValue(edate);\
+}\
+if (app.radioD.checked) {\
+  var date = new Date();\
+  var year = app.cboY.getValue();\
+  var month = date.getMonth() + 1;\
+  var sdate = new Date(year + \"-\" + month + \"-\" + app.cboD.getValue());\
+  app.sdate.setValue(sdate);\
+  var edate = new Date(year + \"-\" + month + \"-\" + app.cboD.getValue());\
+  app.edate.setValue(edate);\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "cboM",
+         "allowBlank": "false",
+         "hidden": "false",
+         "pickList": "[\
+  [1, \"1月\"],\
+  [2, \"2月\"],\
+  [3, \"3月\"],\
+  [4, \"4月\"],\
+  [5, \"5月\"],\
+  [6, \"6月\"],\
+  [7, \"7月\"],\
+  [8, \"8月\"],\
+  [9, \"9月\"],\
+  [10, \"10月\"],\
+  [11, \"11月\"],\
+  [12, \"12月\"]\
+]",
+         "emptyText": "月",
+         "width": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = combo.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "date1",
+         "allowBlank": "false",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date",
+        "events": {"select": "app.sdate.setValue(value);\
+app.edate.setValue(value);"}
+       },
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "shipper",
+         "emptyText": "货主",
+         "width": "200",
+         "displayField": "NAME",
+         "valueField": "CODE",
+         "multiSelect": "true"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=countManage/outListEdit/seelctShip"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo",
+        "events": {"select": "app.customers.setValue(records[0].data.NAME);\
+var ids = \"\";\
+for (var i = 0; i < records.length; i++) {\
+  ids += \"'\" + records[i].data.CODE + \"',\";\
+}\
+if (ids.length > 0) {\
+  ids = ids.slice(0, ids.length - 1);\
+} else {\
+  ids = \"''\";\
+}\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "hidden": "true",
+         "emptyText": "内外贸",
+         "keyName": "TRADE_ID",
+         "width": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "ieId",
+         "hidden": "true",
+         "emptyText": "进出口",
+         "keyName": "I_E_ID",
+         "width": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cntrSize",
+         "hidden": "true",
+         "emptyText": "尺寸",
+         "keyName": "CNTR_SIZE",
+         "width": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "cntrOperator",
+         "emptyText": "船公司",
+         "width": "200",
+         "displayField": "NAME",
+         "valueField": "CODE"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=countManage/outListEdit/selectOperator"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+\
+var AF1 = document.getElementById(opt);\
+//sheet从0开始\
+// var sheetIndex = AF1.func(\"GetCurrentWorksheet\", \"\");\
+\
+var whereSql = \"\";\
+if (!Wb.isEmpty(app.cboM.getValue())) {\
+  var year = app.cboY.getValue();//获取年份\
+  var month = app.cboM.getValue()< 10 ?\"0\" + app.cboM.getValue() : app.cboM.getValue();// 获取月份\
+  var days = \"-\" + new Date(year, month, 0).getDate();//获取天数\
+  var ym = year +\"-\"+ month ;\
+  whereSql += \" AND rt.GATEOUT_TIME_T>=to_date('\" + ym + \"-01 00:00:00','yyyy-mm-dd hh24:mi:ss')  AND rt.GATEOUT_TIME_T<to_date('\" + ym + days + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') \";\
+}\
+\
+\t\
+// if (!Wb.isEmpty(app.cntrSize.getValue())) {\
+// //   whereSql += \" and cntr_size ='\" + app.cntrSize.getValue() + \"'\";\
+//    whereSql += \" and accounts_details.cntr_size ='\" + app.cntrSize.getValue() + \"'\";\
+// }\
+// if (!Wb.isEmpty(app.tradeId.getValue())) {\
+// //   whereSql += \" and vl.trade_id ='\" + app.tradeId.getValue() + \"'\";\
+//   whereSql += \" and accounts_details.trade_id ='\" + app.tradeId.getValue() + \"'\";\
+// }\
+// if (!Wb.isEmpty(app.ieId.getValue())) {\
+// //   whereSql += \" and vl.I_E_ID ='\" + app.ieId.getValue() + \"'\";\
+//   whereSql += \" and accounts_details.I_E_ID ='\" + app.ieId.getValue() + \"'\";\
+// }\
+\
+var shippers = '';\
+Wb.each(app.shipper.getValue(), function(data) {\
+  shippers += \"'\" + data + \"'\";\
+});\
+if (!Wb.isEmpty(app.shipper.getValue())) {\
+  //         whereSql += encodeURI(\" and customer_id ='\" + app.shipper.getValue() + \"'\");\
+  whereSql += \" and SHIP_CONSIGN_COD in(\" + shippers + \")\";\
+}\
+if (!Wb.isEmpty(app.cntrOperator.getValue())) {\
+  //   whereSql += \" and vl.CNTR_OPERATOR_COD ='\" + app.cntrOperator.getValue() + \"'\";\
+  whereSql += \" and areaPrice.CNTR_OPERATOR_COD ='\" + app.cntrOperator.getValue() + \"'\";\
+}\
+\
+\
+// // whereSql += encodeURI(\" and vv.created_on>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+// //   \" and vv.created_on<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
+// whereSql += encodeURI(\" and accounts_details.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//   \" and accounts_details.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') and TENANCY_ID='{#sys.TENANCY_ID#}' AND (BILL_NO IS NOT NULL OR CNTR IS NOT NULL) \");\
+// AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+// if (Wb.isEmpty(app.customers.getValue())) {\
+//   app.customers.setValue(\"对账清单\");\
+// }\
+// if(app.radioM.getValue() == true){\
+// \tAF1.func(\"SetCellData\", \"<data A1='\" + app.cboY.getValue() + \"年\" + app.cboM.getValue() + \"\" + \"月\" + app.customers.getValue() + \"' /> \");\
+// }else if(app.radioD.getValue() == true)\
+// \tAF1.func(\"SetCellData\", \"<data A1='\" +Wb.format(app.date1.getValue(),'Y'+\"年\"+'m'+\"月\"+'d'+\"日\") + app.customers.getValue() + \"' /> \");\
+// // if (app.radioM.getValue() == true) {\
+// // //   whereSql+=encodeURI(\" and ACCOUNTS_DETAILS.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+// // //     \" and ACCOUNTS_DETAILS.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
+// //   whereSql+=encodeURI(\" and vv.created_on>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+// //     \" and vv.created_on<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
+// //   AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+//   if (Wb.isEmpty(app.customers.getValue())) {\
+//     app.customers.setValue(\"\");\
+//   }\
+//   AF1.func(\"SetCellData\", \"<data A1='\" + app.cboY.getValue() + \"年\" + app.cboM.getValue() + \"\" + \"月\" + app.customers.getValue() + \"' /> \");\
+// }\
+\
+// if (app.radioD.getValue() === true) {\
+//   //   var date_string = app.date1.getRawValue().split(\"-\");\
+//   //   var whereSql = encodeURI(\" and trunc(CFSTIME)=to_date('\" + app.date1.getRawValue() + \"','yyyy-MM-dd') AND CFS_ID= 'INP' \");\
+//   //   var whereSql2 = encodeURI(\" AND trunc(CFSTIME)=to_date('\" + app.date1.getRawValue() + \"','yyyy-MM-dd') AND CFS_ID= 'INP' \");\
+//   //   AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime()+\";tenancyId=\"+'{#sys.TENANCY_ID#}');\
+//   //   AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime()+\";tenancyId=\"+'{#sys.TENANCY_ID#}');\
+//   //   AF1.func(\"SetCellData\", \"<data I2='\" + date_string[0] + \"年\" + date_string[1] + \"月\" + date_string[2] + \"日\"  + \"' /> \");\
+//   //   AF1.func(\"SetCellData\", \"<data C2='库场：进口拼柜仓' /> \");\
+// }\
+\
+\
+\
+whereSql = encodeURI(whereSql);\
+//这里取到的费目：拖运费2018（区域）拖运超重费（区域），拖车费结算价 \
+\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"\");"}
+       },
+       {
+        "configs": {
+         "itemId": "customers",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "cfsname",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "IDS",
+         "hidden": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+//     m.func(\"Build\", 'supcan/report/fee/checkList.xml?'+Math.random()*1000);\
+//     m.func(\"Build\", 'supcan/report/fee/checkList.xml?'+Math.random()*1000);\
+    m.func(\"Build\", 'supcan/report/fee/overWeigthTowing.xml');\
+    m.func(\"Build\", 'supcan/report/fee/overWeigthTowing.xml');\
+    m.func(\"callfunc\", \"4\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&F11998411174113\");\
+    m.func(\"SetCurrentWorksheet\", \"0\");\
+//     m.func(\"SeparateView\", \"3\\r\\
+\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+//定义一个Store,绑定数据\
+var yearStore = Ext.create('Ext.data.Store', {\
+  fields: ['ID', 'YEAR'],\
+  data: years\
+});\
+//combo通过代码绑定Stroe\
+app.cboY.bindStore(yearStore);\
+var today = new Date(); //获取当前日期\
+app.cboY.setValue(today.getFullYear());\
+// var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+// app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+// app.edate.setValue(today);\
+if (app.radioM.checked) {\
+  app.cboM.setVisible(true);\
+//   app.cboM.setValue(today.getMonth()+1);\
+  app.date1.setVisible(false);\
+//   app.sdate.setValue(new Date());\
+//   app.edate.setValue(new Date());\
+}",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {"JCB": 1},
+ "title": "拖车超重费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

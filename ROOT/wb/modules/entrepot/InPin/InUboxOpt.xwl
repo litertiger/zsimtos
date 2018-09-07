@@ -1,0 +1,2697 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+ \
+  ieId:'I',\
+  tradeId:'1',\
+  billType:'C' \
+});"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "moveXwl",
+     "file": "m?xwl=controlManage/task/moveTaskWin"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "xwl"
+   },
+   {
+    "configs": {
+     "itemId": "billToolbar",
+     "normalName": "billTbar"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "tooltip": "批量票入库",
+       "text": "批量票入库",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "// var sels=app.billGrid.getSelection();\
+// for(var i=0;i<sels.length;i++){\
+// \tsels[i].set('IPIECES',sels[i].data.IPIECES);\
+//   sels[i].set('CFS_ID',sels[i].data.CFS_ID);\
+//   sels[i].set('LOCATION',sels[i].data.LOCATION);\
+//   sels[i].commit();\
+//   alert(sels[0].data.BILL_NO);\
+// }\
+// console.log(app.billGrid.getSelectionModel().getSelection());\
+\
+// for (var i = 0; i < app.billGrid.store.getCount(); i++) {\
+//   var record = app.billGrid.getStore().getAt(i);\
+//   if (record.data.IPIECES <= record.data.PIECES) {\
+//     record.set('IPIECES', record.data.IPIECES);\
+//     record.set('CFS_ID', record.data.CFS_ID);\
+//     record.set('LOCATION', record.data.LOCATION);\
+//     record.commit();\
+//   }else{\
+//   \trecord.get('IPIECES').focus();\
+//   }\
+// }\
+\
+// Wb.getModified(app.billGrid.getStore(),function(resp){\
+// \tconsole.log(Wb.decode(resp.responseText));\
+// });\
+//-----------------------------------------------------------------------------------------------------------------------\
+\
+// var datas = new Array();\
+// // console.log(Wb.getModified(app.billGrid.getStore()));\
+// if (Wb.getModified(app.billGrid.getStore()).update.length > 0) {\
+//   var rs = Wb.getModified(app.billGrid.getStore());\
+//   //   console.log(rs.update);\
+//   Wb.each(rs.update, function(rec) {\
+//     if (rec.IPIECES <= rec.PIECES) {\
+//       //判断仓库编号和位置是否为空\
+//       if (rec.CFS_ID == \"\") {\
+//         Wb.warn(\"仓库不能为空！\");\
+//         return;\
+//       } else if (rec.LOCATION == \"\") {\
+//         Wb.warn(\"堆存位置不能为空！\");\
+//         return;\
+//       } else {\
+//         //能得到值，需要写ajax请求，保存数据\
+//         datas.push({\
+//           IPIECES: rec.IPIECES,\
+//           CFS_ID: rec.CFS_ID,\
+//           LOCATION: rec.LOCATION,\
+//           CFSBILL_ID: rec.CFSBILL_ID,\
+//           BILL_ID: rec.BILL_ID,\
+//           ID: rec.LCL_ID,\
+//           CFSTIME: rec.CFSTIME\
+//         });\
+//       }\
+//     } else {\
+//       Wb.warn(\"入库数量大于应入件数，不能入库\");\
+//       var editing = Ext.isTouch ? null : Wb.findEditing(app.billGrid);\
+//       if (editing)\
+//         editing.completeEdit();\
+\
+//       //需要去算出哪行出错 \
+//       for (var i = 0; i < app.billGrid.store.getCount(); i++) {\
+//         var record = app.billGrid.getStore().getAt(i);\
+//         if (record.data.IPIECES == rec.IPIECES) {\
+//           editing.startEdit(record, 7);\
+//         }\
+//       }\
+//       return;\
+//     }\
+//   });\
+// }\
+\
+// if (datas.length > 0) {\
+//   Wb.request({\
+//     url: 'm?xwl=MiscellJob/bluk/InPin/InBoxOpt/updateAllBill',\
+//     params: {\
+//       datas: datas\
+//     },\
+//     success: function(resp) {\
+//       app.seekMenu.fireEvent('click');\
+//       app.billGrid.store.load({\
+//         params: {\
+//           LCL_ID: app.IDS.getValue()\
+//         }\
+//       });\
+//     }\
+//   });\
+// }\
+\
+//-----------------------------------------------------------------------------------------------------------------------\
+\
+\
+var datas = new Array();\
+if (Wb.getModified(app.billGrid.getStore()).update.length > 0) {\
+  var rs = Wb.getModified(app.billGrid.getStore());\
+  var re = \"\";\
+  Wb.each(rs.update, function(rec) {\
+    if (rec.IPIECES == rec.PIECES) {\
+      //判断仓库编号和位置是否为空\
+      if (rec.CFS_ID == \"\") {\
+        Wb.warn(\"仓库不能为空！\");\
+        return;\
+      } else if (rec.LOCATION == \"\") {\
+        Wb.warn(\"堆存位置不能为空！\");\
+        return;\
+      } else {\
+        //能得到值，需要写ajax请求，保存数据\
+        datas.push({\
+          IPIECES: rec.IPIECES,\
+          CFS_ID: rec.CFS_ID,\
+          LOCATION: rec.LOCATION,\
+          CFSBILL_ID: rec.CFSBILL_ID,\
+          BILL_ID: rec.BILL_ID,\
+          ID: rec.LCL_ID,\
+          CFSTIME: rec.CFSTIME\
+        });\
+      }\
+    } else {\
+      re += rec.BILL_NO + \",\";\
+      //判断仓库编号和位置是否为空\
+      if (rec.CFS_ID == \"\") {\
+        Wb.warn(\"仓库不能为空！\");\
+        return;\
+      } else if (rec.LOCATION == \"\") {\
+        Wb.warn(\"堆存位置不能为空！\");\
+        return;\
+      } else {\
+        //能得到值，需要写ajax请求，保存数据\
+        datas.push({\
+          IPIECES: rec.IPIECES,\
+          CFS_ID: rec.CFS_ID,\
+          LOCATION: rec.LOCATION,\
+          CFSBILL_ID: rec.CFSBILL_ID,\
+          BILL_ID: rec.BILL_ID,\
+          ID: rec.LCL_ID,\
+          CFSTIME: rec.CFSTIME\
+        });\
+      }\
+    }\
+  });\
+}\
+\
+if (datas.length > 0) {\
+  if (re.length == 0) {\
+    Wb.request({\
+      url: 'm?xwl=entrepot/InPin/InBoxOpt/updateAllBill',\
+      params: {\
+        datas: datas\
+      },\
+      success: function(resp) {\
+        app.seekMenu.fireEvent('click');\
+        app.billGrid.store.load({\
+          params: {\
+            LCL_ID: app.IDS.getValue()\
+          }\
+        });\
+      }\
+    });\
+  } else {\
+    re = re.substring(0, re.length - 1);\
+    Wb.confirm(re + \"数量不符是否继续确认拆单?\", function() {\
+      Wb.request({\
+        url: 'm?xwl=entrepot/InPin/InBoxOpt/updateAllBill',\
+        params: {\
+          datas: datas\
+        },\
+        success: function(resp) {\
+          app.seekMenu.fireEvent('click');\
+          app.billGrid.store.load({\
+            params: {\
+              LCL_ID: app.IDS.getValue()\
+            }\
+          });\
+        }\
+      });\
+    });\
+  }\
+\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBillMenu",
+       "tooltip": "保存",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.billGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.billGrid,\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/saveBill',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.billGrid, Wb.decode(resp.responseText));\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "cancelBtn",
+       "hidden": "true",
+       "text": "取消",
+       "iconCls": "cancel_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var datas = new Array();\
+if (Wb.getModified(app.billGrid.getStore()).update.length > 0) {\
+  var rs = Wb.getModified(app.billGrid.getStore());\
+  Wb.each(rs.update, function(rec) {\
+    if (rec.IPIECES <= rec.PIECES) {\
+      //判断仓库编号和位置是否为空\
+      if (rec.CFS_ID == \"\") {\
+        Wb.warn(\"仓库不能为空！\");\
+        return;\
+      } else if (rec.LOCATION == \"\") {\
+        Wb.warn(\"堆存位置不能为空！\");\
+        return;\
+      } else {\
+        //能得到值，需要写ajax请求，保存数据\
+        datas.push({\
+          IPIECES: rec.IPIECES,\
+          CFS_ID: rec.CFS_ID,\
+          LOCATION: rec.LOCATION,\
+          CFSBILL_ID: rec.CFSBILL_ID,\
+          BILL_ID: rec.BILL_ID,\
+          ID: rec.LCL_ID,\
+          CFSTIME: rec.CFSTIME\
+        });\
+      }\
+    } else {\
+      Wb.warn(\"入库数量大于应入件数，不能入库\");\
+      var editing = Ext.isTouch ? null : Wb.findEditing(app.billGrid);\
+      if (editing)\
+        editing.completeEdit();\
+\
+      //需要去算出哪行出错 \
+      for (var i = 0; i < app.billGrid.store.getCount(); i++) {\
+        var record = app.billGrid.getStore().getAt(i);\
+        if (record.data.IPIECES == rec.IPIECES) {\
+          editing.startEdit(record, 7);\
+        }\
+      }\
+      return;\
+    }\
+  });\
+}\
+\
+if (datas.length > 0) {\
+  Wb.request({\
+    url: 'm?xwl=entrepot/InPin/InBoxOpt/updateAllBill',\
+    params: {\
+      datas: datas\
+    },\
+    success: function(resp) {\
+      app.seekMenu.fireEvent('click');\
+      app.billGrid.store.load({\
+        params: {\
+          LCL_ID: app.IDS.getValue()\
+        }\
+      });\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "mFenBtn1",
+       "hidden": "true",
+       "tooltip": "高级查询",
+       "text": "查询",
+       "iconCls": "search_again_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.moreXwl.moreGrid=app.billGrid;\
+app.moreXwl.selWin.show();"}
+     },
+     {
+      "configs": {
+       "itemId": "container1",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {"itemId": "shipNo"},
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {"itemId": "ID"},
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {"itemId": "shipName"},
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {"itemId": "voyageNo"},
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "ieId",
+         "value": "I"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "container"
+     },
+     {
+      "configs": {
+       "itemId": "recordCfsId",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {"itemId": "item1"},
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var editing = Ext.isTouch ? null : Wb.findEditing(app.billGrid);\
+var s=editing.startEdit(0,7);\
+console.log(s);"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel1",
+       "split": "true",
+       "width": "300",
+       "region": "west"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "cntrGrid",
+        "editable": "true",
+        "disabled": "false",
+        "multiSelect": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "groupField": "TASKSTATUS",
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=entrepot/InPin/InBoxOpt/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {
+          "itemId": "features",
+          "ftype": "grouping",
+          "groupHeaderTpl": "{name} ({rows.length} 个)"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "feature"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": false,
+         "children": [
+          {
+           "configs": {
+            "itemId": "SEQ_NOmn141",
+            "xtype": "rownumberer",
+            "dataIndex": "SEQUENCE",
+            "width": "40",
+            "text": "序号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTRumn19",
+            "dataIndex": "CNTR",
+            "width": "100",
+            "text": "箱号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REC_ID987",
+            "renderer": "\
+if (value == '01') {\
+  return '可入仓';\
+} else if(value == '02') \
+  return '退单';\
+ else\
+   return '';",
+            "dataIndex": "REC_ID",
+            "width": "70",
+            "text": "回执",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REC_ID9871",
+            "renderer": "if (value == '2') {\
+  return '放行';\
+} else if(value == '1') \
+  return '监拆';\
+ else\
+   return '';\
+\
+",
+            "dataIndex": "PRISON_BREAK",
+            "width": "70",
+            "text": "监拆",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VID12113",
+            "hidden": "true",
+            "dataIndex": "VID",
+            "width": "75",
+            "text": "船舶航次号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TASKSTATUS20",
+            "dataIndex": "TASKSTATUS",
+            "width": "65",
+            "keyName": "TASKSTATUS",
+            "text": "任务状态",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_SIZECol",
+            "dataIndex": "CNTR_SIZE",
+            "width": "40",
+            "text": "尺寸",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_TYPEmn11",
+            "dataIndex": "CNTR_TYPE",
+            "width": "40",
+            "text": "箱型",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SEAL_NOmn13",
+            "dataIndex": "SEAL_NO",
+            "width": "100",
+            "text": "铅封",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_OPER_IDmn15",
+            "dataIndex": "CNTR_OPERATOR",
+            "width": "120",
+            "text": "箱代理",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFS_ID16",
+            "hidden": "true",
+            "dataIndex": "CFS_ID",
+            "width": "70",
+            "text": "仓库编码",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BTIME18",
+            "hidden": "true",
+            "dataIndex": "BTIME",
+            "width": "120",
+            "text": "执行开始时间",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "ETIME181",
+            "hidden": "true",
+            "dataIndex": "ETIME",
+            "width": "120",
+            "text": "执行完毕时间",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SIGNER18121",
+            "hidden": "true",
+            "dataIndex": "SIGNER",
+            "width": "40",
+            "text": "仓管",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SIGNERZS_IMTOS182",
+            "hidden": "true",
+            "dataIndex": "SIGNERZS_IMTOS",
+            "width": "80",
+            "text": "业务签名",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VANNINGDVmn201",
+            "dataIndex": "VANNINGDV",
+            "width": "50",
+            "keyName": "I_E_ID",
+            "text": "进/出",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BILL_IDmn2011",
+            "hidden": "true",
+            "dataIndex": "BILL_ID",
+            "width": "120",
+            "text": "进口提单号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TENANCY_IDmn2012",
+            "hidden": "true",
+            "dataIndex": "TENANCY_ID",
+            "width": "40",
+            "text": "租户",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_ONmn1813",
+            "hidden": "true",
+            "dataIndex": "CREATED_ON",
+            "width": "40",
+            "text": "创建时间",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_BYmn18131",
+            "hidden": "true",
+            "dataIndex": "CREATED_BY",
+            "width": "40",
+            "text": "创建人",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_ONmn123",
+            "hidden": "true",
+            "dataIndex": "UPDATED_ON",
+            "width": "40",
+            "text": "修改时间",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_BYmn18133",
+            "hidden": "true",
+            "dataIndex": "UPDATED_BY",
+            "width": "40",
+            "text": "修改人",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SEND_ID99",
+            "renderer": "if (value == 1) {\
+  return '<input type=\"checkbox\" name=\"send_id\" checked=\"checked\" disabled=\"true\"/> ';\
+} else\
+  return '<input type=\"checkbox\" name=\"send_id\" disabled=\"true\"/> ';",
+            "xtype": "checkcolumn",
+            "dataIndex": "SEND_ID",
+            "width": "70",
+            "text": "海关报文",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        },
+        {
+         "configs": {
+          "itemId": "tbar",
+          "padding": "0,0,0,0",
+          "hidden": "false",
+          "normalName": "cntrTbar",
+          "cls": "border-width:0px",
+          "dock": "top"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "date",
+            "labelAlign": "right",
+            "fieldLabel": "时间",
+            "width": "140",
+            "labelWidth": "40"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "date",
+           "events": {"select": "\
+\
+app.seekMenu.fireEvent('click');\
+"}
+          },
+          {
+           "configs": {
+            "itemId": "seekMenu",
+            "hidden": "true",
+            "text": "查询",
+            "iconCls": "search_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.cntrGrid.store.load({params:{date:app.date.getValue(),ieId:'{#ieId#}'}});"}
+          },
+          {
+           "configs": {
+            "itemId": "IDS",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "VIDS",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "CNTRIDS",
+            "hidden": "true"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {
+          "itemId": "popupMenu",
+          "normalName": "cntrMenu"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "printerBtn",
+            "text": "打印",
+            "iconCls": "printer_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rowData = app.cntrMenu.selectRow.data;\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and b.cntr_id='\"+rowData.CNTR_ID+\"' and V.I_E_ID='I'\");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+  whereSql=\" + whereSql+\";drr=\"+new Date().getTime()+\";tenancyId=\"+'{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+          },
+          {
+           "configs": {
+            "itemId": "sendEdi",
+            "hidden": "false",
+            "text": "拼柜拆箱入仓申报",
+            "iconCls": "server_start_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=EDI/ediPro/blukCargoHouse',\
+  params: {\
+    ID: rowData.ID,\
+    TENANCY_ID: rowData.TENANCY_ID\
+  },\
+  success: function(resp) {\
+    Wb.info(\"成功\");\
+//     Wb.request({\
+//       url: 'm?xwl=entrepot/InPin/InBoxOpt/updateEdi',\
+//       params: {\
+//         ID: rowData.ID\
+//       },\
+//       success: function(resp) {\
+//        app.seekMenu.fireEvent('click');\
+//       }\
+//     });\
+    //     }\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "sendEdi1",
+            "hidden": "false",
+            "text": "拼柜拆箱完成申报",
+            "iconCls": "server_start_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=EDI/ediPro/blukCargoHouseFin',\
+  params: {\
+    ID: rowData.ID,\
+    TENANCY_ID: rowData.TENANCY_ID\
+  },\
+  success: function(resp) {\
+    Wb.info(\"成功\");\
+\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn3",
+            "normalName": "startUnboxBtn",
+            "text": "开始拆箱",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//将计划状态置为执行\
+var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/startUnBox',\
+  params: {\
+    TASKSTATUS: 'EXE',\
+    ID: rowData.ID,\
+    CNTR_ID: rowData.CNTR_ID,\
+    ieId: '{#ieId#}'\
+  },\
+  success: function(resp) {\
+    app.seekMenu.fireEvent('click');\
+    app.billGrid.store.load({\
+      params: {\
+        LCL_ID: app.IDS.getValue()\
+      }\
+    });\
+  }\
+});\
+// app.cancelBtn.isDisabled"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn2",
+            "normalName": "cntrCancelBtn",
+            "text": "取消开始拆箱",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//取消开始拆箱\
+var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/cancelUnBox',\
+  params: {\
+    TASKSTATUS: 'PLN',\
+    ID: rowData.ID,\
+    CNTR_ID: rowData.CNTR_ID\
+  },\
+  success: function(resp) {\
+    app.seekMenu.fireEvent('click');\
+    app.billGrid.store.load({\
+      params: {\
+        LCL_ID: app.IDS.getValue()\
+      }\
+    });\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn4",
+            "normalName": "byCntrBtn",
+            "text": "按照柜确认入库",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var length=app.billGrid.store.getCount();\
+if(length==0){\
+\tWb.warn(\"请先选择箱子，填入仓库编码、堆存位置信息\");\
+  return;\
+}\
+if (!Wb.verifyGrid(app.billGrid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.billGrid,\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.billGrid, Wb.decode(resp.responseText));\
+    ///\
+    var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/insertCntrGoods',\
+  params: {\
+    BILL_ID: rowData.ID,\
+    TASKSTATUS: rowData.TASKSTATUS,\
+    ID: rowData.ID,\
+    ieId:'{#ieId#}',\
+    CNTR_ID:rowData.CNTR_ID\
+  },\
+  success: function(resp) {\
+    Wb.toast('成功');\
+\tapp.seekMenu.fireEvent('click');\
+\
+        app.billGrid.store.load({\
+    \tparams:{\
+        \tLCL_ID: app.IDS.getValue()\
+        }\
+    });\
+  }\
+});\
+    ///\
+  }\
+});\
+\
+// 按照柜确认入库操作\
+// var rowData = app.cntrMenu.selectRow.data;\
+// Wb.request({\
+//   url: 'm?xwl=MiscellJob/bluk/InPin/InBoxOpt/insertCntrGoods',\
+//   params: {\
+//     BILL_ID: rowData.ID,\
+//     TASKSTATUS: rowData.TASKSTATUS,\
+//     ID: rowData.ID,\
+//     ieId:'{#ieId#}',\
+//     CNTR_ID:rowData.CNTR_ID\
+//   },\
+//   success: function(resp) {\
+//     Wb.toast('成功');\
+// \tapp.seekMenu.fireEvent('click');\
+\
+//     app.billGrid.store.load({\
+//       out: app.panel11\
+//     });\
+//   }\
+// });"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn11",
+            "normalName": "cntrConfirmBtn",
+            "text": "确认拆箱",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//确认拆箱\
+var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/check',\
+  params: {\
+    ID: rowData.ID,\
+    VID: rowData.VID,\
+    CNTR: rowData.CNTR\
+  },\
+  success: function(resp) {\
+    //     console.log(resp.responseText);\
+    var rs = resp.responseText;\
+    if (rs.length == 0) {\
+      ///\
+      Wb.request({\
+        url: 'm?xwl=entrepot/InPin/InBoxOpt/confirmUnbox',\
+        out: app.editwin,\
+        params: {\
+          ID: rowData.ID,\
+          CNTR_ID: rowData.CNTR_ID,\
+          ieId: '{#ieId#}'\
+        },\
+        success: function(resp) {\
+          app.seekMenu.fireEvent('click');\
+          app.billGrid.store.load({\
+            params: {\
+              LCL_ID: app.IDS.getValue()\
+            }\
+          });\
+        }\
+      });\
+\
+      ///\
+    } else {\
+      Wb.confirm(rs + \"数量不符是否继续确认拆箱?\", function() {\
+        ///\
+        Wb.request({\
+          url: 'm?xwl=entrepot/InPin/InBoxOpt/confirmUnbox',\
+          out: app.editwin,\
+          params: {\
+            ID: rowData.ID,\
+            CNTR_ID: rowData.CNTR_ID,\
+            ieId: '{#ieId#}'\
+          },\
+          success: function(resp) {\
+            app.seekMenu.fireEvent('click');\
+            app.billGrid.store.load({\
+              params: {\
+                LCL_ID: app.IDS.getValue()\
+              }\
+            });\
+          }\
+        });\
+\
+        ///\
+      });\
+    }\
+\
+  }\
+});\
+\
+// Wb.request({\
+//   url: 'm?xwl=MiscellJob/bluk/InPin/InBoxOpt/check',\
+//   params: {\
+//     ID: rowData.ID\
+//   },\
+//   success: function(resp) {\
+//     ///\
+//     var win = new Ext.window.Window(app._editwin);\
+//     Wb.reset(app.editwin);\
+//     app.WORKDATE.setValue(new Date());\
+//     win.show();\
+//     win.setIconCls('record_edit_icon');\
+//     win.mon(win, 'ok', function() {\
+//       Wb.request({\
+//         url: 'm?xwl=MiscellJob/bluk/InPin/InBoxOpt/confirmUnbox',\
+//         out: app.editwin,\
+//         params: {\
+//           ID: rowData.ID,\
+//           CNTR_ID: rowData.CNTR_ID,\
+//           ieId: '{#ieId#}'\
+//         },\
+//         success: function(resp) {\
+//           win.close();\
+//           app.seekMenu.fireEvent('click');\
+//           app.billGrid.store.load({\
+//             params: {\
+//               LCL_ID: app.IDS.getValue()\
+//             }\
+//           });\
+//         }\
+//       });\
+//     });\
+//     ///\
+//   }\
+// });"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn4144",
+            "normalName": "cancelByCntrBtn",
+            "text": "取消按照柜确认入库",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//取消按照柜确认入库操作\
+var rowData = app.cntrMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/cancelCntrGoods',\
+  params: {\
+    BILL_ID: rowData.ID,\
+    TASKSTATUS: rowData.TASKSTATUS,\
+    ID: rowData.ID,\
+    CNTR_ID: rowData.CNTR_ID,\
+    ieId: '{#ieId#}'\
+  },\
+  success: function(resp) {\
+    Wb.toast('成功');\
+    app.seekMenu.fireEvent('click');\
+\
+    app.billGrid.store.load({\
+      params: {\
+        LCL_ID: app.IDS.getValue()\
+      }\
+    });\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "yBtn",
+            "text": "生成移箱任务",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.cntrGrid.getSelection();\
+if (sels.length <= 0) {\
+  Wb.warn(\"请选择箱!\");\
+  return;\
+}\
+Wb.setValue(app.moveXwl.taskWin,{date:Wb.dateToText(new Date()).split(\" \")[0]});\
+app.moveXwl.taskWin.show();\
+console.log(sels.map(function(sel){return sel.data.CNTR;}));\
+app.moveXwl.taskWin.cntrs = sels.map(function(sel){return sel.data.CNTR;});\
+\
+"}
+          }
+         ],
+         "type": "menu",
+         "events": {"show": "var rows = app.cntrGrid.getSelection();\
+\
+app.yBtn.setDisabled(rows.length != 1);\
+// alert(rows[0].data.TASKSTATUS);\
+app.startUnboxBtn.setDisabled(rows.length != 1); //按照item的normalname\
+app.byCntrBtn.setDisabled(rows.length != 1);\
+app.cntrCancelBtn.setDisabled(rows.length != 1);\
+app.cntrConfirmBtn.setDisabled(rows.length != 1);\
+app.cancelByCntrBtn.setDisabled(rows.length != 1);\
+app.printerBtn.setDisabled(rows.length != 1);\
+app.sendEdi.setDisabled(rows.length != 1);\
+// if(rows[0].data.SEND_ID=='1'){\
+// \tapp.sendEdi.setDisabled(false);\
+// }else{\
+// \tapp.sendEdi.setDisabled(false);\
+//   app.startUnboxBtn.setDisabled(true);\
+//   \tapp.byCntrBtn.setDisabled(true);\
+//   app.cntrCancelBtn.setDisabled(true);\
+//   app.cntrConfirmBtn.setDisabled(true);\
+//   app.cancelByCntrBtn.setDisabled(true);\
+//   return;\
+\
+// }\
+if (rows.length >= 1) {\
+  if (rows[0].data.TASKSTATUS == \"EXE\") {\
+    //    app.sendEdi.setDisabled(true);\
+    app.startUnboxBtn.setDisabled(true);\
+    app.byCntrBtn.setDisabled(false);\
+    app.cntrCancelBtn.setDisabled(false);\
+    app.cntrConfirmBtn.setDisabled(true);\
+    app.cancelByCntrBtn.setDisabled(true);\
+  }\
+  if (rows[0].data.TASKSTATUS == \"PLN\") {\
+    //\
+    //   app.sendEdi.setDisabled(false);\
+    //\
+    app.startUnboxBtn.setDisabled(false);\
+    app.byCntrBtn.setDisabled(true);\
+    app.cntrCancelBtn.setDisabled(true);\
+    app.cntrConfirmBtn.setDisabled(true);\
+    app.cancelByCntrBtn.setDisabled(true);\
+  }\
+  if (rows[0].data.TASKSTATUS == \"FIN\") {\
+    //   app.sendEdi.setDisabled(true);\
+    app.startUnboxBtn.setDisabled(true);\
+    app.byCntrBtn.setDisabled(true);\
+    app.cntrCancelBtn.setDisabled(true);\
+    app.cntrConfirmBtn.setDisabled(false);\
+    app.cancelByCntrBtn.setDisabled(false);\
+  }\
+  if(rows[0].data.TASKSTATUS==\"END\"){\
+  //   app.sendEdi.setDisabled(true);\
+  \tapp.startUnboxBtn.setDisabled(true);\
+    \tapp.byCntrBtn.setDisabled(true);\
+    app.cntrCancelBtn.setDisabled(true);\
+    app.cntrConfirmBtn.setDisabled(true);\
+    app.cancelByCntrBtn.setDisabled(true);\
+  }\
+\
+  menu.selectRow = rows[0];\
+\
+\
+}\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// var state=rows.length != 1;//不等于1不能\
+// if(!state){\
+// app.cntrBuildReciptBtn.setDisabled(state);//设备交接单\
+// menu.selectRow = rows[0];\
+// }\
+// else{\
+// app.cntrBuildReciptBtn.setDisabled(state);//设备交接单\
+// }"}
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "\
+\
+app.billGrid.store.load({\
+  params: {\
+    LCL_ID: record.data.ID,\
+    ieId:'{#ieId#}'\
+  }\
+});\
+app.IDS.setValue(record.data.ID);\
+app.VIDS.setValue(record.data.VID);\
+app.CNTRIDS.setValue(record.data.CNTR_ID);"}
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel11",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "billGrid",
+        "editable": "true",
+        "mergeRows": "true",
+        "tbar": "app.billToolbar",
+        "text": "提单",
+        "gridLine": "true",
+        "multiSelect": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=entrepot/InPin/InBoxOpt/billselect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store",
+         "events": {"load": "//这里做默认加载grid时，给CFS_ID字段赋值。已经移到后台了\
+// Wb.request({\
+//   url: 'm?xwl=MiscellJob/bluk/InPin/InBoxOpt/selectCfs',\
+//   params: {},\
+//   success: function(resp) {\
+//     var rs = Wb.decode(resp.responseText).rows[0];\
+//     console.log(records);\
+// //     for (var i = 0; i < app.billGrid.store.getCount(); i++) {\
+// //       var record = app.billGrid.store.getAt(i);\
+// //       record.set('CFS_ID', rs.CY_AREA_NO);\
+// //     }\
+//     for(var i=0;i<records.length;i++){\
+//     \trecords[i].set('CFS_ID', rs.CY_AREA_NO);\
+//     }\
+//   }\
+// });"}
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "BILL_ID992",
+            "hidden": "true",
+            "dataIndex": "BILL_ID",
+            "width": "240",
+            "text": "提单号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TASKSTATUS99",
+            "dataIndex": "TASKSTATUS",
+            "width": "40",
+            "keyName": "TASKSTATUS",
+            "text": "状态",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFSBILL_ID99",
+            "hidden": "true",
+            "dataIndex": "CFSBILL_ID",
+            "width": "240",
+            "text": "出入库单号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFSBILL_ID991",
+            "dataIndex": "BILL_NO",
+            "width": "120",
+            "text": "提单号码",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFSINOUT991",
+            "dataIndex": "CFSINOUT",
+            "width": "50",
+            "keyName": "I_E_ID",
+            "text": "进/出",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "GOODS93",
+            "dataIndex": "GOODS",
+            "width": "200",
+            "text": "品名",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colSHIPPER",
+            "dataIndex": "SHIPPER",
+            "width": "200",
+            "text": "收货人",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PIECES99",
+            "dataIndex": "PIECES",
+            "width": "70",
+            "text": "应到件数",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PIECES991",
+            "dataIndex": "IPIECES",
+            "width": "70",
+            "text": "本次件数",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number",
+            "events": {"change": "var s=app.billGrid.getSelection()[0];\
+if(newValue>0)\
+\ts.set(\"YIPIECES\",newValue);\
+else \
+  s.set(\"YIPIECES\",0);"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PIECES9911",
+            "dataIndex": "YIPIECES",
+            "width": "70",
+            "text": "已入库件数",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFS_ID99",
+            "dataIndex": "CFS_ID",
+            "keyName": "C_BLUK",
+            "text": "仓库编码",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "keyName": "C_BLUK"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "combo",
+            "events": {"select": "// var sels = app.billGrid.getSelection();\
+// selRec = sels[0];\
+// var store = app.billGrid.getStore();\
+// var rowIndex = store.indexOf(selRec);\
+// var rec = app.billGrid.store.getAt(rowIndex);\
+// rec.set('CFS_ID',records[0].data.CY_AREA_NO);"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFS_ID991",
+            "hidden": "true",
+            "dataIndex": "CFS_ID",
+            "keyName": "C_BLUK",
+            "text": "仓库编码",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "keyName": "C_BLUK"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "autoLoad": "false",
+              "url": "m?xwl=MiscellJob/bluk/InPin/InBoxOpt/selectCfs"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store",
+             "events": {"load": "\
+\
+// for(var i=0;i<app.billGrid.store.getCount();i++){\
+// \tvar record=app.billGrid.store.getAt(i);\
+//   record.set('CFS_ID',records[0].data.CY_AREA_NO);\
+// }"}
+            }],
+            "type": "combo",
+            "events": {"select": "// var sels = app.billGrid.getSelection();\
+// selRec = sels[0];\
+// var store = app.billGrid.getStore();\
+// var rowIndex = store.indexOf(selRec);\
+// var rec = app.billGrid.store.getAt(rowIndex);\
+// rec.set('CFS_ID',records[0].data.CY_AREA_NO);"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "LOCATION991",
+            "dataIndex": "LOCATION",
+            "width": "70",
+            "text": "堆存位置",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowBlank": "false",
+             "isUpperCase": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text",
+            "events": {"change": "//var rec = app.billGrid.getSelection()[0];\
+// rec.set('LOCATION',rec.data.LOCATION);\
+// alert(rec.data.LOCATION);\
+//app.LOCATIONS.setValue(rec.data.LOCATION);\
+\
+"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "WEIGHT99",
+            "dataIndex": "WEIGHT",
+            "width": "60",
+            "text": "重量",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VOLUME99",
+            "dataIndex": "VOLUME",
+            "width": "60",
+            "format": "0.00",
+            "text": "体积",
+            "align": "right",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "GOODSATTR99",
+            "dataIndex": "GOODSATTR",
+            "width": "80",
+            "text": "货物属性",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SHIPPERHANDLER99",
+            "dataIndex": "SHIPPERHANDLER",
+            "text": "货主方经手人",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SIGNERCFS99",
+            "dataIndex": "SIGNERCFS",
+            "width": "100",
+            "text": "仓管签名",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CNTR_OPERATOR99",
+            "dataIndex": "CNTR_OPERATOR",
+            "width": "150",
+            "text": "船公司",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colCNTR_OPERATOR_COD",
+            "hidden": "true",
+            "dataIndex": "CNTR_OPERATOR_COD",
+            "keyName": "AG_SHORT",
+            "text": "船公司"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFSTIME99",
+            "dataIndex": "CFSTIME",
+            "width": "120",
+            "text": "入库时间",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "datetime"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NOTE99",
+            "dataIndex": "NOTE",
+            "text": "备注",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "RECEIPTNO99",
+            "dataIndex": "RECEIPTNO",
+            "width": "100",
+            "text": "放行条号",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TRUCKNO99",
+            "dataIndex": "TRUCKNO",
+            "width": "60",
+            "text": "车号",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CFSBILLNO99",
+            "dataIndex": "CFSBILLNO",
+            "text": "转储单号",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "LCL_ID0099",
+            "hidden": "true",
+            "dataIndex": "LCL_ID",
+            "width": "240",
+            "text": "计划号",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SHIPPER99",
+            "hidden": "true",
+            "dataIndex": "SHIPPER",
+            "width": "100",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OUTFLAG99",
+            "hidden": "true",
+            "dataIndex": "OUTFLAG"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "IMPEXP99",
+            "hidden": "true",
+            "dataIndex": "IMPEXP",
+            "width": "40"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PLANQUTY99",
+            "hidden": "true",
+            "dataIndex": "PLANQUTY",
+            "width": "40"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SOURCE_ID99",
+            "hidden": "true",
+            "dataIndex": "SOURCE_ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TENANCY_ID99",
+            "dataIndex": "TENANCY_ID",
+            "width": "40",
+            "text": "租户",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_ONmn1813",
+            "hidden": "true",
+            "dataIndex": "CREATED_ON",
+            "width": "120",
+            "text": "创建时间",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CREATED_BYmn18131",
+            "hidden": "true",
+            "dataIndex": "CREATED_BY",
+            "width": "40",
+            "text": "创建人",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_ONmn123",
+            "hidden": "true",
+            "dataIndex": "UPDATED_ON",
+            "width": "120",
+            "text": "修改时间",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "UPDATED_BYmn18133",
+            "hidden": "true",
+            "dataIndex": "UPDATED_BY",
+            "width": "40",
+            "text": "修改人",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        },
+        {
+         "configs": {
+          "itemId": "popupMenu",
+          "normalName": "billMenu"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn1",
+            "normalName": "byBillBtn",
+            "text": "按照单确认入库",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//按照单入库操作\
+var rowData = app.billMenu.selectRow.data;\
+if (rowData.LOCATION != \"\" && rowData.CFS_ID != \"\") {\
+  var re = \"\";\
+  if (rowData.IPIECES == 0) {\
+    Wb.warn(\"入库数量不能为0\");\
+    return;\
+  }\
+  if (rowData.IPIECES == rowData.PIECES) {\
+    Wb.request({\
+      url: 'm?xwl=entrepot/InPin/InBoxOpt/updateBill',\
+      params: {\
+        IPIECES: rowData.IPIECES,\
+        CFSBILL_ID: rowData.CFSBILL_ID,\
+        LOCATION: rowData.LOCATION,\
+        CFS_ID: rowData.CFS_ID,\
+        BILL_ID: rowData.BILL_ID,\
+        ID: rowData.LCL_ID,\
+        CFSTIME: rowData.CFSTIME\
+      },\
+      success: function(resp) {\
+        app.workBtn.fireEvent('click');\
+        var r = app.billGrid.getSelection()[0];\
+        r.set(\"TASKSTATUS\", 'FIN');\
+        r.set(\"SIGNERCFS\",'{#sys.dispname#}');\
+        r.commit();\
+        var s = app.billGrid.store,\
+          state = false;\
+        for (var i = 0; i < s.getCount(); i++) {\
+          if (s.getAt(i).data.TASKSTATUS != 'FIN') {\
+            state = true;\
+            break;\
+          }\
+        }\
+        if (!state) {\
+          r = app.cntrGrid.getSelection()[0];\
+          r.set(\"TASKSTATUS\", 'FIN');\
+          r.commit();\
+        }\
+//         app.seekMenu.fireEvent('click');\
+//         app.billGrid.store.load({\
+//           params: {\
+//             LCL_ID: app.IDS.getValue()\
+//           }\
+//         });\
+      }\
+    });\
+  } else {\
+    re += rowData.BILL_NO + \",\";\
+    re = re.substring(0, re.length - 1);\
+    Wb.confirm(re + \"数量不符是否继续确认拆单?\", function() {\
+      Wb.request({\
+        url: 'm?xwl=entrepot/InPin/InBoxOpt/updateBill',\
+        params: {\
+          IPIECES: rowData.IPIECES,\
+          CFSBILL_ID: rowData.CFSBILL_ID,\
+          LOCATION: rowData.LOCATION,\
+          CFS_ID: rowData.CFS_ID,\
+          BILL_ID: rowData.BILL_ID,\
+          ID: rowData.LCL_ID,\
+          CFSTIME: rowData.CFSTIME\
+        },\
+        success: function(resp) {\
+          app.workBtn.fireEvent('click');\
+          var r = app.billGrid.getSelection()[0];\
+          r.set(\"TASKSTATUS\", 'FIN');\
+          r.commit();\
+          var s = app.billGrid.store,\
+            state = false;\
+          for (var i = 0; i < s.getCount(); i++) {\
+            if (s.getAt(i).data.TASKSTATUS != 'FIN') {\
+              state = true;\
+              break;\
+            }\
+          }\
+          if (!state) {\
+            r = app.cntrGrid.getSelection()[0];\
+            r.set(\"TASKSTATUS\", 'FIN');\
+            r.commit();\
+          }\
+//           app.seekMenu.fireEvent('click');\
+//           app.billGrid.store.load({\
+//             params: {\
+//               LCL_ID: app.IDS.getValue()\
+//             }\
+//           });\
+        }\
+      });\
+    });\
+  }\
+  //   Wb.request({\
+  //     url: 'm?xwl=MiscellJob/bluk/InPin/InBoxOpt/updateBill',\
+  //     params: {\
+  //       IPIECES: rowData.IPIECES,\
+  //       CFSBILL_ID: rowData.CFSBILL_ID,\
+  //       LOCATION: rowData.LOCATION,\
+  //       CFS_ID: rowData.CFS_ID,\
+  //       BILL_ID: rowData.BILL_ID,\
+  //       ID: rowData.LCL_ID,\
+  //       CFSTIME: rowData.CFSTIME\
+  //     },\
+  //     success: function(resp) {\
+  //       var r = app.billGrid.getSelection()[0];\
+  //       r.set(\"TASKSTATUS\", 'FIN');\
+  //       r.commit();\
+  //       var s = app.billGrid.store,\
+  //         state = false;\
+  //       for (var i = 0; i < s.getCount(); i++) {\
+  //         if (s.getAt(i).data.TASKSTATUS != 'FIN') {\
+  //           state = true;\
+  //           break;\
+  //         }\
+  //       }\
+  //       if (!state) {\
+  //         r = app.cntrGrid.getSelection()[0];\
+  //         r.set(\"TASKSTATUS\", 'FIN');\
+  //         r.commit();\
+  //       }\
+  //       app.seekMenu.fireEvent('click');\
+  //       app.billGrid.store.load({\
+  //         params: {\
+  //           LCL_ID: app.IDS.getValue()\
+  //         }\
+  //       });\
+  //     }\
+  //   });\
+\
+} else {\
+  if (rowData.LOCATION == \"\") {\
+    Wb.warn(\"堆存位置不能为空\");\
+  }\
+  if (rowData.CFS_ID == \"\") {\
+    Wb.warn(\"仓库编码不能为空\");\
+  }\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn111",
+            "normalName": "cancelByBillBtnBtn",
+            "text": "取消按照单确认入库",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//取消按单确认入库操作\
+var rowData = app.billMenu.selectRow.data;\
+Wb.request({\
+  url: 'm?xwl=entrepot/InPin/InBoxOpt/cancelBill',\
+  params: {\
+    BILL_ID: rowData.BILL_ID,\
+    LCL_ID: rowData.LCL_ID,\
+    IDS: app.IDS.getValue()\
+  },\
+  success: function(resp) {\
+    app.seekMenu.fireEvent('click');\
+    app.billGrid.store.load({\
+      params: {\
+        LCL_ID: app.IDS.getValue()\
+      }\
+    });\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "workBtn",
+            "text": "作业票",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rowData = app.billMenu.selectRow.data;\
+\
+Wb.run({\
+  url: 'm?xwl=entrepot/PortCntrWeight/work-control',\
+  params: {\
+    CNTR_ID: rowData.CNTR_ID,\
+    TYPE: 'UB',\
+    VID: app.VIDS.getValue(),\
+    WEIGHT:rowData.WEIGHT,\
+    VOLUME:rowData.VOLUME,\
+    BILL_NO:rowData.BILL_NO,\
+    BILL_ID:rowData.BILL_ID\
+  },\
+  success: function(appnew) {\
+    var win = new Ext.window.Window(appnew._cntrWin);\
+    app.test = appnew.test;\
+    win.show();\
+    appnew.grid1.store.load({\
+      params: {\
+        CNTR_ID: rowData.CNTR_ID,\
+        BILL_NO: rowData.BILL_NO,\
+        BILL_ID: rowData.BILL_ID,\
+        TYPE: 'UB'\
+      }\
+    });\
+\tappnew.numbers.setText(Wb.work(rowData.WEIGHT,rowData.VOLUME));\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "cntrChaiBtn3",
+            "hidden": "false",
+            "normalName": "backGoodsBtn",
+            "text": "退库重入",
+            "iconCls": "ok_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "//退库重入\
+var rowData = app.billMenu.selectRow.data;\
+if (rowData.LOCATION != \"\" && rowData.CFS_ID != \"\") {\
+  var re = \"\";\
+  if (rowData.IPIECES == 0) {\
+    Wb.warn(\"入库数量不能为0\");\
+    return;\
+  }\
+  if (rowData.IPIECES == rowData.PIECES) {\
+    Wb.request({\
+      url: 'm?xwl=entrepot/InPin/InBoxOpt/backGoods',\
+      params: {\
+        BILL_ID: rowData.BILL_ID,\
+        LCL_ID: rowData.LCL_ID,\
+        IDS: app.IDS.getValue(),\
+        IPIECES: rowData.IPIECES,\
+        CFSBILL_ID: rowData.CFSBILL_ID,\
+        LOCATION: rowData.LOCATION,\
+        CFS_ID: rowData.CFS_ID,\
+        ID: rowData.LCL_ID,\
+        CFSTIME: rowData.CFSTIME\
+      },\
+      success: function(resp) {\
+        app.seekMenu.fireEvent('click');\
+        app.billGrid.store.load({\
+          params: {\
+            LCL_ID: app.IDS.getValue()\
+          }\
+        });\
+      }\
+    });\
+  } else {\
+    re += rowData.BILL_NO + \",\";\
+    re = re.substring(0, re.length - 1);\
+    Wb.confirm(re + \"数量不符是否继续确认拆单?\", function() {\
+      Wb.request({\
+        url: 'm?xwl=entrepot/InPin/InBoxOpt/backGoods',\
+        params: {\
+          BILL_ID: rowData.BILL_ID,\
+          LCL_ID: rowData.LCL_ID,\
+          IDS: app.IDS.getValue(),\
+          IPIECES: rowData.IPIECES,\
+          CFSBILL_ID: rowData.CFSBILL_ID,\
+          LOCATION: rowData.LOCATION,\
+          CFS_ID: rowData.CFS_ID,\
+          ID: rowData.LCL_ID,\
+          CFSTIME: rowData.CFSTIME\
+        },\
+        success: function(resp) {\
+          app.seekMenu.fireEvent('click');\
+          app.billGrid.store.load({\
+            params: {\
+              LCL_ID: app.IDS.getValue()\
+            }\
+          });\
+        }\
+      });\
+    });\
+  }\
+  //=========\
+} else {\
+  if (rowData.LOCATION == \"\") {\
+    Wb.warn(\"堆存位置不能为空\");\
+  }\
+  if (rowData.CFS_ID == \"\") {\
+    Wb.warn(\"仓库编码不能为空\");\
+  }\
+}"}
+          },
+          {
+           "configs": {
+            "itemId": "disBtn",
+            "hidden": "false",
+            "text": "拆单",
+            "iconCls": "object_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var rowData = app.billMenu.selectRow.data;\
+var datas = [];\
+var ids = \"\";\
+\
+var win = new Ext.window.Window(app._disWin); //指向配置对象而非实例\
+Wb.reset(app.disWin);\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, '散货拆单');\
+\
+//舱单明细grid加载\
+app.gridDetails.store.load({\
+  params: {\
+    BILL_ID: rowData.BILL_ID,\
+    BILL_NO: rowData.BILL_NO,\
+    CFSBILL_ID: rowData.CFSBILL_ID,\
+    CNTR_ID: rowData.CNTR_ID\
+  }\
+});\
+\
+win.mon(win, 'ok', function() {\
+  if (app.gridDetails.store.getCount() > 0) {\
+    for (var i = 0; i < app.gridDetails.store.getCount(); i++) {\
+      var records = app.gridDetails.store.getAt(i);\
+      ids += \"'\" + records.data.ID + \"',\";\
+\
+      datas.push({\
+        BILL_NOS: rowData.BILL_NO,\
+        BILL_ID: records.data.ID,\
+        GOODS: records.data.GOODS_NOTES,\
+        IMPEXP: 'I',\
+        SHIPPER: records.data.CONSIGNEE,\
+        INQUTY: records.data.PIECES,\
+        QUTY: records.data.PIECES,\
+        INTIME: records.data.INTIME,\
+        LOCATION: records.data.LOCATION,\
+        CFS_ID: 'INS',\
+        WEIGHT: records.data.WEIGHT,\
+        VOLUME: records.data.VOLUME,\
+        BILL_NO: records.data.BILL_NO,\
+        CNTR_OPERATOR: records.data.CNTR_OPERATOR,\
+        CARGO_TYPE: records.data.CARGO_TYPE,\
+        SHIPPER_COD: records.data.CONSIGNEE_COD,\
+        TRADE_ID: records.data.TRADE_ID,\
+        TYPE: records.data.BILL_TYPE,\
+        CFSBILL_ID: rowData.CFSBILL_ID,\
+        BLUKBILL_ID: Wb.guid()\
+      });\
+\
+    }\
+    ids = ids.substring(0, ids.length - 1);\
+    if (ids.indexOf(rowData.BILL_ID) > 0) {\
+      Wb.request({\
+        url: 'm?xwl=entrepot/InPin/InBoxOpt/unBox',\
+        params: {\
+          datas: datas,\
+          ids: ids\
+        },\
+        success: function(resp) {\
+          Wb.info(\"成功！\");\
+          win.close();\
+          app.seekMenu.fireEvent('click');\
+          app.billGrid.store.load({\
+            params: {\
+              LCL_ID: app.IDS.getValue(),\
+              ieId: '{#ieId#}'\
+            }\
+          });\
+        }\
+      });\
+    } else {\
+      Wb.info(\"不符合拆单！\");\
+      return;\
+    }\
+  }\
+\
+});"}
+          }
+         ],
+         "type": "menu",
+         "events": {"show": "var rows = app.billGrid.getSelection();\
+app.byBillBtn.setDisabled(rows.length != 1);\
+app.cancelByBillBtnBtn.setDisabled(rows.length != 1);\
+app.workBtn.setDisabled(rows.length!=1);\
+\
+if(rows.length<1){\
+  return; \
+}\
+\
+if(rows[0].data.TASKSTATUS==\"EXE\"){\
+\tapp.byBillBtn.setDisabled(false);\
+  app.cancelByBillBtnBtn.setDisabled(true);\
+  app.backGoodsBtn.setDisabled(true);\
+}\
+if(rows[0].data.TASKSTATUS==\"PLN\"){\
+\tapp.byBillBtn.setDisabled(true);\
+  app.cancelByBillBtnBtn.setDisabled(true);\
+  app.backGoodsBtn.setDisabled(true);\
+}\
+if(rows[0].data.TASKSTATUS==\"FIN\"){\
+\tapp.byBillBtn.setDisabled(true);\
+  app.backGoodsBtn.setDisabled(true);\
+//   app.cancelByBillBtnBtn.setDisabled(false);\
+}\
+if(rows[0].data.TASKSTATUS==\"END\"){\
+\tapp.byBillBtn.setDisabled(true);\
+  app.backGoodsBtn.setDisabled(false);\
+//   app.cancelByBillBtnBtn.setDisabled(true);\
+}\
+menu.selectRow = rows[0];"}
+        }
+       ],
+       "type": "grid",
+       "events": {"tagEvents": "beforeedit: function(editor, e) {\
+  if (e.record.data.TASKSTATUS == 'EXE') {\
+    return true;\
+  } else\
+    return false;\
+}"}
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "panelprint",
+       "width": "0",
+       "region": "east",
+       "height": "0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelprint.update(mt1);",
+     "destroy": "delete  window[\"init\" + opt];\
+"
+    }
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "itemId": "editwin",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 200,\
+  margin: '4 8 4 8'\
+}",
+     "width": "560",
+     "bodyPadding": "4 0 4 0",
+     "title": "作业票",
+     "height": "170"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "DEPT_ID",
+       "labelAlign": "right",
+       "fieldLabel": "装卸班组",
+       "width": "240",
+       "displayField": "TEAM_NAME",
+       "valueField": "TEAM_NAME"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=entrepot/InPin/InBoxOpt/selectDeptId"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo",
+      "events": {"select": "// console.log(records[0].data.TEAM_NAME);\
+\
+app.MACHINE.store.load({\
+  params: {\
+    s: records[0].data.TEAM_NAME\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "MACHINE",
+       "labelAlign": "right",
+       "fieldLabel": "装卸机械",
+       "width": "240",
+       "displayField": "MACH_NAME",
+       "valueField": "MACH_NAME"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=entrepot/InPin/InBoxOpt/selectMachine"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "MANNUM",
+       "labelAlign": "right",
+       "fieldLabel": "作业人数",
+       "width": "240"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "MANHOUR",
+       "labelAlign": "right",
+       "fieldLabel": "工人工时",
+       "width": "240"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "MACHINEHOUR",
+       "labelAlign": "right",
+       "fieldLabel": "机械工时",
+       "width": "240"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "WORKDATE",
+       "labelAlign": "right",
+       "fieldLabel": "作业日期",
+       "width": "240"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "disWin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "530",
+     "title": "散货拆单",
+     "height": "400"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "gridDetails",
+      "editable": "true",
+      "text": "拆单明细"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=entrepot/InPin/InBoxOpt/billDetails"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "BILL_NO11313214",
+          "dataIndex": "BILL_NO",
+          "width": "100",
+          "text": "提单号",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "GOODS_NOTES113134",
+          "dataIndex": "GOODS_NOTES",
+          "width": "80",
+          "text": "货名",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PIECES201354",
+          "summaryRenderer": "return '总数： ' + value;",
+          "dataIndex": "PIECES",
+          "summaryType": "sum",
+          "width": "65",
+          "text": "件数",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCFS_ID",
+          "dataIndex": "CFS_ID",
+          "keyName": "C_BLUK",
+          "text": "仓库",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowBlank": "false",
+           "keyName": "C_BLUK"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colLOCATION",
+          "dataIndex": "LOCATION",
+          "width": "50",
+          "text": "位置",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "allowBlank": "false"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "WEIGHTmn1311345",
+          "dataIndex": "WEIGHT",
+          "width": "60",
+          "text": "重量",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "VOLUMECol145",
+          "dataIndex": "VOLUME",
+          "width": "50",
+          "format": "0.00",
+          "text": "体积",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SHIPPER99123",
+          "hidden": "true",
+          "dataIndex": "SHIPPER",
+          "text": "货主",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CONSIGNEEmn11134",
+          "hidden": "false",
+          "dataIndex": "CONSIGNEE",
+          "width": "180",
+          "text": "货主",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SHIPPERmn133214",
+          "hidden": "true",
+          "dataIndex": "SHIPPER",
+          "width": "180",
+          "text": "发货人",
+          "titleAlign": "center"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colINTIME",
+          "dataIndex": "INTIME",
+          "width": "120",
+          "text": "入库时间",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {"itemId": "editor"},
+          "expanded": false,
+          "children": [],
+          "type": "datetime"
+         }],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemclick": "\
+"}
+    }],
+    "type": "window"
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.date.setValue(new Date());\
+\
+\
+app.seekMenu.fireEvent('click');\
+\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/bluk/blukBillCntr.xml?333');\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&1133\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+",
+   "initialize": "var opt = Wb.getId();\
+app.ieId='{#ieId#}';\
+Wb.apply(app, {\
+  moreSql:function(moreSql){\
+    app.grid1.store.load({\
+                params: {\
+                    moreSql:moreSql\
+                }\
+            });\
+    app.moreXwl.selWin.hide();\
+  }\
+\
+});"
+  }
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "basic": 1,
+  "DCXK": 1
+ },
+ "title": "进口拆箱",
+ "iconCls": "blue-forklift_icon",
+ "inframe": false,
+ "pageLink": ""
+}

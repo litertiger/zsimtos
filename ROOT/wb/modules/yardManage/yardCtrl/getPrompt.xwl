@@ -1,0 +1,42 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = app.get('id');\
+var ret = '';\
+var result = app.run(\"select count(0) from cusm_check c,move_list m where \\\
+c.cntr_id=m.cntr_id and c.phase<>'FIN' and nvl(checkmanner,'H') like '%H%' and m.id={?id?}\");\
+if (result && result.next() && result.getInt(1) > 0)\
+  ret = '此箱需要人查';\
+result = app.run(\"select count(0) from cusm_check c,move_list m where \\\
+c.cntr_id=m.cntr_id and c.phase<>'FIN' and checkmanner like '%M%' and m.id={?id?}\");\
+if (result && result.next() && result.getInt(1) > 0)\
+  ret += '\\
+此箱需要机查';\
+result = app.run(\"select count(0) from cntr_weight_pln c,move_list m where c.cntr_id=m.cntr_id and c.phase<>'FIN' and m.id={?id?}\");\
+if (result && result.next() && result.getInt(1) > 0)\
+  ret += '\\
+此箱需要过磅';\
+app.send(ret);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "获得确认提示信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,107 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+ AF.func("AddUserFunctions", "reportdata/func_account.xml");	//这是关键语句
+ AF.func("Build", "report/report3.xml");
+ AF.func("Calc", "");	//计算
+ AF.func("CallFunc", "301 \r\n 2");		//打开工具箱
+}
+function balance(acc, mon)
+{
+	if(acc=='101') return 10029.30;
+	else if(acc=='10201') return 349000.00;
+	else if(acc=='10202') return 54300;
+	return 0;
+}
+function debit(acc, mon)
+{
+	if(acc=='101') return 3399;
+	else if(acc=='10201') return 57390;
+	else if(acc=='10203') return 3120;
+	return 0;
+}
+function loan(acc, mon)
+{
+	if(acc=='101') return 103.45;
+	else if(acc=='10201') return 3494.31;
+	else if(acc=='10203') return 293.21;
+	return 0;
+}
+</script>
+</head>
+
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请双击展开工具箱下方“自定义财务函数”;　<b>2</b>.关注下方“双击打开函数详解”说明;　<b>3</b>.报表中红色单元格均使用了“自定义财务函数”;<br>
+<b>4</b>.用鼠标分别将 balance、debit、loan 函数拖入“现金”的3个灰色单元格内，输入科目代码和月份参数，可用B4、G2代替(表示取B4、G2单元格内容)；
+　　<b>5</b>.关注输入过程中黄色浮动提示条带来的便捷；　　<b>6</b>.实现原理请参考底下的“技术分析区”；
+</td></tr>
+<tr height=8><td colspan=2/></tr>
+</table>
+
+<div style="width:98%;height:420px">
+	<script>insertReport('AF', '')</script>
+</div>
+
+
+
+<!--  以下为技术分析区 -->
+<br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.关键语句在 OnReady( )事件中：向当前报表控件添加了自定义函数的声明文档：<br>
+<pre class='xml'>
+ AF.func("AddUserFunctions", "reportdata/func_account.xml");</pre>
+　　声明的文档是<a href="reportdata/func_account.xml" target=_blank>reportdata/func_account.xml</a>，这个文档包含了函数向导输入的的一些选项，比较复杂，如果您是初学者，可以从这个简化版的入手：<a href="reportdata/func_account_simple.xml" target=_blank>reportdata/func_account_simple.xml</a>.
+<br><br>
+<b>2</b>.自定义函数 balance、debit、loan 是如何执行的呢？ 请看本页面中的3个js函数:<br>
+<pre class='cpp'>
+function balance(acc, mon)
+{
+ if(acc=='101') return 10029.30;
+ else if(acc=='10201') return 349000.00;
+ else if(acc=='10202') return 54300;
+ return 0;
+}
+function debit(acc, mon)
+{
+ (略);
+}
+function loan(acc, mon)
+{
+ (略);
+}</pre>
+<b>一切都真相大白了，可见 <font color=red> =balance(B4, G2) 等介于 =js('balance', B4, G2)</font> !</b><br>
+在实际开发中，这3个javaScript函数可以用Ajax实现与后台应用服务器的取数计算交互。<br>
+注：js( )是插件的内部函数，能反向调用页面javaScript函数，请参考开发文档中的“公共内容”.<br>
+<br>
+<b>3</b>.G2单元格采用了显示掩码：data + '月份'<br>
+<br>
+<b>4</b>.如果报表中有成百上千处自定义函数，而这些函数都需要AJAX，那么可能会出现网络性能问题，建议采用批计算，请参考Report开发文档 <a href="doc/dev/report2.htm?103#Tag040802" target=_blank>自定义函数\高级应用</a>.<br>
+<br>
+<b>5</b>.请点击公式输入旁边的“函数向导”，在函数的下拉中选择自定义函数后，请关注其参数的输入方式：<br>
+<center><img src='doc/dev/image/illu38.jpg'></center>
+<br><br>
+<b>6</b>.采用自定义函数，能比较好地分离程序员和最终用户的职责：程序员只负责后端的取数功能，让最终用户自己去设计报表! <br>
+该示意图很好地说明了其意图：<br>
+<center><img src='res/illu40.jpg'></center>
+
+
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

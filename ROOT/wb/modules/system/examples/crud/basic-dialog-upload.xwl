@@ -1,0 +1,397 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "win",
+     "focusControl": "STRING_FIELD",
+     "editWin": "true",
+     "width": "664",
+     "title": "增删改查",
+     "height": "352"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "absolute",
+      "itemId": "form1",
+      "flat": "true",
+      "width": "688",
+      "height": "336"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "allowBlank": "false",
+        "itemId": "STRING_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "* 字符串",
+        "width": "312",
+        "x": "8",
+        "y": "16",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "INT_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "整数",
+        "width": "312",
+        "x": "328",
+        "y": "16",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "DOUBLE_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "浮点数",
+        "width": "312",
+        "x": "8",
+        "y": "48",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "DATETIME_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "日期时间",
+        "width": "312",
+        "x": "328",
+        "y": "48",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "datetime"
+      },
+      {
+       "configs": {
+        "itemId": "BOOL_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "布尔字段",
+        "keyName": "bool",
+        "width": "312",
+        "x": "8",
+        "y": "80",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "CLOB_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "大文本字段",
+        "width": "632",
+        "x": "8",
+        "y": "120",
+        "labelWidth": "90",
+        "height": "166"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "textarea"
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "fieldcontainer1",
+        "labelAlign": "right",
+        "fieldLabel": "二进制",
+        "width": "312",
+        "x": "328",
+        "y": "80",
+        "labelWidth": "90",
+        "height": "30"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "BLOB_FIELD",
+          "flex": "1"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "file"
+        },
+        {
+         "configs": {
+          "itemId": "delFileBtn",
+          "margin": "0 0 0 3",
+          "text": "删除"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "app.BLOB_FIELD.reset();\
+app.BLOB_FIELD.removeFile = true; //标识需删除，后台据此判断当上传文件为空时是否执行删除"}
+        }
+       ],
+       "type": "fieldcontainer"
+      }
+     ],
+     "type": "form"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.win);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  var params = Wb.applyIf(values, Wb.getData(app.selRec, true));\
+\
+  //使用表单上传时，清除同名的blob参数值，优先使用blob文件上传内容\
+  //   Wb.each(win.query('filefield'), function(item) {\
+  //     if (item.itemId)\
+  //       delete data[item.itemId];\
+  //   });\
+  //该例可直接删除BLOB_FIELD参数即可\
+  delete params.BLOB_FIELD;\
+  Wb.upload({\
+    url: 'm?xwl=system/examples/crud/crud-db-access/update',\
+    form: app.form1,\
+    params: params,\
+    success: function(form, action, value) {\
+      Wb.update(app.selRec, Wb.applyIf(Wb.decode(value), values));\
+      app.win.close();\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.upload({\
+    url: 'm?xwl=system/examples/crud/crud-db-access/insert',\
+    form: app.form1,\
+    success: function(form, action, value) {\
+      Wb.add(app.grid1, Wb.applyIf(Wb.decode(value), values));\
+      app.win.close();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/examples/crud/crud-db-access/basic-select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "newBtn",
+          "tooltip": "添加新的记录",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.win.setTitle('添加');\
+app.win.setIconCls('record_add_icon');\
+app.win.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "editBtn",
+          "tooltip": "修改选择的记录",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.win.setTitle('修改 - ' + app.selRec.data.STRING_FIELD);\
+app.win.setIconCls('record_edit_icon');\
+Wb.setValue(app.win, app.selRec.data);\
+app.win.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "tooltip": "删除选择的记录",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.del(app.grid1, {\
+  url: 'm?xwl=system/examples/crud/crud-db-access/delete',\
+  titleField: 'STRING_FIELD'\
+});"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "rowNumCol",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "stringCol",
+          "dataIndex": "STRING_FIELD",
+          "width": "150",
+          "text": "字符串字段"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "numCols",
+          "text": "数字列"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "intCol",
+            "dataIndex": "INT_FIELD",
+            "text": "整数字段",
+            "align": "right",
+            "titleAlign": "left"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "doubleCol",
+            "dataIndex": "DOUBLE_FIELD",
+            "text": "浮点数字段",
+            "align": "right",
+            "titleAlign": "left"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "boolCol",
+          "dataIndex": "BOOL_FIELD",
+          "keyName": "bool",
+          "text": "布尔字段"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column",
+         "events": {"afterrender": "return Wb.kv();"}
+        },
+        {
+         "configs": {
+          "itemId": "datetimeCol",
+          "dataIndex": "DATETIME_FIELD",
+          "width": "170",
+          "text": "日期时间字段"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "clobCol",
+          "dataIndex": "CLOB_FIELD",
+          "flex": "1",
+          "text": "大文本字段",
+          "autoWrap": "true"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "blobCol",
+          "dataIndex": "BLOB_FIELD",
+          "text": "二进制字段"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "基本对话框上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

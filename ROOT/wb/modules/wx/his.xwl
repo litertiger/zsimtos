@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//取已更新任务列表\
+var result = app.run(\
+  \"select t.id,t.phase,to_char(r.plan_stime,'mm-dd hh24:mi') tim,r.cntr,r.cntr_size siz,r.cntr_type typ,t.task_type,\\\
+  contract_man man,contract_phone tel,t.driver_id,r.s_adress addr,decode(r.i_e_id,'I',r.consignee,r.shipper) fct,\\\
+  dispatch_time,confirm_time,in_gate_time,pick_time,out_gate_time,run_time,arrive_time,sign_time,i_e_id,\\\
+  a.address,a.latitude,a.longitude,decode(t.task_type,'IN',r.cy_stay_time,r.fct_stay_time) stay_time\\\
+  from truck_app t ,receipt r,truck_app_address a \\\
+  where t.rcp_id=r.id and r.s_adress=a.address_id(+) and decode(r.i_e_id,'I',r.consignee_cod,r.shipper_cod)=a.code(+)\\\
+  and t.update_time>trunc(sysdate-6) and t.phase ='FIN' and t.driver_id={?no?} and ({?cntr?} is null or r.cntr like'%'||{?cntr?}||'%')\\\
+  order by t.update_time desc\"\
+);\
+var tasks = [];\
+if (result)\
+  tasks = Wb.getRecords(result);\
+//开始将送货地址id转为name\
+ids = \"('\" + tasks.reduce(function(arr, t) {\
+  if (arr.indexOf(t.ADDR) < 0)\
+    arr.push(t.ADDR);\
+  return arr;\
+}, []).join(\"','\") + \"')\";\
+result = app.run(\"select id,name from c_address where id in \" + ids, {\
+  jndi: 'jdbc/basecode'\
+});\
+var mapAddr = Ag.getResultObj(result);\
+Wb.each(tasks, function(t) {\
+  t.ADDR = mapAddr[t.ADDR];\
+  t.icon = t.PHASE;\
+  delete t.PHASE;\
+});\
+app.send(tasks);",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "取历史任务列表",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

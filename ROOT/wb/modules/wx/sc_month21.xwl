@@ -1,0 +1,231 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "begdate",
+         "allowBlank": "false",
+         "hidden": "false",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "enddate",
+         "allowBlank": "false",
+         "hidden": "false",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "pickList": "[\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+         "emptyText": "内外贸",
+         "width": "60",
+         "value": "1",
+         "forceSelection": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "// if (!Wb.verify(app.tbarGrid))\
+//   return;\
+// var tenancyid = \"{#sys.TENANCY_ID#}\";\
+// var AF1 = document.getElementById(opt);\
+// var begdate = app.begdate.getRawValue().substring(0, 10);\
+// var enddate = app.enddate.getRawValue().substring(0, 10);\
+\
+\
+// // Wb.info(str);\
+// AF1.func(\"setSource\", \"ds1 \\r\\
+ m?xwl=countManage/cntrNumCount/shipperCount1&sleep=1&startRow=@startrow&rows=@rows\");\
+// AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;begdate=\" + begdate + \";enddate=\" +enddate+ \";tradeId=\" +app.tradeId.getValue()+ \";tenancyId=\" + tenancyid);\
+// AF1.func(\"SetCellData\", \"<data A2='\" +begdate + \"至\" + enddate + \"客户对比清单'/>\");\
+// AF1.func(\"Calc\", \"\");\
+// //      var AFPager = document.getElementById(pageOpt);\
+\
+// //   var url = \"/m?xwl=countManage/cntrNumCount/shipperCount1&sleep=1&startRow=@startRow&rows=@rows\";\
+// //   var h = AF1.func(\"GetHandle\", \"ds1\");\
+// //    AFPager.func(\"BindPager\", h + \"\\r\\
+ ID0\"); //绑定\
+// //   //设置分页器的dataURL (将自动加载Treelist数据)\
+// //  AFPager.func(\"SetObjectProp\", \"ID0\\r\\
+ dataURL \\r\\
+\" +url+ \"\\r\\
+ mode=asynch\");\t//让Treelist异步加载数据\
+  "}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "border": "false",
+       "itemId": "panelAge",
+       "style": "position:relative;width:85%;height:32px",
+       "region": "south",
+       "height": "40"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);\
+\
+var mt2 = bldStr(\"BCV1.FreeForm\", pageOpt, \"Border=none;\", \"100%\");\
+app.panelAge.update(mt2);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/xmlsheet11.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"setSource\", \"ds1 \\r\\
+ http://www.supcan.cn/DotNet/access.aspx?sleep=1&startRow=@startrow&rows=@rows\");\
+    //https://zsimtos.zsshipping.com/m?xwl=wx/sc_month211&sleep=1&startRow=@startrow&rows=@rows\");\
+\
+  }\
+  \
+};\
+\
+window[\"init\" + pageOpt] = function(id) {\
+  alert(pageOpt);\
+    if (id == pageOpt) {\
+     var AFPager = document.getElementById(pageOpt);\
+       AFPager.func(\"Build\", 'https://zsimtos.zsshipping.com/supcan/treelist/pager3.xml');//'/supcan/report/report/pager.xml?2');\
+alert(1);\
+      var AFPager=document.getElementById(pageOpt);\
+      var m = document.getElementById(opt); \
+      var h = m.func(\"GetHandle\", \"ds1\");\
+      AFPager.func(\"BindPager\", h + \"\\r\\
+ ID0 \\r\\
+ currentPage=0\");\
+\
+  }\
+};\
+\
+\
+\
+\
+window[\"event\" + pageOpt] = function(id, Event, p1, p2, p3, p4) {\
+  \
+   if (Event == \"Pager\" && id == pageOpt) {\
+   var AF = document.getElementById(opt);\
+   //响应分页事件：仅需要执行计算\
+    AF.func(\"calc\", \"\");\
+  }\
+\
+};\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+\
+var today = new Date(); //获取当前日期\
+app.begdate.setValue(today);\
+app.enddate.setValue(today);\
+\
+",
+   "initialize": "\
+var opt = Wb.getId(),pageOpt = Wb.getId();\
+"
+  }
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "客户月度报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

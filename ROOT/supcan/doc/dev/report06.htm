@@ -1,0 +1,50 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">6.自定义工具条</p><hr color=#2266ee size=1>
+　　Supcan Report的工具条是可以自定义的，请在\Documents and Settings\用户名\BC 目录下的相应版本目录中找到如下文件：<br>
+　　　　<b>ReportRes.zip</b><br>
+　　将其解开，会发现有一个名为ToolBar.xml的文件，该XML就是默认工具条的配置文件，可<a href='toolbar.xml' target=_blank>查看</a>该XML，工具条的秘密基本上都在这里了。<br><br>
+　　您也可以自己制作一个xml，连同bmp图片文件一起打成zip包，然后在页面控件“CtlPara”中定义“UserRebar”(该zip包所在的URL，请参见前面的“语法”部分)、在“Rebar”中确定要显示的子工具条即可实现自定义工具条。本demo包中“几种展现方式”页的第五个例子就是自定义工具条的详细演示。<br><br>
+　　子工具条&lt;Toolbar ...&gt;的可用属性及其含义如下：<br>
+<table cols=3 width=98% border=1 align="center">
+<tr><th align=center>属性名</th><th align=center>含义</th></tr>
+<tr><td>name</td><td>子工具条名称</td></tr>
+<tr><td>imageList</td><td>按钮的图片表，是BMP格式的ImageList，该图片文件须位于同一zip包内.</td></tr>
+<tr><td>imageHeight</td><td>图片高度，单位：像素数，通常为16、24、32、48，单幅图片的宽度必须和高度一致.</td></tr>
+<tr><td>imageTransparentColor</td><td>图片需要转换为透明的背景色.</td></tr>
+<tr><td>textAlign</td><td>按钮中的文字相对于图片的位置，可为“right”、“bottom”，没有定义就表示仅显示图片、不显示文字。默认工具条就没有显示文字。</td></tr>
+<tr><td>textDistance</td><td>按钮中文字和图片的最小间隔，单位：像素数，默认：3.</td></tr>
+<tr><td>textColor</td><td>文字颜色，默认：黑色.</td></tr>
+</table><br>
+　　子工具条内各个按钮&lt;item ...&gt;的可用属性及其含义如下：<br>
+<table cols=3 width=98% border=1 align="center">
+<tr><th align=center>属性名</th><th align=center>含义</th></tr>
+<tr><td>id</td><td>功能号，3000以内是内部保留号，每个功能号对应了报表中固定的功能(可参见前面的“工具条功能号”)；3000以上(包括3000)表示自定义功能号；0表示分隔条.</td></tr>
+<tr><td>imageIndex</td><td>表示在Imagelist内的单幅图片的位置，从0开始计数.</td></tr>
+<tr><td>tip</td><td>鼠标滑过时的帮助文字、和下拉菜单的文字，如果需要支持中英文双语，则以“|”分隔中英文.</td></tr>
+<tr><td>text</td><td>显示在按钮上的文字、或下拉菜单的文字，如果需要支持中英文双语，则以“|”分隔中英文.</td></tr>
+<tr><td>detail</td><td>下拉菜单功能的具体说明，当菜单下拉时，会在菜单下方弹出该说明文字，则以“|”分隔中英文.</td></tr>
+<tr><td>defaultId</td><td>仅用于有子树(需要下拉)的按钮，表示鼠标点击在按钮左侧非下拉区域时，默认执行的功能，该功能通常可为子树中的第一个功能；如果没有定义defaultId，那么点击在整个按钮均为下拉.</td></tr>
+<tr><td>style</td><td>button - 普通平坦透明按钮<br>checkbutton - 按钮有凹陷显示、普通显示2种状态，类似于Checkbox.</td></tr>
+</table><br>
+
+　　自定义工具条注意事项：<br>
+　　1.通过了解默认工具条的XML配置文件，会发现其中共定义了7个子工具条：Main, Print, Form, Font, Property, Text，除了“Font”和“Text”是固定的、不可配置，其它子工具条均是可配置的;<br>
+　　2.自定义功能(即功能号在3000以上的)一律以OnEvent("Toolbar", ..)事件形式抛给页面、交由页面处理的；<br>
+　　3.须将XML文件和BMP打成一个zip包，XML文件的文件名必须为Toolbar.XML；<br>
+　　4.自定义工具条中须包含“关于”功能(功能号:189)，否则，Supcan Report会自动在第一个子工具条后安插一个“关于”功能；<br>
+　　5.一旦启用自定义的zip包，原默认zip中的同名子工具条将被替换，未被同名的子工具条仍然有效；<br>
+　　6.一旦启用自定义的zip包，“CtlPara”中的“Rebar”串的取值范围可包括自定义包、原默认包的的子工具条名；<br>
+　　7.自定义工具条的作用范围仅为当前Report实例；<br>
+　　8.函数 SetToolBarItemStatus / GetToolBarItemStatus 可以动态更改某些状态；<br>
+
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

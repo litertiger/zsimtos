@@ -1,0 +1,63 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get();\
+sql = \"SELECT S.ID,\" +\
+  \"S.TENANCY_ID,\" +\
+  \"S.VESSEL_CODE,\" +\
+  \"S.VESSEL_NAME,\" +\
+  \"S.SHIPPER_CODE,\" +\
+  \"S.SHIPPER,\" +\
+  \"S.CREATED_ON,\" +\
+  \"S.CREATED_BY,\" +\
+  \"S.UPDATED_BY,\" +\
+  \"S.UPDATED_ON,\" +\
+  \"S.RATE_TYPE,\" +\
+  \"S.RATE,\" +\
+  \"(S.RATE * FORE_OFFSET * GRT) TESTS,\" +\
+  \"ETA,\" +\
+  \"GRT,\" +\
+  \"FORE_OFFSET FROM (SELECT S.VESSEL_CODE,\" +\
+  \" C.ETA,\" +\
+  \"TO_CHAR (C.ETA, 'YYYY-MM') EAT,\" +\
+  \"NVL(H.WEIGHT, 1) GRT,\" +\
+  \"NVL(C.FORE_OFFSET, 1) FORE_OFFSET \" +\
+  \" FROM SHIP_FEE_RATE S, VESSEL_VOYAGE Y, VESSEL_VISIT C,VBILL_HEAD H \" +\
+  \"  WHERE S.VESSEL_CODE = Y.VESSEL_CODE AND C.VID = Y.ID AND  C.ID = H.VID\";\
+\
+if (!Wb.isEmpty(data.whereSql)) {\
+  sql += whereSql;\
+}\
+sql += \") D,\" +\
+  \" SHIP_FEE_RATE S \" +\
+  \" WHERE D.VESSEL_CODE = S.VESSEL_CODE\";\
+var res = Wb.getRecords(app.run(sql));\
+if (res.next) {\
+  var TENANCY_ID = res.getString(1);\
+  var VESSEL_CODE = res.getString(2);\
+  var VESSEL_NAME = res.getString(3);\
+  var SHIPPER_CODE = res.getString(4);\
+  var SHIPPER = res.getString(5);\
+  var RATE_TYPE = res.getString(10);\
+  var RATE = res.getString(11);\
+  var TESTS = res.getString(12);\
+  var GRT = res.getString(14); //对应着WEIGHT 重量\
+  var FORE_OFFSET = res.getString(15);\
+  var insetSql = \"INSERT INTO ACCOUNTS_DETAILS(ID,TENANCY_ID,VESSEL_NAME,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER_NAM\" +\
+    \"PAYMENT_CUSTOMER_NAM,PAYMENT_CUSTOMER_CODE,RATE,ACTUAL_JOB_COUNT,WEIGHT,SETTLE_DAYS) VALUES(SYS_GUID(),\" +\
+    \"' \" + TENANCY_ID + \"','\" + VESSEL_NAME + \"','\" + SHIPPER_CODE + \"','\" + SHIPPER + \"','\" + SHIPPER_CODE + \"','\" + SHIPPER + \",'\" +\
+    RATE + \"','\" + TESTS + \"','\" + FORE_OFFSET + \"')\";\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "将查询到的结果保存到计费中",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,33 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var lclid;\
+var TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+var dispname=app.get(\"sys.dispname\");\
+var username=app.get(\"sys.username\");\
+//判断是否签到\
+app.run(\"select 1 from buz_order where BILL_ID={?BILL_ID?} and QD_BY is not null and QD_ON is not null\",{errorText:\"已签到不能入库！\"});\
+\
+app.run(\"update BLUK_BILL set TASKSTATUS='END',LOCATION={?LOCATION?},CFS_ID={?CFS_ID?},IPIECES={?IPIECES?},PIECES={?PIECES?},CFSTIME=sysdate,SIGNERCFS='\"+dispname+\"' where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\",{transaction:\"start\"});\
+app.run(\"insert into BLUK_GOODS(CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, \"+\
+      \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY,TYPE)\"+\
+       \"   select CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, {?timestamp.CFSTIME?}, '', LOCATION, CFS_ID, \"+\
+    \"    WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\"+username+\"', '\"+username+\"',nvl(TYPE,{?TYPE?}) from BLUK_BILL\"+\
+   \"     where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"' and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?})\");\
+app.run(\"update BLUK_PLAN set TASKSTATUS='END' where ID={?IDS?} and TENANCY_ID='\"+TENANCY_ID+\"'\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSINMP": 1
+ },
+ "title": "退库重装",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

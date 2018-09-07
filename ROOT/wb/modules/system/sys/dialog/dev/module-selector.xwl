@@ -1,0 +1,101 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "win",
+    "resizable": "true",
+    "editWin": "true",
+    "width": "600",
+    "title": "模块选择器",
+    "iconCls": "form_icon",
+    "height": "450",
+    "maximizable": "true"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "border": "false",
+      "itemId": "tree",
+      "root": "{\
+  fileName: 'Root'\
+}",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "fields": "['text', 'path', 'fileName']",
+       "url": "m?xwl=system/sys/dialog/dev/module-selector/module-list"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "treestore",
+      "events": {"beforeload": "operation.params.path = operation.node.data.path;"}
+     }],
+     "type": "tree",
+     "events": {
+      "itemclick": "if (!record.isLeaf()) {\
+  if (record.isExpanded())\
+    record.collapse();\
+  else record.expand();\
+}",
+      "itemdblclick": "if (record.data.leaf) {\
+  app.okHandler();\
+}"
+     }
+    },
+    {
+     "configs": {"itemId": "tools"},
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "refreshItem",
+       "tooltip": "刷新模块列表",
+       "tooltype": "refresh"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.reload(app.tree);"}
+     }],
+     "type": "array"
+    }
+   ],
+   "type": "window",
+   "events": {"ok": "app.okHandler();"}
+  }],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  okHandler: function() {\
+    var node = app.tree.getSelection()[0];\
+    if (node && node.data.leaf) {\
+      if (app.callbackParam)\
+        Ext.callback(app.callbackParam, app, [Wb.toUrl(node.data.path), app.win]);\
+    } else\
+      Wb.warn('请选择一个有效的模块。');\
+  },\
+  /**\
+   * 显示模块选择器对话框。\
+   * @param {String} title 对话框标题。\
+   * @param {Function} callback 点击对话框确定按钮时的回调事件，可使用参数value和win，分别表示选择的模块路径和窗口对象。\
+   */\
+  show: function(title, callback) {\
+    if (title)\
+      app.win.setTitle(title);\
+    app.callbackParam = callback;\
+    app.win.show();\
+  }\
+});"}
+ }],
+ "roles": {"default": 1},
+ "title": "模块选择器",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

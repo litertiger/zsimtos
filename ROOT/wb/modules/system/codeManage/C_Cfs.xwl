@@ -1,0 +1,387 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "window1",
+     "dialog": "true",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "272",
+     "title": "增删改查",
+     "modal": "true",
+     "height": "248"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "CFS_COD",
+       "labelAlign": "right",
+       "fieldLabel": "箱站代码",
+       "width": "248",
+       "x": "0",
+       "y": "24",
+       "labelWidth": "90",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CFS_NAM",
+       "labelAlign": "right",
+       "fieldLabel": "箱站名称",
+       "width": "248",
+       "x": "0",
+       "y": "56",
+       "labelWidth": "90",
+       "maxLength": "200",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "x": "8",
+       "width": "240",
+       "y": "-8",
+       "value": "C_CFS",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "M_IN",
+       "boxLabel": "允许手持入闸",
+       "x": "16",
+       "width": "96",
+       "y": "88",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     },
+     {
+      "configs": {
+       "itemId": "M_OUT",
+       "boxLabel": "手持自动出闸",
+       "x": "16",
+       "width": "144",
+       "y": "120",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     },
+     {
+      "configs": {
+       "itemId": "FORBID_FULL",
+       "boxLabel": "禁止放重柜",
+       "x": "16",
+       "width": "144",
+       "y": "152",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "check"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "\
+var values = Wb.getValue(app.window1);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Cfs/C_CfsEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.grid1.store.load();\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Cfs/C_CfsEdit/insert',\
+    out: app.window1,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.grid1.store.load();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "multiSelect": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "search",
+          "labelAlign": "right",
+          "fieldLabel": "序列号",
+          "labelWidth": "55"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "search_button",
+          "text": "搜索",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({out:app.tbar});"}
+        },
+        {
+         "configs": {
+          "itemId": "add_button",
+          "text": "增加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.window1.setTitle('添加 - 货运站');\
+app.window1.setIconCls('record_add_icon');\
+app.CFS_COD.setDisabled(false);\
+app.isEdit = false;\
+app.window1.show();\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "edit_button",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.window1.setTitle('修改 - ' + app.selRec.data.CFS_COD);\
+app.window1.setIconCls('record_edit_icon');\
+Wb.setValue(app.window1, app.selRec.data);\
+app.CFS_COD.setDisabled(true);\
+app.window1.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delete_button",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Cfs/C_CfsEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'CFS_COD');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/C_Cfs/C_CfsEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CFS_COD1",
+          "dataIndex": "CFS_COD",
+          "text": "箱站序列号",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CFS_NAM1",
+          "dataIndex": "CFS_NAM",
+          "text": "箱站名称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "M_IN",
+          "xtype": "checkcolumn",
+          "dataIndex": "M_IN",
+          "disabled": "true",
+          "text": "允许手持入闸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "M_OUT",
+          "xtype": "checkcolumn",
+          "dataIndex": "M_OUT",
+          "disabled": "true",
+          "text": "自动提箱出闸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "FORBID_FULL",
+          "xtype": "checkcolumn",
+          "dataIndex": "FORBID_FULL",
+          "disabled": "true",
+          "text": "禁止放重柜"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "OPERATOR1",
+          "dataIndex": "OPERATOR",
+          "text": "创建人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "OPER_TIME1",
+          "dataIndex": "OPER_TIME",
+          "text": "创建时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CHANGER1",
+          "dataIndex": "CHANGER",
+          "text": "最后修改人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CHANGE_TIME1",
+          "dataIndex": "CHANGE_TIME",
+          "text": "修改时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.edit_button.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "货运站管理",
+ "iconCls": "shopping_cart_icon",
+ "inframe": false,
+ "pageLink": ""
+}

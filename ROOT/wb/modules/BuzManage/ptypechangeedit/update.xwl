@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+app.run(\"select 1 from remitting where id ={?ID?} AND R_OK=2\", {\
+  errorText: \"已经作废\"\
+});\
+if (data.r_ok == \"0\")\
+  app.run(\"select 1 from remitting where id ={?ID?} AND R_OK=0\", {\
+    errorText: \"已经未确认\"\
+  });\
+var sql = \"update remitting set r_ok=\" + data.r_ok + \" where ID='\" + data.ID + \"'\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+app.run(\"update remitting_item set r_ok=\" + data.r_ok + \" where c_id='\" + data.ID + \"'\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

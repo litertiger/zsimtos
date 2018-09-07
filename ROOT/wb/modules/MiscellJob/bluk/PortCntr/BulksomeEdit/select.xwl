@@ -1,0 +1,79 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),goods=app.get(\"goods\"),nature=app.get(\"sys.NATURE\"),bulkType=app.get(\"bulkType\"), govCode=app.get(\"sys.GOV_CODE\");; //租户id\
+\
+// var sql = \"SELECT null OUTNUM,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, CNTR_OPERATOR\"+\
+//       \"  FROM BLUK_GOODS where  1=1 and QUTY<>0\";\
+// if(!Wb.isEmpty(data.type)&& !Wb.isEmpty(data.goodsName)){\
+//   if(data.type==='0'){\
+//   \tsql+=\" and CFS_ID||LOCATION like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='1'){\
+//   \tsql+=\" and LOCATION like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='2'){\
+//   \tsql+=\" and GOODS like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='3'){\
+//   \tsql+=\" and SHIPPER like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='4'){\
+//   \tsql+=\" and SHIPPER like '%'||{?goodsName?}||'%'\";\
+//   }else if(data.type==='5'){\
+//   \tsql+=\" and BILL_NO like '%'||{?goodsName?}||'%'\";\
+//   }\
+// }\
+\
+var sql = \"SELECT a.ID,null OUTNUM,a.BILL_ID, a.GOODS, a.IMPEXP, a.SHIPPER, a.UNIT, a.INQUTY, a.OUTQUTY, a.QUTY, a.INTIME, a.OUTTIME, a.LOCATION, a.CFS_ID, a.WEIGHT, a.CFSBILLNO, a.VOLUME, a.CFSBILL_ID, a.TENANCY_ID, a.UPDATED_ON, a.CREATED_ON, a.CREATED_BY, a.UPDATED_BY, a.BILL_NO, a.CNTR_OPERATOR,b.RELEASE_ID\"+\
+      \"  FROM BLUK_GOODS a,VBILL_HEAD b where  1=1 and QUTY<>0 and a.BILL_ID=b.ID \";\
+if(!Wb.isEmpty(data.type)&& !Wb.isEmpty(data.goodsName)){\
+  if(data.type==='0'){\
+  \tsql+=\" and a.CFS_ID||a.LOCATION like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='1'){\
+  \tsql+=\" and a.LOCATION like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='2'){\
+  \tsql+=\" and a.GOODS like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='3'){\
+    \
+    \
+  \tsql+=\" and a.SHIPPER like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='4'){\
+  \tsql+=\" and b.CNTR_OPERATOR like '%'||{?goodsName?}||'%'\";\
+  }else if(data.type==='5'){\
+  \tsql+=\" and a.BILL_NO like '%'||{?goodsName?}||'%'\";\
+  }\
+}\
+\
+\
+if(!Wb.isEmpty(data.cfsId)){\
+\tsql+=\" and a.CFS_ID={?cfsId?}\";\
+}\
+\
+\
+// sql=\"SELECT vv.created_on,V.VESSEL_NAME,DECODE(vh.trade_id,'1','外贸','2','内贸') trade_id,DECODE(vh.i_e_id,'I','进口','E','出口') i_e_id,vh.bill_no,decode(vh.bill_type,'E','吉柜','C','整柜','P','拼柜','S','散货') bill_type,\\\
+//         VH.CONSIGNEE,VH.SHIPPER,vh.cntr_operator_cod,VL.CNTR,\\\
+//        VH.PIECES,VH.WEIGHT,VH.VOLUME,VH.SPOD,VH.POD,VH.POL,VL.CNTR_OWNER_COD,VL.CNTR_SIZE,VL.CNTR_TYPE,DECODE(VL.E_F_ID,'E','吉柜','F','重柜') E_F_ID,\\\
+//   VL.GOODS_NOTES,VL.SEAL_NO,VL.CNTR_ISO\\\
+//   FROM vload_list vl,\\\
+//        vbill_head vh,\\\
+//        vessel_visit vv,\\\
+//        vessel_voyage v\\\
+//  WHERE VL.BILL_ID = vh.id AND VH.VID = vv.id AND vv.vid = v.id and vv.created_on>=to_date('2018-04-01 00:00:00','yyyy-mm-dd hh24:mi:ss') and vv.created_on<=to_date('2018-04-30 23:59:59','yyyy-mm-dd hh24:mi:ss') and vh.I_E_ID='I'\";\
+app.send(Wb.getRecords(app.run(sql)));\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

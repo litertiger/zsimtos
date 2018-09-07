@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var id = SysUtil.getId(); //主表ID\
+\
+\
+app.run(\"update cntr_hold set HOLDORRELEASE='S',UPDATED_BY='\" + username + \"',UPDATED_ON=sysdate where id='\" + data.ID + \"'\", {\
+  transaction: 'start'\
+});\
+var lockcntr = Wb.getRecords(app.run(\"select cntr from cntr_hold\" +\
+  \" where cntr_id='\" + data.CNTR_ID + \"' and HOLDORRELEASE='H'\"));\
+if (lockcntr.length < 1)\
+  app.run(\"update port_cntr set lock_id='0' where id='\" + data.CNTR_ID + \"'\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSJJ": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "DCXK": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "解锁",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

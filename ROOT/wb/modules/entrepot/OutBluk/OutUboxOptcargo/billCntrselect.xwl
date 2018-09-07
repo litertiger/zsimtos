@@ -1,0 +1,62 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var data =app.get();\
+// var fpieces;\
+\
+\
+// var rs=Wb.getRecords(app.run(\"select vbill_head.pieces,vbill_head.bill_no,vbill_head.id from vbill_head,VESSEL_VISIT where vbill_head.VID=VESSEL_VISIT.ID  and trunc({?TIMESTAMP.date?})=trunc(ETA) and BILL_TYPE='P' and I_E_ID='E'\")); \
+// var ids=[];\
+// for(var i=0;i<rs.length;i++){\
+// \tids.push({\
+//     \tID:rs[i].ID,\
+//       \tPIECES:rs[i].PIECES\
+//     });\
+// }\
+// app.log(ids);\
+// var rr=app.run(\"select pieces-{?PIECES?} FPIECES from bluk_bill where bill_id={?ID?}\",{ arrayData: new org.json.JSONArray(ids)});\
+\
+// app.run(\"select   vbill_head.bill_NO,vbill_head.GOODS_NOTES,vbill_head.pieces,vbill_head.id,pieces-{?PIECES?} FPIECES  from    vbill_head ,VESSEL_VISIT ,VESSEL_VOYAGE where  \\\
+// VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and  vbill_head.VID=VESSEL_VISIT.ID \\\
+// and (trunc({?TIMESTAMP.date?})=trunc(ETA) or  VESSEL_VOYAGE.EDI_CALL_SIGN='ZCQ')\\\
+// and VESSEL_VISIT.TENANCY_ID={?sys.TENANCY_ID?} and  BILL_TYPE='P' and I_E_ID='E' and vbill_head.ID=(SELECT)\");\
+\
+// // request.setAttribute('sql',sql);\
+\
+\
+/* select   vbill_head.bill_NO,vbill_head.GOODS_NOTES,vbill_head.pieces,vbill_head.id ,\
+(select sum(IPIECES) from  bluk_bill where  bill_id= vbill_head.ID) IPIECES,vload_list.cntr\
+from    vbill_head ,VESSEL_VISIT ,VESSEL_VOYAGE,vload_list where  \
+VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and  vbill_head.VID=VESSEL_VISIT.ID and vload_list.bill_id=vbill_head.id \
+and (trunc({?TIMESTAMP.date?})=trunc(ETA) or  VESSEL_VOYAGE.EDI_CALL_SIGN='ZCQ')\
+and VESSEL_VISIT.TENANCY_ID='sys.TENANCY_ID}' and  BILL_TYPE='S' and vbill_head.I_E_ID='E' and vbill_head.bill_NO like '%'||{?billNo?}||'%' */"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select   vbill_head.bill_NO,vbill_head.GOODS_NOTES,vbill_head.pieces,vbill_head.id ,vbill_head.WEIGHT,vbill_head.VOLUME,\
+(select sum(IPIECES) from  bluk_bill where  bill_id= vbill_head.ID) IPIECES\
+from    vbill_head ,VESSEL_VISIT ,VESSEL_VOYAGE where  \
+VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and  vbill_head.VID=VESSEL_VISIT.ID  \
+and (trunc({?TIMESTAMP.date?})=trunc(ETA) or  VESSEL_VOYAGE.EDI_CALL_SIGN='ZCQ') \
+and VESSEL_VISIT.TENANCY_ID='{#sys.TENANCY_ID#}' and  BILL_TYPE='S' and vbill_head.I_E_ID='E' and vbill_head.bill_NO like '%'||{?billNo?}||'%'"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "提单箱查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

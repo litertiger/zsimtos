@@ -1,0 +1,155 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>7.树</p><hr color=#2266ee size=1>
+　　Treelist组件可以以树的形式显示，树分为二种：多列多层树 和 单列多层树. &lt;Properties&gt;中的 treeformat 属性决定了树的创建形式，默认是多列多层树。<br>
+
+<p class='sz3'>7.1 多列多层树</p>
+　　默认情况下(即 treeformat="normal" )Treelist可以以列表、或多列多层树展现，通过鼠标右键可以在二者之间任意切换，换句话说，列表和多列多层树是互通的.<br>
+　　树的层次分级完全是由列表的排序列决定的，有多少排序列就分多少层，例如：<br>
+<center><img src='image/treelist4.png'/></center>
+　　多列多层树的优点在于其灵活性，最终用户完全可以自主排序、分层。如果结合分类汇总，分类汇总的小计计算也完全是按照当前的排序项进行的。<br>
+<br>
+<hr>
+<br>
+<p class='sz3'>7.2 单列多层树</p>
+　　顾名思义，只有一列数据就能按多层展开的树就是单列多层树，例如我们熟知的windows的资源管理器，左侧的目录树就是单列多层树.<br>
+<p class='sz4'>7.2.1 单列多层树的treeformat语法</p>
+　　单列多层树的格式声明稍复杂，如下是全部可用的选项子句：<br>
+　　treeformat = "<b>[byid/bypid/bydata]; autoid=[true/false]; autoIdLen=[?]; subtotalNodeEditAble=[true/false]; SeparateChar=[?]</b>"<br>
+　　下面将对这些格式作详细解释。<br>
+<p class='sz4'>7.2.2 格式一：treeformat="byId"</p>
+　　此类单列多层树有一个明显的特征，就是某列的数据本身就蕴含了分层的特性，我们称之为“代码列”，例如会计科目代码。<br>
+　　这个 treeFormat 有另一种写法：treeformat="format=byId; displayId=part"，表示代码列数据的左侧相同部分在子孙中不显示，如下图的右图就是displayId=Part的情形(左图是普通的format="byId")：<br>
+<center><table border=0 width=100%><tr><td><img src='image/treelist5.png'/></td><td><img src='image/treelist6.png'/></td></tr></table></center>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注1：此类单列多层树，在其 XML 描述文件中，代码列必须是第一列.</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注2：&lt;Properties&gt; 的 Key 自动默认为第一列;</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注3：代码列的各行内容不得重复，否则会导致树的分级紊乱.</p>
+<br>
+<p class='sz4'>7.2.3 格式二：treeformat="byData"</p>
+　　Treelist还支持比较特殊的数据格式：数据本身就是XML树！ <br>
+　　这种XML数据和常规的XML数据结构不太一样，数据的内容全部在XML的属性元素中，例如：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Data&gt;
+ &lt;row ID="20" ks="硕正套件" ddm="ac"&gt;
+  &lt;row ID="51" ks="语法" ddm="ac" LazyLoad="tree.aspx?id=51"/&gt;
+  &lt;row ID="63302" ks="函数" ddm="at"/&gt;
+  &lt;row ID="DDM" ks="事件" ddm="ac"&gt;
+    &lt;row ID="20KK3" ks="OnReady" ddm="a"/&gt;
+    &lt;row ID="40KK4" ks="OnEvent" ddm="th"/&gt;
+  &lt;/row&gt;
+ &lt;/row&gt;
+ &lt;row ID="120" ks="安装" ddm="ac" LazyLoad="tree.aspx?id=120"/&gt;
+&lt;/Data&gt;</pre>
+<br>
+<p class='sz4'>7.2.4 格式三：treeformat="byPid"</p>
+　　为了方便程序员后端开发，硕正单列多层数还支持通过显式的 PID (即ParentId)指定父节点的树数据格式, 例如：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Data&gt;
+&lt;row ID="20" ks="硕正套件" ddm="ac"/&gt;
+&lt;row ID="51" PID="20" ks="语法" ddm="ac" LazyLoad="tree.aspx?id=51"/&gt;
+&lt;row ID="63302" PID="20" ks="函数" ddm="at"/&gt;
+&lt;row ID="DDM" PID="20" ks="事件" ddm="ac"/&gt;
+&lt;row ID="20KK3" PID="DDM" ks="OnReady" ddm="a"/&gt;
+&lt;row ID="40KK4" PID="DDM" ks="OnEvent" ddm="th"/&gt;
+&lt;row ID="120" ks="安装" ddm="ac" LazyLoad="tree.aspx?id=120"/&gt;
+&lt;/Data&gt;</pre>
+　　也支持这样的普通XML格式：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Data&gt;
+ &lt;row&gt;
+  &lt;ID&gt;20&lt;/ID&gt;
+  &lt;PID&gt;&lt;/PID&gt;
+  &lt;ks&gt;硕正套件&lt;/ks&gt;
+  &lt;ddm&gt;ac&lt;/ddm&gt;
+ &lt;/row&gt;
+ &lt;row&gt;
+  &lt;ID&gt;51&lt;/ID&gt;
+  &lt;PID&gt;20&lt;/PID&gt;
+  &lt;ks&gt;语法&lt;/ks&gt;
+  &lt;ddm&gt;ac&lt;/ddm&gt;
+  &lt;LazyLoad&gt;tree.aspx?id=51&lt;/LazyLoad&gt;
+ &lt;/row&gt;
+ ...
+&lt;/Data&gt;</pre>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注1：Treelist 的 XML 描述文件中必须要有名为 "ID" 和 "PID" 的列，否则会抛出错误；</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注2：&lt;Properties&gt; 的 Key 自动默认为 "ID";</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注3：如果数据行没有 PID、或 PID 指向的行不存在，则自动作为根节点.</p>
+
+<br>
+<p class='sz4'>7.2.5 autoid子句</p>
+　　treeFormat语法中还有一个可用子句:  <b>autoid=[true/false]; autoIdLen=[?]</b>   例如: <br>
+　　　　treeFormat="format=byId; autoid=true"<br>
+　　 autoid=true 表示id代码值能由硕正软件自动生成，例如鼠标在作拖拽(包括窗口内部的自我拖拽)时，能自由拖动到其它行的上方平辈、下方平辈、或作为子孙，其id代码能自动按照父子级别重新自动生成，下面是拖拽时的屏幕截图：<br>
+<table cols=3 border=0>
+<col align=center><col width=20><col align=center>
+<tr><td><img src='image/treelist8.png'></td><td/><td><img src='image/treelist9.png'></td></tr>
+<tr><td align=center>图1：拖为平辈</td><td/><td align=center>图2：拖为子孙</td></tr>
+</table>
+<br>
+　　 autoidLen用于手工指定各级id的宽度，如果不指定，则根据总行数自动生成。<br>
+　　 此外，autoid=true状态下的鼠标右键的"插入"子菜单，和平常的也不一样：<br>
+<center><img src='image/treelist7.png'></center>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">注：byPid、byData 的单列多层树，本身就支持上述自由拖拽的功能的.</p>
+<br>
+
+<p class='sz4'>7.2.6 SeparateChar子句</p>
+　　SeparateChar 仅用于 byId 的单列多层树，它用来指明id数据中的级次分隔符，下面二张图，加载的数据都一样，但是使用或不使用 SeparateChar，构成的树是截然不同的：<br>
+　　左图：<b>treeFormat="byId"</b>, 按照简单字符串包含来判断级次， "A.11" 是 "A.1" 的子孙；<br>
+　　右图：<b>treeFormat="byId;SeparateChar=."</b>, 以小数点(.)作为分隔符， "A.11" 和 "A.1" 是平级的.<br>
+<center><table border="0" width="400">
+<tr><td></td><td></td></tr>
+<tr><td><img src="image/treelist13.png"></td><td><img src="image/treelist12.png"></td></tr>
+</table></center>
+<br>
+
+
+<p class='sz4'>7.2.7 subtotalNodeEditAble子句</p>
+　　treeFormat语法中还有一个不太常用的子句:  <b>subtotalNodeEditAble=[true/false]</b> <br>
+　　subtotalEditAble 表示树杈行、小计列所在单元格的内容，是否允许被修改，默认是false，即小计是逐级自动汇总的，通常不需要人工干预.<br>
+
+<br>
+<p class='sz4'>7.2.8 单列多层树的懒加载(LazyLoad) <img src='image/document.bmp' title='请参见演示页: 15.单列多层树(二)'><p>
+　　单列多层树的树杈有延后加载的功能：树杈在首次展开时，能即时从服务器加载数据。LazyLoad有几种不同的实现方法, 下面逐个介绍：<br>
+方法1:<br>
+　　定义一个名为“LazyLoad”的列(&lt;col name="lazyload" isHide="absHide"/&gt;)，这个lazyload列的数据是取子孙行的URL，如果该列内容为空，就表示是树叶。<br>
+方法2:<br>
+　　让&lt;Properties&gt;的"LazyLoad"属性指向一个能算出URL的表达式，比如 lazyLoad="='../getcd.aspx?id=' + id".<br>
+方法3:<br>
+　　让&lt;Properties&gt;的 LazyLoad="true"，表示树杈首次展开时将触发"LazyLoad"事件，由您自己从后端加载数据，然后通过Load( )函数插入数据.<br>
+<br>
+　　方法2和方法3都是默认让所有行都成为树杈，在加载不到数据时才变成树叶。如果您觉得这样不妥，可以增加一个名为"isLeaf"的列，比如：<br>
+　　&lt;col name="isLeaf" isHide="absHide"/&gt;<br>
+　　如果加载的数据中 isLeaf 为 1 或 true, 则该行就肯定是树叶了。<br>
+<br>
+<br>
+<p class='sz4'>7.2.9 单列多层树的图标</p>
+　　树通常需要一个小图标，有如下几种树的图标方案：<br>
+一.采用 displayMask 属性<br>
+　　displayMask是通用的格式掩码表达式，书写其中的 leftImage 子表达式就可以设图标了，例如: displayMask="leftImage = ../imgs.zip#01.bmp".<br>
+　　由于是表达式，其书写可以较灵活，可以让不同的行展现不同的图标，例如: displayMask="leftImage=imgfield", 其中imgfield是&lt;col&gt;的name，即图标文件列，其内容就是图片的URL, 该列不需要显示，将其隐藏即可，例如:<br>
+　　　　&lt;col name="imgfield" isHide="absolute"/&gt;<br>
+二.采用 treeImageLeaf / treeImageNodeExpand / treeImageNodeCollapse 属性<br>
+　　为树的树叶、树杈设置统一的图标，书写规则请参见Treelist XML文档规范.<br>
+　　在demo页"14.单列多层树"有例子可参考(在“技术分析区"的下方).<br>
+三.采用函数 SetTreeImage( )<br>
+　　执行该js函数，逐行为树设置图标.<br>
+<br>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

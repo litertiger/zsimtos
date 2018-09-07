@@ -1,0 +1,211 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "viewport1"},
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "container1"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar1",
+        "title": "散货卸船入库",
+        "docked": "top",
+        "titleAlign": "center"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "ship",
+        "displayField": "SHIP",
+        "label": "选船",
+        "valueField": "ID",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=BULK_SHIP_LIST"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tselect",
+       "events": {"change": "var r = app.ship.getStore().queryBy(function(r) {  return r.data.ID == newValue;}).getAt(0);if (r){  Ext.Ajax.on('beforerequest', beforerequest);  app.grid1.store.load({    params: {      type: r.data.TYPE,      ship: newValue    }  });}"}
+      },
+      {
+       "configs": {
+        "itemId": "truck",
+        "xtype": "numberfield",
+        "label": "车号",
+        "docked": "top",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "grid1",
+        "title": "提单列表"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "numbercolumn",
+            "dataIndex": "num",
+            "width": "120",
+            "format": "0",
+            "text": "件数"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "tcolumn"
+          },
+          {
+           "configs": {
+            "itemId": "column2",
+            "xtype": "column",
+            "dataIndex": "BILL_NO",
+            "width": "200",
+            "text": "提单"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "tcolumn"
+          },
+          {
+           "configs": {
+            "itemId": "column21",
+            "xtype": "column",
+            "dataIndex": "GOODS_NOTES",
+            "width": "400",
+            "text": "货名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "tcolumn"
+          }
+         ],
+         "type": "array"
+        },
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "appFun?funId=BULK_LIST"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tstore"
+        },
+        {
+         "configs": {
+          "itemId": "scrollable",
+          "direction": "auto"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tscroller"
+        }
+       ],
+       "type": "tgrid",
+       "events": {"itemtap": "app.record = record;app.viewport1.setActiveItem(app.selectNum);"}
+      },
+      {
+       "configs": {
+        "itemId": "button1",
+        "text": "入库确认",
+        "docked": "bottom"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tbutton",
+       "events": {"tap": "var truck = app.truck.getValue();var ship = app.ship.getValue();if (!ship)  return Wb.error('请先选船', function() {    app.truck.focus();  });if (!truck)  return Wb.error('拖车号不能为空', function() {    app.truck.focus();  });var bills = [];var pieces = [];var nums = app.grid1.store.each(function(r) {  if (r.data.num) {    bills.push(r.data.BILL_NO);    pieces.push(r.data.num);  }});if (!bills.length)  return Wb.error('请至少录入一个数量');Wb.request({  url: \"appFun?funId=SAVE_BULK\",  params: {    bill: bills,    piece: pieces,    truck: truck,    ship: ship  },  success: function(resp) {    var result = Wb.decode(resp.responseText);    if (result.success) {      Wb.info('保存成功');      app.grid1.store.each(function(r) {        if (r.data.num) {          r.set('num', undefined);          r.commit();        }      });    } else if (result.errstr === 'loginRequired') {      Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));    } else if (result.errstr)      Wb.error(result.errstr);    else      Wb.error('未知错误');  }});"}
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectNum",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择数量",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.container1);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "dataview1",
+        "tpl": "aaa",
+        "itemTpl": "<div style='width:50px;height:50px;display:inline;'>{num}<\/div>"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "data": "[{  num: 0}, {  num: 1}, {  num: 2}, {  num: 3}, {  num: 4}, {  num: 5}, {  num: 6}, {  num: 7}, {  num: 8}, {  num: 9}]"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tdataview"
+      }
+     ],
+     "type": "tcontainer"
+    }
+   ],
+   "type": "tviewport"
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "setTimeout(function() {  Ext.Ajax.on('beforerequest', beforerequest);  app.ship.getStore().load();}, 200);",
+   "initialize": "var beforerequest = app.beforerequest = function(request, opt) {  opt.success = translate;};var translate = function(res) {  Ext.Ajax.un('beforerequest', beforerequest);  data = Ext.decode(res.responseText);  if (data.success === false) {    if (data.errstr === 'loginRequired') {      Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));    } else if (data.errstr)      Wb.error(data.errstr);    else      Wb.error('未知错误');  }  res.responseText = {    success: true,    metaData: {      fields: data.cols    },    rows: Ext.Array.map(data.rows, function(r) {      return data.cols.reduce(function(row, c, i) {        row[c] = r[i];        return row;      }, {});    })  };};"
+  }
+ }],
+ "roles": {"default": 1},
+ "title": "散货入库确认",
+ "iconCls": "boxs_icon",
+ "inframe": true,
+ "pageLink": ""
+}

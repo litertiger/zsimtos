@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var ieId = app.get(\"ieId\"),\
+  vid = \"\",\
+  username = app.get(\"sys.username\"),\
+  vid = Wb.decode(app.get(\"vIds\")),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  shipNam = app.get(\"shipNam\"),\
+  rs;\
+\
+for (var i = 0; i < vid.length; i++) {\
+  vid += \"'\" + vid[i] + \"'\";\
+  if (i > 0)\
+    vid += \",\";\
+\
+}\
+var idArray = Wb.getRecords(app.run(\"select sys_guid() ID, VID,BILL_ID, CNTR, CNTR_SIZE, CNTR_TYPE,  SEAL_NO, CNTR_OPERATOR,CNTR_ID from  from  VLOAD_LIST where  VID in \" + vid + \" and I_E_ID='E'  and  phase='2'  and  LCL_ID=1 and  main_flag=1 and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' and \" +\
+  \" not exists(select 1 from   BLUK_PLAN  where  'E'= VANNINGDV and  VID in \" + vid + \"   and BLUK_PLAN.CNTR=VLOAD_LIST.CNTR  ) \"));\
+\
+app.run(\"insert  into BLUK_PLAN  (ID, VID, CNTR, CNTR_SIZE, CNTR_TYPE, SEAL_NO, CNTR_OPERATOR, \" +\
+  \" TASKSTATUS, VANNINGDV, CNTR_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY) \" +\
+  \" select {?ID?},  {?VID?}, {?CNTR_SIZE?}, {?CNTR_TYPE?},  {?SEAL_NO?}, {?CNTR_OPERATOR?}, 'PLN',{?ieId?},{?CNTR_ID?},{?TENANCY_ID?}, \" +\
+  \" sysdate,sysdate,'\" + username + \"','\" + username + \"' \" +\
+  \" from  VLOAD_LIST where  VID={?VID?} and I_E_ID={?ieId?}  and  phase='2'  and  LCL_ID=1 and  main_flag=1 and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' and \", {\
+    transaction: 'start',\
+    arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+  });\
+\
+app.run(\"update BLUK_BILL set CFS_ID={?ID?}  where  CFSINOUT='E' and BILL_ID={?BILL_ID?} \", {\
+  arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+});\
+\
+// var sql = \"INSERT INTO BLUK_BILL \" +\
+//   \"      (CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES,\" +\
+//   \"      CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, WEIGHT, VOLUME, LCL_ID,\" +\
+//   \"      SHIPPER, SHIPPER_COD,TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY,\" +\
+//   \"      UPDATED_BY,BILL_NO)\" +\
+//   \"  SELECT SYS_GUID (), {?ieId?}, BILL_ID, VLOAD_LIST.GOODS_NOTES, NULL,\" +\
+//   \"        VLOAD_LIST.PIECES, VLOAD_LIST.CNTR_OPERATOR, NULL, 'PLN', NULL,\" +\
+//   \"        VLOAD_LIST.WEIGHT, VLOAD_LIST.VOLUME,(select  ID from BLUK_PLAN where BLUK_PLAN.CNTR_ID=VLOAD_LIST.CNTR_ID  and decode({?ieId?},'I','I','E')=VANNINGDV ), VBILL_HEAD.SHIPPER, VBILL_HEAD.SHIPPER_COD,\" +\
+//   \"        VBILL_HEAD.TENANCY_ID, SYSDATE, SYSDATE, '\" + username + \"', '\" + username + \"',VBILL_HEAD.BILL_NO\" +\
+//   \"   FROM VLOAD_LIST, VBILL_HEAD\" +\
+//   \"   WHERE VLOAD_LIST.BILL_ID = VBILL_HEAD.ID   and  VBILL_HEAD.phase='2'   and  vload_list.VID={?VID?} and vload_list.I_E_ID={?ieId?}  and vload_list.LCL_ID=1 and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' and VLOAD_LIST.TENANCY_ID=VBILL_HEAD.TENANCY_ID and \" +\
+//   \"not exists(select 1 from   BLUK_BILL  where   {?ieId?}= CFSINOUT and BILL_ID=vload_list.BILL_ID)\";\
+\
+// app.run(sql, {\
+//   arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+// });",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "basic": 1,
+  "DCXK": 1
+ },
+ "title": "生成拆箱计划",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

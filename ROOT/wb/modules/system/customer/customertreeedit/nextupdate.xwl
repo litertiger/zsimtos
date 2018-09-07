@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var username = app.get(\"sys.username\");\
+var tenancyId = app.get(\"sys.TENANCY_ID\");\
+app.run(\"update C_CNTROWNER_COD_NEXT set NAME={?NAME?}, SHORT_NAME={?SHORT_NAME?}, S_CODE={?S_CODE?}, ADDRESS={?ADDRESS?},\\\
+TEL={?TEL?}, UPDATEUSER='\" + username + \"', UPDATETIME=sysdate, GOV_CODE={?nGOV_CODE?} \\\
+where id={?ID?}\", {\
+  jndi: \"jdbc/basecode\"\
+});\
+\
+var jedis = com.ag.util.RedisUtil.getJedis();\
+\
+\
+var rs = app.run(\"SELECT ID, CODE, NAME, SHORT_NAME,  'CM' Client_TYPE, TEL, ADDRESS, '' REGISTER_BANK, \" +\
+\
+  \" '' DEFAULT_PROTOCOL,GOV_CODE  FROM C_CNTROWNER_COD_NEXT where CODE={?CODE?}\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+app.log(app.get(\"CODE\"));\
+\
+var mapId = jedis.hgetAll(\"JT_CNTR_OWNER\");\
+\
+if (rs.next()) {\
+  map = new HashMap();\
+  map.put(\"name\", rs.getString(\"name\") == null ? \"@@@\" : rs.getString(\"name\"));\
+  map.put(\"cname\", rs.getString(\"name\") == null ? \"@@@\" : rs.getString(\"name\"));\
+  map.put(\"id\", rs.getString(\"CODE\"));\
+  map.put(\"code\", rs.getString(\"CODE\"));\
+  map.put(\"clientType\", \"CM\");\
+  map.put(\"defaultProtocol\", \"\");\
+\
+  map.put(\"govCode\", rs.getString(\"GOV_CODE\") == null ? \"@@@\" : rs.getString(\"GOV_CODE\"));\
+  map.put(\"address\", rs.getString(\"ADDRESS\"));\
+  map.put(\"tel\", rs.getString(\"TEL\"));\
+  map.put(\"registerBank\", rs.getString(\"REGISTER_BANK\"));\
+  mapId.put(rs.getString(\"CODE\"), com.alibaba.fastjson.JSON.toJSON(map).toString());\
+}\
+jedis.del(\"JT_CNTR_OWNER\");\
+jedis.hmset(\"JT_CNTR_OWNER\", mapId);\
+com.ag.util.RedisUtil.returnResource(jedis);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "新增",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,110 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+   AF.func("Build", "treelist/orders4.xml");
+   AF.func("Load", "treelistdata/orders.txt");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+ 	//非模式对话框打开期间
+ 	if(AF.func("isInnerDialogOpen", "")==1) {
+ 	 if(Event == "EditKeydown" && p2 == 27) {
+    //Escape键: 关闭对话框
+    AF.func("closeInnerDialog", "");
+ 	 }
+ 	 else if(Event=="ButtonClicked" && p1=="ok") {
+    //点了“确定”按钮
+    //你可以在此书写： AF.func("CancelEvent", ""); 阻止确认动作
+   }
+ 	}
+ }
+ function switching()
+ {
+ 	var s = AF.func("GetProp", "editFreeformId");
+ 	var buttonText;
+ 	if(s == "FR1") {
+ 	 s = "FR2";
+ 	 buttonText = " 切换回固定XML方案 ";
+  }
+ 	else {
+ 	 s = "FR1";
+ 	 buttonText = " 切换为动态XML方案 ";
+  }
+ 	AF.func("SetProp", "editFreeformId \r\n" + s);
+ 	document.getElementById("button1").value=buttonText;
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff topmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><br>请 <b>鼠标双击、或回车</b> 打开内置的非模式对话框:</td>
+</tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<div style="position:relative;width:870">
+	<script>insertTreeList('AF', '', '366px')</script>
+</div>
+<br>
+<input id="button1" type="button" value=" 切换为动态XML方案 " onClick="switching()">
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.请参看该Treelist的<a href="treelist/orders4.xml" target=_blank>XML模式文件</a>，实现的关键点在于XML中的<b>EditFreeformId</b>：<br>
+<pre class='xml'>
+&lt;Properties editFreeformId="FR1"/&gt;
+</pre>
+以及内置的 freeform 资源：
+<pre class='xml' maxChars="120">
+&lt;FreeformRes&gt;
+ &lt;!--方案1：固定freeform--&gt;
+ &lt;freeform id="FR1" url="freeform71.xml" IdOk="ok" IdCancel="cancel" height="200" bgColor="#aaccff" alpha="100" extWidth="0"/&gt;
+ &lt;!--方案2：动态freeform模版--&gt;
+ &lt;freeform id="FR2" url="freeform72.xml" IdOk="ok" IdCancel="cancel" height="200" bgColor="#aaccff" alpha="100" extWidth="0"/&gt;
+&lt;/FreeformRes&gt;
+</pre>
+<b>2</b>.内嵌的freeform对话框请参看方案1的<a href="treelist/freeform71.xml" target=_blank>XML模式文件</a>, 以及方案2的<a href="treelist/freeform72.xml" target=_blank>动态XML模式文件</a><br>
+<br>
+<b>3</b>.OnEvent( )事件，只处理了"Escape"键，让其关闭对话框:<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //非模式对话框打开期间
+ if(AF.func("isInnerDialogOpen", "")==1) {
+  if(Event == "EditKeydown" && p2 == 27) {
+   //Escape键: 关闭对话框
+   AF.func("closeInnerDialog", "");
+  }
+  else if(Event=="ButtonClicked" && p1=="ok") {
+   //点了“确定”按钮
+   //你可以在此书写： AF.func("CancelEvent", ""); 阻止确认动作
+  }
+ }
+}</pre>
+<br>
+<b>4</b>.动态生成XML的规则请参考Treelist的开发文档"8.嵌入Freeform":<br>
+
+</td>
+<td/></tr>
+</table>
+</td></tr></table>
+
+</center>
+<br><br>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

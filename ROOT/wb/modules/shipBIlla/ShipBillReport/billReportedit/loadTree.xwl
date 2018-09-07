@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"\";\
+if (data.LEVELS == \"-1\") {\
+  sql = \"select id,service_name \\\"text\\\" ,1 done_check,1 LEVELS from c_service\";\
+  var service = DbUtil.getData(app.run(sql, {\
+    jndi: \"jdbc/basecode\"\
+  }), request);\
+  app.send(service);\
+}\
+if (data.LEVELS == \"1\") {\
+  sql = \"select v1.id id1,v2.id id2,vessel_code,vessel_name \\\"text\\\",'true' \\\"leaf\\\",1 done_check,2 LEVELS from vessel_voyage v1\" +\
+    \" left join vessel_visit v2 on v1.id=v2.vid where v2.tenancy_id='\" + tenancyid + \"'\";\
+  if (data.I_E == \"I\")\
+    sql += \" and v1.service='\" + data.vid + \"' and v2.ETA>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+    \" and v2.ETA<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+  if (data.I_E == \"E\")\
+    sql += \" and v1.oservice='\" + data.vid + \"' and v2.ETA>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+    \" and v2.ETA<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+  if (data.I_E == \"IE\")\
+    sql += \" and (v1.service='\" + data.vid + \"' or v1.oservice='\" + data.vid + \"')\" +\
+    \" and v2.ETA>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+    \" and v2.ETA<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+  var hc = DbUtil.getData(app.run(sql), request);\
+  app.send(hc);\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "加载树",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

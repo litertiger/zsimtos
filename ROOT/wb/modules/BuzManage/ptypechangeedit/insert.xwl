@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+//生成ID\
+var id = Wb.getRecords(app.run(\"select to_char(sysdate,'yyyyMMdd')||lpad(accounts_print_no.nextval,4,'0')id from dual\"));\
+//查询货主\
+var sql = \"select decode(i_e_id,'I',CONSIGNEE_COD,SHIPPER_COD)SHIPPER_CONSIGNEE_COD,\\
+\" +\
+  \"decode(i_e_id,'I',CONSIGNEE,SHIPPER)SHIPPER_CONSIGNEE\\
+\" +\
+  \"from vbill_head where tenancy_id='\" + tenancyid + \"' and BILL_NO='\" + data.billno + \"'\";\
+var hz = Wb.getRecords(app.run(sql));\
+//插入主表\
+sql = \"insert into remitting(ID,REM_DATE,REM_CUS,PAYER,BILL_NO,\" +\
+  \"CREATED_BY,CREATED_ON,TENANCY_ID,REM_CUS_COD,PAYER_COD,R_TYPE,R_OK,created_type)\" +\
+  \"values('\" + id[0].ID + \"',sysdate,'\" + hz[0].SHIPPER_CONSIGNEE + \"','\" + hz[0].SHIPPER_CONSIGNEE + \"','\" + data.billno + \"',\" +\
+  \"'\" + username + \"',sysdate,'\" + tenancyid + \"','\" + hz[0].SHIPPER_CONSIGNEE_COD + \"','\" + hz[0].SHIPPER_CONSIGNEE_COD + \"','\" + data.rtype + \"',\" + (data.rtype == \"xty\" ? 0 : 1) + \",1)\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+//插入子表\
+sql = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT) \" +\
+  \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,\" + (data.rtype == \"xty\" ? 0 : 1) + \",FEE_LIST_ID,\" + (data.rtype == \"xty\" ? 2 : 1) + \",ACTUAL_JOB_COUNT,AMOUNT\" +\
+  \" from accounts_details where id in (\" + data.ids + \")\";\
+app.run(sql);\
+//修改费用明细\
+sql = \"update accounts_details ad set IS_MANUAL=1,PAYMENT_TYPE=\" + (data.rtype == \"ytx\" ? 1 : 2) + \",\" +\
+  \"remittingitem_id=(select id from remitting_item ri where ri.ad_id=ad.id and ri.c_id='\" + id[0].ID + \"')\" +\
+  \" where ad.id in (\" + data.ids + \")\";\
+app.run(sql);\
+\
+app.run(\"insert into remitting_log values('修改结算类型:\" + id[0].ID + \"','\" + username + \"',sysdate,'\" + tenancyid + \"')\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "基本添加记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

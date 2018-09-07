@@ -1,0 +1,48 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+// if (nature == '5') {\
+//   sql += \" and c1.CREATEUSER  like '%'||'\" + CREATEUSER + \"'\tand c1.STATE_FLAG not in('2')\";\
+// } else {\
+//   sql += \"  and c1.STATE_FLAG not in('0','3','2')\";\
+// }\
+if (!Wb.isEmpty(data.begdate)) {\
+  sql += \" and trunc(CREATED_ON)>=trunc({?timestamp.begdate?}) \";\
+}\
+if (!Wb.isEmpty(data.enddate)) {\
+  sql += \" and trunc(CREATED_ON)<=trunc({?timestamp.enddate?}) \";\
+}\
+\
+if (!Wb.isEmpty(data.PHASE)) {\
+  sql += \" and   PHASE={?PHASE?} \";\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT ID, TENANCY_ID, BILL_NO, CREATED_ON, CREATED_BY, CHECK_BY, CHECK_ON, CANCLE_BY, CANCLE_ON, PHASE FROM TRANS_APPLY\
+WHERE TENANCY_ID='{#sys.TENANCY_ID#}' and BILL_NO LIKE '%'||{?name?}||'%'{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "DHSHIP": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

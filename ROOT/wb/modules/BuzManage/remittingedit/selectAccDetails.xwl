@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+// var sql = \"select ad.* from accounts_details ad where ad.tenancy_id='\" + tenancyid + \"'\" +\
+//   \" and ad.BILL_NO='\" + data.bill_no + \"' and ACCOUNT_CUSTOMER_CODE='\" + data.cod + \"'\" +\
+//   \" and (not exists(select 1 from remitting_item ri where ad.id=ri.ad_id) or ad.id in (\" + data.ids + \"))\";\
+\
+\
+\
+// var sql = \"select ad.* from accounts_details ad where ad.tenancy_id='\" + tenancyid + \"'\" +\
+//   \" and ad.BILL_NO='\" + data.bill_no + \"' and ACCOUNT_CUSTOMER_CODE='\" + data.cod + \"'\" +\
+//   \" and SETTLE_STATUS=0 and (not exists(select 1 from remitting_item ri where ad.id=ri.ad_id))\";\
+\
+\
+var sql = \"select ad.* from accounts_details ad where ad.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and ad.BILL_NO='\" + data.bill_no + \"' and PAYMENT_CUSTOMER_CODE='\" + data.cod + \"'\" +\
+  \" and SETTLE_STATUS=0 and (not exists(select 1 from remitting_item ri where r_ok in(0,1) and ad.id=ri.ad_id))\" +\
+  \" and ad.Enabled=0\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "查询费用明细",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,52 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var sql = \" and r.tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.txtBILL_NO))\
+  sql += \" and r.BILL_NO='\" + data.txtBILL_NO + \"'\";\
+if (!Wb.isEmpty(data.cboREM_CUS_COD))\
+  sql += \" and r.REM_CUS_COD='\" + data.cboREM_CUS_COD + \"'\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and r.REM_DATE>=to_timestamp('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and r.REM_DATE<to_timestamp('\" + data.edate.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+if (!Wb.isEmpty(data.rtype))\
+  sql += \"and r.r_type = {?rtype?}\";\
+if (nature == \"5\")\
+  sql += \" and (r.REM_CUS_COD='\" + customcode + \"' or r.PAYER_COD='\" + customcode + \"')\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select r.*,(select vessel_name from vessel_voyage where v2.vid=id) vessel_name,vh.goods_notes,vh.pieces,vh.weight/1000 weight,vh.volume,\
+case vh.i_e_id when 'I' then v2.LIB_VYG when 'E' then v2.LOB_VYG end VYG\
+from remitting r left join vbill_head vh on r.bill_no=vh.bill_no left join vessel_visit v2 on v2.id=vh.vid\
+where r.r_type in('ytx','xty'){#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

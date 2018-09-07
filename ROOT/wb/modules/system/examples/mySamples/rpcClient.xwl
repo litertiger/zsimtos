@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var client = new RabbitClient();\
+\
+/*client.setHost(\"192.168.1.14\");\
+client.setUser(\"liaw\");\
+client.setPass(\"123\");\
+client.setVHost(\"test\");\
+client.setTimeout(2000);*/\
+\
+if (!client.open()) {\
+  app.send(client.getLastError());\
+  return;\
+}\
+try {\
+  app.send(client.call(\"qu_find_plac\", {\
+    info: {\
+      type: \"ship\",\
+      action: \"findplace\",\
+      senduser: app.get(\"sys.username\"),\
+      sendmodule: \"ship\",\
+      sendtime:(new Date()).getTime()\
+    },\
+    data: {cntr:\"APHU6496574\"}\
+  }) || client.getLastError() || \"超时\");\
+} catch (e) {\
+  app.send(e);\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "发送RPC调用",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

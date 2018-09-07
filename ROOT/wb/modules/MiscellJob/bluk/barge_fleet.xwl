@@ -1,0 +1,528 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "dialog": "true",
+     "itemId": "editwin",
+     "closeAction": "destroy",
+     "width": "560",
+     "autoScroll": "true",
+     "height": "400"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR_COD",
+       "labelAlign": "right",
+       "fieldLabel": "驳船代码",
+       "x": "8",
+       "width": "240",
+       "displayField": "CODE",
+       "y": "8",
+       "labelWidth": "70",
+       "anyMatch": "true",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=truckManager/truckEdit/bargeFleetEdit/selectCntrOperator"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo",
+      "events": {"select": "app.CNTR_OPERATOR.setValue(records[0].data.NAME);"}
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR",
+       "labelAlign": "right",
+       "fieldLabel": "驳船公司",
+       "x": "256",
+       "width": "240",
+       "y": "8",
+       "labelWidth": "70",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "customer",
+       "x": "0",
+       "width": "560",
+       "y": "40",
+       "title": "车队维护",
+       "height": "240"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "fleetGrid",
+        "submitSelect": "true",
+        "selType": "checkboxmodel",
+        "sortableColumns": "false",
+        "simpleSelect": "true",
+        "pagingBar": "false",
+        "multiSelect": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "remoteSort": "true",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "url": "m?xwl=truckManager/truckEdit/bargeFleetEdit/selectFleet"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colCODE",
+            "dataIndex": "CODE",
+            "text": "车队代码",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colNAME",
+            "dataIndex": "NAME",
+            "flex": "-1",
+            "width": "200",
+            "text": "车队名称",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"tagEvents": "select:function(RowModel,record,index,eOpts){\
+\
+/*if(typeof(record)!='number'){\
+            \tWb.request({\
+    \t\t\turl: 'm?xwl=customer-link/insertCod',\
+    \t\t\tparams:{ TENANCY_ID:record.data.TENANCY_ID,\
+                ID:record.data.ID,\
+                ORG_NAME:record.data.ORG_NAME,\
+                TENANCY_ID:record.data.TENANCY_ID,\
+                C_ID:record.data.ID},\
+    \t\t\tsuccess: function() {}\
+ \t\t\t  });\
+            }\
+       */     \
+  \
+  \
+},\
+deselect:function(RowModel,record,index,eOpts){\
+  \tvar ID=record.data.ID;\
+\tWb.request({\
+      url: 'm?xwl=system/customer/customer/deleteCCC',\
+      params:{ORG_ID:ID},\
+      success: function(){}\
+    });\
+}\t"}
+      }],
+      "type": "fieldset"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "// var values = Wb.getValue(app.customWin);\
+// if (app.isEdit) {\
+//   if(app.stateCol.getValue()==1){\
+//     var ids=new Array();\
+//     var names=new Array();\
+//      var sels = app.grid1.getSelection();\
+//      var sels2 = app.customerGrid.getSelection();\
+//     Wb.each(sels2,function (sel){\
+// \tids.push(sel.data.ID);\
+//       names.push(sel.data.ORG_NAME);\
+// \t});\
+//     //权限按钮操作\
+//     Wb.request({\
+//       url: 'm?xwl=system/customer/customer/insertContact',\
+//       params: {ids:ids,ID:sels[0].data.ID,names:names}, //合并窗口和记录数据作为参数，后者为默认值\
+//       success: function() {\
+//         //把窗口数据更新到选择记录中\
+//         Wb.update(app.selRec, values);\
+//         //隐藏对话框，在模块关闭时自动销毁对话框\
+//         app.customWin.close();\
+//       }\
+//     });\
+//     }\
+//   //调用后台java方法写的 \
+//   var s1 = app.grid1.getSelection();\
+//   //点击修改按钮的处理过程\
+//   var val = Wb.applyIf(values,Wb.getData(app.selRec, true)); //合并窗口和记录数据作为参数，后者为默认值\
+//   Wb.request({\
+//     url: 'm?xwl=system/customer/customer/update',\
+// //     params: val,//合并窗口和记录数据作为参数，后者为默认值\
+//     params:Wb.applyIf({code:s1[0].data.CODE},values, Wb.getData(app.selRec, true)),\
+//     success: function() {\
+//       //把窗口数据更新到选择记录中\
+//       Wb.update(app.selRec, values);\
+//       //隐藏对话框，在模块关闭时自动销毁对话框\
+//       app.customWin.close();\
+//       app.queryBtn.fireEvent('click');\
+//       app.xwl1.send(\"/exchange/ex_customer/#\",{\
+//         info:{\
+//           type:\"custom\",\
+//           action:\"update\",\
+//           senduser:'{#sys.username#}',\
+//           sendtime:(new Date()).getTime(),\
+//           ttl:5000,\
+//           sendmoudle:\"customer\"\
+//         },\
+//         data:val\
+//       });\
+//     }\
+//   });\
+ \
+// } else {\
+// //   var s = app.grid1.getSelection();\
+//   //点击添加按钮的处理过程\
+//   Wb.request({\
+// //     url: 'm?xwl=system/customer/customer/insert1',\
+//     url: 'm?xwl=system/customer/customer/insert2',\
+//     out: app.customWin,\
+// //     params:{code:s[0].data.CODE},\
+//     params:{code:app.CODE.getValue()},\
+//     success: function(resp) {\
+//       //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+// //       var val = Wb.apply( values,Wb.decode(resp.responseText));\
+// //       Wb.add(app.grid1, val);\
+//       Wb.add(app.grid1,values);\
+//       //隐藏对话框，在模块关闭时自动销毁对话框\
+//       app.customWin.close();\
+//       app.queryBtn.fireEvent('click');\
+//        app.xwl1.send(\"/exchange/ex_customer/#\",{\
+//         info:{\
+//           type:\"custom\",\
+//           action:\"create\",\
+//           senduser:'{#sys.username#}',\
+//           sendtime:(new Date()).getTime(),\
+//           ttl:5000,\
+//           sendmoudle:\"customer\"\
+//         },\
+//         data:val\
+//       });\
+//     }\
+//   });\
+  \
+// }"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1",
+      "height": "300"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid1",
+       "editable": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "name",
+           "labelAlign": "right",
+           "fieldLabel": "名称",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "itemId": "findmenu",
+           "text": "查询",
+           "iconCls": "seek_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+         },
+         {
+          "configs": {
+           "itemId": "addmenu",
+           "text": "添加",
+           "iconCls": "record_add_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "// Wb.addEdit(app.grid1,{TENANCY_ID:'{#sys.TENANCY_ID#}'});\
+\
+\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '添加');\
+var datas = [];\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  var values = Wb.getValue(win);\
+  var sel=app.fleetGrid.getSelection();\
+  for (var i = 0; i < sel.length; i++) {\
+    datas.push({\
+      CNTR_OPERATOR_COD: app.CNTR_OPERATOR_COD.getValue(),\
+      CNTR_OPERATOR: app.CNTR_OPERATOR.getValue(),\
+      FLEET: sel[i].data.NAME,\
+      FLEET_COD: sel[i].data.CODE\
+    });\
+  }\
+//   console.log(values);\
+//   console.log(datas);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/bluk/bargeFleetEdit/insertMult',\
+    params: {\
+      datas: datas\
+    },\
+    success: function(resp) {\
+      app.findmenu.fireEvent('click');\
+      win.close();\
+    }\
+  });\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "deletemenu",
+           "text": "删除",
+           "iconCls": "record_delete_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.remove(app.grid1);"}
+         },
+         {
+          "configs": {
+           "itemId": "savemenu",
+           "text": "保存",
+           "iconCls": "save_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid1,\
+  url: 'm?xwl=truckManager/truckEdit/bargeFleetEdit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "IDS",
+           "hidden": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=truckManager/truckEdit/bargeFleetEdit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR_OPERATOR_COD",
+           "dataIndex": "CNTR_OPERATOR_COD",
+           "text": "驳船代码"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "displayField": "CODE",
+            "anyMatch": "true"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "store",
+             "autoLoad": "true",
+             "url": "m?xwl=truckManager/truckEdit/bargeFleetEdit/selectCntrOperator"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "store"
+           }],
+           "type": "combo",
+           "events": {"select": "var sel=app.grid1.getSelection();\
+sel[0].set('CNTR_OPERATOR',records[0].data.NAME);"}
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colCNTR_OPERATOR",
+           "dataIndex": "CNTR_OPERATOR",
+           "width": "150",
+           "text": "驳船公司",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colFLEET",
+           "dataIndex": "FLEET",
+           "width": "150",
+           "text": "车队",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "editor",
+            "displayField": "NAME",
+            "valueField": "NAME",
+            "anyMatch": "true"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "store",
+             "autoLoad": "true",
+             "url": "m?xwl=truckManager/truckEdit/bargeFleetEdit/selectFleet"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "store"
+           }],
+           "type": "combo",
+           "events": {"select": "var sel=app.grid1.getSelection();\
+sel[0].set('FLEET_COD',records[0].data.CODE);"}
+          }],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colFLEET_COD",
+           "dataIndex": "FLEET_COD",
+           "text": "车队代码",
+           "align": "center",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colTENANCY_ID",
+           "dataIndex": "TENANCY_ID",
+           "text": "租户",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSJJ": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "驳船车队维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

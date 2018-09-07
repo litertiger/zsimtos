@@ -1,0 +1,168 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//app.execute('m?xwl=shipBIlla/inEDI/proShipBIll');\
+var id = SysUtil.getId(); //主表ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var govcode = app.get('sys.GOV_CODE');\
+var orgname = app.get('sys.org_name');\
+var nature = app.get(\"sys.NATURE\");\
+var os, files = app.getFiles('file1');\
+var inout = app.get('inout');\
+app.log(inout);\
+var ieId = app.get(\"ieId\"),\
+  tradeId = app.get(\"tradeId\"),\
+  shipNo = app.get(\"shipNo\"),\
+  voyageNo = app.get(\"voyageNo\");\
+var dateForm = java.lang.System.currentTimeMillis(); //DateUtil.format(new java.util.Date(),'yyyyMMddHHmmss');\
+var ExcelPoiUtil = com.wb.excel.ExcelPoiUtil;\
+var jsArr = ['CNTR', 'I_E_ID', 'TRADE_ID', 'E_F_ID', 'CNTR_SIZE', 'CNTR_TYPE', 'CNTR_OWNER_COD', 'CNTR_OPERATOR_COD', 'POL', 'POD']; //定义js数组\
+var strArrType = Java.type('java.lang.String[]');\
+javaArr = Java.to(jsArr, strArrType); //使用Java.to方法把js数组转换为指定原型String[]的java数组\
+var i = 1,\
+  errormessage = \"\";\
+Wb.each(files, function(file) {\
+  if (!file) return;\
+  try {\
+    request.setAttribute(\"file1\", file.stream);\
+    request.setAttribute(\"fileName\", file.name);\
+    var list = ExcelPoiUtil.readExcelBody(file.stream, 1, -1, 0, -1, 0, javaArr); //导入\
+\
+    if (list.size() > 0) {\
+      var applymap = list.get(0);\
+      if (govcode != null && govcode != '') {\
+        var code = Wb.getRecords(app.run(\"select name from c_customer where code='\" + govcode + \"'\"));\
+        orgname = code[0].NAME;\
+      }\
+      if (govcode == null || govcode == '') {\
+        govcode = applymap.get('CNTR_OPERATOR_COD');\
+        var code = Wb.getRecords(app.run(\"select name from c_customer where code='\" + applymap.get('CNTR_OPERATOR_COD') + \"'\"));\
+        orgname = code[0].NAME;\
+      }\
+      var respol = Wb.getRecords(app.run(\"select * from c_port where port_name ='\" + applymap.get('POL') + \"'\"));\
+      var respod = Wb.getRecords(app.run(\"select * from c_port where port_name ='\" + applymap.get('POD') + \"'\"));\
+      if (respol.length < 1 || respod.length < 1) {\
+        Wb.error(\"起运港或抵运港不存在！\");\
+        return;\
+      }\
+    }\
+    var ccntr = \"\";\
+    for (var i = 0; i < list.size(); i++) {\
+      var maps = list.get(i);\
+      if (maps.get('CNTR') == null) {\
+        break;\
+      }\
+      if (maps.get('POL') == null || maps.get('POD') == null) {\
+        app.log(i);\
+        Wb.error(\"部分起运港抵运港为空！\");\
+        return;\
+      }\
+       if (maps.get('TRADE_ID') != 1 && maps.get('TRADE_ID') != 2) {\
+        app.log(i);\
+        Wb.error(\"部分内外贸状态错误！\");\
+        return;\
+      }\
+      if (maps.get('CNTR_SIZE') != 20 && maps.get('CNTR_SIZE') != 40  && maps.get('CNTR_SIZE') != 45) {\
+        app.log(i);\
+        Wb.error(\"部分箱尺寸错误！\");\
+        return;\
+      }\
+      if (nature == '5') {\
+        if (maps.get('CNTR_OPERATOR_COD') != govcode) {\
+          Wb.error(\"箱代理或船公司不匹配！\");\
+          return;\
+        }\
+      }\
+      ccntr += \"'\" + maps.get('CNTR') + \"',\";\
+    }\
+    ccntr = ccntr.substring(0, ccntr.length - 1);\
+    var rescntr = Wb.getRecords(app.run(\"select * from port_cntr where tenancy_id='\" + tenancyid + \"' and phase<>'RET' and cntr in(\" + ccntr + \")\"));\
+    var havecntr = '';\
+    for (var j = 0; j < rescntr.length; j++) {\
+      havecntr += rescntr[j].CNTR + ',';\
+    }\
+    havecntr = havecntr.substring(0, havecntr.length - 1);\
+    if (inout == 'in' && rescntr.length > 0) {\
+      Wb.error(\"箱子:\" + havecntr + \"未核销,请检查\");\
+      return;\
+    }\
+    if (inout == 'out' && rescntr.length != list.size()) {\
+      Wb.error(\"部分箱子不在场,请检查\");\
+      return;\
+    }\
+    if (inout == 'out' && rescntr.length == list.size()) {\
+      var cntr_id = rescntr[0].ID;\
+      var outcntr = Wb.getRecords(app.run(\"select * from cntr_apply ca left join cntr_apply_list cal on cal.aid=ca.id where tenancy_id='\" + tenancyid + \"' and APPLY_TYPE='ZGC' and cntr_id ='\" + cntr_id + \"'\"));\
+      if (outcntr.length > 0) {\
+        Wb.error(\"部分箱子已存在转关出申请,请检查\");\
+        return;\
+      }\
+    }\
+    app.log(inout);\
+    if (inout == 'in') {\
+      var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+        \"FROM_OPERATOR_COD,FROM_OPERATOR,APPLY_DATE,CREATED_BY,CREATED_ON,POL,POD)\" +\
+        \" values('\" + id + \"','\" + tenancyid + \"','APY','ZGJ','\" + govcode + \"','\" + orgname + \"','\" +\
+        govcode + \"','\" + orgname + \"',sysdate,'\" + username + \"',sysdate,'\" + applymap.get('POL') + \"','\" + applymap.get('POD') + \"')\";\
+      app.run(sqla);\
+      for (var i = 0; i < list.size(); i++) {\
+        var cntrid = SysUtil.getId();\
+        var maps = list.get(i);\
+        var cntrsize = parseInt(maps.get('CNTR_SIZE'));\
+        var tradeId = parseInt(maps.get('TRADE_ID'));\
+        var sql = \"insert into port_cntr(IB_MODE,ID,TENANCY_ID,CNTR,PHASE,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,CNTR_ISO,\" +\
+          \"CNTR_OPERATOR,CNTR_OPERATOR_COD,CNTR_SIZE,CNTR_TYPE,CREATED_BY,CREATED_ON,CNTR_OWNER_COD,CNTR_OWNER)\" +\
+          \" values('TI','\" + cntrid + \"','\" + tenancyid + \"','\" + maps.get('CNTR') + \"','OUT','E','\" + tradeId + \"','\" + maps.get('I_E_ID') + \"','\" + maps.get('E_F_ID') + \"','',\" +\
+          \"(select name from c_customer where code='\" + maps.get('CNTR_OPERATOR_COD') + \"'),'\" + maps.get('CNTR_OPERATOR_COD') + \"','\" + cntrsize + \"','\" + maps.get('CNTR_TYPE') + \"','\" + username + \"',sysdate,'\" +\
+          maps.get('CNTR_OWNER_COD') + \"',(select name from c_customer where code='\" + maps.get('CNTR_OWNER_COD') + \"'))\";\
+        app.run(sql);\
+        var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE,TRADE_ID,I_E_ID,E_F_ID) values(sys_guid(),'\" + id + \"','\" + cntrid + \"','APY','\" + tradeId + \"','\" + maps.get('I_E_ID') + \"','\" + maps.get('E_F_ID') + \"')\";\
+        app.run(sqll);\
+        //       app.log(sqll);\
+      }\
+    }\
+    app.log(inout);\
+    if (inout == 'out') {\
+      app.log(inout);\
+\
+      var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+        \"FROM_OPERATOR_COD,FROM_OPERATOR,APPLY_DATE,CREATED_BY,CREATED_ON,POL,POD)\" +\
+        \" values('\" + id + \"','\" + tenancyid + \"','APY','ZGC','\" + govcode + \"','\" + orgname + \"','\" +\
+        govcode + \"','\" + orgname + \"',sysdate,'\" + username + \"',sysdate,'\" + applymap.get('POL') + \"','\" + applymap.get('POD') + \"')\";\
+      app.run(sqla);\
+      for (var l = 0; l < rescntr.length; l++) {\
+        var cntrid = rescntr[l].ID;\
+         var tradeId = parseInt(rescntr[l].TRADE_ID);\
+        var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE,TRADE_ID,I_E_ID,E_F_ID) values(sys_guid(),'\" + id + \"','\" + cntrid + \"','APY','\" + tradeId + \"','\" + maps.get('I_E_ID') + \"','\" + maps.get('E_F_ID') + \"')\";\
+        app.run(sqll);\
+        //       app.log(sqll);\
+      }\
+    }\
+\
+\
+  } finally {\
+\
+  }\
+  app.send(response, true);\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "AT": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "转关导入",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

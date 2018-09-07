@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get();\
+sql = '';\
+// if (!Wb.isEmpty(data.FEE_ITEM)) {\
+//   sql += ' AND ITEM_NAME LIKE \\'%\\'||{?FEE_ITEM?}||\\'%\\'';\
+// }\
+// if (!Wb.isEmpty(data.C_NAME)) {\
+//   sql += ' AND SHIPPER LIKE \\'%\\'||{?C_NAME?}||\\'%\\'';\
+// }\
+\
+// if(!Wb.isEmpty(data.sdate)){\
+//   sql += ' AND BEGDATE >= TO_DATE({?sdate?}||\\' 00:00:00\\',\\'YYYY-MM-DD hh24:MI:ss\\')';\
+// }\
+// if(!Wb.isEmpty(data.edate)){\
+//   sql += ' AND BEGDATE <= TO_DATE({?edate?}||\\' 23:59:59\\',\\'YYYY-MM-DD hh24:MI:ss\\')';\
+// }\
+// if(!Wb.isEmpty(data.SHORT)){\
+//   sql += ' AND CNTR_OPERATOR_COD = {?SHORT?}';\
+// }\
+\
+if (!Wb.isEmpty(data.sdate)) {\
+  var s = data.sdate;\
+  sql += \" and A.CREATED_ON >=to_date('\"+s.substring(0,10)+\" 00:00:00','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  var s = data.edate;\
+  sql += \" and A.CREATED_ON <=to_date('\"+s.substring(0,10)+\" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+if (!Wb.isEmpty(data.FEE_LISTID)) {\
+  sql += \" and A.FEE_LIST_ID ='\"+data.FEE_LISTID+\"'\";\
+}\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT DISTINCT B.CNTR,B.AMOUNT YAMOUNT,A.AMOUNT SAMOUNT,A.FEE_LIST_ID,A.NOTES,A.CREATED_ON,A.CREATED_BY\
+FROM ACCOUNTS_DETAILS_LOG A,ACCOUNTS_DETAILS B WHERE \
+A.CNTR_ID=B.BUSSINESS_CODE \
+AND B.FEE_LIST_ID IN('c7592353553349bfa008a30fcb840653','497d472d16dd4c9e99dee45bbacc6961')\
+AND B.TENANCY_ID = '{#sys.TENANCY_ID#}' {#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

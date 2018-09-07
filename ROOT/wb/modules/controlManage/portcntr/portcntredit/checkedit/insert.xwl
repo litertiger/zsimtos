@@ -1,0 +1,114 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var msg = \"\";\
+var cntrs = \"\"; //已存在的查验计划箱号\
+var ids1 = data.CNTR_IDS1.split(\",\");\
+Wb.each(ids1, function(id) {\
+  //查询箱子是否已经存在未完成的查验计划\
+  var selsql = \"select * from cusm_check where tenancy_id='\" + tenancyid + \"' and phase<>'FIN' and CNTR_ID='\" + id + \"'\";\
+  var cs = Wb.decode(DbUtil.getData(app.run(selsql), request));\
+  if (cs.length > 0) { //存在未完成的查验计划\
+    //查验单位相同,不做任何操作,记录箱号提示\
+    if (cs[0].APPUNIT == data.APPUNIT) {\
+      cntrs += cs[0].CNTR + \",\";\
+    } else { //查验单位不相同,插入新计划,状态要是SND\
+      if (cs[0].PHASE == \"PLN\") {\
+        var inssql = \"insert into cusm_check(CHECKID,TENANCY_ID,CHECKNO,APPLYMAN,APPLYTIME,COMMAND_TYPE,TERMINALCODE,CHECKYARDCELL,\" +\
+          \"CNTR_ID,CNTR,CHECKTYPEID,DRAWOUTTYPEID,APPUNIT,ISARCHIVE,CHECKPLACE,CHECKMANNER,ISASSEMBLE,ISRECEIVECHGSEALCMD,PHASE,\" +\
+          \"ISMOVECONTAINER,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON,ISPONDERATION_PRJ)\" +\
+          \" values(sys_guid(),'\" + tenancyid + \"',sep_cusm_check.nextval,{?APPLYMAN?},{?date.APPLYTIME?},'H',\" +\
+          \"{?TERMINALCODE?},{?CHECKYARDCELL?},'\" + id + \"',(select cntr from port_cntr where id='\" + id + \"'),\" +\
+          \"{?CHECKTYPEID?},{?DRAWOUTTYPEID?},{?APPUNIT?},'N',{?CHECKPLACE?},{?CHECKMANNER?},'N','N','PLN',\" +\
+          \"{?ISMOVECONTAINER?},'\" + username + \"',sysdate,'\" + username + \"',sysdate,{?ISPONDERATION_PRJ?})\";\
+        app.run(inssql, {\
+          transaction: 'start'\
+        });\
+      } else {\
+        var inssql = \"insert into cusm_check(CHECKID,TENANCY_ID,CHECKNO,APPLYMAN,APPLYTIME,COMMAND_TYPE,TERMINALCODE,CHECKYARDCELL,\" +\
+          \"CNTR_ID,CNTR,CHECKTYPEID,DRAWOUTTYPEID,APPUNIT,ISARCHIVE,CHECKPLACE,CHECKMANNER,ISASSEMBLE,ISRECEIVECHGSEALCMD,PHASE,\" +\
+          \"ISMOVECONTAINER,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON,ISPONDERATION_PRJ)\" +\
+          \" values(sys_guid(),'\" + tenancyid + \"',sep_cusm_check.nextval,{?APPLYMAN?},{?date.APPLYTIME?},'H',\" +\
+          \"{?TERMINALCODE?},{?CHECKYARDCELL?},'\" + id + \"',(select cntr from port_cntr where id='\" + id + \"'),\" +\
+          \"{?CHECKTYPEID?},{?DRAWOUTTYPEID?},{?APPUNIT?},'N',{?CHECKPLACE?},{?CHECKMANNER?},'N','N','SND',\" +\
+          \"{?ISMOVECONTAINER?},'\" + username + \"',sysdate,'\" + username + \"',sysdate,{?ISPONDERATION_PRJ?})\";\
+        app.run(inssql, {\
+          transaction: 'start'\
+        });\
+      }\
+      //查验单位是国检\
+      if (data.APPUNIT == \"GJ\") {\
+        //查找未完成海关查验计划,如果存在,要把国检和海关计划的IS_MULTCHECK=1\
+        var hgsel = \"select * from cusm_check where tenancy_id='\" + tenancyid + \"' and phase<>'FIN'\" +\
+          \" and appunit='HG' and CNTR_ID='\" + id + \"'\";\
+        var hg = Wb.decode(DbUtil.getData(app.run(hgsel), request));\
+        if (hg.length > 0) {\
+          app.run(\"update cusm_check set IS_MULTCHECK='1' where CHECKID='\" + hg[0].CHECKID + \"'\");\
+          app.run(\"update cusm_check set IS_MULTCHECK='1'\" +\
+            \" where tenancy_id='\" + tenancyid + \"' and phase<>'FIN' and appunit='GJ' and cntr_id='\" + id + \"'\");\
+        }\
+      }\
+      //查验单位是海关\
+      if (data.APPUNIT == \"HG\") {\
+        //查找未完成国检查验计划,如果存在,要把国检和海关计划的IS_MULTCHECK=1\
+        var gjsel = \"select * from cusm_check where tenancy_id='\" + tenancyid + \"' and\" +\
+          \" phase<>'FIN' and appunit='GJ' and CNTR_ID='\" + id + \"'\";\
+        var gj = Wb.decode(DbUtil.getData(app.run(gjsel), request));\
+        if (gj.length > 0) {\
+          app.run(\"update cusm_check set IS_MULTCHECK='1' where CHECKID='\" + gj[0].CHECKID + \"'\");\
+          app.run(\"update cusm_check set IS_MULTCHECK='1'\" +\
+            \" where tenancy_id='\" + tenancyid + \"' and phase<>'FIN' and appunit='HG' and cntr_id='\" + id + \"'\");\
+        }\
+      }\
+    }\
+  } else { //没有未完成的查验计划,直接插入新计划\
+    var inssql = \"insert into cusm_check(CHECKID,TENANCY_ID,CHECKNO,APPLYMAN,APPLYTIME,COMMAND_TYPE,TERMINALCODE,CHECKYARDCELL,\" +\
+      \"CNTR_ID,CNTR,CHECKTYPEID,DRAWOUTTYPEID,APPUNIT,ISARCHIVE,CHECKPLACE,CHECKMANNER,ISASSEMBLE,ISRECEIVECHGSEALCMD,PHASE,\" +\
+      \"ISMOVECONTAINER,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON,ISPONDERATION_PRJ)\" +\
+      \" values(sys_guid(),'\" + tenancyid + \"',sep_cusm_check.nextval,{?APPLYMAN?},{?date.APPLYTIME?},'H',\" +\
+      \"{?TERMINALCODE?},{?CHECKYARDCELL?},'\" + id + \"',(select cntr from port_cntr where id='\" + id + \"'),\" +\
+      \"{?CHECKTYPEID?},{?DRAWOUTTYPEID?},{?APPUNIT?},'N',{?CHECKPLACE?},{?CHECKMANNER?},'N','N','PLN',\" +\
+      \"{?ISMOVECONTAINER?},'\" + username + \"',sysdate,'\" + username + \"',sysdate,{?ISPONDERATION_PRJ?})\";\
+    app.run(inssql, {\
+      transaction: 'start'\
+    });\
+  }\
+  if (data.ISPONDERATION_PRJ == \"Y\") { //过磅\
+    var insgb = \"insert into cntr_weight_rec(id,tenancy_id,cntr,bill_no,cntr_id,cntr_size,i_e_id,RECEIPT_ID,WEIGHT_TYPE)\" +\
+      \"select sys_guid(),'\" + tenancyid + \"',p.cntr,r.bill_no,p.id,p.cntr_size,p.i_e_id,r.id,'CKH'\" +\
+      \" from port_cntr p left join(select id,bill_no,cntr_id from receipt where phase<>'FIN') r on p.id=r.cntr_id\" +\
+      \" where p.id='\" + id + \"'\";\
+    app.run(insgb);\
+  }\
+});\
+if (!Wb.isEmpty(cntrs))\
+  msg = \"箱子:\" + cntrs.substring(0, cntrs.length - 1) + \"已经有查验计划.\";\
+msg += \"操作完成.\";\
+app.send(msg);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DCXK": 1,
+  "xlzk": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "新增数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,330 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = app.get('id');\
+var cntr = app.get('cntr');\
+var truck = app.get('truck');\
+var ship = app.get('ship');\
+var to_pos = app.get('to_pos');\
+var result = app.run(\"select cntr_id,phase,crane,to_pos from move_list where id={?id?} and move_type='MOV' and to_pos_typ='V'\");\
+if (result.next()) {\
+  phase = result.getString(\"phase\");\
+  app.set('qc', result.getString(\"crane\"));\
+  app.set('cntr_id', result.getString('cntr_id'));\
+  app.set('from_pos', result.getString('to_pos'));\
+} else\
+  return app.send({\
+    success: false,\
+    errstr: \"箱号\" + cntr + \"无对应的已装船指令\"\
+  });\
+if (phase != 'FIN' && phase != 'EXE')\
+  return app.send({\
+    success: false,\
+    errstr: \"箱号\" + cntr + \"对应的装船指令未上车或未上船\"\
+  });\
+\
+var idQC, idDRG, idDRB, idYC, idTask;\
+app.set('idQC', idQC = com.wb.util.SysUtil.getId());\
+app.set('idDRG', idDRG = com.wb.util.SysUtil.getId());\
+app.set('idDRB', idDRB = com.wb.util.SysUtil.getId());\
+app.set('idYC', idYC = com.wb.util.SysUtil.getId());\
+app.set('idTask', idTask = com.wb.util.SysUtil.getId());\
+\
+app.run(\"insert into task(id,tenancy_id,task_type,task_name,phase,auto_release,auto_position,reposition,priority,created_by,created_on,updated_by,updated_on,wait_untill) \" +\
+  \"values({?idTask?},{?sys.TENANCY_ID?},'MOVE','\" + Wb.dateToStr(new JavaDate()).split(' ')[0] + \"因退装移箱到'||{?to_pos?},'EXE','1','1','1',1,{?sys.username?},sysdate,{?sys.username?},sysdate,{?timestamp.wait_untill?})\", {\
+    transaction: \"start\"\
+  });\
+\
+//分解指令\
+app.run(\"declare\\
+\\\
+ row move_list%rowtype;\\
+\\\
+ begin\\
+\\\
+ select * into row from move_list where id={?id?};\\
+\\\
+ row.created_on:=sysdate;\\
+\\\
+ row.wait_untill:=sysdate;\\
+\\\
+ row.created_by:={?sys.username?};\\
+\\\
+ row.updated_by:={?sys.username?};\\
+\\\
+ row.updated_on:=sysdate;\\
+\\\
+ row.queue_id:={?idTask?};\\
+\\\
+ row.id:={?sys.id?};\\
+\\\
+ row.trclass1:='TG';\\
+\\\
+ row.trclass2:='QC';\\
+\\\
+ row.trclass3:='TG';\\
+\\\
+ row.transporter1:={?truck?};\\
+\\\
+ row.transporter2:={?qc?};\\
+\\\
+ row.transporter3:={?truck?};\\
+\\\
+ row.phase:='EXE';\\
+\\\
+ row.from_pos:={?from_pos?};\\
+\\\
+ row.from_pos_typ:='V';\\
+\\\
+ row.to_pos:={?to_pos?};\\
+\\\
+ row.to_pos_typ:='B';\\
+\\\
+ insert into move_list values row;\\
+\\\
+ row.queue_id:={?sys.id?};\\
+\" +\
+  //已上船才生成岸边和取箱指令 \
+  (phase == 'EXE' ? \"\" : (\
+    //插入门机指令\
+    \"row.trclass3:=null;\\
+\\\
+ row.trclass4:=null;\\
+\\\
+ row.trclass5:=null;\\
+\\\
+ row.transporter3:=null;\\
+\\\
+ row.transporter4:=null;\\
+\\\
+ row.transporter5:=null;\\
+\\\
+ row.id:={?idQC?};\\
+\\\
+ row.move_type:='DIS';\\
+\\\
+ row.trclass1:='QC';\\
+\\\
+ row.transporter1:={?qc?};\\
+\\\
+ row.transporter2:={?truck?};\\
+\\\
+ row.phase:='FIN';\\
+\\\
+ row.to_pos:={?truck?};\\
+\\\
+ row.to_pos_typ:='T';\\
+\\\
+ insert into move_list values row;\\
+\" +\
+    (truck ?\
+      ( //拖车不为空插入拖车取箱指令\
+        \"row.trclass2:='QC';\\
+\\\
+ row.transporter2:={?qc?};\\
+\\\
+ row.trclass1:='TG';\\
+\\\
+ row.transporter1:={?truck?};\\
+\\\
+ row.move_type:='DRG';\\
+\\\
+ row.id:={?idDRG?};\\
+\\\
+ row.phase:='FIN';\\
+\\\
+ row.from_pos:='';\\
+\\\
+ row.from_pos_typ:='';\\
+\\\
+ row.to_pos:={?from_pos?};\\
+\\\
+ row.to_pos_typ:='V';\\
+\\\
+ insert into move_list values row;\\
+\") : \"update move_list set phase='TMP' where id ={?id?};\\
+\"))) +\
+  (truck ? (\
+      //插入拖车运箱指令\
+      \"row.trclass1:='TG';\\
+\\\
+ row.trclass2:='YC';\\
+\\\
+ row.transporter1:={?truck?};\\
+\\\
+ row.transporter2:=null;\\
+\\\
+ row.move_type:='DRB';\\
+\\\
+ row.id:={?idDRB?};\\
+\\\
+ row.phase:='EXE';\\
+\\\
+ row.from_pos:={?from_pos?};\\
+\\\
+ row.from_pos_typ:='V';\\
+\\\
+ row.to_pos:={?to_pos?};\\
+\\\
+ row.to_pos_typ:='B';\\
+\\\
+ insert into move_list values row;\\
+\" +\
+      //插入堆场作业指令\
+      \"row.trclass1:='YC';\\
+\\\
+ row.move_type:='DIS';\\
+\\\
+ row.transporter1:='';\\
+\\\
+ row.trclass2:='TG';\\
+\\\
+ row.transporter2:={?truck?};\\
+\\\
+ row.id:={?idYC?};\\
+\\\
+ row.phase:='SND';\\
+\\\
+ row.from_pos:={?truck?};\\
+\\\
+ row.from_pos_typ:='T';\\
+\\\
+ insert into move_list values row;\\
+\") :\
+    \"update move_list set phase='FIN' where id={?sys.id?};\\
+\\\
+ update port_cntr set yard_position={?to_pos?} where id={?cntr_id?};\") +\
+  \"end;\");\
+app.run(\"update port_cntr set phase='ACT',updated_on=sysdate,updated_by={?sys.username?} where id={?cntr_id?}\");\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on) \\\
+        values({?id?},'MOVE_LIST','VBCK',{?sys.username?},sysdate)\");\
+\
+app.run(\"update move_list set phase='PLN',updated_on=sysdate,updated_by={?sys.username?} where id={?id?}\", {\
+  transaction: \"commit\"\
+});\
+//发送消息\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_task\", '#', {\
+      info: {\
+        type: \"task\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"taskMointor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idTask\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"ship.\" + ship, {\
+      info: {\
+        type: \"disc\",\
+        action: \"update\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: id,\
+        cntr: cntr\
+      }\
+    }) && (phase == 'EXE' ? true : client.routeSend(\"ex_instruction\", \"ship.\" + ship, {\
+      info: {\
+        type: \"disc\",\
+        action: \"confirm\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idQC,\
+        cntr: cntr\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"truck.\" + truck, {\
+      info: {\
+        type: \"disc\",\
+        action: \"confirm\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"handset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idDRG\
+      }\
+    })) && client.routeSend(\"ex_machine\", \"truck.\" + truck, {\
+      info: {\
+        type: \"truck\",\
+        action: \"update\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: truck\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"truck.\" + truck, {\
+      info: {\
+        type: \"disc\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"handset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idDRB\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"cy.\" + to_pos, {\
+      info: {\
+        type: \"disc\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idYC,\
+        cntr: cntr\
+      }\
+    })))\
+    return app.send({\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    });\
+} catch (e) {\
+  return app.send({\
+    success: false,\
+    errstr: e\
+  });\
+} finally {\
+  client.close();\
+}\
+app.set('moveType', 'VI');\
+app.execute(\"m?xwl=system/common/cntrStore/cntrStorePro\");\
+app.send({\
+  success: true,\
+  id: id\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "退装",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

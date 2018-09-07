@@ -1,0 +1,79 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//是否下载Excel文件，true下载，false返回HTML\
+var isDownLoad = app.getBool('download');\
+var vid = app.get(\"vid\");\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var now = new Date();\
+var fullyear = now.getFullYear().toString();\
+var tenancy;\
+if (tenancyid === 'ZSG') {\
+  tenancy = '中山港';\
+}\
+if (tenancyid === 'XLG') {\
+  tenancy = '小榄港';\
+}\
+if (tenancyid === 'SWG') {\
+  tenancy = '神湾港';\
+}\
+var sql = \"select rownum,vv.vessel_name,vv.line,vv.grt,vv.nrt,cc.name,vi.next_port,vi.berth_code,cc.sex,\" +\
+  \"decode(vv.class,'JDC','机动船','JDB','机动驳','SHC','散货船') class,\" +\
+  \"decode(vc.duty,'1','船长','2','大副','3','二副','4','三副','5','轮机长','6','大管轮','7','二管轮','8','三管轮','9','水手长',\" +\
+  \"'10','木匠','11','付水手长','12','一水','13','二水','14','甲板实习生','15','铜匠','16','加油长','17','机工','18','加油',\" +\
+  \"'19','抹油','20','轮机实习生','21','电工','22','大厨','23','水手厨','24','大台(服务生)','25','二台(服务生)') duty,\" +\
+  \"to_char(cc.birthday,'yyyy-MM-dd') birthday,zs.c_code,zs.zsname,to_char(zs.next_time,'yyyyMMdd') next_time\" +\
+  \" from voyage_crew vc left join vessel_voyage vv on vc.vid=vv.id left join c_crew cc on vc.cid=cc.id\" +\
+  \" left join vessel_visit vi on vv.id=vi.vid left join\" +\
+  \" (select ccc.c_c_id,cc.name zsname,ccc.c_code,ccc.next_time from c_crew_certification ccc\" +\
+  \" left join c_certificate cc on ccc.c_ce_id=cc.id where cc.code='CN14') zs on zs.c_c_id=cc.id\" +\
+  \" where ((vv.tenancy_id='AT' and vi.tenancy_id='\" + tenancyid + \"') or ((vv.tenancy_id='\" + tenancyid + \"' and vi.tenancy_id='\" + tenancyid + \"'))) and vv.id='\" + vid + \"' and vc.call_out is null\";\
+\
+//获得基于结果集的数组，使用此方法可以应用键值，DbUtil.getData(rs,'FIELD1=k1,FIELD2=k2','dictTable1,dictTable2');\
+var data = DbUtil.getData(app.run(sql), request); //读取结果集所有记录数据至JSONArray\
+var reportData = {\
+  sbyear: fullyear,\
+  vessel_name: data.length() > 0 ? data.get(0).get(\"VESSEL_NAME\") : \"\",\
+  line: data.length() > 0 ? data.get(0).get(\"LINE\") : \"\",\
+  class1: data.length() > 0 ? data.get(0).get(\"CLASS\") : \"\",\
+  grt: data.length() > 0 ? data.get(0).get(\"GRT\") : \"\",\
+  nrt: data.length() > 0 ? data.get(0).get(\"NRT\") : \"\",\
+  goto: tenancy + ' 至 ' + data.length() > 0 ? data.get(0).get(\"NEXT_PORT\") : \"\",\
+  tenancy: tenancy,\
+  bowei: data.length() > 0 ? data.get(0).get(\"BERTH_CODE\") : \"\",\
+  rows: data\
+};\
+if (isDownLoad) {\
+  var excelFilename = 'wb/system/excel/demo/czbg.xlsx',\
+    exportFilename = '航行港澳小型船舶船长报告书.xlsx',\
+    sheetIndex = -1; //-1将使用所有的sheet\
+  response.setHeader('content-type', 'application/force-download');\
+  response.setHeader('content-disposition', 'attachment;' + WebUtil.encodeFilename(request, exportFilename));\
+  Wb.getExcel(reportData, excelFilename, response.getOutputStream(), -1);\
+  response.flushBuffer();\
+} else {\
+  var html = Wb.getHtml(reportData, 'wb/system/excel/demo/atczbg.xlsx', -1);\
+  app.send(html);\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "获取数据和报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

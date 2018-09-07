@@ -1,0 +1,62 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<title>侧视图</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet"href="css/main.css"type="text/css"/>
+    <link rel="stylesheet"href="main/common/anjiUi/css/bootstrap.min.css"type="text/css"/>
+    <link rel="stylesheet"href="main/common/anjiUi/css/jquery-ui-1.10.0.custom.css"type="text/css"/>
+
+    <script src="main/common/anjiUi/js/jquery-1.9.0.min.js"></script>
+    <script src="main/common/anjiUi/js/bootstrap.min.js"></script>
+    <script src="main/common/anjiUi/js/jquery-ui-1.10.0.custom.min.js"></script>
+
+    <script src="main/common/common.js"></script>
+
+    <script src="main/common/filesOper.js"></script>
+</head>
+<body >
+
+<div>
+    <div id="menuBar">
+    <ul id="nav">
+        <li><a href="#">File</a>
+            <ul>
+                <li><a href="#" onclick="loadbaycntr()">loadCntr</a></li>
+            </ul>
+        </li>
+
+    </ul>
+    </div><!--END menu bar -->
+    <div id="PaletteAndDiagram" style="position: relative; overflow: hidden; width: 100%;">
+        <div id="myDiagramDiv" style="width:100%; height: 99%; min-height:580px; background-color:white"></div>
+    </div>
+
+</div>
+<div id="dialog" title=""></div>
+</body>
+<script src="sea-modules/seajs/sea.js"></script>
+<script src="main/common/rabbitMQ.min.js"></script>
+<script>
+
+    // Set configuration
+    seajs.config({
+        base: "./",
+        alias: {
+            "gojs": "sea-modules/gojs/go"
+        }
+    });
+
+   seajs.use("main/ct/bigbay");
+
+    var myDiagram;
+
+    var client = new RabbitMQ('ws://192.168.1.10:15674/ws','zhangrui','123','Jerry_vhost');
+    client.onConnected = function(){
+        this.subscribe('/exchange/ex_portcntr/#', function (d){
+            var data = d.body;
+            testMqcntr(data.data.cntr,2,data.data.pos);
+        });}
+</script>
+
+</html>

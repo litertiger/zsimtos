@@ -1,0 +1,117 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var sql=\"\";\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+// if(data.bills=='true'){\
+sql=\"select VBILL_HEAD.ID, VBILL_HEAD.bill_no,cntr,VBILL_HEAD.CNTR_OPERATOR,decode(VBILL_HEAD.I_E_ID,'I',VBILL_HEAD.CONSIGNEE,'E',VBILL_HEAD.SHIPPER) GOOD_OWNER,\\\
+VBILL_HEAD.TRADE_ID,VESSEL_VISIT.ETA,VBILL_HEAD.I_E_ID,\\\
+VBILL_HEAD.GOODS_NOTES,VLOAD_LIST.CARGO_TYPE\\\
+,VBILL_HEAD.WEIGHT,VBILL_HEAD.VOLUME,VBILL_HEAD.PIECES,VBILL_HEAD.POD,VBILL_HEAD.POL,VBILL_HEAD.ZF_ID,VBILL_HEAD.BILL_TYPE,VESSEL_VOYAGE.VESSEL_NAME,      \\\
+VLOAD_LIST.CNTR_TYPE,VLOAD_LIST.CNTR_SIZE,VLOAD_LIST.SEAL_NO,VBILL_HEAD.CONSIGNEE,VBILL_HEAD.SHIPPER,buz_order.QD_BY,buz_order.QD_ON,\t\t\\\
+decode(vbill_head.i_e_id,'I',LIB_VYG,'E',LOB_VYG) LOB_VYG,VLOAD_LIST.CNTR_OWNER,VBILL_HEAD_E.GBD,decode(VBILL_HEAD.I_E_ID,'I',ETA,'E',ETD) ETA  \t\\\
+FROM VBILL_HEAD,VLOAD_LIST,VESSEL_VISIT,buz_order,VBILL_HEAD_E,VESSEL_VOYAGE WHERE VBILL_HEAD.ID=VLOAD_LIST.BILL_ID(+) AND vbill_head.id=buz_order.bill_id(+) and  \\\
+VBILL_HEAD.VID=VESSEL_VISIT.ID(+) AND VBILL_HEAD_E.ID(+)=VBILL_HEAD.ID AND VESSEL_VOYAGE.ID=VESSEL_VISIT.VID AND to_char(ETA,'yyyy-MM-dd HH24:MI:SS') between '\"+data.sdate+\" 00:00:00' and '\"+data.edate+\" 23:59:59' and VBILL_HEAD.TENANCY_ID={?sys.TENANCY_ID?}\";\
+// }\
+\
+// if(data.cntrs=='true'){进口eta出口etd\
+// \tsql=\"select VBILL_HEAD.bill_no,cntr,VBILL_HEAD.CNTR_OPERATOR,decode('\"+data.ieId+\"','I',CONSIGNEE,'E',SHIPPER) GOOD_OWNER,\\\
+// VBILL_HEAD.TRADE_ID,VBILL_HEAD.I_E_ID,\\\
+// VBILL_HEAD.GOODS_NOTES,VBILL_HEAD.CARGO_TYPE\\\
+// ,VBILL_HEAD.WEIGHT,VBILL_HEAD.VOLUME,VBILL_HEAD.PIECES,VBILL_HEAD.POD,VBILL_HEAD.POL,VBILL_HEAD.ZF_ID,VBILL_HEAD.BILL_TYPE    \\\
+// FROM VBILL_HEAD,VLOAD_LIST,VESSEL_VISIT WHERE VBILL_HEAD.ID(+)=VLOAD_LIST.BILL_ID AND \\\
+// VBILL_HEAD.VID=VESSEL_VISIT.ID AND to_char(ETA,'yyyy-MM-dd HH24:MI:SS') between '\"+data.sdate+\" 00:00:00' and '\"+data.edate+\" 23:59:59' \";\
+// }\
+\
+if(!Wb.isEmpty(data.billType)){\
+  if(data.billType==='P')\
+    sql+=\" and VBILL_HEAD.BILL_TYPE = '\"+data.billType+\"' \t\";\
+  else\
+\tsql+=\" and VBILL_HEAD.BILL_TYPE = '\"+data.billType+\"' and  VBILL_HEAD.MAIN_FLAG=1\";\
+}\
+  else\
+\tsql+=\" and (VBILL_HEAD.BILL_TYPE = 'P'\tOR VBILL_HEAD.MAIN_FLAG=1)\";\
+\
+if(!Wb.isEmpty(data.billNo)){\
+\tsql += \" and VBILL_HEAD.BILL_NO LIKE '%'||{?billNo?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.cntr)){\
+\tsql+=\" and VLOAD_LIST.CNTR LIKE '%'||{?cntr?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.CNTR_OPERATOR_COD)){\
+\tsql+=\" and VBILL_HEAD.CNTR_OPERATOR_COD like '%'||{?CNTR_OPERATOR_COD?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.SHIP_CONSIGN_COD)){\
+\tsql+=\" and decode(VBILL_HEAD.I_E_ID,'I',VBILL_HEAD.CONSIGNEE_COD,'E',VBILL_HEAD.SHIPPER_COD) like '%'||{?SHIP_CONSIGN_COD?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.ieId)){\
+\tsql+=\" and VBILL_HEAD.I_E_ID ='\"+data.ieId+\"'\t\";\
+}\
+\
+if(!Wb.isEmpty(data.tradeId)){\
+\tsql+=\" and VBILL_HEAD.TRADE_ID like '%'||{?tradeId?}||'%'\";\
+}\
+\
+if(!Wb.isEmpty(data.voyageNo)){\
+\tsql+=\" and VESSEL_VISIT.VID={?voyageNo?}\";\
+}\
+\
+if(nature==5){\
+\tsql+=\" and VBILL_HEAD.CNTR_OPERATOR_COD='\"+GOV_CODE+\"'\";\
+}\
+\
+app.send(Wb.getRecords(app.run(sql)));\
+\
+\
+\
+\
+\
+\
+\
+\
+// select VBILL_HEAD.bill_no,cntr,VBILL_HEAD.CNTR_OPERATOR,decode({?ieId?},'I',CONSIGNEE,'E',SHIPPER) GOOD_OWNER,\
+// VBILL_HEAD.TRADE_ID,VBILL_HEAD.I_E_ID,\
+// VBILL_HEAD.GOODS_NOTES,VBILL_HEAD.CARGO_TYPE\
+// ,VBILL_HEAD.WEIGHT,VBILL_HEAD.VOLUME,VBILL_HEAD.PIECES,VBILL_HEAD.POD,VBILL_HEAD.POL,VBILL_HEAD.ZF_ID   \
+// FROM VBILL_HEAD,VLOAD_LIST,VESSEL_VISIT WHERE VBILL_HEAD.ID=VLOAD_LIST.BILL_ID(+) AND \
+// VBILL_HEAD.VID=VESSEL_VISIT.ID AND to_char(ETA,'yyyy-MM-dd HH24:MI:SS') between {?sdate?} and {?edate?}\
+\
+\
+\
+\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

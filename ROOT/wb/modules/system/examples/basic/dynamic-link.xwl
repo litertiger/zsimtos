@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "border": "false",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "border": "false",
+     "itemId": "panel1"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "//本例使用动态加载CodeMirror的js和css库来创建CodeMirror js编辑器\
+\
+//展现CodeMirror\
+function render() {\
+  var panel = app.panel1;\
+\
+  //设置textarea html，用于展现CodeMirror。\
+  panel.update('<textarea><\/textarea>');\
+  //把CodeMirror对象引用添加到panel\
+  panel.editor = CodeMirror.fromTextArea(panel.el.down('textarea', true), {\
+    lineNumbers: true,\
+    mode: 'text/javascript'\
+  });\
+\
+  //调整CodeMirror控件，以适应容器大小。\
+  panel.mon(panel, 'resize', function(panel, width, height) {\
+    if (panel.editor && !panel.destroying) {\
+      Ext.fly(panel.editor.getScrollerElement()).setHeight(height);\
+      panel.editor.refresh();\
+    }\
+  });\
+  panel.editor.focus(); //设置焦点\
+}\
+\
+//如果已经加载CodeMirror\
+if (window.CodeMirror)\
+  render();\
+else {\
+  //动态加载css和js链接并展现\
+  Wb.addLink(['wb/libs/cm/cmirror.css', 'wb/libs/cm/cmirror.js'],\
+    render //回调函数\
+  );\
+}"}
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "动态引用链接",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

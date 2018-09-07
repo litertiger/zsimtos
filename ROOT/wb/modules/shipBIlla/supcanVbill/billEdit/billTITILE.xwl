@@ -1,0 +1,108 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "totalSql": "select 1 from dual",
+    "sql": "SELECT *\
+  FROM (  SELECT vv.id,\
+                 COUNT (*) BILL_NUM,\
+                 SUM (PIECES) PIECES,\
+                 SUM (WEIGHT) WEIGHT\
+            FROM VBILL_HEAD, VESSEL_VISIT VV\
+           WHERE     VBILL_HEAD.VID = vv.id\
+                 AND VBILL_HEAD.I_E_ID = {?I_E_ID?}\
+                 AND VBILL_HEAD.trade_Id = {?TRADE_ID?}\
+                 AND VBILL_HEAD.TENANCY_ID = '{#sys.TENANCY_ID#}'\
+                 AND (main_flag = 1 OR lCL_ID = 1)\
+                 AND VBILL_HEAD.PHASE <> '9'\
+        GROUP BY vv.id) A,\
+       (  SELECT vv.id,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '20' AND BILL_TYPE = 'C' THEN 1\
+                       ELSE 0\
+                    END)\
+                    C20,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '40' AND BILL_TYPE = 'C' THEN 1\
+                       ELSE 0\
+                    END)\
+                    C40,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '45' AND BILL_TYPE = 'C' THEN 1\
+                       ELSE 0\
+                    END)\
+                    C45,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '20' AND BILL_TYPE = 'P' THEN 1\
+                       ELSE 0\
+                    END)\
+                    P20,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '40' AND BILL_TYPE = 'P' THEN 1\
+                       ELSE 0\
+                    END)\
+                    P40,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '45' AND BILL_TYPE = 'P' THEN 1\
+                       ELSE 0\
+                    END)\
+                    P45,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '20' AND BILL_TYPE = 'E' THEN 1\
+                       ELSE 0\
+                    END)\
+                    E20,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '40' AND BILL_TYPE = 'E' THEN 1\
+                       ELSE 0\
+                    END)\
+                    E40,\
+                 SUM (\
+                    CASE\
+                       WHEN CNTR_SIZE = '45' AND BILL_TYPE = 'E' THEN 1\
+                       ELSE 0\
+                    END)\
+                    E45,\
+                 SUM (CASE WHEN BILL_TYPE = 'E' THEN 1 ELSE 0 END) ECNTR_NUM,\
+                 SUM (CASE WHEN CNTR IS NOT NULL THEN 1 ELSE 0 END) CNTR_NUM\
+            FROM VLOAD_LIST VL, VBILL_HEAD VH, VESSEL_VISIT VV\
+           WHERE     VH.VID = vv.id\
+                 AND VH.ID(+) = VL.BILL_ID\
+                 AND VL.I_E_ID = {?I_E_ID?}\
+                 AND VL.trade_Id = {?TRADE_ID?}\
+                 AND VL.TENANCY_ID = '{#sys.TENANCY_ID#}'\
+                 AND (VL.main_flag = 1 )\
+                 AND VL.PHASE <> '9'\
+        GROUP BY vv.id) B\
+ WHERE A.ID = B.ID and a.id={?VID?}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1,
+  "ZHBG": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1
+ },
+ "title": "舱单头信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

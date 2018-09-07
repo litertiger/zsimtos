@@ -1,0 +1,85 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\";\
+var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+app.log(data.sdate);\
+app.run(\"INSERT INTO T_RPT_MON_WAGES_FOR_DRIVER_TMP (ID, TENANCY_ID, REPORT_DATE,  REPORT_TYPE, TRUCK_NO, \\\
+   DRIVER_ID, DRIVER_NAME,OTH_WAGE, CREATED_BY,  UPDATED_BY, UPDATED_ON, CREATED_ON) \\\
+SELECT  SYS_GUID () ID, TENANCY_ID, REPORT_DATE,  REPORT_TYPE, TRUCK_NO, DRIVER_ID, DRIVER_NAME,  \\\
+   OTH_WAGE,  CREATED_BY,UPDATED_BY, UPDATED_ON, CREATED_ON \\\
+FROM T_RPT_MON_WAGES_FOR_DRIVER where REPORT_DATE= replace ('\" + data.sdate.substring(0, 7) + \"', '-','') and oth_wage != '0'\");\
+app.run(\"delete from t_rpt_mon_wages_for_driver where REPORT_DATE= replace ('\" + data.sdate.substring(0, 7) + \"', '-','') \");\
+sql = \"INSERT INTO t_rpt_mon_wages_for_driver  \" +\
+  \"(REPORT_TYPE,ID,TENANCY_ID,REPORT_DATE,DRIVER_ID,DRIVER_NAME,TRUCK_NO,EARN,earn_actual,KM,TKM_TEU,EARN_BULK,KM_BULK,TKM_BULK,FEE_WAGY,CREATED_BY,UPDATED_BY,UPDATED_ON,CREATED_ON) \" +\
+  \"SELECT '0',SYS_GUID () ID,'\" + tenancyid + \"',nvl(a.PDATE,b.b_PDATE) REPORT_DATE,nvl(a.DRIVER_ID,b.B_DRIVER_ID) DRIVER_ID,\" +\
+  \"nvl(a.DRIVER_NAME,b.B_DRIVER_NAME) DRIVER_NAME,nvl(a.TRUCK_NO,b.B_TRUCK) TRUCK_NO,nvl(a.EARN,0) EARN,NVL(a.earn_actual,0) earn_actual,nvl(a.KM,0) KM,nvl(a.BZKM,0) TKM_TEU, \" +\
+  \"nvl(b.amount,0) EARN_BULK,nvl(b.distance,0) KM_BULK,nvl(b.distance*2,0) TKM_BULK,round(NVL(a.earn_actual,0)+NVL(b.amount,0),2) FEE_WAGY,'\" + username + \"','\" + username + \"' ,sysdate,sysdate \" +\
+  \"FROM (SELECT TO_CHAR (OUT_TIM, 'YYYYMM') PDATE,wbtd.DRIVER_ID,cd.empname DRIVER_NAME,wbtd.TRUCK_NO,SUM (wbtd.DAYS) DAYS,\" +\
+  \"SUM (round(wbtd.PERC * wbtd.NEW_PRICE,2)) EARN,sum (round(wbtd.PERC * wbtd.NEW_PRICE*0.75,2)) earn_actual,SUM (wbtd.KM) KM,SUM (wbtd.TKM) TKM,SUM (wbtd.BZKM) BZKM \" +\
+  \"FROM WORK_BILL_TRUCK_DRIVER wbtd \" +\
+  \"LEFT JOIN c_driver cd ON cd.empno = wbtd.DRIVER_ID \" +\
+  \"WHERE  1 = 1  and wbtd.OUT_TIM>=TO_DATE('\" + data.sdate.substring(0, 10) + \" 00:00:00', 'yyyy-mm-dd hh24:mi:ss')  \" +\
+  \"and wbtd.OUT_TIM<=TO_DATE('\" + data.edate.substring(0, 10) + \" 23:59:59', 'yyyy-mm-dd hh24:mi:ss')  \" +\
+  \" AND NOT EXISTS (SELECT 1 FROM t_rpt_mon_wages_for_driver WHERE truck_no = wbtd.truck_no \" +\
+  \" AND DRIVER_ID = wbtd.DRIVER_ID AND oth_wage != '0' and REPORT_DATE= replace ('\" + data.sdate.substring(0, 7) + \"', '-','')) \" +\
+  \"GROUP BY TO_CHAR (OUT_TIM, 'YYYYMM'),wbtd.DRIVER_ID,cd.empname,wbtd.TRUCK_NO ) A  \" +\
+  \"FULL JOIN \" +\
+  \"(SELECT TO_CHAR (plan_stime, 'YYYYMM') B_PDATE,TRUCK B_TRUCK,\" +\
+  \"SUBSTR (DRIVER, 0, (INSTR (DRIVER, '(') - 1)) B_DRIVER_NAME, SUBSTR (DRIVER,(INSTR (DRIVER, '(')-(-1)),\" +\
+  \"(INSTR (DRIVER, ')') - (INSTR (DRIVER, '(')) - 1)) B_DRIVER_ID, SUM (amount) amount,sum(ca.distance) distance \" +\
+  \" FROM bluk_truck_work,C_ADDRESS ca \" +\
+  \" WHERE ca.id = bluk_truck_work.S_ADRESS AND bluk_truck_work.TENANCY_ID = 'ZSG' \" +\
+  \" AND DRIVER != '外来司机(999)' \" +\
+  \" and plan_stime>=TO_DATE('\" + data.sdate.substring(0, 10) + \" 00:00:00', 'yyyy-mm-dd hh24:mi:ss') \" +\
+  \" and plan_stime<=TO_DATE('\" + data.edate.substring(0, 10) + \" 23:59:59', 'yyyy-mm-dd hh24:mi:ss') \" +\
+  \"and  pkg_object_status_charge.getcheckflag (bluk_truck_work.tenancy_id,'JJ',bluk_truck_work.id)=1 \" +\
+  /*\"AND NOT EXISTS (SELECT 1 FROM t_rpt_mon_wages_for_driver WHERE truck_no = truck \" +\
+  \" AND DRIVER_ID = SUBSTR ( DRIVER, (INSTR (DRIVER, '(') - (-1)), (  INSTR (DRIVER, ')') - (INSTR (DRIVER, '(')) - 1)) \" +\
+  \" AND oth_wage != '0' ) \" +*/\
+  \"GROUP BY TO_CHAR (plan_stime, 'YYYYMM'),TRUCK, DRIVER) B \" +\
+  \"ON  a.DRIVER_ID = b.B_DRIVER_ID AND A.DRIVER_NAME = B.B_DRIVER_NAME AND A.TRUCK_NO = B.B_TRUCK  \";\
+app.run(sql);\
+app.run(\"UPDATE T_RPT_MON_WAGES_FOR_DRIVER t1 \\\
+   SET OTH_WAGE = \\\
+          nvl((SELECT OTH_WAGE \\\
+             FROM T_RPT_MON_WAGES_FOR_DRIVER_TMP t \\\
+            WHERE     T.TENANCY_ID = T1.TENANCY_ID \\\
+                  AND T.DRIVER_ID = T1.DRIVER_ID \\\
+                  AND T.TRUCK_NO = T1.TRUCK_NO \\\
+                  AND T.REPORT_DATE = T1.REPORT_DATE and rownum=1),0) \\\
+ WHERE EXISTS \\\
+          (SELECT 1 \\\
+             FROM T_RPT_MON_WAGES_FOR_DRIVER_TMP t2 \\\
+            WHERE     T2.TENANCY_ID = T1.TENANCY_ID \\\
+                  AND T2.DRIVER_ID = T1.DRIVER_ID \\\
+                  AND T2.TRUCK_NO = T1.TRUCK_NO \\\
+                  AND T2.REPORT_DATE = T1.REPORT_DATE) \");\
+var whereSql=\"delete from T_RPT_MON_WAGES_FOR_DRIVER_TMP where 1=1\";\
+request.setAttribute('sql', whereSql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "JCB": 1
+ },
+ "title": "生成",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

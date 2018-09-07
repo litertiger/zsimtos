@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "/* select CFSBILL_ID, BILL_NO,CFSINOUT, BILL_ID, GOODS, UNIT, PIECES,nvl(IPIECES ,PIECES) IPIECES, LOCATION, GOODSATTR, SHIPPERHANDLER, SIGNERCFS, \
+CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, CFS_ID, RECEIPTNO, TRUCKNO, WEIGHT, CFSBILLNO, VOLUME,\
+LCL_ID, SHIPPER, OUTFLAG, IMPEXP, PLANQUTY, SOURCE_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY \
+from BLUK_BILL where trunc(CFSTIME)=trunc({?TIMESTAMP.date?}) and CFSINOUT='E' and BILL_ID={?BILL_ID?}\
+ */"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select a.*,\
+(select sum(INQUTY) from  BLUK_GOODS where  BILL_ID= a.BILL_ID) VPIECES\
+from BLUK_BILL a where a.CFSINOUT='E' and a.BILL_ID={?BILL_ID?} "
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "提单查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

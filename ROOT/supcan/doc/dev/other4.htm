@@ -1,0 +1,249 @@
+<HTML>
+<head><title>4.Treelist、Freeform组件</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>4.Treelist、Freeform组件</p><hr color=#2266ee size=1>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问1.demo页中，有的数据用XML格式、有的用JSON、有的是TXT，有规定吗？</p>
+没规定。<br>
+　　硕正套件是自适应的，即能够自动识别数据的格式。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问2.模板中的列，和加载的数据XML中的列，要严格对应吗？</p>
+是按照列名映射的，但双方的排列顺序、列的数量不一定要严格对齐，比如你的模板中有10列，数据XML可以有15列、也可以只有5列。多出来的数据，我们会自动抛弃、不足的列，内容当然就是空。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问3.我明明删除了1行数据，调用GetChangedXML()却返回空串(即内容未被修改过)，这是为什么？</p>
+您必须在 &lt;Properties&gt; 中定义Key属性，指定主键。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问4.Treelist的XML规范有点复杂，我需要去啃它吗？</p>
+是的，这是必需的，因为Treelist目前还没有象Supcan Report那样的所见所得设计工具。该XML规范其实也并不复杂，您可以随时查阅帮助文档，常用的元素不会超过20个。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问5.某列采用了下拉Treelist，下拉选择后，如何取得选中内容、和下拉Treelist中选中行各列的内容？</p>
+如果仅仅是取单元格的显示内容，调用GetCellText( )函数就行，该函数取得的是显示内容，而非数据。<br>
+　　如果需要取下拉选中行的其它列的内容，可以用 GetDropCellData 函数直接取得，请参见演示页 “29.下拉的其它功能” 中的演示。<br>
+　　GetDropCellData 为 1.0.89.0 版的新增函数，如果您用的是以前的版本，必须先调用GetHandle( )函数取得下拉Treelist的句柄，然后调用扩展函数的GetCurrentRow( )取得下拉Treelist的当前行，最后调用扩展函数GetCellData()即可。<br>
+<br>
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问6.我采用Freeform、Treelist分别作为表单的表头、表体，但打印时只能打出表体部分，如何才能按照我自己的格式打印完整的表单呢？</p>
+最完美的方案是：同时引入硕正 Report 组件，并且应预先准备好一张使用了临时数据源的报表。 <br>
+　　关于数据的传递，可以先执行 Freeform 和 Treelist 的 Export 函数取得XML串，然后通过 Report 的 SetSource( ) 函数，将这XML大串传入。 在 “在线演示” \ “自由表头” 下有完整的例子：“9.有表头表体的表单(2)”，这种方案最大的好处是，报表格式可以自由设计，并为实施人员、甚至最终用户自行更改输出格式扫平了道路。<br>
+　　另外还有一个偷懒的简化方案：使用 <a href="../format_treelist/printpage1.htm" target=_blank>&lt;Properties&gt; \ &lt;PrintPages&gt;</a> 配置, 用程序动态更改各个 Layer 的内容，具体请参考《Treelist XML文档规范》。<br>
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问7.调用GetChangedXML( "level=0" )取得XML串，发现如果内容未改则返回空串，有没有简单的方法取得完整串而不管内容是否有改动？</p>
+<font color=#666666>答复: </font> GetChangedXML( "level=0; isIgnoreChange=true" )。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问8.XML模板或API中，有很多处的URL(例如 dataURL)属性，如果采用相对URL，到底相对谁？</p>
+遵循这2个规则： <b>1</b>.谁定义，就相对谁;  <b>2</b>.斜杠("/")开头表示相对根目录。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问9.Treelist的表达式、函数、宏不能完全解决我的客户端逻辑，怎么办？</p>
+注意到函数js()了吗？它能反向调用当前页面的js，你可以把复杂的客户端逻辑写到页面Js中。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问10.在Windows7下，为什么有的Treelist的输入处光标不会闪烁？</p>
+是因为行高不够，适当调高即可。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问11.设为主键(Key)的字段，如果我没输入或输入重复，用GetChangedXML函数提交时会提示错误。怎样才能不提示？ 因为我的主键是后端生成的，客户端根本不需要校验</p>
+请参考GetChangedXML( )函数中的 isValidateKey 参数。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问12.可编辑的下拉的列，我能任意输入吗(即内容不在下拉列表中的)?</p>
+可以，需要定义 freeInputAble="true"。<br>
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问13.最简单的下拉(Droplist)，我看到例子中的数据都是静态的：</p>
+　&lt;DropList id="country"&gt;<br>
+　　　　&lt;item key="1"&gt;France&lt;/item&gt;<br>
+　　　　&lt;item key="2"&gt;Germany&lt;/item&gt;<br>
+　　　　&lt;item key="3"&gt;Brazil&lt;/item&gt;<br>
+　　　　&lt;item key="4"&gt;Belgium&lt;/item&gt;<br>
+　　　&lt;/DropList&gt;<br>
+　　<b>能否动态从数据库取？</b><br>
+<br>
+　　可以，写成例如这样：<br>
+　　　　&lt;DropList  id="country"  dataURL="../service/getcountry.aspx" /&gt;<br>
+　　这个aspx返回的数据格式比较自由，也可以和静态数据的一样。比如：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;data&gt;
+ &lt;item key="1"&gt;France&lt;/item&gt;
+ &lt;item key="2"&gt;Germany&lt;/item&gt;
+ &lt;item key="3"&gt;Brazil&lt;/item&gt;
+&lt;/data&gt;</pre>
+　　也可以是类似这样：<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;data&gt;
+ &lt;record&gt;
+  &lt;key&gt;1&lt;/key&gt;
+  &lt;value&gt;France&lt;/value&gt;
+ &lt;/record&gt;
+ &lt;record&gt;
+  &lt;key&gt;2&lt;/key&gt;
+  &lt;value&gt;Germany&lt;/value&gt;
+ &lt;/record&gt;
+ &lt;record&gt;
+  &lt;key&gt;3&lt;/key&gt;
+  &lt;value&gt;Brazil&lt;/value&gt;
+ &lt;/record&gt;
+&lt;/data&gt;</pre>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问14.我的计算表达式是这样写的: &nbsp;&nbsp;&nbsp; &lt;express&gt; price=if(amount &gt;= 1000, 2.3, 3.0) &lt;/express&gt; 为什么结果不正确?</p>
+在元素 &lt;name&gt; ... &lt;/name&gt; 之间的串中，大于、小于符号请务必将写成 <font face="consolas" color=red>&amp;gt;</font>、 <font face="consolas" color=red>&amp;lt;</font>， 或者用 <font face="consolas" color=red>&lt;![CData[　　]]&gt;</font>包绕。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问15.计算表达式中，里面的变量只能是列名，但我有一个表达式是需要从外部取数的，怎样实现？</p>
+有几个方案您可以参考：<br>
+1.树列表增加一个不可视的列，将“外部数据”置到这一列中 (可以用 SetColCellData 函数)；<br>
+2.表达式中采用 js( ) 反向调用函数;<br>
+<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问16.服务器搜索以例“10.可编辑的下拉”中的“经销商”为例，假设我们希望弹出的经销商下拉和“订单号”有关，如何实现？</p>
+您可以在事件中动态修改下拉的 dataURL。例如：<br>
+<pre class='cpp'>
+var curRow = -1;
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF' && Event=='SelChanged') {
+  if(p1 != curRow) {  //当前行有切换
+   curRow = p1;
+   var orderId = AF.func("GetCellData", curRow + "\r\n orderId");
+   AF.func('SetDropListProp', "customer2 \r\n dataURL \r\n='/myapp/data.aspx?orderId=" +orderId+ "&substr='+encodeURIComponent(data)");
+  }
+  return;
+ }
+ ... </pre>
+ 打开 <a href="addi02.htm#Tag1" target=_blank>httplog</a> 跟踪一下请求，您能看到：<br>
+ <center><img src='image/other1.jpg'></center>
+ 不同的行，下拉确实不一样了。<br><br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问17. 怎样导出分页显示中的全部数据？</p>
+不管是打印全部数据、还是导出全部数据，首先必须要让树列表加载全部数据。有如下3种方案您可以尝试: <br>
+1.方案1<br>
+　　在Freeform的 Pager 分页器中，找到 PageRowsList 属性，在属性的值中增加一项, 比如 "全部数据(100000行)"，这样用户自己就能按需导出;<br>
+2.方案2<br>
+　　执行 EnableMenu 函数，注意函数文档中的“exportAll”参数，使得右键菜单中能弹出“转换输出全部页”;<br>
+　　该菜单项会触发 RequestAllPages 事件，请在该事件中加载全部数据即可。<br>
+3.方案3<br>
+　　在外部菜单中通过调用Treelist的函数实现，调用的函数无非就是 Load、OpenExportDialog.<br>
+　　为了不影响原Treelist的显示，您也可以在页面的可视区域安置一个2px X 2px的Treelist，用这个Treelist来加载数据、转换输出。<br>
+　　如果数据行数很多，为了及时释放客户端内存，可以在导出后将数据行删除，或执行一遍Build也能起到清理内存的作用。<br>
+<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问18.执行如下的代码，感觉明显有个合并的过程:</p>
+<pre class='cpp'>
+ AF.func("Build", supcanTitle);
+ AF.func("Load", dataXML);
+ AF.func("mergeSame", "col=compute_rule");</pre>
+　　<b>怎样消除这个现象?</b><br>
+<br>
+　　增加 SetRedrawAble 函数试试，比如：<br>
+<pre class='cpp'>
+ AF.func("Build", supcanTitle);
+ AF.func("SetRedrawAble", "false");   //关闭重画
+ AF.func("Load", dataXML);
+ AF.func("mergeSame", "col=compute_rule");
+ AF.func("SetRedrawAble", "true");   //开启重画</pre>
+<br>
+　　如果还有合并痕迹，在Load函数增加 "FadeInStep=0" 参数再试试：<br>
+<pre class='cpp'>
+ ...
+ AF.func("Load", dataXML + "\r\n FadeInStep=0");
+ ...</pre>
+<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问19.我采用分页显示，并使用了合计行，如何才能使合计结果是全部数据的合计，而不是当前分页的合计？</p>
+首先，页面应该得到总的合计数，然后，用 SetColProp 动态修改树列表某列的 TotalExpress 表达式，将结果赋予给它，例如:<br>
+<pre class='cpp'>
+AF.func("SetColProp", "prodPrc \r\n totalExpress \r\n='312,440,221.33'");</pre>
+　　请注意其中的表达式书写规则，如果您直接写成了AF.func("SetColProp", "prodPrc \r\n totalExpress \r\n=312440221.33")， 显示出来可能没有千位符的。<br>
+<br>
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问20.在例子 “28.过滤: 关联下拉” 中，我想达到这个效果：省份中增加一 “全国”，希望在选择它后，右侧的“城市”列能列出所有城市，怎么实现？</p>
+假如“全国”的 id 为 "0", 将过滤表达式修改为:<br>
+<pre class='cpp'>
+var exp = "provId@parent=provinceId || if(provId@parent=='0', 1, 0) \r\n cityId";
+AF1.func("Filter", exp);</pre>
+　　请仔细揣摩一下。<br>
+<br>
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问21.上一例，省份可以多选的，这个我已经实现，但我想达到这个效果：希望在多选后，右侧的“城市”列能列出这些省的所有城市，怎么实现？</p>
+您可以这样写:<br>
+<pre class='cpp'>
+var exp = "indexOfArray(provId@parent, provinceId)>=0 \r\n cityId";
+AF1.func("Filter", exp);</pre>
+　　如果您的版本尚不支持 indexOfArray 计算函数，并且假设省份id的宽度都一致，那么请这样写：<br>
+<pre class='cpp'>
+var exp = "indexOf(provId@parent, provinceId)>=0 \r\n cityId";
+AF1.func("Filter", exp);</pre>
+
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问22.我在Freeform中采用了 EditWithButton (带按钮输入控件)，按下按钮后弹出硕正的模式对话框，希望对话框关闭后能跳转到“prince”输入框，但发现用 SelectCell 不起作用，怎样才能让它起作用？</p>
+我们发现是有问题，在对话框关闭后焦点无法定位，可能和底层消息机制有关。但有个简单的方法可以解决：调用全局函数 PostMessage, 即在消息队列的尾部添加一个自定义事件，您就在该事件中去处理焦点函数吧，例如:<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "ButtonClicked" && p1 == "product") {
+  AF.func("OpenDialog", "...(略)");  //打开模式对话框
+  AF.func("PostMessage", "p1=kk1");  //发送自定义事件
+ }
+ else if(Event=="UserEvent" && p1=="kk1") {
+  //响应该事件
+  AF.func("SelectCell", "price");
+ }
+}</pre>
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问23.我想做这样一个关联下拉功能，以 freeform 的例子 “3.多种下拉” 为例, 在 “客户” 处选择后，希望 “经销商” 的动态下拉，能自动把选中的 “客户” 也作为查询条件带给后端的请求中：</p>
+<center><img src='image/freeform1.png'></center>
+相当于是动态修改 “经销商” 下拉的 dataURL，请将如下脚本加到 f3.htm 页面中，试一下:<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id == 'AF1' && Event=='DropdownSelChanged') {
+  var cust = AF1.func("GetValue", "cust");
+  var url = "='http://www.supcan.cn/dotnet/customer.aspx?cust=" +cust+ "&substr='+encodeURIComponent(data)";
+  AF1.func("SetDroplistProp", "sales \r\n dataURL \r\n" + url);
+ }
+}</pre>
+
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问24.怎么获得树列表的合计/小计内容？</p>
+就用 GetCellData 函数，当然，您须先用 isTotalRow / isSubTotalRow 判断该行是否合计/小计行。<br>
+<br>
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问25.怎样彻底抛弃树列表中的数据？ 即回到 Build 后的状态</p>
+Load空串即可, 或者执行一下 Build 重新创建也可以。<br>
+<br>
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问26.我需要三级的下拉，比如 t1.xml 的 A 列是引用下拉树列表 t2.xml，而 t2.xml 中的 B 列又需要引用 t3.xml，发现t3.xml的数据不能自动加载, 怎么解决?</p>
+修改 t2.xml, 在&lt;Properties&gt;中增加 DropDataLoadMode="synch" ，即让它同步加载。<br>
+<br>
+
+<br>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问27.我在 Freeform 中使用了 &lt;WebBrowser&gt;, 即嵌入一个浏览器页面，我该怎样与这个页面做数据交互呢？</p>
+如果这个页面中也含有硕正插件，可以调用全局函数中的缓存函数 SaveCache/ReadCache 去存取。<br>
+　　如果此页面本身是个纯页面，那只能通过服务器去绕了，比如暂时缓存到 Session。<br>
+<br>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

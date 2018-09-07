@@ -1,0 +1,3689 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "truckToolbar",
+     "hidden": "true"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "增加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var rec = app.gridDeatil.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择一条提单明细记录。');\
+  return;\
+}\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/judgeIsMerge',\
+  params: {\
+  \tID:rec.data.ID\
+  },\
+  success: function(resp) {\
+    if(resp.responseText=='success'){\
+    \t\
+    }else if(resp.responseText=='fail'){\
+    \treturn;\
+    }\
+  }\
+});\
+\
+Wb.addEdit(app.gridTruckEntrust, {\
+  PID: rec.data.ID,\
+  PIECES: rec.data.PIECES,\
+  BILL_NO: rec.data.BILL_NO,\
+  WEIGHT: rec.data.WEIGHT,\
+  CREATED_BY: '{#sys.username#}',\
+  UPDATED_BY: '{#sys.username#}',\
+  CREATED_ON: new Date(),\
+  UPDATED_ON: new Date(),\
+  TENANCY_ID: '{#sys.TENANCY_ID#}',\
+  PHASE: 'PLN'\
+});\
+var check = /^[0-9]*[1-9][0-9]*$/,\
+  average = 0,\
+  num = 0,\
+  remain = 0;\
+var num = app.gridTruckEntrust.store.getCount();\
+// average = rec.data.WEIGHT / num;\
+// if (!check.test(average)) {\
+//   average = Math.floor(average)+1;\
+// }\
+// remain = average + (rec.data.WEIGHT % app.gridTruck.store.getCount());\
+var perWeight = Math.floor(rec.data.WEIGHT / rec.data.PIECES);\
+\
+var pa = 0,\
+  pr = 0;\
+pa = rec.data.PIECES / num;\
+if (!check.test(pa)) {\
+  pa = Math.floor(pa)+1;\
+}\
+pr = rec.data.PIECES - (pa * (num - 1));\
+\
+//\
+var sel = app.gridTruckEntrust.getStore();\
+for (var i = 0; i < app.gridTruckEntrust.store.getCount(); i++) {\
+  var sel = app.gridTruckEntrust.getStore().getAt(i);\
+  //   console.log(sel);\
+  if (i == app.gridTruckEntrust.store.getCount() - 1) {\
+    sel.set('WEIGHT', rec.data.WEIGHT - (rec.data.PIECES - pr) * perWeight);\
+    sel.set('PIECES', pr);\
+  } else {\
+    sel.set('WEIGHT', pa * perWeight);\
+    sel.set('PIECES', pa);\
+  }\
+  //Wb.set(sel.data.WEIGHT,average);\
+}\
+\
+//=================================================\
+\
+\
+\
+// var rec = app.grid1.getSelection()[0];\
+// if (!rec) {\
+//   Wb.warn('请选择一条记录。');\
+//   return;\
+// } \
+// Wb.addEdit(app.gridTruck,{PID:rec.data.ID,PIECES:rec.data.PIECES,BILL_NO:rec.data.BILL_NO,WEIGHT:rec.data.WEIGHT,CREATED_BY:'{#sys.username#}',UPDATED_BY:'{#sys.username#}',CREATED_ON:new Date(),UPDATED_ON:new Date(),TENANCY_ID:'{#sys.TENANCY_ID#}',PHASE:'PLN'}); \
+// var check = /^[0-9]*[1-9][0-9]*$/,average=0,num=0,remain=0;\
+// var num = app.gridTruck.store.getCount();\
+// average = rec.data.WEIGHT / num;\
+// if (!check.test(average)) {\
+//   average = Math.floor(average);\
+// }\
+// remain = average + (rec.data.WEIGHT % app.gridTruck.store.getCount());\
+\
+\
+// var pa=0,pr=0;\
+// pa = rec.data.PIECES / num;\
+// if (!check.test(pa)) {\
+//   pa = Math.floor(pa);\
+// }\
+// pr = pa + (rec.data.PIECES % num);\
+// var sel=app.gridTruck.getStore();\
+// for(var i=0;i<app.gridTruck.store.getCount();i++){\
+// \tvar sel=app.gridTruck.getStore().getAt(i);\
+// //   console.log(sel);\
+//   if(i==app.gridTruck.store.getCount()-1){\
+//   \tsel.set('WEIGHT',remain);\
+//     sel.set('PIECES',pr);\
+//   }else{\
+//     sel.set('WEIGHT',average);\
+//     sel.set('PIECES',pa);\
+//   }\
+//     //Wb.set(sel.data.WEIGHT,average);\
+// }"}
+     },
+     {
+      "configs": {
+       "itemId": "delBtn",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.remove(app.gridTruckEntrust);\
+var rec = app.gridDeatil.getSelection()[0];\
+var check = /^[0-9]*[1-9][0-9]*$/,average=0,num=0,remain=0;\
+var num = app.gridTruckEntrust.store.getCount();\
+var perWeight = Math.floor(rec.data.WEIGHT / rec.data.PIECES);\
+\
+\
+var pa=0,pr=0;\
+pa = rec.data.PIECES / num;\
+if (!check.test(pa)) {\
+  pa = Math.floor(pa)+1;\
+}\
+pr = rec.data.PIECES - (pa * (num - 1));\
+\
+\
+for(var i=0;i<app.gridTruckEntrust.store.getCount();i++){\
+\tvar sel=app.gridTruckEntrust.getStore().getAt(i);\
+  if(i==app.gridTruckEntrust.store.getCount()-1){\
+  \tsel.set('WEIGHT',rec.data.WEIGHT - (rec.data.PIECES - pr) * perWeight);\
+    sel.set('PIECES',pr);\
+  }else{\
+    sel.set('WEIGHT',pa * perWeight);\
+    sel.set('PIECES',pa);\
+  }\
+    //Wb.set(sel.data.WEIGHT,average);\
+}\
+\
+\
+\
+\
+// Wb.remove(app.gridTruck);\
+// var rec = app.grid1.getSelection()[0];\
+// var check = /^[0-9]*[1-9][0-9]*$/,average=0,num=0,remain=0;\
+// var num = app.gridTruck.store.getCount();\
+// average = rec.data.WEIGHT / num;\
+// if (!check.test(average)) {\
+//   average = Math.floor(average);\
+// }\
+// remain = average + (rec.data.WEIGHT % app.gridTruck.store.getCount());\
+\
+// var pa=0,pr=0;\
+// pa = rec.data.PIECES / num;\
+// if (!check.test(pa)) {\
+//   pa = Math.floor(pa);\
+// }\
+// pr = pa + (rec.data.PIECES % num);\
+// // alert(remain);\
+// // var sel=app.gridTruck.getStore();\
+// for(var i=0;i<app.gridTruck.store.getCount();i++){\
+// \tvar sel=app.gridTruck.getStore().getAt(i);\
+// //   console.log(sel);\
+//   if(i==app.gridTruck.store.getCount()-1){\
+//   \tsel.set('WEIGHT',remain);\
+//     sel.set('PIECES',pr);\
+//   }else{\
+//     sel.set('WEIGHT',average);\
+//     sel.set('PIECES',pa);\
+//   }\
+//     //Wb.set(sel.data.WEIGHT,average);\
+// }"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.gridTruckEntrust)) //验证数据是否合法\
+  return;\
+var sw = 0,\
+  sp = 0;\
+// var str = \"\";\
+for (var i = 0; i < app.gridTruckEntrust.store.getCount(); i++) {\
+  var sel = app.gridTruckEntrust.getStore().getAt(i);\
+  sw += sel.data.WEIGHT;\
+  sp += sel.data.PIECES;\
+\
+  //   if (str.indexOf(sel.data.TRUCK) != -1 && sel.data.TRUCK != \"\") {\
+  //     Wb.warn(\"选择的车号一样\");\
+  //     return;\
+  //   }\
+  //   str += sel.data.TRUCK;\
+}\
+\
+\
+if (sw > 0) {\
+  if (sw > app.weightCheck.getValue()) {\
+    Wb.warn(\"重量大于计划重量！\" + \"多了\" + (sw - app.weightCheck.getValue()));\
+    return;\
+  }\
+  if (sw < app.weightCheck.getValue()) {\
+    Wb.warn(\"重量小于计划重量！\" + \"少了\" + (app.weightCheck.getValue() - sw));\
+    return;\
+  }\
+}\
+if (sp > 0) {\
+  if (sp > app.piecesCheck.getValue()) {\
+    Wb.warn(\"件数大于计划件数！\" + \"多了\" + (sp - app.piecesCheck.getValue()));\
+    return;\
+  }\
+  if (sp < app.piecesCheck.getValue()) {\
+    Wb.warn(\"件数小于计划件数！\" + \"少了\" + (app.piecesCheck.getValue() - sp));\
+    return;\
+  }\
+}\
+Wb.sync({\
+  grid: app.gridTruckEntrust,\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    //     Wb.syncCreate(app.gridTruck, Wb.decode(resp.responseText));\
+    Wb.info(\"操作成功\");\
+    app.gridTruckEntrust.store.load({\
+      params: {\
+        ID: app.idvalue.getValue()\
+      },\
+      callback: function(records, operation, success) {\
+        if (records.length == 0) {\
+          Wb.request({\
+            url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/deleteAllTruckUpdateApplyPhase',\
+            params: {\
+              PID: app.truck_m_pid.getValue()\
+            },\
+            success: function(resp) {\
+            \t\
+            }\
+          });\
+        }\
+      }\
+    });\
+  }\
+});\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// if (!Wb.verifyGrid(app.gridTruck)) //验证数据是否合法\
+//   return;\
+// var sw = 0,\
+//   sp = 0;\
+// var str = \"\";\
+// for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+//   var sel = app.gridTruck.getStore().getAt(i);\
+//   sw += sel.data.WEIGHT;\
+//   sp += sel.data.PIECES;\
+\
+//   if (str.indexOf(sel.data.TRUCK) != -1 && sel.data.TRUCK != \"\") {\
+//     Wb.warn(\"选择的车号一样\");\
+//     return;\
+//   }\
+//   str += sel.data.TRUCK;\
+// }\
+// // alert(sp);\
+// // alert(app.piecesCheck.getValue());\
+// if (sw > 0) {\
+//   if (sw > app.weightCheck.getValue()) {\
+//     Wb.warn(\"重量大于计划重量！\" + \"多了\" + (sw - app.weightCheck.getValue()));\
+//     return;\
+//   }\
+//   if (sw < app.weightCheck.getValue()) {\
+//     Wb.warn(\"重量小于计划重量！\" + \"少了\" + (app.weightCheck.getValue() - sw));\
+//     return;\
+//   }\
+// }\
+// if (sp > 0) {\
+//   if (sp > app.piecesCheck.getValue()) {\
+//     Wb.warn(\"件数大于计划件数！\" + \"多了\" + (sp - app.piecesCheck.getValue()));\
+//     return;\
+//   }\
+//   if (sp < app.piecesCheck.getValue()) {\
+//     Wb.warn(\"件数小于计划件数！\" + \"少了\" + (app.piecesCheck.getValue() - sp));\
+//     return;\
+//   }\
+// }\
+// Wb.sync({\
+//   grid: app.gridTruck,\
+//   url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/save',\
+//   message: '正在保存中...',\
+//   success: function(resp) {\
+//     //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+//     //     Wb.syncCreate(app.gridTruck, Wb.decode(resp.responseText));\
+//     Wb.info(\"操作成功\");\
+//     app.gridTruck.store.load({\
+//       params: {\
+//         PID: app.IDS.getValue()\
+//       },\
+//       callback: function(records, operation, success) {\
+//         //         app.grid1.setSelection(records);\
+// //         console.log(records);\
+//         if (records.length == 0) {\
+//           Wb.request({\
+//             url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/deleteAllTruckUpdateApplyPhase',\
+//             params: {\
+//             \tPID:app.IDS.getValue()\
+//             },\
+//             success: function(resp) {}\
+//           });\
+//         }\
+//       }\
+//     });\
+//     ////保存后，更新下\
+//     var rs = Wb.decode(resp.responseText);\
+//     Wb.each(rs, function(recs) {\
+//       if (recs.update.length != 0) {\
+//         Wb.each(recs.update, function(rec) {\
+//           Wb.request({\
+//             url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+//             params: {\
+//               TRAY_NO: rec.TRAY,\
+//               TRUCKER_NAM: rec.DRIVER,\
+//               TRUCK_NO: rec.TRUCK\
+//             },\
+//             success: function(resp) {}\
+//           });\
+//         });\
+//       }\
+//       if (recs.create.length != 0) {\
+//         Wb.each(recs.create, function(rec) {\
+//           Wb.request({\
+//             url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+//             params: {\
+//               TRAY_NO: rec.TRAY,\
+//               TRUCKER_NAM: rec.DRIVER,\
+//               TRUCK_NO: rec.TRUCK\
+//             },\
+//             success: function(resp) {}\
+//           });\
+//         });\
+//       }\
+\
+//     });\
+//     ////\
+//   }\
+// });"}
+     },
+     {
+      "configs": {
+       "itemId": "writeBtn1",
+       "text": "申报",
+       "iconCls": "red-forklift_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.info(\"海关接口未开放，不能申报\");\
+// var sels = app.grid1.getSelection();\
+// if(sels.length<1){\
+// \tWb.warn(\"请选择一条数据\");\
+//   return;\
+// }\
+\
+// //未申报状态变为已申报状态\
+// Wb.request({\
+//   url: 'm?xwl=EDI/ediPro/cargoOutGate',\
+//   params: {\
+//   \tCAR_NO:sels[0].data.TRUCK_NO,\
+//     CARD_NO:sels[0].data.TRUCK,\
+//     ID:sels[0].data.ID,\
+//     SEALE_NO:sels[0].data.SEALE_NO,\
+//     WEIGHT:sels[0].data.WEIGHT,\
+//     PIECES:sels[0].data.PIECES\
+//   },\
+//   success: function(resp) {\
+//   \tWb.info(\"发送成功！\");\
+//     app.findMenu.fireEvent('click');\
+//   }\
+// });"}
+     },
+     {
+      "configs": {
+       "itemId": "printerBtn",
+       "text": "打印",
+       "iconCls": "printer_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sel = app.gridDeatil.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"请选择一条申请数据\");\
+  return;\
+}\
+//====\
+// if(app.gridTruck.store.getCount()==0){\
+// \treturn;\
+// }\
+//====\
+var ids = \"\";\
+for (var i = 0; i < sel.length; i++) {\
+  if (i == sel.length - 1)\
+    ids += \"'\" + sel[i].data.ID + \"'\";\
+  else\
+    ids += \"'\" + sel[i].data.ID + \"',\";\
+}\
+if (sel.length == 0)\
+  ids = \"''\";\
+\
+console.log(ids);\
+\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" AND ad.id in(\" + ids + \") \");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+     },
+     {
+      "configs": {
+       "itemId": "weightCheck",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "piecesCheck",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "number"
+     },
+     {
+      "configs": {
+       "itemId": "idd",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "truck_m_pid",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {"itemId": "detailToolbar"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "addMenu",
+       "text": "增加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "//需要判断关系表或者派车明细表是否有多条数据，如果有就是合并的情况，不能进行保存\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/judgeIsTogather',\
+  params: {\
+    ID: app.idvalue.getValue()\
+  },\
+  success: function(resp) {\
+    if (resp.responseText == \"false\") {\
+      Wb.warn(\"多条申请明细一条派车委托的不能增加!\");\
+      return;\
+    } else {\
+      var rec = app.gridDeatil.getSelection()[0];\
+      if (!rec) {\
+        Wb.warn('请选择一条提单明细记录。');\
+        return;\
+      }\
+      Wb.request({\
+        url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/judgeIsMerge',\
+        params: {\
+          ID: rec.data.ID\
+        },\
+        success: function(resp) {\
+          if (resp.responseText == 'success') {\
+\
+          } else if (resp.responseText == 'fail') {\
+            return;\
+          }\
+        }\
+      });\
+      app.billno.setValue(rec.data.BILL_NO);\
+      Wb.addEdit(app.gridTruck, {\
+        PID: rec.data.ID,\
+        PIECES: rec.data.PIECES,\
+        BILL_NO: rec.data.BILL_NO,\
+        WEIGHT: rec.data.WEIGHT,\
+        CREATED_BY: '{#sys.username#}',\
+        UPDATED_BY: '{#sys.username#}',\
+        CREATED_ON: new Date(),\
+        UPDATED_ON: new Date(),\
+        TENANCY_ID: '{#sys.TENANCY_ID#}',\
+        PHASE: 'PLN'\
+      });\
+      var check = /^[0-9]*[1-9][0-9]*$/,\
+        average = 0,\
+        num = 0,\
+        remain = 0;\
+      var num = app.gridTruck.store.getCount();\
+      // average = rec.data.WEIGHT / num;\
+      // if (!check.test(average)) {\
+      //   average = Math.floor(average)+1;\
+      // }\
+      // remain = average + (rec.data.WEIGHT % app.gridTruck.store.getCount());\
+      var perWeight = Math.floor(rec.data.WEIGHT / rec.data.PIECES);\
+\
+      var pa = 0,\
+        pr = 0;\
+      pa = rec.data.PIECES / num;\
+      if (!check.test(pa)) {\
+        pa = Math.floor(pa) + 1;\
+      }\
+      pr = rec.data.PIECES - (pa * (num - 1));\
+\
+      //\
+      var sel = app.gridTruck.getStore();\
+      for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+        var sel = app.gridTruck.getStore().getAt(i);\
+        //   console.log(sel);\
+        if (i == app.gridTruck.store.getCount() - 1) {\
+          sel.set('WEIGHT', rec.data.WEIGHT - (rec.data.PIECES - pr) * perWeight);\
+          sel.set('PIECES', pr);\
+        } else {\
+          sel.set('WEIGHT', pa * perWeight);\
+          sel.set('PIECES', pa);\
+        }\
+        //Wb.set(sel.data.WEIGHT,average);\
+      }\
+\
+    }\
+  }\
+});\
+\
+\
+//=================================================\
+\
+\
+\
+// var rec = app.grid1.getSelection()[0];\
+// if (!rec) {\
+//   Wb.warn('请选择一条记录。');\
+//   return;\
+// } \
+// Wb.addEdit(app.gridTruck,{PID:rec.data.ID,PIECES:rec.data.PIECES,BILL_NO:rec.data.BILL_NO,WEIGHT:rec.data.WEIGHT,CREATED_BY:'{#sys.username#}',UPDATED_BY:'{#sys.username#}',CREATED_ON:new Date(),UPDATED_ON:new Date(),TENANCY_ID:'{#sys.TENANCY_ID#}',PHASE:'PLN'}); \
+// var check = /^[0-9]*[1-9][0-9]*$/,average=0,num=0,remain=0;\
+// var num = app.gridTruck.store.getCount();\
+// average = rec.data.WEIGHT / num;\
+// if (!check.test(average)) {\
+//   average = Math.floor(average);\
+// }\
+// remain = average + (rec.data.WEIGHT % app.gridTruck.store.getCount());\
+\
+\
+// var pa=0,pr=0;\
+// pa = rec.data.PIECES / num;\
+// if (!check.test(pa)) {\
+//   pa = Math.floor(pa);\
+// }\
+// pr = pa + (rec.data.PIECES % num);\
+// var sel=app.gridTruck.getStore();\
+// for(var i=0;i<app.gridTruck.store.getCount();i++){\
+// \tvar sel=app.gridTruck.getStore().getAt(i);\
+// //   console.log(sel);\
+//   if(i==app.gridTruck.store.getCount()-1){\
+//   \tsel.set('WEIGHT',remain);\
+//     sel.set('PIECES',pr);\
+//   }else{\
+//     sel.set('WEIGHT',average);\
+//     sel.set('PIECES',pa);\
+//   }\
+//     //Wb.set(sel.data.WEIGHT,average);\
+// }"}
+     },
+     {
+      "configs": {
+       "itemId": "delMenu",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "//需要判断关系表或者派车明细表是否有多条数据，如果有就是合并的情况，不能进行保存\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/judgeIsTogather',\
+  params: {\
+    ID: app.idvalue.getValue()\
+  },\
+  success: function(resp) {\
+    if (resp.responseText == \"false\") {\
+      Wb.confirm(\"多条申请明细一条派车委托的确认删除？\", function() {\
+        Wb.remove(app.gridTruck);\
+        var rec = app.gridDeatil.getSelection()[0];\
+        var check = /^[0-9]*[1-9][0-9]*$/,\
+          average = 0,\
+          num = 0,\
+          remain = 0;\
+        var num = app.gridTruck.store.getCount();\
+        var perWeight = Math.floor(rec.data.WEIGHT / rec.data.PIECES);\
+\
+\
+        var pa = 0,\
+          pr = 0;\
+        pa = rec.data.PIECES / num;\
+        if (!check.test(pa)) {\
+          pa = Math.floor(pa) + 1;\
+        }\
+        pr = rec.data.PIECES - (pa * (num - 1));\
+\
+\
+        for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+          var sel = app.gridTruck.getStore().getAt(i);\
+          if (i == app.gridTruck.store.getCount() - 1) {\
+            sel.set('WEIGHT', rec.data.WEIGHT - (rec.data.PIECES - pr) * perWeight);\
+            sel.set('PIECES', pr);\
+          } else {\
+            sel.set('WEIGHT', pa * perWeight);\
+            sel.set('PIECES', pa);\
+          }\
+          //Wb.set(sel.data.WEIGHT,average);\
+        }\
+      });\
+      //       Wb.warn(\"多条申请明细一条派车委托的不能修改!\");\
+      //       return;\
+    } else {\
+      Wb.remove(app.gridTruck);\
+      var rec = app.gridDeatil.getSelection()[0];\
+      var check = /^[0-9]*[1-9][0-9]*$/,\
+        average = 0,\
+        num = 0,\
+        remain = 0;\
+      var num = app.gridTruck.store.getCount();\
+      var perWeight = Math.floor(rec.data.WEIGHT / rec.data.PIECES);\
+\
+\
+      var pa = 0,\
+        pr = 0;\
+      pa = rec.data.PIECES / num;\
+      if (!check.test(pa)) {\
+        pa = Math.floor(pa) + 1;\
+      }\
+      pr = rec.data.PIECES - (pa * (num - 1));\
+\
+\
+      for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+        var sel = app.gridTruck.getStore().getAt(i);\
+        if (i == app.gridTruck.store.getCount() - 1) {\
+          sel.set('WEIGHT', rec.data.WEIGHT - (rec.data.PIECES - pr) * perWeight);\
+          sel.set('PIECES', pr);\
+        } else {\
+          sel.set('WEIGHT', pa * perWeight);\
+          sel.set('PIECES', pa);\
+        }\
+        //Wb.set(sel.data.WEIGHT,average);\
+      }\
+    }\
+  }\
+});\
+\
+\
+\
+\
+\
+\
+// Wb.remove(app.gridTruck);\
+// var rec = app.grid1.getSelection()[0];\
+// var check = /^[0-9]*[1-9][0-9]*$/,average=0,num=0,remain=0;\
+// var num = app.gridTruck.store.getCount();\
+// average = rec.data.WEIGHT / num;\
+// if (!check.test(average)) {\
+//   average = Math.floor(average);\
+// }\
+// remain = average + (rec.data.WEIGHT % app.gridTruck.store.getCount());\
+\
+// var pa=0,pr=0;\
+// pa = rec.data.PIECES / num;\
+// if (!check.test(pa)) {\
+//   pa = Math.floor(pa);\
+// }\
+// pr = pa + (rec.data.PIECES % num);\
+// // alert(remain);\
+// // var sel=app.gridTruck.getStore();\
+// for(var i=0;i<app.gridTruck.store.getCount();i++){\
+// \tvar sel=app.gridTruck.getStore().getAt(i);\
+// //   console.log(sel);\
+//   if(i==app.gridTruck.store.getCount()-1){\
+//   \tsel.set('WEIGHT',remain);\
+//     sel.set('PIECES',pr);\
+//   }else{\
+//     sel.set('WEIGHT',average);\
+//     sel.set('PIECES',pa);\
+//   }\
+//     //Wb.set(sel.data.WEIGHT,average);\
+// }"}
+     },
+     {
+      "configs": {
+       "itemId": "saveMenu",
+       "hidden": "true",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.gridTruck)){ //验证数据是否合法\
+  app.gridTruck.getSelectionModel().select(0);\
+  return;\
+}\
+var sw = 0,\
+  sp = 0;\
+var str = \"\";\
+//状态判断（合并，分开）\
+var state;\
+var id = \"\";\
+\
+for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+  var sel = app.gridTruck.getStore().getAt(i);\
+  sw += sel.data.WEIGHT;\
+  sp += sel.data.PIECES;\
+  state = sel.data.CON_FLAG;\
+  id = sel.data.PID;\
+  //   if (str.indexOf(sel.data.TRUCK) != -1 && sel.data.TRUCK != \"\") {\
+  //     Wb.warn(\"选择的车号一样\");\
+  //     return;\
+  //   }\
+  //   str += sel.data.TRUCK;\
+}\
+// alert(sp);\
+// alert(app.piecesCheck.getValue());\
+var tw = 0,\
+  tp = 0;\
+if (state == 1) {\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/countMergeNum',\
+    params: {\
+      PID: id\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText);\
+      //       console.log(rs);\
+      //       console.log(Wb.decode(resp.responseText)[0]);\
+      //       console.log(rs.WEIGHT);\
+      Wb.each(rs, function(rec) {\
+        tw = parseInt(rec.WEIGHT);\
+        tp = parseInt(rec.PIECES);\
+        if (sw > 0) {\
+          if (sw > tw) {\
+            Wb.warn(\"重量大于计划重量！\" + \"多了\" + (sw - tw));\
+            return;\
+          }\
+          if (sw < tw) {\
+            Wb.warn(\"重量小于计划重量！\" + \"少了\" + (tw - sw));\
+            return;\
+          }\
+        }\
+        if (sp > 0) {\
+          if (sp > tp) {\
+            Wb.warn(\"件数大于计划件数！\" + \"多了\" + (sp - tp));\
+            return;\
+          }\
+          if (sp < tp) {\
+            Wb.warn(\"件数小于计划件数！\" + \"少了\" + (tp - sp));\
+            return;\
+          }\
+        }\
+        //------\
+        Wb.sync({\
+          grid: app.gridTruck,\
+          params: {\
+            BILL_NO: app.billno.getValue()\
+          },\
+          url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/saveTruck2',\
+          message: '正在保存中...',\
+          success: function(resp) {\
+            //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+//                 Wb.syncCreate(app.gridTruck, Wb.decode(resp.responseText));\
+            //     Wb.info(\"操作成功\");\
+            //             console.log(app.idvalue.getValue());\
+            //=============================================================\
+            //计算费用\
+            var rs = Wb.decode(resp.responseText);\
+            var feeids = [];\
+            console.log(rs);\
+            Wb.each(rs, function(recs) {\
+              if (recs.update.length != 0) {\
+                Wb.each(recs.update, function(rec) {\
+                  console.log(\"11\");\
+                  console.log(rec);\
+                  if (rec.TRUCK != '' && rec.TRAY != '' && rec.DRIVER != '') {\
+                    feeids.push({\
+                      ID: rec.ID\
+                    });\
+                  }\
+                });\
+\
+              }\
+              //==\
+              if (recs.create.length != 0) {\
+                Wb.each(recs.create, function(rec) {\
+                  console.log(\"22\");\
+                  console.log(rec);\
+                  if (rec.TRUCK != '' && rec.TRAY != '' && rec.DRIVER != '') {\
+                    feeids.push({\
+                      ID: rec.ID\
+                    });\
+                  }\
+                });\
+\
+              }\
+              //==\
+            });\
+            console.log(feeids);\
+            if(feeids.length>0){\
+            Wb.request({\
+              url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/upfee',\
+              params: {\
+                ids: feeids\
+              },\
+              success: function(resp) {\
+              \tWb.info(\"成功\");\
+              }\
+            });\
+            }\
+            //=============================================================\
+            app.gridTruck.store.load({\
+              params: {\
+                ID: app.idvalue.getValue()\
+              },\
+              callback: function(records, operation, success) {\
+                //         app.grid1.setSelection(records);\
+                //         console.log(records);\
+                if (records.length == 0) {\
+                  Wb.request({\
+                    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/deleteAllTruckUpdateApplyPhase',\
+                    params: {\
+                      PID: app.IDS.getValue()\
+                    },\
+                    success: function(resp) {}\
+                  });\
+                }\
+              }\
+            });\
+            ////保存后，更新下\
+            var rs = Wb.decode(resp.responseText);\
+            Wb.each(rs, function(recs) {\
+              if (recs.update.length != 0) {\
+                Wb.each(recs.update, function(rec) {\
+                  Wb.request({\
+                    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+                    params: {\
+                      TRAY_NO: rec.TRAY,\
+                      TRUCKER_NAM: rec.DRIVER,\
+                      TRUCK_NO: rec.TRUCK\
+                    },\
+                    success: function(resp) {}\
+                  });\
+                });\
+              }\
+              if (recs.create.length != 0) {\
+                Wb.each(recs.create, function(rec) {\
+                  Wb.request({\
+                    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+                    params: {\
+                      TRAY_NO: rec.TRAY,\
+                      TRUCKER_NAM: rec.DRIVER,\
+                      TRUCK_NO: rec.TRUCK\
+                    },\
+                    success: function(resp) {}\
+                  });\
+                });\
+              }\
+\
+            });\
+            ////\
+          }\
+        });\
+        //------\
+      });\
+\
+    }\
+  });\
+\
+\
+} else {\
+  if (sw > 0) {\
+    if (sw > app.weightCheck.getValue()) {\
+      Wb.warn(\"重量大于计划重量！\" + \"多了\" + (sw - app.weightCheck.getValue()));\
+      return;\
+    }\
+    if (sw < app.weightCheck.getValue()) {\
+      Wb.warn(\"重量小于计划重量！\" + \"少了\" + (app.weightCheck.getValue() - sw));\
+      return;\
+    }\
+  }\
+  if (sp > 0) {\
+    if (sp > app.piecesCheck.getValue()) {\
+      Wb.warn(\"件数大于计划件数！\" + \"多了\" + (sp - app.piecesCheck.getValue()));\
+      return;\
+    }\
+    if (sp < app.piecesCheck.getValue()) {\
+      Wb.warn(\"件数小于计划件数！\" + \"少了\" + (app.piecesCheck.getValue() - sp));\
+      return;\
+    }\
+  }\
+  //====\
+  Wb.sync({\
+    grid: app.gridTruck,\
+    params: {\
+      BILL_NO: app.billno.getValue()\
+    },\
+    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/saveTruck1',\
+    message: '正在保存中...',\
+    success: function(resp) {\
+      //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+      //     Wb.syncCreate(app.gridTruck, Wb.decode(resp.responseText));\
+      //     Wb.info(\"操作成功\");\
+      //=============================================================\
+      //计算费用\
+      var rs = Wb.decode(resp.responseText);\
+      var feeids = [];\
+      Wb.each(rs, function(recs) {\
+        if (recs.update.length != 0) {\
+          Wb.each(recs.update, function(rec) {\
+            console.log(\"11====\");\
+            console.log(rec);\
+            if (rec.TRUCK != '' && rec.TRAY != '' && rec.DRIVER != '') {\
+              feeids.push({\
+                ID: rec.ID\
+              });\
+            }\
+          });\
+\
+        }\
+      });\
+      Wb.request({\
+        url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/upfee',\
+        params: {\
+          ids: feeids\
+        },\
+        success: function(resp) {Wb.info(\"成功\");}\
+      });\
+      //=============================================================\
+      //       console.log(app.idvalue.getValue());\
+      app.gridTruck.store.load({\
+        params: {\
+          ID: app.idvalue.getValue()\
+        },\
+        callback: function(records, operation, success) {\
+          //         app.grid1.setSelection(records);\
+          //         console.log(records);\
+          if (records.length == 0) {\
+            Wb.request({\
+              url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/deleteAllTruckUpdateApplyPhase',\
+              params: {\
+                PID: app.IDS.getValue()\
+              },\
+              success: function(resp) {}\
+            });\
+          }\
+        }\
+      });\
+      ////保存后，更新下\
+      var rs = Wb.decode(resp.responseText);\
+      Wb.each(rs, function(recs) {\
+        if (recs.update.length != 0) {\
+          Wb.each(recs.update, function(rec) {\
+            Wb.request({\
+              url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+              params: {\
+                TRAY_NO: rec.TRAY,\
+                TRUCKER_NAM: rec.DRIVER,\
+                TRUCK_NO: rec.TRUCK\
+              },\
+              success: function(resp) {}\
+            });\
+          });\
+        }\
+        if (recs.create.length != 0) {\
+          Wb.each(recs.create, function(rec) {\
+            Wb.request({\
+              url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+              params: {\
+                TRAY_NO: rec.TRAY,\
+                TRUCKER_NAM: rec.DRIVER,\
+                TRUCK_NO: rec.TRUCK\
+              },\
+              success: function(resp) {}\
+            });\
+          });\
+        }\
+\
+      });\
+      ////\
+    }\
+  });\
+  //====\
+}\
+\
+//============================================================================================================\
+// if (!Wb.verifyGrid(app.gridTruck)) //验证数据是否合法\
+//   return;\
+// //需要判断关系表或者派车明细表是否有多条数据，如果有就是合并的情况，不能进行保存\
+// Wb.request({\
+//   url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/judgeIsTogather',\
+//   params: {\
+//     ID: app.idvalue.getValue()\
+//   },\
+//   success: function(resp) {\
+//     Wb.info(resp.responseText);\
+//     if (resp.responseText == \"false\") {\
+//       Wb.warn(\"多条申请明细一条派车委托的不能修改!\");\
+//       return;\
+//     } else {\
+//       var sw = 0,\
+//         sp = 0;\
+//       var str = \"\";\
+//       for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+//         var sel = app.gridTruck.getStore().getAt(i);\
+//         sw += sel.data.WEIGHT;\
+//         sp += sel.data.PIECES;\
+\
+//         //   if (str.indexOf(sel.data.TRUCK) != -1 && sel.data.TRUCK != \"\") {\
+//         //     Wb.warn(\"选择的车号一样\");\
+//         //     return;\
+//         //   }\
+//         //   str += sel.data.TRUCK;\
+//       }\
+//       // alert(sp);\
+//       // alert(app.piecesCheck.getValue());\
+//       if (sw > 0) {\
+//         if (sw > app.weightCheck.getValue()) {\
+//           Wb.warn(\"重量大于计划重量！\" + \"多了\" + (sw - app.weightCheck.getValue()));\
+//           return;\
+//         }\
+//         if (sw < app.weightCheck.getValue()) {\
+//           Wb.warn(\"重量小于计划重量！\" + \"少了\" + (app.weightCheck.getValue() - sw));\
+//           return;\
+//         }\
+//       }\
+//       if (sp > 0) {\
+//         if (sp > app.piecesCheck.getValue()) {\
+//           Wb.warn(\"件数大于计划件数！\" + \"多了\" + (sp - app.piecesCheck.getValue()));\
+//           return;\
+//         }\
+//         if (sp < app.piecesCheck.getValue()) {\
+//           Wb.warn(\"件数小于计划件数！\" + \"少了\" + (app.piecesCheck.getValue() - sp));\
+//           return;\
+//         }\
+//       }\
+//       Wb.sync({\
+//         grid: app.gridTruck,\
+//         params: {\
+//           BILL_NO: app.billno.getValue()\
+//         },\
+//         url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/saveTruck1',\
+//         message: '正在保存中...',\
+//         success: function(resp) {\
+//           //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+//           //     Wb.syncCreate(app.gridTruck, Wb.decode(resp.responseText));\
+//           Wb.info(\"操作成功\");\
+//           app.gridTruck.store.load({\
+//             params: {\
+//               PID: app.IDS.getValue()\
+//             },\
+//             callback: function(records, operation, success) {\
+//               //         app.grid1.setSelection(records);\
+//               //         console.log(records);\
+//               if (records.length == 0) {\
+//                 Wb.request({\
+//                   url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/deleteAllTruckUpdateApplyPhase',\
+//                   params: {\
+//                     PID: app.IDS.getValue()\
+//                   },\
+//                   success: function(resp) {}\
+//                 });\
+//               }\
+//             }\
+//           });\
+//           ////保存后，更新下\
+//           var rs = Wb.decode(resp.responseText);\
+//           Wb.each(rs, function(recs) {\
+//             if (recs.update.length != 0) {\
+//               Wb.each(recs.update, function(rec) {\
+//                 Wb.request({\
+//                   url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+//                   params: {\
+//                     TRAY_NO: rec.TRAY,\
+//                     TRUCKER_NAM: rec.DRIVER,\
+//                     TRUCK_NO: rec.TRUCK\
+//                   },\
+//                   success: function(resp) {}\
+//                 });\
+//               });\
+//             }\
+//             if (recs.create.length != 0) {\
+//               Wb.each(recs.create, function(rec) {\
+//                 Wb.request({\
+//                   url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+//                   params: {\
+//                     TRAY_NO: rec.TRAY,\
+//                     TRUCKER_NAM: rec.DRIVER,\
+//                     TRUCK_NO: rec.TRUCK\
+//                   },\
+//                   success: function(resp) {}\
+//                 });\
+//               });\
+//             }\
+\
+//           });\
+//           ////\
+//         }\
+//       });\
+//     }\
+//   }\
+// });\
+//============================================================================================================"}
+     },
+     {
+      "configs": {
+       "itemId": "saveTruckBtn",
+       "hidden": "false",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.gridTruck)) { //验证数据是否合法\
+  app.gridTruck.getSelectionModel().select(0);\
+  return;\
+}\
+var sw = 0,\
+  sp = 0;\
+var str = \"\";\
+//状态判断（合并，分开）\
+var state;\
+var id = \"\";\
+\
+for (var i = 0; i < app.gridTruck.store.getCount(); i++) {\
+  var sel = app.gridTruck.getStore().getAt(i);\
+  sw += sel.data.WEIGHT;\
+  sp += sel.data.PIECES;\
+  state = sel.data.CON_FLAG;\
+  id = sel.data.PID;\
+}\
+\
+\
+Wb.sync({\
+  grid: app.gridTruck,\
+  params: {\
+    BILL_NO: app.billno.getValue(),\
+    state: state,\
+    sw: sw,\
+    sp: sp,\
+    PID: id,\
+    tw: app.weightCheck.getValue(),\
+    tp: app.piecesCheck.getValue()\
+  },\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/attendTruck',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    Wb.info('成功');\
+//     app.findbill.fireEvent('click');\
+    app.findMenus.fireEvent('click');\
+    app.gridTruck.store.load({\
+      params: {\
+        ID: app.idvalue.getValue()\
+      }\
+    });\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "saveDetailBtn",
+       "hidden": "true",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.gridTruck)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.gridTruck,\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/saveTruck',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    //     Wb.syncCreate(app.gridTruck, Wb.decode(resp.responseText));\
+    Wb.info(\"成功\");\
+    ////保存后，更新下\
+    var rs = Wb.decode(resp.responseText);\
+    Wb.each(rs, function(recs) {\
+      if (recs.update.length != 0) {\
+        Wb.each(recs.update, function(rec) {\
+          Wb.request({\
+            url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+            params: {\
+              TRAY_NO: rec.TRAY,\
+              TRUCKER_NAM: rec.DRIVER,\
+              TRUCK_NO: rec.TRUCK\
+            },\
+            success: function(resp) {}\
+          });\
+        });\
+      }\
+      if (recs.create.length != 0) {\
+        Wb.each(recs.create, function(rec) {\
+          Wb.request({\
+            url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/updateCtruck',\
+            params: {\
+              TRAY_NO: rec.TRAY,\
+              TRUCKER_NAM: rec.DRIVER,\
+              TRUCK_NO: rec.TRUCK\
+            },\
+            success: function(resp) {}\
+          });\
+        });\
+      }\
+\
+    });\
+    ////\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "writeBtn1",
+       "hidden": "true",
+       "text": "申报",
+       "iconCls": "red-forklift_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.info(\"海关接口未开放，不能申报\");\
+// var sels = app.grid1.getSelection();\
+// if(sels.length<1){\
+// \tWb.warn(\"请选择一条数据\");\
+//   return;\
+// }\
+\
+// //未申报状态变为已申报状态\
+// Wb.request({\
+//   url: 'm?xwl=EDI/ediPro/cargoOutGate',\
+//   params: {\
+//   \tCAR_NO:sels[0].data.TRUCK_NO,\
+//     CARD_NO:sels[0].data.TRUCK,\
+//     ID:sels[0].data.ID,\
+//     SEALE_NO:sels[0].data.SEALE_NO,\
+//     WEIGHT:sels[0].data.WEIGHT,\
+//     PIECES:sels[0].data.PIECES\
+//   },\
+//   success: function(resp) {\
+//   \tWb.info(\"发送成功！\");\
+//     app.findMenu.fireEvent('click');\
+//   }\
+// });"}
+     },
+     {
+      "configs": {
+       "itemId": "printBtn",
+       "text": "打印",
+       "iconCls": "printer_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sel = app.gridDeatil.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"请选择一条申请明细数据\");\
+  return;\
+}\
+//====\
+// if(app.gridTruck.store.getCount()==0){\
+// \treturn;\
+// }\
+if(app.gridTruck.store.getCount()==0){\
+\treturn;\
+}\
+//====\
+var ids = \"\";\
+for (var i = 0; i < sel.length; i++) {\
+  if (i == sel.length - 1)\
+    ids += \"'\" + sel[i].data.ID + \"'\";\
+  else\
+    ids += \"'\" + sel[i].data.ID + \"',\";\
+}\
+if (sel.length == 0)\
+  ids = \"''\";\
+\
+// console.log(ids);\
+\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" AND ad.id in(\" + ids + \") \");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+     },
+     {
+      "configs": {
+       "itemId": "refeeBtn",
+       "text": "重新计费",
+       "iconCls": "object_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sel = app.gridTruck.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"请选择一条派车委托！\");\
+  return;\
+}\
+var ids = [];\
+for (var i = 0; i < sel.length; i++) {\
+  ids.push({\
+    ID: sel[i].data.ID\
+  });\
+}\
+// if (ids.length > 0) {\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/upfee',\
+  params: {\
+    ids: ids\
+  },\
+  success: function(resp) {\
+    Wb.info(\"重新计费成功！\");\
+  }\
+});\
+// }"}
+     },
+     {
+      "configs": {
+       "itemId": "billno",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel1",
+       "split": "true",
+       "width": "400",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "layout": "fit",
+         "itemId": "panel1north",
+         "region": "north",
+         "height": "260"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "grid1",
+          "region": "center",
+          "title": "申请委托"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/select"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer",
+              "width": "40",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colID",
+              "hidden": "true",
+              "dataIndex": "ID",
+              "width": "180",
+              "text": "序列号",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "BILL_NO111",
+              "hidden": "true",
+              "dataIndex": "BILL_NO",
+              "text": "提单",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "GOOD_NOTES1",
+              "hidden": "true",
+              "dataIndex": "GOOD_NOTES",
+              "text": "货物",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "WEIGHT1",
+              "hidden": "true",
+              "dataIndex": "WEIGHT",
+              "width": "80",
+              "text": "重量",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PIECES1",
+              "hidden": "true",
+              "dataIndex": "PIECES",
+              "width": "50",
+              "text": "件数",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "SHIPPER22",
+              "hidden": "true",
+              "dataIndex": "SHIPPER",
+              "text": "货主",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TENANCY_ID113",
+              "hidden": "true",
+              "dataIndex": "TENANCY_ID",
+              "text": "租户",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "NOTE4",
+              "hidden": "true",
+              "dataIndex": "NOTE",
+              "text": "备注",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PHASE2",
+              "renderer": "if(value=='PLN'){\
+\treturn '计划';\
+}\
+if(value=='EXE'){\
+\treturn '执行';\
+}\
+if(value=='FIN'){\
+\treturn '完成';\
+}",
+              "dataIndex": "PHASE",
+              "width": "40",
+              "text": "状态",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colA",
+              "dataIndex": "A",
+              "width": "300",
+              "text": "描述",
+              "autoWrap": "true",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_ON999",
+              "hidden": "false",
+              "dataIndex": "CREATED_ON",
+              "width": "120",
+              "text": "日期",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_BY2",
+              "hidden": "true",
+              "dataIndex": "CREATED_BY",
+              "text": "创建人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_ON23",
+              "hidden": "true",
+              "dataIndex": "CREATED_ON",
+              "width": "120",
+              "text": "创建时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_BY21",
+              "hidden": "true",
+              "dataIndex": "UPDATED_BY",
+              "text": "修改人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_ON996",
+              "hidden": "true",
+              "dataIndex": "UPDATED_ON",
+              "width": "120",
+              "text": "修改时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          },
+          {
+           "configs": {
+            "itemId": "tbar",
+            "padding": "0,0,0,0",
+            "hidden": "false",
+            "cls": "border-width:0px",
+            "dock": "top"
+           },
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "bills",
+              "labelAlign": "right",
+              "fieldLabel": "提单号",
+              "width": "160",
+              "isUpperCase": "true",
+              "labelWidth": "50"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "findbill",
+              "tooltip": "查找一条记录",
+              "text": "查找",
+              "iconCls": "seek_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "app.grid1.store.load({\
+  params: {\
+    bill: app.bills.getValue()\
+  }\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "number",
+              "hidden": "true",
+              "emptyText": "输入票数",
+              "width": "80"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "IDS",
+              "hidden": "true"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "numberValue",
+              "minValue": "0",
+              "hidden": "true",
+              "labelAlign": "right",
+              "fieldLabel": "车次",
+              "width": "100",
+              "labelWidth": "40"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            },
+            {
+             "configs": {
+              "itemId": "btn",
+              "hidden": "true",
+              "text": "派车",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var sel = app.grid1.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"请选择一条申请记录！\");\
+  return;\
+}\
+\
+var pa = 0,\
+  pr = 0;\
+var check = /^[0-9]*[1-9][0-9]*$/;\
+if (Wb.isEmpty(app.numberValue.getValue())) {\
+  Wb.warn(\"请先输入票数，在派车\");\
+  return;\
+}\
+if (app.numberValue.getValue() <= 0) {\
+  Wb.warn(\"输入大于0的数才行\");\
+  return;\
+}\
+\
+// var num = parseInt(app.number.getValue());\
+var num = app.numberValue.getValue();\
+//---------\
+var perWeight=Math.floor(sel[0].data.WEIGHT/sel[0].data.PIECES);\
+//---------\
+//---------------\
+pa = sel[0].data.PIECES / num;\
+if (!check.test(pa)) {\
+  pa = Math.floor(pa);\
+}\
+pr = sel[0].data.PIECES - (pa * (num - 1));\
+//再派车前，需要判断下是否已经派过车？如果派车，不做操作。\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectTruck',\
+  params: {\
+    PID: sel[0].data.ID\
+  },\
+  success: function(resp) {\
+    var rs = Wb.decode(resp.responseText);\
+    console.log(rs);\
+    if (rs.total > 0) {\
+      Wb.warn(\"已经派过车了！\");\
+      return;\
+    } else {\
+      for (var i = 0; i < num; i++) {\
+        //先计算每一票的件数、重量\
+        var a = 0,\
+          b = 0;\
+        if (i == num - 1) {\
+          b = pr;\
+          a=sel[0].data.WEIGHT-(sel[0].data.PIECES-b)*perWeight;   \
+        } else {\
+          a=pa*perWeight;\
+          b = pa;\
+        }\
+        Wb.request({\
+          url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/create',\
+          params: {\
+            PID: sel[0].data.ID,\
+            BILL_NO: sel[0].data.BILL_NO,\
+            WEIGHT: a,\
+            PIECES: b\
+          },\
+          success: function(resp) {\
+            app.gridTruck.store.load({\
+              params: {\
+                PID: app.IDS.getValue()\
+              }\
+            });\
+          }\
+        });\
+        //插入到BLUK_TRUCK相应的票数的记录\
+      }\
+    }\
+  }\
+});"}
+            }
+           ],
+           "type": "toolbar"
+          }
+         ],
+         "type": "grid",
+         "events": {"itemclick": "// app.cntrGrid.store.load( { params:{vid:record.get(\"ID\"),ieId:app.ieId}});\
+app.gridTruck.store.load({\
+  params: {\
+    PID: record.data.ID\
+  }\
+});\
+app.IDS.setValue(record.data.ID);\
+app.weightCheck.setValue(record.data.WEIGHT);\
+app.piecesCheck.setValue(record.data.PIECES);\
+\
+app.gridDeatil.store.load({\
+  params: {\
+    P_ID: record.data.ID\
+  }\
+});"}
+        }],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "layout": "fit",
+         "itemId": "panel2center",
+         "region": "center"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "gridDeatil",
+          "selType": "checkboxmodel",
+          "region": "center",
+          "title": "委托明细",
+          "multiSelect": "true"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "false",
+            "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/selectApplyDetail"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer",
+              "width": "40",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "colID",
+              "hidden": "true",
+              "dataIndex": "P_ID",
+              "width": "180",
+              "text": "序列号",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PHASE2",
+              "renderer": "if(value=='PLN'){\
+\treturn '计划';\
+}\
+if(value=='EXE'){\
+\treturn '执行';\
+}\
+if(value=='FIN'){\
+\treturn '完成';\
+}",
+              "dataIndex": "PHASE",
+              "width": "40",
+              "text": "状态",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "BILL_NO111",
+              "hidden": "false",
+              "dataIndex": "BILL_NO",
+              "text": "提单",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "GOOD_NOTES1",
+              "hidden": "false",
+              "dataIndex": "GOOD_NOTES",
+              "text": "货物",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "WEIGHT1",
+              "hidden": "false",
+              "dataIndex": "WEIGHT",
+              "width": "80",
+              "text": "重量",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PIECES1",
+              "hidden": "false",
+              "dataIndex": "PIECES",
+              "width": "50",
+              "text": "件数",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "SHIPPER_COD111",
+              "hidden": "true",
+              "dataIndex": "SHIPPER_COD",
+              "text": "货主代码",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "SHIPPER22",
+              "dataIndex": "SHIPPER",
+              "text": "货主",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TENANCY_ID113",
+              "hidden": "true",
+              "dataIndex": "TENANCY_ID",
+              "text": "租户",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "NOTE4",
+              "dataIndex": "NOTE",
+              "text": "备注",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_BY2",
+              "hidden": "true",
+              "dataIndex": "CREATED_BY",
+              "text": "创建人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_ON23",
+              "hidden": "true",
+              "dataIndex": "CREATED_ON",
+              "width": "120",
+              "text": "创建时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_BY21",
+              "hidden": "true",
+              "dataIndex": "UPDATED_BY",
+              "text": "修改人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_ON996",
+              "hidden": "true",
+              "dataIndex": "UPDATED_ON",
+              "width": "120",
+              "text": "修改时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          },
+          {
+           "configs": {
+            "itemId": "tbar",
+            "padding": "0,0,0,0",
+            "cls": "border-width:0px",
+            "dock": "top"
+           },
+           "expanded": true,
+           "children": [
+            {
+             "configs": {
+              "itemId": "namebill",
+              "labelAlign": "right",
+              "fieldLabel": "提单号",
+              "width": "160",
+              "isUpperCase": "true",
+              "labelWidth": "50"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "findMenus",
+              "tooltip": "查找一条记录",
+              "text": "查找",
+              "iconCls": "seek_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "// app.grid1.store.load({\
+//   out:app.tbar\
+// });\
+\
+\
+app.gridDeatil.store.load({\
+  params:{\
+  \tnamebill:app.namebill.getValue(),\
+    P_ID:app.IDS.getValue()\
+  }\
+});"}
+            },
+            {
+             "configs": {
+              "itemId": "IDS",
+              "hidden": "true"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            },
+            {
+             "configs": {
+              "itemId": "item1",
+              "text": "-"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item"
+            },
+            {
+             "configs": {
+              "itemId": "numberValueTruck",
+              "minValue": "0",
+              "hidden": "false",
+              "labelAlign": "right",
+              "fieldLabel": "车次",
+              "width": "100",
+              "labelWidth": "40",
+              "value": "1"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "number"
+            },
+            {
+             "configs": {
+              "itemId": "btn",
+              "hidden": "false",
+              "text": "生成派车委托",
+              "iconCls": "ok_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "item",
+             "events": {"click": "var sel = app.gridDeatil.getSelection();\
+if (sel.length < 1) {\
+  Wb.warn(\"请选择一条申请明细记录！\");\
+  return;\
+}\
+\
+var ids = [];\
+var id = \"\";\
+for (var i = 0; i < sel.length; i++) {\
+  ids.push({\
+    ID: sel[i].data.ID,\
+    BILL_NO: sel[i].data.BILL_NO,\
+    GOOD_NOTES: sel[i].data.GOOD_NOTES,\
+    PIECES: sel[i].data.PIECES,\
+    WEIGHT: sel[i].data.WEIGHT,\
+    SHIPPER: sel[i].data.SHIPPER\
+  });\
+  if (i == sel.length - 1) {\
+    id += \"'\" + sel[i].data.ID + \"'\";\
+  } else {\
+    id += \"'\" + sel[i].data.ID + \"',\";\
+  }\
+}\
+if (sel.length == 0) {\
+  id = \"''\";\
+}\
+console.log(app.numberValueTruck.getValue());\
+var s = 0;\
+if (!Wb.isEmpty(app.numberValueTruck.getValue())) {\
+  s = app.numberValueTruck.getValue();\
+}\
+var conflag = 0;\
+if (app.gridDeatil.store.getCount() > 1) {\
+  conflag = 1;\
+}\
+\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/produceTruck',\
+  params: {\
+    ids: ids,\
+    num: s,\
+    atid: id,\
+    conflag: conflag\
+  },\
+  success: function(resp) {\
+    Wb.info(\"成功\");\
+    if (app.idvalue.getValue() == \"\") {\
+      app.gridDeatil.setSelection(0);\
+      var rec = app.gridDeatil.getSelection();\
+      app.idvalue.setValue(rec[0].data.ID);\
+    } else {\
+      app.gridTruckEntrust.store.load({\
+        params: {\
+          ID: app.idvalue.getValue()\
+        }\
+      });\
+    }\
+  }\
+});\
+\
+//===========================================================\
+// var sel = app.grid1.getSelection();\
+// if (sel.length < 1) {\
+//   Wb.warn(\"请选择一条申请记录！\");\
+//   return;\
+// }\
+\
+// var pa = 0,\
+//   pr = 0;\
+// var check = /^[0-9]*[1-9][0-9]*$/;\
+// if (Wb.isEmpty(app.numberValue.getValue())) {\
+//   Wb.warn(\"请先输入票数，在派车\");\
+//   return;\
+// }\
+// if (app.numberValue.getValue() <= 0) {\
+//   Wb.warn(\"输入大于0的数才行\");\
+//   return;\
+// }\
+\
+// // var num = parseInt(app.number.getValue());\
+// var num = app.numberValue.getValue();\
+// //---------\
+// var perWeight=Math.floor(sel[0].data.WEIGHT/sel[0].data.PIECES);\
+// //---------\
+// //---------------\
+// pa = sel[0].data.PIECES / num;\
+// if (!check.test(pa)) {\
+//   pa = Math.floor(pa);\
+// }\
+// pr = sel[0].data.PIECES - (pa * (num - 1));\
+// //再派车前，需要判断下是否已经派过车？如果派车，不做操作。\
+// Wb.request({\
+//   url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectTruck',\
+//   params: {\
+//     PID: sel[0].data.ID\
+//   },\
+//   success: function(resp) {\
+//     var rs = Wb.decode(resp.responseText);\
+//     console.log(rs);\
+//     if (rs.total > 0) {\
+//       Wb.warn(\"已经派过车了！\");\
+//       return;\
+//     } else {\
+//       for (var i = 0; i < num; i++) {\
+//         //先计算每一票的件数、重量\
+//         var a = 0,\
+//           b = 0;\
+//         if (i == num - 1) {\
+//           b = pr;\
+//           a=sel[0].data.WEIGHT-(sel[0].data.PIECES-b)*perWeight;   \
+//         } else {\
+//           a=pa*perWeight;\
+//           b = pa;\
+//         }\
+//         Wb.request({\
+//           url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/create',\
+//           params: {\
+//             PID: sel[0].data.ID,\
+//             BILL_NO: sel[0].data.BILL_NO,\
+//             WEIGHT: a,\
+//             PIECES: b\
+//           },\
+//           success: function(resp) {\
+//             app.gridTruck.store.load({\
+//               params: {\
+//                 PID: app.IDS.getValue()\
+//               }\
+//             });\
+//           }\
+//         });\
+//         //插入到BLUK_TRUCK相应的票数的记录\
+//       }\
+//     }\
+//   }\
+// });"}
+            },
+            {
+             "configs": {"itemId": "idvalue"},
+             "expanded": false,
+             "children": [],
+             "type": "text"
+            }
+           ],
+           "type": "toolbar"
+          },
+          {
+           "configs": {
+            "itemId": "popupMenu",
+            "normalName": "arrayMenu"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "arrayMenu",
+             "hidden": "true",
+             "normalName": "arrayBtn",
+             "text": "派车",
+             "iconCls": "ok_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var rowData = app.arrayMenu.selectRow.data,\
+  url = \"\"; //selectRow在popupMenu的show事件中设置\
+var average = 0,\
+  remain = 0;\
+var pa = 0,\
+  pr = 0;\
+var check = /^[0-9]*[1-9][0-9]*$/;\
+if (Wb.isEmpty(app.numberValue.getValue())) {\
+  Wb.warn(\"请先输入票数，在派车\");\
+  return;\
+}\
+if (app.numberValue.getValue() <= 0) {\
+  Wb.warn(\"输入大于0的数才行\");\
+  return;\
+}\
+// alert(rowData.WEIGHT);\
+// alert(rowData.PIECES);\
+// var num = parseInt(app.number.getValue());\
+var num = app.numberValue.getValue();\
+//第一步，除以票数，判断是否为整数\
+average = rowData.WEIGHT / num;\
+//第二步，如果不是整数，取其整数部分\
+// alert(check.test(average));\
+if (!check.test(average)) {\
+  average = Math.floor(average);\
+}\
+//第三步，整数部分乘以（票数-1），让所有的重量-这部分得到的就是剩余的重量\
+remain = rowData.WEIGHT - (average * (num - 1));\
+//---------\
+var perWeight=Math.floor(rowData.WEIGHT/rowData.PIECES);\
+//---------\
+//---------------\
+pa = rowData.PIECES / num;\
+if (!check.test(pa)) {\
+  pa = Math.floor(pa);\
+}\
+pr = rowData.PIECES - (pa * (num - 1));\
+//再派车前，需要判断下是否已经派过车？如果派车，不做操作。\
+Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectTruck',\
+  params: {\
+    PID: rowData.ID\
+  },\
+  success: function(resp) {\
+    var rs = Wb.decode(resp.responseText);\
+    console.log(rs);\
+    if (rs.total > 0) {\
+      Wb.warn(\"已经派过车了！\");\
+      return;\
+    } else {\
+      for (var i = 0; i < num; i++) {\
+        //先计算每一票的件数、重量\
+        var a = 0,\
+          b = 0;\
+        if (i == num - 1) {\
+//           a = remain;\
+          b = pr;\
+          a=rowData.WEIGHT-(rowData.PIECES-b)*perWeight;\
+          \
+        } else {\
+//           a = average;\
+          a=pa*perWeight;\
+          b = pa;\
+        }\
+        console.log(a);\
+        console.log(b);\
+        console.log(1);\
+        Wb.request({\
+          url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/create',\
+          params: {\
+            PID: rowData.ID,\
+            BILL_NO: rowData.BILL_NO,\
+            WEIGHT: a,\
+            PIECES: b\
+          },\
+          success: function(resp) {\
+            app.gridTruck.store.load({\
+              params: {\
+                PID: app.IDS.getValue()\
+              }\
+            });\
+          }\
+        });\
+        //插入到BLUK_TRUCK相应的票数的记录\
+      }\
+    }\
+  }\
+});"}
+           }],
+           "type": "menu",
+           "events": {"show": "var rows = app.grid1.getSelection();\
+app.arrayMenu.setDisabled(rows.length!=1);\
+menu.selectRow = rows[0];"}
+          }
+         ],
+         "type": "grid",
+         "events": {"itemclick": "app.gridTruck.store.load({\
+  params: {\
+    ID: record.data.ID\
+  }\
+});\
+app.idvalue.setValue(record.data.ID);\
+app.piecesCheck.setValue(record.data.PIECES);\
+app.weightCheck.setValue(record.data.WEIGHT);\
+//如果已经是完成或者是执行状态，则不允许修改车次\
+if (record.data.PHASE == 'FIN') {\
+  app.addMenu.setDisabled(true);\
+  app.delMenu.setDisabled(true);\
+} else {\
+  app.addMenu.setDisabled(false);\
+  app.delMenu.setDisabled(false);\
+}"}
+        }],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "border": "false",
+         "layout": "border",
+         "itemId": "panelPrint",
+         "weight": "0",
+         "region": "south",
+         "height": "0"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "panel"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel2",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "layout": "fit",
+         "itemId": "panelWest",
+         "region": "center"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "gridTruck",
+          "selType": "checkboxmodel",
+          "editable": "true",
+          "tbar": "app.detailToolbar",
+          "title": "派车"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/selectTruckDetail"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer",
+              "width": "40",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "BILL_NO111",
+              "hidden": "true",
+              "dataIndex": "BILL_NO",
+              "text": "提单",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRUCK1123",
+              "dataIndex": "TRUCK_NO",
+              "text": "车头",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "TRUCK_NO",
+               "queryCaching": "true",
+               "valueField": "PLAT_NO",
+               "queryDelay": "200"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectOutTruck"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+var store = app.gridTruck.getStore();\
+var rowIndex = store.indexOf(selRec);\
+var rec = app.gridTruck.store.getAt(rowIndex);\
+rec.set('TRAY', records[0].data.TRAY_NO);\
+rec.set('DRIVER', records[0].data.TRUCKER_NAM);\
+rec.set('TRUCK', records[0].data.TRUCK_NO);",
+               "change": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+var store = app.gridTruck.getStore();\
+var rowIndex = store.indexOf(selRec);\
+var rec = app.gridTruck.store.getAt(rowIndex);\
+if (rec.data.TRUCK_NO == combo.getValue()) {\
+\
+} else {\
+  rec.set('TRAY', \"\");\
+  rec.set('DRIVER', \"\");\
+  rec.set('TRUCK', \"\");\
+}",
+               "blur": "// console.log(combo.getValue());\
+// var rec = app.gridTruck.getSelection()[0];\
+// if (!Wb.isEmpty(combo.getValue())) {\
+//   Wb.request({\
+//     url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/ckTruck\",\
+//     params: {\
+//       truckno: combo.getValue()\
+//     },\
+//     success: function(resp) {\
+//       var res = Wb.decode(resp.responseText);\
+//       if (res.rows.length < 1) {\
+//         Wb.warn(\"系统中没有找到车辆:\" + combo.getValue());\
+//         rec.set('TRUCK_NO',\"\");\
+//         rec.set('TRAY', \"\");\
+//         rec.set('DRIVER', \"\");\
+//         rec.set('TRUCK', \"\");\
+//       } else {\
+//         Wb.request({\
+//           url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectT\",\
+//           params: {\
+//             truckno: combo.getValue()\
+//           },\
+//           success: function(resp) {\
+//             var result = Wb.decode(resp.responseText);\
+//             rec.set('TRAY', result.rows[0].TRAY_NO);\
+//             rec.set('DRIVER', result.rows[0].TRUCKER_NAM);\
+//             rec.set('TRUCK', result.rows[0].TRUCK);\
+//           }\
+//         });\
+\
+//       }\
+//     }\
+//   });\
+// }\
+\
+\
+\
+// console.log(combo.getValue());\
+var rec = app.gridTruck.getSelection()[0];\
+if (!Wb.isEmpty(combo.getValue()) && rec.data.TRUCK != \"\") {\
+  Wb.request({\
+    url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectT\",\
+    params: {\
+      truckno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var result = Wb.decode(resp.responseText);\
+      if (result.rows.length > 0) {\
+        rec.set('TRAY', result.rows[0].TRAY_NO);\
+        rec.set('DRIVER', result.rows[0].TRUCKER_NAM);\
+        rec.set('TRUCK', result.rows[0].TRUCK_NO);\
+        rec.set('TRUCK_NO',result.rows[0].PLAT_NO);\
+      } else {\
+        Wb.warn(\"系统中没有找到车辆:\" + combo.getValue());\
+        rec.set('TRAY', \"\");\
+        rec.set('DRIVER', \"\");\
+        rec.set('TRUCK', \"\");\
+        rec.set('TRUCK_NO',\"\");\
+      }\
+    }\
+  });\
+} else if(!Wb.isEmpty(combo.getValue())){\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/ckTruck',\
+    params: {\
+      truckno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.rows.length < 1) {\
+        Wb.warn(\"系统中没有找到车辆:\" + combo.getValue());\
+        rec.set('TRAY', \"\");\
+        rec.set('DRIVER', \"\");\
+        rec.set('TRUCK', \"\");\
+        rec.set('TRUCK_NO',\"\");\
+      } else {\
+        rec.set('TRAY', res.rows[0].TRAY_NO);\
+        rec.set('DRIVER', res.rows[0].TRUCKER_NAM);\
+        rec.set('TRUCK', res.rows[0].TRUCK_NO);\
+        rec.set('TRUCK_NO',res.rows[0].PLAT_NO);\
+      }\
+    }\
+  });\
+}"
+              }
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRUCK_NO123",
+              "hidden": "true",
+              "dataIndex": "TRUCK",
+              "width": "50",
+              "text": "车内部编号",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRAY198",
+              "dataIndex": "TRAY",
+              "text": "拖卡",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "TRAY_NO",
+               "valueField": "TRAY_NO",
+               "anyMatch": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/loadTray"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+selRec.set('TRAY', combo.getValue());",
+               "blur": "var sel = app.gridTruck.getSelection()[0];\
+if (!Wb.isEmpty(combo.getValue())) {\
+  Wb.request({\
+    url: \"m?xwl=truckManager/truckReceipt/receiptAddTruckedit/ckTray\",\
+    params: {\
+      trayno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.rows.length < 1) {\
+        Wb.warn(\"系统中没有找到拖卡:\" + combo.getValue());\
+        sel.set(\"TRAY\", \"\");\
+      } else {\
+        sel.set('TRAY', combo.getValue());\
+      }\
+    }\
+  });\
+}"
+              }
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "DRIVER111",
+              "dataIndex": "DRIVER",
+              "text": "司机",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "EMPNAME",
+               "valueField": "EMPNAME",
+               "anyMatch": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/loadDriver"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+// selRec.set('OUT_DRIVER_ID', combo.getValue());\
+selRec.set('IN_DRIVER_NAME', records[0].data.EMPNAME);\
+",
+               "blur": "var sel = app.gridTruck.getSelection()[0];\
+if (!Wb.isEmpty(combo.getValue())) {\
+  Wb.request({\
+    url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/ckDriver\",\
+    params: {\
+      empno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.rows.length < 1) {\
+        Wb.warn(\"系统中没有找到司机:\" + combo.getValue());\
+        sel.set('DRIVER', \"\");\
+      } else {\
+        sel.set('DRIVER', res.rows[0].EMPNAME);\
+      }\
+    }\
+  });\
+}"
+              }
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "WEIGHT22",
+              "dataIndex": "WEIGHT",
+              "text": "重量",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowBlank": "false"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PIECES113",
+              "dataIndex": "PIECES",
+              "width": "50",
+              "text": "件数",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowBlank": "false"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "S_ADRESS985",
+              "dataIndex": "S_ADRESS",
+              "keyName": "C_ADDRESS",
+              "text": "交货地址",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "tagConfigs": "matchFieldWidth: false",
+               "itemId": "editor",
+               "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      地址\
+    <\/td>\
+    <td>\
+      距离\
+    <\/td>\
+    <td>\
+      区域\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {NAME}\
+      <\/td>\
+      <td>\
+        {DISTANCE}\
+      <\/td>\
+      <td>\
+        {AREANAME}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+               "allowBlank": "false",
+               "labelAlign": "right",
+               "displayField": "NAME",
+               "listConfig": "{\
+  width: 300\
+}",
+               "valueField": "ID"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "pageSize": "-1",
+                "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectADRESS"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {"select": "// var sels = app.gridTruck.getSelection();\
+// selRec = sels[0];\
+// var store = app.gridTruck.getStore();\
+// var rowIndex = store.indexOf(selRec);\
+// var rec = app.gridTruck.store.getAt(rowIndex);\
+// // alert(records[0].data.S_ADRESS);\
+// rec.set('FEI_ADDDRESS', records[0].data.ARID);\
+\
+\
+var sels = app.gridTruck.getSelection();\
+sels[0].set('FEI_ADDDRESS', records[0].data.ARID);"}
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "FEI_ADDDRESS4",
+              "dataIndex": "FEI_ADDDRESS",
+              "keyName": "C_AREA",
+              "text": "计费区域",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowBlank": "false",
+               "keyName": "C_AREA",
+               "readOnly": "true",
+               "anyMatch": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PLAN_STIME87",
+              "dataIndex": "PLAN_STIME",
+              "width": "120",
+              "text": "计划送货时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "datetime"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TENANCY_ID12",
+              "hidden": "true",
+              "dataIndex": "TENANCY_ID",
+              "text": "租户",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "NOTE09",
+              "dataIndex": "NOTE",
+              "text": "备注",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "textarea"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_BY2",
+              "hidden": "true",
+              "dataIndex": "CREATED_BY",
+              "text": "创建人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_ON23",
+              "hidden": "true",
+              "dataIndex": "CREATED_ON",
+              "width": "120",
+              "text": "创建时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_BY21",
+              "hidden": "true",
+              "dataIndex": "UPDATED_BY",
+              "text": "修改人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_ON996",
+              "hidden": "true",
+              "dataIndex": "UPDATED_ON",
+              "width": "120",
+              "text": "修改时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PHASE985",
+              "renderer": "if(value=='PLN'){\
+\treturn '计划';\
+}\
+if(value=='EXE'){\
+\treturn '执行';\
+}\
+if(value=='FIN'){\
+\treturn '完成';\
+}",
+              "dataIndex": "PHASE",
+              "width": "40",
+              "text": "状态",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid",
+         "events": {
+          "itemclick": "app.gridTruckEntrust.store.load({\
+  params: {\
+    PID: record.get(\"ID\")\
+  }\
+});\
+app.idd.setValue(record.data.ID);\
+app.truck_m_pid.setValue(record.data.PID);\
+// app.cntrGrid.store.load( { params:{vid:record.get(\"ID\"),ieId:app.ieId}});\
+",
+          "tagEvents": "/*beforeedit: function(e,record) {\
+  var rs=record.record;\
+  var phase=rs.get('PHASE');\
+  if(phase=='FIN'){\
+  \treturn false;\
+  }else if(phase=='PLN'||phase=='EXE'){\
+  \treturn true;\
+  }\
+}*/",
+          "itemdblclick": "// app.truckBtn.fireEvent('click');"
+         }
+        }],
+        "type": "panel"
+       },
+       {
+        "configs": {
+         "layout": "fit",
+         "itemId": "panelWestSouth",
+         "region": "south",
+         "height": "300"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "gridTruckEntrust",
+          "editable": "true",
+          "tbar": "app.truckToolbar",
+          "title": "派车明细"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit2/selectTruckEntrust"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "store"
+          },
+          {
+           "configs": {"itemId": "columns"},
+           "expanded": false,
+           "children": [
+            {
+             "configs": {
+              "itemId": "column1",
+              "xtype": "rownumberer",
+              "width": "40",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "BILL_NO111",
+              "dataIndex": "BILL_NO",
+              "text": "提单",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "WEIGHT22",
+              "dataIndex": "WEIGHT",
+              "text": "重量",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowBlank": "false"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PIECES113",
+              "dataIndex": "PIECES",
+              "width": "50",
+              "text": "件数",
+              "align": "right",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "allowBlank": "false"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "number"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PHASE985",
+              "renderer": "if(value=='PLN'){\
+\treturn '计划';\
+}\
+if(value=='EXE'){\
+\treturn '执行';\
+}\
+if(value=='FIN'){\
+\treturn '完成';\
+}",
+              "dataIndex": "PHASE",
+              "width": "40",
+              "text": "状态",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRUCK1123",
+              "hidden": "true",
+              "dataIndex": "TRUCK_NO",
+              "text": "车头",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "TRUCK_NO",
+               "queryCaching": "true",
+               "valueField": "PLAT_NO",
+               "queryDelay": "200"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectOutTruck"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+var store = app.gridTruck.getStore();\
+var rowIndex = store.indexOf(selRec);\
+var rec = app.gridTruck.store.getAt(rowIndex);\
+rec.set('TRAY', records[0].data.TRAY_NO);\
+rec.set('DRIVER', records[0].data.TRUCKER_NAM);\
+rec.set('TRUCK', records[0].data.TRUCK_NO);",
+               "change": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+var store = app.gridTruck.getStore();\
+var rowIndex = store.indexOf(selRec);\
+var rec = app.gridTruck.store.getAt(rowIndex);\
+if (rec.data.TRUCK_NO == combo.getValue()) {\
+\
+} else {\
+  rec.set('TRAY', \"\");\
+  rec.set('DRIVER', \"\");\
+  rec.set('TRUCK', \"\");\
+}",
+               "blur": "// console.log(combo.getValue());\
+// var rec = app.gridTruck.getSelection()[0];\
+// if (!Wb.isEmpty(combo.getValue())) {\
+//   Wb.request({\
+//     url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/ckTruck\",\
+//     params: {\
+//       truckno: combo.getValue()\
+//     },\
+//     success: function(resp) {\
+//       var res = Wb.decode(resp.responseText);\
+//       if (res.rows.length < 1) {\
+//         Wb.warn(\"系统中没有找到车辆:\" + combo.getValue());\
+//         rec.set('TRUCK_NO',\"\");\
+//         rec.set('TRAY', \"\");\
+//         rec.set('DRIVER', \"\");\
+//         rec.set('TRUCK', \"\");\
+//       } else {\
+//         Wb.request({\
+//           url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectT\",\
+//           params: {\
+//             truckno: combo.getValue()\
+//           },\
+//           success: function(resp) {\
+//             var result = Wb.decode(resp.responseText);\
+//             rec.set('TRAY', result.rows[0].TRAY_NO);\
+//             rec.set('DRIVER', result.rows[0].TRUCKER_NAM);\
+//             rec.set('TRUCK', result.rows[0].TRUCK);\
+//           }\
+//         });\
+\
+//       }\
+//     }\
+//   });\
+// }\
+\
+\
+\
+// console.log(combo.getValue());\
+var rec = app.gridTruck.getSelection()[0];\
+if (!Wb.isEmpty(combo.getValue()) && rec.data.TRUCK != \"\") {\
+  Wb.request({\
+    url: \"m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectT\",\
+    params: {\
+      truckno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var result = Wb.decode(resp.responseText);\
+      if (result.rows.length > 0) {\
+        rec.set('TRAY', result.rows[0].TRAY_NO);\
+        rec.set('DRIVER', result.rows[0].TRUCKER_NAM);\
+        rec.set('TRUCK', result.rows[0].TRUCK_NO);\
+        rec.set('TRUCK_NO',result.rows[0].PLAT_NO);\
+      } else {\
+        Wb.warn(\"系统中没有找到车辆:\" + combo.getValue());\
+        rec.set('TRAY', \"\");\
+        rec.set('DRIVER', \"\");\
+        rec.set('TRUCK', \"\");\
+        rec.set('TRUCK_NO',\"\");\
+      }\
+    }\
+  });\
+} else if(!Wb.isEmpty(combo.getValue())){\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/ckTruck',\
+    params: {\
+      truckno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.rows.length < 1) {\
+        Wb.warn(\"系统中没有找到车辆:\" + combo.getValue());\
+        rec.set('TRAY', \"\");\
+        rec.set('DRIVER', \"\");\
+        rec.set('TRUCK', \"\");\
+        rec.set('TRUCK_NO',\"\");\
+      } else {\
+        rec.set('TRAY', res.rows[0].TRAY_NO);\
+        rec.set('DRIVER', res.rows[0].TRUCKER_NAM);\
+        rec.set('TRUCK', res.rows[0].TRUCK_NO);\
+        rec.set('TRUCK_NO',res.rows[0].PLAT_NO);\
+      }\
+    }\
+  });\
+}"
+              }
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRUCK_NO123",
+              "hidden": "true",
+              "dataIndex": "TRUCK",
+              "width": "50",
+              "text": "车内部编号",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "text"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TRAY198",
+              "hidden": "true",
+              "dataIndex": "TRAY",
+              "text": "托卡",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "TRAY_NO",
+               "valueField": "TRAY_NO",
+               "anyMatch": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=truckManager/truckReceipt/receiptAddTruckedit/loadTray"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+selRec.set('TRAY', combo.getValue());",
+               "blur": "var sel = app.gridTruck.getSelection()[0];\
+if (!Wb.isEmpty(combo.getValue())) {\
+  Wb.request({\
+    url: \"m?xwl=truckManager/truckReceipt/receiptAddTruckedit/ckTray\",\
+    params: {\
+      trayno: combo.getValue()\
+    },\
+    success: function(resp) {\
+      var res = Wb.decode(resp.responseText);\
+      if (res.rows.length < 1) {\
+        Wb.warn(\"系统中没有找到拖卡:\" + combo.getValue());\
+        sel.set(\"TRAY\", \"\");\
+      } else {\
+        sel.set('TRAY', combo.getValue());\
+      }\
+    }\
+  });\
+}"
+              }
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "DRIVER111",
+              "hidden": "true",
+              "dataIndex": "DRIVER",
+              "text": "司机",
+              "titleAlign": "center"
+             },
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "displayField": "EMPNAME",
+               "valueField": "EMPNO",
+               "anyMatch": "true"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "url": "m?xwl=truckManager/truckReceipt/receiptAddTruckedit/loadDriver"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {
+               "select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+// selRec.set('OUT_DRIVER_ID', combo.getValue());\
+selRec.set('DRIVER', records[0].data.EMPNAME);\
+",
+               "blur": "// alert(11111);\
+// var sel = app.gridTruck.getSelection()[0];\
+// if (!Wb.isEmpty(combo.getValue())) {\
+//   Wb.request({\
+//     url: \"\",\
+//     params: {\
+//       empno: combo.getValue()\
+//     },\
+//     success: function(resp) {\
+//       var res = Wb.decode(resp.responseText);\
+//       if (res.rows.length < 1) {\
+//         Wb.warn(\"系统中没有找到司机:\" + combo.getValue());\
+//         sel.set('DRIVER', \"\");\
+//       } else {\
+//         sel.set('DRIVER', res.rows[0].EMPNAME);\
+//       }\
+//     }\
+//   });\
+// }"
+              }
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "S_ADRESS985",
+              "hidden": "true",
+              "dataIndex": "S_ADRESS",
+              "keyName": "C_ADDRESS",
+              "text": "交货地址",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "tagConfigs": "matchFieldWidth: false",
+               "itemId": "editor",
+               "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      地址\
+    <\/td>\
+    <td>\
+      距离\
+    <\/td>\
+    <td>\
+      区域\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {NAME}\
+      <\/td>\
+      <td>\
+        {DISTANCE}\
+      <\/td>\
+      <td>\
+        {AREANAME}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+               "labelAlign": "right",
+               "displayField": "NAME",
+               "listConfig": "{\
+  width: 300\
+}",
+               "valueField": "ID"
+              },
+              "expanded": true,
+              "children": [{
+               "configs": {
+                "itemId": "store",
+                "autoLoad": "true",
+                "pageSize": "-1",
+                "url": "m?xwl=truckManager/truckReceipt/bulkCargoAddTruckEdit/selectADRESS"
+               },
+               "expanded": false,
+               "children": [],
+               "type": "store"
+              }],
+              "type": "combo",
+              "events": {"select": "var sels = app.gridTruck.getSelection();\
+selRec = sels[0];\
+var store = app.gridTruck.getStore();\
+var rowIndex = store.indexOf(selRec);\
+var rec = app.gridTruck.store.getAt(rowIndex);\
+// alert(records[0].data.S_ADRESS);\
+rec.set('FEI_ADDDRESS', records[0].data.ARID);"}
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "FEI_ADDDRESS4",
+              "hidden": "true",
+              "dataIndex": "FEI_ADDDRESS",
+              "keyName": "C_AREA",
+              "text": "计费区域",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "editor",
+               "keyName": "C_AREA",
+               "readOnly": "true",
+               "anyMatch": "true"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "combo"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "PLAN_STIME87",
+              "hidden": "true",
+              "dataIndex": "PLAN_STIME",
+              "width": "120",
+              "text": "计划送货时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "datetime"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "TENANCY_ID12",
+              "hidden": "true",
+              "dataIndex": "TENANCY_ID",
+              "text": "租户",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "NOTE09",
+              "dataIndex": "NOTE",
+              "width": "200",
+              "text": "备注",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {"itemId": "editor"},
+              "expanded": false,
+              "children": [],
+              "type": "textarea"
+             }],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_BY2",
+              "hidden": "true",
+              "dataIndex": "CREATED_BY",
+              "text": "创建人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "CREATED_ON23",
+              "hidden": "true",
+              "dataIndex": "CREATED_ON",
+              "width": "120",
+              "text": "创建时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_BY21",
+              "hidden": "true",
+              "dataIndex": "UPDATED_BY",
+              "text": "修改人",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            },
+            {
+             "configs": {
+              "itemId": "UPDATED_ON996",
+              "hidden": "true",
+              "dataIndex": "UPDATED_ON",
+              "width": "120",
+              "text": "修改时间",
+              "titleAlign": "center"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }
+           ],
+           "type": "array"
+          }
+         ],
+         "type": "grid",
+         "events": {
+          "tagEvents": "/*beforeedit: function(e,record) {\
+  var rs=record.record;\
+  var phase=rs.get('PHASE');\
+  if(phase=='FIN'){\
+  \treturn false;\
+  }else if(phase=='PLN'||phase=='EXE'){\
+  \treturn true;\
+  }\
+}*/",
+          "itemdblclick": "// app.truckBtn.fireEvent('click');"
+         }
+        }],
+        "type": "panel"
+       }
+      ],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/print/dayly_declare.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "散货派车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

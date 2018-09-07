@@ -1,0 +1,34 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+\
+app.run(\"delete from WORK_BILL where type='LD' and bill_id in(select bill_id from bluk_goods where bill_no in(select bill_no from BLUK_CUSTOM_DETAIL where PID='\" + data.ID + \"'))\");\
+app.run(\"delete from bluk_inout where OUTFLAG='1' and id in(select id from bluk_goods where bill_no in(select bill_no from BLUK_CUSTOM_DETAIL where PID='\" + data.ID + \"'))\");\
+app.run(\"update bluk_goods set quty=inquty,outquty=0,outtime='' where bill_no in(select bill_no from BLUK_CUSTOM_DETAIL where PID='\" + data.ID + \"')\");\
+//先删子表\
+var sqll = \"update BLUK_CUSTOM_DETAIL set phase='CAN' where PID='\" + data.ID + \"'\";\
+app.run(sqll, {\
+  transaction: 'start'\
+});\
+//再删主表\
+var sqla = \"update BLUK_CUSTOM_MAIN phase='CAN' SET where id='\" + data.ID + \"'\";\
+// app.run(sqla, {\
+//   transaction: 'commit'\
+// });\
+app.run(sqla);\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "作废",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

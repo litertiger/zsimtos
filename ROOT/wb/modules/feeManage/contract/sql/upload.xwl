@@ -1,0 +1,69 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var json = app.get().jsonStr;\
+var os, files = app.getFiles('FILE_PATH');\
+var IOUtils = org.apache.commons.io.IOUtils;\
+//时间格式\
+//var date = new Date();\
+//var dateFormat = \"\" + date.getFullYear()+(date.getMonth()+1)+date.getDate()+date.getHours()+date.getMinutes()+date.getSeconds();\
+var dateFormat = Wb.decode(json).dateFormat;\
+\
+var path = \"/upload/contract/\";\
+var newName = \"\";\
+var originalNames = \"\";\
+var originalNameArr;\
+var filePaths = \"\";\
+var filePathArr;\
+var num = 0;\
+\
+Wb.each(files, function(file) {\
+  \
+  if (!file) return;\
+  num++;\
+  var fileName = \"\";\
+  if(num<10){\
+    fileName = dateFormat + \"0\" + num;\
+  }else{\
+    fileName = dateFormat + \"\" + num;\
+  }\
+  newName = fileName + (file.name.substring(file.name.lastIndexOf('.'), file.name.length));\
+  originalNames += file.name +\",\";//原始文件名\
+  filePaths += path + newName +\",\";//文件存储路径\
+  \
+  var os = new java.io.FileOutputStream(new File(Base.path + path, newName)); //在应用根目录创建文件输出流\
+  try {\
+    //file.size为上传的文件大小\
+    IOUtils.copy(file.stream, os);\
+  } finally {\
+    //file.stream可不用关闭，系统会自动关闭\
+    os.close();\
+  }\
+});\
+\
+var username =app.get('sys.username');\
+originalNameArr = originalNames.split(\",\");\
+filePathArr = filePaths.split(\",\");\
+for(var i=0; i<originalNameArr.length-1; i++){\
+  app.run(\"insert into C_IMAGE(ID, M_ID, M_NAME, CREATE_NAM, CREATE_TIM, UPDATE_MAN, UPDATE_TIM, TABLE_NAME, PATH) values ('\"+\
+        com.ag.util.UUIDUtil.getUUID()+\"','\"+Wb.decode(json).id+\"','\"+originalNameArr[i]+\"','\"+username+\"',sysdate,\"+\
+        \"'\"+username+\"',sysdate,'C_CONTRACT','\"+filePathArr[i]+\"')\",{jndi:\"jdbc/basecode\"});\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

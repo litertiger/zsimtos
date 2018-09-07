@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var cntrsdata = Wb.decode(data.cntrsdata); //grid数据\
+var msg = \"\";\
+var cntrsize = null,\
+  weight = 0,\
+  cntrWeight = 0;\
+var rs = app.run(\"select GROSSWT-decode(CNTR_SIZE,20,24000,27000) cntrWeight\" +\
+  \" from CNTR_WEIGHT_REC where RECEIPT_ID='\" + cntrsdata[0].RID + \"'\");\
+if (rs.next())\
+  cntrWeight = rs.getInt(\"CNTRWEIGHT\");\
+if (cntrWeight > 0)\
+  msg = \"柜\" + cntrsdata[0].CNTR + \"超重 \";\
+if (cntrsdata.length == 2) {\
+  var rs1 = app.run(\"select GROSSWT-decode(CNTR_SIZE,20,24000,27000) cntrWeight\" +\
+    \" from CNTR_WEIGHT_REC where RECEIPT_ID='\" + cntrsdata[1].RID + \"'\");\
+  if (rs1.next())\
+    cntrWeight = rs1.getInt(\"CNTRWEIGHT\");\
+  if (cntrWeight > 0)\
+    msg += \"柜\" + cntrsdata[0].CNTR + \"超重\";\
+}\
+if (!Wb.isEmpty(msg))\
+  app.send(msg);\
+else\
+  app.send(\"收箱进门确认完成\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "超重提醒",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

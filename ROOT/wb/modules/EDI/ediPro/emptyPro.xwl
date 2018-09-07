@@ -1,0 +1,127 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var cntr = app.get('CNTR'),\
+  tenancyId = app.get('TENANCY_ID'),\
+  name = \"\",path=\"\",\
+  id = \"\";\
+\
+// var ids=app.get('ids');\
+// var id=Wb.decode(ids);\
+var vId = app.get('vId');\
+\
+if(vId!=\"\" &&vId!=null){\
+  var r=Wb.getRecords(app.run(\"select cntr_id from  VLOAD_LIST where vid='\"+vId+\"' AND E_F_ID='E' and I_E_ID='I' AND main_flag=1\"));\
+  for(var a=0;a<r.length;a++){\
+   if(a==r.length-1)\
+      id+=\"'\"+r[a].CNTR_ID+\"'\";\
+    else\
+      id+=\"'\"+r[a].CNTR_ID+\"',\";\
+  }\
+\ttenancyId=app.get('sys.TENANCY_ID');\
+}\
+\
+\
+//在场箱空箱申报\
+var s = app.get('ids');\
+if (s != null && s != \"\") {\
+  var ids = Wb.decode(s);\
+  if (ids.length == 0)\
+    id = \"''\";\
+  for (var i = 0; i < ids.length; i++) {\
+    if (i == ids.length - 1)\
+      id += \"'\" + ids[i].ID + \"'\";\
+    else\
+      id += \"'\" + ids[i].ID + \"',\";\
+  }\
+}\
+if(Wb.isEmpty(id)){\
+\t\tid=\"''\";\
+}\
+app.log(id);\
+//根据租户判断中山港，改为HY\
+var username = app.get('sys.username'),ReadProperties=com.ag.util.ReadProperties;\
+if (tenancyId === 'XLG') {\
+  name = \"XLG\";\
+  path=ReadProperties.GetValueByKey(\"XLMQPUT\");\
+} else if (tenancyId === 'ZSG') {\
+  name = \"HY\";\
+  path=ReadProperties.GetValueByKey(\"ZSMQPUT\");\
+} else if (tenancyId === 'SWG') {\
+  name = \"SWG\";\
+  path=ReadProperties.GetValueByKey(\"SWMQPUT\");\
+}\
+var DomCrud = com.ag.task.Util.DomCrud;\
+var head = \"\",\
+  order = \"\",\
+  truck, idss, notes;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uuu'),\
+  dateyear = DateUtil.format(javaDate, 'yyyyMMdd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  d = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uu');;\
+\
+// order += \"<Declaration>\";\
+// var rs = app.run(\"select TRUCKING_CO, ID, NOTES from  PORT_CNTR  where  cntr='\" + cntr + \"' and  TENANCY_ID='\" + tenancyId + \"'\");\
+var rs = Wb.getRecords(app.run(\"select TRUCKING_CO, ID, NOTES ,CNTR from  PORT_CNTR  where  id in (\" + id + \") and  TENANCY_ID='\" + tenancyId + \"' and send_edi<>'1'\"));\
+// app.log(rs);\
+app.log(\"长度\"+rs.length);\
+for (var i = 0; i < rs.length; i++) {\
+  truck = rs[i].TRUCKING_CO;\
+  idss = \"CAP0005\"+dateName+i;//rs[i].ID;\
+  notes = rs[i].NOTES;\
+  xml = \"\";\
+  head = \"\";\
+  order = \"\";\
+  var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"no\\\"?><Message xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\"><Head>\";\
+  head += '<MessageID>ZSENTERPRI_' + dateName + '<\/MessageID>';\
+  head += '<FunctionCode>2<\/FunctionCode>';\
+  head += '<MessageType>CAP0005<\/MessageType>';\
+  head += '<SenderID>ZSENTERPRI<\/SenderID>';\
+  head += '<ReceiverID/>';\
+  head += '<SendTime>' + dateName + '<\/SendTime>';\
+  head += '<Version>1.0<\/Version><\/Head>';\
+  xml += head;\
+  order += \"<Declaration>\";\
+  order += \"<INFO_HEAD>\";\
+  order += \"<URM_NO>\" + idss + \"<\/URM_NO>\";\
+  order += \"<URM_TYPE>KX<\/URM_TYPE>\";\
+  order += \"<IC_CARD_NO/>\";\
+  order += \"<CAR_NO/>\";\
+  order += \"<CONTA_ID>\" + rs[i].CNTR + \"<\/CONTA_ID>\";\
+  order += \"<DECLARE_USER>\" + username + \"<\/DECLARE_USER>\";\
+  order += \"<DECLARE_TIME>\" + d + \"<\/DECLARE_TIME>\";\
+  order += \"<DECLARE_CODE>\" + name + \"<\/DECLARE_CODE>\";\
+  order += \"<DECLARE_NAME>\" + name + \"<\/DECLARE_NAME>\";\
+  order += \"<OPERATE_CODE>\" + name + \"<\/OPERATE_CODE>\";\
+  order += \"<OPERATE_NAME>\" + name + \"<\/OPERATE_NAME>\";\
+  order += \"<REMARK/>\";\
+  order += \"<\/INFO_HEAD>\";\
+  order += \"<\/Declaration>\";\
+  order += \"<\/Message>\";\
+  xml += order;\
+  //app.log(xml);\
+  if (tenancyId=='ZSG')\
+  DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0005_CUSTOMS_\" + dateName+i,path );//\"/edidata/MQPUT\"\
+app.log(path);\
+}\
+app.run(\"update PORT_CNTR SET send_edi='1',FORM_ID='\"+idss+\"' where id in(\"+id+\")\");\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "basic": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "空箱海关申报",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

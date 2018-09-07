@@ -1,0 +1,75 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// var data=app.get();\
+// var state='';\
+// var rs=Wb.getRecords(app.run(\"select 1 from vload_list where cntr={?CNTR?} and BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} AND (SELECT TRUNC(ETA) FROM VESSEL_VISIT WHERE ID=vload_list.VID )=TRUNC({?timestamp.ENTRY_EXIT_DATE?})\"));\
+// if(rs.length==1){\
+\
+// app.run(\"update vload_list set cargo_type={?CARGO_TYPE?} where CNTR={?CNTR?}\"+\
+//         \" and BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} AND (SELECT TRUNC(ETA) FROM VESSEL_VISIT WHERE ID=vload_list.VID )=TRUNC({?timestamp.ENTRY_EXIT_DATE?})\");\
+\
+\
+//   app.run(\"update PORT_CNTR SET TEMP_SET={?TEMPERATURE?} WHERE CNTR={?CNTR?} AND PHASE='ACT'\");\
+// }else if(rs.length==0){\
+// \tstate=\"没找到数据！\";\
+// }\
+// app.send(state);\
+//===============================================日期的问题===============================\
+// var data = app.get();\
+// app.run(\"update vload_list set cargo_type={?CARGO_TYPE?},REEF_ID=DECODE({?CARGO_TYPE?},'L',1,0) where TENANCY_ID={?sys.TENANCY_ID?} and  CNTR={?CNTR?}\" +\
+//   \" and BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} AND (SELECT TRUNC(ETA) FROM VESSEL_VISIT WHERE ID=vload_list.VID )=TRUNC({?timestamp.ENTRY_EXIT_DATE?})\", {\
+//     arrayData: new org.json.JSONArray(data.datas),\
+//     transaction: 'start'\
+//   });\
+// app.run(\"update vbill_head set CARGO_TYPE={?CARGO_TYPE?} where  TENANCY_ID={?sys.TENANCY_ID?} and  BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} AND (SELECT TRUNC(ETA) FROM VESSEL_VISIT WHERE ID=VBILL_HEAD.VID )=TRUNC({?timestamp.ENTRY_EXIT_DATE?})\", {\
+//   arrayData: new org.json.JSONArray(data.datas)\
+// });\
+// app.run(\"update PORT_CNTR SET TEMP_SET=DECODE({?CARGO_TYPE?},'L',{?TEMPERATURE?},''),REEF_ID=DECODE({?CARGO_TYPE?},'L',1,0) WHERE CNTR={?CNTR?} AND TENANCY_ID={?sys.TENANCY_ID?}\", {\
+//   arrayData: new org.json.JSONArray(data.datas),\
+//   transaction: 'commit'\
+// });\
+\
+\
+// var data = app.get();\
+// app.run(\"update vload_list set cargo_type={?CARGO_TYPE?},REEF_ID=DECODE({?CARGO_TYPE?},'L',1,0),TEMP_SET=DECODE({?CARGO_TYPE?},'L',{?TEMPERATURE?},'') where TENANCY_ID={?sys.TENANCY_ID?} and  CNTR={?CNTR?} /*and instr({?CNTR?},CNTR)>0*/\" +\
+//   \" and BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?}\", {\
+//     arrayData: new org.json.JSONArray(data.datas),\
+//     transaction: 'start'\
+//   });\
+// app.run(\"update vbill_head set CARGO_TYPE={?CARGO_TYPE?} where  TENANCY_ID={?sys.TENANCY_ID?} and  BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} \", {\
+//   arrayData: new org.json.JSONArray(data.datas)\
+// });\
+// app.run(\"update PORT_CNTR SET TEMP_SET=DECODE({?CARGO_TYPE?},'L',{?TEMPERATURE?},''),REEF_ID=DECODE({?CARGO_TYPE?},'L',1,0) WHERE /*CNTR={?CNTR?}*/ instr({?CNTR?},CNTR)>0 AND TENANCY_ID={?sys.TENANCY_ID?}\", {\
+//   arrayData: new org.json.JSONArray(data.datas),\
+//   transaction: 'commit'\
+// });\
+var data = app.get();\
+app.run(\"update vload_list set cargo_type={?CARGO_TYPE?},REEF_ID=DECODE({?CARGO_TYPE?},'L',1,0),TEMP_SET=DECODE({?CARGO_TYPE?},'L',{?TEMPERATURE?},'') where TENANCY_ID={?sys.TENANCY_ID?} and instr({?CNTR?},CNTR)>0\" +\
+  \" and BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?}\", {\
+    arrayData: new org.json.JSONArray(data.datas),\
+    transaction: 'start'\
+  });\
+app.run(\"update vbill_head set CARGO_TYPE={?CARGO_TYPE?} where  TENANCY_ID={?sys.TENANCY_ID?} and  BILL_NO={?BILL_NO?} AND I_E_ID={?I_E_ID?} \", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+app.run(\"update PORT_CNTR SET TEMP_SET=DECODE({?CARGO_TYPE?},'L',{?TEMPERATURE?},''),REEF_ID=DECODE({?CARGO_TYPE?},'L',1,0) WHERE instr({?CNTR?},CNTR)>0 AND TENANCY_ID={?sys.TENANCY_ID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas),\
+  transaction: 'commit'\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1
+ },
+ "title": "更新舱单箱状态",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

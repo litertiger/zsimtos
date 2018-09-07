@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var txt = \"\";\
+try {\
+  app.run(\"update VBILL_HEAD_AMEDMENT set CHECK_FLAG='1',CHECK_BY={?sys.username?},CHECK_ON=sysdate,\" +\
+    \" NOTES={?NOTES?},REASONS={?REASONS?},BILL_NO_NEW={?newBno?},FEE_AMEDMENT={?FEE_AMEDMENT?}\" +\
+    \" ,AMEDMENT_TYPE=decode({?FEE_AMEDMENT?},'0','AB','1','AO') where id in(\" + app.get('ids') + \")\");\
+  if (app.get('FEE_AMEDMENT') == '0') {\
+    Wb.newClass(\"accountDetailService\").updOnlyBillNo(request);\
+  }\
+  //2018/08/13提交的申请的提单号是主分单的情况，会出现问题，没有吧分单的P_BILLNO改了，舱单哪里会显示分单失败（zxd）\
+  var rs = app.run(\"select ID from vbill_head where BILL_NO={?oldBno?} AND ZF_ID=1\");\
+  while (rs.next()) {\
+    //主分单\
+    app.run(\"update vbill_head set P_BILLNO={?newBno?} where P_BILLNO={?oldBno?} AND ID='\" + rs.getString('ID') + \"'\");\
+  }\
+  app.run(\"update vbill_head set BILL_NO={?newBno?} WHERE ID={?billid?}\");\
+  app.run(\"update vload_list set BILL_NO={?newBno?} WHERE BILL_ID={?billid?}\");\
+} catch (err) {\
+  txt = \"error\";\
+  //   throw txt;\
+}\
+\
+\
+\
+// var txt = \"\";\
+// // app.run(\"update VBILL_HEAD_AMEDMENT set CHECK_FLAG='1',CHECK_BY={?sys.username?},CHECK_ON=sysdate,\" +\
+// //   \" NOTES={?NOTES?},REASONS={?REASONS?},BILL_NO_NEW={?newBno?},FEE_AMEDMENT={?FEE_AMEDMENT?}\" +\
+// //   \" ,AMEDMENT_TYPE=decode({?FEE_AMEDMENT?},'0','AB','1','AO') where id in(\" + app.get('ids') + \")\", {\
+// //     transaction: \"start\"\
+// //   });\
+// app.run(\"update VBILL_HEAD_AMEDMENT set CHECK_FLAG='1',CHECK_BY={?sys.username?},CHECK_ON=sysdate,\" +\
+//   \" NOTES={?NOTES?},REASONS={?REASONS?},BILL_NO_NEW={?newBno?},FEE_AMEDMENT={?FEE_AMEDMENT?}\" +\
+//   \" ,AMEDMENT_TYPE=decode({?FEE_AMEDMENT?},'0','AB','1','AO') where id in(\" + app.get('ids') + \")\");\
+// try {\
+//   if (app.get('FEE_AMEDMENT') == '0') {\
+//     Wb.newClass(\"accountDetailService\").updOnlyBillNo(request);\
+//   }\
+// } catch (err) {\
+//   txt = \"error\";\
+//   throw txt;\
+// }\
+// // app.run(\"update vbill_head set BILL_NO={?newBno?} WHERE ID={?billid?}\", {\
+// //   transaction: \"commit\"\
+// // });\
+// if(txt)\
+// app.run(\"update vbill_head set BILL_NO={?newBno?} WHERE ID={?billid?}\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSGSWHD": 1
+ },
+ "title": "受理",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

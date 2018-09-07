@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var sql = \"\";\
+if (data.TYPE == \"I\")\
+  sql = \"select vh.I_E_ID,p.CNTR,p.TENANCY_ID,p.ID,vh.CNTR_OPERATOR,vh.CNTR_OPERATOR_COD,p.CNTR_OWNER,\" +\
+  \"decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD)SHIP_CONSIGN_COD,\" +\
+  \"decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER)SHIPPER_CONSIGNEE\" +\
+  \" from PORT_CNTR p left join vload_list vl on p.id=vl.cntr_id and p.i_e_id=vl.i_e_id\" +\
+  \" left join vbill_head vh on vl.bill_id=vh.id\" +\
+  \" where p.CNTR like '%\" + data.CNTR + \"%' and p.tenancy_id='\" + tenancyid + \"' and vh.i_e_id='I'\" +\
+  \" and p.id not in(select CNTR_ID from CNTR_BACK where phase<>'FIN')\";\
+if (data.TYPE == \"E\")\
+  sql = \"select vl.I_E_ID,p.CNTR,p.TENANCY_ID,p.ID,vh.CNTR_OPERATOR,vh.CNTR_OPERATOR_COD,p.CNTR_OWNER,\" +\
+  \"vh.shipper_cod SHIP_CONSIGN_COD,vh.shipper SHIPPER_CONSIGNEE\" +\
+  \" from PORT_CNTR p left join vload_list vl on p.id=vl.cntr_id left join vbill_head vh on vl.bill_id=vh.id\" +\
+  \" where p.CNTR like '%\" + data.CNTR + \"%' and p.tenancy_id='\" + tenancyid + \"' and vl.i_e_id='E'\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

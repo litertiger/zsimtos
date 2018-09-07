@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "throw \"联系郭小安稳\";\
+var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username');\
+app.run(\"select id from receipt where id='\" + data.ID + \"' and phase not in('PLN','FIN','CNL')\", {\
+  errorText: \"设备交接单已经作业,不能删除\"\
+});\
+app.run(\"select id from receipt where id='\" + data.ID + \"' and phase='FIN'\", {\
+  errorText: \"设备交接单已经完成,不能删除\"\
+});\
+app.run(\"update receipt set rid2='' where rid2='\" + data.ID + \"'\", {\
+  transaction: 'start'\
+});\
+app.run(\"delete from receipt where id='\" + data.ID + \"'\", {\
+  transaction: 'commit'\
+});\
+//=========================发送消息========================\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_receipt\", \"#\", {\
+      info: {\
+        type: \"receipt\",\
+        action: \"delete\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"receipt\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: data.ID\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "删除撤销",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

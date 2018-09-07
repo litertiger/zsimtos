@@ -1,0 +1,234 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var bOne = true;	//单系列/多系列
+ var bComp = false;	//混搭
+
+ var count = 0;
+ function OnReady(id)
+ {
+ 	cooper();
+ }
+ function cooper()
+ {
+   count++;
+   if(count != 3) return;
+  
+   AF1.func("Build", "treelist/tchart1.xml");
+   OnSelType(1);				//改为柱状图
+   OnSelContent(3);			//改为显示名称+数值
+   SetBackImage();			//显示背景图
+   AF1.func("SelectRow", "0");		//选表的第一行记录
+ }
+ 
+ var lastRow="";
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id!='AF1') return;
+  if( Event == "EditChanged" ) {
+   var Series = AF1.func("GetCellData", p1 +"\r\n se");
+   var data = AF1.func("GetCellData", p1 +"\r\n" + p2);
+   var title = AF1.func("GetColTitle", p2);
+   AF2.func("SetItemData", Series +"\r\n"+ title +"\r\n" +data);
+  }
+  else if( Event == "SelChanged" && p1!=lastRow) {
+   lastRow = p1;
+
+   if(bOne) {
+    AF2.func("DeleteAllSeries", "");
+    AddSeries(p1);
+   }
+  }
+ }
+
+ function AddSeries(row, compPara)	//添加一个Series
+ {
+  var titles="", datas="";
+　var Series = AF1.func("GetCellData", row +"\r\nse");
+  for(var col = AF1.func("GetNextValidCol", ""); col!="" ; col = AF1.func("GetNextValidCol", col)) {
+    if(col=="se") continue;
+    var title = AF1.func("GetColTitle", col);
+    titles += title + "\t";
+    var data = AF1.func("GetCellData", row +"\r\n" + col);
+    datas += data + "\t";
+  }
+  Series += "\r\n"+ titles +"\r\n" +datas;
+  if(compPara != "") Series += "\r\n" + compPara;
+  AF2.func("AddSeries", Series);
+ }
+ function RefreshChart()
+ {
+  AF2.func("DeleteAllSeries", "");
+  if(bOne) {
+    var row = AF1.func("GetCurrentRow", "");
+    AddSeries(row, "");
+  }
+  else {
+    for(var row = AF1.func("GetNextValidRow", ""); row!="" ; row = AF1.func("GetNextValidRow", row)) {
+      AddSeries(row, (bComp && row==2) ? "chart=line" : "");
+    }
+  }
+ }
+
+ function OnSelRecs(value)		//单记录/多记录切换
+ {
+  bOne = (value==0) ? true:false;
+  if(bOne && bComp) {
+   bComp = false;
+   document.getElementById("checkbox2").checked=false;
+  }
+  RefreshChart();
+ }
+ function OnSelType(value)
+ {
+  AF2.func("SetProp", "chart\r\n" + value);
+ }
+ function OnSelContent(value)
+ {
+  AF2.func("SetProp", "textContent\r\n" + value);
+ }
+ function OnSelArrange(value)
+ {
+  AF2.func("SetProp", "textArrange\r\n" + value);
+ }
+ function OnSelTitle(value)
+ {
+  AF2.func("SetProp", "TitlePosition\r\n" + value);
+ }
+ function OnSelBarImg(value)
+ {
+  var s="";
+  if(value==1) s = "src=res/back1.jpg;alpha=120";
+  AF2.func("SetProp", "barImage \r\n " + s);
+ }
+ function SetAve()
+ {
+  if(document.getElementById("checkbox1").checked==true) {
+   AF2.func("AddLine", "ID=Line1;data=ave;text=平均值;color=blue;style=dot");
+   AF2.func("AddLine", "ID=Line2;data=allave;text=全年平均;color=#ff7788;style=dot");
+  }
+  else {
+   AF2.func("DeleteLine", "Line1");
+   AF2.func("DeleteLine", "Line2");
+  }
+ }
+ function SetDrawZero()
+ {
+   var bDraw = document.getElementById("checkbox3").checked;
+   AF2.func("SetProp", "isDrawZero \r\n" + bDraw);
+ }
+
+ //混搭
+ function SetComp()
+ {
+  if(bComp==false && bOne) {
+   AF2.func("msgfloat", "请先在 \"显示记录数\" 中选择 \"全部记录\".");
+   document.getElementById("checkbox2").checked=false;
+   return;
+  }
+  bComp = !bComp;
+  RefreshChart();
+ }
+ 
+ //背景图
+ function SetBackImage()
+ {
+ 	var s="";
+ 	if(document.getElementById("checkbox4").checked) s = "src=treelist/building2.jpg; arrange=stretch; alpha=40";
+ 	AF2.func("SetProp", "BackImage \r\n" + s);
+ }
+</script>
+</head>
+
+<body onLoad='cooper( )'>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.统计图中的数据来自Treelist, 请切换行，观察统计图的<b>联动</b>效果(注：仅对单记录显示有效)；<br>
+<b>2</b>.请修改表格中的数据，观察统计图的<b>联动</b>效果；
+</td></tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<table cols=2 border=0 width=90%>
+<col width=180>
+<col>
+<tr height=116>
+<td rowspan=2>显示记录数：<br><select onchange="OnSelRecs(this.value)"><option value="0" selected="selected">单条记录 </option><option value="1">全部记录</option></select><br><br>
+类型：<br><select onchange="OnSelType(this.value)"><option value="0">圆饼图 </option><option value="1" selected="selected">柱状图</option><option value="2">折线图</option><option value="3">曲线图</option><option value="4">区域图</option><option value="5">雷达图</option></select><br>
+<input type="checkbox" id="checkbox2" onClick="SetComp()">混搭 (仅坐标类)</input><br><br>
+文字排列：<br><select onchange="OnSelArrange(this.value)"><option value="0">无</option><option value="1" selected="selected">外部、对齐(圆饼图)</option><option value="2">外部</option><option value="3">内部</option></select><br><br>
+文字内容：<br><select onchange="OnSelContent(this.value)"><option value="0">无</option><option value="1">仅名称</option><option value="2">名称、百分比</option><option value="3" selected="selected">名称、数值</option><option value="4">名称、数值、百分比</option></select><br><br>
+标题位置：<br><select onchange="OnSelTitle(this.value)"><option value="0">无</option><option value="2" selected="selected">位于顶部</option><option value="8">位于底部</option></select><br><br>
+柱状图图案：<br><select onchange="OnSelBarImg(this.value)"><option value="0" selected="selected">无</option><option value="1">使用质材背景</option></select><br><br>
+<input type="checkbox" id="checkbox1" onClick="SetAve()">平均线 (仅坐标类)</input><br><br>
+<input type="checkbox" id="checkbox3" onClick="SetDrawZero()" checked="checked">显示零值线条 (仅坐标类)</input><br><br>
+<input type="checkbox" id="checkbox4" onClick="SetBackImage()" checked="checked">显示背景图</input><br>
+</td>
+<td>
+	<script>insertTreeList('AF1', '', '113px')</script>
+</td></tr>
+<tr height=346>
+<td>
+	<script>insertChart("AF2", "border=single; bordercolor=#4499ff; borderWidth=2; borderRound=23; textArrange=1; coordinateBackColor=#55fff4ef,#55b0e9de; backcolor=#ffffff,#e0f0ff;", "346px")</script>
+</td></tr>
+</table>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style="line-height:21px">
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.二者的联动是通过事件驱动的，以下是js的主要部分：<br>
+<pre class='cpp'>
+var lastRow="";
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //只关心Treelist的事件
+ if(id!='AF1') return;
+ 
+ //内容输入事件
+ if( Event == "EditChanged" ) {
+  var seriesName = AF1.func("GetCellData", p1 +"\r\nse");  //取得系列名
+  var title = AF1.func("GetColTitle", p2);  //取得列名
+  var data = AF1.func("GetCellData", p1 +"\r\n" + p2);  //取得当前单元格的数据
+  AF2.func("SetItemData", seriesName +"\r\n"+ title +"\r\n" +data);
+ }
+ //当前行切换事件
+ else if(Event == "SelChanged" && lastRow!=p1) {
+  lastRow = p1;
+  if(bOne) {  //单记录时
+    AF2.func("DeleteAllSeries", "");  //删除原有的所有Series
+    AddSeries(p1);  //调用下面的AddSeries()函数增加Series
+  }
+ }
+}
+//添加一个Series
+function AddSeries(row)
+{
+ var titles="", datas="";
+ var seriesName = AF1.func("GetCellData", row +"\r\nse");
+ //逐列取列名、数据
+ for(var col=AF1.func("GetNextValidCol", ""); col!=""; col=AF1.func("GetNextValidCol", col)) {
+  if(col=="se") continue;
+  var title = AF1.func("GetColTitle", col);
+  titles += title + "\t";
+  var data = AF1.func("GetCellData", row +"\r\n" + col);
+  datas += data + "\t";
+ }
+ //End:
+ AF2.func("AddSeries", seriesName +"\r\n"+ titles +"\r\n" +datas);
+}</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,681 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1",
+      "frame": "false"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid1",
+       "selType": "checkboxmodel",
+       "editable": "true",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "tbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "name",
+           "labelAlign": "right",
+           "fieldLabel": "货名",
+           "labelWidth": "40"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text"
+         },
+         {
+          "configs": {
+           "tagConfigs": " matchFieldWidth:false",
+           "itemId": "shipper",
+           "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+           "labelAlign": "right",
+           "fieldLabel": "货主",
+           "displayField": "CNAME",
+           "labelWidth": "40",
+           "listConfig": "{width:450}",
+           "valueField": "ID",
+           "queryDelay": "500"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "params": "{fldId:'CE'}",
+            "url": "m?xwl=system/common/client/clientSelect"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         },
+         {
+          "configs": {
+           "itemId": "seekBtn",
+           "text": "查找",
+           "iconCls": "seek_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.grid1.store.load({\
+\tout:app.tbar\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "outBtn",
+           "hidden": "true",
+           "text": "出库",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+\
+var sels = app.grid1.getSelection(),\
+  ids = \"\",\
+  datas = [];\
+for (var i = 0; i < sels.length; i++) {\
+  if (i == sels.length - 1)\
+    ids += \"'\" + sels[i].data.ID + \"'\";\
+  else\
+    ids += \"'\" + sels[i].data.ID + \"',\";\
+  datas.push({\
+    ID: sels[i].data.ID,\
+    QUTY: sels[i].data.NUM\
+  });\
+}\
+if (sels.length == 0) {\
+  ids = \"''\";\
+}\
+console.log(ids);\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '出库');\
+app.WORKDATE.setValue(new Date());\
+app.TYPE.setValue('LD');\
+app.grid2.store.load({\
+  params: {\
+    ids: ids\
+  }\
+});\
+\
+\
+\
+win.mon(win, 'ok', function() {\
+  var values = Wb.getValue([win, app.tbar]);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/bluk/OutBulkCargo/tradeoutEdit/update',\
+    out:app.panel1,\
+    params: {\
+      datas: datas\
+    },\
+    success: function(resp) {\
+      win.close();\
+    }\
+  });\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "outBtn1",
+           "text": "出库",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要出库的记录。');\
+  return;\
+}\
+\
+var sels = app.grid1.getSelection(),\
+  ids = \"\",\
+  datas = [];\
+for (var i = 0; i < sels.length; i++) {\
+  if (i == sels.length - 1)\
+    ids += \"'\" + sels[i].data.ID + \"'\";\
+  else\
+    ids += \"'\" + sels[i].data.ID + \"',\";\
+}\
+if (sels.length == 0) {\
+  ids = \"''\";\
+}\
+// console.log(ids);\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '出库');\
+app.WORKDATE.setValue(new Date());\
+app.TYPE.setValue('LD');\
+app.grid2.store.load({\
+  params: {\
+    ids: ids\
+  }\
+});\
+\
+\
+\
+\
+\
+win.mon(win, 'ok', function() {\
+  var values = Wb.getValue([win, app.tbar]);\
+  //grid2\
+  var data = app.grid2.getSelection();\
+  for (var i = 0; i < data.length; i++) {\
+    datas.push({\
+      ID: data[i].data.ID,\
+      QUTY: data[i].data.NUM,\
+      BILL_NO: data[i].data.BILL_NO,\
+      BILL_ID: data[i].data.BILL_ID,\
+      INOUT_ID:Wb.guid()\
+    });\
+  }\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/bluk/OutBulkCargo/tradeoutEdit/update',\
+    out: app.panel1,\
+    params: {\
+      datas: datas\
+    },\
+    success: function(resp) {\
+      win.close();\
+    }\
+  });\
+});"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=entrepot/inSanHuo/tradeoutEdit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "GOODS12",
+           "dataIndex": "GOODS",
+           "width": "120",
+           "text": "货名"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "INQUTY1324",
+           "dataIndex": "INQUTY",
+           "text": "入库数"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "OUTQUTY3214",
+           "dataIndex": "OUTQUTY",
+           "text": "出库数"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "QUTY76",
+           "dataIndex": "QUTY",
+           "text": "库存"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CARGO_TYPE89",
+           "dataIndex": "CARGO_TYPE",
+           "keyName": "CARGO_TYPE",
+           "text": "货物属性"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "LINK_NAME3214",
+           "dataIndex": "LINK_NAME",
+           "text": "联系人"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SIGNERCFS7",
+           "dataIndex": "SIGNERCFS",
+           "text": "仓管员签名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "TRUCKNO12",
+           "dataIndex": "TRUCKNO",
+           "text": "车牌号"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "TRUCKNUM9",
+           "dataIndex": "TRUCKNUM",
+           "text": "车次数量"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "editwin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "800",
+     "height": "500"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "absolute",
+       "itemId": "panel1",
+       "width": "728",
+       "region": "north",
+       "height": "140",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "TRUCKNUM",
+         "minValue": "0",
+         "labelAlign": "right",
+         "fieldLabel": "车次数量",
+         "x": "8",
+         "width": "200",
+         "y": "8",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "TRUCKNO",
+         "labelAlign": "right",
+         "fieldLabel": "车牌号",
+         "x": "232",
+         "width": "200",
+         "y": "8",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "LINK_NAME",
+         "labelAlign": "right",
+         "fieldLabel": "联系人",
+         "x": "456",
+         "width": "200",
+         "y": "8",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "DEPT_ID",
+         "labelAlign": "right",
+         "fieldLabel": "装卸班组",
+         "width": "200",
+         "x": "8",
+         "displayField": "TEAM_NAME",
+         "y": "40",
+         "labelWidth": "60",
+         "valueField": "HAND_CODE",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=entrepot/PortCntrWeight/WorkBillEdit2/selectDeptId"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "WORKDATE",
+         "labelAlign": "right",
+         "fieldLabel": "作业日期",
+         "width": "200",
+         "x": "232",
+         "y": "40",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "PORC_COUNT",
+         "labelAlign": "right",
+         "fieldLabel": "作业量",
+         "width": "200",
+         "x": "456",
+         "y": "40",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MANNUM",
+         "labelAlign": "right",
+         "fieldLabel": "作业人数",
+         "width": "200",
+         "x": "8",
+         "y": "72",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MANHOUR",
+         "labelAlign": "right",
+         "fieldLabel": "工人工时",
+         "width": "200",
+         "x": "232",
+         "y": "72",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MACHINEHOUR",
+         "labelAlign": "right",
+         "fieldLabel": "机械工时",
+         "width": "200",
+         "x": "456",
+         "y": "72",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MACHINE",
+         "labelAlign": "right",
+         "fieldLabel": "装卸机械",
+         "width": "200",
+         "x": "8",
+         "displayField": "RESOURCE_NAME",
+         "y": "104",
+         "labelWidth": "60",
+         "valueField": "RESOURCE_ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=MiscellJob/bluk/OutBulkCargo/OutBulkCargoEdit/selectMachine"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "TYPE",
+         "labelAlign": "right",
+         "fieldLabel": "类型",
+         "keyName": "CRAFTWORK",
+         "width": "200",
+         "x": "232",
+         "y": "104",
+         "labelWidth": "60",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel2",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "grid2",
+        "selType": "checkboxmodel",
+        "editable": "true",
+        "multiSelect": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=MiscellJob/bluk/OutBulkCargo/tradeoutEdit/selected"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "GOODS12",
+            "dataIndex": "GOODS",
+            "width": "120",
+            "text": "货名"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NUM123",
+            "dataIndex": "NUM",
+            "text": "出库数"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "QUTY76",
+            "dataIndex": "QUTY",
+            "text": "库存"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CARGO_TYPE89",
+            "dataIndex": "CARGO_TYPE",
+            "keyName": "CARGO_TYPE",
+            "text": "货物属性"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "BILL_NO2",
+            "dataIndex": "BILL_NO",
+            "text": "提单号",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid"
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "内贸车进大宗散货出库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

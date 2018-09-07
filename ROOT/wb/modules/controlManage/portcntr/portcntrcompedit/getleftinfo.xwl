@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+var sql = \"\";\
+\
+if (data.hx == \"0\") {\
+  sql = \"select p.CNTR,p.CNTR_SIZE,p.E_F_ID,p.i_e_id,p.CNTR_TYPE,v.GOODS_NOTES,p.CNTR_OPERATOR_COD,p.YARD_POSITION,\" +\
+    \"case when p.phase='OUT' or(p.phase not in('ADV','ACT','DEP') and p.ARR_POSITION is null) then '闸外' else '闸内' end PHASE,r.SEAL_NO,p.TRADE_ID\" +\
+    \" from port_cntr p left join vload_list v on v.cntr_id=p.id and p.I_E_ID=v.I_E_ID left join receipt r on r.cntr_id=p.id\" +\
+    \" left join cntr_apply_list al on al.cntr_id=p.id left join cntr_apply a on a.id=al.aid\" +\
+    \" where p.id='\" + data.cntrid + \"'\";\
+  if (nature == '5')\
+    sql += \" and (p.CNTR_OPERATOR_COD='\" + govCode + \"'\" +\
+    \" or(decode(a.apply_type,'OTO',a.FROM_OPERATOR_COD))='\" + govCode + \"'\" +\
+    \" or(decode(a.apply_type,'OTO',a.TO_OPERATOR_COD))='\" + govCode + \"')\";\
+}\
+if (data.hx == \"1\") {\
+  sql = \"select p.CNTR,p.CNTR_SIZE,p.E_F_ID,p.i_e_id,p.CNTR_TYPE,v.GOODS_NOTES,p.CNTR_OPERATOR_COD,p.YARD_POSITION,\" +\
+    \"'闸外' PHASE,r.SEAL_NO,p.TRADE_ID\" +\
+    \" from port_cntr_his p left join vload_list v on v.cntr_id=p.id and p.I_E_ID=v.I_E_ID left join receipt r on r.cntr_id=p.id\" +\
+    \" left join cntr_apply_list al on al.cntr_id=p.id left join cntr_apply a on a.id=al.aid\" +\
+    \" where p.id='\" + data.cntrid + \"'\";\
+  if (nature == '5')\
+    sql += \" and (p.CNTR_OPERATOR_COD='\" + govCode + \"'\" +\
+    \" or(decode(a.apply_type,'OTO',a.FROM_OPERATOR_COD))='\" + govCode + \"'\" +\
+    \" or(decode(a.apply_type,'OTO',a.TO_OPERATOR_COD))='\" + govCode + \"')\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSWNH": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "ZK": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "左侧info查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

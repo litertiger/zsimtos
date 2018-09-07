@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = app.get('id');\
+var sign = app.get('sign');\
+var time = new JavaDate();\
+app.set('time', time);\
+try {\
+  app.run(\"update truck_app set sign_time={?timestamp.time?},sign_img={?blob.sign?} where id={?id?}\");\
+  app.run(\"{call p_truckapp({?id?},'','SIGN','')}\");\
+} catch (e) {\
+  var result = /ORA-\\d+:\\s(.*)\\
+/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  result = /ScriptException:\\s(.*)\\sin/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  app.send({\
+    success: false,\
+    errstr: e\
+  });\
+  throw e;\
+}\
+app.send({\
+  time: time\
+});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "签名确认",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

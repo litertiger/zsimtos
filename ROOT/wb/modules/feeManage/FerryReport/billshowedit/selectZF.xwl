@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+sql = \"select vh.vid,vh.bill_no,cntr,vh.CNTR_OPERATOR,decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER) GOOD_OWNER,\" +\
+  \"vh.TRADE_ID,vh.I_E_ID,vh.GOODS_NOTES,vh.CARGO_TYPE,vh.WEIGHT,vh.VOLUME,vh.PIECES,vh.POD,vh.POL,vh.ZF_ID,vh.BILL_TYPE,\" +\
+  \"v1.VESSEL_NAME,vl.CNTR_TYPE,vl.CNTR_SIZE,vl.SEAL_NO,vh.CONSIGNEE,vh.SHIPPER,bo.QD_BY,bo.QD_ON,\" +\
+  \"decode(vh.i_e_id,'I',LIB_VYG,'E',LOB_VYG)LOB_VYG,vl.CNTR_OWNER,decode(vh.I_E_ID,'I',ETA,'E',ETD)ETA\" +\
+  \" FROM VBILL_HEAD vh,VLOAD_LIST vl,VESSEL_VISIT v2,vessel_voyage v1,buz_order bo\" +\
+  \" WHERE vh.ID=vl.BILL_ID(+) AND vh.id=bo.bill_id(+) and vh.VID=v2.ID(+) and v2.vid=v1.id(+)\" +\
+  \" and vh.TENANCY_ID='\" + tenancyid + \"' AND vh.ZF_ID=1 and  vh.phase<>'9'\" +\
+  \" AND to_char(v2.ETA,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59'\";\
+if (!Wb.isEmpty(data.billType)) {\
+  if (data.billType === 'P')\
+    sql += \" and vh.BILL_TYPE='\" + data.billType + \"'\";\
+  else\
+    sql += \" and vh.BILL_TYPE='\" + data.billType + \"' and vh.MAIN_FLAG=1\";\
+}\
+\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and vh.BILL_NO LIKE '%\" + data.billNo + \"%'\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and vl.CNTR LIKE '%\" + data.cntr + \"%'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and vh.CNTR_OPERATOR_COD='data.CNTR_OPERATOR_COD'\";\
+if (!Wb.isEmpty(data.SHIP_CONSIGN_COD))\
+  sql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD)='\" + data.SHIP_CONSIGN_COD + \"'\";\
+if (!Wb.isEmpty(data.ieId))\
+  sql += \" and vh.I_E_ID='\" + data.ieId + \"'\t\";\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and vh.TRADE_ID='\" + data.tradeId + \"'\";\
+if (!Wb.isEmpty(data.voyageNo))\
+  sql += \" and v2.VID='\" + data.voyageNo + \"'\";\
+if (nature == 5)\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

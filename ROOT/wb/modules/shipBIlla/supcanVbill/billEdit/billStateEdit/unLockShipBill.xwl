@@ -1,0 +1,29 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var TENANCY_ID=app.get('sys.TENANCY_ID'),username=app.get('sys.username');\
+if(app.get(\"ieId\")=='I')\
+  app.run(\"update  VESSEL_VISIT  set     IS_SD=0   where  ID ={?ID?}   and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+else\
+  app.run(\"update  VESSEL_VISIT  set     OS_SD=0  where  ID ={?ID?}   and TENANCY_ID='\"+TENANCY_ID+\"'\");\
+\
+app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) values('舱单头解锁','\" + username + \"',sysdate,{?ID?})\");\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSUNLOCK": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "解锁船舶舱单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

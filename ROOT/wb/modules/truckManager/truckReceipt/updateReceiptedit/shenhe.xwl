@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+var nature = app.get(\"sys.NATURE\");\
+var customcode = app.get(\"sys.GOV_CODE\");\
+var ids = data.RID.split(\",\");\
+\
+if (tenancyid == \"ZSG\") {\
+  Wb.each(ids, function(id) {\
+    var receipt = Wb.getRecords(app.run(\"select * from receipt where id=\" + id + \"\"));\
+    if (receipt[0].SHIPPER_WAY == \"1\") { //码头承运\
+      if (receipt[0].PT_TYPE != \"1\" && receipt[0].PT_TYPE != \"2\")\
+        throw \"错误:箱\" + receipt[0].CNTR + \"码头承运,但车辆性质不是公司车队自有车或公司车队租用外来车\";\
+      if (Wb.isEmpty(receipt[0].SHIP_CONSIGN_COD))\
+        throw \"错误:箱\" + receipt[0].CNTR + \"码头承运,货主不能为空\";\
+    } else { //驳船承运\
+      if (receipt[0].CAR_TEAM == \"HYLY\" && receipt[0].CNTR_OPERATOR_COD != \"CK\")\
+        throw \"错误:箱\" + receipt[0].CNTR + \"驳船承运,不能选择码头车队\";\
+      if (receipt[0].CAR_TEAM == \"HYLY\" && receipt[0].PT_TYPE != \"4\" && receipt[0].CNTR_OPERATOR_COD == \"CK\")\
+        throw \"错误:箱\" + receipt[0].CNTR + \"驳船承运,码头车队,车辆性质必须为船公司租用码头车\";\
+      if (receipt[0].CAR_TEAM != \"HYLY\" && receipt[0].PT_TYPE != \"3\" && receipt[0].PT_TYPE != \"5\")\
+        throw \"错误:箱\" + receipt[0].CNTR + \"驳船承运,非码头车队,车辆性质必须为船公司自有车或船公司租用外来车\";\
+    }\
+  });\
+}\
+\
+app.run(\"update receipt set sh=1 where ID in(\" + data.RID + \")\");\
+\
+app.log(\"调用计费\");\
+var map = new HashMap();\
+map.put(\"rpId\", data.RID);\
+Wb.newClass(\"dubboForReceipt\").call(request, map);\
+app.run(\"insert into aaa(CAP_XML,create_on) values ('派车审核调用计费,箱:'||'\" + receipt[0].CNTR + \"'||',操作人:'||'\" + username + \"',sysdate)\");",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "审核",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

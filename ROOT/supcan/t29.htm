@@ -1,0 +1,172 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var xml1="<treelist><properties editable='true'/><cols>\
+<col name='id' width='50'>序号</col>\
+<col name='abt' edittype='dropTreelist' droplistId='person'>简介</col></cols>\
+<droplists><droplist id='person' treelistURL='treelist/t16_3.xml' dataCol='name' displayCol='=name+\"，\"+dis+\"，\" + bdt+ \"生于\"+bornin'/></droplists></treelist>";
+
+var xml2="<treelist><properties editable='true'/><cols>\
+<col name='id' width='50'>序号</col>\
+<col name='abt' edittype='droplist' droplistId='person'>简介</col></cols>\
+<droplists><droplist id='person' dataURL='treelistdata/person.xml' dataCol='name' displayCol='=name+\"，\"+dis+\"，\" + bdt+ \"生于\"+bornin'/></droplists></treelist>";
+
+
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 3) return;
+   id='';
+  }
+ 
+  if(id == 'AF1' || id=='') {
+	AF1.func("Build", xml1);
+	AF1.func("insertRows", "0\r\n3");
+  }
+  if(id == 'AF2' || id=='') {
+	AF2.func("Build", xml1);
+	AF2.func("insertRows", "0\r\n3");
+	AF2.func("SetCellData", "0\r\n abt \r\n张国荣");
+  }
+  if(id == 'AF3' || id=='') {
+	AF3.func("Build", xml2);
+	AF3.func("insertRows", "0\r\n3");
+	AF3.func("SetCellData", "0\r\n abt \r\n张国荣");
+  }
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+   if(id=='AF1') {	//演示取下拉行的内容
+    if(Event == "DropdownSelChanged") {
+		var work = AF1.func("GetDropCellData", p1 + "\r\n" + p2 + "\r\n work \r\n true"); //主演
+		var cur = AF1.func("GetDropCellData", p1 + "\r\n" + p2 + "\r\n cur \r\n true"); //生涯
+		var s = "主演: "+work + "\r\n生涯: " + cur;
+		s = s.replace(/\r\n/g, "\\r\\n");
+		AF1.func("msgFloat", s+ "\r\nhold=5");
+	}
+	else if(Event == "DropDownDataReach" && p1=="person") {
+		//演示 disable row 的功能
+		var h = AF1.func("GetHandle", "abt");
+		AF1.func(h + "SetRowEnable", "0\r\nfalse");
+	}
+   }
+ }
+</script>
+</head>
+
+
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示功能1：如何取下拉选中行的其它列的数据</b>， 请选择下拉，观察下拉后的浮动提示窗，分析其js;<br>
+<b>演示功能2：设置某些行不可选</b></td>
+</tr>
+</table>
+
+<table cols=1 border=0 width=500>
+<tr height=90>
+	<td height=90><script>insertTreeList('AF1', 'Border=single')</script></td>
+</tr>
+</table>
+</center>
+　　下面就是js源码中OnEvent( )事件的片段：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF1') {
+  if(Event == "DropdownSelChanged") {  //演示取下拉选中行的其它列的内容
+   var work = AF1.func("GetDropCellData", p1 + "\r\n" + p2 + "\r\n work \r\n true"); //主演
+   var cur = AF1.func("GetDropCellData", p1 + "\r\n" + p2 + "\r\n cur \r\n true"); //生涯
+   var s = "主演: "+work + "\r\n生涯: " + cur;
+   s = s.replace(/\r\n/g, "\\r\\n");
+   AF1.func("msgFloat", s+ "\r\nhold=5");  //浮现提示(全局函数)
+  }
+  else if(Event == "DropDownDataReach" && p1=="person") {  //演示 disable row 的功能
+   //注：在 DropDownDataReach 事件中实现对下拉数据的操作，是因为考虑到下拉数据默认是异步加载的！
+   var h = AF1.func("GetHandle", "abt");
+   AF1.func(h + "SetRowEnable", "0\r\nfalse");
+  }
+ }
+}</pre>
+<br>
+
+<hr color=#2266ee size=1>
+
+
+
+<center>
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>演示功能3：下拉的显示列表达式</b>：下拉的<b><a href="treelistdata/person.xml" target=_blank>数据</a></b>是多列的，但 displayCol 采用了表达式，实现了同时显示下拉列表中多个列的功能;<br>
+关键点是XML中的<b> displayCol='<font color=#880000>=name+","+dis+"," + bdt+ "生于"+bornin</font>'</b></td>
+</tr>
+</table>
+
+<table cols=5 border=0 cellpadding=2 cellspacing=0>
+<col width=20>
+<col width=380>
+<col width=30>
+<col width=340>
+<col width=20>
+<tr><td/><td>Example1: 采用dropTreelist</td><td/><td>Example2: 采用DropList</td><td/><tr>
+<tr height=90>
+	<td/>
+	<td height=90><script>insertTreeList('AF2', 'Border=single')</script></td>
+	<td/>
+	<td height=90><script>insertTreeList('AF3', 'Border=single')</script></td>
+	<td/>
+</tr>
+</table>
+</center>
+
+
+<br>
+Example1的XML描述文件:<br>
+<pre class='xml'>
+&lt;treelist&gt;
+ &lt;properties editable='true'/&gt;
+ &lt;cols&gt;
+  &lt;col name='id' width='50'&gt;序号&lt;/col&gt;
+  &lt;col name='abt' edittype='dropTreelist' droplistId='person'&gt;简介&lt;/col&gt;
+ &lt;/cols&gt;
+ &lt;droplists&gt;
+  &lt;droplist id='person' treelistURL='treelist/t16_3.xml' dataCol='name' displayCol='=name+\",\"+dis+\",\" + bdt+ \"生于\"+bornin'/&gt;
+ &lt;/droplists&gt;
+&lt;/treelist&gt;</pre>
+　　其中treelistURL指向的下拉Treelist的<a href="treelist/t16_3.xml" target=_blank>XML描述文件</a>.
+<br><br>
+
+
+Example2的XML描述文件:<br>
+<pre class='xml'>
+&lt;treelist&gt;
+ &lt;properties editable='true'/&gt;
+ &lt;cols&gt;
+  &lt;col name='id' width='50'&gt;序号&lt;/col&gt;
+  &lt;col name='abt' edittype='droplist' droplistId='person'&gt;简介&lt;/col&gt;
+ &lt;/cols&gt;
+ &lt;droplists&gt;
+  &lt;droplist id='person' dataURL='treelistdata/person.xml' dataCol='name' displayCol='=name+\",\"+dis+\",\" + bdt+ \"生于\"+bornin'/&gt;
+ &lt;/droplists&gt;
+&lt;/treelist&gt;</pre>
+
+<br>
+
+
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

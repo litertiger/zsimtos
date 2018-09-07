@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+app.log(app.get(\"yearmonth\"));\
+app.run(\"delete from cargo_his_num where yearmonth='\"+app.get(\"yearmonth\")+\"'\");\
+app.run(\"INSERT INTO cargo_his_num \\\
+        (yearmonth, trade_id, shippper_cod, shippper, weight, \\\
+             cargo_kind_cod, cargo_name, ID, tenancy_id, i_e_id, am_pre, ay_pre) \\\
+   SELECT TO_CHAR (vv.ship_dt, 'yyyy-mm'), vh.trade_id, \\\
+          DECODE (i_e_id, 'I', consignee_cod, shipper_cod), \\\
+          DECODE (i_e_id, 'I', consignee, vh.shipper), sum(weight), cmdy_code, \\\
+          cargo_kind_name, SYS_GUID (), vh.tenancy_id, i_e_id, NULL, NULL \\\
+     FROM vbill_head vh, v_visit_voyage vv, c_cargo_kind c \\\
+    WHERE vh.vid = vv.ID \\\
+      and  vh.tenancy_id='ZSG'\\\
+      AND vh.bill_type = 'S' \\\
+      AND NVL (is_jk, '否') = '否' \\\
+      AND vh.cmdy_code = c.ID(+) \\\
+       and  TO_CHAR (vv.ship_dt, 'yyyy-mm')>'2018-05' \\\
+      and  TO_CHAR (vv.ship_dt, 'yyyy-mm')='\"+app.get(\"yearmonth\")+\"' \\\
+      group by \\\
+      TO_CHAR (vv.ship_dt, 'yyyy-mm'), vh.trade_id, \\\
+          DECODE (i_e_id, 'I', consignee_cod, shipper_cod), \\\
+          DECODE (i_e_id, 'I', consignee, vh.shipper), cmdy_code, \\\
+          cargo_kind_name, vh.tenancy_id, i_e_id\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"SWB": 1},
+ "title": "新增",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

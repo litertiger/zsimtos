@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+// var sql = \"\";\
+var nature = request.getSession().getAttribute('sys.NATURE'),\
+  TENANCY_ID = request.getSession().getAttribute('sys.TENANCY_ID'),\
+  GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+\
+if (data.select == '2') {\
+  sql = \"select * from port_cntr \";\
+  if (!Wb.isEmpty(data.names)) {\
+    sql += \" left join vload_list on vload_list.cntr_id=port_cntr.id where vload_list.bill_no like '%'||{?names?}||'%'\";\
+  }\
+} else {\
+  sql = \"select * from port_cntr where 1=1 \";\
+  if (data.select === '0') {\
+    if (!Wb.isEmpty(data.names)) {\
+      sql += \" and cntr like '%'||{?names?}||'%'\";\
+    }\
+  } else if (data.select === '1') {\
+    if (data.ieId === 'I') {\
+      if (!Wb.isEmpty(data.ship)) {\
+        sql += \" and I_DSHIP_NO={?ship?} \";\
+      }\
+    } else {\
+      if (!Wb.isEmpty(data.ship)) {\
+        sql += \" and E_DSHIP_NO={?ship?} \";\
+      }\
+    }\
+  }\
+}\
+\
+if (nature == 5) {\
+  sql += \" and TENANCY_ID='\" + TENANCY_ID + \"' and CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+}\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, id = SysUtil.getId(),TENANCY_ID=app.get(\"TENANCY_ID\"),\
+  data = app.get(),vIdOld=app.get(\"vIdOld\");\
+var jsarray = Wb.decode(request.getParameter('cntrIds'));\
+\
+var VID = request.getParameter('VID');\
+\
+var  rows=new Array();\
+\
+for(var i=0;i<jsarray.length;i++)\
+{\
+\
+  var jsobject={CNTR_ID:jsarray[i]};\
+\trows[i]=jsobject;\
+   \
+}\
+app.run(\"update VBILL_HEAD set VID='\"+VID+\"' where ID in (select BILL_ID from VLOAD_LIST where CNTR_ID={?CNTR_ID?} and VID='\"+vIdOld+\"' )  and VID='\"+vIdOld+\"'\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows)),\
+  transaction:'start'\
+  });\
+app.run(\"update VLOAD_LIST set VID='\"+VID+\"' where CNTR_ID={?CNTR_ID?} and VID='\"+vIdOld+\"'\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows))\
+  });\
+\
+app.run(\"update VLOAD_LIST_D set VID={?VID?} where VID='\"+vIdOld+\"' and CNTR_ID ={?CNTR_ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows))\
+  });\
+app.run(\"update ACCOUNTS_DETAILS set VID={?VID?} where VID='\"+vIdOld+\"' and BILL_NO in (select BILL_NO from VLOAD_LIST where CNTR_ID={?CNTR_ID?} and VID='\"+vIdOld+\"' )\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows))\
+  });\
+\
+app.run(\"update port_cntr set I_DSHIP_NO=(case when {?ieId?}='I' then {?VID?}else I_DSHIP_NO end), E_DSHIP_NO=(case when {?ieId?}='E' then {?VID?} else E_DSHIP_NO end)  where ID={?CNTR_ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(rows))\
+  });\
+app.run(\"{call bill_lcl_id({?vId?},'\"+TENANCY_ID+\"',{?ieId?})}\");\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "更改箱提单船号",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,126 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff><div id="Tag3"/>
+<br>
+<p class="sz3">9.4.一体化查询</p>
+　　硕正报表从1.0.101.0开始，支持以 jQuery Mobile 的语法规则的动态嵌入模板, 如果一体化查询的报表有专门用于输入查询条件的工作表, 该工作表将能被转换成比较符合移动设备的界面展示:<br>
+<table width="100%" border=0>
+<col>
+<col width="622">
+<col width="70">
+<col width="294">
+<col>
+<tr>
+<td class="noborder"/><td class="noborder"><img src='image/server7.png'></td><td class="noborder"><img src="image/arrow_r.bmp"></td><td class="noborder"><img src='image/server8.png'></td><td class="noborder"/>
+</tr>
+</table><br>
+　　上面的报表是来自在线演示 "32.一体化查询(三)", 该报表的动态下拉数据、工作表 "Sheet" 的查询结果数据, 均来自数据源，转换成移动页面时，仍然依赖并重用了这些数据源数据，也就是说，后端的 C#/Java 数据源程序不需要另行开发.<br>
+　　报表XML模板要转换成 jQuery Mobile 的样式, 首先必须在模板中为需要转换的单元格设置 TabOrder，即人工认定哪些单元格是可输入的查询条件:<br>
+<center><img src="image/server9.png"></center>
+　　此外, 转换过程也依赖 jQuery Mobile 样式的模板。<br>
+<br>
+<p class="sz4">9.4.1 模版分析</p>
+　　模版文件是 <a href="template_search.txt" target=_blank>template_search.txt</a>：<br>
+<pre class='xml'>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+&lt;link rel="stylesheet" href="http://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.css"&gt;
+&lt;script src="http://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script src="http://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.js"&gt;&lt;/script&gt;
+
+&lt;script src="../uploadxml.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+&lt;!--SUPCAN_REPORT_JS--&gt;
+
+$(document).ready(function() {
+  //"开始查询" 按钮点击事件, 打开新页面
+  $("#search").click(function() {
+    var s = $("#form1").serialize();    //取得 Form 的提交串
+    window.open("../query.aspx?page=2&" + s);
+  });
+});
+&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;div data-role="page"&gt;
+  &lt;div data-role="header" data-theme="b"&gt;
+    &lt;a href="#" class="ui-btn ui-corner-all ui-shadow ui-icon-home ui-btn-icon-left"&gt;主页&lt;/a&gt;
+    &lt;h1&gt;&lt;!--SUPCAN_REPORT_WorkSheetName--&gt;&lt;/h1&gt;
+    &lt;a href="#" class="ui-btn ui-corner-all ui-shadow ui-icon-search ui-btn-icon-left"&gt;搜索&lt;/a&gt;
+  &lt;/div&gt;
+
+  &lt;div data-role="main" class="ui-content" data-theme="b"&gt;
+    &lt;form id="form1"&gt;
+      &lt;div class="ui-field-contain"&gt;
+&lt;!--SUPCAN_REPORT_dMain--&gt;
+      &lt;/div&gt;
+      &lt;input id="search" type="button" value="开始查询"&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+　　前 8 行是 jQuery Mobile固定的引用, 第 9 行使用了硕正的 uploadxml.js 文件, 该文件原本是用于上报的, 但本例只是共享了其中下拉关联、以及数据源的 ajax 访问的部分代码. 文件在 <a href="uploadmobile.zip" target=_blank>uploadmobile.zip</a> 包中. 部署 uploadxml.js 时请注意相对URL的位置: 它是相对于最终生成的 html，而不是这个模版的位置。<br>
+<br>
+　　第 17 行执行查询的语句, 它是打开了一个新页面, 如果你解决了页面来回跳转的数据持续问题, 那么也可以修改这个模板, 改成用 &lt;Form action="..." rel="external"&gt; 直接跳转，不过此功能和硕正的动态转换并没有什么关系。<br>
+<br>
+　　模板的关键部分是第 34 行，用到了占位符 &lt;!--SUPCAN_REPORT_dMain--&gt;，动态生成的 html Form 表单内容都在此处插入的，硕正报表自动生成的替换内容是类似这种的：<br>
+<pre class='cpp'>
+&lt;label for="sup_dat_E4"&gt;请选择区域：&lt;/label&gt;
+&lt;select id="sup_dat_E4" name="E4" droplistName="sup_droplist2" affectTo="sup_dat_E6" value="1"&gt;
+&lt;/select&gt;&lt;br&gt;
+&lt;label for="sup_dat_E6"&gt;国家：&lt;/label&gt;
+&lt;select id="sup_dat_E6" name="E6" droplistName="sup_droplist1" dependent="sup_dat_E4" value="Austria"&gt;
+&lt;/select&gt;&lt;br&gt;
+&lt;label for="sup_dat_E7"&gt;仅百吨以上货物&lt;/label&gt;
+&lt;input id="sup_dat_E7" name="RADIOGROUP1" type="radio" value="E7"/&gt;&lt;br&gt;
+&lt;label for="sup_dat_E8"&gt;全部货物&lt;/label&gt;
+&lt;input id="sup_dat_E8" name="RADIOGROUP1" type="radio" value="E8" checked="true"/&gt;&lt;br&gt;
+&lt;input name="allfieldname" type="text" value="E4,E6,RADIOGROUP1" style="display:none;"/&gt;</pre>
+<br>
+<p class="sz4">9.4.2 C#源码分析</p>
+　　C# 源码文件为 <a href="query.aspx.txt" target=_blank>query.aspx</a>, 里面大部分代码和服务器专版的其它演示功能的代码都差不多, 下面只分析关键实现部分。<br>
+　　报表有 2 个工作表, 所以分别有二段代码, 查询条件页的 C# 如下：<br>
+<pre class='cpp'>
+if(page == "1") {       //第一个页面
+ // jQueryMobile 模版文件, 它位于当前目录下
+ String TemplateFile = Server.MapPath("template_search.txt");
+ //转换
+ dll.func("callfunc", "105\r\n type=htm; isQueryPage=true; Template=" +TemplateFile+ "; filename=" + TempFilename);
+}</pre>
+　　调用 105 功能号且设置 isQueryPage=true , 以及 jQueryMobile 模板，这就是关键所在了。<br>
+<br>
+　　第二段代码略复杂:<br>
+<pre class='cpp'>
+else if(page == "2") {      //第二个页面
+ //取得 Form 内容, 设置到报表第一个工作表中
+ String[] arrCellname = Request.Params["allfieldname"].Split(new Char[] {','});
+ foreach(String CellName in arrCellname) {
+  String Data = Request.Params[CellName];
+  if(Data == null) Data = "";
+  if(CellName.Length > 10) {
+   if(CellName.Substring(0, 10) == "RADIOGROUP") {
+    dll.func("SetCellDataEx", Data + "\r\n1");
+    continue;
+   }
+  }
+  dll.func("SetCellDataEx", CellName + "\r\n" + Data);
+ }
+ //切换到工作表二
+ dll.func("SetCurrentWorksheet", "1");
+ //计算当前工作表
+ dll.func("calc", "range=current");
+ //转换
+ dll.func("callfunc", "105\r\n type=htm; filename=" + TempFilename);
+}</pre>
+　　由于查询条件是 Form 提交上来的，所以必须分拆这些条件, 分别设置到指定单元格中去, 然后模拟常规的客户端功能：执行计算、转换输出.<br>
+<br>
+<br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

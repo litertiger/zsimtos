@@ -1,0 +1,132 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/freeform8.xml");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+　if( Event == "MenuBeforePopup" ) {
+   //动态创建简单的单级菜单
+var s = "id=101; text=菜单项1; icon=treelist/cars.zip#car0.png; \t\
+id=102; text=菜单项2; icon=treelist/cars.zip#car1.png \t\
+id=0; text=-; \t\
+id=103; text=菜单项3; icon=treelist/cars.zip#car2.png; enabled=false\t\
+id=104; text=菜单项4; icon=treelist/cars.zip#car3.png";
+   AF.func("SetMenu", p2 +"\r\n"+ s);
+   AF.func("PopupMenu", "");
+  }
+ }
+ function add1()
+ {
+  AF.func("AddObject", "input \r\n id=num; LeftText=数量：; x=0; y=200; width=280; color=white; leftSize=160; value=2.00; editmask=#,###.00; datatype=double");
+ }
+ function add2()
+ {
+  AF.func("AddObject", "rect \r\n x=447; y=87; width=256; height=136; bgcolor=white;");
+ }
+ function add3()
+ {
+  AF.func("AddObject", "img \r\n id=img1; x=450; y=90; width=250; height=130; src=treelistdata/3.jpg; ");
+ }
+ function addmirror()
+ {
+  AF.func("AddObject", "rect \r\n x=447; y=225; width=256; height=60; thick=0; mirror='offset=-2;alpha=80'");
+ }
+ function change1()
+ {
+  AF.func("SetProp", "backPicture \r\n res/freeformsh.jpg; alpha=10; arrange=tile; rotate=-33");
+  AF.func("SetProp", "bgColor \r\n #444499,#6666bb");
+ }
+ function delete1()
+ {
+  AF.func("DeleteObject", "bmp1");
+  AF.func("DeleteObject", "bmp2");
+  AF.func("DeleteObject", "bmp3");
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff leftmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.增加一个输入控件 →　<input type="button" value = " 增加 " onClick="add1()">； <b>2</b>.增加一个矩形框 →　<input type="button" value = " 增加 " onClick="add2()">； <b>3</b>.增加一幅图 →　<input type="button" value = " 增加 " onClick="add3()">；<br>
+<b>4</b>.增加镜面倒影 →　<input type="button" value = " 增加 " onClick="addmirror()">；<b>5</b>.替换背景 →　<input type="button" value = " 替换 " onClick="change1()">；<b>6</b>.删除工具条背景图 →　<input type="button" value = " 删除 " onClick="delete1()"></td></tr>
+</table>
+
+<br>
+<div style="position:relative;width:800">
+	<script>insertFreeForm('AF', 'border=none', '350px')</script>
+</div>
+
+
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.可查看创建该Freeform的<a href="treelist/freeform8.xml" target=_blank>XML描述文件</a>；<br>
+<b>2</b>.源码中增删控件的js：<br>
+<pre class='cpp' maxchars='110'>
+function add1()	//增加输入控件
+{
+ AF.func("AddObject", "input \r\n id=num; LeftText=数量：; x=0; y=200; width=280; color=white; leftSize=160; value=2.00; editmask=#,###.00; datatype=double");
+}
+function add2()	//增加矩形框
+{
+ AF.func("AddObject", "rect \r\n x=447; y=87; width=256; height=136; bgcolor=white;");
+}
+function add3()	//增加图片
+{
+ AF.func("AddObject", "img \r\n id=img1; x=450; y=90; width=250; height=130; src=treelistdata/3.jpg; ");
+}
+function addmirror() //增加镜面倒影
+{
+ AF.func("AddObject", "rect \r\n x=447; y=225; width=256; height=60; thick=0; mirror='offset=-2;alpha=80'");
+}
+function change1() //更改背景
+{
+ AF.func("SetProp", "backPicture \r\n res/freeformsh.jpg; alpha=10; arrange=tile; rotate=-33");
+ AF.func("SetProp", "bgColor \r\n #444499,#6666bb");
+}
+function delete1() //删除对象
+{
+ AF.func("DeleteObject", "bmp1");
+ AF.func("DeleteObject", "bmp2");
+ AF.func("DeleteObject", "bmp3");
+}</pre>
+通过上例的分析，你就知道那炫丽的工具条实际上就是几幅图片而已。<br>
+<br>
+<b>3</b>.本例的下拉菜单并没有预先写在XML中，而是临时动态生成的，请看源码中的js：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if( Event == "MenuBeforePopup" ) {
+  //动态创建简单的单级菜单
+var s = "id=101; text=菜单项1; icon=treelist/cars.zip#car0.png; \t\
+id=102; text=菜单项2; icon=treelist/cars.zip#car1.png \t\
+id=0; text=-; \t\
+id=103; text=菜单项3; icon=treelist/cars.zip#car2.png; enabled=false\t\
+id=104; text=菜单项4; icon=treelist/cars.zip#car3.png";
+  AF.func("SetMenu", p2 +"\r\n"+ s);
+  //弹出菜单
+  AF.func("PopupMenu", "");
+ }
+}</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

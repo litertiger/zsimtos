@@ -1,0 +1,86 @@
+<HTML>
+<head><title>8.布局</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>8.布局</p><hr color=#2266ee size=1>
+<p class='sz3'>8.1 容器</p>
+　　&lt;Object&gt;元素的布局， 就是其位置和大小。其位置和页面上下文有关，而高度和宽度则有 height、width属性，其原始语法是这样的:<br>
+<pre class='xml'>
+&lt;Object height='100%' width='100%' ... &gt;
+或<br>
+&lt;Object height='300px'  width='200px' ... &gt;</pre>
+　　即可以用百分比或像素数来决定其大小.<br>
+　　在dynaload.js的函数中，&lt;Object&gt; 的默认宽度和高度均为 100%，这个百分比是相对于上下文的容器的，例如 div、td：<br>
+<pre class='xml'>
+&lt;div style="position:relative;width:96%;height:400px"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&gt;insertReport('AF', '')&lt;/script&gt;
+&lt;/div&gt;</pre>
+　或<br>
+<pre class='xml'>
+...
+&lt;tr height="400px"&gt;
+ &lt;td&gt;
+  &lt;script&gt;insertReport('AF', '')&lt;/script&gt;
+ &lt;/td&gt;
+&lt;/tr&gt;
+...</pre>
+　　上述的 &lt;div&gt; ... &lt;/div&gt;、&lt;td&gt; ... &lt;/td&gt; 就相当于是Object对象的容器，从理论上说，如果容器位置和大小变化了，Object也会跟着变化、容器隐藏了，Object也会跟着隐藏。<br>
+<br>
+<hr>
+<br>
+<p class='sz3'>8.2 容器注意事项</p>
+　　div 容器的初始高度是不能采用百分比的，必须采用像素, <font color='red'>如下的写法是有问题的</font>：<br>
+<pre class='xml'>
+&lt;div style="position:relative;width:96%;height:70%"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&gt;insertReport('AF', '')&lt;/script&gt;
+&lt;/div&gt;</pre>
+　　上例中 div 的初始高度为百分比(70%) 将导致较为严重的结果，具体症状表现为控件无法显示、或者每10次中有1、2次显示不出来，需要手工刷新页面. <br>
+　　正确的做法是给采用像素高度，然后在页面的 resize 事件中计算出分配给它的高度，动态更改高度。<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">宽度 (width) 允许采用百分比.</p>
+<br>
+<hr>
+<br>
+<p class='sz3'>8.3 更复杂的场景</p>
+　　由于&lt;Object&gt;是一种特殊的元素，它的高度相对于容器是100%的，在某些情况下，比如页面布局较为复杂、页面中有多个控件，此时 &lt;Object&gt; 的初始高度有时未必会跟着变化，所以，<font color=red>我们也可以采用固定的像素数，将上述的脚本改成如下的形式</font>：<br>
+<pre class='xml'>
+&lt;div style="position:relative;width:96%"&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&gt;insertReport('AF', '', '400px')&lt;/script&gt;
+&lt;/div&gt;</pre>
+　或<br>
+<pre class='xml'>
+...
+&lt;tr height="400px"&gt;
+ &lt;td&gt;
+  &lt;script&gt;insertReport('AF', '', '400px')&lt;/script&gt;
+ &lt;/td&gt;
+&lt;/tr&gt;
+...</pre>
+　　insertReport( ) 的第三个参数是隐含参数，其含义是&lt;Object&gt;的初始高度，您分析一下 dynaload.js 就能知道这个原理.<br>
+<br>
+　　当您需要动态修改 &lt;Object&gt; 的高度时，可以直接修改它的 height 属性，比如:<br>
+<pre class='cpp'>
+AF.height = '230px';
+//或者
+AF.height = 230;</pre>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">如果您把 插件/加载项 安置在&lt;Form&gt;中，在IE下可能会遇到问题，请参见底下的 “10.不同浏览器之间的一些差别”.</p>
+<br>
+<hr>
+<br>
+<p class='sz3'>8.4 其它注意事项</p>
+　　容器的书写，尽可能保持单一、简洁，不要将其它元素混杂在一起，<font color="red">如下写法就非常不妥</font>：<br>
+<pre class='cpp'>
+&lt;div style="position:relative;width:96%;height:400px"&gt;
+ &lt;script&gt;
+  insertReport('AF', '');
+  alert('...');
+ &lt;/script&gt;
+ &lt;input type='button' value='Text'&gt;
+&lt;/div&gt;</pre>
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

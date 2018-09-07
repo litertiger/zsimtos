@@ -1,0 +1,101 @@
+<HTML>
+<head><title>10.事件</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>10.事件</p><hr color=#2266ee size=1>
+　　所谓“事件”是指组件执行某个动作(如鼠标单击、内容有输入)后会以某种方式通知页面，使页面执行一段相应的js。<br>
+　　事件有2个：<b>OnReady</b> 和 <b>OnEvent</b>.<br>
+<p class='sz3'>10.1 OnReady</p>
+　　OnReady事件是指功能组件的实例已经成功创建后，插件/加载项通知页面的事件，这样页面js就可对其作进一步的操控，例如加载数据。当然在&lt;body&gt;的 onLoad( ) 事件中也可以对组件进行操控，但是我们强烈建议不要写在onLoad()事件中，因为<font color=red>在 onLoad( ) 事件执行时，组件实例未必已创建</font>。<br>
+　　OnReady事件书写举例如下：<br>
+<pre class='xml'>
+&lt;script&gt;
+function OnReady( id )
+{
+ AF.func('Build', 'index.XML');
+}
+&lt;/script&gt;</pre>
+　　如果页面中有多个插件/加载项，那么OnReady事件会被触发多次，此时就必须根据参数 id 判断事件的发起者，js 应该改写为诸如：<br>
+<pre class='xml'>
+&lt;script&gt;
+function OnReady( id )
+{
+ if(id=='AF1')
+  AF1.func('Build', 'index.XML');
+ else if(id=='AF2')
+  AF2.func('Build', '../index.aspx?pure=xml');
+}
+&lt;/script&gt;</pre>
+　　<font color='red'>初学者常常会写错，比如写成如下这种不正确的脚本</font>：<br>
+<pre class='xml'>
+&lt;script&gt;
+function OnReady( id )
+{
+  AF1.func('Build', 'index.XML');
+  AF2.func('Build', '../index.aspx?pure=xml');
+}
+&lt;/script&gt;</pre>
+　　因为 AF1、AF2 会在各自生命周期开始时触发 OnReady 事件, 假如 AF1 先触发, 那么在 AF1 执行 OnReady 时, AF2 的生命周期通常还没有开始, 所以务必请注意.<br>
+<br>
+　　另外有几个疑问需要进一步澄清：<br>
+1.OnReady 相当于是控件给页面的通知, 它告诉页面：我已经准备好了! 页面中哪怕不写 function OnReady(id) 函数体, 也不会导致出错的，并且也不影响控件的生命周期;<br>
+2.针对 AF 的函数调用, 可以写在 OnReady 中, 也可以写在页面其它地方, 假如我们希望页面打开时加载报表模板, 而用户点击页面上的 “查询” 按钮,时 报表才执行查询功能, 那么您可以这样写:<br>
+<pre class='xml'>
+...
+&lt;script&gt;
+function OnReady( id )
+{
+ AF.func('Build', 'myReport.XML');
+}
+function queryReport()
+{
+ AF.func('SetSource', 'ds1 \r\n servlet/do?num=12&year=2016');
+ AF.func('calc', '');
+}
+&lt;/script&gt;
+...
+&lt;body&gt;
+&lt;input type="button" onClick="queryReport()" value=" 查询 " &gt;
+...</pre>
+
+<hr>
+<br>
+<p class='sz3'>10.2 OnEvent</p>
+　　OnEvent事件是由功能组件的某个动作触发的，例如鼠标、键盘、状态变化等，在何时抛出事件、以及事件的各个参数的含义请参考功能组件各自的文档。<br>
+　　事件的书写规则举例如下：<br>
+<pre class='xml'>
+&lt;script&gt;
+//OnEvent参数说明: “Event”为事件名，p1,p2,p3,p4参数有特定的含义，由具体的功能组件规定.
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "SelChanged")
+  document.getElementById('Page1').src=p2;
+ else if(Event == "RButtonDown")
+  AF.func("SetCellData", "1 \r\n price \r\n300");
+}
+//注1: 控件能触发哪些事件，请参考功能组件的相关文档中的“事件”章节;
+//注2: 通常情况下 p1, p2, p3, p4 参数中不会包含回车符，如果里面包含了回车符，那么回车符是 "\\r\\n" 这种形式的串;
+&lt;/script&gt;</pre>
+　　控件在运行过程中，会触发大量的 OnEvent 事件，您必须通过 if( ) ... else if( ) ... else if( ) ... 条件判断，筛选出您感兴趣的事件执行，就像上例中的那样。<br>
+　　如下的脚本是<font color='red'>拙劣而粗暴</font>的：<br>
+<pre class='xml'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ var xml = AF.func("GetChangedXML", "");
+}</pre>
+
+　　事件的语法规则、以及上述示例，<img src="image/ff.bmp">、<img src="image/chrome.bmp">和<img src="image/ie.bmp">是没有差别的。
+</pre><br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">对上例稍加分析，你会发现所谓 “事件” 只是普通的页面 js 函数，只不过这二个函数名被硕正插件/加载项占用了，当组件触发事件时，实际上就是由插件/加载项反向调用页面的 js 函数而已!</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">事件脚本应该写在页面的 &lt;head&gt; 中，而不应该写在 &lt;body&gt; 中.</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">硕正套件允许在创建参数中增加事件日志，使得您可以查看事件的触发情况，请详见树列表或报表的 “1.创建实例” 章节.</p>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = '',\
+  no = '',\
+  name = '',\
+  truck = '',\
+  tray = '';\
+var result = app.run(\"select id,empno,empname,tenancy_id from c_employee where open_id={?id?}\", {\
+  jndi: 'jdbc/basecode'\
+});\
+if (result && result.next()) {\
+  id = result.getString('id');\
+  app.set('no', no = result.getString('empno'));\
+  name = result.getString('empname');\
+  app.set('tenancy', result.getString('tenancy_id'));\
+}\
+if (no) {\
+  var result = app.run(\"select truck_no,tray_no from c_truck where tenancy_id={?tenancy?} and trucker_no={?no?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next()) {\
+    truck = result.getString('truck_no');\
+    tray = result.getString('tray_no');\
+  }\
+}\
+app.send({\
+  id: id,\
+  no: no,\
+  name: name,\
+  truck: truck,\
+  tray: tray\
+});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "根据openId取用户Id",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

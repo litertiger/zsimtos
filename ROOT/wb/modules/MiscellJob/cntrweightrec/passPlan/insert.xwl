@@ -1,0 +1,69 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var  data=app.get(),cntrs=Wb.decode(app.get(\"cntrs\")) ;\
+var  username=app.get('sys.username');\
+var  cntrType = app.get(\"cntrType\");\
+var  idArray=new Array(); \
+if(cntrType=='C'){\
+  idArray.push({SHIP_COD:cntrs[0].SHIP_COD,CNTR_ID:cntrs[0].CNTR_ID,INFO_TYPE:data.INFO_TYPE,\
+                  WT_CMD_DATE:data.WT_CMD_DATE,\
+                  VID:data.VID,VOYAGE_NO:data.VOYAGE_NO,BILL_ID:data.BILL_ID,I_E_ID:data.I_E_ID,BILL_NO:data.BILL_NO,\
+                  CNTR:data.CNTR,CNTR_SIZE:data.CNTR_SIZE,CNTR_TYPE:data.CNTR_TYPE,E_F_ID:data.E_F_ID,\
+                  ASTARE:data.ASTARE,TENANCY_ID:data.TENANCY_ID,REMARK:data.REMARK,APPLI_COMPANY:data.APPLI_COMPANY,\
+                  TRUCK_NO:data.TRUCK_NO,TRAY_NO:data.TRAY_NO,POS:data.POS});\
+}else{\
+  for(var i=0;i<cntrs.length;i++){\
+    idArray.push({SHIP_COD:cntrs[0].SHIP_COD,CNTR_ID:cntrs[i].CNTR_ID,INFO_TYPE:data.INFO_TYPE,\
+                  WT_CMD_DATE:data.WT_CMD_DATE,\
+                  VID:data.VID,VOYAGE_NO:data.VOYAGE_NO,BILL_ID:data.BILL_ID,I_E_ID:data.I_E_ID,BILL_NO:cntrs[i].BILL_NO,\
+                  CNTR:cntrs[i].CNTR,CNTR_SIZE:cntrs[i].CNTR_SIZE,CNTR_TYPE:cntrs[i].CNTR_TYPE,E_F_ID:cntrs[i].E_F_ID,\
+                  ASTARE:data.ASTARE,TENANCY_ID:cntrs[i].TENANCY_ID,REMARK:data.REMARK,APPLI_COMPANY:data.APPLI_COMPANY,\
+                  TRUCK_NO:data.TRUCK_NO,TRAY_NO:data.TRAY_NO,POS:data.POS});\
+  }\
+}\
+app.run(\"insert into ZS_IMTOS.CNTR_WEIGHT_PLN (\"+\
+        \" SHIP_COD,POS,CNTR_ID,ID,INFO_TYPE,INSTRUCT_TYPE,WT_CMD_DATE,VID,\"+\
+        \" VOYAGE_NO,BILL_ID,I_E_ID,BILL_NO,CNTR,CNTR_SIZE,CNTR_TYPE,E_F_ID,\"+\
+        \" TENANCY_ID,REMARK,CREATED_ON,CREATED_BY,UPDATED_ON,UPDATED_BY,APPLI_COMPANY,TRUCK_NO, TRAY_NO,ASTARE) \"+\
+        \" values ({?SHIP_COD?},{?POS?},{?CNTR_ID?},SYS_GUID(),{?INFO_TYPE?},'3',{?timestamp.WT_CMD_DATE?},{?VID?},\"+\
+        \"{?VOYAGE_NO?},{?BILL_ID?},{?I_E_ID?},{?BILL_NO?},{?CNTR?},{?CNTR_SIZE?},{?CNTR_TYPE?},{?E_F_ID?},\"+\
+        \"{?TENANCY_ID?},{?REMARK?},sysdate,'\"+username+\"',sysdate,'\"+username+\"',{?APPLI_COMPANY?},\"+\
+        \"{?TRUCK_NO?}, {?TRAY_NO?},{?ASTARE?})\",{arrayData: new org.json.JSONArray(Wb.encode(idArray))});\
+\
+app.log(app.get(\"YC_ID\"));\
+if(cntrType=='C'&&app.get(\"YC_ID\")=='1'){\
+var javaDate = new JavaDate(); \
+\
+request.setAttribute(\"task_type\",\"MOVE\");\
+request.setAttribute(\"to_pos\",app.get(\"YC_POS\"));\
+request.setAttribute(\"task_name\",DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss')+'因过磅移至' + app.get(\"YC_POS\"));\
+  var cntrs=new Array();\
+  cntrs.push(data.CNTR);\
+request.setAttribute(\"cntrs\",Wb.encode(cntrs));\
+request.setAttribute(\"handle_id\",\"MOVE\");\
+request.setAttribute(\"to_pos_typ\",\"B\");\
+request.setAttribute(\"needTruck\",\"\");\
+app.execute(\"m?xwl=controlManage/task/worktaskcraneedit/insertTask\");\
+}\
+\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

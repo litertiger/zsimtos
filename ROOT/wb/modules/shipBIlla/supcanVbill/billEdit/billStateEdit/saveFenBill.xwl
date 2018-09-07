@@ -1,0 +1,65 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var createDate, updateDate, id = SysUtil.getId(),\
+data = app.get();\
+\
+// var recs1, data = Wb.decode(app.get('data'));\
+// var username = app.get(\"sys.username\");\
+// var TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+\
+\
+// recs1 = data.create;\
+var recs1 =data.update;\
+\
+updateDate = Wb.encode(recs1);\
+app.log(updateDate);\
+app.run(\"update vload_list  set bill_no={?BILL_NO?} where BILL_ID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(recs1)\
+});\
+\
+app.update({\
+    tableName: 'VBILL_HEAD',\
+    whereFields: 'ID'\
+}); //使用app.update方法默认自动启用数据库事务，无需再显式启用事务\
+\
+\
+app.run(\"   UPDATE vbill_head\\\
+      SET (pieces, weight, volume) =\\\
+             (SELECT NVL (SUM (pieces), 0), NVL (SUM (weight), 0),\\\
+                     NVL (SUM (volume), 0)\\\
+                FROM vbill_head v\\\
+               WHERE v.p_billno = vbill_head.bill_no AND vbill_head.vid =  v.vid)\\\
+    WHERE vid = {?vId?}\\\
+      AND zf_id = 1\\\
+      AND main_flag = 1\");\
+\
+app.send({\
+    ID: id\
+});",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "保存分单提单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

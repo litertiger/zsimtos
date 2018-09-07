@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"select VBILL_HEAD.* from VBILL_HEAD ,VESSEL_VISIT where VBILL_HEAD.VID= VESSEL_VISIT.ID \"+\
+    \"  and ( main_flag=1 or lCL_ID=1 ) and VBILL_HEAD.PHASE<>'9'  and VBILL_HEAD.TENANCY_ID='ZSG' \";\
+if (!Wb.isEmpty(data.names)) {\
+  sql += \" and BILL_NO like '%'||{?names?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.ieId)&&data.ieId!='0') {\
+  sql += \" and VBILL_HEAD.I_E_ID like '%'||{?ieId?}||'%'\";\
+}\
+app.log(data.tradeId);\
+if (!Wb.isEmpty(data.tradeId)) {\
+  if(data.tradeId!='12')\
+  sql += \" and VBILL_HEAD.TRADE_ID like '%'||{?tradeId?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.sdate)) {\
+  sql += \" and VESSEL_VISIT.ETA >=to_timestamp('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  sql += \" and VESSEL_VISIT.ETA<to_timestamp('\" + data.edate.substring(0, 10) + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+}\
+sql+=\" order by GOODS_NOTES\";\
+var s= Wb.getRecords(app.run(sql));\
+app.send(s);\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

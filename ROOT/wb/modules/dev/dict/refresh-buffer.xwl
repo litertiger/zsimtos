@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "Wb.apply(app, {\
+  /**\
+   * 添加或刷新字段缓存。\
+   * @param {Boolean} isUpdate true更新，false添加。\
+   */\
+  refreshBuffer: function(isUpdate) {\
+    var buffer = com.wb.common.Dictionary.buffer,\
+      rs, tableName, fieldName, oldFieldName, tableBuffer;\
+    rs = app.run('select * from WB_DICT where FIELD_ID=' + (isUpdate ? '{?#FIELD_ID?}' : '{?FIELD_ID?}'));\
+    rs.next();\
+    tableName = rs.getString('TABLE_NAME').toUpperCase();\
+    fieldName = rs.getString('FIELD_NAME').toUpperCase();\
+    tableBuffer = buffer.get(tableName);\
+    if (!tableBuffer) {\
+      tableBuffer = new java.util.concurrent.ConcurrentHashMap();\
+      buffer.put(tableName, tableBuffer);\
+    }\
+    if (isUpdate) {\
+      //移去原缓存\
+      tableBuffer.remove(request.getParameter('#FIELD_NAME'));\
+    }\
+    tableBuffer.put(fieldName, com.wb.common.Dictionary.getDictRecord(rs));\
+  }\
+});",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "刷新缓存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

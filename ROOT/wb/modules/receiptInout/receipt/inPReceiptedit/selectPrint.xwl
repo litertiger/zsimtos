@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"\";\
+if (data.EF == \"F\")\
+  sql = \"select r.ID,r.ORDER_SEQ,r.TRADE_ID,r.RECEIVER,r.BILL_NO,b.GOODS_NOTES,r.CNTR,r.SEAL_NO,vl.WEIGHT,r.CMDY_CODE,\" +\
+  \"r.PLAN_STIME,r.CNTR_TYPE,r.IN_CAR_HP,r.IN_TRAY_NO,b.CONTRACT_MAN,nvl(b.CONTRACT_TEL,b.CONTRACT_PHONE) PHONE,\" +\
+  \"vz.VESSEL_NAME,r.CNTR_OPERATOR,r.NOTES,r.S_ADRESS,p.YARD_POSITION,p.IN_PORT_TIME,r.cntr_iso\" +\
+  \" from receipt r left join port_cntr p on r.cntr=p.cntr\" +\
+  \" left join vessel_visit v on r.vid=v.id\" +\
+  \" left join vessel_voyage vz on v.vid=vz.id\" +\
+  \" left join vload_list vl on vl.CNTR_ID=r.CNTR_ID\" +\
+  \" left join vbill_head b on b.ID=vl.BILL_ID \" +\
+  \" where r.id='\" + data.rid + \"' and r.tenancy_id='\" + tenancyid + \"'\";\
+if (data.EF == \"E\")\
+  sql = \"select r.ID,r.TRADE_ID,r.SHIPPER,r.BILL_NO,r.CMDY_CODE,r.CNTR,r.SEAL_NO,r.GROS_WEIGHT,\" +\
+  \"r.PLAN_STIME,r.CNTR_TYPE,r.IN_CAR_HP,r.IN_TRAY_NO,r.CONTRACT_MAN,r.CONTRACT_PHONE,r.cntr_iso,\" +\
+  \"r.VESSEL_NAME,r.CNTR_OPERATOR,r.NOTES,r.S_ADRESS,p.YARD_POSITION,r.CNTR_SIZE,p.IN_PORT_TIME\" +\
+  \" from receipt r left join port_cntr p on r.cntr_id=p.id\" +\
+  \" where r.id='\" + data.rid + \"' and r.tenancy_id='\" + tenancyid + \"'\";\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "打印数据查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

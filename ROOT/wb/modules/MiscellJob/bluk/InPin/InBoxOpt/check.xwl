@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "// app.run(\"SELECT 1 FROM bluk_bill, bluk_goods \"+\
+// \" WHERE bluk_bill.bill_id = bluk_goods.bill_id \"+\
+//  \"  AND lcl_id = {?ID?}\"+\
+//  \"  AND bluk_bill.pieces <> bluk_goods.INQUTY\",{  errorText:\"入库数和舱单数据不符不能确认\"}\
+// );\
+\
+var s = Wb.getRecords(app.run(\"select BILL_ID,BILL_NO FROM VLOAD_LIST WHERE CNTR={?CNTR?} AND VID={?VID?}\"));\
+var billId = \"\";\
+for (var i = 0; i < s.length; i++) {\
+  if (i == s.length - 1)\
+    billId += \"'\" + s[i].BILL_ID + \"'\";\
+  else\
+    billId += \"'\" + s[i].BILL_ID + \"',\";\
+}\
+\
+var ss=\"\";\
+// var rs=app.run(\"select vbill_head.BILL_NO from vbill_head,bluk_goods where vbill_head.PIECES<>bluk_goods.QUTY and vbill_head.id=bluk_goods.bill_id and vbill_head.id in(\" + billId + \") and VID={?VID?}\");\
+var rs=app.run(\"select vbill_head.BILL_NO from vbill_head,bluk_goods where vbill_head.PIECES<>bluk_goods.QUTY \\\
+and vbill_head.id=bluk_goods.bill_id and vbill_head.id in(\" + billId + \") and VID={?VID?}\");\
+while(rs.next()){\
+\tss+=rs.getString('BILL_NO')+\",\";\
+}\
+ss=ss.substring(0,ss.length-1);\
+app.send(ss);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

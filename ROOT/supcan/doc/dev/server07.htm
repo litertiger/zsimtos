@@ -1,0 +1,123 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<div id="Tag1"/>
+<br>
+<p class="sz1">7.Java开发</p><hr color=#2266ee size=1>
+<br>
+<p class="sz3">1.原理</p>
+　　Java 是以 JNI (Java Native Interface) 接口规范调用硕正服务的，Eclipse 的实例请参考下载 <a href='http://www.supcan.cn/download/JavaTest.zip'>JavaTest项目</a>。<br>
+　　Java 对 winface.dll 的封装比较简单，包中的Service类就是接口的全部了：<br>
+<pre class='cpp'>
+package supcan;
+ 
+public class Service {
+ static 
+ {
+  System.loadLibrary("winface");
+ } 
+ public native long OpenReportService(String para);
+ public native void CloseReportService(long h);
+ public native int GetActiveServices();
+ public native String func(long h, String funcname, String para);
+}</pre>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">受 JNI 规范制约，<font color="#AA0000">您不能修改包名 "supcan" 和类名 "Service"</font> ，否则将无法运行.</p>
+<br>
+<p class="sz3">2.实例</p>
+　　项目包中的另一个类：RunDemo 类就是使用了 Service 类的例子，该例子仅是简单的 Java Application 应用，您可以先在此测试，测试通过后再将其改造成J2EE的后端项目。<br>
+<pre class='cpp'>
+public class RunDemo {
+ public static void main(String [] arg)
+ {
+  RunDemo demo = new RunDemo();
+  demo.func1();
+ }
+ public String func1()
+ {
+  //创建参数=======================
+  //TempDir请自己指定一个
+  String Para = "TempDir=F:\\eclipse\\workspace\\JavaTest\\Temp;";
+  //相对路径的参考值
+  Para += "BaseDir=http://localhost:8080/supcan;";
+  //其它参数
+  Para += "LogSize=1000;LogLevel=2;";
+ 
+  //创建一个Service类的实例
+  Service srv = new Service();
+  //服务是否被其它线程打开着
+  if(srv.GetActiveServices( ) > 0) {
+   throw new RuntimeException("服务器忙!  ");
+  }
+
+  //创建服务
+  long hSrv = srv.OpenReportService(Para);
+  if(hSrv==0){
+   throw new RuntimeException("报表服务创建失败!");
+  }
+
+  //指定中心数据源的URL，参数是一个相对URL，相对于服务创建参数中的BaseDir，当然您也可以用绝对URL
+  srv.func(hSrv, "SetSource", "reportdata/datacenter.xml");
+  //打开报表
+  srv.func(hSrv, "build", "report\\center2-1.xml");
+  //计算、填充数据
+  srv.func(hSrv, "calc", "");
+  //创建临时文件
+  String TempFilename = srv.func(hSrv, "CacheDirUtility", "isCreateTempFile=true;ext=htm;DeleteEarlierFile=15m;KeepMB=10");
+  if(TempFilename == "") {
+   srv.CloseReportService(hSrv);
+   throw new RuntimeException("文件创建失败!");
+  }
+  //报表转换成html
+  srv.func(hSrv, "callfunc", "105\r\n type=htm;filename=" + TempFilename);
+ 		
+  //关闭服务
+  srv.CloseReportService(hSrv);
+  return TempFilename;
+ }
+}</pre>
+<br>
+<p class="sz3">3.部署</p>
+　　在测试时，您可以将硕正服务专版包中的那些文件全部解压到JavaTest目录，就能运行：<br>
+<center><img src="image/server5.jpg"></center><br>
+　　在正式部署到服务器端时，则应该将这些文件部署到操作系统环境变量(path)能包含到的目录中.<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">提醒：环境变量 Path 修改后, tomcat 需要重启.</p>
+<br>
+
+<p class="sz3">4.简单JSP测试</p>
+　　以 tomcat 作为Web服务器, 按如下步骤做：<br>
+1.准备好 Temp 目录, 确保 everyone 都有访问存取权限;<br>
+2.配置好 path, 确保那一堆 DLL 处于 path 范围中;<br>
+3.修改一下 RunDemo.java 中的几个路径串;<br>
+4.在 tomcat\webapps\ROOT\WEB-INF\classes 目录下创建 supcan 子目录, 然后把编译好的 RunTime.class 和 Service.class 拷贝到此目录下;<br>
+5.重启 tomcat;<br>
+6.把如下 test.jsp 拷贝到 webapps\ROOT 目录：<br>
+<pre class='cpp'>
+&lt;%@ page contentType="text/html; charset=UTF-8" %&gt;
+&lt;%@ page import="supcan.*,java.util.*"%&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+&lt;title&gt;test&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;%
+try{
+  RunDemo demo = new RunDemo();
+  String s = demo.func1();
+  out.println(s);
+}
+catch(Exception e) {
+  out.println(e.getMessage());
+}
+%&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+　　在浏览器地址栏输入 http://localhost:8080/test.jsp, 你应该能在网页上看到动态转换成功的 htm 文件名.<br>
+　　后继的把文件名命名为新的URL并重定向, 在此不再赘述.<br>
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

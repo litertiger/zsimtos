@@ -1,0 +1,69 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+  AF.func("Build", "report/report11.xml");
+  AF.func("SetCellData", "OrgID\r\n201");
+  AF.func("SetCellData", "OrgName\r\n杭州分公司");
+  AF.func("SelectCell", "");
+  focusIE(AF);
+ }
+ function ShowUploadXML()
+ {
+  if(AF.func("callfunc", "50")==0) return; //未通过验证
+  var xml = AF.func("GetUploadXML", "");
+  alert(xml);
+ }
+</script>
+</head>
+
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.上一个demo其实已经介绍到‘运行时’了;<br>
+<b>2</b>.只能在有红色标记的单元格(即设计时有Tab Order的单元格)输入数据，请关注回车后的自动跳转;<br>
+<b>3</b>.输入完成后，执行“模拟上传”，查看生成的上传XML文本，请关注别名. <input type=button value="模拟上传" OnMouseUp="ShowUploadXML()">
+</td></tr>
+</table>
+<br>
+<div style="position:relative;width:90%;height:400px">
+	<script>insertReport('AF', 'workmode=uploadRuntime')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.页面中Report控件的创建脚本及参数如下：<br>
+<pre class='xml'>
+&lt;script&gt;insertReport('AF', '<b>workmode=uploadRuntime</b>')&lt;/script&gt;</pre>
+workmode=uploadRuntime表示现在是上报报表的申报时。<br>
+<br>
+<b>2</b>.模拟上传取得的XML，通过Http post给应用服务器，即实现了报表申报、数据采集；<br>
+<br>
+<b>3</b>.本表在设计时已经设置了“数据验证”，如果“指标”处未输入，将阻止上报；<br>
+<center><img src='res/illu39.jpg'></center>
+这是执行验证的源码：<br>
+<pre class='cpp'>
+function ShowUploadXML()
+{
+ if(AF.func("callfunc", "50")==0) return; //未通过验证
+ ...</pre> 
+<br>
+<b>4</b>.不同于别的报表上传软件，硕正Report的报表上传思路是：<font color=red>只上传数据</font>，报表本身并不上传，因为上级单位要的只是数据，并且会对采集到的数据作进一步分析.<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

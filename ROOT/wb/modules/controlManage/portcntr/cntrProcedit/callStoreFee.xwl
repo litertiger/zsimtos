@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var param = app.get();\
+var map = new HashMap();\
+var condition = \"\";\
+if(!Wb.isEmpty(param.cntr)){\
+  condition += \" and cntr='\"+param.cntr+\"'\";\
+}\
+if(!Wb.isEmpty(param.cntrOperatorCod)){\
+  condition += \" and cntr_operator_Cod='\"+param.cntrOperatorCod+\"'\";\
+}\
+var sql = \"SELECT CNTR_OPERATOR_COD FROM CNTR_STORE_RECORD_PROC \"+\
+\" WHERE TENANCY_ID='ZSG'  \"+\
+\" AND IN_TIME>=to_date('\" + param.timeOn + \"','yyyy-mm-dd hh24:mi:ss')  \"+\
+\" and OUT_TIME<=to_date('\" + param.timeEnd + \"','yyyy-mm-dd hh24:mi:ss') \"+\
+\" and not (IN_BUS_NOTES = '卸船' and E_F_ID_IMPORT in ('F')) \"+\
+\" AND TRADE_ID=1 \"+\
+\" AND CNTR_OPERATOR_COD IS NOT NULL \" + condition +\
+\" GROUP BY CNTR_OPERATOR_COD\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  map.put(\"companyId\", data.CNTR_OPERATOR_COD);\
+  map.put(\"timeOn\", param.timeOn);\
+  map.put(\"timeEnd\",param.timeEnd);\
+  map.put(\"tradeId\", \"1\");\
+  map.put(\"cntr\", param.cntr);\
+  result = Wb.newClass(\"dubboForFreeStore\").call(request, map);\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1
+ },
+ "title": "调用外贸堆存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

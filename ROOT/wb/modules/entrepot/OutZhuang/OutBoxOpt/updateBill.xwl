@@ -1,0 +1,59 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var username=app.get(\"sys.username\"),TENANCY_ID=app.get(\"sys.TENANCY_ID\"),rs;\
+var dispname=app.get(\"sys.dispname\");\
+var  idArray=new Array();\
+var rw=app.run(\"select F_FENWEIVOL({?BILL_ID?},{?IPIECES?},'1') weight from dual\"),weight;\
+while(rw.next()){\
+\tweight=rw.getString('WEIGHT');\
+}\
+var rp=app.run(\"select F_FENWEIVOL({?BILL_ID?},{?IPIECES?},'2') pieces from dual\"),volume;\
+while(rp.next()){\
+\tvolume=rp.getString('PIECES');\
+}\
+app.log(weight);\
+app.log(volume);\
+var s=weight.split('@@@');\
+weight=s[0];\
+volume=s[1];\
+app.run(\"update BLUK_BILL set IPIECES={?IPIECES?}, TASKSTATUS='FIN',LOCATION={?LOCATION?},CFS_ID=NVL({?CFS_ID?},'OTP'),SIGNERCFS='\"+dispname+\"',CFSTIME=nvl({?timestamp.CFSTIME?},sysdate),IS_STORAGE='1',OUTFLAG='0',WEIGHT='\"+weight+\"',VOLUME='\"+volume+\"' where CFSBILL_ID={?CFSBILL_ID?}\");\
+\
+app.run(\"insert into BLUK_GOODS(CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, \"+\
+      \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY,ID,TYPE)\"+\
+       \"   select CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, nvl({?timestamp.CFSTIME?},sysdate), '', LOCATION, CFS_ID, \"+\
+    \"    WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\"+username+\"', '\"+username+\"',{?sys.id?},'P' from BLUK_BILL\"+\
+   \"     where BILL_ID={?BILL_ID?} and CFSBILL_ID={?CFSBILL_ID?}\");\
+\
+\
+\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID,WEIGHT, VOLUME, STORE_TIME, BILL_NO, INOUT_ID,SIGNERCFS)\\\
+VALUES({?sys.id?},'0',{?IPIECES?},'','','',{?BILL_ID?},'\"+weight+\"', '\"+volume+\"', nvl({?timestamp.CFSTIME?},sysdate), {?BILL_NO?}, sys_guid(),'\"+dispname+\"')\");\
+\
+var rs=app.run(\"select 1 from vbill_head where pieces=(select sum(IPIECES) from BLUK_BILL where BILL_ID={?BILL_ID?} and ID={?BILL_ID?})\");\
+if(rs.next()){\
+\tapp.run(\"update VBILL_HEAD_E set IS_BLUK=1 where ID={?BILL_ID?}\");\
+}\
+\
+\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSOUIMP": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "更新入库信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,37 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var atriArr = Wb.decode(data.atriArr);\
+// app.log(atriArr);\
+var sql = \"insert into BLUK_PLAN (ID,VID, CNTR, CNTR_SIZE, CNTR_TYPE,SPLIT_FLAG,SEAL_NO, CNTR_OPERATOR, TASKSTATUS, VANNINGDV, CNTR_ID,\"+\
+\"TENANCY_ID, CREATED_ON, CREATED_BY)select '\" + SysUtil.getId() + \"',VID,CNTR, CNTR_SIZE, CNTR_TYPE,'整柜拆',SEAL_NO, CNTR_OPERATOR, 'PLN', 'I', ID, TENANCY_ID,sysdate,'\" + username + \"' from VLOAD_LIST where ID={?listid?}\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+//更新申请状态\
+var sqla = \"update cntr_apply set phase='AOK' where id={?aid?}\";\
+app.run(sqla, {\
+  transaction: 'commit'\
+});\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "整柜拆箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

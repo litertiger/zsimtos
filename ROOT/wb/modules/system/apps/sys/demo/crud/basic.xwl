@@ -1,0 +1,423 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "menu",
+     "menu": " [{\
+   text: '添加',\
+   glyph: 'f067',\
+   handler: app.add\
+ }, {\
+   text: '修改',\
+   glyph: 'f044',\
+   handler: app.edit\
+ }, {\
+   text: '删除',\
+   glyph: 'f00d',\
+   handler: app.remove\
+ }, {\
+   text: '刷新',\
+   glyph: 'f021',\
+   handler: app.refresh\
+ }]"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "tpanel"
+   },
+   {
+    "configs": {
+     "layout": "card",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "container1"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "toolbar",
+         "title": "员工管理",
+         "docked": "top"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "menuBtn",
+          "glyph": "f0c9",
+          "align": "right"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "app.menu.showBy(button);"}
+        }],
+        "type": "ttitlebar"
+       },
+       {
+        "configs": {
+         "itemId": "list1",
+         "autoPaging": "true",
+         "itemTpl": "{REAL_NAME} ({EMPLOYEE_CODE})"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=system/apps/sys/demo/crud/basic/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tstore"
+        }],
+        "type": "tlist",
+        "events": {"itemdoubletap": "app.edit();"}
+       }
+      ],
+      "type": "tcontainer"
+     },
+     {
+      "configs": {
+       "itemId": "editPanel",
+       "scrollable": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "editTitleBar",
+         "docked": "top"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "cancelBtn",
+           "text": "取消",
+           "align": "left"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tbutton",
+          "events": {"tap": "app.viewport1.setActiveItem(app.container1);"}
+         },
+         {
+          "configs": {
+           "itemId": "okBtn",
+           "text": "确定",
+           "align": "right"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tbutton",
+          "events": {"tap": "if (!Wb.verify(app.editPanel))\
+  return;\
+var values = Wb.getValue(app.editPanel);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/examples/employee/dialog/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //返回到数据列表\
+      app.viewport1.setActiveItem(app.container1);\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/examples/employee/dialog/insert',\
+    params: values,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到list中\
+      Wb.add(app.list1, Wb.apply(Wb.decode(resp.responseText), values), 'first');\
+      //返回到数据列表\
+      app.viewport1.setActiveItem(app.container1);\
+    }\
+  });\
+}"}
+         }
+        ],
+        "type": "ttitlebar"
+       },
+       {
+        "configs": {"itemId": "fieldset1"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "tagConfigs": "{\
+  remark: '该控件可以使用tnlist树形控件替代，在新card中以树形显示部门结构'\
+}",
+           "itemId": "DEPT_ID",
+           "displayField": "DEPT_NAME",
+           "label": "部门",
+           "valueField": "DEPT_ID",
+           "required": "true"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "normalName": "companyStore",
+            "autoLoad": "true",
+            "url": "m?xwl=system/apps/sys/demo/crud/basic/select-dept"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "tstore"
+          }],
+          "type": "tselect"
+         },
+         {
+          "configs": {
+           "itemId": "EMPLOYEE_CODE",
+           "label": "员工编号",
+           "required": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "ttext"
+         },
+         {
+          "configs": {
+           "itemId": "REAL_NAME",
+           "label": "姓名",
+           "required": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "ttext"
+         },
+         {
+          "configs": {
+           "itemId": "BIRTH_DATE",
+           "label": "出生日期",
+           "required": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tdate"
+         },
+         {
+          "configs": {
+           "itemId": "SEX",
+           "keyName": "sex",
+           "label": "性别",
+           "required": "true"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tselect"
+         },
+         {
+          "configs": {
+           "itemId": "NATION",
+           "keyName": "nation",
+           "label": "民族"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tselect"
+         },
+         {
+          "configs": {
+           "itemId": "EMAIL",
+           "xtype": "emailfield",
+           "label": "电子邮件"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "ttext"
+         },
+         {
+          "configs": {
+           "itemId": "COMPANY_NAME",
+           "label": "负责公司"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "ttext",
+          "events": {"focus": "//基于良好的用户体验，可以使用HTML5定制公司选择器（可以参照大部分app的地名选择设计），此例作为演示使用list控件替代。\
+text.blur();\
+app.viewport1.setActiveItem(app.companySelector);"}
+         },
+         {
+          "configs": {
+           "itemId": "VACATION_HOURS",
+           "minValue": "0",
+           "label": "休假时长",
+           "decimalPrecision": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tnumber"
+         },
+         {
+          "configs": {"itemId": "COMPANY_ID"},
+          "expanded": false,
+          "children": [],
+          "type": "thidden"
+         },
+         {
+          "configs": {
+           "itemId": "REMARK",
+           "xtype": "textareafield",
+           "label": "备注"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "ttext"
+         }
+        ],
+        "type": "tfieldset"
+       }
+      ],
+      "type": "tcontainer",
+      "events": {"action": "app.okBtn.fireEvent('tap');"}
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "companySelector"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "layout": "hbox",
+         "itemId": "toolbar1",
+         "docked": "top"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "backBtn",
+           "glyph": "f053",
+           "align": "left"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tbutton",
+          "events": {"tap": "app.viewport1.setActiveItem(app.editPanel);"}
+         },
+         {
+          "configs": {
+           "itemId": "searchCompanyText",
+           "flex": "1",
+           "placeHolder": "公司名称"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "ttext",
+          "events": {"keyup": "//paste亦触发该事件\
+app.searchCompany();"}
+         },
+         {
+          "configs": {
+           "itemId": "searchBtn",
+           "glyph": "f002",
+           "align": "right"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "tbutton",
+          "events": {"tap": "app.searchCompany();"}
+         }
+        ],
+        "type": "ttoolbar"
+       },
+       {
+        "configs": {
+         "itemId": "companyList",
+         "itemTpl": "{COMPANY_NAME}"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "normalName": "companyStore",
+          "autoLoad": "true",
+          "url": "m?xwl=system/examples/employee/edit/company-list"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tstore"
+        }],
+        "type": "tlist",
+        "events": {"select": "Wb.setValue(app.editPanel, record.data);\
+app.viewport1.setActiveItem(app.editPanel);"}
+       }
+      ],
+      "type": "tcontainer"
+     }
+    ],
+    "type": "tviewport"
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  add: function() {\
+    app.editTitleBar.setTitle('添加');\
+    app.viewport1.setActiveItem(app.editPanel);\
+    Wb.reset(app.editPanel);\
+    Wb.resetScroll(app.editPanel);\
+    app.isEdit = false;\
+  },\
+  edit: function() {\
+    var r = app.list1.getSelection()[0];\
+    if (!r) {\
+      Wb.warn('请选择一条记录。');\
+      return;\
+    }\
+    app.selRec = r;\
+    app.editTitleBar.setTitle('修改 - ' + r.data.REAL_NAME);\
+    app.viewport1.setActiveItem(app.editPanel);\
+    Wb.setValue(app.editPanel, r.data);\
+    app.isEdit = true;\
+  },\
+  remove: function() {\
+    var sels = app.list1.getSelection();\
+    Wb.confirmDo(sels, function() {\
+      Wb.request({\
+        url: 'm?xwl=system/examples/employee/dialog/delete',\
+        params: {\
+          destroy: Wb.getData(sels, true)\
+        },\
+        success: function() {\
+          Wb.remove(app.list1, sels);\
+        }\
+      });\
+    }, 'REAL_NAME');\
+  },\
+  refresh: function() {\
+    app.store.load(); //不可使用app.store.reload，因为最后一次加载属于添加模式\
+  },\
+  searchCompany: function() {\
+    app.companyStore.load({\
+      params: {\
+        query: app.searchCompanyText.getValue()\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {},
+ "title": "CRUD基本操作",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

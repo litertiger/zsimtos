@@ -1,0 +1,215 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "labelAlign": "right",
+         "fieldLabel": "年份",
+         "displayField": "ID",
+         "labelWidth": "40",
+         "valueField": "YEAR"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "labelAlign": "right",
+         "pickList": "[\
+  [1, \"1月\"],\
+  [2, \"2月\"],\
+  [3, \"3月\"],\
+  [4, \"4月\"],\
+  [5, \"5月\"],\
+  [6, \"6月\"],\
+  [7, \"7月\"],\
+  [8, \"8月\"],\
+  [9, \"9月\"],\
+  [10, \"10月\"],\
+  [11, \"11月\"],\
+  [12, \"12月\"]\
+]",
+         "fieldLabel": "月份",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "sdate1",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate1",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "cboTRADE_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"\", \"全部\"],\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+         "fieldLabel": "内外贸",
+         "width": "110",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var edate = app.edate.getValue() < 10 ? \"0\" + app.edate.getValue() : app.edate.getValue();\
+var sdate = app.sdate.getValue() + \"-\" + edate;\
+var day = new Date(app.sdate.getValue(), app.edate.getValue(), 0).getDate();\
+var endday = app.sdate.getValue() + \"-\" + edate + \"-\" + day;\
+var sql = \" and ETA>=to_date('\" + sdate + \"-01 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and ETA <= to_date('\" + endday + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and tenancy_id='\" + tenancyid + \"'\";\
+// if (!Wb.isEmpty(app.cboTRADE_ID.getValue()))\
+//   sql += \" and trade_id='\" + app.cboTRADE_ID.getValue() + \"'\";\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+// AF1.func(\"SetCellData\", \"<data A2='\" + app.sdate.getRawValue() + \"至\" + app.edate.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+//\" and ETA < (LAST_DAY(to_date('\" + endday + \"','yyyy-mm')) \\\\+ 1)\" +"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/mtbb/shipFeeRate.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter\\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};\
+app.cboTRADE_ID.setValue(\"1\");\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i < new Date(new Date().setFullYear(new Date().getFullYear()+10)).getFullYear(); i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+//定义一个store用来保存数据\
+\
+var yearStroe = Ext.create('Ext.data.Store', {\
+  fields: ['ID', 'YEAR'],\
+  data: years\
+});\
+app.sdate.bindStore(yearStroe);\
+app.sdate.setValue(new Date().getFullYear());",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "靠泊费用",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

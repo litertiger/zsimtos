@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>定义贝图</title>
+    <meta name="description" content="Interactive GoJS diagram demonstrating creating new nodes and links, reconnecting links, grouping and ungrouping, and context menus and tooltips for nodes, for links, and for the diagram background." />
+    <!-- Copyright 1998-2016 by Northwoods Software Corporation. -->
+    <meta charset="UTF-8">
+    <link href="../anjiUi/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../anjiUi/css/custom-theme/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
+    <link href="../css/DefineBay.css" rel="stylesheet" />
+	<script src="../anjiUi/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script src="../anjiUi/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../anjiUi/js/jquery-ui-1.10.0.custom.min.js" type="text/javascript"></script>
+    <script src="../sea-modules/seajs/sea.js"></script>
+</head>
+<body>
+
+<div class="controls controls-row">
+    <div class="span1">
+	<br/>
+        <div id="cursor">
+            <div title="选择"><input type="radio" id="arror" name="cursor" checked/><label for="arror"><img src="../img/cursor.png"></label></div>
+            <div title="喷涂"><input type="radio" id="spray" name="cursor" /><label for="spray"><img src="../img/spray.png"></label></div>
+            <div title="画笔"><input type="radio" id="pen" name="cursor" /><label for="pen"><img src="../img/pen.png"></label></div>
+            <div title="橡皮"><input type="radio" id="eraser" name="cursor" /><label for="eraser"><img src="../img/eraser.png"></label></div>
+            <div title="舱盖"><input type="radio" id="hatch" name="cursor" /><label for="hatch"><img src="../img/hatch.png"></label></div>
+        </div>
+        <br/></br>
+        <div id="size">
+            <div><input type="checkbox" id="20" /><label for="20">20'</label></div>
+			<div><input type="checkbox" id="40" /><label for="40">40'</label></div>
+			<div><input type="checkbox" id="45" /><label for="45">45'</label></div>
+			<div><input type="checkbox" id="48" /><label for="48">48'</label></div>
+        </div>
+		</br></br>
+		<div id="mirror" title="左右对称填充">
+           <input type="checkbox" id="mon" checked/><label for="mon">镜像</label>
+		</div>
+		<div id="centerline" title="是否具有中间贝">
+           <input type="checkbox" id="con" /><label for="con">奇数</label>  
+		</div>
+		<div id="deck" title="是否舱上贝">
+           <input type="checkbox" checked id="don" /><label for="don">舱上</label>  
+		</div>
+        </br></br>
+        <div id="print" title="打印">
+            <button>打印</button>
+        </div>
+			
+    </div>
+    <div class="span11">
+        <div id="myDiagramDiv" style="border: solid 1px black; height:600px"></div>
+    </div>
+</div>
+</body>
+<script>
+    // Set configuration
+    seajs.config({
+        base: "../sea-modules/",
+        alias: {
+            "gojs": "gojs/go"
+        }
+    });
+
+    // For development
+    seajs.use("../static/ship/src/mainDefine",function(main){
+        main.init("myDiagramDiv");
+    });
+    $('#cursor  input').click(function(event){
+        share = seajs.require("../static/ship/src/shareData");
+        share.currAction = this.id;
+    });
+
+    $('#mon').click(function(event){
+        share = seajs.require("../static/ship/src/shareData");
+        share.isMirror = this.checked;
+    });
+	$('#con').click(function(event){
+        share = seajs.require("../static/ship/src/shareData");
+        share.haveCenterRow = this.checked;
+		share.CreateBay();
+    });
+	$('#don').click(function(event){
+        share = seajs.require("../static/ship/src/shareData");
+        share.isDeck = this.checked;
+		share.CreateBay();
+    });
+
+    $('#size input').click(function(event){
+        share = seajs.require("../static/ship/src/shareData");
+        var s = [];
+        $("#size input:checked").each(function(){s.push(this.id);});
+        share.cntrSizes = s;
+
+    });
+
+    $('#print button').click(function(event){
+        share = seajs.require("../static/ship/src/shareData");
+        share.print();
+    });
+	$('#cursor').buttonset();
+    $("#size").buttonset();
+    $("#mirror").buttonset();
+	$("#centerline").buttonset();
+	$("#deck").buttonset();
+    $('button').button();
+</script>
+</html>

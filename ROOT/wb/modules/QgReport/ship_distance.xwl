@@ -1,0 +1,205 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "grid",
+     "editable": "true"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {"itemId": "tbar"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "addBtn",
+         "text": "添加",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.addEdit(app.grid);"}
+       },
+       {
+        "configs": {
+         "itemId": "modifyBtn",
+         "hidden": "true",
+         "text": "修改",
+         "iconCls": "record_edit_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var sels = app.grid2.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin2.setTitle('修改 - ' + app.selRec.data.EXT_CODE);\
+app.editwin2.setIconCls('record_edit_icon');\
+Wb.setValue(app.editwin2, app.selRec.data);\
+app.editwin2.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+       },
+       {
+        "configs": {
+         "itemId": "deleteBtn",
+         "text": "删除",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.remove(app.grid);"}
+       },
+       {
+        "configs": {
+         "itemId": "saveBtn",
+         "text": "保存",
+         "iconCls": "save_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verifyGrid(app.grid)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid,\
+  url: 'm?xwl=QgReport/ship_distanceedit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    app.grid.store.load();\
+  }\
+});"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "store",
+       "autoLoad": "true",
+       "url": "m?xwl=QgReport/ship_distanceedit/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     },
+     {
+      "configs": {"itemId": "columns"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "colPid",
+         "hidden": "true",
+         "dataIndex": "P_ID"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colID",
+         "hidden": "true",
+         "dataIndex": "ID",
+         "text": "ID",
+         "align": "center"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colDPORTE",
+         "dataIndex": "DPORTE",
+         "keyName": "C_PORT",
+         "width": "120",
+         "text": "起始港"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "allowBlank": "false",
+          "keyName": "C_PORT"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colAPORTE",
+         "dataIndex": "APORTE",
+         "keyName": "C_PORT",
+         "width": "120",
+         "text": "目的港"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "allowBlank": "false",
+          "keyName": "C_PORT"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colDISTANCE",
+         "dataIndex": "DISTANCE",
+         "text": "里程"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "allowBlank": "false"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        }],
+        "type": "column"
+       }
+      ],
+      "type": "array"
+     }
+    ],
+    "type": "grid"
+   }],
+   "type": "viewport"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "AT": 1,
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "航线里程维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

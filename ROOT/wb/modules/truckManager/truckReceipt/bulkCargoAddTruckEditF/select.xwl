@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var sql=\"\";\
+app.log(data.bill);\
+if(!Wb.isEmpty(data.bill)){\
+\tsql+=\" and instr((select wm_concat(bill_no) from BLUK_APPLY_D where BLUK_APPLY_M.ID = BLUK_APPLY_D.p_id),{?bill?})>0\t\";\
+}\
+request.setAttribute('sql',sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT BLUK_APPLY_M.ID,(SELECT wm_concat('提单号码:'||BILL_NO||'-货名：'|| good_notes|| '- 件数'|| pieces)\
+                        FROM BLUK_APPLY_D WHERE BLUK_APPLY_D.P_ID=BLUK_APPLY_M.ID) A,phase\
+                        ,(select max(CREATED_ON) from BLUK_APPLY_D where BLUK_APPLY_M.ID = BLUK_APPLY_D.p_id) CREATED_ON \
+FROM BLUK_APPLY_M\
+where exists (select 1 from BLUK_APPLY_D where BLUK_APPLY_M.ID = BLUK_APPLY_D.p_id) and BLUK_APPLY_M.id is not null{#sql#}\
+order by CREATED_ON desc,decode(PHASE,'PLN',1,'EXE',2,'FIN',3) asc"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "check": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

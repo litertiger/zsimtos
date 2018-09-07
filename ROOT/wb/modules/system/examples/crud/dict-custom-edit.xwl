@@ -1,0 +1,311 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "description": "文件上传模式窗口下必须放itemId为form的formPanel控件，非上传模式无需此控件。\
+如果窗口为实例默认为单例模式，如果窗口为对象(createInstance为false)默认为非单例模式。"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "fit",
+     "dialog": "true",
+     "itemId": "win",
+     "createInstance": "false",
+     "focusControl": "STRING_FIELD",
+     "width": "664",
+     "title": "标题在Wb.edit函数configs参数中配置",
+     "modal": "true",
+     "height": "376"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "absolute",
+      "border": "false",
+      "itemId": "form",
+      "flat": "true",
+      "width": "664",
+      "height": "320"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "allowBlank": "false",
+        "itemId": "STRING_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "* 字符串",
+        "width": "312",
+        "x": "8",
+        "y": "16",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "INT_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "整数",
+        "width": "312",
+        "x": "328",
+        "y": "16",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "DOUBLE_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "浮点数",
+        "width": "312",
+        "x": "8",
+        "y": "48",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "DATETIME_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "日期时间",
+        "width": "312",
+        "x": "328",
+        "y": "48",
+        "labelWidth": "90",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "datetime"
+      },
+      {
+       "configs": {
+        "tagConfigs": "{\
+  //重载控件的getValue/setValue方法\
+  getValue: function() {\
+    var vals = Wb.getValue(this, ['radio1', 'radio2']);\
+    if (vals.radio1)\
+      return 0;\
+    else if (vals.radio2)\
+      return 1;\
+    else return null;\
+  },\
+  setValue: function(v) {\
+    Wb.setValue(this, {\
+      radio1: v === 0,\
+      radio2: v == 1\
+    });\
+  }\
+}",
+        "layout": "hbox",
+        "itemId": "BOOL_FIELD",
+        "labelAlign": "right",
+        "fieldLabel": "布尔",
+        "width": "312",
+        "x": "8",
+        "y": "80",
+        "labelWidth": "90",
+        "height": "30"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "radio1",
+          "boxLabel": "允许",
+          "flex": "1",
+          "name": "boolField"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "radio"
+        },
+        {
+         "configs": {
+          "itemId": "radio2",
+          "boxLabel": "拒绝",
+          "flex": "1",
+          "name": "boolField"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "radio"
+        }
+       ],
+       "type": "fieldcontainer"
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "fieldcontainer1",
+        "labelAlign": "right",
+        "fieldLabel": "二进制",
+        "width": "312",
+        "x": "328",
+        "y": "80",
+        "labelWidth": "90",
+        "height": "30"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "BLOB_FIELD",
+          "flex": "1"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "file"
+        },
+        {
+         "configs": {
+          "itemId": "delFileBtn",
+          "margin": "0 0 0 3",
+          "text": "删除"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "app.BLOB_FIELD.reset();\
+app.BLOB_FIELD.removeFile = true; //标识需删除，后台据此判断当上传文件为空时是否执行删除"}
+        }
+       ],
+       "type": "fieldcontainer"
+      },
+      {
+       "configs": {
+        "itemId": "CLOB_FIELD",
+        "labelAlign": "right",
+        "width": "632",
+        "x": "8",
+        "y": "120",
+        "height": "190"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "htmleditor"
+      }
+     ],
+     "type": "form"
+    }],
+    "type": "window",
+    "events": {
+     "hide": "//单例模式(win属性createInstance不是false)下使用 Wb.reset(win);",
+     "ok": "win.editHandler(); //Wb.edit调用后默认提供的方法"
+    }
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "tagConfigs": "{\
+  //如果表格存在此方法，二进制字段自动生成下载链接并指向此方法，如果存在多个二进制字段可通过ifDownloadBlob方法控制哪个字段提供下载\
+  downloadBlob: function(fieldName, rowIndex) {\
+    var grid = this;\
+    //在文件列表中按ctrl+双击文件名可添加url地址\
+    Wb.download('m?xwl=system/examples/crud/crud-db-access/download-blob', {\
+      ID_FIELD: grid.store.getAt(rowIndex).data.ID_FIELD\
+    });\
+  }\
+}",
+      "itemId": "grid1",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/examples/crud/crud-db-access/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "newBtn",
+          "tooltip": "添加新的记录",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.insert(app.grid1, {\
+  win: app._win, //app.win指向实例，app._win指向对象\
+  url: 'm?xwl=system/examples/crud/crud-db-access/insert'\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "editBtn",
+          "tooltip": "修改选择的记录",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.edit(app.grid1, {\
+  win: app._win,\
+  url: 'm?xwl=system/examples/crud/crud-db-access/update'\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "tooltip": "删除选择的记录",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.del(app.grid1, {\
+  url: 'm?xwl=system/examples/crud/crud-db-access/delete',\
+  titleField: 'STRING_FIELD'\
+});"}
+        }
+       ],
+       "type": "toolbar"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.editBtn.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "字典自定义编辑",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

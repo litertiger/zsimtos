@@ -1,0 +1,134 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "clearBtn",
+        "text": "清除签名",
+        "iconCls": "delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.context.clearRect(0, 0, app.canvas.width, app.canvas.height);"}
+      },
+      {
+       "configs": {
+        "itemId": "exportBtn",
+        "text": "导出签名",
+        "iconCls": "export_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.download('base64-file', {\
+  data: app.canvas.toDataURL(\"image/png\"),\
+  file: 'signature.png'\
+}, true);"}
+      },
+      {
+       "configs": {
+        "itemId": "item1",
+        "text": "->"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "html5Text",
+        "xtype": "tbtext",
+        "text": "html5示例"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "comp1",
+      "html": "<canvas itemId='canvas'><\/canvas>",
+      "region": "center"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "comp"
+    }
+   ],
+   "type": "viewport",
+   "events": {
+    "afterrender": "function onMouseMove(evt) {\
+  evt.preventDefault();\
+  if (flag) {\
+    var p = pos(evt);\
+    ctx.lineTo(p.x, p.y);\
+    ctx.lineWidth = 2;\
+    ctx.shadowColor = \"#333\";\
+    ctx.shadowBlur = 1;\
+    ctx.stroke();\
+  }\
+}\
+\
+function onMouseDown(evt) {\
+  evt.preventDefault();\
+  ctx.beginPath();\
+  var p = pos(evt);\
+  ctx.moveTo(p.x, p.y);\
+  flag = true;\
+}\
+\
+\
+function onMouseUp(evt) {\
+  evt.preventDefault();\
+  flag = false;\
+}\
+\
+function pos() {\
+  var xy = Ext.EventObject.getXY();\
+  return {\
+    x: xy[0] - app.comp1.el.getLeft(),\
+    y: xy[1] - app.comp1.el.getTop()\
+  };\
+}\
+var canvas = app.canvas = app.comp1.el.down('[itemId=canvas]', true),\
+  ctx = app.context = canvas.getContext('2d'),\
+  flag = false;\
+canvas.addEventListener('mousemove', onMouseMove, false);\
+canvas.addEventListener('mousedown', onMouseDown, false);\
+canvas.addEventListener('mouseup', onMouseUp, false);\
+canvas.addEventListener('touchstart', onMouseDown, false);\
+canvas.addEventListener('touchmove', onMouseMove, false);\
+canvas.addEventListener('touchend', onMouseUp, false);\
+ctx.strokeStyle = \"#333\";",
+    "resize": "app.canvas.width = app.comp1.getWidth();\
+app.canvas.height = app.comp1.getHeight();"
+   }
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "手写签名",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

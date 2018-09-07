@@ -1,0 +1,109 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF' || id=='') {
+    AF.func("Build", "treelist/orders3.xml");
+    AF.func("Load", "treelistdata/orders.txt");
+ 
+    //模拟初始加载：经销商(服务器搜索列)的某几行数据
+    //注意：设置的是data(外键)，而不是display text
+    AF.func("SetCellData", "8 \r\n CustomerID2 \r\nWELLI");		//WELLI 是dataCol数据, 而不是displayCol
+    AF.func("SetCellData", "9 \r\n CustomerID2 \r\nHILAA");		//HILAA 是dataCol数据, 而不是displayCol
+AF.func("setcolProp", "freight \r\n decimal \r\n 4");
+AF.func("setcolProp", "freight \r\n displayMask \r\n =formatNum(data,'#,###.00')");
+  }
+  if(id == 'AF2' || id=='') {
+    //位于技术分析区的例子
+    AF2.func("Build", "treelist/orders3_textId.xml");
+    AF2.func("Load", "treelistdata/data_textId.xml");
+  }
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=="AF" && Event=="Clicked" && p1=="-1" && p2=="-1") AF.func("MessageBoxFloat", "事件js测试!");
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.“客户”和“经销商”均采用了可编辑的下拉(EditableDropTreelist). <br>
+<b>2</b>.“客户”是普通的可编辑下拉，具有<font color=red>客户端搜索</font>功能，请在某行“客户”处慢慢输入"London"，看看搜索效果；<br>
+<b>3</b>.“经销商”的下拉树列表的 dataURL 采用了表达式，使之具备了<font color=red>服务器端搜索</font>功能，每输入一个字都能从服务器获得刷新. 请在“经销商”处慢慢输入 "London", 看看有什么不同 ( 注: 此处反应比较迟钝，是因为我们将最小刷新间隔 RefreshDelay 设成600毫秒，在您自己的应用中，可以将它设得小一点).<br>
+<b>4</b>.请在“经销商”处快速输入 "well" 后立即回车，查看单元格数据的变化；快速输入 "we" 后立即回车，却未能获取数据，请您自己分析原因.
+</td></tr>
+</table>
+
+<br>
+<div style="position:relative;width:810px">
+	<script>insertTreeList('AF', '', 320)</script>
+</div>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.源码分析：可查看创建该TreeList的<a href="treelist/orders3.xml" target=_blank>XML描述文件</a>；<br>
+<b>2</b>.查看被下拉引用的<a href="treelist/customer.xml" target=_blank>客户</a>；<br>
+<b>3</b>.查看被下拉引用的<a href="treelist/customer2.xml" target=_blank>经销商</a>，关注dataURL，它采用了表达式：<br>
+&nbsp;&nbsp;<font color=red>dataURL="='http://www.supcan.cn/dotnet/customer.aspx?substr='+encodeURIComponent(data)"</font><br>
+&nbsp;&nbsp;备注：encodeURIComponent( ) 函数作用是对汉字和某些字符作UTF-8编码.<br>
+<b>4</b>.查看提供“经销商”搜索功能的服务器端的<a href="treelistdata/customer_aspx.htm" target=_blank>C#源码</a>；<br>
+<b>5</b>.注意：服务器端的这个服务，还必须承担对单个Key(不是输入的文字)的搜索服务，请看OnReady( )事件:<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ AF.func("Build", "treelist/orders3.xml");
+ AF.func("Load", "treelistdata/orders.txt");
+ 
+ //模拟初始加载：经销商(服务器搜索列)的某几行数据
+ //注意：设置的是data(外键)，而不是display text
+ AF.func("SetCellData", "8 \r\n CustomerID2 \r\nWELLI");		//WELLI 是dataCol数据, 而不是displayCol
+ AF.func("SetCellData", "9 \r\n CustomerID2 \r\nHILAA");		//HILAA 是dataCol数据, 而不是displayCol
+}</pre>
+　　源码的第8、9行模拟了这种场景，如果Load( )的数据包含了 经销商 的数据，在显示时，硕正控件是逐行向服务器发送http请求，取得key相应的display内容的！<br>
+<br>
+<b>6</b>.性能优化：TextId技术简介<br>
+　　从上述分析可知，采用服务器搜索时，初始数据肯定会导致性能问题: 如果每行都有初始值，那么每一行在初次显示时都会向服务器发起一个请求。为了解决此性能问题，建议使用 <b>textId</b> 技术：增加一个隐藏列，该列保存了初始数据的显示内容，由服务器生成加载数据时同时生成。如下是使用了 textId 的例子：
+</td></tr>
+</table>
+<table border=0 cols=1 border=0 width=800 style='line-height:21px'>
+<tr height=150><td height=150><script>insertTreeList('AF2', '')</script></td></tr>
+</table>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td>
+　　请查看该TreeList的<a href="treelist/orders3_textId.xml" target=_blank>XML描述文件</a>, 核心是:<br>
+<pre class='xml'>
+...
+&lt;Col name="CustomerID2" <font color=red>textId="CustomerValue"</font> edittype="editableDroptreelist" droplistID="customer2"&gt;经销商&lt;/Col&gt;
+&lt;Col name="CustomerValue" /&gt;
+...</pre>
+　　请查看加载的<a href="treelistdata/data_textId.xml" target=_blank>XML数据</a>, 请关注其中的&lt;CustomId2&gt;、&lt;CustomValue&gt;的内容.<br>
+<br>
+<b>7</b>.服务器搜索的下拉，允许分页显示，例子在后续的“20.分页的下拉”中:<br>
+</td></tr>
+</table>
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

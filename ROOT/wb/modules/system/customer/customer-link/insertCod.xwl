@@ -1,0 +1,78 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "queryOrg",
+     "jndi": "default",
+     "loadData": "true",
+     "sql": "select AUTH_ORGANIZATION.ID, AUTH_ORGANIZATION.ORG_NAME\
+from  WB_USER,AUTH_ORGANIZATION  where WB_USER.ORG_ID=AUTH_ORGANIZATION.ID  and WB_USER.USER_NAME={?USER_NAME?}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query11",
+     "jndi": "jdbc/basecode",
+     "sql": "UPDATE C_ORG_CUSTOMER\
+set STATE_FLAG={?STATE_FLAGB?}\
+where ID={?ID?}\
+"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "query1",
+     "jndi": "jdbc/basecode",
+     "sql": "INSERT INTO C_CUSTOMER SELECT * FROM C_ORG_CUSTOMER where ID={?ID?}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "inertCus",
+     "jndi": "jdbc/basecode",
+     "transaction": "commit",
+     "sql": "insert into C_CUSTOMER_CONTACT(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME)\
+values('{#sys.id#}' ,{?C_ID?},{?TENANCY_ID?}, '{#queryOrg.ID#}','{#queryOrg.ORG_NAME#}')"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "query"
+   },
+   {
+    "configs": {
+     "itemId": "response1",
+     "string": "{ID:'{#sys.id#}'}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "response"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcxjb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "插入工商行注册号",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

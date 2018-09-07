@@ -1,0 +1,745 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "split": "true",
+      "width": "300",
+      "region": "west"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "layout": "fit",
+        "itemId": "panel11",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {"itemId": "stampToolbar"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "name",
+           "labelAlign": "right",
+           "fieldLabel": "提单号",
+           "width": "170",
+           "isUpperCase": "true",
+           "labelWidth": "50"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "text",
+          "events": {"specialkey": "if(app.name.getValue().length>7){\
+\tapp.seekMenu.fireEvent('click');\
+}\
+"}
+         },
+         {
+          "configs": {
+           "itemId": "seekMenu",
+           "text": "查找",
+           "iconCls": "seek_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.textwarn.setValue(\"\");\
+var s = 0;\
+if (app.name.getValue().trim() != \"\") {\
+  app.gridStamp.store.load({\
+    params: {\
+      name: app.name.getValue()\
+    },\
+    callback: function(records, operation, success) {\
+      for (var i = 0; i < records.length; i++) {\
+        s += records[i].data.SCALE_WT;\
+      }\
+      app.SCALE_WT.setValue(s);\
+    }\
+\
+  });\
+  //\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/selectBill',\
+    params: {\
+      name: app.name.getValue()\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText);\
+      console.log(rs.rows);\
+      Wb.each(rs.rows, function(rec) {\
+        app.I_E_ID.setValue(rec.I_E_ID);\
+        app.BILL_NO.setValue(rec.BILL_NO);\
+        app.CNTR_OPERATOR.setValue(rec.CNTR_OPERATOR);\
+        app.CONSIGNEE.setValue(rec.CONSIGNEE);\
+        app.GOODS_NOTES.setValue(rec.GOODS_NOTES);\
+        app.WEIGHT.setValue(rec.WEIGHT);\
+        if (rec.BILL_TYPE === 'C') {\
+          billType = 'C';\
+        } else if (rec.BILL_TYPE === 'P' && rec.LCL_ID == 1) {\
+          billType = 'P';\
+        }\
+        app.SUPERVISOR.setValue('{#sys.dispname#}');\
+        ///\
+        console.log(rec.ID);\
+        Wb.request({\
+          url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/countPercent',\
+          params: {\
+            BILL_ID: rec.ID,\
+            VWEIGHT: rec.WEIGHT,\
+            BILL_TYPE: rec.BILL_TYPE,\
+            CNTR_ID: rec.CNTR_ID\
+          },\
+          success: function(resp) {\
+            //             var rs = resp.responseText;\
+//             console.log(Wb.decode(resp.responseText));\
+            var rs = Wb.decode(resp.responseText);\
+            if (rs[0].state == true) {\
+              app.textwarn.setValue(\"过磅重量与报关重量相符！\");\
+              app.textwarn.setFieldStyle(\"color:green;\");\
+            } else if (rs[0].state == false) {\
+              app.textwarn.setValue(\"过磅重量与报关重量不符！\");\
+              app.textwarn.setFieldStyle(\"color:red;\");\
+              app.stampBtn.setDisabled(true);\
+            } else if (rs[0].state == \"hasStamp\") {\
+              app.textwarn.setValue(\"已签到！\");\
+              app.textwarn.setFieldStyle(\"color:red;\");\
+            }\
+            app.PERCENT.setValue(rs[0].percent);\
+          }\
+        });\
+        ///\
+      });\
+      ///\
+    }\
+  });\
+\
+}\
+// } else {\
+//   Wb.warn(\"请输入提单号！\");\
+// }"}
+         },
+         {
+          "configs": {
+           "itemId": "stampBtn111",
+           "hidden": "true",
+           "text": "盖章",
+           "iconCls": "report_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "//只有一个箱子是整柜，整柜提单和箱子做对比。拼柜\
+if (billType == 'C') {\
+  //根据提单获取重量，与当前的重量进行比较（提单的+-5%）\
+  var sel = app.gridStamp.getStore().getAt(0);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/checkStamp',\
+    params: {\
+      BILL_ID: sel.data.BILL_ID,\
+      VWEIGHT: app.WEIGHT.getValue(),\
+      BILL_TYPE: billType\
+    },\
+    success: function(resp) {\
+      var rs = resp.responseText;\
+      if (rs === 'true') {\
+        app.textwarn.setValue(\"过磅重量与报关重量相符！\");\
+        Wb.request({\
+          url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+          params: {\
+            BILL_ID: sel.data.BILL_ID\
+          },\
+          success: function(resp) {\
+            Wb.info(\"整柜盖章成功\");\
+          }\
+        });\
+      } else if (rs === 'hasStamp') {\
+        app.textwarn.setValue(\"已签到！\");\
+      } else {\
+        app.textwarn.setValue(\"过磅重量与报关重量超过5%！\");\
+        Wb.confirm(\"过磅重量与报关重量超过5%！\", function() {\
+          Wb.request({\
+            url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+            params: {\
+              BILL_ID: sel.data.BILL_ID\
+            },\
+            success: function(resp) {\
+              Wb.info(\"整柜盖章成功\");\
+            }\
+          });\
+        });\
+      }\
+\
+    }\
+  });\
+\
+} else {\
+  var sel = app.gridStamp.getStore().getAt(0);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/checkStamp',\
+    params: {\
+      BILL_ID: sel.data.BILL_ID,\
+      CNTR_ID: sel.data.CNTR_ID,\
+      BILL_TYPE: billType\
+    },\
+    success: function(resp) {\
+      ///\
+      var rs = resp.responseText;\
+      if (rs === 'true') {\
+        app.textwarn.setValue(\"过磅重量与报关重量相符！\");\
+        Wb.request({\
+          url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+          params: {\
+            BILL_ID: sel.data.BILL_ID\
+          },\
+          success: function(resp) {\
+            Wb.info(\"拼柜盖章成功！\");\
+          }\
+        });\
+      } else if (rs === 'hasStamp') {\
+        app.textwarn.setValue(\"已签到！\");\
+      } else {\
+        app.textwarn.setValue(\"过磅重量与报关重量超过5%！\");\
+        Wb.confirm(\"过磅重量与报关重量超过5%！\", function() {\
+          Wb.request({\
+            url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+            params: {\
+              BILL_ID: sel.data.BILL_ID\
+            },\
+            success: function(resp) {\
+              Wb.info(\"拼柜盖章成功！\");\
+            }\
+          });\
+        });\
+      }\
+\
+      ///\
+    }\
+  });\
+  ///\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "stampBtn",
+           "text": "盖章",
+           "iconCls": "report_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "//只有一个箱子是整柜，整柜提单和箱子做对比。拼柜\
+if (billType == 'C') {\
+  //根据提单获取重量，与当前的重量进行比较（提单的+-5%）\
+  var sel = app.gridStamp.getStore().getAt(0);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/checkStamp',\
+    params: {\
+      BILL_ID: sel.data.BILL_ID,\
+      VWEIGHT: app.WEIGHT.getValue(),\
+      BILL_TYPE: billType\
+    },\
+    success: function(resp) {\
+      var rs = resp.responseText;\
+      if (rs === 'true') {\
+//         app.textwarn.setValue(\"过磅重量与报关重量相符！\");\
+        Wb.request({\
+          url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+          params: {\
+            BILL_ID: sel.data.BILL_ID\
+          },\
+          success: function(resp) {\
+            Wb.info(\"整柜盖章成功\");\
+          }\
+        });\
+      } else if (rs === 'hasStamp') {\
+//         app.textwarn.setValue(\"已签到！\");\
+      } else {\
+//         app.textwarn.setValue(\"过磅重量与报关重量超过5%！\");\
+        Wb.confirm(\"过磅重量与报关重量超过5%！\", function() {\
+          Wb.request({\
+            url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+            params: {\
+              BILL_ID: sel.data.BILL_ID\
+            },\
+            success: function(resp) {\
+              Wb.info(\"整柜盖章成功\");\
+            }\
+          });\
+        });\
+      }\
+\
+    }\
+  });\
+\
+} else {\
+  var sel = app.gridStamp.getStore().getAt(0);\
+  Wb.request({\
+    url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/checkStamp',\
+    params: {\
+      BILL_ID: sel.data.BILL_ID,\
+      CNTR_ID: sel.data.CNTR_ID,\
+      BILL_TYPE: billType\
+    },\
+    success: function(resp) {\
+      ///\
+      var rs = resp.responseText;\
+      if (rs === 'true') {\
+//         app.textwarn.setValue(\"过磅重量与报关重量相符！\");\
+        Wb.request({\
+          url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+          params: {\
+            BILL_ID: sel.data.BILL_ID\
+          },\
+          success: function(resp) {\
+            Wb.info(\"拼柜盖章成功！\");\
+          }\
+        });\
+      } else if (rs === 'hasStamp') {\
+//         app.textwarn.setValue(\"已签到！\");\
+      } else {\
+//         app.textwarn.setValue(\"过磅重量与报关重量超过5%！\");\
+        Wb.confirm(\"过磅重量与报关重量超过5%！\", function() {\
+          Wb.request({\
+            url: 'm?xwl=MiscellJob/cntrweightrec/cntrStampEdit/confirmStamp',\
+            params: {\
+              BILL_ID: sel.data.BILL_ID\
+            },\
+            success: function(resp) {\
+              Wb.info(\"拼柜盖章成功！\");\
+            }\
+          });\
+        });\
+      }\
+\
+      ///\
+    }\
+  });\
+  ///\
+}"}
+         }
+        ],
+        "type": "toolbar"
+       }],
+       "type": "panel"
+      },
+      {
+       "configs": {
+        "layout": "@{type:'table',columns:1}",
+        "itemId": "panel12",
+        "defaults": "{\
+  labelWidth: 80,\
+  width: 290,\
+  margin: '8 8 0 0'\
+}",
+        "region": "center"
+       },
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "textwarn",
+          "width": "296",
+          "fieldStyle": "color:green;"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "textarea"
+        },
+        {
+         "configs": {
+          "itemId": "I_E_ID",
+          "labelAlign": "right",
+          "fieldLabel": "进出口",
+          "keyName": "I_E_ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "BILL_NO",
+          "labelAlign": "right",
+          "fieldLabel": "提单号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_OPERATOR",
+          "labelAlign": "right",
+          "fieldLabel": "船公司"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "SHIPPER",
+          "labelAlign": "right",
+          "fieldLabel": "发货人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "CONSIGNEE",
+          "labelAlign": "right",
+          "fieldLabel": "收货人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "GOODS_NOTES",
+          "labelAlign": "right",
+          "fieldLabel": "货名"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "SCALE_WT",
+          "labelAlign": "right",
+          "fieldLabel": "过磅重量"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "WEIGHT",
+          "labelAlign": "right",
+          "fieldLabel": "货重"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        },
+        {
+         "configs": {
+          "itemId": "PERCENT",
+          "labelAlign": "right",
+          "fieldLabel": "误差百分比",
+          "fieldStyle": "text-align:right"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "STAMP_DATE",
+          "labelAlign": "right",
+          "fieldLabel": "盖章时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "datetime"
+        },
+        {
+         "configs": {
+          "itemId": "SUPERVISOR",
+          "labelAlign": "right",
+          "fieldLabel": "监管员",
+          "disabled": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        }
+       ],
+       "type": "panel"
+      }
+     ],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "itemId": "gridStamp",
+      "split": "true",
+      "disabled": "false",
+      "region": "center"
+     },
+     "expanded": false,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "txtbillno",
+          "hidden": "true",
+          "emptyText": "提单号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "btnPrint",
+          "text": "打印",
+          "iconCls": "printer_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (Wb.isEmpty(app.BILL_NO.getValue())) {\
+  Wb.warn(\"没有找到提单,先查询\");\
+  return;\
+}\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and vh.tenancy_id='\" + tenancyid + \"' and vh.bill_no='\" + app.BILL_NO.getValue() + \"'\");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+var whereSql1 = encodeURI(\" and tenancy_id='\" + tenancyid + \"' and bill_no='\" + app.BILL_NO.getValue() + \"'\");\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql=\" + whereSql1 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=MiscellJob/cntrweightrec/cntrStampEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "ID",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTENANCY_ID",
+          "hidden": "true",
+          "dataIndex": "TENANCY_ID",
+          "text": "租户",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR",
+          "dataIndex": "CNTR",
+          "text": "箱号",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "E_F_ID11",
+          "dataIndex": "E_F_ID",
+          "keyName": "E_F_ID",
+          "text": "空重",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CNTR_OPERATOR21",
+          "dataIndex": "CNTR_OPERATOR",
+          "text": "箱代理",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colWEIGHTIME",
+          "dataIndex": "WEIGHTIME",
+          "width": "120",
+          "text": "过磅时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "WEIGHT12",
+          "dataIndex": "WEIGHT",
+          "text": "舱单重量",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "VOLUME92",
+          "dataIndex": "VOLUME",
+          "text": "体积",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PIECES123",
+          "dataIndex": "PIECES",
+          "text": "件数",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "BILL_NO23",
+          "dataIndex": "BILL_NO",
+          "width": "120",
+          "text": "提单号",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SCALE_WT24",
+          "dataIndex": "SCALE_WT",
+          "text": "货重",
+          "align": "right",
+          "titleAlign": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemclick": "// app.CNTR.setReadOnly(true);\
+// app.selRec = record.data;\
+// Wb.setValue(app.panelForm, record.data);\
+// app.picfile.setValue(record.data.PIC);\
+// app.image.setSrc(record.data.PIC);\
+// app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+    },
+    {
+     "configs": {
+      "border": "false",
+      "layout": "border",
+      "itemId": "panelPrint",
+      "width": "0",
+      "region": "east",
+      "height": "0"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "panel"
+    }
+   ],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var billType = 'C';\
+app.STAMP_DATE.setValue(new Date());\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/print/cntr_weight_rec.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"setSource\", \"https://zsimtos.zsshipping.com/m?xwl=system/common/report/reportTemplate/dataSource&v1.1\");\
+\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "SWB": 1
+ },
+ "title": "海关签到",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

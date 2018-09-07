@@ -1,0 +1,88 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var username = app.get(\"sys.username\");\
+var sq = Wb.getRecords(app.run(\"select phase,EMPTY_DRIVING_FLAG from receipt_updwp where id='\" + data.ID + \"'\"));\
+if (sq[0].PHASE != 'PLN')\
+  throw \"变更申请已经处理完成\";\
+\
+app.run(\"update receipt_updwp set PHASE='FIN' where id={?ID?}\", {\
+  transaction: \"start\"\
+});\
+if (data.WORK_TYPE == \"EOTC\" || data.WORK_TYPE == \"FOTC\") {\
+  var rec = Wb.getRecords(app.run(\"select phase from receipt where id='\" + data.RID + \"'\"));\
+  if (rec[0].PHASE != \"OUT\") {\
+    app.send({\
+      msg: \"箱子不在场外,审核失败\",\
+      success: false\
+    });\
+    return;\
+  }\
+  app.run(\"update receipt set work_type={?WORK_TYPE?},phase='FIN' where id='\" + data.RID + \"'\");\
+  app.run(\"update truck_visit set phase='FIN' where id in(select tvid from truck_receipt where rpid='\" + data.RID + \"')\");\
+  app.run(\"insert into port_cntr_his(id,tenancy_id,cntr,phase,category_id,trade_id,i_e_id,e_f_id,cntr_iso,line,\" +\
+    \"cntr_operator,cntr_owner,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+    \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,\" +\
+    \"pod,pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,\" +\
+    \"cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,\" +\
+    \"imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+    \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+    \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+    \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,\" +\
+    \"exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,\" +\
+    \"pre_tak_id,trans_id,delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes,updated_on,created_on,\" +\
+    \"cntr_size,cntr_type,created_by,updated_by,cntr_operator_cod,line_cod)\" +\
+    \"select id,tenancy_id,cntr,'RET',category_id,trade_id,i_e_id,e_f_id,cntr_iso,line,\" +\
+    \"cntr_operator,cntr_owner,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+    \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,\" +\
+    \"pod,pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,\" +\
+    \"cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,\" +\
+    \"imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+    \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+    \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+    \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,\" +\
+    \"exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,\" +\
+    \"pre_tak_id,trans_id,delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes,sysdate,sysdate,\" +\
+    \"cntr_size,cntr_type,'\" + username + \"','\" + username + \"',cntr_operator_cod,line_cod\" +\
+    \" from port_cntr where id='\" + data.CNTR_ID + \"'\");\
+  app.run(\"delete from port_cntr where id='\" + data.CNTR_ID + \"'\");\
+  //调用堆存\
+  request.setAttribute(\"moveType\", \"ZC\");\
+  request.setAttribute(\"cntr\", data.CNTR);\
+  request.setAttribute(\"cntrId\", data.CNTR_ID);\
+  app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+  app.send({\
+    msg: \"审核完成\",\
+    success: true\
+  });\
+} else {\
+  app.run(\"update receipt set work_type={?WORK_TYPE?},EMPTY_DRIVING_FLAG=\" + sq[0].EMPTY_DRIVING_FLAG +\
+    \" where id='\" + data.RID + \"'\", {\
+      transaction: 'commit'\
+    });\
+  app.send({\
+    msg: \"审核完成\",\
+    success: true\
+  });\
+  var map = new HashMap();\
+  map.put(\"rpId\", data.RID);\
+  Wb.newClass(\"dubboForReceipt\").call(request, map);\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1
+ },
+ "title": "通过",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

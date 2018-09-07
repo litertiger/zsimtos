@@ -1,0 +1,90 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+\
+var sdate = app.get(\"sdate\");\
+var edate = app.get(\"edate\");\
+var sql = \"select * from payment_by_proxy where tenancy_id='\" + tenancyid + \"'\";\
+var scdate = data.csdate;\
+var cedate = data.cedate;\
+if (!Wb.isEmpty(data.customer)) {\
+  sql += \" and (PAYMENT_CUSTOMER_ID = {?customer?} or PROXY_CUSTOMER_ID={?customer?})\";\
+}\
+var nature = app.get(\"sys.NATURE\");\
+\
+var customcode = app.get(\"sys.GOV_CODE\");\
+\
+if (nature == \"5\")\
+  sql += \" and (PAYMENT_CUSTOMER_ID='\" + customcode + \"'  or  PROXY_CUSTOMER_ID  ='\"+customcode+\"')\";\
+\
+\
+var count = '';\
+if (!Wb.isEmpty(data.charge)) {\
+  if (data.charge == 1) {\
+    sql += \" AND PAYMENT_BY IS NOT NULL\";\
+    count = 1;\
+  } else if (data.charge == 2) {\
+    sql += \" AND PROXY_BY IS NOT NULL\";\
+    count = 2;\
+  }\
+}\
+if (!Wb.isEmpty(data.user)) {\
+  sql += \" AND TENANCY_ID = '\" + tenancyid + \"'\";\
+}\
+\
+if (!Wb.isEmpty(scdate)) {\
+  if (count == 1) {\
+    sql += \" AND PAYMENT_ON >= TO_DATE('\" + scdate + \" 00:00:00','yyyy-MM-dd hh24:mi:ss')\";\
+  } else if (count == 2) {\
+    sql += \" AND PROXY_ON >= TO_DATE('\" + scdate + \" 00:00:00','yyyy-MM-dd hh24:mi:ss')\";\
+  } else {\
+    sql += \" AND (PAYMENT_ON >= TO_DATE('\" + scdate + \" 00:00:00','yyyy-MM-dd hh24:mi:ss') OR\" +\
+      \" PROXY_ON >= TO_DATE('\" + scdate + \" 00:00:00','yyyy-MM-dd hh24:mi:ss'))\";\
+  }\
+}\
+\
+if (!Wb.isEmpty(cedate)) {\
+  if (count == 1) {\
+    sql += \" AND PAYMENT_ON <= TO_DATE('\" + cedate + \" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+  } else if (count == 2) {\
+    sql += \" AND PROXY_ON <= TO_DATE('\" + cedate + \" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+  } else {\
+    sql += \" AND (PAYMENT_ON <= TO_DATE('\" + cedate + \" 23:59:59','yyyy-MM-dd hh24:mi:ss') OR\" +\
+      \" PROXY_ON >= TO_DATE('\" + cedate + \" 23:59:59','yyyy-MM-dd hh24:mi:ss'))\";\
+  }\
+}\
+\
+if (!Wb.isEmpty(sdate) && !Wb.isEmpty(edate)) {\
+  sql += \" and TICKET_DATE between to_date('\" + sdate + \"','yyyy-MM-dd hh24:mi:ss') and to_date('\" + edate +\
+    \"','yyyy-MM-dd hh24:mi:ss') \";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

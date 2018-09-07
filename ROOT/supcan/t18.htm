@@ -1,0 +1,121 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var count=0;
+ function OnReady(id)
+ {
+ 	cooper();
+ }
+ function cooper()
+ {
+   count++;
+   if(count != 3) return;
+   AF1.func("Build", "treelist/t1.xml");
+   AF2.func("Build", "treelist/pager.xml");
+
+  //绑定
+   var url = "http://www.supcan.cn/DotNet/access.aspx?sleep=1&startRow=@startRow&rows=@rows";
+   var h = AF1.func("GetHandle", "");
+   AF2.func("BindPager", h + "\r\n ID0");  //绑定
+   //设置分页器的dataURL (将自动加载Treelist数据)
+   AF2.func("SetObjectProp", "ID0\r\n dataURL \r\n" +url+ "\r\n mode=asynch");	//让Treelist异步加载数据
+ }
+  
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id=='AF2') {
+   if(Event=="ButtonClicked") {
+    if(p1=="IDRefresh") AF1.func("refresh", "");
+    else if(p1=="IDPrint") AF1.func("printPreview", "");
+   }
+  }
+ }
+</script>
+</head>
+
+<body onLoad='cooper()' vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=150>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.使用了硕正套件中和Treelist并列的另一个组件：Freeform(自由表头)组件, 可参考<a href="demofreeform.htm?103" target=_blank>自由表头</a>演示页及相关资料;<br>
+<b>2</b>.紧挨着Treelist下方的工具条就是 Freeform 的 Pager(分页器)；<br>
+<b>3</b>.分页方案必须结合后端开发，本demo的后端是asp.net；</td>
+</tr>
+</table>
+
+<br>
+<div style="position:relative;width:90%">
+	<script>insertTreeList('AF1', 'borderColor=#377d8d', '300px')</script>
+</div>
+<div style="position:relative;width:90%">
+	<script>insertFreeForm('AF2', 'Border=none;isUseContextFont=false', '40px')</script>
+</div>
+
+
+
+
+<!--tr height=25 bgColor=#003366><td colspan=2 align=right><a href="treelist/t17.xml" target=_blank>查看创建该TreeList的XML描述文件</a>&nbsp;&nbsp;</td></tr-->
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.下方的Freeform(自由表头)组件中的含有分页器，可查看该Freeform的<a href="treelist/pager.xml" target=_blank>XML描述文件</a>，其核心就是如下这句:<br>
+　　　　&lt;pager id="ID0" ...&gt;<br>
+　　其它都是背景外观、自定义功能按钮之类的和分页无关的内容，可见分页器的外观设计也很自由.<br>
+<br>
+<b>2</b>.分页显示的关键是 dataURL 的书写格式必须包含 @rows 宏和二选一的 @page、@startRow宏；<br>
+　　dataURL = "http://www.supcan.cn/DotNet/access.aspx?rows=<font color=red>@rows</font>&startRow=<font color=red>@startRow</font>"<br>
+也可以写成:<br>
+　　dataURL = "http://www.supcan.cn/DotNet/access.aspx?rows=<font color=red>@rows</font>&page=<font color=red>@Page</font>"<br>
+　　本例通过 SetObjectProp 函数修改分页器的dataURL，当然，你也可以在XML中将dataURL写死.<br>
+<br>
+<b>3</b>.该TreeList采用了第一个演示页的<a href="treelist/t1.xml" target=_blank>XML描述文件</a>;<br>
+<br>
+<b>4</b>.Treelist和Freeform的js创建语句：<br>
+<pre class='xml'>
+&lt;div style="position:relative;width:90%;height:300px"&gt;
+ //borderColor 须和下面的Freeform XML描述文件中的边界线色一致
+ &lt;script&gt;insertTreeList('AF1', 'borderColor=#377d8d')&lt;/script&gt;
+&lt;/div>
+//Treelist 和 Freeform 上下紧挨着
+&lt;div style="position:relative;width:90%;height:40px"&gt;
+ &lt;script&gt;insertFreeForm('AF2', 'Border=none;isUseContextFont=false')&lt;/script&gt;
+&lt;/div&gt;</pre>
+<br>
+<b>5</b>.源码分析：<br>
+<pre class='cpp'>
+var count=0;
+function OnReady(id)
+{
+ count++;
+ if(count != 2) return;   //须保证在AF1、AF2全部创建后，见下面的备注
+ AF1.func("Build", "treelist/t1.xml");
+ AF2.func("Build", "treelist/pager.xml");
+ 
+ //绑定
+ var url = "http://www.supcan.cn/DotNet/access.aspx?sleep=1&startRow=@startRow&rows=@rows";
+ var h = AF1.func("GetHandle", "");
+ AF2.func("BindPager", h + "\r\n ID0");  //绑定
+ //设置分页器的dataURL (将自动加载Treelist数据)
+ AF2.func("SetObjectProp", "ID0\r\n dataURL \r\n" +url+ "\r\n mode=asynch");	//让Treelist异步加载数据
+}</pre>
+备注：请注意 count 变量，其作用相当于是计数器，count=2表示插件全部已创建好，这样才能绑定, 因为本例中 Treelist 和 Freeform 处在不同的&lt;Div&gt;中，而浏览器是以多线程方式工作的，写在脚本中靠前的位置的Div<font color=red>未必</font>先完成创建！<br>
+<br>
+<b>6</b>.后端的<a href="treelistdata/access.aspx.txt" target=_blank>C#源码</a>，后端的<a href="http://www.supcan.cn/dotnet/access.mdb.zip">Access数据库文件(access.mdb)<a>您可下载;<br>
+<br>
+<b>7</b>.<font color=red>给程序员的提示</font>：本demo只是分析分页的原理，真正使用时，不要参考本页面，建议参考演示页"30.FreeformBar";<br>
+</td></tr></table>
+
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

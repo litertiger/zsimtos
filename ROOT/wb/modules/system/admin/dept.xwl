@@ -1,0 +1,285 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editWin",
+     "editWin": "true",
+     "width": "416",
+     "defaultFocus": "DEPT_NAME",
+     "height": "112"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "allowBlank": "false",
+      "itemId": "DEPT_NAME",
+      "labelAlign": "right",
+      "fieldLabel": "* 部门名称",
+      "width": "376",
+      "x": "0",
+      "y": "16",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  Wb.request({\
+    url: 'm?xwl=system/admin/dept/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selNode, true)),\
+    success: function() {\
+      values.text = values.DEPT_NAME;\
+      Wb.update(app.selNode, values);\
+      app.editWin.close();\
+    }\
+  });\
+} else {\
+  Wb.request({\
+    url: 'm?xwl=system/admin/dept/insert',\
+    out: app.editWin,\
+    params: {\
+      PARENT_DEPT: app.selNode.data.DEPT_ID,\
+      ORDER_INDEX: app.selNode.lastChild ? app.selNode.lastChild.data.ORDER_INDEX + 1 : 1\
+    },\
+    success: function(resp) {\
+      app.selNode.expand();\
+      app.selNode.appendChild(Wb.apply({\
+        iconCls: 'db_field_icon',\
+        text: values.DEPT_NAME,\
+        children: []\
+      }, Wb.decode(resp.responseText))).commit();\
+      app.editWin.close();\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "toolbar1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "newBtn",
+         "tooltip": "在当前节点下添加部门 (Ctrl+E)",
+         "text": "添加",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!app.selNode) {\
+  Wb.warn('请选择 1 个部门。');\
+  return;\
+}\
+app.editWin.setTitle('添加 - ' + app.selNode.data.text);\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+app.isEdit = false;"}
+       },
+       {
+        "configs": {
+         "itemId": "editBtn",
+         "tooltip": "修改选择的部门",
+         "text": "修改",
+         "iconCls": "record_edit_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!app.selNode) {\
+  Wb.warn('请选择 1 个部门。');\
+  return;\
+}\
+if (app.selNode.isRoot()) {\
+  Wb.warn('不能对根节点进行修改。');\
+  return;\
+}\
+app.editWin.setTitle('修改 - ' + app.selNode.data.text);\
+app.editWin.setIconCls('record_edit_icon');\
+Wb.setValue(app.editWin, app.selNode.data);\
+app.editWin.show();\
+app.isEdit = true;"}
+       },
+       {
+        "configs": {
+         "itemId": "delBtn",
+         "tooltip": "删除选择的部门",
+         "text": "删除",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (app.tree1.selModel.isSelected(app.tree1.getRootNode())) {\
+  Wb.warn('不能删除根节点。');\
+  return;\
+}\
+Wb.confirm('确定要删除选择的部门及其所属的所有子部门吗？', function() {\
+  var deptIds = {};\
+  Wb.each(app.tree1.getSelection(), function(node) {\
+    node.cascadeBy(function(item) {\
+      deptIds[item.data.PID] = {\
+        PID: item.data.PID\
+      };\
+    });\
+  });\
+  Wb.request({\
+    url: 'm?xwl=system/admin/dept/delete',\
+    params: {\
+      deptIds: Ext.Object.getValues(deptIds)\
+    },\
+    success: function(resp) {\
+      Wb.remove(app.tree1);\
+    }\
+  });\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "item1",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "refreshBtn",
+         "tooltip": "刷新部门列表",
+         "text": "刷新",
+         "iconCls": "refresh_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.reload(app.tree1, null, {\
+  field: 'DEPT_ID'\
+});"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "tree1",
+       "root": "{\
+  text: '全部',\
+  DEPT_ID: '-1',\
+  expanded: true\
+}",
+       "viewConfig": "app.treeViewConfig",
+       "region": "center",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "fields": "['text', 'DEPT_NAME', 'DEPT_ID', 'PARENT_DEPT', 'ORDER_INDEX']",
+        "url": "m?xwl=system/admin/dept/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "treestore",
+       "events": {"success": "Wb.selFirst(app.tree1);"}
+      }],
+      "type": "tree",
+      "events": {
+       "selectionchange": "app.selNodes = selected;\
+app.selNode = selected[0];",
+       "itemdblclick": "app.editBtn.fireEvent('click');"
+      }
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "app.navKey = new Ext.KeyNav({\
+  viewport: app.viewport1,\
+  E: {\
+    ctrl: true,\
+    fn: function() {\
+      app.newBtn.fireEvent('click');\
+    }\
+  }\
+});"}
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  treeViewConfig: {\
+    plugins: {\
+      ptype: 'treeviewdragdrop'\
+    },\
+    listeners: {\
+      beforedrop: function(node, data, om, dp, dh) {\
+        var i, index, parentNode, parentDept, selDepts, deptCount = data.records.length;\
+        if (dp == 'append') {\
+          parentNode = om;\
+          index = om.lastChild ? om.lastChild.data.ORDER_INDEX + 1 : 1;\
+        } else {\
+          parentNode = om.parentNode;\
+          index = dp == 'before' ? om.data.ORDER_INDEX : om.data.ORDER_INDEX + 1;\
+        }\
+        dh.wait = true;\
+        parentDept = parentNode.data.DEPT_ID;\
+        selDepts = Wb.getData(data.records);\
+        i = 0;\
+        Wb.each(selDepts, function(item) {\
+          item.ORDER_INDEX = index + (i++);\
+        });\
+        Wb.request({\
+          url: 'm?xwl=system/admin/dept/move',\
+          params: {\
+            index: index,\
+            deptCount: deptCount,\
+            parentDept: parentDept,\
+            selDepts: selDepts\
+          },\
+          callback: function(a, succ) {\
+            if (succ) {\
+              dh.processDrop();\
+              parentNode.eachChild(function(node) {\
+                i = node.data.ORDER_INDEX;\
+                if (i >= index)\
+                  node.set('ORDER_INDEX', i + deptCount);\
+              });\
+              i = 0;\
+              Wb.each(data.records, function(node) {\
+                node.set('PARENT_DEPT', parentDept);\
+                node.set('ORDER_INDEX', index + (i++));\
+              });\
+              app.tree1.setSelection(data.records);\
+            } else {\
+              dh.cancelDrop();\
+            }\
+          }\
+        });\
+      }\
+    }\
+  }\
+});"}
+ }],
+ "roles": {},
+ "title": "部门管理",
+ "iconCls": "org_icon",
+ "inframe": false,
+ "pageLink": ""
+}

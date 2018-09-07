@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//整柜：一票提单和多个柜；拼柜：多票和一个柜\
+var data = app.get();\
+var state = true;\
+//整柜\
+if (data.BILL_TYPE == 'C') {\
+  var rs = app.run(\"select port_cntr.SCALE_WT from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and vload_list.BILL_ID ={?BILL_ID?} AND vload_list.TENANCY_ID={?sys.TENANCY_ID?}\"),\
+    pw = 0;;\
+  while (rs.next()) {\
+//     pw += parseInt(rs.getString('SCALE_WT'));\
+    pw += rs.getInt('SCALE_WT');\
+  }\
+  if (pw > data.VWEIGHT * 0.95 && pw < data.VWEIGHT * 1.05) {\
+    state = true;\
+  } else {\
+    state = false;\
+  }\
+}\
+//拼柜\
+if (data.BILL_TYPE == 'P') {\
+//   var rs = app.run(\"select weight from vbill_head id in(select BILL_ID from vload_list where cntr_id={?CNTR_ID?} AND I_E_ID='E') \"),\
+//     vw = 0;;\
+  var rs = app.run(\"select weight from vbill_head WHERE id in(select BILL_ID from vload_list where cntr_id={?CNTR_ID?}) AND vbill_head.TENANCY_ID={?sys.TENANCY_ID?} \"),\
+    vw = 0;;\
+  while (rs.next()) {\
+    vw += rs.getInt('WEIGHT');\
+  }\
+  \
+  \
+  ///\
+  var r=app.run(\"select port_cntr.SCALE_WT from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and cntr_id={?CNTR_ID?} AND vload_list.TENANCY_ID={?sys.TENANCY_ID?}\");\
+  var s=0;\
+  while(r.next()){\
+  \ts+=r.getString('SCALE_WT');\
+  }\
+  ///\
+  if (s > vw * 0.95 && s < vw * 1.05) {\
+    state = true;\
+  } else {\
+    state = false;\
+  }\
+}\
+var k=app.run(\"select GBZ from vbill_head_e where ID={?BILL_ID?} AND GBZ=1\");\
+if(k.next()){\
+\tstate=\"hasStamp\";\
+}\
+app.send(state);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

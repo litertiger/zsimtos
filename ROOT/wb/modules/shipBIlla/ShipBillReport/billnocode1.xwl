@@ -1,0 +1,437 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "gridbill",
+     "editable": "true",
+     "disabled": "false",
+     "region": "center"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "txtbill",
+         "labelAlign": "right",
+         "fieldLabel": "提单号",
+         "labelWidth": "50"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+       },
+       {
+        "configs": {
+         "itemId": "vessel",
+         "labelAlign": "right",
+         "fieldLabel": "船",
+         "width": "140",
+         "displayField": "VESSEL_NAME",
+         "labelWidth": "20",
+         "valueField": "VESSEL_NAME",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=shipManage/ship/operatorAgentsEdit/vessel_code"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "i_e_id",
+         "labelAlign": "right",
+         "fieldLabel": "进出口",
+         "width": "120",
+         "keyName": "I_E_ID",
+         "labelWidth": "50",
+         "forceSelection": "true"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "trade_id",
+         "labelAlign": "right",
+         "fieldLabel": "内外贸",
+         "width": "120",
+         "keyName": "TRADE_ID",
+         "labelWidth": "50",
+         "forceSelection": "true"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "billType",
+         "labelAlign": "right",
+         "fieldLabel": "类型",
+         "width": "120",
+         "keyName": "BILL_TYPE",
+         "labelWidth": "50",
+         "forceSelection": "true"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "btnsearch",
+         "text": "@Str.find",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.gridbill.store.load({\
+  params: {\
+    bill: app.txtbill.getValue(),\
+    vessel: app.vessel.getValue(),\
+    i_e_id: app.i_e_id.getValue(),\
+    trade_id: app.trade_id.getValue(),\
+    billType:app.billType.getValue()\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "btnsave",
+         "text": "保存",
+         "iconCls": "save_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verifyGrid(app.gridbill)) //验证数据是否合法\
+  return;\
+\
+Wb.sync({\
+  grid: app.gridbill,\
+  url: \"m?xwl=shipBIlla/ShipBillReport/billnocodeedit/save\",\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    app.btnsearch.fireEvent(\"click\");\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "item1",
+         "text": "-"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "setCusBtn",
+         "hidden": "true",
+         "text": "设置临时客户",
+         "iconCls": "anonymous_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var r = app.gridbill.getSelection();\
+if (r.length == 1)\
+  Wb.run({\
+    url: 'm?xwl=system/common/client/clientEdit',\
+    contextOwner: app,\
+    success: function(appOld) {\
+      var win = new Ext.window.Window(appOld._editWin); //_window1为配置对象，window1为实例\
+      win.title = \"设置客户\";\
+      win.show();\
+      if (r[0].data.I_E_ID == \"I\")\
+        appOld.NAME.setValue(r[0].data.CONSIGNEE);\
+      if (r[0].data.I_E_ID == \"E\")\
+        appOld.NAME.setValue(r[0].data.SHIPPER);\
+      win.mon(win, 'ok', function() {\
+        var values = Wb.getValue(win);\
+        Wb.request({\
+          url: 'm?xwl=system/common/client/insertCus',\
+          params: values, //合并窗口和记录数据作为参数，后者为默认值\
+          success: function() {\
+            win.close();\
+            r[0].set(\"CONSIGNEE_COD\", appOld.CODE.getValue());\
+          }\
+        });\
+\
+      });\
+    }\
+  });\
+else\
+  Wb.warn(\"请选择一条！\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "store",
+       "url": "m?xwl=shipBIlla/ShipBillReport/billnocodeedit/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     },
+     {
+      "configs": {"itemId": "columns"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "column1",
+         "xtype": "rownumberer"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colTRADE_ID",
+         "dataIndex": "TRADE_ID",
+         "keyName": "TRADE_ID",
+         "width": "60",
+         "text": "内外贸"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colI_E_ID",
+         "dataIndex": "I_E_ID",
+         "keyName": "I_E_ID",
+         "width": "60",
+         "text": "进出口"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCREATED_ON",
+         "dataIndex": "CREATED_ON",
+         "width": "120",
+         "text": "创建时间"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colVESSEL_NAME",
+         "dataIndex": "VESSEL_NAME",
+         "text": "船名"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colBILL_NO",
+         "dataIndex": "BILL_NO",
+         "text": "提单号"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colSHIPPER",
+         "dataIndex": "SHIPPER",
+         "text": "发货人"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colSHIPPER_COD",
+         "dataIndex": "SHIPPER_COD",
+         "text": "发货人代码"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "hideTrigger": "true",
+          "tagConfigs": "matchFieldWidth: false",
+          "itemId": "editor",
+          "displayField": "CNAME",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{\
+  width: 250\
+}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "forceSelection": "true"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var sel = app.gridbill.getSelection()[0];\
+sel.set(\"SHIPPER\", records[0].data.CNAME);"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCONSIGNEE",
+         "dataIndex": "CONSIGNEE",
+         "text": "收货人"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCONSIGNEE_COD",
+         "dataIndex": "CONSIGNEE_COD",
+         "text": "收货人代码"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "hideTrigger": "true",
+          "tagConfigs": "matchFieldWidth: false",
+          "itemId": "editor",
+          "displayField": "CNAME",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{\
+  width: 250\
+}",
+          "valueField": "ID",
+          "queryDelay": "200",
+          "forceSelection": "false"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo",
+         "events": {"select": "var sel = app.gridbill.getSelection()[0];\
+if (sel.data.I_E_ID == \"E\")\
+  sel.set(\"CONSIGNEE\", records[0].data.CNAME);"}
+        }],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OPERATOR_COD",
+         "dataIndex": "CNTR_OPERATOR_COD",
+         "text": "箱代理代码"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OPERATOR",
+         "dataIndex": "CNTR_OPERATOR",
+         "text": "箱代理"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OWNER_COD",
+         "dataIndex": "CNTR_OWNER_COD",
+         "text": "箱主代码"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OWNER",
+         "dataIndex": "CNTR_OWNER",
+         "text": "箱主"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "column"
+       }
+      ],
+      "type": "array"
+     }
+    ],
+    "type": "grid"
+   }],
+   "type": "viewport"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "JTQGB": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "无货主代码舱单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

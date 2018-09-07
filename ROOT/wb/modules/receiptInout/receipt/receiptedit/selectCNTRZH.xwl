@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get('sys.NATURE');\
+var customcode = app.get('sys.GOV_CODE');\
+\
+var sql = \"select ID CNTR_ID,TENANCY_ID,CNTR,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,CNTR_ISO,CNTR_OWNER,CNTR_OWNER_COD,\" +\
+  \"CNTR_OPERATOR,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,CNTR_HIGHT,CNTR_LENGTH,POL,CMDY_CODE,CONSIGNEE,SHIPPER,DANG_ID,\" +\
+  \"IMDG,UNDG,SPEC_STOW,SPEC_STOW2,SPEC_STOW3,TEMP_SET,TEMP_MIN,TEMP_MAX,REEF_ID,HUMIDITY_LEVEL,OVERHEIGHT,OVERBACK,\" +\
+  \"OVERLEFT,OVERRIGHT,OOG_ID,CNTR_SIZE,CNTR_TYPE,CNTR_OPERATOR_COD,ON_POWER,YARD_POSITION,SHIPPER_NAME SHIPPER,\" +\
+  \"SHIPPER SHIPPER_COD,CONSIGNEE_NAME CONSIGNEE,CONSIGNEE CONSIGNEE_COD\" +\
+  \" from port_cntr where tenancy_id='\" + tenancyid + \"' and CNTR like '%\" + data.CNTR + \"%' and TRADE_ID='1'\";\
+if (nature == \"5\")\
+  sql += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+var result = DbUtil.getData(app.run(sql), request);\
+if (Wb.decode(result).length == 1)\
+  app.send({\
+    cntr: result,\
+    success: true\
+  });\
+if (Wb.decode(result).length > 1)\
+  app.send({\
+    msg: \"查到了多个关于\" + data.CNTR + \"的箱子,请输入更精确的箱号\",\
+    success: false\
+  });\
+if (Wb.decode(result).length < 1)\
+  app.send({\
+    msg: data.CNTR + \"没有找到箱子或箱子不在场\",\
+    success: false\
+  });"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "查询箱子做重回",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

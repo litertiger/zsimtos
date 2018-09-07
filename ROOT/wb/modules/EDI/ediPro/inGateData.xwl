@@ -1,0 +1,104 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\" standalone=\\\"no\\\"?><Message xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\"><Head>\";\
+var head = \"\",\
+  order = \"\";\
+var id = app.get(\"ID\"),\
+  intime = new Date(),\
+  ieId = app.get('I_E_ID'),\
+  efId = app.get('E_F_ID'),\
+  cntr = app.get('CNTR'),\
+  billNo = app.get('BILL_NO'),\
+  car = app.get('IN_CAR');\
+\
+var formId=SysUtil.getId();\
+// if (ieId == 'I') {\
+//   ieId = \"进口\";\
+// } else {\
+//   ieId = \"出口\";\
+// }\
+\
+if (efId == 'E') {\
+  efId = 4;\
+} else {\
+  efId = 5;\
+}\
+\
+var rs = app.run(\"select PLAT_NO from C_TRUCK where TRUCK_NO ='\" + car + \"'\", {\
+    jndi: \"jdbc/basecode\"\
+  }),\
+  carNo;\
+while (rs.next()) {\
+  carNo = rs.getString('PLAT_NO');\
+}\
+var tenancyId = app.get('sys.TENANCY_ID');\
+if (tenancyId == 'ZSG') {\
+  tenancyId = 'HY';\
+} else if (tenancyId == 'XLG') {\
+  tenancyId = 'XLG';\
+} else if (tenancyId == 'SWG') {\
+  tenancyId = 'SWG';\
+}\
+var DomCrud = com.ag.task.Util.DomCrud;\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+    dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmmss'),\
+  d = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss.uu');;\
+\
+if (billNo === null) {\
+  billNo = \"\";\
+}\
+head += '<MessageID>ZSENTERPRI_'+dateName1+'<\/MessageID>';\
+head += '<FunctionCode>2<\/FunctionCode>';\
+head += '<MessageType>CAP0071<\/MessageType>';\
+head += '<SenderID>' + tenancyId + '<\/SenderID>';\
+head += '<ReceiverID>GBCUSTOMS<\/ReceiverID>';\
+head += '<SendTime>' + dateName1 + '<\/SendTime>';\
+head += '<Version>1.0<\/Version><\/Head>';\
+xml += head;\
+order += \"<Declaration>\";\
+\
+order += \"<Info_Head>\";\
+order += \"<FORM_ID>CAP0071\" + dateName + \"<\/FORM_ID>\";\
+order += \"<CAR_NO>\" + carNo + \"<\/CAR_NO>\";\
+order += \"<GATE_TIME>\" + dateText + \"<\/GATE_TIME>\";\
+order += \"<Info_List><FORM_ID>CAP0071\" + dateName + \"<\/FORM_ID>\";\
+order += \"<CONTA_ID>\" + cntr + \"<\/CONTA_ID>\";\
+order += \"<EMPTY_CONTA_MARK>\" + efId + \"<\/EMPTY_CONTA_MARK>\";\
+order += \"<I_E_FLAG>\" + ieId + \"<\/I_E_FLAG>\";\
+order += \"<TRANSPORT_ID/>\";\
+order += \"<VOYAGE_NO/><\/Info_List>\";\
+\
+order += \"<\/Info_Head>\";\
+order += \"<\/Declaration>\";\
+order += \"<\/Message>\";\
+xml += order;\
+if(tenancyId=='HY')\
+DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0071_CUSTOMS_\"+tenancyId+ dateName);\
+// else\
+// DomCrud.writerDocumentToNewFile(xml.toString(), \"CN_CAP0071_CUSTOMS_\"+tenancyId+ dateName);\
+\
+app.run(\"insert into AAAA(COD, NAME, ENAME) values('\"+cntr+\"','gxw','\"+tenancyId+\"')\");\
+\
+  "
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "basic": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "入闸数据报文申报",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

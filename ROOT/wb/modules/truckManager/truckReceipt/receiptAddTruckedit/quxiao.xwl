@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var qx = Wb.getRecords(app.run(\"select phase from receipt where id='\" + data.ID + \"'\"));\
+if (qx[0].PHASE != \"EXE\")\
+  throw \"设备交接单已经作业,不能取消派车\";\
+\
+app.run(\"update receipt set IN_CAR='',IN_CAMPI='',IN_DRIVER_ID='',IN_CAR_HP='',IN_TRAY_NO='',IN_DRIVER_NAME='',\" +\
+  \"OUT_CAR='',OUT_CAMPI='',OUT_DRIVER_ID='',OUT_CAR_HP='',OUT_TRAY_NO='',OUT_DRIVER_NAME='',pc_by='',PHASE='PLN',\" +\
+  \"RID1='' where ID='\" + data.ID + \"'\", {\
+    transaction: 'start'\
+  });\
+\
+app.run(\"update receipt set rid1='' where rid1='\" + data.ID + \"'\", {\
+  transaction: 'commit'\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "取消操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

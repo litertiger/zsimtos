@@ -1,0 +1,340 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "minHeight": "300",
+     "layout": "absolute",
+     "itemId": "loginWnd",
+     "resizable": "false",
+     "width": "344",
+     "title": "登录单一窗口",
+     "height": "30"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "panel1",
+       "x": "8",
+       "width": "320",
+       "y": "8",
+       "height": "240",
+       "frame": "true"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "swy",
+         "allowBlank": "false",
+         "fieldLabel": "用户",
+         "value": "zsgywb"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "swm2",
+         "allowBlank": "false",
+         "fieldLabel": "密码",
+         "inputType": "password",
+         "value": "ywb85598324"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "verifyCode",
+         "allowBlank": "false",
+         "fieldLabel": "验证码"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "vcode",
+         "stretch": "true",
+         "width": "250",
+         "height": "100"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "image"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "button1",
+       "width": "240",
+       "x": "48",
+       "y": "248.00001525878906",
+       "style": "height:'20px'",
+       "text": "登录222",
+       "iconCls": "anonymous_icon",
+       "height": "15"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "var val = Wb.getValue(app.loginWnd);\
+for (var key in val)\
+  singleWindow[key].value = val[key];\
+singleWindow.document.forms[0].submit.click();\
+var timer = setInterval(function() {\
+  if (singleWindow.$) {\
+    clearInterval(timer);\
+    app.loginWnd.close();\
+    return;\
+  }\
+  if (singleWindow.errorMsg.style.visibility == 'visible') {\
+    clearInterval(timer);\
+    Wb.error(singleWindow.errorMsg.innerText);\
+    var timer1 = setInterval(function() {\
+      if (!(singleWindow.vcode && singleWindow.vcode.complete))\
+        return;\
+      var c = singleWindow.document.createElement('canvas');\
+      var d = c.getContext('2d');\
+      d.drawImage(singleWindow.vcode, 0, 0, 250, 100);\
+      var dataUrl = c.toDataURL();\
+      app.vcode.setSrc(dataUrl);\
+      clearInterval(timer1);\
+    }, 100);\
+  }\
+}, 100);"}
+     }
+    ],
+    "type": "window",
+    "events": {"show": "var timer = setInterval(function() {\
+  if (!(singleWindow.vcode && singleWindow.vcode.complete))\
+    return;\
+  var c = singleWindow.document.createElement('canvas');\
+  var d = c.getContext('2d');\
+  d.drawImage(singleWindow.vcode, 0, 0, 250, 100);\
+  var dataUrl = c.toDataURL();\
+  app.vcode.setSrc(dataUrl);\
+  clearInterval(timer);\
+}, 100);"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "panel1",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {"itemId": "toolbar1"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "船舶查询"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "function relogin(result) {\
+  if (typeof result == 'string' && result.match(/<form.*?action\\s*=\\s*(\"|')\\/cas\\/login/)) {\
+    singleWindow.location.reload();\
+    app.loginWnd.show();\
+  }\
+}\
+if (!singleWindow.$)\
+  return app.loginWnd.show();\
+app.getShipId(\"5103550065\",\"171125000000\",singleWindow);\
+// singleWindow.$.ajax({\
+//   url: \"/mft/biz/manifestArrivalHead!getPagingByAjax.action?page=1&rows=30&_=1511492328207&bordertransportmeansId=5721500032&journeyId=171125000000\",\
+//   async: true,\
+//   success: function(result) {\
+//     if(result.row.length>0){\
+//        var sid=result.row[0].id;\
+//     }\
+//     Wb.info(JSON.stringify(result));\
+//     relogin(result);\
+//   }\
+// });"}
+        },
+        {
+         "configs": {
+          "itemId": "item2",
+          "text": "船舶申报"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "function relogin(result) {\
+  if (typeof result == 'string' && result.match(/<form.*?action\\s*=\\s*(\"|')\\/cas\\/login/)) {\
+    singleWindow.location.reload();\
+    app.loginWnd.show();\
+  }\
+}\
+if (!singleWindow.$)\
+  return app.loginWnd.show();\
+var data = {\
+  \"id\": \"\",\
+  \"senderId\": \"5721618120004\", //申报企业海关备案代码\
+  \"customsCode\": \"5721\", //关区\
+  \"journeyId\": \"171125000000\", //航次号\
+  \"bordertransportmeansTypecode\": \"1\", //运输代码\
+  \"bordertransportmeansId\": \"5103550065\", //运输工具号\
+  \"bordertransportmeansName\": \"粤航999\", //船舶\
+  \"unloadingLocationId\": \"CNSK/9800\", //卸货港海关关区\
+  \"arrivalDate\": \"2017-11-26\", //预计抵港时间\
+  \"notes\": \"\" //备注\
+};\
+\
+app.proShipId(data,singleWindow);\
+\
+\
+\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "item111",
+          "text": "箱发送"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "function relogin(result) {\
+  if (typeof result == 'string' && result.match(/<form.*?action\\s*=\\s*(\"|')\\/cas\\/login/)) {\
+    singleWindow.location.reload();\
+    app.loginWnd.show();\
+  }\
+}\
+alert(app.ID);\
+  if( app.ID==null)\
+  {\
+  \tWb.warn(\"未找到该船，请申报或者选中船舶查询一下\");\
+    return;\
+  }\
+if (!singleWindow.$)\
+  return app.loginWnd.show();\
+        var data = {\
+          \"gNo\": \"1\",\
+          \"equipmentIdentification\": \"1111111111111111\",\
+          \"characteristicCode\": \"L2G0\",\
+          \"fullnessCode\": \"5\",\
+          \"id\": \"\",\
+          \"manifestId\": app.ID//\"ed41eb3b7b294badaa3e920cda150151\"\
+        };\
+app.addcntr(data,singleWindow);"}
+        }
+       ],
+       "type": "toolbar"
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "containerOfSingleWindow",
+       "html": "<iframe name='singleWindow' id='singleWindow' src=\"singlewindow\"  width=\"0\" height=\"0\"><\/iframe>",
+       "region": "south"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel",
+      "events": {"afterrender": "app.loginWnd.show();"}
+     }
+    ],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "app.ID = null;\
+Wb.apply(app, {\
+  getShipId: function(shipcod, voyageNo,singleWindow) {\
+    singleWindow.$.ajax({\
+      url: \"/mft/biz/manifestArrivalHead!getPagingByAjax.action?page=1&rows=30&_=1511492328207&bordertransportmeansId=\" + shipcod + \"&journeyId=\" + 171125000000,\
+      async: true,\
+      success: function(result) {\
+      \
+        if (result.rows.length > 0) {\
+          \
+        \
+          app.ID = result.rows[0].id;\
+          Wb.info(\"已经找到该船，请选择集装箱或者散货申报\");\
+        } else {\
+          app.ID = null;\
+          Wb.warn(\"没有找到该船，请联系管理员\");\
+        }\
+        relogin(result);\
+      }\
+    });\
+  },\
+  proShipId: function(data,singleWindow) {\
+    singleWindow.$.post(\"/mft/biz/manifestArrivalHead!save.action?functionCode=2\", {\
+      data: JSON.stringify(data)\
+    }, function(result) {\
+\
+      if (result.status) {\
+        app.ID = result.message;\
+        Wb.info( app.ID );\
+        relogin(result);\
+      } else {\
+        app.ID = null;\
+        Wb.error(result.message);\
+      }\
+    }, 'json');\
+  },\
+  addcntr: function(data,singleWindow) {\
+    singleWindow.$.post(\"/mft/biz/manifestArrivalConta!save.action?functionCode=2\", {\
+      data: JSON.stringify(data)\
+    }, function(result) {\
+\
+      if (result.status) {\
+        relogin(result);\
+      } else {\
+        Wb.error(result.message);\
+      }\
+    }, 'json');\
+\
+  }\
+\
+});\
+// function getShipId(shipcod, voyageNo) {\
+//   singleWindow.$.ajax({\
+//     url: \"/mft/biz/manifestArrivalHead!getPagingByAjax.action?page=1&rows=30&_=1511492328207&bordertransportmeansId=\" + shipcod + \"&journeyId=\" + 171125000000,\
+//     async: true,\
+//     success: function(result) {\
+//       if (result.row.length > 0) {\
+//         app.ID = result.row[0].id;\
+//       }\
+//       else{\
+//          app.ID = null;\
+//          Wb.warn(\"没有找到该船，请联系管理员\");\
+//       } \
+//       relogin(result);\
+//     }\
+//   });\
+// }"}
+ }],
+ "roles": {"default": 1},
+ "title": "test",
+ "iconCls": "",
+ "inframe": true,
+ "pageLink": ""
+}

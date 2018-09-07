@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select id,tenancy_id,cntr,category_id,\\\
+decode(phase,'ACT','在场','OUT','闸外','DEP','装船','ADV','预报',phase) phase,\\\
+decode(trade_id,'1','外贸','2','内贸',trade_id) trade_id,\\\
+decode(i_e_id,'E','出口','I','进口',i_e_id) i_e_id,\\\
+decode(e_f_id,'E','吉柜','F','重柜','P','拼柜',e_f_id) e_f_id,\\\
+cntr_iso,line,cntr_operator,cntr_owner,ib_mode,i_tool_no,\\\
+safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,\\\
+o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,pod,pol,spod,return_loc,trucking_co,datasource,arr_position,\\\
+yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,\\\
+consignee_name,shipper,shipper_name,exam_status,dang_id,imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,\\\
+temp_min,temp_max,reef_id,on_power,reqs_power,reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,\\\
+o2_level,last_remark,last_set_temp,last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,\\\
+appttime,in_port_time,dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,\\\
+exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,pre_tak_id,trans_id,\\\
+delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes,updated_on,created_on,cntr_size,cntr_type,created_by,\\\
+updated_by,cntr_operator_cod,line_cod,\\\
+(select vessel_name||'-'||v.lib_vyg from  vessel_visit v,vessel_voyage y where v.vid=y.id and v.tenancy_id={?sys.TENANCY_ID?} and v.id=i_dship_no) i_vessel_name,\\\
+(select vessel_name||'-'||v.lob_vyg from  vessel_visit v,vessel_voyage y where v.vid=y.id and v.tenancy_id={?sys.TENANCY_ID?} and v.id=e_dship_no) e_vessel_name,\\\
+(select o_berth_code from  vessel_visit v,vessel_voyage y where v.vid=y.id and v.tenancy_id={?sys.TENANCY_ID?} and v.id=e_dship_no) o_berth_code,\\\
+(select max(goods_notes) from  vload_list where cntr_id=p.id and i_e_id=p.i_e_id) cargo_name \\\
+from port_cntr p where id={?ID?} or (cntr={?CNTR?} and tenancy_id={?sys.TENANCY_ID?})\");\
+app.send({rows:Ag.getResultSet(result,true)});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "XLLONG": 1
+ },
+ "title": "在场箱查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

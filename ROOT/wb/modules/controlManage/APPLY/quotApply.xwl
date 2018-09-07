@@ -1,0 +1,1604 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var nature1 = false,\
+  nature = request.getSession().getAttribute('sys.NATURE'); //3码头5驳船\
+\
+if(nature==5){\
+\tnature1=true;\
+}else{\
+\tnature1=false;\
+}\
+\
+app.set({\
+  nature1: nature1\
+});"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "toolbarList"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "names",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "类型",
+       "labelWidth": "50"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findBtn",
+       "hidden": "true",
+       "text": "查询",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+     },
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "添加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels=app.grid1.getSelection();\
+if(sels.length<1){\
+  Wb.warn(\"请选择一条申请记录\");\
+\treturn;\
+}\
+Wb.addEdit(app.grid2,{PID:app.IDS.getValue(),CREATED_BY:'{#sys.username#}',UPDATED_BY:'{#sys.username#}',CREATED_ON:new Date(),UPDATED_ON:new Date()});"}
+     },
+     {
+      "configs": {
+       "itemId": "deleteBtn",
+       "text": "删除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.remove(app.grid2);"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.grid2)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid2,\
+  url: 'm?xwl=controlManage/APPLY/quotApplyEdit/applylist/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid2, Wb.decode(resp.responseText));\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "border",
+       "itemId": "panel1",
+       "region": "north",
+       "height": "300"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "grid1",
+         "region": "center"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=controlManage/APPLY/quotApplyEdit/select"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "row",
+             "xtype": "rownumberer",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "ID",
+             "hidden": "true",
+             "dataIndex": "ID",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "BILL_NO09",
+             "dataIndex": "BILL_NO",
+             "width": "120",
+             "text": "提单号",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "APPLY_UNIT98",
+             "dataIndex": "APPLY_UNIT",
+             "text": "申请单位",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "APPLY_MAN12",
+             "dataIndex": "APPLY_MAN",
+             "text": "申请人",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "APPLY_DATE12",
+             "dataIndex": "APPLY_DATE",
+             "width": "120",
+             "text": "申请时间",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR12",
+             "dataIndex": "CNTR",
+             "text": "箱号",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "I_E_ID123",
+             "dataIndex": "I_E_ID",
+             "keyName": "I_E_ID",
+             "width": "50",
+             "text": "进出口",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_OPERATOR12",
+             "dataIndex": "CNTR_OPERATOR",
+             "width": "120",
+             "text": "驳船公司",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_OPERATOR121",
+             "renderer": "if(value=='I')\
+  return '进口退运';\
+else\
+  return '出口退运';",
+             "hidden": "true",
+             "dataIndex": "TYPE",
+             "width": "120",
+             "text": "类型",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "CNTR_OWNER123",
+             "hidden": "true",
+             "dataIndex": "CNTR_OWNER",
+             "text": "箱主",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "PHASE12",
+             "renderer": "if(value=='PLN'){\
+\treturn '计划';\
+}else if(value=='FAL'){\
+\treturn '驳回';\
+}else if(value=='FIN'){\
+\treturn '完成';\
+}",
+             "dataIndex": "PHASE",
+             "width": "40",
+             "text": "状态",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SH_MAN12",
+             "dataIndex": "SH_MAN",
+             "text": "审核人",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "SH_NOTES13223",
+             "dataIndex": "SH_NOTES",
+             "width": "120",
+             "text": "审核意见",
+             "titleAlign": "center"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colREASON12",
+             "dataIndex": "REASON",
+             "text": "事由",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "createdBy",
+             "dataIndex": "CREATED_BY",
+             "text": "创建人",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "createdOn",
+             "dataIndex": "CREATED_ON",
+             "width": "120",
+             "text": "创建日期",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "updateBy",
+             "dataIndex": "UPDATED_BY",
+             "text": "最后修改人",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "updatedOn",
+             "dataIndex": "UPDATED_ON",
+             "width": "120",
+             "text": "修改时间",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "actionColumns",
+             "xtype": "actioncolumn",
+             "dataIndex": "OPTION",
+             "width": "40",
+             "text": "图片",
+             "align": "center"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {"itemId": "items"},
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "showPhoto",
+               "handler": "// app.imgWin.setTitle('图片 - ' + record.data.TITLE);\
+// app.imgWin.setIconCls('zoom_icon');\
+// app.imgWin.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+app.win.setTitle('图片 - ' + record.data.TITLE);\
+app.win.setIconCls('zoom_icon');\
+app.win.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+\
+\
+//重置图片\
+// app.image1.setSrc('');\
+//设置图片地址\
+// app.image1.setSrc(record.data.IMAGE);\
+//显示图片\
+var tt,image=[];\
+var t;\
+var i=0;\
+app.panel.removeAll();\
+Wb.request({\
+\turl:'m?xwl=controlManage/APPLY/quotApplyEdit/selectImage',\
+  \t params:{ID:record.data.ID},\
+  \tsuccess: function(resp){\
+      image = Wb.decode(resp.responseText);\
+\t  Wb.each(image.rows, function(rec) {\
+         t=rec.PATH.toString();\
+         tt=t.split(\",\");\
+       for(var l=0;l<tt.length;l++){\
+        var changingImage = Ext.create('Ext.Img', {\
+                src: tt[l],\
+                renderTo: Ext.getBody(),\
+                height:335,\
+                width:315\
+            });\
+            app.panel.add(changingImage);\
+         }\
+          \
+      });\
+    }\
+});\
+app.win.show();",
+               "tooltip": "查看图片",
+               "iconCls": "zoom_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             }],
+             "type": "array"
+            }],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         },
+         {
+          "configs": {"itemId": "tbar"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "name",
+             "labelAlign": "right",
+             "fieldLabel": "箱号",
+             "labelWidth": "50"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "findmenu",
+             "text": "查询",
+             "iconCls": "seek_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "app.grid1.store.load({\
+  out: app.tbar\
+}); //把所有数据取出来放到out里面"}
+           },
+           {
+            "configs": {
+             "itemId": "addmenu",
+             "text": "添加",
+             "iconCls": "record_add_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "app.editwin.setTitle('添加 - 商务报价 ' );\
+app.editwin.setIconCls('record_add_icon');\
+Wb.reset(app.editwin);\
+app.PHASE.setValue('PLN');\
+app.APPLY_DATE.setValue(new Date());\
+app.editwin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+           },
+           {
+            "configs": {
+             "itemId": "modifymenu",
+             "text": "修改",
+             "iconCls": "record_edit_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+if (sels[0].data.PHASE == 'PLN' || sels[0].data.PHASE =='FIN') {\
+  Wb.warn('申请或审核的数据不允许修改');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editwin.setTitle('修改 - ' + app.selRec.data.CNTR);\
+app.editwin.setIconCls('record_edit_icon');\
+Wb.reset(app.editwin);\
+Wb.setValue(app.editwin, app.selRec.data);\
+app.ID.setDisabled(true);\
+app.editwin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+           },
+           {
+            "configs": {
+             "itemId": "deletemenu",
+             "text": "删除",
+             "iconCls": "record_delete_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),\
+      tableName: 'QUOT_APPLY'\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+      app.grid2.store.load({\
+        params: {\
+          PID: app.IDS.getValue()\
+        }\
+      });\
+    }\
+  });\
+}, 'CNTR');"}
+           },
+           {
+            "configs": {
+             "itemId": "IDS",
+             "hidden": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           },
+           {
+            "configs": {
+             "itemId": "shbtn",
+             "hidden": "{#nature1#}",
+             "text": "审核",
+             "iconCls": "object_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择一条数据！\");\
+  return;\
+}\
+if (sels[0].data.PHASE =='FIN') {\
+  Wb.warn(\"已审核！\");\
+  return;\
+}\
+var win = new Ext.window.Window(app._shwin);\
+win.show();\
+app.SH_MAN.setValue('{#sys.dispname#}');\
+app.ID.setValue(sels[0].data.ID);"}
+           },
+           {
+            "configs": {
+             "itemId": "printerBtn",
+             "text": "打印",
+             "iconCls": "printer_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择一条数据\");\
+  return;\
+}\
+\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" where ID ='\"+sels[0].data.ID+\"' \");\
+var whereSql2 = encodeURI(\" where PID ='\"+sels[0].data.ID+\"' \");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime());\
+AF1.func(\"SetParas\", \"ds2 \\r\\
+ para=1;whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime());\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");\
+\
+"}
+           }
+          ],
+          "type": "toolbar"
+         }
+        ],
+        "type": "grid",
+        "events": {
+         "itemclick": "app.grid2.store.load({\
+\tparams:{\
+    \tPID:record.data.ID\
+    }\
+});\
+app.IDS.setValue(record.data.ID);",
+         "itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"
+        }
+       },
+       {
+        "configs": {
+         "border": "false",
+         "layout": "border",
+         "itemId": "panelPrint",
+         "width": "0",
+         "region": "south",
+         "height": "0"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "layout": "border",
+           "border": "false",
+           "itemId": "panelPrint1",
+           "width": "0",
+           "region": "west",
+           "height": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "panel"
+         },
+         {
+          "configs": {
+           "layout": "border",
+           "border": "false",
+           "itemId": "panelPrint2",
+           "width": "0",
+           "region": "center",
+           "height": "0"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "panel"
+         }
+        ],
+        "type": "panel"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel2",
+       "split": "true",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "grid2",
+        "editable": "true",
+        "tbar": "app.toolbarList"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=controlManage/APPLY/quotApplyEdit/applylist/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "ID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PID12",
+            "hidden": "true",
+            "dataIndex": "PID",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "FEE_ITEM_COD12",
+            "dataIndex": "FEE_ITEM_COD",
+            "width": "120",
+            "text": "费目",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "displayField": "DESCRIPTION",
+             "valueField": "DESCRIPTION"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "url": "m?xwl=controlManage/APPLY/quotApplyEdit/selectFeeItem"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo",
+            "events": {"select": "// console.log(records);\
+var sel=app.grid2.getSelection();\
+Wb.request({\
+  url: 'm?xwl=controlManage/APPLY/quotApplyEdit/selectCategory',\
+  params: {\
+  \tID:records[0].data.CATEGORY_ID\
+  },\
+  success: function(resp) {\
+  \tvar rs=Wb.decode(resp.responseText).rows[0];\
+    sel[0].set('FEE_ITEM',rs.DESCRIPTION);\
+    app.IDS.setValue(records[0].data.ID);\
+  }\
+});\
+"}
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "FEE_ITEM123",
+            "dataIndex": "FEE_ITEM",
+            "width": "120",
+            "text": "类型",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OMONERY123",
+            "hidden": "true",
+            "dataIndex": "OMONERY",
+            "text": "系统金额",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "displayField": "RATE",
+             "valueField": "RATE"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "url": "m?xwl=controlManage/APPLY/quotApplyEdit/selectPrice"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store",
+             "events": {"beforeload": "operation.params.CHARGING_ID=app.IDS.getValue();"}
+            }],
+            "type": "combo"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "OMONERY1231",
+            "dataIndex": "OMONERY",
+            "text": "系统金额",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NMONERY12",
+            "dataIndex": "NMONERY",
+            "text": "报价金额",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NOTES34",
+            "dataIndex": "NOTES",
+            "text": "备注",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "textarea"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "createdBy",
+            "dataIndex": "CREATED_BY",
+            "text": "创建人",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "createdOn",
+            "dataIndex": "CREATED_ON",
+            "width": "120",
+            "text": "创建日期",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "updateBy",
+            "dataIndex": "UPDATED_BY",
+            "text": "最后修改人",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "updatedOn",
+            "dataIndex": "UPDATED_ON",
+            "width": "120",
+            "text": "修改时间",
+            "align": "center",
+            "titleAlign": "center"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemdblclick": "app.modifymenu.fireEvent('click');// 双击打开"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint1.update(mt1);\
+\
+"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "dialog": "true",
+     "itemId": "editwin1",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 8'\
+}",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "568",
+     "bodyPadding": "4 0 4 0",
+     "height": "280"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "labelAlign": "right",
+       "fieldLabel": "箱号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text",
+      "events": {"change": "if (newValue.length > 4) {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/backApplyEdit/selectPortCntr',\
+    params: {\
+      CNTR: app.CNTR.getValue()\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText);\
+      Wb.each(rs.rows, function(rec) {\
+        app.CNTR.setValue(rec.CNTR);\
+\t\tapp.CNTR_OPERATOR.setValue(rec.CNTR_OPERATOR);\
+        app.CNTR_OPERATOR_COD.setValue(rec.CNTR_OPERATOR_COD);\
+\t\tapp.CNTR_ID.setValue(rec.ID);\
+        app.APPLY_DATE.setValue(new Date());  \
+        app.TENANCY_ID.setValue(rec.TENANCY_ID);\
+        app.I_E_ID.setValue(rec.I_E_ID);\
+        app.BILL_NO.setValue(rec.BILL_NO);\
+      });\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "BILL_NO",
+       "labelAlign": "right",
+       "fieldLabel": "提单号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR",
+       "labelAlign": "right",
+       "fieldLabel": "驳船公司"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_OPERATOR_COD",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "APPLY_DATE",
+       "labelAlign": "right",
+       "fieldLabel": "申请日期"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR_ID",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "I_E_ID",
+       "labelAlign": "right",
+       "fieldLabel": "进出口",
+       "keyName": "I_E_ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "PHASE",
+       "labelAlign": "right",
+       "pickList": "[\
+  [\"PLN\", \"计划\"],\
+  [\"SND\", \"激活\"],\
+  [\"EXE\", \"执行\"],\
+  [\"FIN\", \"完成\"]\
+]",
+       "fieldLabel": "状态",
+       "disabled": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "APPLY_MAN",
+       "labelAlign": "right",
+       "fieldLabel": "申请人"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "APPLY_UNIT",
+       "labelAlign": "right",
+       "fieldLabel": "申请单位"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "TENANCY_ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "租户"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "tagConfigs": "{ colspan:2}",
+       "itemId": "REASON",
+       "labelAlign": "right",
+       "fieldLabel": "事由",
+       "width": "496",
+       "labelWidth": "80",
+       "height": "80"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "textarea"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/update',\
+    params:  Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "dialog": "true",
+     "itemId": "shwin",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 8'\
+}",
+     "closeAction": "destroy",
+     "autoReset": "true",
+     "width": "300",
+     "bodyPadding": "4 0 4 0",
+     "height": "160"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "layout": "hbox",
+       "itemId": "radioMD",
+       "padding": "0 0 0 10",
+       "width": "160"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "radioM",
+         "boxLabel": "同意",
+         "flex": "1",
+         "name": "radioMD",
+         "checked": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio",
+        "events": {"change": "// if (newValue) {\
+//   app.cboY.setVisible(true);\
+//   app.cboM.setVisible(true);\
+//   var today = new Date(); //获取当前日期\
+//   app.cboY.setValue(today.getFullYear());\
+//   app.date1.setVisible(false);\
+//   app.date1.setValue(new Date());\
+//   app.sdate.setValue(\"\");\
+//   app.edate.setValue(\"\");\
+// }"}
+       },
+       {
+        "configs": {
+         "itemId": "radioD",
+         "boxLabel": "驳回",
+         "flex": "1",
+         "name": "radioMD"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio",
+        "events": {"change": "// if (newValue) {\
+//   var today = new Date(); //获取当前日期\
+//   var days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); //获取当前月份天数\
+//   app.date1.setVisible(true);\
+//   app.date1.setValue(today);\
+//   app.sdate.setValue(new Date());\
+//   app.edate.setValue(new Date());\
+//   app.cboY.setVisible(false);\
+//   app.cboM.setVisible(false);\
+//   app.cboM.setValue(\"\");\
+// }"}
+       }
+      ],
+      "type": "container"
+     },
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SH_MAN",
+       "labelAlign": "right",
+       "fieldLabel": "审核人",
+       "disabled": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "SH_NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "审核意见"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.shwin);\
+Wb.request({\
+//   url: 'm?xwl=controlManage/APPLY/quotApplyEdit/sh',\
+  url: 'm?xwl=controlManage/APPLY/quotApplyEdit/shenhe',\
+  out: app.shwin,\
+  params: values,\
+  success: function(resp) {\
+    app.shwin.close();\
+    app.findmenu.fireEvent('click');\
+    Wb.warn(\"审核成功\");\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "dialog": "true",
+     "itemId": "editwin",
+     "closeAction": "hide",
+     "width": "600",
+     "height": "320"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "baseParams": "{abc:123}",
+      "layout": "@{type:'table',columns:2}",
+      "itemId": "formZp",
+      "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '4 8 4 8'\
+}",
+      "width": "600",
+      "bodyPadding": "4 0 4 0",
+      "height": "320",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "ID",
+        "hidden": "true",
+        "labelAlign": "right"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR",
+        "labelAlign": "right",
+        "fieldLabel": "箱号"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text",
+       "events": {"change": "if (newValue.length > 4) {\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/selectPortCntr',\
+    params: {\
+      CNTR: app.CNTR.getValue()\
+    },\
+    success: function(resp) {\
+      var rs = Wb.decode(resp.responseText);\
+      Wb.each(rs.rows, function(rec) {\
+        app.CNTR.setValue(rec.CNTR);\
+        app.CNTR_OPERATOR.setValue(rec.CNTR_OPERATOR);\
+        app.CNTR_OPERATOR_COD.setValue(rec.CNTR_OPERATOR_COD);\
+        app.CNTR_ID.setValue(rec.ID);\
+        app.APPLY_DATE.setValue(new Date());\
+        app.TENANCY_ID.setValue(rec.TENANCY_ID);\
+        app.I_E_ID.setValue(rec.I_E_ID);\
+        app.BILL_NO.setValue(rec.BILL_NO);\
+      });\
+    }\
+  });\
+}"}
+      },
+      {
+       "configs": {
+        "itemId": "BILL_NO",
+        "labelAlign": "right",
+        "fieldLabel": "提单号"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_OPERATOR",
+        "labelAlign": "right",
+        "fieldLabel": "驳船公司"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_OPERATOR_COD",
+        "hidden": "true",
+        "labelAlign": "right"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "APPLY_DATE",
+        "labelAlign": "right",
+        "fieldLabel": "申请日期"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "date"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_ID",
+        "hidden": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "I_E_ID",
+        "labelAlign": "right",
+        "fieldLabel": "进出口",
+        "keyName": "I_E_ID"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "PHASE",
+        "labelAlign": "right",
+        "pickList": "[\
+  [\"PLN\", \"计划\"],\
+  [\"SND\", \"激活\"],\
+  [\"EXE\", \"执行\"],\
+  [\"FIN\", \"完成\"]\
+]",
+        "fieldLabel": "状态",
+        "disabled": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "APPLY_MAN",
+        "labelAlign": "right",
+        "fieldLabel": "申请人"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "APPLY_UNIT",
+        "labelAlign": "right",
+        "fieldLabel": "申请单位"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "TENANCY_ID",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "租户"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "{ colspan:2}",
+        "itemId": "REASON",
+        "labelAlign": "right",
+        "fieldLabel": "事由",
+        "width": "510",
+        "labelWidth": "80",
+        "height": "80"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "textarea"
+      },
+      {
+       "configs": {
+        "itemId": "ZPFILE1",
+        "hidden": "true",
+        "labelAlign": "right",
+        "fieldLabel": "文件路径",
+        "x": "184",
+        "width": "240",
+        "y": "312",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "tagConfigs": "{ colspan:2}",
+        "itemId": "zpfile",
+        "labelAlign": "right",
+        "fieldLabel": "图片",
+        "width": "520",
+        "multiple": "true",
+        "height": "22"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "file"
+      }
+     ],
+     "type": "form"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      //上传图片==========================================\
+//       app.editwin.close();\
+      if (app.zpfile.getValue() !== '') {\
+        if (!Wb.verify(app.formZp)) {\
+          return;\
+        }\
+        alert(app.zpfile.getValue());\
+        Wb.upload({\
+          form: app.formZp,\
+          showProgress: true,\
+          url: 'm?xwl=controlManage/APPLY/quotApplyEdit/upload',\
+          params: {\
+            M_ID: app.selRec.data.ID\
+          },\
+          success: function(form, action, value) {\
+            app.editwin.close();\
+          }\
+        });\
+      }\
+      //上传图片==========================================\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/quotApplyEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+//       app.editwin.close();\
+      //上传图片==========================================\
+      var rr = resp.responseText.toString();\
+      var rrr = [];\
+      rrr = rr.split(\"'\");\
+      if (app.zpfile.getValue() !== '') {\
+        if (!Wb.verify(app.formZp)) {\
+          return;\
+        }\
+        Wb.upload({\
+          form: app.formZp,\
+          showProgress: true,\
+          url: 'm?xwl=controlManage/APPLY/quotApplyEdit/upload',\
+          params: {\
+            M_ID: rrr[1],\
+            zpfile:app.zpfile.getValue()\
+          },\
+          success: function(form, action, value) {\
+            app.editwin.close();\
+            app.findmenu.fireEvent('click');\
+          }\
+        });\
+      }\
+      //上传图片==========================================\
+//       app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "win",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "660",
+     "autoScroll": "true",
+     "height": "400"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "panel",
+      "autoScroll": "true"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "panel"
+    }],
+    "type": "window"
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/cntr/quotApply.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+\
+",
+   "initialize": "var opt = Wb.getId();\
+"
+  }
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "商务报价申请",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

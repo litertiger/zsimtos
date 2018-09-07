@@ -1,0 +1,73 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var emps = data.emps.split(\",\");\
+var trucks = data.trucks.split(\",\");\
+var macs = data.macs.split(\",\");\
+//日期\
+var date =  DateUtil.format(new java.util.Date(),'yyyy-MM-dd');\
+var shiftTimes = data.shiftTime.split(\"-\");\
+var beginTime =date +' '+ shiftTimes[0];\
+var endTime = date +' '+ shiftTimes[1]; \
+\
+\
+var parms = new Array();\
+if (!Wb.isEmpty(data.emps)) {\
+  Wb.each(emps, function(emp) {\
+    parms.push({\
+      RESOURCE_ID: emp.split(\":\")[0],\
+      RESOURCE_NAME: emp.split(\":\")[1],\
+      GROUPING: emp.split(\":\")[2],\
+      W_TYPE: \"0\",\
+      OVERTIME:emp.split(\":\")[3]\
+    });\
+  });\
+}\
+if (!Wb.isEmpty(data.trucks)) {\
+  Wb.each(trucks, function(truck) {\
+    parms.push({\
+      RESOURCE_ID: truck.split(\":\")[0],\
+      RESOURCE_NAME: truck.split(\":\")[1],\
+      GROUPING: truck.split(\":\")[2],\
+      W_TYPE: \"1\"\
+    });\
+  });\
+}\
+if (!Wb.isEmpty(data.macs)) {\
+  Wb.each(macs, function(mac) {\
+    parms.push({\
+      RESOURCE_ID: mac.split(\":\")[0],\
+      RESOURCE_NAME: mac.split(\":\")[1],\
+      GROUPING: mac.split(\":\")[2],\
+      W_TYPE: \"3\",\
+      MACH_TYPE:mac.split(\":\")[3]\
+    });\
+  });\
+}\
+\
+var sql = \"insert into work_on_duty(ID,RESOURCE_ID,BEG_WORK_TIM,END_WORK_TIM,REMARK_TXT,CREATED_BY,CREATED_ON,STATUS,TENANCY_ID,W_TYPE,RESOURCE_NAME,GROUPING,MACH_TYPE,OVERTIME)\" +\
+  \"values(sys_guid(),{?RESOURCE_ID?},to_date('\"+beginTime+\"','yyyy-mm-dd hh24:mi'),to_date('\"+endTime+\"','yyyy-mm-dd hh24:mi'),'','\" + username + \"',sysdate,'0',\" +\
+  \"'\" + tenancyid + \"',{?W_TYPE?},{?RESOURCE_NAME?},{?GROUPING?},{?MACH_TYPE?},{?OVERTIME?})\";\
+app.run(sql, {\
+  arrayData: new org.json.JSONArray(Wb.encode(parms)),\
+  transaction: 'start'\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "基本添加记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,33 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'BLUK_INOUT',\
+  whereFields: 'ID'\
+});\
+app.run(\"insert into BULK_LOG(ID,NOTES,BILL_NO,CREATED_ON,CREATED_BY,CFSBILL_ID,\" +\
+  \"TYPE,weight,QUTY)VALUES(SYS_GUID(),'仓库数据修改-进出库数据保存','',sysdate,{?sys.username?},'','\"+app.get('sys.dispname')+\"修改数据','','')\");\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "保存进出库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

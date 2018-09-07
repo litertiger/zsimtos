@@ -1,0 +1,36 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var result = app.run(\"select empno,empname from c_employee where open_id={?id?}\", {\
+  jndi: 'jdbc/basecode'\
+});\
+if (result && result.next()) {\
+  app.set('oper', result.getString('empno'));\
+  app.set('name', result.getString('empname'));\
+  app.run(\"update c_machine set mach_oper=null,mach_nam=null where id<>{?truck?} and tenancy_id={?tenancy?} and mach_oper={?oper?}\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+  app.run(\"update c_machine set mach_oper={?oper?},mach_nam={?name?},tray_no={?tray?} where id={?truck?} and tenancy_id={?tenancy?}\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+\
+  app.send({\
+    truck: app.get('truck'),\
+    tray: app.get('tray')\
+  });\
+}\
+app.send({});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "绑定openId和用户Id",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

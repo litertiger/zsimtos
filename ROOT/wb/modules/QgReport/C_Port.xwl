@@ -1,0 +1,440 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:2}",
+     "dialog": "true",
+     "itemId": "editwin",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 240,\
+  margin: '8 0 0 8'\
+}",
+     "closeAction": "destroy",
+     "autoReset": "true",
+     "width": "530",
+     "height": "220"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "港口代码"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PORT_NAME",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "港口名称"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "LOC_NAME_EN",
+       "labelAlign": "right",
+       "fieldLabel": "英文名"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PORT_CLASS",
+       "labelAlign": "right",
+       "pickList": "[\
+  ['1','商港'],['2','军港'],['3','渔港'],['4','工业港'],['5','避风港']\
+]",
+       "fieldLabel": "港口类型",
+       "keyName": "PORT_CLASS"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "AMOUNT_CODE",
+       "labelAlign": "right",
+       "fieldLabel": "国际代码"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "HG_COD",
+       "labelAlign": "right",
+       "fieldLabel": "海关代码"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "JY_COD",
+       "labelAlign": "right",
+       "fieldLabel": "检验代码"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "HS_COD",
+       "labelAlign": "right",
+       "fieldLabel": "交通部代码"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "EDI_CODE",
+       "labelAlign": "right",
+       "fieldLabel": "EDI港口代码"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "value": "C_PORT"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "PARENTID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "父节点"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editwin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=QgReport/cPort/cPortEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=QgReport/cPort/cPortEdit/insert',\
+    out: app.editwin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+//       Wb.add(app.tree1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editwin.close();\
+      app.findmenu.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "tagConfigs": "{editable:true}",
+      "itemId": "tree1",
+      "tools": "Wb.getTreeTools()",
+      "rootVisible": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "名称",
+          "labelWidth": "50"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text",
+         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.findmenu.fireEvent(\"click\");"}
+        },
+        {
+         "configs": {
+          "itemId": "findmenu",
+          "text": "查询",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.tree1.store.load({\
+  out: app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "addmenu",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var win = new Ext.window.Window(app._editwin);\
+\
+var sels=app.tree1.getSelection();\
+if(sels.length<1){\
+\tapp.PARENTID.setValue(\"-1\");\
+}else{\
+\tapp.PARENTID.setValue(sels[0].data.ID);\
+}\
+win.setTitle('添加 - 港口 ');\
+win.setIconCls('record_add_icon');\
+win.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "modifymenu",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.tree1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.setTitle(\"修改\" + app.selRec.data.PORT_NAME);\
+win.setIconCls(\"record_edit_icon\");\
+win.show();\
+Wb.setValue(win, app.selRec.data);\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+app.ID.setReadOnly(true);\
+app.PORT_NAME.setValue(sels[0].data.text);\
+\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "deletemenu",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "// if (app.tree1.selModel.isSelected(app.tree1.getRootNode())) {\
+//   Wb.warn('不能删除根节点。');\
+//   return;\
+// }\
+Wb.confirm('确定要删除选择的港口及其所属的所有子港口吗？', function() {\
+  var portIds = {};\
+  Wb.each(app.tree1.getSelection(), function(node) {\
+    node.cascadeBy(function(item) {\
+      portIds[item.data.ID] = {\
+        ID: item.data.ID\
+      };\
+    });\
+  });\
+  Wb.request({\
+    url: 'm?xwl=QgReport/cPort/cPortEdit/delete',\
+    params: {\
+      portIds: Ext.Object.getValues(portIds)\
+    },\
+    success: function(resp) {\
+      Wb.remove(app.tree1);\
+    }\
+  });\
+});\
+"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=QgReport/cPort/cPortEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "treestore",
+       "events": {"beforeload": "var node = operation.node;\
+operation.params={parentId:node.isRoot() ? -1 : operation.node.data.ID,name:app.name.getValue()};"}
+      },
+      {
+       "configs": {
+        "itemId": "viewConfig",
+        "markDirty": "false"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tableview"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "dataIndex": "ID",
+          "text": "港口代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPORT_NAME",
+          "xtype": "treecolumn",
+          "dataIndex": "text",
+          "width": "150",
+          "text": "港口名称"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPORT_CLASS",
+          "renderer": "if (value == \"1\")\
+  return \"商港\";\
+if (value == \"2\")\
+  return \"军港\";\
+if (value == \"3\")\
+  return \"渔港\";\
+if (value == \"4\")\
+  return \"工业港\";\
+if (value == \"5\")\
+  return \"避风港\";",
+          "dataIndex": "PORT_CLASS",
+          "keyName": "PORT_CLASS",
+          "text": "港口类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colLOC_NAME_EN",
+          "dataIndex": "LOC_NAME_EN",
+          "text": "英文名"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colAMOUNT_CODE",
+          "dataIndex": "AMOUNT_CODE",
+          "text": "国际代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colHG_COD",
+          "dataIndex": "HG_COD",
+          "text": "海关代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colJY_COD",
+          "dataIndex": "JY_COD",
+          "text": "检验代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colHS_COD",
+          "dataIndex": "HS_COD",
+          "text": "交通部代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "tree"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "AT": 1,
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "港口管理",
+ "iconCls": "application_form_icon",
+ "inframe": false,
+ "pageLink": ""
+}

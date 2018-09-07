@@ -1,0 +1,46 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var param = app.get();\
+var map = new HashMap();\
+var condition = \"\";\
+if(!Wb.isEmpty(param.cntr)){\
+  condition += \" and cntr='\"+param.cntr+\"'\";\
+}\
+if(!Wb.isEmpty(param.CNTR_OPERATOR_COD)){\
+  condition += \" and cntr_operator_Cod='\"+param.CNTR_OPERATOR_COD+\"'\";\
+}\
+var sql = \"SELECT CNTR_OPERATOR_COD FROM CNTR_STORE_RECORD_PROC \"+\
+\" WHERE TENANCY_ID='ZSG'  \"+\
+\" AND IN_TIME>=to_date('\" + param.sdate + \"','yyyy-mm-dd hh24:mi:ss')  \"+\
+\" and OUT_TIME<=to_date('\" + param.edate + \"','yyyy-mm-dd hh24:mi:ss') \"+\
+\" AND TRADE_ID=2 \"+\
+\" AND CNTR_OPERATOR_COD IS NOT NULL \" + condition +\
+\" GROUP BY CNTR_OPERATOR_COD\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  map.put(\"companyId\", data.CNTR_OPERATOR_COD);\
+  map.put(\"timeOn\", param.sdate);\
+  map.put(\"timeEnd\",param.edate);\
+  map.put(\"tradeId\", \"2\");\
+  map.put(\"cntr\", param.cntr);\
+  result = Wb.newClass(\"dubboForInnerStore\").call(request, map);\
+});\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "JCB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

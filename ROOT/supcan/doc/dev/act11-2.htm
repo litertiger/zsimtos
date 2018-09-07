@@ -1,0 +1,64 @@
+<HTML>
+<head><title>11.2 Session丢失问题</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>11.2 Session丢失问题</p><hr color=#2266ee size=1>
+　　如果您发现硕正树列表/硕正报表向后端取数时, 在 IE 浏览器中运行能正常取到数, 而在 Chrome/Firefox 中取不到数, 很有可能是 Cookie 丢失造成的, Cookie 不正确使得后端取数程序没有在期望的 Session 内运行。<br>
+　　硕正底层访问 Http 是通过 WinINet 组件实现, 相当于共用了 IE 的底层通道, 在 IE 浏览器中, 硕正组件发起的 http 请求的 Cookie 能自动和页面保持同步, 而 Chrome/Firefox 下，是需要手动实现 Cookie 的同步的。手动实现 Cookie 同步有二种方法。<br>
+<br>
+<b>方法一</b><br>
+<i>步骤 1</i><br>
+　　修改页面, 在页面中加入全局变量 $sid :<br>
+<pre class='cpp'>
+&lt;%@ Page Language="C#" AutoEventWireup="true" CodeBehind="FireFoxCookie.aspx.cs" Inherits="SupcanDemo.FireFoxCookie" %&gt;
+&lt;!DOCTYPE html PUBLIC "-／／W3C／／DTD XHTML 1.0 Transitional／／EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head runat="server"&gt;
+ &lt;title&gt;&lt;/title&gt;
+ &lt;script type="text/javascript" src="binary/dynaload.js?103"&gt;&lt;/script&gt;
+ &lt;script&gt;
+  //这是 asp.net 的 SessionId 在 Cookie 中的固定写法
+  window.$sid = 'ASP.NET_SessionId=&lt;%= System.Web.HttpContext.Current.Session.SessionID %&gt;';
+ &lt;/script&gt;
+ ...</pre>
+　　如果您后端是Java, 那么修改 JSP:<br>
+<pre class='cpp'>
+ ...
+ &lt;/script&gt;
+  window.$sid = 'JSESSIONID=&lt;%=request.getSession().getId()%&gt;;Path=&lt;%=request.getContextPath()%&gt;';
+ &lt;/script&gt;</pre><br>
+<i>步骤 2</i><br>
+　　修改 binary/dynaload.js, 在bldStr( ) 函数中插入这个变量，适当修改之:<br>
+<pre class='cpp'>
+ ...
+ function bldStr(ctlType, id, para) {
+  var w = window;
+  ...
+  str += '&lt;param Name="Cookie" Value="' +w.$sid+ '"&gt;';
+  str += '&lt;param Name="CtlPara" Value="' +para+ '"&gt;&lt;/Object&gt;';
+  ...</pre>
+<br>
+<br>
+<b>方法二</b><br>
+　　硕正套件从 1.0.84.0 版开始，增加了全局函数 SetCookie, 在 OnReady 事件中首先执行该函数 SetCookie, 直接设置 Cookie, 而不必再修改 dynaload.js, 书写示例如下：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+  // ASP.Net 是：
+  AF.func("setCookie", "ASP.NET_SessionId=&lt;%= System.Web.HttpContext.Current.Session.SessionID %&gt;");
+  
+  // JSP 是：
+  AF.func("setCookie", "JSESSIONID=&lt;%=request.getSession().getId()%&gt;;Path=&lt;%=request.getContextPath()%&gt;");
+  ...</pre>
+<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">二种方法的内部实现有轻微的差异, 您可以实际测一下, 挑选更适合自己的方法;</p>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">也可以参考 <a class="out" href="http://www.supcan.cn/" target=_blank>硕正官网</a> 主页左侧上方的"后端开发案例"中的文章 <a class="out" href="http://www.supcan.cn/solution/server11.htm" target=_blank>Firefox/Chrome中硕正请求Session丢失解决方法</a>.</p>
+<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

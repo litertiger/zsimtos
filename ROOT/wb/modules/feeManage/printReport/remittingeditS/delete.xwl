@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+app.run(\"select pay_flag from accounts_details where id in (\" + data.ids + \") and PAYMENT_TYPE=1 and pay_flag=1\", {\
+  errorText: \"有费用已经交费,不能删除托收单\"\
+});\
+app.run(\"select 1 from remitting_item where c_id ={?ID?} AND R_OK=1\",{errorText: \"已经确定,不能删除托收单\"});\
+var accs = Wb.decode(DbUtil.getData(app.run(\"select REM_CUS_COD from remitting where ID={?ID?}\"), request));\
+var sql = \"delete from remitting where ID={?ID?}\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+var sqlitem = \"delete from remitting_item where C_ID={?ID?}\";\
+app.run(sqlitem);\
+\
+var atsql = \"select account_type from c_customer where code='\" + accs[0].REM_CUS_COD + \"'\";\
+var custom = Wb.decode(DbUtil.getData(app.run(atsql, {\
+  jndi: 'jdbc/basecode'\
+}), request));\
+var account_type = 1;\
+if (!Wb.isEmpty(custom[0].ACCOUNT_TYPE))\
+  account_type = custom[0].ACCOUNT_TYPE;\
+var clearid = \"update accounts_details set remittingitem_id='',PAYMENT_CUSTOMER_CODE=ACCOUNT_CUSTOMER_CODE,\" +\
+  \"PAYMENT_CUSTOMER_NAM=ACCOUNT_CUSTOMER_NAM,PAYMENT_TYPE=\" + account_type + \" where id in (\" + data.ids + \")\";\
+app.run(clearid);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "删除",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

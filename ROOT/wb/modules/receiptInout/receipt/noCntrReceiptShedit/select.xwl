@@ -1,0 +1,47 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \" and tenancy_id='\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.sdate))\
+  sql += \" and created_on>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.edate))\
+  sql += \" and created_on<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and cntr like '%\" + data.cntr + \"%'\";\
+if (!Wb.isEmpty(data.billno))\
+  sql += \" and bill_no like '%\" + data.billno + \"%'\";\
+if (!Wb.isEmpty(data.phase))\
+  sql += \" and phase='\" + data.phase + \"'\";\
+if (!Wb.isEmpty(data.fx))\
+  sql += \" and F_CNTR=\" + data.fx;\
+if (!Wb.isEmpty(data.work_type))\
+  sql += \" and work_type='\" + data.work_type + \"'\";\
+sql += \" order by work_type desc,created_on desc\";\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "select * from RECEIPT where (trade_id='2' or no_cntr=1) and work_type<>'YOYI' and phase not in('FIN','CNL'){#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "DCXK": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancy_id = app.get(\"sys.TEANNCY_ID\");\
+var pullOutTime = app.get(\"PULLOUTTIME\"); //拔电时间\
+var cntr = app.get(\"CNTR\"); //箱号\
+var cntr_id = app.get(\"CNTR_ID\"); //箱子id\
+var id = app.get(\"ID\"); //获取id\
+var username = app.get(\"sys.username\");\
+var CURRTEMP = app.get(\"CURRTEMP\"); //登记温度\
+var DEGREES = app.get(\"DEGREES\"); //登记电表度数\
+var regtime = app.get(\"REGTIME\"); //登记时间\
+var i_e_id = app.get('I_E_ID'); //进出口类型 I 进口 E 出口\
+var OPERTYPE = app.get('OPERTYPE'); //动作类型 T 插电F 拔电\
+var BILL_NO = app.get('BILL_NO'); //提单号\
+var E_F_ID = app.get(\"E_F_ID\"); //箱子空重 E 空箱 F 重箱\
+if (!Wb.isEmpty(pullOutTime)) {\
+  app.run(\"UPDATE CNTR_REEFINFO SET REGTIME = {?timestamp.PULLOUTTIME?},UPDATED_BY = '\" + username +\
+    \"',UPDATED_ON = SYSDATE,BILL_NO = '\" + BILL_NO + \"',IS_PREPARE={?IS_PREPARE?} \" +\
+    \" where poweron_id = '\" + id + \"'\"); //注意这里进行修改可以直接修改两个提单号\
+}\
+\
+app.run(\"UPDATE CNTR_REEFINFO set OPERTYPE = '\" + OPERTYPE + \"',UPDATED_BY = '\" + username + \"',UPDATED_ON =\" +\
+  \" SYSDATE,CURRTEMP = '\" + CURRTEMP + \"',DEGREES = '\" + DEGREES + \"',REGTIME = {?timestamp.REGTIME?}\" +\
+  \",BILL_NO = '\" + BILL_NO + \"',IS_PREPARE={?IS_PREPARE?},E_F_ID= '\" + E_F_ID + \"' WHERE ID = '\" + id + \"'\");\
+//费用调用的方法只能卸载commit之后。\
+app.run(\"UPDATE vload_list  set cargo_type='L',REEF_ID=1 where cntr_id='\" + app.get('CNTR_ID') + \"' and tenancy_id='\" + tenancy_id + \"'\", {\
+  transaction: \"commit\"\
+});\
+if (app.get('OPERTYPE') == 'F') {\
+  var result = app.run(\"select id,OPERTYPE from cntr_reefinfo where opertype = 'T'  and cntr = '\" + cntr + \"'\");\
+  if (!(result && result.next())) {\
+    throw \"该箱号没有对应的插电记录\";\
+  }\
+  app.run(\"UPDATE PORT_CNTR SET ON_POWER = 1  WHERE CNTR = '\" + cntr + \"'\");\
+} else if (app.get('OPERTYPE') == 'T') { //如果动作类型是插电那么会\
+  var result = app.run(\"select id,opertype from cntr_reefinfo where opertype = 'F' and cntr= '\" + cntr + \"'\");\
+  if (!(result && result.next())) {\
+    throw \"该箱号没有对应的拔电记录\";\
+  }\
+  app.info(\"调用计费了\");\
+  app.run(\"UPDATE PORT_CNTR SET ON_POWER = 0  WHERE CNTR = '\" + cntr + \"'\"); //如果是动作类型是拔电状态那么取消该箱子的插电状态\
+  app.run(\"update vload_list set cargo_type='L',REEF_ID=1   where cntr_id = '\" + cntr_id + \"' and tenancy_id = '\" + tenancy_id + \"'\", {\
+    transaction: \"commit\"\
+  });\
+  if (E_F_ID === 'F') { //现在将所有插电拔电改为计划的，只有在这里进行一次实际的修改，才会调用对应的计费，并且箱子必须是重箱。\
+    try {\
+      var map = new HashMap();\
+      map.put(\"cntrId\", cntr_id);\
+      map.put(\"ieId\", I_E_ID);\
+      Wb.newClass(\"dubboForMarkCool\").call(request, map);\
+    } catch (e) {}\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var trade = app.get('trade');\
+var tradeSql = '';\
+if (trade == '1')\
+  tradeSql = \" and (decode(t.task_type,'VOUT', v.etrade_id , v.itrade_id)='1' or task_type='MOVE' or t.task_name like '%外贸%')\";\
+if (trade == '2')\
+  tradeSql = \" and (decode(t.task_type,'VOUT', v.etrade_id , v.itrade_id)='2' or task_type='MOVE' or t.task_name like '%内贸%')\";\
+var task = Ag.getResultArray(app.run(\
+  \"select t.id,t.task_type,t.task_name|| '('||(select count(1)from  move_list where  queue_id=t.id)||')' ||decode(t.task_type,'VOUT',v.o_berth_code||y.oservice_name,v.berth_code||y.service_name),t.carrier_call,t.phase  \\\
+  from task t,vessel_visit v,vessel_voyage y \\\
+  where t.id={?id?} and t.carrier_call=v.id(+) and v.vid=y.id(+) and trunc(nvl({?TIMESTAMP.date?},sysdate)) =trunc(t.created_on) and t.tenancy_id={?sys.TENANCY_ID?} and t.phase not in('FIN','CNL')\" + tradeSql + \" order by t.task_name\"));\
+app.send({\
+  rows: task.rows.map(function(row) {\
+    return {\
+      id: row[0],\
+      text: row[2],\
+      type: row[1],\
+      ship: row[3],\
+      phase: row[4],\
+      leaf: true\
+    };\
+  })\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "按消息查询任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

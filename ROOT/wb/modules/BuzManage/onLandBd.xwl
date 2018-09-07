@@ -1,0 +1,701 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {"itemId": "hjbar"},
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "lblhj",
+      "text": "合计：0"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "label"
+    }],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "xwl1",
+       "file": "m?xwl=system/common/rabbitMq"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "xwl"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "border": "false",
+       "itemId": "panelGrid",
+       "region": "north",
+       "height": "240"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "border": "false",
+         "itemId": "tbarPanel",
+         "enableOverflow": "true",
+         "region": "north"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "billNo",
+           "emptyText": "提单号"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "text",
+          "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent(\"click\");"}
+         },
+         {
+          "configs": {
+           "itemId": "cntr",
+           "hidden": "true",
+           "emptyText": "箱号"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "text",
+          "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtnC.fireEvent(\"click\");"}
+         },
+         {
+          "configs": {
+           "itemId": "searchBtn1",
+           "text": "@Str.find",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (Wb.isEmpty(app.billNo.getValue()) )\
+  return false;\
+//根据提单号办单\
+if (!Wb.isEmpty(app.billNo.getValue())) {\
+  app.searchBtn.fireEvent(\"click\");\
+}"}
+         },
+         {
+          "configs": {
+           "itemId": "searchBtn",
+           "hidden": "true",
+           "text": "提单查询",
+           "iconCls": "search_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (Wb.isEmpty(app.billNo.getValue()) )\
+  return false;\
+var AF1 = document.getElementById(opt);\
+   AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=BuzManage/onload/selectAccDetials\", {\
+              billno: app.billNo.getValue()\
+            }));\
+app.gridPortcntr.store.load({params:{billNo:app.billNo.getValue()}});"}
+         },
+         {
+          "configs": {
+           "itemId": "item1",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "bandanBtn",
+           "text": "办单",
+           "iconCls": "write_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var store = app.gridPortcntr.getStore();\
+if (store.data.items.length < 1) {\
+  Wb.warn(\"没有办单信息\");\
+  return;\
+}\
+var username = '{#sys.username#}';\
+if (!Wb.verify(app.tbarPanel))\
+  return false;\
+if (Wb.isEmpty(app.billNo.getValue())) {\
+  Wb.warn(\"没有找到提单\");\
+  return;\
+}\
+var sels = app.gridPortcntr.getSelection();\
+if (sels.length <= 0) {\
+  Wb.warn(\"请选择箱子\");\
+  return;\
+}\
+var ids = \"\";\
+var cntrs = \"\";\
+Wb.each(sels, function(sel) {\
+  ids += sel.data.ID + \",\";\
+});\
+      Wb.request({\
+        url: \"m?xwl=BuzManage/onload/banDan\",\
+        params: {\
+    \
+          ID: ids\
+        },\
+        success: function(resp) {\
+          app.gridPortcntr.store.load({\
+            out: app.tbarPanel\
+          });\
+        }\
+      });\
+\
+// ids = ids.substring(0, ids.length - 1);\
+// cntrs = cntrs.substring(0, cntrs.length - 1);\
+// //检查是否能够办单\
+// Wb.request({\
+//   url: \"m?xwl=BuzManage/bandanedit/bandanCheck\",\
+//   params: {\
+//     cntrs: cntrs,\
+//     billno: app.txtBILL_NO_RB.getValue()\
+//   },\
+//   success: function(resp) {\
+//     var errmsg = resp.responseText;\
+//     if (!Wb.isEmpty(errmsg)) {\
+//       Wb.warn(errmsg);\
+//       app.txtMsgbd.setValue(errmsg);\
+//       return;\
+//     } else {\
+//       app.txtMsgbd.setValue(\"\");\
+//       //办单操作\
+\
+//     }\
+//   }\
+// });"}
+         },
+         {
+          "configs": {
+           "itemId": "bandanBtnC",
+           "hidden": "true",
+           "text": "集装箱办单",
+           "iconCls": "write_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "bandanBtnS",
+           "hidden": "true",
+           "text": "散货办单",
+           "iconCls": "write_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var username = '{#sys.username#}';\
+//检查是否能够办单\
+Wb.request({\
+  url: \"m?xwl=BuzManage/bandanedit/sbandanCheck\",\
+  params: {\
+    billno: app.txtBILL_NO_RB.getValue()\
+  },\
+  success: function(resp) {\
+    var errmsg = resp.responseText;\
+    if (!Wb.isEmpty(errmsg)) {\
+      Wb.warn(errmsg);\
+      app.txtMsgbd.setValue(errmsg);\
+      return;\
+    } else {\
+      app.txtMsgbd.setValue(\"\");\
+      //办单操作\
+      Wb.request({\
+        url: \"m?xwl=BuzManage/bandanedit/sbandan\",\
+        params: {\
+          BD_BY: username,\
+          BD_ON: new Date(),\
+          billno: app.txtBILL_NO_RB.getValue()\
+        },\
+        success: function(resp) {\
+          app.gridXiang.store.load({\
+            params: {\
+              bill_no: app.txtBILL_NO_RB.getValue()\
+            }\
+          });\
+        }\
+      });\
+    }\
+  }\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "rbandanBtn",
+           "text": "取消办单",
+           "iconCls": "undo_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var store = app.gridPortcntr.getStore();\
+if (store.data.items.length < 1) {\
+  Wb.warn(\"没有办单信息\");\
+  return;\
+}\
+var username = '{#sys.username#}';\
+if (!Wb.verify(app.tbarPanel))\
+  return false;\
+if (Wb.isEmpty(app.billNo.getValue())) {\
+  Wb.warn(\"没有找到提单\");\
+  return;\
+}\
+var sels = app.gridPortcntr.getSelection();\
+if (sels.length <= 0) {\
+  Wb.warn(\"请选择箱子\");\
+  return;\
+}\
+var ids = \"\";\
+var cntrs = \"\";\
+Wb.each(sels, function(sel) {\
+  ids += sel.data.ID + \",\";\
+});\
+      Wb.request({\
+        url: \"m?xwl=BuzManage/onload/canBanDan\",\
+        params: {\
+    \
+          ID: ids\
+        },\
+        success: function(resp) {\
+          app.gridPortcntr.store.load({\
+            out: app.tbarPanel\
+          });\
+        }\
+      });\
+\
+// ids = ids.substring(0, ids.length - 1);\
+// cntrs = cntrs.substring(0, cntrs.length - 1);\
+// //检查是否能够办单\
+// Wb.request({\
+//   url: \"m?xwl=BuzManage/bandanedit/bandanCheck\",\
+//   params: {\
+//     cntrs: cntrs,\
+//     billno: app.txtBILL_NO_RB.getValue()\
+//   },\
+//   success: function(resp) {\
+//     var errmsg = resp.responseText;\
+//     if (!Wb.isEmpty(errmsg)) {\
+//       Wb.warn(errmsg);\
+//       app.txtMsgbd.setValue(errmsg);\
+//       return;\
+//     } else {\
+//       app.txtMsgbd.setValue(\"\");\
+//       //办单操作\
+\
+//     }\
+//   }\
+// });"}
+         }
+        ],
+        "type": "toolbar"
+       },
+       {
+        "configs": {
+         "itemId": "gridPortcntr",
+         "selType": "checkboxmodel",
+         "pagingBar": "true",
+         "region": "center",
+         "height": "300"
+        },
+        "expanded": false,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "url": "m?xwl=BuzManage/onload/select"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store",
+          "events": {"load": "app.gridPortcntr.setSelection(records);"}
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "colID",
+             "hidden": "true",
+             "dataIndex": "ID",
+             "text": "ID"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colTENANCY_ID",
+             "hidden": "true",
+             "dataIndex": "TENANCY_ID",
+             "text": "租户"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colCNTR",
+             "dataIndex": "CNTR",
+             "text": "箱号"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colGOODS_NOTES",
+             "dataIndex": "GOODS_NOTES",
+             "text": "货物"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colPIECES",
+             "dataIndex": "PIECES",
+             "width": "40",
+             "text": "件数"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colWEIGHT",
+             "dataIndex": "WEIGHT",
+             "width": "40",
+             "text": "重量"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colVOLUME",
+             "dataIndex": "VOLUME",
+             "width": "40",
+             "text": "体积"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colBD_BY",
+             "dataIndex": "BD_BY",
+             "width": "60",
+             "text": "办单人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colBD_ON",
+             "dataIndex": "BD_ON",
+             "width": "100",
+             "text": "办单时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colBD_BY1",
+             "hidden": "true",
+             "dataIndex": "QD_BY",
+             "width": "60",
+             "text": "审核人"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colBD_ON1",
+             "hidden": "true",
+             "dataIndex": "QD_ON",
+             "width": "100",
+             "text": "审核时间"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colPHASE",
+             "renderer": "if (value == \"ADV\")\
+  return \"预报\";\
+if (value == \"OUT\")\
+  return \"闸外\";\
+if (value == \"ACT\")\
+  return \"闸内\";\
+if (Wb.isEmpty(value))\
+  return \"核销\";",
+             "hidden": "true",
+             "dataIndex": "PHASE",
+             "width": "66",
+             "text": "闸内闸外"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colE_F_ID",
+             "dataIndex": "E_F_ID",
+             "width": "40",
+             "keyName": "E_F_ID",
+             "text": "空重"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colE_F_ID1",
+             "dataIndex": "TRADE_ID",
+             "width": "40",
+             "keyName": "TRADE_ID",
+             "text": "内外贸"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colE_F_ID11",
+             "dataIndex": "I_E_ID",
+             "width": "40",
+             "keyName": "I_E_ID",
+             "text": "进出口"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colCNTR_SIZE",
+             "dataIndex": "CNTR_SIZE",
+             "width": "40",
+             "keyName": "CNTR_SIZE",
+             "text": "尺寸"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colCNTR_TYPE",
+             "dataIndex": "CNTR_TYPE",
+             "width": "60",
+             "keyName": "CNTR_TYPE",
+             "text": "箱型"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colop",
+             "xtype": "actioncolumn",
+             "hidden": "true",
+             "dataIndex": "op",
+             "width": "40",
+             "text": "操作",
+             "align": "center",
+             "titleAlign": "center"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {"itemId": "items"},
+             "expanded": true,
+             "children": [{
+              "configs": {
+               "itemId": "addfmBtn",
+               "handler": "var win = new Ext.window.Window(app._winAccDetails); //app._win指向配置对象而非实例\
+win.setTitle('添加 - 费用明细');\
+win.setIconCls('record_add_icon');\
+win.show();\
+app.ACCBILL_NO.setValue(app.txtBILL_NO_RB.getValue());\
+app.CNTR.setValue(record.data.CNTR);",
+               "tooltip": "添加费目",
+               "iconCls": "add_icon"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "column"
+             }],
+             "type": "array"
+            }],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         }
+        ],
+        "type": "grid"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "border",
+       "border": "false",
+       "itemId": "panel1",
+       "rbar": "app.tbarGrid",
+       "region": "center"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "border": "false",
+        "itemId": "panelAcc",
+        "tbar": "app.hjbar",
+        "region": "center",
+        "height": "350"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "panel"
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"BCV1.TreeList\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/buz/qd_accounts.xml');\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  var AF1 = document.getElementById(opt);\
+  if (Event == \"MenuBeforePopup\" && id == opt) {\
+    var menu = \"\";\
+    var aid = Wb.getSupcanMelu(AF1, \"ID\", false);\
+    if (!Wb.isEmpty(aid)) {\
+      menu += \"id=4674; text='删除费用'\";\
+    }\
+    console.log(menu);\
+    AF1.func(\"AddMenu\", menu);\
+  } else if (Event == \"MenuClicked\" && id == opt) {\
+    if (p1 == '4674') { //删除费用\
+      var aid = Wb.getSupcanMelu(AF1, \"ID\", false);\
+      var manual = Wb.getSupcanMelu(AF1, \"IS_MANUAL\", false);\
+      if (Wb.isEmpty(id)) {\
+        Wb.warn(\"请选择要移除的费用\");\
+        return;\
+      }\
+      if (manual != \"1\") {\
+        Wb.warn(\"只能删除手动补录的费用\");\
+        return;\
+      }\
+      Wb.confirm(\"要删除选中费用\", function() {\
+        Wb.request({\
+          url: \"m?xwl=BuzManage/bandanedit/deleteAccount\",\
+          params: {\
+            id: aid\
+          },\
+          success: function(resp) {\
+            //显示费用\
+            AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=BuzManage/bandanedit/selectAccDetials\", {\
+              billno: app.txtBILL_NO_RB.getValue()\
+            }));\
+          }\
+        });\
+      });\
+    }\
+  }\
+};\
+\
+\
+app.xwl1.subscribe('/exchange/ex_order/#', function(d) {\
+  var msg = d.body;\
+  alert(msg.data.id);\
+  switch (msg.info.action) {\
+    case 'create':\
+     app.billNo.setValue( msg.data.id);\
+      break;\
+    default:\
+      console.log(msg);\
+      break;\
+  }\
+});",
+   "initialize": "var opt = Wb.getId();\
+// Wb.apply(app,{\
+//   promptDemo:function(){\
+//         Wb.toast(\"<a onclick='alert(1)'>ddddd<a>\");\
+//     }\
+// });\
+"
+  }
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "网上办单确认",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

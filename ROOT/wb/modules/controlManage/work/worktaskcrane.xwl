@@ -1,0 +1,677 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelTree",
+      "width": "260",
+      "region": "west"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "treeTask",
+       "root": "{\
+  ID: '-1',\
+  text: '任务指令',\
+  LEVELS: 1\
+}"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=controlManage/work/worktaskcraneedit/loadTree"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "treestore",
+       "events": {"beforeload": "var node = operation.node;\
+console.log(node.isRoot());\
+operation.params.parentId = node.isRoot() ? '-1' : node.data.ID;\
+operation.params.LEVELS = node.isRoot() ? '-1' : node.data.LEVELS;\
+operation.params.tid = node.isRoot() ? '-1' : node.data.TID;\
+operation.params.tasktype = node.isRoot() ? '-1' : node.data.TASK_TYPE;"}
+      }],
+      "type": "tree",
+      "events": {"itemclick": "var nodeId = record.data.ID === undefined ? \"-1\" : record.data.ID; //接点id\
+var hidLevel = record.data.LEVELS === undefined ? 1 : record.data.LEVELS; //接点级别在sql中定义\
+var hidContract = record.data.text; //接点显示内容\
+\
+//load排班\
+if (hidLevel == 2) {\
+  app.gridren.hide();\
+  app.gridworkduty.show();\
+  app.gridworkduty.store.load({\
+    out: app.tbar\
+  });\
+}\
+// //load工人\
+if (hidLevel == 3) {\
+  app.gridworkduty.hide();\
+  app.gridren.show();\
+  app.gridren.store.load({\
+    out: app.tbar0\
+  });\
+}"}
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "itemId": "gridworkduty",
+      "selType": "checkboxmodel",
+      "disabled": "false",
+      "region": "center",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "addBtn",
+          "text": "@Str.add",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var node = app.treeTask.getSelection();\
+if (Wb.isEmpty(node)) {\
+  Wb.warn('请选择指令任务。');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"1\") {\
+  Wb.warn('任务类型不能做任何操作');\
+  return;\
+}\
+//选择在任务指令节点\
+if (node[0].data.LEVELS == \"2\") {\
+  var sels = app.gridworkduty.getSelection();\
+  if (sels.length < 1) {\
+    Wb.warn('请选择排班。');\
+    return;\
+  }\
+  var dutyids = \"\";\
+  Wb.each(sels, function(sel) {\
+    dutyids += \"'\" + sel.data.ID + \"',\";\
+  });\
+  dutyids = dutyids.substring(0, dutyids.length - 1);\
+  Wb.request({\
+    url: \"m?xwl=controlManage/work/worktaskcraneedit/insert\",\
+    params: {\
+      nodeid: node[0].data.ID,\
+      dutyids: dutyids\
+    },\
+    success: function(resp) {\
+      app.treeTask.store.load();\
+    }\
+  });\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "text": "@Str.del",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var node = app.treeTask.getSelection();\
+if (Wb.isEmpty(node)) {\
+  Wb.warn('请选择节点。');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"1\") {\
+  Wb.warn('任务类型不能做任何操作');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"2\") {\
+  Wb.warn('任务指令不能被删除');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"3\") {\
+  Wb.request({\
+    url: \"m?xwl=controlManage/work/worktaskcraneedit/delete\",\
+    params: {\
+      RESOURCE_ID: \"\",\
+      ID: node[0].data.TID\
+    },\
+    success: function(resp) {\
+      app.treeTask.store.load();\
+    }\
+  });\
+}\
+if (node[0].data.LEVELS == \"4\") {\
+  Wb.request({\
+    url: \"m?xwl=controlManage/work/worktaskcraneedit/updateDriver\",\
+    params: {\
+      RESOURCE_ID: \"\",\
+      ID: node[0].data.ID\
+    },\
+    success: function(resp) {\
+      app.treeTask.store.load();\
+    }\
+  });\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "workdate",
+          "emptyText": "开始工作日期"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "groupField": "WTYPE",
+        "itemId": "store",
+        "pageSize": "-1",
+        "sorters": "'ID'",
+        "url": "m?xwl=controlManage/work/workondutyedit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {
+        "itemId": "features",
+        "ftype": "grouping",
+        "groupHeaderTpl": "{name} ({rows.length} 条)"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "feature"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTENANCY_ID",
+          "hidden": "true",
+          "dataIndex": "TENANCY_ID",
+          "text": "租户"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colRESOURCE_ID",
+          "dataIndex": "RESOURCE_ID",
+          "width": "140",
+          "text": "工号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colW_TYPE",
+          "renderer": "if (value == '0') {\
+  return \"操作人员\";\
+}\
+if (value == '1') {\
+  return \"车辆\";\
+}\
+if (value == '2') {\
+  return \"拖卡\";\
+}\
+if (value == '3') {\
+  return \"场内机械设备\";\
+}",
+          "dataIndex": "W_TYPE",
+          "text": "类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colBEG_WORK_TIM",
+          "dataIndex": "BEG_WORK_TIM",
+          "width": "120",
+          "text": "工作开始时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colEND_WORK_TIM",
+          "dataIndex": "END_WORK_TIM",
+          "width": "120",
+          "text": "工作结束时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colREMARK_TXT",
+          "hidden": "true",
+          "dataIndex": "REMARK_TXT",
+          "width": "260",
+          "text": "备注"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSTATUS",
+          "hidden": "true",
+          "dataIndex": "STATUS",
+          "text": "状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    },
+    {
+     "configs": {
+      "itemId": "gridren",
+      "hidden": "true",
+      "disabled": "false",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "normalName": "tbar0",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "addBtn",
+          "text": "@Str.add",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var node = app.treeTask.getSelection();\
+if (Wb.isEmpty(node)) {\
+  Wb.warn('请选择指令任务。');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"1\") {\
+  Wb.warn('任务类型不能做任何操作');\
+  return;\
+}\
+//选择在任务指令节点\
+if (node[0].data.LEVELS == \"3\") {\
+  if (node[0].data.W_TYPE == \"0\") {\
+    Wb.warn(\"已经是人员\");\
+    return;\
+  }\
+  var sels = app.gridren.getSelection();\
+  if (sels.length < 1) {\
+    Wb.warn('请选择操作员。');\
+    return;\
+  }\
+  Wb.request({\
+    url: \"m?xwl=controlManage/work/worktaskcraneedit/updateDriver\",\
+    params: {\
+      RESOURCE_ID: sels[0].data.RESOURCE_ID,\
+      ID: node[0].data.TID\
+    },\
+    success: function(resp) {\
+      app.treeTask.store.load();\
+    }\
+  });\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "delBtn",
+          "text": "@Str.del",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var node = app.treeTask.getSelection();\
+if (Wb.isEmpty(node)) {\
+  Wb.warn('请选择指令任务。');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"1\") {\
+  Wb.warn('任务类型不能做任何操作');\
+  return;\
+}\
+if (node[0].data.LEVELS == \"3\") {\
+  Wb.request({\
+    url: \"m?xwl=controlManage/work/worktaskcraneedit/delete\",\
+    params: {\
+      RESOURCE_ID: \"\",\
+      ID: node[0].data.TID\
+    },\
+    success: function(resp) {\
+      app.treeTask.store.load();\
+    }\
+  });\
+}\
+if (node[0].data.LEVELS == \"4\") {\
+  Wb.request({\
+    url: \"m?xwl=controlManage/work/worktaskcraneedit/updateDriver\",\
+    params: {\
+      RESOURCE_ID: \"\",\
+      ID: node[0].data.ID\
+    },\
+    success: function(resp) {\
+      app.treeTask.store.load();\
+    }\
+  });\
+}"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "workdate",
+          "emptyText": "开始工作日期",
+          "normalName": "workdate0"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "pageSize": "-1",
+        "sorters": "'ID'",
+        "url": "m?xwl=controlManage/work/worktaskcraneedit/loadRen"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {
+        "itemId": "features",
+        "ftype": "grouping",
+        "groupHeaderTpl": "{name} ({rows.length} 条)"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "feature"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTENANCY_ID",
+          "hidden": "true",
+          "dataIndex": "TENANCY_ID",
+          "text": "租户"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colRESOURCE_ID",
+          "dataIndex": "RESOURCE_ID",
+          "width": "140",
+          "text": "工号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colW_TYPE",
+          "renderer": "if (value == '0') {\
+  return \"操作人员\";\
+}\
+if (value == '1') {\
+  return \"车辆\";\
+}\
+if (value == '2') {\
+  return \"拖卡\";\
+}\
+if (value == '3') {\
+  return \"场内机械设备\";\
+}",
+          "dataIndex": "W_TYPE",
+          "text": "类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colBEG_WORK_TIM",
+          "dataIndex": "BEG_WORK_TIM",
+          "width": "120",
+          "text": "工作开始时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colEND_WORK_TIM",
+          "dataIndex": "END_WORK_TIM",
+          "width": "120",
+          "text": "工作结束时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colREMARK_TXT",
+          "hidden": "true",
+          "dataIndex": "REMARK_TXT",
+          "width": "260",
+          "text": "备注"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSTATUS",
+          "hidden": "true",
+          "dataIndex": "STATUS",
+          "text": "状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }
+   ],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"finalize": "//app.TENANCY_ID.setValue('{#sys.TENANCY_ID#}');\
+app.workdate.setValue(new Date());\
+app.workdate0.setValue(new Date());\
+// app.txtCNTR_NO.addListener(\"specialkey\", function(field, e) {\
+//   if (e.getKey() == e.ENTER)\
+//     app.searchBtn.fireEvent('click');\
+// });\
+\
+//=======================别删===================\
+//grid拖动\
+// {\
+//   plugins: {\
+//     ptype: 'gridviewdragdrop',\
+//     enableDrop: false,\
+//     ddGroup: 'myDropGroup'\
+//   },\
+// }\
+//树接收拖动\
+// {\
+//   plugins: {\
+//     ptype: 'treeviewdragdrop',\
+//     enableDrag: false,\
+//     enableDrop: true,\
+//     ddGroup: 'myDropGroup'\
+//   },\
+//   listeners: {\
+//     beforedrop: function(node, data, om, dp, dh) {\
+//       console.log(om);\
+//       var dutyids = \"\";\
+//       data.copy = true;\
+//       Wb.each(data.records, function(r) {\
+//         r.data.leaf = true;\
+//         r.data.text = r.data.RESOURCE_ID + \"--\" + r.data.WTYPE;\
+//         dutyids += \"'\" + r.data.ID + \"',\";\
+//       });\
+//       Wb.request({\
+//         url: \"m?xwl=controlManage/work/worktaskcraneedit/insert\",\
+//         params: {\
+//           dutyids: dutyids.substring(0, dutyids.length - 1)\
+//         },\
+//         success: function(resp) {\
+\
+//         }\
+//       });\
+//     },\
+//     nodedragover: function(node) {\
+//       if (app.lastAutoFolder && app.lastAutoFolder !== node && app.lastAutoFolder.childNodes.length === 0) {\
+//         app.lastAutoFolder.set('leaf', true);\
+//         delete app.lastAutoFolder;\
+//       }\
+//       if (node.isLeaf()) {\
+//         app.lastAutoFolder = node;\
+//         dp = 'append';\
+//         Wb.update(node, {\
+//           leaf: false,\
+//           loaded: true\
+//         });\
+//       }\
+//     }\
+//   }\
+// }"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlzk": 1
+ },
+ "title": "任务派工",
+ "iconCls": "blue-crane_icon",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,43 @@
+<HTML>
+<head><title>5.原始语法</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>5.原始语法</p><hr color=#2266ee size=1>
+　　FireFox/Chrome的Plug-in插件 和 IE的ActiveX加载项 在页面中的基本语法如下，使用时1、2、3、4行只能选其一，且将其中的"?"改成所需的值即可：<br>
+<pre class='xml'>
+<img src='image/ff.bmp'>&lt;Object id=? width=? height=? type="application/supcan-plugin" Codebase="supcan.xpi"&gt;
+<img src='image/chrome.bmp'>&lt;Object id=? width=? height=? type="application/supcan-plugin" Codebase="supcan.crx"&gt;
+<img src='image/ie.bmp'>&lt;Object id=? width=? height=? CLASSID="clsid:619F1AC0-2644-40D3-9EB1-22F81C5FE097" Codebase="supcan2.cab#Version=1,0,0,3"&gt;
+<img src='image/ie.bmp'>(64位)&lt;Object id=? width=? height=? CLASSID="clsid:11249C26-4BCD-4A74-B4D9-068936D77EFE" Codebase="supcan2.x64.cab#Version=1,0,0,3"&gt;
+ &lt;Param name="CtlName" value="?"&gt;
+ &lt;Param name="CtlVersion" value="?"&gt;
+ &lt;Param name="ZipUrl" value="?"&gt;
+ &lt;Param name="CtlPara" value="?"&gt;
+ &lt;Param name="DownloadOnly" value="?"&gt;
+ &lt;Param name="Cookie" value="?"&gt;  &nbsp;//for <img src='image/ff.bmp'>、<img src='image/chrome.bmp'>Only
+ &lt;Param name="id" value="?"&gt;  &nbsp;//for <img src='image/ie.bmp'>Only
+&lt;/Object></pre>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">第 1、2、3、4 行中的 Codebase 是 xpi / crx / cab 包的 URL，可以是绝对 URL，也可以是当前页面的相对 URL.</p>
+<br>
+<br>
+　　Param的各个 Name-Value对 的含义说明如下：<br>
+<table width=98% border=1 align="center">
+<tr><th>参数名</th><th>含义</th><th>可用值</th><th>默认值</th></tr>
+<tr><td>CtlName</td><td>功能组件名</td><td>取决于具体组件的规范</td><td>&nbsp;</td></tr>
+<tr><td>CtlVersion</td><td>组件版本号。版本号很重要，决定了功能组件的自动升级更新。</td><td>诸如“1.0.1.0”等，以“.”分隔</td><td>&nbsp;</td></tr>
+<tr><td>ZipUrl</td><td>组件所在的压缩包的URL，多个URL之间以逗号分隔。<br>即告诉插件/加载项，到哪里去下载组件包</td><td>可以是绝对URL，也可以是相对URL</td><td>&nbsp;</td></tr>
+<tr><td>CtlPara</td><td>初始参数。即告诉插件/加载项，如何创建功能组件实例。</td><td>取决于具体组件的规范</td><td>&nbsp;</td></tr>
+<tr><td>DownloadOnly</td><td>是否仅仅下载组件。如果仅是下载，那么将不创建组件实例。<br>该参数不太常用.</td><td>1/0 - 是/否</td><td>0</td></tr>
+<tr><td>Cookie</td><td>用于<img src='image/ff.bmp'>、<img src='image/chrome.bmp'>，使得插件和功能组件向服务器发送的Http请求能和页面共享同一个Session，保证了数据传输的安全。<br>备注：IE浏览器中的加载项和组件肯定能和页面共享Session，故不需要此参数</td><td>通常为document.cookie</td><td>&nbsp;</td></tr>
+<tr><td>id</td><td>用于<img src='image/ie.bmp'>，告诉加载项当前实例的id.<br>备注：FireFox、Chrome插件能通过NPAPI取得&lt;object id=...&gt;中的id，故不需要此参数</td><td>必须和&lt;object id=? ...&gt;一致</td><td>&nbsp;</td></tr>
+</table>
+<br>
+　　页面中有了这个&lt;Object&gt;后，浏览器会自动下载、安装、加载这个加载项/插件，然后，加载项/插件会进一步下载功能组件的Bin包、并将其解压到 \Documents and Settings\[用户名]\BC*目录下 (注：Windows7是 用户\[用户名]\BC*目录)，然后加载该组件、创建该组件的实例、并在浏览器的指定区域中展现。<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

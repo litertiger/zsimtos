@@ -1,0 +1,130 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+var whereSql = \"\";\
+if (!Wb.isEmpty(data.ieId))\
+  whereSql += \" and b.I_E_ID='\" + data.ieId + \"'\t\";\
+if (!Wb.isEmpty(data.cntrSizeType))\
+  whereSql += \" and b.CNTR_SIZE='\" + data.cntrSizeType + \"'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  whereSql += \" and b.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.sdate)) {\
+  //   whereSql += \" and to_char(JOB_FINISH_DATE,'yyyy-MM-dd HH24:MI:SS')>='\" + data.sdate.split(' ')[0] + \" 00:00:00' \";\
+  whereSql += \" and to_char(ETA,'yyyy-MM-dd HH24:MI:SS')>='\" + data.sdate.split(' ')[0] + \" 00:00:00' \";\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  //   whereSql += \" and to_char(JOB_FINISH_DATE,'yyyy-MM-dd HH24:MI:SS')<='\" + data.edate.split(' ')[0] + \" 23:59:59' \";\
+  whereSql += \" and to_char(ETA,'yyyy-MM-dd HH24:MI:SS')<='\" + data.edate.split(' ')[0] + \" 23:59:59' \";\
+}\
+\
+\
+// sql = \"SELECT SUM(C20) c20,SUM(C40) c40,SUM(C45) c45 FROM (SELECT B.CNTR,B.CNTR_SIZE,\\\
+//          sum(decode(B.CNTR_SIZE,'20',1,0)) C20,\\\
+//          sum(decode(B.CNTR_SIZE,'40',1,0)) C40,\\\
+//          sum(decode(B.CNTR_SIZE,'45',1,0)) C45\\\
+//     FROM vbill_head A, VLOAD_LIST B,(SELECT CNTR,CNTR_ID,I_E_ID,CNTR_OPERATOR_COD FROM ACCOUNTS_DETAILS WHERE FEE_LIST_ID IN\\\
+//                 (SELECT E.ITEM_ID\\\
+//                    FROM C_FEE_REPORT D, C_FEE_REPORT_CONTACT E\\\
+//                   WHERE     D.ID = E.REPORT_ID\\\
+//                         AND NOTES = '拼柜费用统计表'\\\
+//                         AND E.ITEM_ID NOT IN\\\
+//                                ('08a86b2c29ae46b59743f1d0b11c4d37')) \" + whereSql + \"  GROUP BY CNTR,I_E_ID,CNTR_ID,CNTR_OPERATOR_COD ) C\\\
+//    WHERE     A.CNTR_ID = B.CNTR_ID\\\
+//    AND B.BILL_ID=A.ID\\\
+//          AND B.main_flag = '1'\\\
+//          AND A.MAIN_FLAG='1'\\\
+//          AND A.bill_type = 'P'\\\
+//          AND A.TENANCY_ID = 'ZSG'\\\
+//  AND C.CNTR_ID = B.CNTR_ID\\\
+//          AND C.I_E_ID = B.I_E_ID\\\
+//          AND C.CNTR_OPERATOR_COD = B.CNTR_OPERATOR_COD\t\t\";\
+// //     AND to_char(A.created_on,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59' \";\
+\
+\
+\
+// sql += \"   GROUP BY B.CNTR,B.CNTR_SIZE )\";\
+\
+// sql=\" select  round(SUM(C20)) c20,SUM(C40) c40,SUM(C45) c45 from(  SELECT B.CNTR,\\\
+//            SUM (DECODE (B.CNTR_SIZE, '20', 1, 0))\\\
+//          / (SELECT COUNT (*)\\\
+//               FROM ACCOUNTS_DETAILS\\\
+//              WHERE     ACCOUNTS_DETAILS.cntr_id = b.cntr_id\\\
+//                      AND FEE_LIST_ID IN\\\
+//                           (SELECT E.ITEM_ID\\\
+//                              FROM C_FEE_REPORT D, C_FEE_REPORT_CONTACT E\\\
+//                             WHERE     D.ID = E.REPORT_ID\\\
+//                                   AND NOTES = '拼柜费用统计表'\\\
+//                                   AND E.ITEM_ID NOT IN\\\
+//                                          ('08a86b2c29ae46b59743f1d0b11c4d37')))\\\
+//             C20,\\\
+//          SUM (DECODE (B.CNTR_SIZE, '40', 1, 0))  / (SELECT COUNT (*)\\\
+//               FROM ACCOUNTS_DETAILS\\\
+//              WHERE     ACCOUNTS_DETAILS.cntr_id = b.cntr_id\\\
+//                      AND FEE_LIST_ID IN\\\
+//                           (SELECT E.ITEM_ID\\\
+//                              FROM C_FEE_REPORT D, C_FEE_REPORT_CONTACT E\\\
+//                             WHERE     D.ID = E.REPORT_ID\\\
+//                                   AND NOTES = '拼柜费用统计表'\\\
+//                                   AND E.ITEM_ID NOT IN\\\
+//                                          ('08a86b2c29ae46b59743f1d0b11c4d37'))) C40,\\\
+//          SUM (DECODE (B.CNTR_SIZE, '45', 1, 0))  / (SELECT COUNT (*)\\\
+//               FROM ACCOUNTS_DETAILS\\\
+//              WHERE     ACCOUNTS_DETAILS.cntr_id = b.cntr_id\\\
+//                      AND FEE_LIST_ID IN\\\
+//                           (SELECT E.ITEM_ID\\\
+//                              FROM C_FEE_REPORT D, C_FEE_REPORT_CONTACT E\\\
+//                             WHERE     D.ID = E.REPORT_ID\\\
+//                                   AND NOTES = '拼柜费用统计表'\\\
+//                                   AND E.ITEM_ID NOT IN\\\
+//                                          ('08a86b2c29ae46b59743f1d0b11c4d37'))) C45\\\
+//     FROM vbill_head A, VLOAD_LIST B, ACCOUNTS_DETAILS C\\\
+//    WHERE     A.ID = B.BILL_ID\\\
+//          AND C.CNTR_ID = B.CNTR_ID\\\
+//          AND C.I_E_ID = B.I_E_ID\\\
+//          AND C.CNTR_OPERATOR_COD = B.CNTR_OPERATOR_COD\\\
+//          AND B.main_flag = '1'\\\
+//          AND A.bill_type = 'P'\\\
+//          AND C.FEE_LIST_ID IN\\\
+//                 (SELECT E.ITEM_ID\\\
+//                    FROM C_FEE_REPORT D, C_FEE_REPORT_CONTACT E\\\
+//                   WHERE     D.ID = E.REPORT_ID\\\
+//                         AND NOTES = '拼柜费用统计表'\\\
+//                         AND E.ITEM_ID NOT IN\\\
+//                                ('08a86b2c29ae46b59743f1d0b11c4d37')) AND A.TENANCY_ID = '\"+tenancyid+\"' \"+whereSql+\"\\\
+// GROUP BY b.cntr,b.cntr_id)\";\
+\
+\
+sql = \"SELECT sum(c20) c20,sum(c40) c40,sum(c45) c45\" +\
+  \" FROM (  SELECT 1 CNTRNUM,sum(decode(cntr_size,'20',1,0)) c20,sum(decode(cntr_size,'40',1,0)) c40,sum(decode(cntr_size,'45',1,0)) c45\" +\
+  \"           FROM VBILL_HEAD a,\" +\
+  \"                VLOAD_LIST b,\" +\
+  \"                VESSEL_VISIT v2,\" +\
+  \"                vessel_voyage v1\" +\
+  \"          WHERE     a.ID = b.BILL_ID(+)\" +\
+  \"                AND a.VID = v2.ID(+)\" +\
+  \"                AND v2.vid = v1.id(+)\" +\
+  \" and a.TENANCY_ID='\" + tenancyid + \"'  and  a.phase<>'9'  and b.main_flag=1 AND (b.SPLIT_ID != 1 OR b.SPLIT_ID IS NULL) and a.BILL_TYPE = 'P'\" + whereSql + \")\";\
+\
+  app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSBCFEE": 1
+ },
+ "title": "求箱量",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

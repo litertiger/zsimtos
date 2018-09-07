@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var dispname = app.get(\"sys.dispname\");\
+var receipt = Wb.getRecords(app.run(\"select cntr,phase,FCT_STAY_TIME,FCT_PICK_TIME,CY_STAY_TIME,CY_PICK_TIME from receipt where id='\" + data.shuaiid + \"'\"));\
+if (receipt.length < 1)\
+  throw \"设备交接单可能已经不存在,请刷新页面\";\
+if (receipt[0].PHASE != \"OUT\")\
+  throw \"场外状态才能甩卡\";\
+var back = Wb.getRecords(app.run(\"select phase from truck_app where rcp_id='\" + data.shuaiid + \"' and task_type='IN'\"));\
+if (back.length < 1) { //甩工厂\
+  if (data.shuai == \"C\")\
+    throw \"司机工厂签收前,不能做码头甩卡\";\
+  if (data.shuai == \"F\" && !Wb.isEmpty(receipt[0].FCT_STAY_TIME))\
+    throw \"不能重复甩卡工厂\";\
+  app.run(\"update receipt set out_car='',out_car_hp='',out_driver_id='',out_driver_name='',\" +\
+    \"FCT_STAY_TIME=sysdate where id='\" + data.shuaiid + \"'\");\
+} else { //甩码头\
+  //   if (data.shuai == \"F\")\
+  //     throw \"司机工厂已签收,不能做工厂甩卡\";\
+  if (data.shuai == \"C\" && !Wb.isEmpty(receipt[0].CY_STAY_TIME))\
+    throw \"不能重复甩卡码头\";\
+  app.run(\"update receipt set out_car='',out_car_hp='',out_driver_id='',out_driver_name='',\" +\
+    \"CY_STAY_TIME=sysdate where id='\" + data.shuaiid + \"'\");\
+}\
+app.run(\"insert into aaa(CAP_XML,create_on) values('派车甩卡操作,箱:'||'\" + receipt[0].CNTR + \",操作人:'||'\" + dispname +\
+  \",甩卡地点:'||'\" + data.shuai + \"',sysdate)\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1,
+  "WMBC": 1
+ },
+ "title": "甩卡操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

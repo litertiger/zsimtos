@@ -1,0 +1,165 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var billNo = app.get(\"billNo\"),\
+  tenancyid = app.get('sys.TENANCY_ID'),\
+  message = \"\",\
+  iserror = 0;\
+var brs = app.run(\"select qd_by from buz_order where BILL_NO={?billNo?} and trade_id='1'\");\
+var qd = 0;\
+while (brs.next()) {\
+  if (!Wb.isEmpty(brs.getString(\"QD_BY\")))\
+    qd = 1;\
+}\
+if (qd == 1) {\
+  iserror = 1;\
+  message = \"不能重复签到\";\
+  app.send({\
+    iserror: iserror,\
+    message: message\
+  });\
+  return;\
+}\
+var rs = app.run(\"select distinct VLOAD_LIST.CNTR,VLOAD_LIST.E_F_ID,BILL_TYPE,\" +\
+    \"nvl(getCFSCOD(vload_list.cntr_id),'@@@')cfs,p.in_jgq,VLOAD_LIST.i_e_id,\" +\
+    \" nvl((select(case when port_cntr.PHASE in('RET','OUT')then '箱子出闸或者离港 ' else ' ' end)||\" +\
+    \" decode(VLOAD_LIST.lcl_id,0,(DECODE(vload_list.e_f_id, port_cntr.e_f_id,'','空重不符 ')),'')||\" +\
+    \" DECODE(vload_list.i_e_id,port_cntr.i_e_id,'','进出口不符 ')from port_cntr where port_cntr.ID=VLOAD_LIST.CNTR_ID),'@@@') MES,\" +\
+    \" VBILL_HEAD.RELEASE_ID,VBILL_HEAD.CIQ_ID,VLOAD_LIST.CARGO_TYPE,VLOAD_LIST.OOG_ID,VLOAD_LIST.OVER_ID,VLOAD_LIST.REEF_ID,ct.k,ct.v\" +\
+    \" from VBILL_HEAD,VLOAD_LIST,(select sys_key k,sys_value v from s_code where sys_category='CARGO_TYPE') ct,port_cntr p\" +\
+    \" where VBILL_HEAD.ID=VLOAD_LIST.BILL_ID and VLOAD_LIST.CARGO_TYPE=ct.k and vload_list.cntr_id=p.id and vload_list.i_e_id=p.i_e_id\" +\
+    \" and VBILL_HEAD.trade_id='1' and VBILL_HEAD.BILL_NO='\" + billNo + \"' and VBILL_HEAD.TENANCY_ID='\" + tenancyid + \"' and VBILL_HEAD.phase<>'9'\"),\
+  CNTR = \"\";\
+while (rs.next()) {\
+  var mes = \"\";\
+  if (rs.getString(\"MES\") == '@@@') {\
+    mes += \"不在场 \";\
+  }\
+  if (rs.getString(\"I_E_ID\") == \"E\" && rs.getString(\"BILL_TYPE\") != \"P\" && ((rs.getString(\"CFS\") != \"@@@\" && rs.getString(\"CFS\") != \"JGQ\") || (rs.getString(\"CFS\") == \"@@@\" && rs.getString(\"IN_JGQ\") == \"1\")))\
+    mes += \"不在监管区 \";\
+  if (rs.getString(\"MES\") != '@@@')\
+    mes += rs.getString(\"MES\");\
+  //   if (rs.getString(\"RELEASE_ID\") != '1')\
+  //     mes += \"海关没有放行 \";\
+  //   if (rs.getString(\"CIQ_ID\") != '1')\
+  //     mes += \"商检没有放行 \";\
+  //   if (!(rs.getString(\"CARGO_TYPE\") == 'P' || rs.getString(\"CARGO_TYPE\") == \"\" || rs.getString(\"CARGO_TYPE\") == null))\
+  //     mes += \"货物属性:\" + rs.getString(\"CARGO_TYPE\") + \" \";\
+  if (rs.getString(\"OOG_ID\") == '1')\
+    mes += \"超长 \";\
+  //   if (rs.getString(\"OVER_ID\") == '1')\
+  //     mes += \"超重 \";\
+  if (rs.getString(\"K\") != 'P')\
+    mes += \"是\" + rs.getString(\"V\") + \" \";\
+  //  app.log(mes.length);\
+  if (mes.length > 1) {\
+    if (rs.getString(\"REEF_ID\") == \"0\") {\
+      message += \"箱号:\" + rs.getString(\"CNTR\") + mes;\
+      iserror = 1;\
+    }\
+    if (rs.getString(\"REEF_ID\") == \"1\") {\
+      message += \"箱号:\" + rs.getString(\"CNTR\") + \"是冷冻箱 \" + mes;\
+      iserror = 1;\
+    }\
+  } else {\
+    if (rs.getString(\"REEF_ID\") == \"1\")\
+      message += \"箱号:\" + rs.getString(\"CNTR\") + \"是冷冻箱 \";\
+  }\
+}\
+var rsw = app.run(\"select vl.cntr,wr.id from VLOAD_LIST vl\" +\
+  \" left join cntr_weight_rec wr on vl.cntr_id=wr.cntr_id and vl.i_e_id=wr.i_e_id\" +\
+  \" where vl.BILL_NO ='\" + billNo + \"' and vl.TENANCY_ID='\" + tenancyid + \"' and vl.LCL_ID=0 and vl.trade_id='1' and vl.phase<>'9'\");\
+while (rsw.next()) {\
+  var mes = \"\";\
+  if (Wb.isEmpty(rsw.getString(\"ID\"))) {\
+    mes += \"箱号:\" + rsw.getString(\"CNTR\") + \"没有过磅 \";\
+    message += mes;\
+    iserror = 1;\
+  }\
+}\
+var res5 = app.run(\"select vh.bill_type,vh.weight,sum(p.scale_wt) bz,\" +\
+  \"round(abs((sum(p.scale_wt)/decode(vh.weight,0,1,vh.weight)-1)*100),2) chaonum,\" +\
+  \"case when (sum(p.scale_wt)/decode(vh.weight,0,1,vh.weight)-1)*100>=5 then 1\" +\
+  \" when (sum(p.scale_wt)/decode(vh.weight,0,1,vh.weight)-1)*100<=-5 then 2 else 0 end chao\" +\
+  \" from vbill_head vh left join vload_list vl on vh.id=vl.bill_id left join port_cntr p on p.id=vl.cntr_id\" +\
+  \" where vh.bill_no='\" + billNo + \"' and vl.TENANCY_ID='\" + tenancyid + \"' and vh.trade_id='1' and vh.phase<>'9'\" +\
+  \" group by vh.bill_type,vh.weight\");\
+while (res5.next()) {\
+  if (res5.getString(\"BILL_TYPE\") != \"P\") {\
+    if (res5.getString(\"CHAO\") == \"1\") {\
+      message += \"磅重高于舱单重量\" + res5.getString(\"CHAONUM\") + \"%\";\
+      iserror = 1;\
+    }\
+    if (res5.getString(\"CHAO\") == \"2\") {\
+      message += \"磅重低于舱单重量\" + res5.getString(\"CHAONUM\") + \"%\";\
+      iserror = 1;\
+    }\
+  }\
+}\
+\
+var cs = Wb.getRecords(app.run(\"select cntr_id,i_e_id from vload_list where bill_no='\" + billNo + \"' and tenancy_id='\" + tenancyid + \"'\"));\
+if (cs.length > 0) {\
+  var cids = \"\";\
+  Wb.each(cs, function(cid) {\
+    cids += \"'\" + cid.CNTR_ID + \"',\";\
+  });\
+  cids = cids.substring(0, cids.length - 1);\
+  var czrs = Wb.getRecords(app.run(\"select cntr,GROSSWT-decode(CNTR_SIZE,20,24000,27000) cntrWeight\" +\
+    \" from CNTR_WEIGHT_REC where cntr_id in(\" + cids + \") and i_e_id='\" + cs[0].I_E_ID + \"' and tenancy_id='\" + tenancyid + \"'\"));\
+  Wb.each(czrs, function(w) {\
+    if (w.CNTRWEIGHT > 0) {\
+      message += \"箱号\" + w.CNTR + \"超重 \";\
+      iserror = 1;\
+    }\
+  });\
+}\
+\
+// var bandan = Wb.getRecords(app.run(\"select p.LOCK_ID,p.CNTR,p.RELEASE_ID,p.CIQ_ID,r.id RID from port_cntr p\" +\
+//   \" left join receipt r on p.id=r.cntr_id left join vload_list vl on p.id=vl.cntr_id\" +\
+//   \" where vl.bill_no='\" + billNo + \"'\"));\
+// Wb.each(bandan, function(cntr) {\
+//   if (!Wb.isEmpty(cntr.LOCK_ID) && cntr.LOCK_ID != \"0\") {\
+//     message += cntr.CNTR + \"被扣留.\";\
+//     iserror = 1;\
+//   }\
+//   if (cntr.RELEASE_ID == 0) {\
+//     message += cntr.CNTR + \"海关没有放行.\";\
+//     iserror = 1;\
+//   }\
+//   //   if (cntr.CIQ_ID == 0)\
+//   //     msg += \"商检没有放行.\";\
+//   //   if (Wb.isEmpty(cntr.RID))\
+//   //     msg += \"船公司没有放行.\";\
+// });\
+// var bandans = Wb.getRecords(app.run(\"select RELEASE_ID,CIQ_ID from vbill_head where bill_no='\" + billNo + \"' and bill_type='S'\"));\
+// Wb.each(bandans, function(cntr) {\
+//   if (cntr.RELEASE_ID == 0) {\
+//     message += \"海关没有放行.\";\
+//     iserror = 1;\
+//   }\
+//   //   if (cntr.CIQ_ID == 0)\
+//   //     errmsg += \"商检没有放行.\";\
+// });\
+app.send({\
+  iserror: iserror,\
+  message: message\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "获得办单数据信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

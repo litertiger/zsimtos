@@ -1,0 +1,94 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create')),\
+  upds = Wb.decode(request.getParameter('update'));\
+var username = app.get(\"sys.username\");\
+\
+Wb.each(upds, function(upd) {\
+  if (!Wb.isEmpty(upd.IN_CAR) && upd.IN_CAR != upd[\"#IN_CAR\"]) {\
+    upd.PHASE = \"EXE\";\
+    upd.PC_BY = username;\
+  }\
+  app.run(\"update c_truck set TRAY_NO='\" + upd.OUT_CAMPI + \"',TRUCKER_NO='\" + upd.OUT_DRIVER_ID + \"',\" +\
+    \"TRUCKER_NAM='\" + upd.OUT_DRIVER_NAME + \"' where TRUCK_NO='\" + upd.OUT_CAR + \"'\", {\
+      jndi: \"jdbc/basecode\"\
+    });\
+});\
+\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+request.setAttribute('update', Wb.encode(upds));\
+app.update({\
+  tableName: 'RECEIPT',\
+  whereFields: 'ID',\
+  transaction: 'commit',\
+  uniqueUpdate: true\
+});\
+\
+//发送微信消息\
+Wb.each(upds, function(upd) {\
+  if (Wb.isEmpty(upd[\"#IN_DRIVER_ID\"]) || (upd[\"#IN_DRIVER_ID\"] != upd.IN_DRIVER_ID && !Wb.isEmpty(upd.IN_DRIVER_ID))) {\
+    var now = new Date();\
+    var year = now.getFullYear();\
+    var month = now.getMonth() + 1;\
+    var day = now.getDate();\
+    var h = now.getHours().toString();\
+    var pstime = \"\";\
+    if (h.length == 1) {\
+      h = \"0\" + h;\
+    }\
+    var m = now.getMinutes().toString();\
+    if (m.length == 1) {\
+      m = \"0\" + m;\
+    }\
+    var s = now.getSeconds().toString();\
+    if (s.length == 1) {\
+      s = \"0\" + s;\
+    }\
+    if (!Wb.isEmpty(upd.PLAN_STIME))\
+      pstime = upd.PLAN_STIME;\
+    else\
+      pstime = year + \"-\" + month + \"-\" + day + \" \" + (parseInt(h) + 1);\
+    var message = \"箱号:\" + upd.CNTR + \"已被安排给您托送\" +\
+      \"\\\\
+计划送货时间:\" + pstime +\
+      \"\\\\
+送货地址:\" + upd.S_ADRESS +\
+      \"\\\\
+本次消息推送时间:\" + year + \"-\" + month + \"-\" + day + \" \" + h + \":\" + m + \":\" + s;\
+    //发送微信消息\
+    app.sendMessage(\"qu_wechat\", '{\"ID\":\"600015\",\"MESSAGE\":\"' + message + '\",\"DIRVER_NO\":\"' + upd.IN_DRIVER_ID + '\"}');\
+  }\
+});\
+Wb.each(upds, function(upd) {\
+  if (!Wb.isEmpty(upd.IN_CAR) && upd.IN_CAR != upd[\"#IN_CAR\"]) {\
+    //计费接口\
+    var map = new HashMap();\
+    map.put(\"rpId\", upd.ID);\
+    Wb.newClass(\"dubboForReceipt\").call(request, map);\
+    app.log(\"计费接口\");\
+  }\
+});\
+\
+app.send(ids); //把id列表发送到客户端以同步到表格",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "ZSGWCD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

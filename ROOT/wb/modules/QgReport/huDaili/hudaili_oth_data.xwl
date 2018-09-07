@@ -1,0 +1,216 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sdate = data.sdate;\
+var edate = data.edate;\
+if (Wb.isEmpty(sdate))\
+  sdate = '2018-05-01';\
+if (Wb.isEmpty(edate))\
+  edate = '2018-07-31';\
+var sql = \"select s.service_name,\\
+\" +\
+  \"decode(sum(decode(cntr_siz_cod,'20',1,0))+sum(decode(cntr_siz_cod,'40',2,0))+sum(decode(cntr_siz_cod,'45',2.25,0)),0,'',\\
+\" +\
+  \"sum(decode(cntr_siz_cod,'20',1,0))+sum(decode(cntr_siz_cod,'40',2,0))+sum(decode(cntr_siz_cod,'45',2.25,0)))TEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' then 2.25 else 0 end))FTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='E' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='E' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' then 2.25 else 0 end))ETEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and tenancy_id='ZSG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and tenancy_id='ZSG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and tenancy_id='ZSG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and tenancy_id='ZSG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and tenancy_id='ZSG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and tenancy_id='ZSG' then 2.25 else 0 end))ZSTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='F' and tenancy_id='ZSG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' and tenancy_id='ZSG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' and tenancy_id='ZSG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='F' and tenancy_id='ZSG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' and tenancy_id='ZSG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' and tenancy_id='ZSG' then 2.25 else 0 end))ZSFTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='E' and tenancy_id='ZSG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' and tenancy_id='ZSG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' and tenancy_id='ZSG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='E' and tenancy_id='ZSG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' and tenancy_id='ZSG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' and tenancy_id='ZSG' then 2.25 else 0 end))ZSETEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and tenancy_id='XLG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and tenancy_id='XLG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and tenancy_id='XLG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and tenancy_id='XLG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and tenancy_id='XLG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and tenancy_id='XLG' then 2.25 else 0 end))XLTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='F' and tenancy_id='XLG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' and tenancy_id='XLG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' and tenancy_id='XLG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='F' and tenancy_id='XLG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' and tenancy_id='XLG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' and tenancy_id='XLG' then 2.25 else 0 end))XLFTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='E' and tenancy_id='XLG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' and tenancy_id='XLG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' and tenancy_id='XLG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='E' and tenancy_id='XLG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' and tenancy_id='XLG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' and tenancy_id='XLG' then 2.25 else 0 end))XLETEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and tenancy_id='SWG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and tenancy_id='SWG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and tenancy_id='SWG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and tenancy_id='SWG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and tenancy_id='SWG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and tenancy_id='SWG' then 2.25 else 0 end))SWTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='F' and tenancy_id='SWG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' and tenancy_id='SWG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' and tenancy_id='SWG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='F' and tenancy_id='SWG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='F' and tenancy_id='SWG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='F' and tenancy_id='SWG' then 2.25 else 0 end))SWFTEU,\\
+\" +\
+  \"decode(sum(case when cntr_siz_cod='20' and e_f_id='E' and tenancy_id='SWG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' and tenancy_id='SWG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' and tenancy_id='SWG' then 2.25 else 0 end),0,'',\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and e_f_id='E' and tenancy_id='SWG' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and e_f_id='E' and tenancy_id='SWG' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and e_f_id='E' and tenancy_id='SWG' then 2.25 else 0 end))SWETEU\\
+\" +\
+  \"from t_sas_ship_thruput t left join c_service s on t.sh_line_cod=s.id\\
+\" +\
+  \"where (SH_AGENT_COD='HU' or service_name like '%深圳%')\\
+\" +\
+  \"and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)>=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by s.service_name\";\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  SERVICE_NAME = '',\
+  TEU = 0,\
+  FTEU = 0,\
+  ETEU = 0,\
+  ZSTEU = 0,\
+  ZSFTEU = 0,\
+  ZSETEU = 0,\
+  XLTEU = 0,\
+  XLFTEU = 0,\
+  XLETEU = 0,\
+  SWTEU = 0,\
+  SWFTEU = 0,\
+  SWETEU = 0;\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  SERVICE_NAME = rsn.getString(\"SERVICE_NAME\");\
+  TEU = rsn.getString(\"TEU\");\
+  FTEU = rsn.getString(\"FTEU\");\
+  ETEU = rsn.getString(\"ETEU\");\
+  ZSTEU = rsn.getString(\"ZSTEU\");\
+  ZSFTEU = rsn.getString(\"ZSFTEU\");\
+  ZSETEU = rsn.getString(\"ZSETEU\");\
+  XLTEU = rsn.getString(\"XLTEU\");\
+  XLFTEU = rsn.getString(\"XLFTEU\");\
+  XLETEU = rsn.getString(\"XLETEU\");\
+  SWTEU = rsn.getString(\"SWTEU\");\
+  SWFTEU = rsn.getString(\"SWFTEU\");\
+  SWETEU = rsn.getString(\"SWETEU\");\
+  xml += \"<SERVICE_NAME>\" + SERVICE_NAME + \"<\/SERVICE_NAME>\";\
+  xml += \"<TEU>\" + TEU + \"<\/TEU>\";\
+  xml += \"<FTEU>\" + FTEU + \"<\/FTEU>\";\
+  xml += \"<ETEU>\" + ETEU + \"<\/ETEU>\";\
+  xml += \"<ZSTEU>\" + ZSTEU + \"<\/ZSTEU>\";\
+  xml += \"<ZSFTEU>\" + ZSFTEU + \"<\/ZSFTEU>\";\
+  xml += \"<ZSETEU>\" + ZSETEU + \"<\/ZSETEU>\";\
+  xml += \"<XLTEU>\" + XLTEU + \"<\/XLTEU>\";\
+  xml += \"<XLFTEU>\" + XLFTEU + \"<\/XLFTEU>\";\
+  xml += \"<XLETEU>\" + XLETEU + \"<\/XLETEU>\";\
+  xml += \"<SWTEU>\" + SWTEU + \"<\/SWTEU>\";\
+  xml += \"<SWFTEU>\" + SWFTEU + \"<\/SWFTEU>\";\
+  xml += \"<SWETEU>\" + SWETEU + \"<\/SWETEU>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

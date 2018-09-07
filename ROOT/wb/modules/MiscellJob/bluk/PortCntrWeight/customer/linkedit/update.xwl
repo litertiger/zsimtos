@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\";\
+var data = app.get();\
+var id = SysUtil.getId();\
+var searchids;\
+var username=app.get('sys.username');\
+var orgId=app.get('sys.ORG_ID');\
+var tenancyId=app.get('sys.TENANCY_ID');\
+app.run(\"update C_CUSTOMER_LINK set CREATED_MAN='\"+username+\"',CREATED_ON=sysdate, CUS_NAME={?CUS_NAME?},\"+\
+\"C_ID={?C_ID?}, EMAIL={?EMAIL?}, GOV_CODE={?GOV_CODE?},\"+\
+ \"LINK_NAME={?LINK_NAME?}, ORG_ID='\"+orgId+\"', TEL={?TEL?}, TENANCY_ID='\"+tenancyId+\"', \"+\
+\"UPDATED_MAN='\"+username+\"', UPDATED_ON=sysdate, WECHATMSG_TYPE={?WECHATMSG_TYPE?} where ID={?ID?}\",{jndi:'jdbc/basecode'});\
+\
+//联系人的id,不能直接使用id，id是变化的\
+var searchid =  app.run(\"select ID FROM C_CUSTOMER_LINK WHERE ID={?ID?}\",{jndi:'jdbc/basecode'});\
+while(searchid.next()){\
+\tsearchids = searchid.getString('ID');\
+}\
+//查找关系表中是否又该条数据(WECHATID,MSGID)\
+var result=app.run(\"select WECHATID,MSGID from C_WECHAT_SUBSCRIB where WECHATID='\"+searchids+\"' and MSGID={?MSGID?}\",{jndi:'jdbc/basecode'});\
+//得到不一样的id\
+var ids=SysUtil.getId();\
+//通过xwl2文件grid1的一条记录\
+// var subscribeId=app.run(\"select * from C_WECHAT_CONDITION where SUBSCRIB={?ID?}\");\
+//或者直接传过来参数MSGID=app.xwl2. \t如果一条数据都没有，执行插入操作。如果有数据不断更新\
+if(!result.next()){\
+\tsql=\"insert into C_WECHAT_SUBSCRIB (ID, WECHATID, MSGID, ENABLED) values ('\"+ids+\"','\"+searchids+\"',{?MSGID?},{?ENABLED?})\";\
+}else{\
+// \tsql=\"update C_WECHAT_SUBSCRIB set WECHATID='\"+searchids+\"' where WECHATID='\"+searchids+\"'\";\
+  var judge=app.run(\"select * from C_WECHAT_CONDITION where SUBSCRIB={?MSGID?}\",{jndi:'jdbc/basecode'});\
+  if(!judge.next()){\
+  \tsql=\"delete from C_WECHAT_SUBSCRIB where WECHATID='\"+searchids+\"' AND MSGID={?MSGID?}\";\
+  }else\
+    sql=\"update C_WECHAT_SUBSCRIB set WECHATID='\"+searchids+\"' where WECHATID='\"+searchids+\"' AND MSGID={?MSGID?}\";\
+}\
+\
+\
+\
+\
+\
+\
+\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "jndi": "jdbc/basecode",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

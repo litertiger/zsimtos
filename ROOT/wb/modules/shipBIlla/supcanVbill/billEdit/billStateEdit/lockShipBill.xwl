@@ -1,0 +1,133 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var TENANCY_ID = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+var  rscus=app.run(\"SELECT bill_no  FROM vbill_head,c_customer   WHERE \\\
+            DECODE (i_e_id, 'I', consignee_cod, shipper_cod) = c_customer.code(+)\\\
+   AND vid = {?ID?} and c_customer.code is null\\\
+   and (zf_id=1 and main_flag=1  or  nvl(zf_id,0)=0) \");//and trade_id=1\
+if(rscus.next()){\
+\tWb.error(\"舱单\"+rscus.getString(\"BILL_NO\")+\"货主代码没有填写，不能锁定舱单\");\
+}\
+\
+\
+var TENANCY_ID = app.get('sys.TENANCY_ID'),\
+  vId = app.get(\"ID\"),\
+  ieId = app.get('ieId');\
+// app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) values('船舶计费开始','\" + username + \"',sysdate,{?ID?})\");\
+\
+try {\
+  var map = new HashMap();\
+  map.put(\"vid\", vId);\
+  map.put(\"ieId\", ieId);\
+  map.put(\"billNo\", null);\
+  map.put(\"cntr\", null);\
+  map.put(\"itemId\", null);\
+  Wb.newClass(\"dubboForShip\").call(request, map);\
+} catch (d) {\
+//   app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) values('船舶计费异常','\" + username + \"',sysdate,{?ID?})\");\
+}\
+if (app.get(\"ieId\") == 'I')\
+  app.run(\"update  VESSEL_VISIT  set     IS_SD=1   where  ID ={?ID?}   and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+else\
+  app.run(\"update  VESSEL_VISIT  set     OS_SD=1   where  ID ={?ID?}   and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+\
+\
+app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) values('船舶锁定','\" + username + \"',sysdate,{?ID?})\");\
+\
+app.run(\"update  VBILL_HEAD  set PHASE='2'  where  VID ={?ID?} and PHASE<>'9'   and TENANCY_ID='\" + TENANCY_ID + \"' and I_E_ID='\" + ieId + \"'\");\
+app.run(\"update  VLOAD_LIST  set PHASE='2'  where  VID ={?ID?} and PHASE<>'9'  and TENANCY_ID='\" + TENANCY_ID + \"' and I_E_ID='\" + ieId + \"'\");\
+var rs = app.run(\"select  VID,BILL_NO from  vbill_head  where VID={?ID?} and ZF_ID=1 \");\
+while (rs.next()) {\
+  vId = rs.getString(\"VID\");\
+  billNo = rs.getString(\"BILL_NO\");\
+  app.run(\"update vbill_head  set PHASE='2' where VID='\" + vId + \"'   and  P_BILLNO='\" + billNo + \"' \");\
+  app.run(\"update vload_list  set PHASE='2' where VID='\" + vId + \"'   and  BILL_ID \" +\
+    \"in ( select ID  from  vbill_head where  VID='\" + vId + \"' and  P_BILLNO=  '\" + billNo + \"')\");\
+}\
+if (ieId == 'E')\
+  app.run(\"UPDATE port_cntr\" +\
+    \"   SET (i_e_id,  cntr_iso, line, cntr_operator, cntr_owner, seal_no,\" +\
+    \"        seal_no2, seal_no3, seal_no4, e_dship_no, pod, pol, spod, bill_no,\" +\
+    \"        cmdy_code, weight, temp_set, temp_min, temp_max,\" +\
+    \"        overheight, overfront, overback, overleft, overright, oog_id,\" +\
+    \"        bundl_id, release_id, exit_custom_id, emergency_id, lcl_id, pti_id,\" +\
+    \"        cntr_size, cntr_type, cntr_operator_cod, line_cod,PIECES, VOLUME) =\" +\
+    \"          (SELECT max(i_e_id),max( cntr_iso),max( line),max( cntr_operator),max( cntr_owner),\" +\
+    \"                  max(seal_no),max( seal_no2),max( seal_no3),max( seal_no4),max( VID),max( pod),max( pol),\" +\
+    \"                  max(spod),max( bill_no),max( cmdy_code),sum( weight),max( temp_set),\" +\
+    \"                  max(temp_min),max( temp_max),max( overheight),max( overfront),max( overback),\" +\
+    \"                  max(overleft),max( overright),max( oog_id),max( bundl_id),max( release_id),\" +\
+    \"                  max(exit_custom_id),max( emergency_id),max( lcl_id),max( pti_id),max( cntr_size),\" +\
+    \"                  max(cntr_type),max( cntr_operator_cod),max( line_cod),sum(PIECES),sum(VOLUME)\" +\
+    \"             FROM vload_list\" +\
+    \"            WHERE cntr_id = port_cntr.ID AND vid = {?ID?} and I_E_ID='E')\" +\
+    \" WHERE ID IN (\" +\
+    \"          SELECT cntr_id\" +\
+    \"            FROM vload_list\" +\
+    \"           WHERE vid = {?ID?}   and I_E_ID='E'\" +\
+    \"             AND tenancy_id = '\" + TENANCY_ID + \"')\");\
+// if (ieId == 'I') {\
+//   var rs = app.run(\"SELECT *\\\
+//   FROM CN_CAP0031, VESSEL_VISIT\\\
+//  WHERE     CN_CAP0031.TRANSPORT_ID = VESSEL_VISIT.CALL_SIGN\\\
+//        AND CN_CAP0031.VOYAGE_NO = LIB_VYG\\\
+//        AND VESSEL_VISIT.iD = {?ID?}\");\
+//   if (rs.next()) {\
+//     app.run(\" update vbill_head_e set cb=1 where id in(select ID from vbill_head where vid={?ID?} and i_e_id='I'  )\");\
+//     app.run(\"update VESSEL_VISIT set cb=1 where  id={?ID?}\");\
+//   }\
+// }\
+\
+app.run(\"update  vload_list set  (WEIGHT, VOLUME, PIECES)=(select WEIGHT, VOLUME, PIECES from vbill_head where vbill_head.ID=bill_id ) where VID='\"+vId+\"' and  lcl_id=1\");\
+app.run(\"call bill_lcl_id('\" + vId + \"','\" + TENANCY_ID + \"','\" + ieId + \"')\");\
+app.run(\"call T_SAS_SHIP_THRUPUT_PRO('\" + vId + \"','\" + ieId + \"','\" + TENANCY_ID + \"')\");\
+app.run(\"call p_pro_receipt_bill('\" + vId + \"')\");\
+\
+app.run(\"delete from vbill_head where  vid={?ID?} and phase='9' \");\
+app.run(\"delete from vload_list where  vid={?ID?} and phase='9' \");\
+\
+\
+\
+// app.run(\"UPDATE c_customer\\\
+//    SET address =\\\
+//           (SELECT MAX (DECODE (i_e_id,\\\
+//                                'I', notifier_address,\\\
+//                                contract_address\\\
+//                               )\\\
+//                       )\\\
+//              FROM vbill_head\\\
+//             WHERE CODE=DECODE (i_e_id, 'I', consignee_cod, shipper_cod) and  DECODE (i_e_id, 'I', notifier_address, contract_address) IS NOT NULL)\\\
+//  WHERE address is null and  code IN (\\\
+//           SELECT DECODE (i_e_id, 'I', consignee_cod, shipper_cod)\\\
+//             FROM vbill_head\\\
+//            WHERE  VID='\"+vId+\"' and  DECODE (i_e_id, 'I', notifier_address, contract_address) IS NOT NULL)\");\
+\
+// app.run(\"UPDATE c_customer \\\
+//    SET tel =\\\
+//           (SELECT MAX (DECODE (i_e_id, 'I', notifier_tel, contract_tel))\\\
+//              FROM vbill_head\\\
+//             WHERE CODE=DECODE (i_e_id, 'I', consignee_cod, shipper_cod)  and DECODE (i_e_id, 'I', notifier_tel, contract_tel) IS NOT NULL)\\\
+//  WHERE    code IN (\\\
+//              SELECT DECODE (i_e_id, 'I', consignee_cod, shipper_cod)\\\
+//                FROM vbill_head\\\
+//               WHERE VID='\"+vId+\"' and  DECODE (i_e_id, 'I', notifier_tel, contract_tel) IS NOT NULL)\\\
+//    AND tel IS NULL\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSLOCK": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "锁定船舶舱单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

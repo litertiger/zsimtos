@@ -1,0 +1,91 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "\
+var  TENANCY_ID = app.get(\"sys.TENANCY_ID\"), VID = app.get(\"VID\"),sqlArray=new Array();\
+\
+\
+var result =app.run(\"select sys_guid() ID, vbill_head.line_COD,vbill_head.line  from zs_imtos.vbill_head where \"+\
+        \" I_E_ID='I' AND VID = '\"+VID+\"'    AND tenancy_id = '\"+TENANCY_ID+\"'   AND line_cod  is  not null     group by  vbill_head.line_COD,vbill_head.line\");\
+while(result.next()){\
+\
+sqlArray.push({ID:result.getString(\"ID\"),\
+              LINE:result.getString(\"LINE\"),\
+              LINE_COD:result.getString(\"LINE_COD\")});\
+}\
+app.run(\"INSERT INTO p_coarri_ship \"+\
+        \"    (message_id3, vessel_code, vessel, voyage, ie_flag, national_code, \"+\
+        \"     liner_id, arrival_time, sailing_time, bgn_disc_time,\"+\
+       \"      end_disc_time, bgn_load_time, end_load_time, ctn_count,\"+\
+        \"     tenant_id,RECEIVER_CODE)\"+\
+  \" SELECT {?ID?}, vessel_code, vessel_voyage.vessel_name, ib_vyg,\"+\
+     \"     'I', country_code, 'Y', ata, atd, pilotonboard, pilotoffboard, NULL,\"+\
+     \"     NULL, in_bz + in_bj, vessel_visit.tenancy_id,{?LINE_COD?}\"+\
+    \" FROM zs_imtos.vessel_visit,\"+\
+     \"     zs_imtos.vessel_voyage,\"+\
+     \"     zs_imtos.c_vessel_code\"+\
+  \"  WHERE vessel_visit.vid = vessel_voyage.ID and   vessel_visit.ID= '\"+VID+\"' \"+\
+    \"  AND c_vessel_code.ID = vessel_code\"+\
+   \"   AND vessel_visit.tenancy_id = '\"+TENANCY_ID+\"'\",{\
+jndi:\"jdbc/edi\",\
+   transaction: 'start',\
+  arrayData: new org.json.JSONArray(Wb.encode(sqlArray))\
+});\
+\
+app.run(\"INSERT INTO P_COARRI_CTN_ADDR  \"+\
+         \"   (MESSAGE_ID3, SEQ_NO3, CTN_NO, CTN_TYPE, CTN_SIZE, CTN_OPER_CODE, CTN_OPER, CTN_STATUS, \"+\
+         \" BL_NO, SEAL_NO, STOWAGE_LOC, DISC_PORT_CODE,LOAD_PORT_CODE, \"+\
+         \"   PLACE_DELIVERY_CODE, GROSS_WEIGHT, WORK_TIME, INS_ACCOUNT,\"+\
+         \"    INS_TIMESTAMP, UPD_ACCOUNT, UPD_TIMESTAMP, TENANT_ID) \"+\
+  \" SELECT {?ID?},rownum,cntr,CNTR_SIZE, CNTR_TYPE,VLOAD_LIST.CNTR_OPERATOR_COD,VLOAD_LIST.CNTR_OPERATOR,E_F_ID,VLOAD_LIST.BILL_NO,\"+\
+  \" SEAL_NO,null,VLOAD_LIST.POD, VLOAD_LIST.POL, VLOAD_LIST.SPOD,VLOAD_LIST.WEIGHT,null, VLOAD_LIST.CREATED_BY, VLOAD_LIST.CREATED_ON, VLOAD_LIST.UPDATED_BY,VLOAD_LIST.UPDATED_ON, VLOAD_LIST.TENANCY_ID \"+\
+  \"   FROM ZS_IMTOS.VBILL_HEAD, ZS_IMTOS.VLOAD_LIST   \"+\
+  \"  WHERE VBILL_HEAD.ID = VLOAD_LIST.BILL_ID  and VBILL_HEAD.LINE_COD={?LINE_COD?}\"+\
+  \"    AND VID = '\"+VID+\"' and VLOAD_LIST.TENANCY_ID='\"+TENANCY_ID+\"'\",{jndi:\"jdbc/edi\",\
+        arrayData: new org.json.JSONArray(Wb.encode(sqlArray))  });\
+\
+app.run(\"update VESSEL_VISIT  set   IS_XCEDI='1'  where  ID='\"+VID+\"'\");\
+\
+//app.sendMessage(\"qu_wechat\",'{\"ID\":\"600000\",\"MESSAGE\":\"中航902于2017-06-29 16:30到港\"}');\
+\
+// var client = new RabbitClient();\
+// if (!client.open()) {\
+//   app.send(client.getLastError());\
+//   return;\
+// }\
+// try {\
+//     var ret = client.call(\"qu_find_plac\", '{\"ID\":\"\",\"SHIP_NO\":\"'+VID+'\"}' );\
+//   //app.send(client.call(\\\"rpc_queue\\\", 6) || \\\"超时\\\");\
+// } catch (e) {\
+//   app.send(e);\
+// } finally {\
+//   client.close();\
+// }\
+\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "生成卸船报文",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

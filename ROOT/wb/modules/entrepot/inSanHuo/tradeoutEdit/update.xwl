@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = SysUtil.getId();\
+var signercfd = app.get('sys.dispname');\
+var data = app.get();\
+\
+var weight=0;\
+var volume=0;\
+var rp=app.run(\"select F_FENWEIVOL({?BILL_ID?},{?QUTY?},'2') pieces from dual\"),volume;\
+while(rp.next()){\
+\tvolume=rp.getString('PIECES');\
+}\
+var s=weight.split('@@@');\
+weight=s[0];\
+volume=s[1];\
+\
+\
+\
+app.run(\"update  BLUK_GOODS set  OUTQUTY={?QUTY?}, \\\
+QUTY=quty-{?QUTY?},  OUTTIME=SYSDATE, WEIGHT='\"+weight+\"', VOLUME='\"+volume+\"',  \\\
+UPDATED_ON=SYSDATE, UPDATED_BY={?sys.username?} WHERE ID={?ID?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+var s = Wb.decode(data.datas);\
+var map = new HashMap();\
+if (s.length < 0) {\
+  return;\
+}\
+for (var i = 0; i < s.length; i++) {\
+  map.put(\"billNo\", s[i].BILL_NO);//提单号\
+  map.put(\"planTime\", \"\");//预提时间，可空系统默认当前时间\
+  map.put(\"lclId\", \"1\"); //堆存类别0=整柜1=散货和拼柜\
+  map.put(\"weight\", weight); //重量\
+  map.put(\"volume\", volume); //体积\
+  map.put(\"outStoreId\", s[i].INOUT_ID); //出库编号\
+  Wb.newClass(\"dubboForCargoStore\").call(request, map);\
+}\
+\
+\
+\
+\
+app.run(\"insert into bluk_inout(ID, OUTFLAG, PIECES, TRUCKNO, RELEASE_NO, SEAL_NO, CFSBILL_ID, SIGNERCFS, TENANCY_ID, TRUCKNUM, LINK_NAME,STORE_TIME, VOLUME, WEIGHT,BILL_NO,INOUT_ID)\\\
+values('\" + id + \"','0',{?QUTY?},{?TRUCKNO?},'','','','\" + signercfd + \"',{?sys.TENANCY_ID?},{?TRUCKNUM?},{?LINK_NAME?},sysdate, '\"+volume+\"', '\"+weight+\"',{?BILL_NO?},{?INOUT_ID?})\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+//插入作业票\
+app.run(\"insert into WORK_BILL(ID, SHIPPER, BILL_ID, EDITTIME, WORKDATE, PLACE, TYPE, AGENT_ID, BTIME, ETIME, MACHINE,\\\
+        DEPT_ID, MANHOUR, MACHINEHOUR, SIGNERPORT, SIGNER, TASKSTATUS, HANDLE_ID, CHECKS, SCALES, MANNUM, DRAWOUTTYPEID, PORC_COUNT)\\\
+        values(sys_guid(),{?SHIPPER?},{?BILL_ID?},sysdate,{?timestamp.WORKDATE?},'',{?TYPE?},'','','',{?MACHINE?},{?DEPT_ID?},{?MANHOUR?},{?MACHINEHOUR?},\\\
+'','','','','','',{?MANNUM?},'',{?PORC_COUNT?})\",{arrayData: new org.json.JSONArray(data.datas)});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSSCIMP": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

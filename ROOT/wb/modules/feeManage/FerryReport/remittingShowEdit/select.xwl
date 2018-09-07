@@ -1,0 +1,60 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql = \"\";\
+var data = app.get();\
+sql = \"select ri.FEE_LIST_ID,CUSTOMER_ID,R.ID rid,ri.ACTUAL_JOB_COUNT,SETTLEMENT_CODE,\" +\
+  \" accounts_details.BILL_NO,nvl(CONTRACT_RATE,RATE) RATE,\" +\
+  \" ri.AMOUNT,\" +\
+  \" (SELECT PAY_BY FROM BUZ_ORDER WHERE BILL_NO=accounts_details.BILL_NO) PAY_BY,\" +\
+  \" (SELECT QD_BY FROM BUZ_ORDER WHERE BILL_NO=accounts_details.BILL_NO) QD_BY,\" +\
+  \" (SELECT QD_ON FROM BUZ_ORDER WHERE BILL_NO=accounts_details.BILL_NO) QD_ON,\" +\
+  \" (SELECT PAY_ON FROM BUZ_ORDER WHERE BILL_NO=accounts_details.BILL_NO) PAY_ON,\" +\
+  \" accounts_details.CNTR,accounts_details.I_E_ID,accounts_details.CNTR_OPERATOR_COD,INVOICE_CODE,INVOICE_TYPE,BILL_TYPE,SETTLE_DAYS,\" +\
+  \" 'RMB' YUAN\" +\
+  \" from accounts_details,REMITTING R,REMITTING_ITEM RI WHERE R.ID=RI.C_ID AND RI.AD_ID=accounts_details.ID and R_TYPE='kh' \" + data.conditionSql + \"\" + data.conditionSql1 + \"\";\
+\
+\
+sql = \" SELECT ri.FEE_LIST_ID,CUSTOMER_ID,R.ID rid,ri.ACTUAL_JOB_COUNT,SETTLEMENT_CODE,accounts_details.BILL_NO,NVL (CONTRACT_RATE, RATE) RATE,ri.AMOUNT,\" +\
+  \"       (SELECT PAY_BY FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) PAY_BY,\" +\
+  \"       (SELECT QD_BY FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_BY,\" +\
+  \"       (SELECT QD_ON  FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_ON,\" +\
+  \"       (SELECT PAY_ON FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) PAY_ON,\" +\
+  \"       accounts_details.CNTR, accounts_details.I_E_ID,accounts_details.CNTR_OPERATOR_COD,INVOICE_CODE,INVOICE_TYPE,BILL_TYPE,\" +\
+  \"       SETTLE_DAYS,'RMB' YUAN FROM accounts_details, REMITTING R, REMITTING_ITEM RI\" +\
+  \" WHERE    R.ID = RI.C_ID AND RI.AD_ID(+) = accounts_details.ID \" + data.conditionSql + \"\" + data.conditionSql1 + \"\" +\
+  \"  union all SELECT ri.FEE_LIST_ID, CUSTOMER_ID,PRINTNO rid,ri.ACTUAL_JOB_COUNT,SETTLEMENT_CODE,accounts_details.BILL_NO,\" +\
+  \"  NVL (CONTRACT_RATE, RATE) RATE,ri.AMOUNT,\" +\
+  \"       (SELECT PAY_BY FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) PAY_BY,\" +\
+  \"       (SELECT QD_BY FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_BY,\" +\
+  \"       (SELECT QD_ON FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_ON,\" +\
+  \"       (SELECT PAY_ON FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) PAY_ON,\" +\
+  \"       accounts_details.CNTR,accounts_details.I_E_ID,accounts_details.CNTR_OPERATOR_COD,INVOICE_CODE,INVOICE_TYPE,\" +\
+  \"       BILL_TYPE, SETTLE_DAYS,'RMB' YUAN  from accounts_details where PRINTPHASE>0 and PRINTPHASE is not null \" + data.conditionSql + \"\" + data.whereSql + \" \";\
+\
+\
+\
+sql = \"SELECT DWELL_DAYS,(select DESCRIPTION from C_BASE_CHARGING_ITEM where id=ri.FEE_LIST_ID) FEE_LIST_ID,r.rem_cus,r.payer,R.ID rid,ri.ACTUAL_JOB_COUNT,SETTLEMENT_CODE,accounts_details.BILL_NO,NVL (CONTRACT_RATE, RATE) RATE,ri.AMOUNT,\" +\
+  \"       (SELECT WEIGHT FROM VBILL_HEAD WHERE BILL_NO = accounts_details.BILL_NO) WEIGHT,\" +\
+  \"       (SELECT PAY_BY FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) PAY_BY,\" +\
+  \"       (SELECT QD_BY FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_BY,\" +\
+  \"       (SELECT QD_ON  FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_ON,\" +\
+  \"       (SELECT PAY_ON FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) PAY_ON,\" +\
+  \"       to_char((SELECT ETA FROM VBILL_HEAD A,VESSEL_VISIT B WHERE A.VID=B.ID AND BILL_NO = accounts_details.BILL_NO AND ROWNUM=1),'yyyy-MM-dd') ETA,\" +\
+  \"       accounts_details.CNTR, accounts_details.I_E_ID,accounts_details.CNTR_OPERATOR_COD,INVOICE_CODE,INVOICE_TYPE,BILL_TYPE,\" +\
+  \"       SETTLE_DAYS,'RMB' YUAN FROM accounts_details, REMITTING R, REMITTING_ITEM RI\" +\
+  \" WHERE    R.ID = RI.C_ID AND RI.AD_ID = accounts_details.ID(+) and r.r_ok={?phase?}\" + data.conditionSql + \"\" + data.conditionSql1;\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

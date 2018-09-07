@@ -1,0 +1,54 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+\
+var whereSql='', data=app.get(),shipNo=app.get(\"shipNo\"),ieId=app.get(\"ieId\"), nature=app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\"),\
+    TENANCY_ID=app.get(\"TENANCY_ID\");\
+\
+if (!Wb.isEmpty(data.cntr)) {\
+  whereSql += \"  and ID in ( select BILL_ID from VLOAD_LIST where CNTR='\"+data.cntr+\"'  and  VID='\"+shipNo+\"'   and I_E_ID='\"+ieId+\"' )\";\
+} \
+if(nature=='5')//表示驳船\
+  whereSql+=\" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\"+govCode+\"' \";\
+// var sql=\"SELECT vbill_head.*,vbill_head_e.CB,vbill_head_e.LH, decode(vbill_head_e.SJ_YP,'1','已发','未发') SJ_YP ,decode(vbill_head_e.YP,'1','已发','未发') YP,vbill_head_e.YD,vbill_head_e.SIGN_DATE,vbill_head_e.KL,CASE WHEN BUZ_ORDER.QD_BY IS NOT NULL THEN 1 WHEN  BUZ_ORDER.QD_BY IS NULL THEN 0 ELSE 0 END QD_BY,  \"+\
+//      \"    (SELECT   wm_concat (cntr_size || '*' || COUNT (1)) \"+\
+//      \"         FROM vload_list \"+\
+//      \"       WHERE vload_list.bill_id = vbill_head.ID  and VID='\"+shipNo+\"'\"+\
+//      \"    GROUP BY cntr_size) CNTRNUMS \"+\
+//   \"  FROM vbill_head,vbill_head_e,BUZ_ORDER where VID='\"+shipNo+\"'  and vbill_head.I_E_ID='\"+ieId+\"'  \"+whereSql+\" and   vbill_head.TENANCY_ID='\"+TENANCY_ID+\"' \"+\
+//  \" and  ( main_flag=1 or vbill_head.lCL_ID=1 ) and PHASE<>'9' and vbill_head.id=vbill_head_e.id(+) and BUZ_ORDER.bill_id(+)=vbill_head.id\";\
+\
+var sql=\"SELECT vbill_head.*,vbill_head_e.CB,vbill_head_e.LH, decode(vbill_head_e.SJ_YP,'1','已发','未发') SJ_YP ,decode(vbill_head_e.YP,'1','已发','未发') YP,vbill_head_e.YD,vbill_head_e.SIGN_DATE,vbill_head_e.KL,  \"+\
+     \"    (SELECT   wm_concat (cntr_size || '*' || COUNT (1)) \"+\
+     \"         FROM vload_list \"+\
+     \"       WHERE vload_list.bill_id = vbill_head.ID  and VID='\"+shipNo+\"'\"+\
+     \"    GROUP BY cntr_size) CNTRNUMS \"+\
+  \"  FROM vbill_head,vbill_head_e where VID='\"+shipNo+\"'  and vbill_head.I_E_ID='\"+ieId+\"'  \"+whereSql+\" and   vbill_head.TENANCY_ID='\"+TENANCY_ID+\"' \"+\
+ \" and  ( main_flag=1 or vbill_head.lCL_ID=1 ) and PHASE<>'9' and vbill_head.id=vbill_head_e.id(+) and bill_type in('C','E','S') AND SIGN_DATE IS NOT NULL ORDER BY SIGN_DATE DESC\";\
+\
+app.log(sql);\
+var s= Wb.getRecords(app.run(sql));\
+app.send(s);",
+   "loginRequired": "true"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "加载签到整柜舱单状态",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

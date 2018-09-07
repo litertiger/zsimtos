@@ -1,0 +1,863 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  C_CUSTOM: StringUtil.text(com.wb.common.KVBuffer.getList('C_CUSTOM', request)),\
+  AG_SHORT: StringUtil.text(com.wb.common.KVBuffer.getList('AG_SHORT', request))\
+});"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbarA",
+     "normalName": "tbarA"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "添加",
+       "iconCls": "record_add_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var sels = app.gridV.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择航次\");\
+  return;\
+}\
+if (tenancyid != \"AT\")\
+  Wb.addEdit(app.gridA, {\
+    ID: Wb.guid(),\
+    VID: sels[0].data.AID,\
+    ON_LOCK: 0,\
+    TENANCY_ID: tenancyid\
+  });\
+else\
+  Wb.addEdit(app.gridA, {\
+    ID: Wb.guid(),\
+    VID: sels[0].data.AID,\
+    ON_LOCK: 0\
+  });"}
+     },
+     {
+      "configs": {
+       "itemId": "removeBtn",
+       "text": "移除",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.remove(app.gridA);"}
+     },
+     {
+      "configs": {
+       "itemId": "saveBtn",
+       "text": "保存",
+       "iconCls": "save_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verifyGrid(app.gridA)) //验证数据是否合法\
+  return;\
+var sels = app.gridV.getSelection();\
+Wb.sync({\
+  grid: app.gridA,\
+  url: \"m?xwl=shipManage/ship/vesselAgentsEdit/save\",\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    app.gridA.store.load({\
+      params: {\
+        vid: sels[0].data.AID\
+      }\
+    });\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "VID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "VID",
+       "labelWidth": "40"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "border": "false",
+       "itemId": "panelV",
+       "width": "360",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "gridV",
+        "disabled": "false",
+        "region": "center"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "tbar",
+          "enableOverflow": "true",
+          "region": "north"
+         },
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "names",
+            "emptyText": "船名、航线",
+            "width": "140"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "text"
+          },
+          {
+           "configs": {
+            "itemId": "SETA",
+            "labelAlign": "right",
+            "emptyText": "预计到港",
+            "width": "90",
+            "labelWidth": "60"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "date"
+          },
+          {
+           "configs": {
+            "itemId": "searchBtn",
+            "text": "@Str.find",
+            "iconCls": "search_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "app.gridV.store.load({\
+  params: {\
+    names: app.names.getValue(),\
+    SETA: app.SETA.getRawValue(),\
+    EETA: app.SETA.getRawValue()\
+  }\
+});"}
+          },
+          {
+           "configs": {
+            "itemId": "btnprint",
+            "hidden": "true",
+            "text": "打印",
+            "iconCls": "printer_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and v2.TENANCY_ID='\" + tenancyid + \"'\" +\
+  \" and trunc(v2.eta)=to_date('\" + app.SETA.getRawValue() + \"','yyyy-mm-dd')\");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data eta='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");"}
+          }
+         ],
+         "type": "toolbar"
+        },
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=shipManage/ship/vesselvisitedit/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "ROWNUM",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colVESSEL_NAME",
+            "dataIndex": "VESSEL_NAME",
+            "text": "船名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colI_E",
+            "renderer": "if (value == \"I\")\
+  return \"进口\";\
+if (value == \"E\")\
+  return \"出口\";\
+if (value == \"IE\")\
+  return \"进出口\";",
+            "dataIndex": "I_E",
+            "width": "60",
+            "text": "进出口"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colTRADE_ID_I",
+            "renderer": "if (value == \"1\")\
+  return \"外贸\";\
+if (value == \"2\")\
+  return \"内贸\";\
+if (value == \"12\")\
+  return \"内外贸\";",
+            "dataIndex": "ITRADE_ID",
+            "width": "80",
+            "text": "进口内外贸"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colTRADE_ID_E",
+            "renderer": "if (value == \"1\")\
+  return \"外贸\";\
+if (value == \"2\")\
+  return \"内贸\";\
+if (value == \"12\")\
+  return \"内外贸\";",
+            "dataIndex": "ETRADE_ID",
+            "width": "80",
+            "text": "出口内外贸"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colLIB_VYG",
+            "dataIndex": "LIB_VYG",
+            "text": "进口海关航次"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colLOB_VYG",
+            "dataIndex": "LOB_VYG",
+            "text": "出口海关航次"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colIB_VYG",
+            "dataIndex": "IB_VYG",
+            "width": "110",
+            "text": "进口艘次号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colOB_VYG",
+            "dataIndex": "OB_VYG",
+            "width": "110",
+            "text": "出口艘次号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.gridA.store.load({\
+  params: {\
+    vid: record.data.AID\
+  }\
+});"}
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "border": "false",
+       "itemId": "panelA",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "gridA",
+        "editable": "true",
+        "tbar": "app.tbarA",
+        "disabled": "false"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=shipManage/ship/vesselAgentsEdit/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colVID",
+            "hidden": "true",
+            "dataIndex": "VID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colAGENT_ID",
+            "renderer": "return Wb.kv(value, app.C_CUSTOM);",
+            "dataIndex": "AGENT_ID",
+            "width": "200",
+            "text": "<font color='red'>*<\/font>公司名称"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowBlank": "false",
+             "displayField": "SHORT_NAME",
+             "valueField": "ID"
+            },
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "pageSize": "-1",
+              "params": "{fldId:'AG'}",
+              "url": "m?xwl=system/common/client/clientSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo",
+            "events": {
+             "select": "var sel = app.gridA.getSelection()[0];\
+//sel.set('AGENT_ID', newValue);\
+sel.set('AGENT_NAME', combo.getRawValue());",
+             "change": "// var sel = app.gridA.getSelection()[0];\
+// //sel.set('AGENT_ID', newValue);\
+// sel.set('AGENT_NAME', combo.getRawValue());",
+             "blur": "var sel = app.gridA.getSelection()[0];\
+sel.set('AGENT_NAME', Wb.kv(combo.getValue(), app.AG_SHORT));"
+            }
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colAGENT_NAME",
+            "hidden": "true",
+            "dataIndex": "AGENT_NAME",
+            "width": "200",
+            "text": "公司名称"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colTENANCY_ID",
+            "renderer": "if (value == \"ZSG\")\
+  return \"中山港\";\
+if (value == \"XLG\")\
+  return \"小榄港\";\
+if (value == \"SWG\")\
+  return \"神湾港\";",
+            "dataIndex": "TENANCY_ID",
+            "width": "70",
+            "text": "<font color='red'>*<\/font>码头"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowBlank": "false",
+             "labelAlign": "right",
+             "pickList": "[\
+  [\"ZSG\", \"中山港\"],\
+  [\"XLG\", \"小榄港\"],\
+  [\"SWG\", \"神湾港\"],\
+  [\"QT\", \"其他\"]\
+]",
+             "anyMatch": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colI_E_ID",
+            "dataIndex": "I_E_ID",
+            "keyName": "I_E_ID",
+            "width": "70",
+            "text": "<font color='red'>*<\/font>进出口"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowBlank": "false",
+             "labelAlign": "right",
+             "keyName": "I_E_ID",
+             "anyMatch": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colTEU",
+            "dataIndex": "TEU",
+            "width": "60",
+            "text": "容舱数"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colWEIGHT",
+            "hidden": "true",
+            "dataIndex": "WEIGHT",
+            "width": "80",
+            "text": "装载重量"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colF20",
+            "dataIndex": "F20",
+            "width": "80",
+            "text": "20尺重箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colF40",
+            "dataIndex": "F40",
+            "width": "80",
+            "text": "40尺重箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colF45",
+            "dataIndex": "F45",
+            "width": "80",
+            "text": "45尺重箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colE20",
+            "dataIndex": "E20",
+            "width": "80",
+            "text": "20尺吉箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colE40",
+            "dataIndex": "E40",
+            "width": "80",
+            "text": "40尺吉箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colE45",
+            "dataIndex": "E45",
+            "width": "80",
+            "text": "45尺吉箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colP20",
+            "dataIndex": "P20",
+            "width": "80",
+            "text": "20尺拼箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colP40",
+            "dataIndex": "P40",
+            "width": "80",
+            "text": "40尺拼箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colP45",
+            "dataIndex": "P45",
+            "width": "80",
+            "text": "45尺拼箱"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colSWEIGHT",
+            "dataIndex": "SWEIGHT",
+            "width": "70",
+            "text": "散货重"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colSNAME",
+            "dataIndex": "SNAME",
+            "width": "80",
+            "text": "散货名"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colPIECES",
+            "dataIndex": "PIECES",
+            "width": "50",
+            "text": "件数"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "editor",
+             "allowDecimals": "false",
+             "minValue": "0"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "number"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "colNOTES",
+            "hidden": "true",
+            "dataIndex": "NOTES",
+            "text": "备注"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "editor"},
+            "expanded": false,
+            "children": [],
+            "type": "text"
+           }],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"tagEvents": "{\
+  beforeedit: function(editor, e, eOpts) {\
+    var tenancyid = \"{#sys.TENANCY_ID#}\";\
+    if (tenancyid != \"AT\") {\
+      if (e.colIdx == 5)\
+        return false;\
+      else\
+        return true;\
+    }\
+  }\
+}"}
+      }],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "panelPrint",
+       "width": "0",
+       "region": "east",
+       "height": "0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);"}
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.SETA.setValue(new Date());\
+app.searchBtn.fireEvent(\"click\");\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/print/ICNTR_YB.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};",
+   "initialize": "app.C_CUSTOM = Wb.decode(\"{#C_CUSTOM#}\");\
+app.AG_SHORT = Wb.decode(\"{#AG_SHORT#}\");\
+var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "JTLD": 1,
+  "AT": 1,
+  "ZSG_GA": 1
+ },
+ "title": "进出口预申报",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

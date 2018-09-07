@@ -1,0 +1,36 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select v1.vessel_name,'中山港' cjg,v1.vessel_use,v1.line,v2.ata,v2.next_port,v1.grt,v1.nrt,c.name,\" +\
+  \"c.sex,to_char(c.birthday,'yyyyMMdd') birthday,c.original_plac,vc.duty,zs.c_code,zs.zsname,\" +\
+  \"to_char(zs.next_time,'yyyyMMdd') next_time from vessel_voyage v1 left join vessel_visit v2 on v1.id=v2.vid\" +\
+  \" left join voyage_crew vc on vc.vid=v1.id left join c_crew c on c.id=vc.cid\" +\
+  \" left join (select ccc.c_c_id,cc.name zsname,ccc.c_code,ccc.next_time from c_crew_certification ccc\" +\
+  \" left join c_certificate cc on ccc.c_ce_id=cc.id where cc.code='CN14') zs on zs.c_c_id=c.id\" +\
+  \" where v2.tenancy_id='\" + tenancyid + \"' and v1.id={?VOYAGE_ID?} and vc.call_out is null\";\
+var result = DbUtil.getData(app.run(sql), request);\
+app.send(result);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "航次船员打印查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

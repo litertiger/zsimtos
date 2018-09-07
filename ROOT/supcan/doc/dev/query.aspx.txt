@@ -1,0 +1,196 @@
+﻿<%@ Page Language="C#" debug="true" %>
+<%@ Import namespace="System" %>
+<%@ Import namespace="System.Data" %>
+<%@ Import namespace="System.Collections.Generic" %>
+<%@ Import namespace="System.IO" %>
+<%@ Import namespace="System.Threading" %>
+<%@ Import namespace="System.Runtime.InteropServices" %>
+<script language="C#" runat="server">
+
+public class DllInvoke 
+{
+	//操作系统函数
+	[DllImport("kernel32.dll")]
+	private extern static IntPtr LoadLibrary(String path);
+	[DllImport("kernel32.dll")]
+	private extern static IntPtr GetProcAddress(IntPtr lib, String funcName);
+	[DllImport("kernel32.dll")]
+	private extern static bool FreeLibrary(IntPtr lib);
+
+	//委托声明
+	private delegate int DllGetActiveServices( );
+	private delegate IntPtr DllOpenReportService(IntPtr CreatePara);
+	private delegate void DllCloseService(IntPtr h);
+	private delegate IntPtr Dllfunc(IntPtr h, IntPtr funcname, IntPtr para);
+
+	public DllInvoke(String DLLPath) {
+		//加载dll
+		m_hService = IntPtr.Zero;
+		m_hLib = LoadLibrary(DLLPath);
+		if(m_hLib == IntPtr.Zero) return;
+
+		//定位入口函数地址
+		m_getactiveservices = (DllGetActiveServices)GetInvoke("GetActiveServices", typeof(DllGetActiveServices));
+		m_openservice = (DllOpenReportService)GetInvoke("OpenReportService", typeof(DllOpenReportService));
+		m_closeservice = (DllCloseService)GetInvoke("CloseService", typeof(DllCloseService));
+		m_func = (Dllfunc)GetInvoke("func", typeof(Dllfunc));
+		if(m_getactiveservices==null || m_openservice==null || m_closeservice==null || m_func==null) {
+			//定位失败
+			FreeLibrary(m_hLib);  
+			m_hLib = IntPtr.Zero;
+		}
+	}
+	~DllInvoke() {
+		CloseService( );
+		if(m_hLib != IntPtr.Zero) FreeLibrary(m_hLib);  
+	}
+
+	//当前活动的服务数
+	public int GetActiveServices() {
+		return m_getactiveservices();
+	}
+	//打开服务
+	public bool OpenReportService(string CreatePara) {
+		if(m_hService != IntPtr.Zero) return true;	//已经打开着
+		if(m_hLib == IntPtr.Zero) return false;
+		IntPtr h1 = Marshal.StringToHGlobalUni(CreatePara);
+		m_hService = m_openservice(h1);
+		Marshal.FreeHGlobal(h1);
+		return (m_hService == IntPtr.Zero) ? false : true;
+	}
+	//关闭服务
+	public void CloseService() {
+		if(m_hService != IntPtr.Zero) {
+			m_closeservice(m_hService);
+			m_hService = IntPtr.Zero;
+		}
+	}
+	//调用函数
+	public string func(string funcname, string para) {
+		if(m_hService == IntPtr.Zero) return "";
+		//参数 ==> Unicode串指针地址
+		IntPtr h1 = Marshal.StringToHGlobalUni(funcname);
+		IntPtr h2 = Marshal.StringToHGlobalUni(para);
+		//调用
+		IntPtr nRet = m_func(m_hService, h1, h2);
+		//释放参数内存
+		Marshal.FreeHGlobal(h1);
+		Marshal.FreeHGlobal(h2);
+		return Marshal.PtrToStringUni(nRet);
+	}
+
+	//private====================
+	private Delegate GetInvoke(String APIName,Type t) {
+		IntPtr api = GetProcAddress(m_hLib, APIName);
+		return (Delegate)Marshal.GetDelegateForFunctionPointer(api,t);
+	}
+	//DLL句柄
+	public IntPtr m_hLib;
+	//入口函数地址
+	private DllGetActiveServices m_getactiveservices;
+	private DllOpenReportService m_openservice;
+	private DllCloseService m_closeservice;
+	private Dllfunc m_func;
+	//服务句柄
+	private IntPtr m_hService;
+};
+
+
+	public void Page_Load(Object sender, EventArgs e) {
+		String page = Request.Params["page"];
+		Response.ContentType = "text/html";
+
+		//报表服务中 http 访问的的相对URL
+		String BaseDir = "http://192.168.1.2/supcan/";
+		//最终生成文件的手机访问的URL目录
+		String TempURL = "http://192.168.1.2/supcan/dotnet/temp/";
+		//winface.dll所在目录 (硕正组件的绝对目录)
+		String WinFacePathname = Server.MapPath("SupcanProgram\\winface.dll");
+
+		//加载winface.dll
+		DllInvoke dll = new DllInvoke(WinFacePathname);
+		if(dll.m_hLib == IntPtr.Zero) {
+			Response.Write("dll加载失败");
+			Response.End();
+			return;
+		}
+
+		//服务是否被其它线程打开着
+		if(dll.GetActiveServices( ) > 0) {
+			Response.Write("服务器忙，请稍后再试");
+			Response.End();
+			return;
+		}
+
+		//Temp 目录的绝对路径
+		String TempDir = Server.MapPath("Temp");
+
+		//创建报表服务
+		if(dll.OpenReportService("LogSize=1000;LogLevel=0;TempDir=" +TempDir+ ";BaseDir=" + BaseDir) == false) {
+			Response.Write("服务创建失败");
+			Response.End();
+			return;
+		}
+
+		//设置中心数据源URL
+		dll.func("setSource", BaseDir + "reportdata/datacenter.xml");
+
+		//打开报表
+		if(dll.func("build", "report/xmlsheet32.xml") == "0") {
+			dll.CloseService();
+			Response.Write("报表 report/xmlsheet32.xml 不存在!");
+			Response.End();
+			return;
+		}
+
+		//生成临时文件
+		String TempFilename = dll.func("CacheDirUtility", "isCreateTempFile=true;ext=htm; DeleteEarlierFile=1h");
+		if(TempFilename=="") {
+			dll.CloseService();
+			Response.Write("服务器忙，请稍后再试.");
+			Response.End();
+			return;
+		}
+
+		if(page == "1") {				//第一个页面
+			// jQueryMobile 模版文件, 它位于当前目录下
+			String TemplateFile = Server.MapPath("template_search.txt");
+			//转换
+			dll.func("callfunc", "105\r\n type=htm; isQueryPage=true; Template=" +TemplateFile+ "; filename=" + TempFilename);
+		}
+		else if(page == "2") {			//第二个页面
+			//取得 Form 内容, 设置到报表第一个工作表中
+			String[] arrCellname = Request.Params["allfieldname"].Split(new Char[] {','});
+  			foreach(String CellName in arrCellname)
+  			{
+				String Data = Request.Params[CellName];
+				if(Data == null) Data = "";
+				if(CellName.Length > 10) {
+					if(CellName.Substring(0, 10) == "RADIOGROUP") {
+						dll.func("SetCellDataEx", Data + "\r\n1");
+						continue;
+					}
+				}
+				dll.func("SetCellDataEx", CellName + "\r\n" + Data);
+        	}
+        	//切换到工作表二
+        	dll.func("SetCurrentWorksheet", "1");
+        	//计算当前工作表
+        	dll.func("calc", "range=current");
+			//转换
+			dll.func("callfunc", "105\r\n type=htm; filename=" + TempFilename);
+       	}
+
+		//关闭报表服务
+		dll.CloseService();
+
+		//返回html文件的URL==========
+		//取得不含路径的文件名
+		int n = TempFilename.LastIndexOf('\\');
+		TempFilename = TempFilename.Substring(n+1);
+		//拼接成URL、重定向
+		TempURL += TempFilename;
+		Response.Redirect(TempURL);
+		Response.End();
+	}
+</script>

@@ -1,0 +1,38 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var datas = app.get('datas');\
+var username=app.get('sys.username');\
+var dispname=app.get(\"sys.dispname\");\
+var TENANCY_ID=app.get(\"sys.TENANCY_ID\");\
+app.run(\"update BLUK_BILL set IPIECES={?IPIECES?}, TASKSTATUS='FIN',LOCATION={?LOCATION?},CFS_ID={?CFS_ID?},CFSTIME={?timestamp.CFSTIME?},SIGNERCFS='\"+dispname+\"' where CFSBILL_ID={?CFSBILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"'\", {\
+  arrayData: new org.json.JSONArray(datas)\
+});\
+\
+app.run(\"insert into BLUK_GOODS(CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID, \" +\
+  \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\" +\
+  \"   select CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, {?timestamp.CFSTIME?}, '', LOCATION, CFS_ID, \" +\
+  \"    WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\" + username + \"', '\" + username + \"' from BLUK_BILL\" +\
+  \"     where BILL_ID={?BILL_ID?} and TENANCY_ID='\"+TENANCY_ID+\"' and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?})\", {\
+    arrayData: new org.json.JSONArray(datas)\
+  });\
+app.run(\"update BLUK_PLAN set TASKSTATUS='FIN' where ID={?ID?} and TENANCY_ID='\"+TENANCY_ID+\"' and not exists(select 1 from BLUK_BILL where  TASKSTATUS<>'FIN' and LCL_ID={?ID?})\", {\
+  arrayData: new org.json.JSONArray(datas)\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "DCXK": 1
+ },
+ "title": "批量更新bill表数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

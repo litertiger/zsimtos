@@ -1,0 +1,83 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//判断是否签到，已经签到的需要取消。未签到的可以操作\
+//判断是否已经签到\
+var dispname = app.get('sys.dispname');\
+var data = app.get();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+app.run(\"select 1 from buz_order where bill_no={?BILL_NOS?} and qd_by is not null\", {\
+  errorText: \"已签到，不能取消入库！\"\
+});\
+\
+var rs = app.run(\"select 1 from BLUK_GOODS where bill_id in(\" + data.ids + \") and inquty>0\");\
+if (rs && rs.next()) {\
+  //第一种情况：有库存\
+  app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID,\" +\
+    \"WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, \" +\
+    \"CNTR_OPERATOR, CARGO_TYPE, SHIPPER_COD, ID, TRADE_ID, TYPE, KLPHASE)\" +\
+    \"select {?BILL_ID?}, GOODS, IMPEXP, SHIPPER, UNIT, {?INQUTY?}, NULL, {?QUTY?}, {?timestamp.INTIME?}, OUTTIME, {?LOCATION?}, {?CFS_ID?}, {?WEIGHT?},\" +\
+    \"CFSBILLNO, {?VOLUME?}, {?BLUKBILL_ID?}, '\" + tenancyId + \"', sysdate, sysdate, {?sys.username?}, {?sys.username?}, {?BILL_NO?}, {?CNTR_OPERATOR?},\" +\
+    \"{?CARGO_TYPE?}, {?SHIPPER_COD?}, sys_guid(), {?TRADE_ID?}, TYPE, KLPHASE from BLUK_GOODS \" +\
+    \" where BILL_ID IN(\" + data.ids + \") AND {?BILL_NO?}<>{?BILL_NOS?}\", {\
+      arrayData: new org.json.JSONArray(data.datas)\
+    });\
+  app.run(\"update BLUK_GOODS set INQUTY={?INQUTY?},QUTY={?QUTY?},WEIGHT={?WEIGHT?},VOLUME={?VOLUME?} WHERE BILL_NO={?BILL_NO?} AND BILL_ID={?BILL_ID?} \" +\
+    \" AND TENANCY_ID='\" + tenancyId + \"'\", {\
+      arrayData: new org.json.JSONArray(data.datas)\
+    });\
+\
+} else {\
+  //第二种情况：无库存\
+  app.run(\"insert into BLUK_GOODS(BILL_ID, GOODS, IMPEXP, SHIPPER, UNIT, INQUTY, OUTQUTY, QUTY, INTIME, OUTTIME, LOCATION, CFS_ID,\" +\
+    \"WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, \" +\
+    \"CNTR_OPERATOR, CARGO_TYPE, SHIPPER_COD, TRADE_ID, TYPE)\" +\
+    \"values({?BILL_ID?}, {?GOODS?}, 'I', {?SHIPPER?}, NULL, {?INQUTY?}, NULL, {?QUTY?}, {?timestamp.INTIME?}, NULL, {?LOCATION?}, {?CFS_ID?}, {?WEIGHT?},\" +\
+    \"NULL, {?VOLUME?}, {?CFSBILL_ID?}, '\" + tenancyId + \"', sysdate, sysdate, {?sys.username?}, {?sys.username?}, {?BILL_NO?}, {?CNTR_OPERATOR?},\" +\
+    \"{?CARGO_TYPE?}, {?SHIPPER_COD?}, {?TRADE_ID?}, 'P') \" +\
+    \"\", {\
+      arrayData: new org.json.JSONArray(data.datas)\
+    });\
+  app.run(\"update BLUK_GOODS set CFSBILL_ID={?BLUKBILL_ID?} WHERE not exists(select 1 from BLUK_BILL where CFSBILL_ID={?CFSBILL_ID?} AND BILL_ID={?BILL_ID?})\", {\
+    arrayData: new org.json.JSONArray(data.datas)\
+  });\
+}\
+\
+//BLUK_BILL 插n条指令数据，更新一条指令\
+app.run(\"insert into BLUK_BILL(CFSBILL_ID, CFSINOUT, BILL_ID, GOODS, UNIT, PIECES, LOCATION, GOODSATTR, \" +\
+  \"SHIPPERHANDLER, SIGNERCFS, CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, CFS_ID, RECEIPTNO,\" +\
+  \"TRUCKNO, WEIGHT, CFSBILLNO, VOLUME, LCL_ID, SHIPPER, OUTFLAG, IMPEXP, PLANQUTY, SOURCE_ID, \" +\
+  \"TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, BILL_NO, IPIECES, SHIPPER_COD, \" +\
+  \"CNTR_ID, CNTR, IS_STORAGE, KLBILL_ID, TRADE_ID, TYPE, RELEASE_ID)\" +\
+  \"select {?BLUKBILL_ID?}, 'I', {?BILL_ID?}, GOODS, UNIT, {?QUTY?}, LOCATION, GOODSATTR,\" +\
+  \"SHIPPERHANDLER, SIGNERCFS, CNTR_OPERATOR, CFSTIME, TASKSTATUS, NOTE, CFS_ID, RECEIPTNO,\" +\
+  \"TRUCKNO, {?WEIGHT?}, CFSBILLNO, {?VOLUME?}, LCL_ID, SHIPPER, OUTFLAG, IMPEXP, PLANQUTY, SOURCE_ID,\" +\
+  \"TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY, {?BILL_NO?}, {?QUTY?}, SHIPPER_COD, \" +\
+  \"CNTR_ID, CNTR, IS_STORAGE, KLBILL_ID, TRADE_ID, TYPE, RELEASE_ID from BLUK_BILL where CFSBILL_ID={?CFSBILL_ID?} AND NOT EXISTS(SELECT 1 FROM BLUK_BILL WHERE BILL_NO={?BILL_NO?} AND BILL_ID={?BILL_ID?})\", {\
+    arrayData: new org.json.JSONArray(data.datas)\
+  });\
+app.run(\"update BLUK_BILL set PIECES={?INQUTY?},IPIECES={?INQUTY?},WEIGHT={?WEIGHT?},VOLUME={?VOLUME?} WHERE BILL_ID={?BILL_ID?} AND BILL_NO={?BILL_NO?}\", {\
+  arrayData: new org.json.JSONArray(data.datas)\
+});\
+\
+app.run(\"delete from BLUK_INOUT where ID in(select ID from BLUK_GOODS where bill_id in(\" + data.ids + \")) and OUTFLAG='0'\");\
+app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES, TRUCKNO,CFSBILL_ID,SIGNERCFS,WEIGHT,VOLUME,STORE_TIME,BILL_NO) values((select ID from BLUK_GOODS where bill_id={?BILL_ID?} and BILL_NO={?BILL_NO?}),\" +\
+  \"  '0',{?INQUTY?},{?TRUCK_NO?},{?BILL_ID?},'\" + dispname + \"',{?WEIGHT?},{?VOLUME?},sysdate,{?BILL_NO?})\", {\
+    arrayData: new org.json.JSONArray(data.datas)\
+  });"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSINMP": 1
+ },
+ "title": "拆单操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,292 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var receipts = Wb.decode(data.receipts);\
+var cntrs = \"\";\
+var rids = \"\";\
+\
+// var zdsql = \"select r.*,'ti' TS from receipt r where id in(select HANDLE_ID from move_list where move_type='MOV' and phase='EXE'\" +\
+//   \" and tenancy_id='\" + tenancyid + \"' and carrier_call in(select tr.tvid from receipt r left join truck_receipt tr on r.id=tr.rpid\" +\
+//   \" where r.tenancy_id='\" + tenancyid + \"' and r.phase='GET' and tr.fetchtype='GO'\";\
+// if (!Wb.isEmpty(data.GOUT_IN_CAR))\
+//   zdsql += \" and r.in_car='\" + data.GOUT_IN_CAR + \"'\";\
+// if (!Wb.isEmpty(data.GOUT_CNTR))\
+//   zdsql += \" and r.cntr='\" + data.GOUT_CNTR + \"'\";\
+// zdsql += \"))\";\
+// var receipts = Wb.getRecords(app.run(zdsql));\
+\
+Wb.each(receipts, function(rec) {\
+  cntrs += \"'\" + rec.CNTR + \"',\";\
+  rids += \"'\" + rec.ID + \"',\";\
+});\
+cntrs = cntrs.substring(0, cntrs.length - 1);\
+rids = rids.substring(0, rids.length - 1);\
+\
+if (receipts[0].WORK_TYPE != \"YOYI\") {\
+  //查询总指令ID\
+  var selmov = \"select id from move_list where move_type='MOV' and PHASE='EXE' and HANDLE_ID in (\" + rids + \") and from_pos_typ='B' and to_pos_typ='G'\";\
+  var mids = Wb.getRecords(app.run(selmov));\
+\
+  //更新move_list出门指令为完成\
+  var updlsql = \"update move_list set PHASE='FIN',END_EXECUTE=sysdate where move_type='DRB' and queue_id in\" +\
+    \" (select id from move_list where move_type='MOV' and phase='EXE' and from_pos_typ='B' and to_pos_typ='G' and HANDLE_ID in (\" + rids + \"))\";\
+  app.run(updlsql, {\
+    transaction: 'start'\
+  });\
+\
+  //更新move_list总记录为完成\
+  var updzsql = \"update move_list set PHASE='FIN',END_EXECUTE=sysdate,updated_on=sysdate,updated_by={?sys.username?}\" +\
+    \" where move_type='MOV' and phase='EXE' and from_pos_typ='B' and to_pos_typ='G' and HANDLE_ID={?ID?}\";\
+  app.run(updzsql, {\
+    arrayData: receipts\
+  });\
+\
+  Wb.each(mids, function(mid) {\
+    app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on)\" +\
+      \" values('\" + mid.ID + \"','MOVE_LIST','GOUT',{?sys.username?},sysdate)\");\
+  });\
+\
+  if (receipts[0].WORK_TYPE == \"EOTC\" || receipts[0].WORK_TYPE == \"FOTC\") {\
+    //转关出门申请改为AOK状态\
+    app.run(\"update cntr_apply set PHASE='AOK',updated_on=sysdate where id in\" +\
+      \" (select AID from cntr_apply_list where cntr_id='\" + receipts[0].CNTR_ID + \"')\");\
+    app.run(\"update cntr_apply_list set PHASE='AOK' where cntr_id='\" + receipts[0].CNTR_ID + \"'\");\
+    //转关出门更新receipt为FIN状态,出闸时间,出闸闸口号\
+    app.run(\"update receipt set phase='FIN',GATEOUT_TIME_T=sysdate,GATEOUT_NO_T='\" + data.cfs + \"',GATEOUT_BY_T='\" + username + \"' where id={?ID?}\", {\
+      arrayData: receipts\
+    });\
+    if (tenancyid == \"XLG\")\
+      app.run(\"update receipt set IN_CAMPI='\" + data.OUT_CAMPI + \"' where id={?ID?}\", {\
+        arrayData: receipts\
+      });\
+    app.run(\"insert into port_cntr_his(id,tenancy_id,cntr,phase,category_id,trade_id,i_e_id,e_f_id,cntr_iso,line,\" +\
+      \"cntr_operator,cntr_owner,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+      \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,\" +\
+      \"pod,pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,\" +\
+      \"cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,\" +\
+      \"imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+      \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+      \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+      \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,\" +\
+      \"exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,\" +\
+      \"pre_tak_id,trans_id,delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes,updated_on,created_on,\" +\
+      \"cntr_size,cntr_type,created_by,updated_by,cntr_operator_cod,line_cod)\" +\
+      \"select id,tenancy_id,cntr,'RET',category_id,trade_id,i_e_id,e_f_id,cntr_iso,line,\" +\
+      \"cntr_operator,cntr_owner,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+      \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,\" +\
+      \"pod,pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,\" +\
+      \"cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,\" +\
+      \"imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+      \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+      \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+      \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,sysdate,pretime,release_id,\" +\
+      \"exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,\" +\
+      \"pre_tak_id,trans_id,delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes,sysdate,sysdate,\" +\
+      \"cntr_size,cntr_type,'\" + username + \"','\" + username + \"',cntr_operator_cod,line_cod\" +\
+      \" from port_cntr where id={?CNTR_ID?}\", {\
+        arrayData: receipts\
+      });\
+    //转关出门删除port_cntr\
+    app.run(\"delete from port_cntr where id={?CNTR_ID?}\", {\
+      arrayData: receipts\
+    });\
+    app.run(\"update move_list set phase=decode(from_pos_typ,'V','FIN','CNL'),Y2Y_ID='0',updated_on=sysdate,updated_by={?sys.username?} where cntr_id={?CNTR_ID?} and move_type='MOV' and phase not in('CNL','FIN')\", {\
+      arrayData: receipts\
+    });\
+    //转关出门更新truck_visit为FIN状态\
+    app.run(\"update truck_visit set phase='FIN',GATEOUT_TIME_T=sysdate,GATEOUT_NO_T='\" + data.cfs + \"'\" +\
+      \" where phase='EXE' and in_car='\" + receipts[0].IN_CAR + \"'\" +\
+      \" and id in(select tvid from truck_receipt where rpid='\" + receipts[0].ID + \"')\", {\
+        transaction: 'commit'\
+      });\
+  } else {\
+    //外贸,海关和商检放行设置为0\
+    if (data.cfs == \"JGQ\") {\
+      app.run(\"update port_cntr set RELEASE_ID=0,CIQ_ID=0 where id={?CNTR_ID?}\", {\
+        arrayData: receipts\
+      });\
+    }\
+    //更新receipt为OUT状态,出闸时间,出闸闸口号\
+    app.run(\"update receipt set phase='OUT',GATEOUT_TIME_T=sysdate,GATEOUT_NO_T='\" + data.cfs + \"',GATEOUT_BY_T='\" + username + \"' where id={?ID?}\", {\
+      arrayData: receipts\
+    });\
+    app.run(\"update receipt set GATEOUT_TIME_T=sysdate,GATEOUT_NO_T='\" + data.cfs + \"',GATEOUT_BY_T='\" + username + \"' where rid2={?ID?}\", {\
+      arrayData: receipts\
+    });\
+    if (tenancyid == \"XLG\")\
+      app.run(\"update receipt set IN_CAMPI='\" + data.OUT_CAMPI + \"' where id={?ID?}\", {\
+        arrayData: receipts\
+      });\
+    //更新port_cntr为OUT状态\
+    app.run(\"update port_cntr set phase='OUT',IN_JGQ=1 where id={?CNTR_ID?}\", {\
+      arrayData: receipts\
+    });\
+    app.run(\"update move_list set phase=decode(from_pos_typ,'V','FIN',decode(to_pos_typ,'V',phase,'CNL')),Y2Y_ID='0',updated_on=sysdate,updated_by={?sys.username?} where cntr_id={?CNTR_ID?} and move_type='MOV' and phase not in('CNL','FIN')\", {\
+      arrayData: receipts\
+    });\
+    //更新truck_visit为OUT状态\
+    app.run(\"update truck_visit set phase='OUT',GATEOUT_TIME_T=sysdate,GATEOUT_NO_T='\" + data.cfs + \"'\" +\
+      \" where phase='EXE' and in_car='\" + receipts[0].IN_CAR + \"'\" +\
+      \" and id in(select tvid from truck_receipt where rpid='\" + receipts[0].ID + \"')\", {\
+        transaction: 'commit'\
+      });\
+  }\
+  if (tenancyid != \"ZSG\") {\
+    //调用堆存\
+    request.setAttribute(\"moveType\", receipts[0].WORK_TYPE); //set参数\
+    request.setAttribute(\"cntr\", receipts[0].CNTR);\
+    request.setAttribute(\"cntrId\", receipts[0].CNTR_ID);\
+    app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+    if (receipts.length == 2) {\
+      request.setAttribute(\"moveType\", receipts[1].WORK_TYPE); //set参数\
+      request.setAttribute(\"cntr\", receipts[1].CNTR);\
+      request.setAttribute(\"cntrId\", receipts[1].CNTR_ID);\
+      app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+    }\
+  }\
+  Wb.each(receipts, function(rec) {\
+    app.log(\"调用计费\");\
+    var map = new HashMap();\
+    map.put(\"rpId\", rec.ID);\
+    Wb.newClass(\"dubboForReceipt\").call(request, map);\
+    app.run(\"insert into aaa(CAP_XML,create_on) values ('出闸调用计费,箱:'||'\" + rec.CNTR + \"'||',操作人:'||'\" + username + \"',sysdate)\");\
+  });\
+  //发送微信消息\
+  var data = app.get();\
+  var now = new Date();\
+  var year = now.getFullYear();\
+  var month = now.getMonth() + 1;\
+  var day = now.getDate();\
+  var h = now.getHours().toString();\
+  if (h.length == 1) {\
+    h = \"0\" + h;\
+  }\
+  var m = now.getMinutes().toString();\
+  if (m.length == 1) {\
+    m = \"0\" + m;\
+  }\
+  var s = now.getSeconds().toString();\
+  if (s.length == 1) {\
+    s = \"0\" + s;\
+  }\
+  var message = \"箱子:\" + cntrs + \"于\" + year + \"-\" + month + \"-\" + day + \" \" + h + \":\" + m + \":\" + s +\
+    \"已经离开码头\" +\
+    \"\\\\
+本次消息推送时间:\" + year + \"-\" + month + \"-\" + day + \" \" + h + \":\" + m + \":\" + s;\
+  app.sendMessage(\"qu_wechat\", '{\"ID\":\"600018\",\"MESSAGE\":\"' + message + '\"}');\
+  //发送消息\
+  var client = new RabbitClient();\
+  var gate = \"\";\
+  try {\
+    if (!(client.open() && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"gatectrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: mids[0].ID\
+        }\
+      }))) return {\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    };\
+  } catch (e) {\
+    app.send({\
+      success: false,\
+      errstr: e.message\
+    });\
+  } finally {\
+    client.close();\
+  }\
+  if (mids.length == 2) {\
+    try {\
+      if (!(client.open() && client.routeSend(\"ex_instruction\", \"gate.\" + gate, {\
+          info: {\
+            type: \"load\",\
+            action: \"update\",\
+            senduser: app.get(\"sys.username\"),\
+            sendmodule: \"gatectrl\",\
+            sendtime: (new Date()).getTime()\
+          },\
+          data: {\
+            id: mids[1].ID\
+          }\
+        }))) return {\
+        success: false,\
+        errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+      };\
+    } catch (e) {\
+      app.send({\
+        success: false,\
+        errstr: e.message\
+      });\
+    } finally {\
+      client.close();\
+    }\
+  }\
+  app.send({\
+    success: true\
+  });\
+} else { //移箱\
+  var phase = \"FIN\";\
+  if (data.cfs == \"JGQ\" && receipts[0].E_F_ID == \"F\") {\
+    app.send({\
+      success: false,\
+      errstr: \"监管区内的重箱不能做移箱操作\"\
+    });\
+    return;\
+  }\
+  if (Wb.isEmpty(receipts[0].IN_CAR)) {\
+    app.send({\
+      success: false,\
+      errstr: \"箱子\" + receipts[0].CNTR + \"移箱没有指定车辆,不能出闸移箱\"\
+    });\
+    return;\
+  }\
+  var sql = \"select cfs_cod from c_cy_area where tenancy_id='\" + tenancyid + \"' and cy_area_no='\" + receipts[0].F_ADDRESS + \"'\";\
+  var result = Wb.getRecords(app.run(sql));\
+  if (result.length > 0) {\
+    if (result[0].CFS_COD == \"JGQ\")\
+      phase = \"EXE\";\
+  }\
+  app.run(\"update receipt set phase='\" + phase + \"',GATEOUT_TIME_T=sysdate,GATEOUT_NO_T='\" + data.cfs + \"' where id={?ID?}\", {\
+    arrayData: receipts,\
+    transaction: 'start'\
+  });\
+  app.run(\"update port_cntr set RELEASE_ID=0,CIQ_ID=0,IN_JGQ=1 where id={?CNTR_ID?}\", {\
+    arrayData: receipts\
+  });\
+  app.send({\
+    success: true\
+  });\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZK": 1,
+  "xlwmcgs": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "提箱开门操作",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

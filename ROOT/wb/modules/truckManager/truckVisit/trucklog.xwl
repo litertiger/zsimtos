@@ -1,0 +1,156 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "itemId": "panelall"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "labelWidth": "80"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "shipperway",
+         "pickList": "[\
+  [\"1\", \"码头承运\"],\
+  [\"3\", \"驳船承运\"]\
+]",
+         "emptyText": "承运方式",
+         "width": "80",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "ismy",
+         "emptyText": "车辆性质",
+         "keyName": "PT_TYPE",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "findbtn",
+         "text": "查找"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var username = \"{#sys.username#}\";\
+var AF1 = document.getElementById(opt);\
+var sql = \"and r.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and pc_on>=to_timestamp('\" + app.sdate.getRawValue() + \" 00:00:00.000','yyyy-mm-dd hh24:mi:ss.ff')\" +\
+  \" and pc_on<=to_timestamp('\" + app.edate.getRawValue() + \" 23:59:59.999','yyyy-mm-dd hh24:mi:ss.ff')\";\
+if (!Wb.isEmpty(app.ismy.getValue()))\
+  sql += \" and pt_type='\" + app.ismy.getValue() + \"'\";\
+if (!Wb.isEmpty(app.shipperway.getValue()))\
+  sql += \" and shipper_way='\" + app.shipperway.getValue() + \"'\";\
+sql += \" order by in_car\";\
+//加载列表\
+var whereSql = encodeURI(sql);\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "panel1",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"99%\");\
+app.panel1.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "var aa = Math.random();\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", \"/supcan/report/truck/truckLog.xml?\" + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter\\r\\
+ true\");\
+    m.func(\"setSource\", \"https://zsimtos.zsshipping.com/m?xwl=system/common/report/reportTemplate/dataSource&v1.1\");\
+\
+  }\
+};\
+\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+var today = new Date(); //获取当前日期\
+// var d = new Date(today.getFullYear(), today.getMonth() + 1, 0); //获取当前月份天数\
+// app.sdate.setValue(new Date(today.getTime() - (d.getDate() - 1) * 24 * 3600 * 1000));\
+app.sdate.setValue(today);\
+app.edate.setValue(today);\
+app.shipperway.setValue(\"1\");\
+app.ismy.setValue(\"1\");",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1
+ },
+ "title": "车辆调度日志",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

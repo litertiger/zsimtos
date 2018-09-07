@@ -1,0 +1,183 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var vId = app.get(\"vId\"),\
+  tenancy_id = app.get(\"tenancyId\"),\
+  ieId = app.get(\"ieId\");\
+var voyageNo, cShipName, eShipName, head = \"<Head>\\r\\
+\",\
+  order = \"\",\
+  i = 0,\
+  j = 0,\
+  eta, crew = \"\",\
+  xml = \"\",\
+  callSign = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+// var rsbg = Wb.getRecords(app.run(\"select bd_by from buz_order where bill_no in(select BILL_NO from VBILL_HEAD where VID='\" + vId + \"')\"));\
+// if (rsbg.length > 0) {\
+//   for (var i = 0; i < rsbg.length; i++) {\
+//     if (rsbg[i].BD_BY === \"\" || rsbg[i].BD_BY === null) {\
+//       Wb.error(\"没签到！\");\
+//       return;\
+//     }\
+//   }\
+// } else {\
+//   Wb.error(\"没签到！\");\
+//   return;\
+// }\
+\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmmss');;\
+\
+var bahm=\"5721618120004\";\
+xml += '<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\\r\\
+';\
+xml += '<Manifest xmlns=\"urn:Declaration:datamodel:standard:CN:MT5101:1\">\\r\\
+';\
+head += '<MessageID>CN_MT5101_'+bahm+'_' + dateName1 + '<\/MessageID>\\r\\
+';\
+head += '<FunctionCode>2<\/FunctionCode>\\r\\
+';\
+head += '<MessageType>MT5101<\/MessageType>\\r\\
+';\
+head += '<SenderID>'+bahm+'_SP03030001<\/SenderID>\\r\\
+';\
+head += '<ReceiverID>EPORT<\/ReceiverID>\\r\\
+';\
+head += '<SendTime>' + dateName + '<\/SendTime>\\r\\
+';\
+head += '<Version>1.0<\/Version>\\r\\
+<\/Head>\\r\\
+';\
+xml += head;\
+order += \"<Declaration>\\r\\
+\";\
+///////////////////////////////\
+var rs = app.run(\"select decode('\"+ieId+\"','I',LIB_VYG, LOB_VYG) voyageNo, sysdate NOW,to_char(nvl(ATA,ETA),'yyyyMMdd') ETA,nvl(ATD,ETD) ETD, c.CALL_SIGN,\" +\
+  \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"' and D.TENANCY_ID='\" + tenancy_id + \"'\");\
+if (rs.next()) {\
+  voyageNo = rs.getString(\"VOYAGENO\");\
+  cShipName = rs.getString(\"VESSEL_NAME\");\
+  eShipName = rs.getString(\"E_NAME\");\
+  eta = rs.getString(\"ETA\");\
+  callSign = rs.getString(\"CALL_SIGN\");\
+}\
+order += \"<DeclarationOfficeID>5721<\/DeclarationOfficeID>\\r\\
+\";\
+order += \"<BorderTransportMeans>\\r\\
+\";\
+order += \"<JourneyID>\" + voyageNo + \"<\/JourneyID>\\r\\
+\";\
+order += \"<TypeCode>1<\/TypeCode>\\r\\
+\";\
+order += \"<ID>\" + callSign + \"<\/ID>\\r\\
+\";\
+order += \"<Name>\" + eShipName + \"<\/Name>\\r\\
+\";\
+order += \"<ActualDateTime>\" + eta + \"200000<\/ActualDateTime>\\r\\
+\";\
+order += \"<CompletedDateTime>\" + eta + \"230000<\/CompletedDateTime>\\r\\
+\";\
+\
+order += \"<UnloadingLocation>\\r\\
+\";\
+if(tenancy_id==\"ZSG\")// 根据组生成，根据单一窗口\
+order += \"<ID>572101/5721<\/ID>\\r\\
+\";\
+//order += \"<ID>57210/5721<\/ID>\";\
+// order += \"<ArrivalDate>\" + dateyear + \"<\/ArrivalDate>\";\
+order += \"<\/UnloadingLocation>\\r\\
+\";\
+order += \"<\/BorderTransportMeans>\\r\\
+\";\
+\
+\
+order += \"<TallyParty>\\r\\
+\";\
+order += \"<ID>\" + bahm + \"<\/ID>\\r\\
+\";\
+order += \"<\/TallyParty>\\r\\
+\";\
+\
+\
+// var rsCntr = app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, CNTR_ID,CNTR_ISO,E_F_ID ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where main_flag=1 and BILL_ID='\" + billId + \"' \");\
+// var rsCntr = app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, CNTR_ID,CNTR_ISO,E_F_ID ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where main_flag=1 and BILL_ID in(\" + billId + \")\");\
+var rsCntr = app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, CNTR_ID, GsizeToISO95(CNTR_SIZE,CNTR_TYPE) CNTR_ISO,decode(lcl_id,1,'7',decode(e_f_id,'E','4','5')) e_f_id ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where main_flag=1 and BILL_ID in(select ID from VBILL_HEAD where VID='\" + vId + \"')\");\
+while (rsCntr.next()) {\
+  cntr = rsCntr.getString('CNTR');\
+  cntrIso = rsCntr.getString('CNTR_ISO');\
+  efId = rsCntr.getString('E_F_ID');\
+\
+\
+  order += \"<TransportEquipment>\\r\\
+\";\
+  order += \"<EquipmentIdentification>\\r\\
+\";\
+  order += \"<ID>\" + cntr + \"<\/ID>\\r\\
+\";\
+  order += \"<\/EquipmentIdentification>\\r\\
+\";\
+  order += \"<CharacteristicCode>\" + cntrIso + \"<\/CharacteristicCode>\\r\\
+\";\
+  order += \"<FullnessCode>\" + efId + \"<\/FullnessCode>\\r\\
+\";\
+  order += \"<\/TransportEquipment>\\r\\
+\";\
+\
+}\
+\
+order += \"<\/Declaration>\\r\\
+\";\
+order += \"<\/Manifest>\\r\\
+\";\
+app.run(\"update VBILL_HEAD_E set LH='1' where ID in(select ID from VBILL_HEAD where VID='\" + vId + \"')\");\
+request.setAttribute(\"fileName\", \"CN_MT5101_5721\" + dateName+\"\");\
+request.setAttribute(\"message\", xml + order + crew);\
+// Load.downloadZip(request, response);\
+\
+\
+\
+var name = \"CN_MT5101_\"+bahm + dateName+\"_\"+dateName1; //取文件名\
+var content =  xml + order + crew; //取文件内容\
+\
+//生成临时文件\
+var file = '/tmp/' + name + '.xml';\
+var tmp = new File(file);\
+FileUtil.writeString(tmp, content);\
+//调用下载功能\
+var files = [];\
+files[0] = file;\
+app.set('zip', true);\
+app.set('files', Wb.encode(files));\
+app.set('downloadName', name + '.zip');\
+app.execute('m?xwl=dev/ide/download');\
+// tmp.delete();\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "理货报文",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

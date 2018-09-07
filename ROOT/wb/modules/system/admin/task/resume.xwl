@@ -1,0 +1,40 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var rows = Wb.decode(request.getParameter('grid1')),\
+  loadTask = com.wb.tool.TaskManager.loadTask,\
+  trigger, triggers, result = [],\
+  scheduler = com.wb.tool.TaskManager.scheduler,\
+  defaultGroup = org.quartz.Scheduler.DEFAULT_GROUP;\
+//批量更新默认启用事务\
+app.run('update WB_TASK set STATUS=1 where TASK_ID={?TASK_ID?}', {\
+  arrayName: 'grid1'\
+});\
+Wb.each(rows, function(row) {\
+  loadTask(row.TASK_ID, row.TASK_NAME, row.INTERVAL_TYPE, row.INTERVAL_EXPRESS,\
+    row.CLASS_NAME, row.SERVER_SCRIPT, DateUtil.strToDate(row.BEGIN_DATE), DateUtil.strToDate(row.END_DATE));\
+});\
+Wb.sleep(Var.getInt('sys.task.waitFireDelay'));\
+Wb.each(rows, function(row) {\
+  triggers = scheduler.getTriggersOfJob(row.TASK_ID, defaultGroup);\
+  trigger = triggers && triggers.length ? triggers[0] : null;\
+  result.push({\
+    STATUS: 1,\
+    PREVIOUS: trigger ? trigger.getPreviousFireTime() : null,\
+    NEXT: trigger ? trigger.getNextFireTime() : null\
+  });\
+});\
+app.send(result);",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "恢复",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

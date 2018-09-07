@@ -1,0 +1,369 @@
+<HTML>
+<head><title>5.Report组件</title>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>5.Report组件</p><hr color=#2266ee size=1>
+<img src='image/why.bmp' class='imgleft'><p class='why'>问1.如何学习和数据源相关的报表开发？</p>
+1.请参考“开发者指南”中“Supcan Report组件”的“附录：数据源实例”，完全按照其步骤实战一遍;<br>
+　　2.如果您是asp.net开发者，请参考我们主页上“后端开发案例”中的第一个案例，完成数据源的数据提供服务编程，将其结合到上例的实战中；<br>
+　　3.如果您是JavaEE开发者，请参考我们主页上“后端开发案例”中的第二个案例，完成数据源的数据提供服务编程，将其结合到上例的实战中；<br>
+　　4.仔细学习Report的各个在线演示页，请关注其“技术分析区”，它包含了很多很重要的帮助、技巧；<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问2.点了工具条上的“保存”按钮，报表怎么没保存到服务器端啊？</p>
+Report本身并不具备上传文件的能力，该“保存”功能必须要和页面js、服务器端程序结合才能生效。具体做法如下：<br>
+<b>方案一：</b><br>
+　　在页面中增加一个“上传”的按钮，在按钮的onClick事件中调用GetFileXML( )函数，以取得当前报表的XML串，然后通过Ajax POST到服务器;<br>
+<b>方案二：</b><br>
+　　直接使用工具条上的“保存”按钮，但需要在OnEvent()事件中处理“Saved”事件或“Toolbar”事件：执行GetFileXML( )函数，取得当前报表的XML串，然后通过Ajax POST到服务器。例如：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "Toolbar" && p1=="104") { //若用户点击保存按钮，将立即触发该事件
+   var xml = AF.func("GetFileXML", "");
+   ...
+   //Ajax发送 xml 串，(略)
+   ...
+   AF.func("CancelEvent", "");   //该函数很重要，表示不再执行按钮的后续默认动作
+ }
+}</pre>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问3.报表的工具条、编辑设计功能都很丰富，这到底是为开发设计人员用还是为最终用户使用？</p>
+Demo页只是全方位展示Report丰富的功能，最终部署到应用程序时，可以根据需要裁剪掉一些功能。<br>
+　　最简单的功能裁剪方法就是重新定义创建参数，屏蔽掉一些工具条或工具条上的按钮，具体可参考 demo 中的 “几种展现方式”。<br>
+　　如果不怕麻烦的话，可完全抛弃Report自带的工具条：采用自定义工具条，具体可参考 Report 开发指南及相关 demo 页。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问4.Treelist、Freeform 都有 XML 文档规范可参考，为什么 Report 的 XML 文档规范没有公布？</p>
+因为Report本身就是一个设计器，你设计好后“另存”到本地文件即可。此外，Report 的 XML 格式远比 Treelist、Freeform 复杂，手写 XML 很难设计出复杂的报表。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why2'>问5.怎样控制按数据类型输入，比如数值型只能输入数字、日期型只能输入日期？</p>
+<table><col width="400"><col><tr>
+<td class="noline" valign="top">　　打开工具条左侧的“属性”对话框(如右图所示)，选中“启用单元格的数据类型校验(在输入时)”：<br><br>
+　　但是请注意，该选项在设计时(DesignTime)是不起作用的.</td>
+<td class="noline"><img src='image/report4.png'></td>
+</tr></table><br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why2'>问6. 硕正报表有没有类似 Excel 的表头冻结锁定功能？</p>
+<table><tr><col width="400"><col>
+<td class="noline" valign="top">　　有，鼠标滑过报表上标尺上方、左标尺左侧，会改变形状的，此时向下、向右拖拽即可(见右图)： <br><br>
+　　此外，执行 SeparateView 函数也可以达到同样效果.<br><br>
+　　保存该报表模板，当下次再打开，该冻结仍能生效，行列冻结信息是随报表XML一起保存的.</td>
+<td class="noline"><img src='image/report18.jpg'/></td>
+</tr></table><br><br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问7.我明明修改了报表并保存了，下次打开发现还是修改前的报表，这是怎么回事？</p>
+是浏览器缓存或Web服务器的原因，和硕正控件毫无关系，关于缓存，请参考 “3.安装、部署和运行” 中的 "问14.经常发现貌似浏览器缓存...".<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问8.采用Supcan Report设计好报表后，如何保证让最终用户既能编辑格式、但又不改坏已定义好的临时数据源？</p>
+建议您采用包含如下功能的方案：<br>
+　　1.为每种报表设计一张原始的“模板”报表，内含完整的数据源定义，报表外观编排可以不完全按照用户的需求，粗糙一点也没关系；<br>
+　　2.提供自定义报表功能，用户新建的报表只能从“模板”复制，而不能让其直接修改“模板”；<br>
+　　3.需要为用户实现报表的保存功能，保存到服务器，下次默认打开的是用户自己新建的报表；<br>
+　　这样就能很好地实现不同的登录用户打开不同外观的报表、一个用户拥有多张报表的功能----其实都是从同一张模板中复制的。<br>
+　　中心数据源不存在这样的问题。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问9.如何实现报表仅用于被查询而不被修改？或报表中部分内容不被修改？</p>
+首先，要区分是什么工作模式：上报模式和非上报模式(即普通模式)，以下将单独说明：<br>
+1.上报模式<br>
+　　上报模式的运行时(UploadRuntime)的控制比较简单，可编辑区域就是标记了 TabOrder 的单元格，以及可编辑范围内的内嵌表格. 这些都是由您在设计时确定的.<br>
+2.非上报模式<br>
+　　大多数情况下，用权限类函数中的 "Swkrntpomzqa" 函数就能解决问题。<br>
+　　如果您想让所有单元格都不准被修改，那么只要写如下语句即可：<br>
+<pre class='cpp'>AF.func("Swkrntpomzqa", "1, 2");</pre>
+　　如果要让某些单元格不被修改，最简单的办法就是为单元格设置 “保护” 属性。请注意：“保护” 属性无法单独起作用，必须结合 Swkrntpomzqa 函数才能生效:<br>
+<pre class='cpp'>AF.func("Swkrntpomzqa", "16");</pre>
+　　 “保护” 是需要手工逐个单元格预先设置的，如果您嫌这个步骤麻烦，那么可以参考开发文档中的其它权限类函数，比如 addEditAbleOnly( )、addUnEditAbleOnly( ) 函数，其功能非常强大，例如下例表示仅红色背景色的单元格能够修改:<br>
+<pre class='cpp'>AF.func("addEditAbleOnly", "bgClor=red");
+或
+AF.func("addEditAbleOnly", "bgClor='#FF0000'");</pre>
+　　除了颜色，还有其它的属性可以用于判断，详情请参考该函数的使用文档.<br>
+<br><br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问10.我设计好报表、填入数据源的数据，然后将报表另存，当我再次打开这个报表(XML文件)后，发现填入的数据不见了，这是怎么会事？</p>
+在默认情况下，报表永远是以“模板”的形式保存的，模板是不包含从数据源中取到的数据的，也就是说在保存时，临时剔除了填入的数据。当报表再一次在页面中展示时，需要在OnReady( )事件中书写代码以取数、填充、展现。您明白这个机理了吗？<br>
+　　如果您非要连同数据一起保存，那么可以在工具条菜单 数据源管理 - 高级 中将选项“数据源填充的数据连同报表一起保存”勾上即可。<br>
+<br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问11.我更改了打印的设置(如页边界、分页参数)，如何保持住这些参数？</p>
+打印的所有参数，都是保存在XML模板文件中的。你修改了打印设置，需要保存一下模板(或上传到服务器).<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问12. 为什么在打印预览中明明 1 张纸能打印得下，真正打印时却打印了2张纸？</p>
+不可能的，因为硕正控件的源码中，预览和打印是使用同一个分页程序的。<br>
+造成该现象的原因很可能是您修改了打印配置后，忘了保存模板啦。比如，在预览界面中调整了边距，在关闭预览界面后却没有将报表模板保存，这样下次打开报表后，边距仍然还是旧的。<br>
+　　记住：报表的打印设置全部是保存在报表模板中的，它不可能保存在别的地方的.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问13.如何实现同类单证的连续打印？</p>
+通常需要写如下的循环:<br>
+<pre class='cpp'>
+AF.func("Build", "reports/aax.xml"); //打开模板
+for( ... ) { //自己写循环
+ //假设是临时数据源, 设置查询取数条件 (即更改数据源)
+ AF.func("SetSource", "ds1 \r\n abc.aspx?mon=" + mon);
+ //计算 (备注：必须同步计算，不能选异步)
+ AF.func("Calc", "");
+ //打印, 变量 isOpenDlg 用来控制是否弹出对话框, 通常第一遍循环中设为1，其余的为0，这样打印对话框就只弹出一次
+ AF.func("Print", "isOpenSysDialog=" + isOpenDlg);
+}</pre>
+　　如果循环中需要切换报表模板，那就把第一行移入循环.<br>
+　　此外，报表组件还提供了另一种更高级的连续打印方式：调用 BeginBatchPrint / EndBatchPrint 进行批打印，具体请参考此函数的说明文档.<br>
+<br><br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问14.我在报表打印配置对话框中自定义了打印纸，为什么有的电脑打开这个报表时，会出现如下提示？</b><br><img src='image/report15.png'/></p>
+<table><col width="500"><col><tr>
+<td class="noline" valign="top"><br>　　是有这个可能的. <br>
+　　自定义打印纸的尺寸信息是包含在报表XML中，当控件在打开报表后, 会尝试着去创建这个自定义打印纸，但是创建过程可能会失败，失败原因就在于操作系统分配给浏览器的权限不够.<br><br>
+　　如果创建失败, 您只能在 "开始" 菜单 \ "设备和打印机" 中选择打印机, 然后在上方的 "打印机服务属性" 对话框中去手工创建(见右图).</td>
+<td class="noline"><img src='image/report16.jpg'/></td>
+</tr><tr height="8"/>
+<tr>
+<td class="noline" valign="top">　　此外，如果你的打印机不支持自定义打印纸、或者自定义打印纸正好是标准打印纸 (如A4、A3) 的 n 分之一，你就不必去创建自定义打印纸了，改而使用这个选项: (见右图)</td>
+<td class="noline"><img src='image/report17.png'/></td>
+</tr></table><br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问15. 我使用了自定义打印纸，并用针式打印机打印的，发现打印1、2张没问题，但在连续打印时，上下偏移误差会越来越大，这是什么原因？</b><br><img src='image/report20.jpg'/></p>
+　　有两种可能：<br>
+　　首先，您观察一下打印预览，如果后面几页的预览内容就已经不正确了，说明您的报表模板高度已经超出了打印纸的高度，只要适当调整一下某行或某几行的行高即可；<br>
+　　如果预览正常、而实际打印有问题，那就说明纸张的实际高度和你自定义的纸张高度是不一致的，此问题和硕正插件一点关系都没有。<br>
+　　解决办法：按照上一个问题的截图提示, 打开打印机服务属性，逐步微调自定义纸张的高度，使之和纸张物理高度趋于一致.<br>
+<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问16. 我使用了自定义打印纸，并用针式打印机打印的，左右边距都设成2毫米，在预览中表格线能紧挨左侧的虚线(边距标记), 一切正常, 但是实际打印时, 左侧会留出太多的空白, 这是什么原因？</b><br>　<img src='image/report28.jpg'/></p>
+<table><col width="500"><col><tr>
+<td class="noline" valign="top"><br>　　可以推测, 表格线左侧约 2 毫米的位置, 应该就是打印头的 x 轴坐标原点，如右图箭头所指: <br><br>
+　　既然该打印机支持穿孔打印纸，那么在它的背后的滑杆上应该有两个穿孔咬合处，其位置是能微调的，将它们整体往右移动约1厘米，应该就正常了.</td>
+<td class="noline"><img src='image/report29.jpg'/></td>
+</tr></table><br>
+
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问17. 为什么打印预览时表格都是居中的，但是真实打印出来，左边距会比右边距多大约1厘米？</p>
+<table><col width="470"><col><tr>
+<td class="noline" valign="top">　　大多数情况下，将模版中的这个选项选 "不忽略" 即可正常，因为不同打印机的物理有效边距有轻微差异 (见右图):<br><br>
+　　在设计报表模板时，幅面大小不要满打满算，应该考虑到打印有效边距因素、以及软件的误差因素.</td>
+<td class="noline"><img src='image/report19.png'/></td>
+</tr></table><br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问18. 我在打印配置中选择了使用某台打印机, 但是下次打开这报表发现又变成其它打印机了, 能固定住吗?</p>
+<table><col width="470"><col><tr>
+<td class="noline" valign="top">　　下次进去时, 肯定是采用当前操作系统的默认打印机的。如果你想固定用某台打印机打印，必须勾选下方的 "认定用这台打印机打印" 复选框(见右图).<br><br>
+　　在网络环境下, 其它电脑也使用这个模板时, 硕正插件首先会去本地查找同名打印机，如果找不到，则又切换回本地操作系统的默认打印机了.</td>
+<td class="noline"><img src='image/report27.png'/></td>
+</tr></table><br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问19.我不想在页面中出现报表控件，只是想调用CallFunc函数直接打印，所以我把 div 的高、宽设为1px，为什么经常会不稳定，似乎控件没有创建？</p>
+你把高、宽各设成 2px 就很稳定了，估计和浏览器对div的渲染有关.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问20.继续上一个问题，我把 div 的高、宽设为2px，但还是有个白色(或黑色)的小点，能去掉它吗？</p>
+在它的 OnReady 事件中，将它的div容器隐藏即可。隐藏div 可设置 visibility 为 hidden,  不建议用display="none" 。<br>
+<pre class='cpp'>
+...
+function OnReady(id)
+{
+ var container = document.getElementById('dv1');
+ container.style.visibility='hidden';
+ AF.func("Build", "report/report1.xml");
+ AF.func("callfunc", "18");
+}
+&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;div id="dv1" style="position:relative;width:2px;height:2px"&gt;&lt;script>insertReport('AF', '')&lt;/script&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问21.我在学习带参数的数据源，是不是URL中的变量如 "test.aspx?y=2011&mon=23&dept=A1" 中的 y、mon、dept都必须当作参数？</p>
+不是的，报表中的“参数”是指内容取自单元格的参数，像固定的、或由js控制的变量就不能算是“参数”.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问22.中心数据源或临时数据源，有很多处的URL(例如 dataURL)属性，如果采用相对URL，到底相对谁？</p>
+遵循这2个规则： <b>1</b>.谁定义，就相对谁;  <b>2</b>.斜杠("/")开头表示相对根目录。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问23.电子表单通常分二部分：表头(master)和表体(detail)，硕正Report能实现吗？</p>
+请参考demo页“报表 - 精确打印 - 套打(一)”，这应该就是您所要的。 或者，也可以参考下Freeform的demo页“9.有表头表体的表单(2)”<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问24.我们的数据服务都设计成 rest 方式调用的WebService，请问应该怎样和硕正的数据源配套使用？</p>
+选择普通的XML数据源(包括临时数据源或中心数据源)就行，而不是硕正Web Service数据源，因为硕正WebService数据源仅用于POST的、非rest方式的.<br>
+　　此外，你后端需要配置为： 1.请求方式必须是Get; 2.MediaType.TEXT_PLAIN.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问25.我用 NotePad 打开一张使用了中心数据源的报表XML文件，发现其中有中心数据源的列结构的详细信息(即所谓“数据源模版”)，这些列结构有什么用呢？</p>
+在大多数情况下，这些列结构信息确实没啥用处，因为报表在展现时，列结构将强行和后端的中心数据源同步. 但是如果你修改了列的显示名(标题)、列的显示顺序、是否隐藏等等，那么这些信息就有用了。<br>
+　　当然如果使用的是临时数据源，那么列结构信息是绝对有用的。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问26. SetSource( ) 函数到底应该在 Build( ) 函数前执行还是后执行？</p>
+如果是临时数据源，必须先执行Build( )，再执行 SetSource( ); 如果是中心数据源，则应该先执行 SetSource( )，因为它是全局有效的, 对今后的新增报表都能生效.<br>
+　　如果你的报表中既有中心数据源，又有临时数据源，那么在 Build 前先执行针对中心数据源的 SetSource 函数，在 Build 后再执行针对临时数据源的 SetSource 函数。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问27. 我使用了中心数据源，执行了<br>
+　　　　AF.func("SetSource", "../dscenter.aspx?id=337")<br>
+　　然后通过Build打开报表模板、正常计算，没问题。然后在另一个页面执行<br>
+　　　　AF.func("SetSource", "../dscenter.aspx?dept=mnger");<br>
+　　然后通过Build打开报表模板，发现总是只有一张报表能计算，另一张计算不了，为什么？</p>
+<br>
+　　在浏览器进程中， 应该保证中心数据源只有唯一的入口。你通过 SetSource 切换了入口地址，期望能有多个入口，这是办不到的。<br>
+<br><br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问28. 我使用了中心数据源，用XML查看器直接查看报表的XML文件中的数据源描述部分，发现里面有一个中心数据源的URL(即下面&lt;Source&gt;内容):<br>
+<img src='image/reportds14.png'><br>
+　　是不是意味着不需要执行SetSource函数？</p>
+　　这个URL是设计时的中心数据源入口URL，如果没有执行过 SetSource 函数，我们会默认采用这个URL作为中心数据源入口地址。<br>
+尽管如此，我们还是强烈建议您在 Build 之前先执行一下 SetSource，因为只要执行过 SetSource，<font color=red>中心数据源的入口URL就被明确指定了</font>，报表中的这个URL将无效。<br>
+　　试想一下，如果不执行SetSource, 你打开了2张不同中心数据源的报表，中心数据源最终以哪张为准呢？<br>
+<br><br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问29. 报表中使用了超链接，有时候是直接打开了链接页面，有时候没反应，这有什么规律吗？</p>
+如果你预订(SubscribeEvent) 了Clicked事件，那么只抛出Clicked事件，不会打开超链接页面的；否则则相反，只打开链接页面、不抛出事件.<br>
+<br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问30. 我想在页面 js 脚本中直接调用数据源中的数据，可以吗？</p>
+可以，请参考“全局函数”文档中的 “5.对 计算函数 的封装”。但你只能调用 data、head 这些单个数据，无法调用 datarow、headrow 这些块状的数据.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问31. 我想对报表中数据源填充区域做一个合计，例如在 =datarow( )函数的下一行写 =sum(D4:D20)，但无法预计数据有多少行，不知道D20这样写对不对？</p>
+<table><col width="400"><col><tr>
+<td class="noline" valign="top"><br>报表在线演示中有很多这方面的演示页的，例如右图:<br><br>
+关键就是需要“@单元名”宏，详细请参考 "公共内容" 中的 "3.宏".</td>
+<td class="noline"><img src='image/report9.png'/></td>
+</tr></table><br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问32. 报表中的单元格怎样让它使用下拉？</p>
+首先，您必须在报表中先设定“字典”，字典功能在“工具箱”上方第四个小按钮中；<br>
+　　“新建”字典，字典中有2列：key 和 text，这里看似需要逐条输入，其实也可以直接从数据源加载的(在对话框右上方的“数据源”按钮)；<br>
+　　建好字典后，设置单元格的选项，在工具箱、单元格选项的 " 下拉框选择录入"选项卡中.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问33. 我想把当前报表复制到一个新建的工作表中，该怎么做？</p>
+直接复制工作表的功能是没有的，但可以这样实现：<br>
+<pre class='cpp'>
+ //取得本地的一个临时文件 (注: CacheDirUtility 函数是全局函数，请参考“全局函数”文档)
+ var filename = AF.func("CacheDirUtility", "isCreateTempFile = 1");
+ //调用 1074 功能号，把当前报表另存到临时文件 (注：请参考工具条功能号文档)
+ AF.func("callfunc", "1074 \r\n" + filename);
+ //添加工作表
+ AF.func("AppendWorkSheet", filename);</pre>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问34. 怎样动态地用 js 往报表中插入图片？</p>
+有二种方法：<br>
+　　方法一: 通过 callfunc 调用 192 功能号，在报表的文档“4.工具条功能号”中有该功能号的说明和例子;<br>
+　　方法二: 插入文本框，而不是图片，通过动态将其显示属性设成 "以图片显示(内容为URL ...)" 显示图片，这种方法更加灵活，尤其是需要动态更改图片时;<br>
+<pre class='cpp'>
+ //插入别名为 "MyPic" 的文本框
+ AF.func("callfunc", "112 \r\n x=10; y=20; width=200; height=140; alias=MyPic");
+ //将其数据类型改成字符串型
+ AF.func("SetCellProp", "MyPic \r\n dataType \r\n string");
+ //添加图片显示掩码
+ var id = AF.func("Mask_Add", "string \r\n =picture()");
+ //修改它的显示掩码， 至此，该文本框就以图片显示了
+ AF.func("SetCellProp", "MyPic \r\n maskId \r\n" + id);
+ 
+ //赋图片:  通过 SetCellData 赋值就行
+ AF.func("SetCellData", "MyPic \r\nDotNet/res/aa.jpg");
+ //设置其它效果：背景色为透明、无边框
+ AF.func("SetCellProp", "MyPic \r\n bgColor \r\n T");
+ AF.func("SetCellProp", "MyPic \r\n borderThick \r\n 0");
+ //刷新一下屏幕
+ AF.func("SetRedrawAble", "true");</pre>
+<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问35. 我按照 “20.分类汇总” 做了个分类汇总表，汇总计算结果含有千位符，怎样才能不显示千位符呢？</p>
+修改一下那个汇总表达式，把里面的 @sum 替换成 replaceAll(@sum, ',', '') 或 formatNum(@sum, '#.00')<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问36. 数据源加载的数据，为什么有些单元格显示为诸如“5.405297231E7”这种科学计数法?</p>
+这个串来自你的XML/JSON数据包，如果在数据源中该字段设为 string 型，报表控件是原封不动将其显示的。<br>
+　　你只要将该字段设为 decimal 型即可。<br>
+　　如果该数据源已经被拖拽到报表中了，你那必须把相应单元格的数据类型也设为数值型。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问37. 报表的 PDF 格式导出，发现内部是图片，能否导出纯文字啊？</p>
+目前尚未支持，但有一简单的办法：安装一个 adobe pdf虚拟打印机吧.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问38. 我需要用 js 执行大量的 GetCellData, SetCellData, GetCellProp, SetCellProp等等存取单元格信息的函数，以前速度很快，但不知道是什么原因，有时候速度奇慢，这是怎么回事？</p>
+　　函数中第一个参数是单元格名，须保证该单元格是存在的，加入您执行了 AF.func("GetCellData", "K33"), 其中这个 "K33" 单元格必须真实存在，否则会拖累整体性能.<br>
+　　硕正报表内部实现原理是这样的：如果上面这个 "K33" 单元格不存在，就会自动将 "K33" 当作是某个单元格的别名，从报表中按别名查找单元格，而这个过程的效率是不高的，如果在循环语句中大量执行，整体速度肯定不会快。<br>
+<br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问39. 我这样写，分别调用163(计算)、18(预览)功能号，为什么第二句永远不执行？</p>
+<pre class='cpp'>
+ AF.func("CallFunc","163");
+ AF.func("CallFunc","18");</pre>
+　　因为163功能号 (即按钮点击 “计算”) 是异步计算，所以你应该用 Calc 函数，不要调用 163 功能号。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问40. 工具栏中的“计算”按钮(即齿轮图标)，和函数 Calc( ) 有什么差别？</p>
+差别不大，插件内部都是调用同一个内部函数的，只是按钮启动的是异步计算，相当于是执行了 AF.func("calc", "mode=asynch; range=full")。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问41. 关于分类汇总表或交叉表，我看例子中，旁边都配有一个纯数据的工作表，这个工作表可以删除吗？删除它对旁边的分类汇总表/交叉表有影响吗？</p>
+　　无影响，可以删除。<br>
+　　例子中保留这个纯数据工作表，只是用于对照，为了让你明白: 对数据源的格式要求，也只是普通的平面数据而已。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问42. 假如 A1 单元格的计算公式为 "=E2 + F2", 然后我用 SetCellData 更改了 E2 单元格的内容，发现 A1 单元格不会自动更新，请问如何让它计算 ？</p>
+　　在 SetCellData 后，执行 calc 函数吧。<br>
+　　如果当前工作表有数据源填入区，你会发现执行了 calc 后, 数据源填入区重新刷新了！如果你希望数据源公式不参与计算，那么请用 260 功能号代替 calc 函数，详情请参考文档 “5.工具条功能号”<br>
+<br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问43. 我在 A1、A2 单元格分别输入 1、2，然后 让 B1 = A1 + A2, 结果是 3, 能否让它们以字符串方式相加，也就是说结果是 “12” ？</p>
+你应该将 A1、A2 单元格的数据类型设成字符型。<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问44. 我的分类汇总表如图，我怎样才能不显示 “城市” 列的重复行内容？比如 “布宜诺斯艾利斯” 只显示在第一行，下面同名的就不显示?</p>
+<img src='image/report22.png'><br><br>
+<table><col width="460"><col><tr>
+<td class="noline" valign="top">　　请在 datarow( ) 所在行的城市单元格，将它的 "显示掩码" 设成:<br>
+　　if(ref(row( ) - 1, col( )) == data, '', data)<br><br>
+　　重新计算后，结果就这样了(如右图)：<br>
+</td>
+<td class="noline"><img src='image/report23.png'/></td>
+</tr></table><br>
+
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问45. 单元格内的文字, 怎样强制换行? 比如下面是自动换行, 我怎样才能在 "实际" 处断行 ?</p>
+<img src='image/report25.png'><br>
+　　有二种办法:<br>
+办法一: 在断行处输入 "\r\n";<br>
+办法二: 双击单元格, 在单元格自己的输入框中, 在断行处敲键 Ctrl + 回车<br>
+　　如果您的数据是从数据源填入的, 要强制换行, XML/JSON 数据串中也应该含有回车符, 或者是 "\r\n" 的这种串.<br>
+<br>
+
+<img src='image/why.bmp' class='imgleft'><p class='why'>问46. 我用了分页小计函数 =PageSum('D'), 打印预览时是正确的, 但显示时, 却会显示成 1.0 或 0.0, 能否做到普通显示时不显示, 单元格留空?</p>
+把公式改成诸如这样吧：= if(Pages()==0, '', pageSum('D'))<br>
+<br>
+
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

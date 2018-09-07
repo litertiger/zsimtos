@@ -1,0 +1,176 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var username = app.get(\"sys.username\"),\
+  vId = app.get(\"vId\"),\
+  mach,\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\"),\
+  shipNam = app.get(\"shipNam\"),\
+  voyageNo = app.get(\"voyageNo\");\
+var rs = app.run(\"select   ID from  task where  CARRIER_CALL='\" + vId + \"' and TASK_TYPE='VIN'   and TENANCY_ID='\" + TENANCY_ID + \"'\");\
+var id = SysUtil.getId();\
+\
+var rsBorth = app.run(\"select  BERTH_CODE  from  VESSEL_VISIT  where ID={?vId?}\");\
+if (rsBorth.next()) {\
+  if (rsBorth.getString(\"BERTH_CODE\") == null || rsBorth.getString(\"BERTH_CODE\") == '')\
+    Wb.error('此船不能卸船,进口泊位还未维护');\
+  else\
+    borthCod = rsBorth.getString(\"BERTH_CODE\");\
+  //   app.run(\"select from  C_BERTH,C_MACHINE where C_BERTH.MACH=C_MACHINE.ID and C_BERTH.TENANCY_ID='\"+TENANCY_ID+\"' and C_MACHINE.TENANCY_ID='\"+TENANCY_ID+\"' \");\
+  var rb = app.run(\"select  MACH from  C_BERTH where C_BERTH.ID='\" + borthCod + \"' and  C_BERTH.TENANCY_ID='\" + TENANCY_ID + \"' \", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (rb.next()) {\
+    if (rb.getString(\"MACH\") == null || rb.getString(\"MACH\") == '')\
+      Wb.error('泊位' + borthCod + \"吊机未维护不能卸船\");\
+    else\
+      mach = rb.getString(\"MACH\");\
+  }\
+\
+}\
+\
+// app.run(\"select 1 from dual where not  exists(select 1 from  Vbill_head where phase ='2' and  VID={?vId?} and TENANCY_ID='\" + TENANCY_ID + \"')\", {\
+//   errorText: ' 必须是锁定状态才能生成卸船计划'\
+// });\
+if (rs.next()) {\
+  id = rs.getString(\"ID\");\
+  app.run(\"delete from MOVE_LIST  where QUEUE_ID='\" + id + \"' and PHASE='PLN'\", {\
+    transaction: 'start'\
+  });\
+  app.run(\"delete from MOVE_LISTB  where QUEUE_ID='\" + id + \"' and PHASE='PLN'\");\
+\
+} else {\
+  app.run(\"insert into task(CARRIER_CALL,CARRIER_CODE,ID, TENANCY_ID, TASK_TYPE, PHASE, AUTO_RELEASE, AUTO_POSITION, REPOSITION, SEQUENCE, PRIORITY, CREATED_BY, CREATED_ON, updateD_BY, updateD_ON, TASK_NAME)\" +\
+    \" values({?vId?},'\" + shipNam + \"/\" + voyageNo + \"','\" + id + \"','\" + TENANCY_ID + \"','VIN','PLN',0,0,1,null,1,'\" + username + \"',sysdate,'\" + username + \"',sysdate,'\" + shipNam + \"'||' '||to_char(sysdate,'yyyy-mm-dd')||'卸船')\", {\
+      transaction: 'start'\
+    });\
+}\
+\
+\
+app.run(\"insert into work_task_crane(id,tenancy_id,task_id,duty_id,driver_id,beg_work_tim,end_work_tim,created_by,created_on) \" +\
+  \" select sys_guid(),'\" + TENANCY_ID + \"','\" + id + \"','\" + mach + \"','',sysdate, sysdate,'\" + username + \"',sysdate from dual where not exists\" +\
+  \"(select 1 from work_task_crane where  task_id='\" + id + \"' )\"\
+);\
+\
+\
+app.run(\"INSERT INTO MOVE_LISTB \" +\
+  \"    (ID, TENANCY_ID, QUEUE_ID, SEQUENCE_NO, MOVE_TYPE, PHASE, \" +\
+  \"     HANDLE_ID, GOODS_NOTES, CARRIER_CALL, CARRIER_TYPE, \" +\
+  \"     CARRIER_CODE, LINE, POD, POL, SPOD,  FROM_POS_TYP, TO_POS_TYP, \" +\
+  \"     FROM_POS, TO_POS, TRADE_ID, I_E_ID, WEIGHT, BILL_NO, \" +\
+  \"     CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, \" +\
+  \"      Y2Y_ID, VOLUME, PIECES, CARGO_TYPE, SHIPPER, \" +\
+  \"     CONSIGNEE,SHIPPER_COD,CONSIGNEE_COD) \" +\
+  \" SELECT sys_guid(),TENANCY_ID, '\" + id + \"', rownum, 'MOV' , 'PLN', \" +\
+  \"     ID, GOODS_NOTES, VID,'船', \" +\
+  \"     '\" + shipNam + \"/\" + voyageNo + \"', LINE, POD, POL, SPOD,'V','B','V','B',  \" +\
+  \"     TRADE_ID, I_E_ID, WEIGHT, BILL_NO, \" +\
+  \"     '\" + username + \"',sysdate,'\" + username + \"',sysdate, \" +\
+  \"      null, VOLUME, PIECES, CARGO_TYPE, SHIPPER,CONSIGNEE,SHIPPER_COD,CONSIGNEE_COD \" +\
+  \"  FROM VBILL_HEAD  where   main_flag=1  and  I_E_ID ='I'  and BILL_TYPE='S'\" +\
+  \" and not exists( select 1 from MOVE_LISTB where QUEUE_ID='\" + id + \"' and MOVE_LISTB.HANDLE_ID=vbill_head.ID ) and TENANCY_ID='\" + TENANCY_ID + \"' and VID={?vId?} \" +\
+  \" \");\
+app.run(\"insert  into  MOVE_LIST(FROM_POS,BILL_NO,QUEUE_ID,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,ID, TENANCY_ID, SEQUENCE_NO, MOVE_TYPE, PHASE, PRIORITY, IS_SPLIT, HANDLE_ID, ORIGIN,CNTR,\" +\
+  \" CNTR_ISO, CNTR_SIZE, CNTR_TYPE,  OVERHEIGHT, OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT,\" +\
+  \"  DANG_ID, IMDG, UNDG, TEMP_SET, TEMP_MIN,TEMP_MAX,\" +\
+  \" CARRIER_CALL, CARRIER_TYPE,CARRIER_CODE, LINE, CNTR_OPERATOR,CNTR_OPERATOR_COD,  POD, POL, SPOD,SERVICE, RETURN_LOC, \" +\
+  \" FROM_POS_TYP, TO_POS_TYP, AUTO_RELEASE, SEQUENCED, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, CNTR_ID,CRANE)\" +\
+  \" select '\" + borthCod + \"', BILL_NO, '\" + id + \"',CATEGORY_ID,TRADE_ID,I_E_ID, E_F_ID,sys_GUID(),TENANCY_ID,rownum,'MOV' ,'PLN','1',0,bill_ID, VID, CNTR, \" +\
+  \" CNTR_ISO, CNTR_SIZE, CNTR_TYPE,  OVERHEIGHT, OVERFRONT, OVERBACK, OVERLEFT, OVERRIGHT,\" +\
+  \"  DANG_ID, IMDG, UNDG, TEMP_SET, TEMP_MIN,TEMP_MAX,VID,'船','\" + shipNam + \"/\" + voyageNo + \"',LINE, CNTR_OPERATOR,CNTR_OPERATOR_COD,\" +\
+  \"  POD, POL, SPOD,'','C0101','V','B',0,0,'\" + username + \"',sysdate,'\" + username + \"',sysdate,CNTR_ID,'\" + mach + \"'\" +\
+  \" from  VLOAD_LIST where   main_flag=1  and  I_E_ID ='I' \" +\
+  \" and not exists( select 1 from port_cntr where cntr_id=id and YARD_POSITION is not null )   \" +\
+  \" and not exists( select 1 from MOVE_LIST where QUEUE_ID='\" + id + \"' and MOVE_LIST.CNTR=VLOAD_LIST.CNTR )  and TENANCY_ID='\" + TENANCY_ID + \"' and VID={?vId?} \" +\
+  \" \", {\
+    transaction: 'commit'\
+  });\
+app.run(\"update VESSEL_VISIT  set IS_XC=1  where  ID={?vId?}  \");\
+app.run(\"update port_cntr set IN_JGQ=0,ARR_POSITION='\" + mach + \"' where  ID in( select cntr_id from   VLOAD_LIST where   main_flag=1  and  I_E_ID ='I'    and TENANCY_ID='\" + TENANCY_ID + \"' and VID={?vId?})\");\
+//app.sendMessage(\"qu_find_plac\",'{\"ID\":\"\",\"SHIP_NO\":\"'+vId+'\"}' );\
+app.run(\"{call  pound_pro_new('\" + vId + \"','I')}\");\
+\
+var rsnmq = app.run(\"select CFS_COD from    C_CY_AREA,C_BERTH where   C_CY_AREA.CY_AREA_NO=C_BERTH.ID \" +\
+  \" and C_BERTH.TENANCY_ID='\" + TENANCY_ID + \"' and  C_CY_AREA.TENANCY_ID='\" + TENANCY_ID + \"'  and C_BERTH.ID='\" + borthCod + \"'\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+if (rsnmq.next()) {\
+  if (rsnmq.getString(\"CFS_COD\") != \"JGQ\") {\
+    app.run(\"update  vbill_head set RELEASE_ID=1,CIQ_ID=1 where  TENANCY_ID='\" + TENANCY_ID + \"'  and  bill_type='E' and  vid='\" + vId + \"' and  i_e_id='I'\");\
+    app.run(\"update  port_cntr set RELEASE_ID=1,CIQ_ID=1 where \" +\
+      \" ID in( select cntr_id from  vload_list where  E_F_ID='E' and  vid='\" + vId + \"' and  i_e_id='I')\");\
+\
+  }\
+\
+}\
+\
+var client = new RabbitClient();\
+if (!client.open()) {\
+  app.send(client.getLastError());\
+  return;\
+}\
+try {\
+  client.routeSend(\"\", \"qu_find_plac\", {\
+    info: {\
+      type: \"ship\",\
+      action: \"findplace\",\
+      senduser: username,\
+      sendmodule: \"ship\",\
+      ttl: 50000,\
+      sendtime: (new Date()).getTime()\
+    },\
+    data: {\
+      SHIP_NO: vId\
+    }\
+  });\
+  client.routeSend(\"ex_task\", '#', {\
+    info: {\
+      type: \"task\",\
+      action: 'create',\
+      senduser: username,\
+      sendmodule: \"ship\",\
+      sendtime: (new Date()).getTime()\
+    },\
+    data: {\
+      id: id\
+    }\
+  });\
+} catch (e) {} finally {\
+  client.close();\
+}\
+\
+\
+// var map = new HashMap();\
+// map.put(\"vid\", vId);\
+// map.put(\"ieId\", 'I');\
+// map.put(\"billNo\", null);\
+// map.put(\"cntr\", null);\
+// map.put(\"itemId\", null);\
+\
+//  Wb.newClass(\"dubboForShip\").call(request, map);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "生成卸船计划",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

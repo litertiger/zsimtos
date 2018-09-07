@@ -1,0 +1,160 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "minHeight": "400",
+    "layout": "absolute",
+    "itemId": "window1",
+    "resizable": "false",
+    "minWidth": "300",
+    "title": "调色板",
+    "autoShow": "true"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "combo1",
+      "fieldLabel": "颜色分类",
+      "width": "300",
+      "displayField": "NAME",
+      "valueField": "ID",
+      "height": "50"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "url": "m?xwl=yardManage/yardmonitor/color/category"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     }],
+     "type": "combo",
+     "events": {"select": "app.grid1.store.reload({params:{id:records[0].data.ID}});\
+app.colorBtn.hide();"}
+    },
+    {
+     "configs": {
+      "itemId": "panel1",
+      "y": "25"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid1",
+       "editable": "true",
+       "width": "300",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "KEY",
+           "dataIndex": "KEY",
+           "text": "代码"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "NAME",
+           "dataIndex": "NAME",
+           "text": "名称"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "COLOR",
+           "renderer": "metaData.style=\"background-color:\" + value;\
+",
+           "resizable": "false",
+           "dataIndex": "COLOR",
+           "width": "80",
+           "text": "颜色"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=yardManage/yardmonitor/color/categoryColors"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "store"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "if(app.colorBtn.isHidden())\
+  app.colorBtn.show();\
+app.colorBtn.setRegion(item.cells[2].getBoundingClientRect());\
+app.colorBtn.setText('<span class=\"x-color-picker-item-inner\" style=\"line-height:14px;background:'+record.data.COLOR+'\">&nbsp;<\/span>');"}
+     }],
+     "type": "panel"
+    },
+    {
+     "configs": {
+      "itemId": "colorBtn",
+      "hidden": "true",
+      "width": "100",
+      "x": "200",
+      "y": "50",
+      "menuType": "colormenu"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "button",
+     "events": {"menuselect": "app.colorBtn.setText('<span class=\"x-color-picker-item-inner\" style=\"line-height:14px;background:#' + value + '\">&nbsp;<\/span>');\
+var sels = app.grid1.getSelection();\
+if (sels) {\
+  Wb.request({\
+    url: \"m?xwl=yardManage/yardmonitor/color/save\",\
+    params: Wb.applyIf({\
+      id: app.combo1.getValue(),\
+      COLOR: '#' + value\
+    }, sels[0].data),\
+    success: function(res) {\
+      var ret = Wb.decode(res.responseText);\
+      if (ret.success)\
+        sels[0].set('COLOR', '#' + value);\
+    }\
+  });\
+}"}
+    }
+   ],
+   "type": "window"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSYARD": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "调色板",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

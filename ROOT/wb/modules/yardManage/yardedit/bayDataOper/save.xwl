@@ -1,0 +1,66 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "if (app.get('OPP_BAY_NO')) {\
+  var result = app.run(\"select cy_bay_no from c_cy_bay where cy_area_no={?CY_AREA_NO?} and cy_bay_no<>{?CY_BAY_NO?} \\\
+     and opp_bay_no={?OPP_BAY_NO?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next())\
+    throw '录入的搭对贝' + app.get('OPP_BAY_NO') + '已经和' + result.getString('cy_bay_no') + '搭对';\
+  result = app.run(\"select opp_bay_no from c_cy_bay where cy_area_no={?CY_AREA_NO?} and cy_bay_no={?CY_BAY_NO?} \\\
+     and opp_bay_no<>{?OPP_BAY_NO?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next())\
+    throw '当前贝' + app.get('CY_BAY_NO') + '已经和' + result.getString('opp_bay_no') + '搭对';\
+}\
+app.run(\"merge into c_cy_bay t1\\\
+   using (select {?CY_AREA_NO?} area,{?CY_BAY_NO?} bay from dual ) t2\\\
+   on (t1.cy_area_no=t2.area and t1.cy_bay_no=t2.bay and t1.tenancy_id={?sys.TENANCY_ID?})\\\
+   when matched then\\\
+   update set accept_20={?ACCEPT_20?},accept_40={?ACCEPT_40?},accept_45={?ACCEPT_45?},accept_48={?ACCEPT_48?},opp_bay_no={?OPP_BAY_NO?}\\\
+   where cy_area_no={?CY_AREA_NO?} and cy_bay_no={?CY_BAY_NO?} and tenancy_id={?sys.TENANCY_ID?}\\\
+   when not matched then\\\
+   insert(cy_area_no,cy_bay_no,tenancy_id, accept_20,accept_40,accept_45,accept_48,opp_bay_no,operator,oper_time) \\\
+   values({?CY_AREA_NO?},{?CY_BAY_NO?},{?sys.TENANCY_ID?},{?ACCEPT_20?},{?ACCEPT_40?},{?ACCEPT_45?},{?ACCEPT_48?},{?OPP_BAY_NO?},{?sys.username?},systimestamp)\", {\
+  jndi: 'jdbc/basecode'\
+});\
+if (app.get('OPP_BAY_NO'))\
+  app.run(\"merge into c_cy_bay t1\\\
+   using (select {?CY_AREA_NO?} area,{?OPP_BAY_NO?} bay from dual ) t2\\\
+   on (t1.cy_area_no=t2.area and t1.cy_bay_no=t2.bay and t1.tenancy_id={?sys.TENANCY_ID?})\\\
+   when matched then\\\
+   update set accept_20={?ACCEPT_20?},accept_40={?ACCEPT_40?},accept_45={?ACCEPT_45?},accept_48={?ACCEPT_48?},opp_bay_no={?CY_BAY_NO?}\\\
+   where cy_area_no={?CY_AREA_NO?} and cy_bay_no={?OPP_BAY_NO?} and tenancy_id={?sys.TENANCY_ID?}\\\
+   when not matched then\\\
+   insert(cy_area_no,cy_bay_no,tenancy_id, accept_20,accept_40,accept_45,accept_48,opp_bay_no,operator,oper_time) \\\
+   values({?CY_AREA_NO?},{?OPP_BAY_NO?},{?sys.TENANCY_ID?},{?ACCEPT_20?},{?ACCEPT_40?},{?ACCEPT_45?},{?ACCEPT_48?},{?CY_BAY_NO?},{?sys.username?},systimestamp)\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+else\
+  app.run(\"update c_cy_bay set opp_bay_no=null where cy_area_no={?CY_AREA_NO?} and opp_bay_no={?CY_BAY_NO?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+app.send({\
+  success: true\
+});",
+   "method": "POST"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSYARD": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

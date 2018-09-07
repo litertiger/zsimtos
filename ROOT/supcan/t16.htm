@@ -1,0 +1,124 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ function OnReady(id)
+ {
+　AF.func("Build", "treelist/t17.xml");
+  AF.func("Load", "treelistdata/data.txt \r\n fadeInStep=0");
+  AF.func("InsertCol", "0\r\nname=checked;isCheckboxOnly=true");
+ }
+ function deletechecked()
+ {
+    AF.func("DeleteRows", "checked=1");
+ }
+ function combine()
+ {
+  AF.func("SetProp", "curselmode \r\n row");
+  AF.func("SetProp", "sort \r\n country a,shipcity a");	//排序
+  AF.func("SetColProp", "checked \r\n TreeCombine \r\n auto,node");  //合并
+  AF.func("SetProp", "isTree \r\n true");  //切换成树
+  document.getElementById("select1").disabled=false;
+ }
+ function multi()
+ {
+  AF.func("SetProp", "curselmode \r\n rows");
+  AF.func("SetColProp", "checked \r\n TreeCombine \r\n");
+  AF.func("SetProp", "isTree \r\n false");
+  document.getElementById("select1").disabled=true;
+ }
+
+ function OnSel1(val)
+ {
+  AF.func("SetProp", "CheckMode \r\n" + val);
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=150>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.第一列是通过js动态插入的，仅用于勾选，实现了时下流行的勾选式删除操作；<br>
+<b>2</b>.切换到以树显示，并让勾选列和第一列(树的排序列)合并显示： <input type=button value=" 切换 " onClick="combine()"> .<br>
+<b>3</b>.多行选择(curselmode="rows")状态下的表现形式：<input type=button value=" 切换 " onClick="multi()"> (注意shift、Ctrl + 鼠标左键 的用法);<br>
+</td>
+</tr>
+</table>
+
+<br>
+<div style="position:relative;width:90%">
+	<script>insertTreeList('AF', 'Border=3d', '350px')</script>
+</div>
+<br>
+<table cols=2 border=0 width=100%>
+<col valign=top width=150>
+<col>
+<tr><td/><td>
+<b>4</b>.其它功能演示：按表达式快速删除选中行：&nbsp;  <input type="button" value="删除选中" onClick="deletechecked()"> &nbsp;&nbsp; (注：源码为 AF.func("DeleteRows", "checked=1");)<br><br>
+<b>5</b>.其它功能演示：Checkbox 的交互方式：&nbsp;  <Select id="select1" onchange="OnSel1(this.value)"><option value="checkbox">1.鼠标需要精确点击到 checkbox 方框中</option><option value="row">2.鼠标点击行即可</option></Select>
+</td></tr>
+</table>
+
+<!--tr height=25 bgColor=#003366><td colspan=2 align=right><a href="treelist/t17.xml" target=_blank>查看创建该TreeList的XML描述文件</a>&nbsp;&nbsp;</td></tr-->
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.查看创建该TreeList的<a href="treelist/t17.xml" target=_blank>XML描述文件</a>，关注实现旋转背景色、4色表头的&lt;Properties&gt;部分；<br>
+<b>2</b>.源码分析：<br>
+<pre class='cpp'>
+&lt;script language="JavaScript"&gt;
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/t17.xml");
+  AF.func("Load", "treelistdata/data.txt");
+  //在第一列位置插入新列
+  AF.func("InsertCol", "0\r\nname=checked;isCheckboxOnly=true");
+ }
+ function deletechecked()
+ {
+  //删除符合表达式的行
+  AF.func("DeleteRows", "checked=1");
+ }
+&lt;/script&gt;</pre>
+　　当然，不是说勾选的列必须动态插入，本例只是演示了动态插列功能。<br>
+　　其实在很多场合都用得到动态增删列，以提高XML文档的复用率。<br>
+<br>
+<b>3</b>.Checkbox和树的排序列合并显示，这也是一种常见的场景，实现很简单：<br>
+<pre class='cpp'>
+function combine()
+{
+ AF.func("SetProp", "sort \r\n country a,shipcity a");	//排序
+ AF.func("SetProp", "isTree \r\n true");  //切换成树
+ AF.func("SetColProp", "checked \r\n TreeCombine \r\n auto,node");  //合并
+}</pre>
+　　里面关键是第五行，当然，你也可以将 TreeCombine 直接写到XML中.<br>
+<br>
+<b>4</b>.列的单选<br>
+　　有一种需求是： 要求只能选一行，其它行能自动清除选择，相当于在垂直方向保持单选。你在html中加入如下源码，看看效果怎样：<br>
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id == 'AF' && Event=='EditChanged') {
+  if(p2 == 'checked') {
+   AF.func("SetColCellData", p2+ "\r\n");
+   AF.func("SetCellData", p1+ "\r\n" +p2+ "\r\n1");
+  }
+ }
+}</pre>
+
+</td></tr></table>
+
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

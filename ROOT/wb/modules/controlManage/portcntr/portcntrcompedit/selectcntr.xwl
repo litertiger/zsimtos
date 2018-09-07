@@ -1,0 +1,122 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),\
+  tenancyid = app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+sql = \"select p.ID,p.tenancy_id,cntr,p.phase,category_id,p.trade_id,p.i_e_id,DECODE(lcl_id,1,'P',p.e_f_id)e_f_id,\" +\
+  \"cntr_iso,line,cntr_operator,cntr_owner,cntr_owner_cod,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,\" +\
+  \"seal_no3,seal_no4,cntr_hight,cntr_length,ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,\" +\
+  \"ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,p.pod,p.pol,spod,return_loc,trucking_co,datasource,\" +\
+  \"arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,cy_tier_no,agent1,agent2,bill_no,\" +\
+  \"cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,imdg,undg,direct_id,\" +\
+  \"spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,reefer_type,\" +\
+  \"alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,last_supply_temp,\" +\
+  \"last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,dwell_days,ec_intime,\" +\
+  \"last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,exit_custom_id,emergency_id,custom_type,\" +\
+  \"trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,pre_tak_id,trans_id,delv_term,hndl_reason,\" +\
+  \"arrbookingnbr,bookingnbr,releasenbr,SEQUENCE,notes,p.updated_on,p.created_on,cntr_size,cntr_type,p.created_by,\" +\
+  \"p.updated_by,cntr_operator_cod,line_cod,bound_position,pieces,volume,send_edi,o_bill_no,in_jgq,0 hx\" +\
+  \" from port_cntr p left join cntr_apply_list al on al.cntr_id=p.id left join cntr_apply a on a.id=al.aid\" +\
+  \" where p.tenancy_id = '\" + tenancyid + \"'\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and cntr like '%\" + data.CNTR + \"%'\";\
+if (nature == '5')\
+  sql += \" and (p.CNTR_OPERATOR_COD='\" + govCode + \"'\" +\
+  \" or(decode(a.apply_type,'OTO',a.FROM_OPERATOR_COD))='\" + govCode + \"'\" +\
+  \" or(decode(a.apply_type,'OTO',a.TO_OPERATOR_COD))='\" + govCode + \"')\";\
+if (!Wb.isEmpty(data.cntrid))\
+  sql += \" and p.id='\" + data.cntrid + \"'\";\
+sql += \"group by p.ID,p.tenancy_id,cntr,p.phase,category_id,p.trade_id,p.i_e_id,lcl_id,p.e_f_id,cntr_iso,line,cntr_operator,\" +\
+  \"cntr_owner,cntr_owner_cod,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+  \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,\" +\
+  \"origin,p.pod,p.pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,\" +\
+  \"cy_row_no,cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,\" +\
+  \"dang_id,imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+  \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+  \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+  \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,exit_custom_id,\" +\
+  \"emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,pre_tak_id,trans_id,\" +\
+  \"delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,SEQUENCE,notes,p.updated_on,p.created_on,cntr_size,cntr_type,\" +\
+  \"p.created_by,p.updated_by,cntr_operator_cod,line_cod,bound_position,pieces,volume,send_edi,o_bill_no,in_jgq\";\
+if (data.ls == \"1\") {\
+  sql += \" union all\" +\
+    \" select p.ID,p.tenancy_id,cntr,p.phase,category_id,p.trade_id,p.i_e_id,DECODE(lcl_id,1,'P',p.e_f_id)e_f_id,\" +\
+    \"cntr_iso,line,cntr_operator,cntr_owner,cntr_owner_cod,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,\" +\
+    \"seal_no3,seal_no4,cntr_hight,cntr_length,ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,\" +\
+    \"ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,p.pod,p.pol,spod,return_loc,trucking_co,datasource,\" +\
+    \"arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,cy_tier_no,agent1,agent2,bill_no,\" +\
+    \"cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,imdg,undg,direct_id,\" +\
+    \"spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,reefer_type,\" +\
+    \"alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,last_supply_temp,\" +\
+    \"last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,dwell_days,ec_intime,\" +\
+    \"last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,exit_custom_id,emergency_id,custom_type,\" +\
+    \"trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,pre_tak_id,trans_id,delv_term,hndl_reason,\" +\
+    \"arrbookingnbr,bookingnbr,releasenbr,SEQUENCE,notes,p.updated_on,p.created_on,cntr_size,cntr_type,p.created_by,\" +\
+    \"p.updated_by,cntr_operator_cod,line_cod,bound_position,pieces,volume,send_edi,o_bill_no,in_jgq,1 hx\" +\
+    \" from port_cntr_his p left join cntr_apply_list al on al.cntr_id=p.id left join cntr_apply a on a.id=al.aid\" +\
+    \" where p.tenancy_id = '\" + tenancyid + \"'\";\
+  if (!Wb.isEmpty(data.CNTR))\
+    sql += \" and cntr like '%\" + data.CNTR + \"%'\";\
+  if (nature == '5')\
+    sql += \" and (p.CNTR_OPERATOR_COD='\" + govCode + \"'\" +\
+    \" or(decode(a.apply_type,'OTO',a.FROM_OPERATOR_COD))='\" + govCode + \"'\" +\
+    \" or(decode(a.apply_type,'OTO',a.TO_OPERATOR_COD))='\" + govCode + \"')\";\
+  if (!Wb.isEmpty(data.cntrid))\
+    sql += \" and p.id='\" + data.cntrid + \"'\";\
+  sql += \"group by p.ID,p.tenancy_id,cntr,p.phase,category_id,p.trade_id,p.i_e_id,lcl_id,p.e_f_id,cntr_iso,line,cntr_operator,\" +\
+    \"cntr_owner,cntr_owner_cod,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+    \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,\" +\
+    \"origin,p.pod,p.pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,\" +\
+    \"cy_row_no,cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,\" +\
+    \"dang_id,imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+    \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+    \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+    \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,exit_custom_id,\" +\
+    \"emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,pre_tak_id,trans_id,\" +\
+    \"delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,SEQUENCE,notes,p.updated_on,p.created_on,cntr_size,cntr_type,\" +\
+    \"p.created_by,p.updated_by,cntr_operator_cod,line_cod,bound_position,pieces,volume,send_edi,o_bill_no,in_jgq\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSWNH": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "ZK": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "箱信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

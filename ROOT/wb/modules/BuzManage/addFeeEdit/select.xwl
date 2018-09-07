@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var sql=\"select ACCOUNT_CUSTOMER_NAM,ACCOUNT_CUSTOMER_CODE,PAYMENT_CUSTOMER_NAM,INVOICE_TYPE,ID,SETTLE_STATUS,PAYMENT_CUSTOMER_CODE,FEE_LIST_ID,PAYMENT_TYPE,AMOUNT,ACTUAL_JOB_COUNT,TRADE_ID,I_E_ID,BILL_NO,\"+\
+\"CNTR,RATE,CONTRACT_RATE,CNTR_SIZE,E_F_ID,CUSTOMER_ID,CNTR_OPERATOR_COD,IS_MANUAL,CONTRACT_ADD_RATE,\"+\
+    \"DWELL_DAYS,SETTLE_DAYS,DERATE_DAYS,UNIT_ID,FEE_GROUP_ID,CATEGORY,ENABLED,IN_TIME,OUT_TIME,SETTLE_TIME_ON,\"+\
+    \"SETTLE_TIME_END,CNTR_TYPE,IS_MODIFIED,NOTES,UPDATED_BY,UPDATED_ON,JOB_FINISH_DATE,VESSEL_NAME FROM ACCOUNTS_DETAILS where SETTLE_STATUS!='2' and is_manual=1 and rownum<1000\";\
+if(!Wb.isEmpty(data.BILL_NO)){\
+\tsql+=\" and BILL_NO={?BILL_NO?}\";\
+}\
+if(!Wb.isEmpty(data.FEE_LIST_ID)){\
+\tsql+=\" and FEE_LIST_ID={?FEE_LIST_ID?}\";\
+}\
+if(!Wb.isEmpty(data.ACCOUNT_CUSTOMER_CODE)){\
+\tsql+=\" and ACCOUNT_CUSTOMER_CODE={?ACCOUNT_CUSTOMER_CODE?}\";\
+}\
+if(!Wb.isEmpty(data.PAYMENT_TYPE)){\
+\tsql+=\" and PAYMENT_TYPE={?PAYMENT_TYPE?}\";\
+}\
+var s=data.createBegin+\" 00:00:00\";\
+var e=data.createEnd+\" 23:59:59\";\
+if(!Wb.isEmpty(data.createBegin) && !Wb.isEmpty(data.createEnd)){\
+\tsql+=\" and JOB_FINISH_DATE<=to_date('\"+e+\"','yyyy-MM-dd HH24:MI:SS') and JOB_FINISH_DATE>=to_date('\"+s+\"','yyyy-MM-dd HH24:MI:SS')\";\
+}\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

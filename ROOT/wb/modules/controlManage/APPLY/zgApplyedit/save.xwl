@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  ids.push({\
+    ID: id\
+  });\
+});\
+if (recs.length > 0) {\
+  app.run(\"insert into cntr_apply_list(ID,AID,CNTR_ID) values(sys_guid(),{?ID?},'\" + id + \"')\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(recs))\
+  });\
+}\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'PORT_CNTR',\
+  whereFields: 'ID',\
+  uniqueUpdate: true\
+});\
+app.send(ids); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "AT": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "\
+var sql='', data = app.get(), nature = app.get(\"sys.NATURE\"), govCode=app.get(\"sys.GOV_CODE\");\
+\
+\
+if (!Wb.isEmpty(data.tradeId)) {\
+  sql += \" and TRADE_ID like '%'||{?tradeId?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.billNo)) {\
+  sql += \" and BILL_NO LIKE '%'||{?billNo?}||'%'\";\
+}\
+if (!Wb.isEmpty(data.ieId)) {\
+  sql += \" and I_E_ID ='\" + data.ieId + \"'\t\";\
+}\
+if (!Wb.isEmpty(data.voyageNo)) {\
+  sql += \" and VID={?voyageNo?}\";\
+}\
+if (!Wb.isEmpty(data.LCL_ID)) {\
+  sql += ' and LCL_ID=1 and  main_flag=1';\
+} \
+if (!Wb.isEmpty(data.state)) {\
+  sql += ' and  main_flag=1';\
+} \
+if(nature=='5')//表示驳船\
+  sql+=\" and  nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\"+govCode+\"' \";\
+\
+var s= Wb.getRecords(app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, RELEASE_ID,CNTR_ID,CNTR_ISO,decode(LCL_ID,1,'P', E_F_ID)E_F_ID ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where 1=1 \"+sql));\
+app.send(s);",
+   "loginRequired": "false"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "加载箱状态",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

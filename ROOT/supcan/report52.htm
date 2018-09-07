@@ -1,0 +1,96 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 2) return;
+   id='';
+  }
+ 
+  if(id == 'AF' || id=='') {
+   AF.func("SetItemLibraryURL", "reportdata/itemlib.xml");
+   AF.func("Build", "report/report12.xml");
+   AF.func("callFunc", "309");
+   AF.func("CallFunc", "301\r\n5");
+  }
+ }
+ function export_import()
+ {
+  var xml = AF.func("GetFileXML", "");
+  AF2.func("build", xml);
+  AF2.func("SelectCell", "");
+  AF2.focus();
+ }
+ function view_data()
+ {
+  alert( AF2.func("getUploadXML", "") );
+ }
+</script>
+</head>
+
+<body topmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.请关注右侧的指标库，其来源请参见下面的“技术分析区”；<br>
+<b>2</b>.可直接用鼠标<font color=red>将指标拖入报表</font>的单元格.  拖入后，请查看单元格的“<font color=red>别名</font>”;<br>
+</td>
+</tr>
+<tr height=4><td/></tr>
+</table>
+
+<div style="position:relative;width:100%;height:370px">
+	<script>insertReport('AF', 'workmode=uploadDesigntime')</script>
+</div>
+<br><hr color=#2266ee size=1>
+<img src='res/arrowdown.gif'> <b>3</b>.完成设计后，可以直接在下面处于'运行时'的报表模拟测试: <input type="button" value="  将报表导入到下面  " OnMouseUp="export_import()"> <img src='res/arrowdown.gif'><br>
+<br>
+<div style="position:relative;width:100%;height:370px">
+	<script>insertReport('AF2', 'workmode=uploadruntime')</script>
+</div>
+<br>
+<b>4</b>.输入，然后查看上报的XML数据包: <input type="button" value="  查看XML数据  " OnMouseUp="view_data()"><br>
+
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.“指标库”是由如下的js导入的(第4行)：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ if(id == 'AF') {
+  <font color=red>AF.func("SetItemLibraryURL", "reportdata/itemlib.xml");</font>
+  AF.func("Build", "report/report12.xml");
+  AF.func("callFunc", "309");
+  AF.func("CallFunc", "301\r\n5");
+ }
+}</pre>
+<b>2</b>.请查看<a href="reportdata/itemlib.xml" target=_blank>“指标库”</a>;<br>
+<br>
+<b>3</b>.鼠标拖入后，单元格的“别名”被自动设置了：<br>
+<center><img src='res/illu32.png'></center>
+　　可见，“别名”、以及“Tab Order”被自动设置，其它和上一个例子并无多大差别。<br>
+<br>
+<b>4</b>.上报模式的 ‘设计时’ 和 ‘运行时’ 是由创建参数决定的：<br>
+<pre class='xml'>&lt;script&gt;insertReport('AF1', 'workmode=uploadDesigntime')&lt;/script&gt;</pre>
+<pre class='xml'>&lt;script&gt;insertReport('AF2', 'workmode=uploadRuntime')&lt;/script&gt;</pre>
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

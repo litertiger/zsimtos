@@ -1,0 +1,141 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var closed1=false, closed2=false;
+ function OnReady(id)
+ {
+   AF.func("Build", "treelist/freeform3.xml");
+   AF.func("SetObjProp", "group1 \r\n titleOffset \r\n 96");
+   AF.func("SetObjProp", "group2 \r\n titleOffset \r\n 96");
+
+   AF.func("SetObjProp", "group1 \r\n text \r\n 基本信息");
+   AF.func("SetObjProp", "group2 \r\n text \r\n 货运信息");
+
+   AF.func("SetObjProp", "group1 \r\n titleHeight \r\n 20");
+   AF.func("SetObjProp", "group2 \r\n titleHeight \r\n 20");
+   AF.func("SetObjProp", "group2 \r\n round \r\n 12");
+
+   AF.func("AddObject", "input \r\n id=btn1; type=button; text=收拢; x=group1.x + 10; y=group1.y -1; height=26; width=70; style=flat,transparent; icon=treelist/pm.zip#minus.ico; at=left");
+   AF.func("AddObject", "input \r\n id=btn2; type=button; text=收拢; x=group2.x + 10; y=group2.y -1; height=26; width=70; style=flat,transparent; icon=treelist/pm.zip#minus.ico; at=left");
+ }
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(Event != "ButtonClicked") return;
+  if(p1 == "btn1") closed1 = !closed1;
+  else if(p1 == "btn2") closed2 = !closed2;
+
+  if(closed1) {
+   AF.func("SetObjProp", "btn1 \r\n text \r\n 展开");
+   AF.func("SetObjProp", "btn1 \r\n img \r\n treelist/pm.zip#plus.ico");
+   AF.func("SetObjProp", "layout1 \r\n visible \r\n false");	//layout
+   AF.func("SetObjProp", "group1 \r\n height \r\n 28");
+  }
+  else {
+   AF.func("SetObjProp", "btn1 \r\n text \r\n 收拢");
+   AF.func("SetObjProp", "btn1 \r\n img \r\n treelist/pm.zip#minus.ico");
+   AF.func("SetObjProp", "group1 \r\n height \r\n 170");
+   AF.func("SetObjProp", "layout1 \r\n visible \r\n true");		//layout
+  }
+
+  if(closed2) {
+   AF.func("SetObjProp", "btn2 \r\n text \r\n 展开");
+   AF.func("SetObjProp", "btn2 \r\n img \r\n treelist/pm.zip#plus.ico");
+   AF.func("SetObjProp", "layout2 \r\n visible \r\n false");	//layout
+   AF.func("SetObjProp", "group2 \r\n height \r\n 28");
+  }
+  else {
+   AF.func("SetObjProp", "btn2 \r\n text \r\n 收拢");
+   AF.func("SetObjProp", "btn2 \r\n img \r\n treelist/pm.zip#minus.ico");
+   AF.func("SetObjProp", "group2 \r\n height \r\n 160");
+   AF.func("SetObjProp", "layout2 \r\n visible \r\n true");		//layout
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.采用了 “<b>3.各种下拉</b>” 中的Freeform，外观稍作了修改：动态增加了2个“收拢”的按钮，能触发收拢、展开的事件;<br>
+<b>2</b>.点击按钮，事件中执行了显示/隐藏 TableLayout;<br>
+</td></tr>
+</table>
+
+<br>
+<div style="position:relative;width:90%">
+	<script>insertFreeForm('AF', '', '300px')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style="line-height:21px">
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1.</b>可查看创建该Freeform的<a href="treelist/freeform3.xml" target=_blank>XML描述文件</a>，里面有2个TableLayout, 但外观作了改动，例如增加了2个按钮：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ AF.func("Build", "treelist/freeform3.xml");
+ AF.func("SetObjProp", "group1 \r\n titleOffset \r\n 96");
+ AF.func("SetObjProp", "group2 \r\n titleOffset \r\n 96");
+ 
+ AF.func("SetObjProp", "group1 \r\n text \r\n 基本信息");
+ AF.func("SetObjProp", "group2 \r\n text \r\n 货运信息");
+ 
+ AF.func("SetObjProp", "group1 \r\n titleHeight \r\n 20");
+ AF.func("SetObjProp", "group2 \r\n titleHeight \r\n 20");
+ AF.func("SetObjProp", "group2 \r\n round \r\n 12");
+ 
+ AF.func("<font color=red>AddObject</font>", "input \r\n id=btn1; type=button; text=收拢; x=group1.x + 10; <font color=red>y=group1.y -1</font>; height=26; width=70; style=flat,transparent; icon=treelist/pm.zip#minus.ico; at=left");
+ AF.func("<font color=red>AddObject</font>", "input \r\n id=btn2; type=button; text=收拢; x=group2.x + 10; <font color=red>y=group2.y -1</font>; height=26; width=70; style=flat,transparent; icon=treelist/pm.zip#minus.ico; at=left");
+}</pre>
+<br>
+<b>2.</b>按钮的点击事件的全部js源码如下：<br>
+<pre class='cpp'>
+<font color=red>var closed1=false, closed2=false;</font>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+  if(Event != "ButtonClicked") return;
+  if(p1 == "btn1") closed1 = !closed1;
+  else if(p1 == "btn2") closed2 = !closed2;
+
+  if(closed1) {
+   AF.func("SetObjProp", "btn1 \r\n text \r\n 展开");
+   AF.func("SetObjProp", "btn1 \r\n img \r\n treelist/pm.zip#plus.ico");
+   AF.func("SetObjProp", "layout1 \r\n visible \r\n false");	//layout
+   AF.func("SetObjProp", "group1 \r\n height \r\n 28");
+  }
+  else {
+   AF.func("SetObjProp", "btn1 \r\n text \r\n 收拢");
+   AF.func("SetObjProp", "btn1 \r\n img \r\n treelist/pm.zip#minus.ico");
+   AF.func("SetObjProp", "group1 \r\n height \r\n 170");
+   AF.func("SetObjProp", "layout1 \r\n visible \r\n true");		//layout
+  }
+
+  if(closed2) {
+   AF.func("SetObjProp", "btn2 \r\n text \r\n 展开");
+   AF.func("SetObjProp", "btn2 \r\n img \r\n treelist/pm.zip#plus.ico");
+   AF.func("SetObjProp", "layout2 \r\n visible \r\n false");	//layout
+   AF.func("SetObjProp", "group2 \r\n height \r\n 28");
+  }
+  else {
+   AF.func("SetObjProp", "btn2 \r\n text \r\n 收拢");
+   AF.func("SetObjProp", "btn2 \r\n img \r\n treelist/pm.zip#minus.ico");
+   AF.func("SetObjProp", "group2 \r\n height \r\n 160");
+   AF.func("SetObjProp", "layout2 \r\n visible \r\n true");		//layout
+  }
+}</pre>
+　　可见，如果TableLayout隐藏了，那么嵌在里面的输入控件也全部隐藏。
+</td></tr></table>
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

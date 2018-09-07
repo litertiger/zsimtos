@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "select",
+     "oracle": "select * from (\
+  select t1.*, ROWNUM as \"RN\" from WB_PAGING t1 where ROWNUM<={?bigint.endIndex?}\
+)\
+where RN >= {?bigint.beginIndex?}",
+     "sqlserver": "select * from (\
+  select row_number() over (order by V) as \"RN\", * from WB_PAGING\
+) t1\
+where RN between {?bigint.beginIndex?} and {?bigint.endIndex?}",
+     "postgresql": "select * from WB_PAGING limit {?bigint.limit?} offset {?bigint.start?}",
+     "db2": "select * from (\
+  select rownumber() over (order by V) as \"RN\", t1.* from WB_PAGING t1\
+) t2\
+where RN between {?bigint.beginIndex?} and {?bigint.endIndex?}",
+     "mysql": "select * from WB_PAGING limit {?bigint.start?},{?bigint.limit?}\
+-- start序号从0开始"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "sqlswitcher"
+   },
+   {
+    "configs": {
+     "autoPage": "false",
+     "itemId": "dataprovider1",
+     "totalSql": "select count(*) from WB_PAGING",
+     "sql": "{#select#}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "dataprovider"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "分页查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

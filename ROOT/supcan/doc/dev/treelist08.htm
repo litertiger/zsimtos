@@ -1,0 +1,101 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class='sz1'>8.嵌入Freeform</p><hr color=#2266ee size=1>
+<p class='sz3'>8.1 普通嵌入</p>
+　　Supcan Treelist允许嵌入一个Freeform XML，来代替行的显示，相当于每行都是一个Freeform.<br>
+　　嵌入了Freeform后，数据行的外观就不再被限制在类似"表格"的范围了，数据展现可以相当地自由，演示页请参见“自由表头”中的“10.多记录Freeform(1)”、“12.多记录Freeform(2)”.<br>
+　　嵌入Freeform有一个最基本的要求：Treelist中的&lt;col <font color=red>name</font>="?"&gt;需要和Freeform中的&lt;text/input/img <font color=red>id</font>="?"&gt;相匹配.<br>
+　　满足了这一点后，Treelist就可以通过定义&lt;Properties <font color=red>freeform</font>="?"  <font color=red>rowHeight</font>="?" &gt;引用该Freeform了.<br>
+　　嵌入的Freeform将代替Treelist各行的显示，也能代替Treelist的输入，是否能输入取决于Treelist的&lt;Properties&gt;中的 "Editable" 属性，且和Freeform中的&lt;Properties&gt; 的"Editable" 无关.<br>
+<br>
+　　如果Treelist嵌入了Freeform，如下属性的默认值将和平常的不一样：<br>
+　　　　1.<b>&lt;Properties&gt; \ headerHeight</b>:  默认值将不是24，而是0，也就是说默认将没有表头;<br>
+　　　　2.<b>&lt;Properties&gt; \ isShowRuler</b>:  默认值将是true，也就是说默认显示左侧标尺;<br>
+　　　　3.<b>&lt;col&gt; \ width</b>:  默认值将不是0.1，而是0;<br>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">嵌入 Freeform 的 Treelist 不支持以树展现、不支持合计/小计行.</p>
+<br>
+<img src='image/glass.bmp' class="imgleft"><p class="glass">被嵌入的 Freeform 不支持 Menus、Upload、Pager、ImageFlow 类型的 Object.</p>
+<br>
+<hr>
+<br>
+<p class='sz3'>8.2 Freeform对话框</p>
+　　有一种常见的应用场景是，数据平常以Treelist列表展现，如果要修改数据，只要按回车键(或鼠标双击)，就能弹出一个对话框，在对话框中输入数据。<br>
+　　您可以在“自由表头”中的 “15.辅助Treelist输入(2)” 演示页中实际操作一下，您会发现这种内置Freeform的非模式对话框输入方式，也是一种很不错的输入方案，尤其是在列多的情况下，输入一条记录变得直观简单，不必再来回拖拽底部的滚动条了。<br>
+　　&lt;Properties&gt;有一个属性 "editFreeformId"，就是用来指定这个输入的freeform对话框的，就如下面例子中的：
+<pre class='xml'>
+&lt;Properties editFreeformId="FR1"/&gt;
+&lt;cols&gt;
+ &lt;col ...&gt;
+ ...
+&lt;/cols&gt;
+&lt;FreeformRes&gt;
+ &lt;freeform id="FR1" url="freeform71.xml" IdOk="ok" IdCancel="cancel" extWidth="0"/&gt;
+ &lt;freeform id="FR2" url="freeform72.xml" IdOk="ok" IdCancel="cancel" extWidth="0"/&gt;
+&lt;/FreeformRes&gt;
+...
+</pre>
+　　这种对话框有2种形式的freeform: <br>
+　　　　1.固定、写死的freeform;<br>
+　　　　2.动态生成、模版型的freeform<br>
+　　固定、写死的freeform就是普通的freeform，里面的所有元素都需要您亲手定义，在此就不再介绍。<br>
+　　动态freeform，是参照一个freeform模版生成的，该freeform中包含了<font size="4" color=red><b>&lt;repeat&gt;</b></font>元素和<font size="4" color=red><b>&lt;copy&gt;</b></font>元素，其含义分别为“动态替换” 和 “从Treelist复制”，典型例子如:<br>
+<pre class='xml'>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;!--Supcan Freeform --&gt;
+&lt;freeform&gt;
+&lt;Properties bgColor="#ffffff"&gt;
+ &lt;Expresses&gt;
+  <font color=red>〈Copy/〉</font>　　//注：Expresses(表达式)将从 Treelist 复制
+ &lt;/Expresses&gt;
+ &lt;Validations&gt;
+  <font color=red>〈Copy/〉</font>　　//注：Validations(验证)将从 Treelist 复制
+ &lt;/Validations&gt;
+&lt;/Properties&gt;
+&lt;Fonts&gt;
+ &lt;Font height="-13"/&gt;
+&lt;/Fonts&gt;
+ 
+&lt;Objects&gt;
+ &lt;TableLayout x="5" y="42" width="95%"&gt;
+  &lt;Col width=".1"/&gt;
+  &lt;Col width="90"/&gt;
+  &lt;Col width="6"/&gt;
+  &lt;Col width="190"/&gt;
+  &lt;Col width="30"/&gt;
+  &lt;Col width="90"/&gt;
+  &lt;Col width="6"/&gt;
+  &lt;Col width="190"/&gt;
+  &lt;Col width=".1"/&gt;
+  <font color=red>〈repeat〉</font>　　//注：本段内容将动态生成，里面有2个input, 表示垂直是双排的
+   &lt;tr height="24"&gt;
+    &lt;td/&gt;
+    &lt;td&gt;&lt;input width="3" leftTextAlign="left"/&gt;&lt;/td&gt;
+    &lt;td/&gt;
+    &lt;td/&gt;
+    &lt;td/&gt;
+    &lt;td&gt;&lt;input width="3" leftTextAlign="left"/&gt;&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr height="6"/&gt;
+  <font color=red>〈/repeat〉</font>
+ &lt;/TableLayout&gt;
+ &lt;groupEx x1="5" y1="5" width="99%" y2=".bottom+8" text=" 请输入 "/&gt;
+ &lt;input id="ok"  Text="确认" x="36%"  y=".bottom+10" width="80" type="button" /&gt;
+ &lt;input id="cancel"  Text="取消" x=".right+10"  y=".top" width="80" type="button" /&gt;
+&lt;/Objects&gt;
+ 
+&lt;DropLists&gt;
+ <font color=red>〈Copy/〉</font>　　//注：Droplists(下拉资源)将从 Treelist 复制
+&lt;/DropLists&gt;
+&lt;/freeform&gt;</pre>
+　　里面核心的部分就是&lt;TableLayout&gt;中的那段&lt;repeat&gt; ... &lt;/repeat&gt;，其中的&lt;input&gt;只能含有width、leftTextAlign属性，不能书写其它的属性.<br>
+　　实际动态生成过程，只是替换其中的&lt;repeat&gt;和&lt;copy&gt;元素. 模版的最大好处是：<b>复用</b>.<br>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

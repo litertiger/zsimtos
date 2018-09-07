@@ -1,0 +1,157 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var xx='', yy='';
+ var countForFirefox=0;
+ function OnReady(id)
+ {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 3) return;
+   id='';
+  }
+ 
+ if(id == 'AF1' || id=='') {
+  AF1.func("Build", "report/report1.xml");
+  var obj = document.getElementById('div1');
+  xx = obj.offsetLeft;
+  yy = obj.offsetTop;
+ }
+ if(id == 'AF2' || id=='') {
+  AF2.func("Build", "report/report1.xml");
+  AF2.func("SelectCell", "0\r\n0");
+ }
+ if(id == 'AF3' || id=='') {
+  AF3.func("Build", "report/report1.xml");
+ }
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "Toolbar" ) {
+   if(p1>=3000) AF1.func("MessageBoxFloat", "自定义工具条触发了js事件！\\r\\n\\r\\n功能号：" + p1);
+ }
+ else if(Event == "MenuClicked" )
+  AF1.func("MessageBoxFloat", "自定义菜单触发了js事件！\\r\\n\\r\\n功能号：" + p1);
+ else if(Event == "MenuBeforePopup")
+  userDefineMenu(id);
+}
+
+function userDefineMenu(AF) {
+ //语法1：
+ var menu="id=4001; text=男帽; icon=treelist/buttons.zip#301.ico; detail=夏季时装，优惠直销，尺寸齐全\r\n\
+id=4002; text=时髦头巾; icon=treelist/buttons.zip#302.ico; detail=夏季时装，优惠直销";
+ document.getElementById(AF).func("AddMenu", menu);
+
+ //语法2：
+ menu ='<?xml?><items>\
+<item id="3104" text="滞销产品" icon="treelist/buttons.zip#304.ico">\
+ <item id="31041" text="库存1" icon="treelist/buttons.zip#304.ico" detail="中老年滞销衣帽，折价处理"/>\
+ <item id="31042" text="库存2" icon="treelist/buttons.zip#305.ico" detail="20%折价处理"/>\
+</item></items>';
+ document.getElementById(AF).func("AddMenu", menu);
+}
+
+function show(n)
+{
+ var arr = new Array(2);
+ for(i=0; i<2; i++) {
+  arr[i] = document.getElementById('div' + (i+1));
+  arr[i].style.width='0';
+ }
+ if(n>0) {
+  arr[n].style.position="absolute";
+  arr[n].style.left=xx;
+  arr[n].style.top=yy;
+  arr[n].style.height='360px';
+ }
+ arr[n].style.width='90%';
+}
+</script>
+</head>
+
+<body>
+<center>
+
+<table cols=3 border=0 width=100%>
+<col valign=top width=90>
+<col width=550>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.Supcan Report允许自定义的工具条；<br>
+<b>2</b>.工具条中的“结算”、“贸易”和Report毫无关系，点击后将触发页面事件；<br>
+<b>3</b>.鼠标右键弹出菜单中有自定义菜单项;</td>
+<td align=center><a href='javascript:show(0)'>样式一(带文字)</a>　　<a href='javascript:show(1)'>样式二(不带文字)</a></td></tr>
+<tr height=8><td colspan=3></tr>
+</table>
+
+<div id='div1' style="width:90%;height:360px">
+	<script>insertReport('AF1', 'UserRebar=reportdata/toolbarpack.zip; Rebar=MyToolbar')</script>
+</div>
+<div id='div2' style="width:0px;height:1px">
+	<script>insertReport('AF2', 'UserRebar=reportdata/toolbar2pack.zip; Rebar=MyToolbar')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.Supcan Report允许自定义的工具条；<br>
+<pre class='xml'>
+&lt;script&gt;insertReport('AF1', 'UserRebar=reportdata/toolbarpack.zip; Rebar=MyToolbar')&lt;/script&gt;</pre>
+自定义工具条的关键就是相对URL <a href='reportdata/toolbarpack.zip' tagret=_blank>reportdata/toolbarpack.zip</a> 包，请打开它，或查看相关开发文档.<br>
+<br>
+<b>2</b>.页面中响应外部功能的js如下：<br>
+<pre class='xml'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "Toolbar" ) {
+  if(p1&gt;=3000) AF1.func("MessageBoxFloat", "自定义工具条触发了js事件！\\r\\n\\r\\n功能号：" + p1);
+ }
+ else if(Event == "MenuClicked" )
+  AF1.func("MessageBoxFloat", "自定义菜单触发了js事件！\\r\\n\\r\\n功能号：" + p1);
+ else if(Event == "MenuBeforePopup")
+  userDefineMenu(id);
+}</pre>
+<br>
+<b>3</b>.自定义菜单的js函数 userDefineMenu(), 通过调用控件的API函数：AddMenu( ), 向菜单动态增加了2种语法菜单项，js如下：<br>
+<pre class='cpp'>
+function userDefineMenu(AF) {
+ //使用 语法1 添加菜单项：
+ var menu="id=4001; text=男帽; icon=treelist/buttons.zip#301.ico; detail=夏季时装, 优惠直销, 尺寸齐全\r\n\
+id=4002; text=时髦头巾; icon=treelist/buttons.zip#302.ico; detail=夏季时装, 优惠直销";
+ document.getElementById(AF).func("AddMenu", menu);
+ 
+ //使用 语法2 添加菜单项：
+ menu ='&lt;?xml?&gt;&lt;items&gt;\
+&lt;item id="3104" text="滞销产品" icon="treelist/buttons.zip#304.ico"&gt;\
+ &lt;item id="31041" text="库存1" icon="treelist/buttons.zip#304.ico" detail="中老年滞销衣帽, 折价处理"/&gt;\
+ &lt;item id="31042" text="库存2" icon="treelist/buttons.zip#305.ico" detail="20%折价处理"/&gt;\
+&lt;/item&gt;&lt;/items&gt;';
+ document.getElementById(AF).func("AddMenu", menu);
+}</pre>
+<br>
+<br>
+
+
+<b>4</b>.还有另一种简易的自定义工具条方案：
+</td></tr></table>
+<div id='div3' style="width:90%;height:100px">
+	<script>insertReport('AF3', 'TabScrollBar=none; ReBar=main; main=102,189,0,5001,5002; tip.5001=自定义功能1;tip.5002=自定义功能2; image.5001=report/icon1.bmp; image.5002=report/icon2.bmp')</script>
+</div>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td>
+只要设定一下创建参数就行：<br>
+<pre class='cpp' maxchars='110'>
+insertReport('AF3', 'TabScrollBar=none; ReBar=main; main=102,189,0,5001,5002; tip.5001=自定义功能1; tip.5002=自定义功能2; image.5001=report/icon1.bmp; image.5002=report/icon2.bmp')</pre>
+</td></tr>
+</table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

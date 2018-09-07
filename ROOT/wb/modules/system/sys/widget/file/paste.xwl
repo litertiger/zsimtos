@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var FileUtils = org.apache.commons.io.FileUtils,\
+  isCut = app.getBool('isCut'),\
+  src = Wb.decode(app.get('src')),\
+  dst = new File(app.get('dst')),\
+  newDst, isDir, result = [];\
+Wb.each(src, function(file) {\
+  file = new File(file);\
+  if (isCut) {\
+    FileUtils.moveToDirectory(file, dst, true);\
+    newDst = new File(dst, file.getName());\
+  } else {\
+    //复制文件是如果在同一目录内自动重命名\
+    if (file.getParentFile().equals(dst)) {\
+      newDst = FileUtil.getUniqueFile(new File(dst, file.getName()));\
+      if (file.isDirectory())\
+        FileUtils.copyDirectory(file, newDst);\
+      else\
+        FileUtils.copyFile(file, newDst);\
+    } else {\
+      if (file.isDirectory())\
+        FileUtils.copyDirectoryToDirectory(file, dst);\
+      else\
+        FileUtils.copyFileToDirectory(file, dst);\
+      newDst = new File(dst, file.getName());\
+    }\
+  }\
+  isDir = newDst.isDirectory();\
+  result.push({\
+    text: newDst.getName(),\
+    leaf: !isDir,\
+    icon: isDir ? null : WebUtil.encode(FileUtil.getPath(newDst)),\
+    type: FileUtil.getFileType(newDst),\
+    date: Wb.createDate(newDst.lastModified()),\
+    size: isDir ? null : newDst.length()\
+  });\
+});\
+app.send(result);",
+   "itemId": "module"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "粘贴文件",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

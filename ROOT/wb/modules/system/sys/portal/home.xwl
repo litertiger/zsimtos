@@ -1,0 +1,1507 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "head": "<script src=\"supcan/binary/dynaload.js?1013\"><\/script>\
+<script>\
+window.OnReady=  function(id){\
+  var fun ='init'+id;\
+//  var ms=JSON.stringify(arguments);\
+//   alert(ms);\
+  \tif(window[fun]){\
+      window[fun](id);\
+    }\
+ };\
+window.OnEvent=  function(id, Event, p1, p2, p3, p4){\
+  var fun ='event'+id;\
+  \tif(window[fun]){\
+      window[fun](id, Event, p1, p2, p3, p4);\
+    }\
+ };\
+<\/script>\
+  \
+<style type=\"text/css\">\
+  .pt_nav_table{\
+    white-space:nowrap;\
+    cursor:pointer;\
+    width:100%;\
+  }\
+  .pt_nav_table tr{\
+    line-height:23px;\
+    height:23px;\
+  }\
+  .pt_nav_table td\
+  {\
+    vertical-align:middle;\
+    border:1px solid transparent;\
+    white-space:nowrap;\
+    padding-right:15px;\
+  }\
+  .pt_nav_table td:hover\
+  {\
+    background-color:#eee;\
+    border:1px solid #ccc;\
+  }\
+  .pt_menu_arrow {\
+    width:6px;\
+    position:absolute;\
+    height:9px;\
+    right:4px;\
+    margin-top:6px;\
+    background-image:url(wb/images/app/arrow.png);\
+    background-repeat: no-repeat;\
+  }\
+  .pt_list_menu{\
+    background:white;\
+    cursor:default;\
+    border:1px solid #ddd;\
+  }\
+  .pt_item_title{\
+    height:23px;\
+    font-weight:bold;\
+    border-bottom:1px solid #ddd;\
+    color:#2f80d1;\
+    vertical-align:top;\
+  }\
+  .pt_card_title{\
+    font-weight:bold;\
+    background-color:#E5E5E5;\
+    cursor:default;\
+  }\
+  .pt_nav_table td.pt_card_title:hover\
+  {\
+    background-color:#E5E5E5;\
+    border:1px solid transparent;\
+  }\
+  .pt_module span\
+  {\
+    line-height:18px;\
+    padding:3px;\
+    cursor:pointer;\
+  }\
+  .pt_module span:hover\
+  {\
+    background-color:#b3b3b3;\
+    color:white;\
+  }\
+  .pt_module td\
+  {\
+    white-space:nowrap;\
+  }\
+<\/style>",
+   "itemId": "sys.home",
+   "serverScript": "var jsonStr = StringUtil.text(com.wb.common.KVBuffer.getList('C_CUSTOM',request));\
+request.setAttribute(\"jsonStr\", jsonStr);\
+request.setAttribute('yardCfsMap',Wb.encode(Ag.getYardCfsMap(app)));\
+app.set('rootPath',Base.path);\
+\
+",
+   "serverMethod": "com.wb.interact.Portal.initHome",
+   "title": "{#Var.sys.app.title#}"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "searchBar",
+     "hidden": "true"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "combo",
+      "onTriggerClick": "app.tree.selectPath('/Root/' + this.getValue(), 'fileName');",
+      "flex": "1",
+      "triggerCls": "x-form-search-trigger",
+      "displayField": "title",
+      "enterKeyTriggerClick": "true",
+      "listConfig": "{\
+  itemTpl: [\
+    '<div>{fullPath}<\/div>'\
+  ]\
+}",
+      "valueField": "fullFile"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "fields": "['path', 'title', 'file', 'parentFile', {\
+  name: 'fullPath',\
+  convert: function(v, rec) {\
+    var data = rec.data;\
+    if (data.path)\
+      return data.path.substring(1) + '/' + data.title;\
+    else return data.title;\
+  }\
+}, {\
+  name: 'fullFile',\
+  convert: function(v, rec) {\
+    var data = rec.data;\
+    if (data.parentFile)\
+      return data.parentFile.substring(1) + '/' + data.file;\
+    else return data.file;\
+  }\
+}]",
+       "url": "m?xwl=system/sys/portal/home/find"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     }],
+     "type": "combo",
+     "events": {
+      "beforequery": "if (plan.query.indexOf('/') != -1 || plan.query.indexOf('\\\\') != -1) {\
+  plan.combo.collapse();\
+  return false;\
+}",
+      "select": "combo.onTriggerClick();"
+     }
+    }],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "toolbar1",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "listMenuBtn",
+         "glyph": "f0c9",
+         "showSeparator": "false"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "listPanel",
+          "style": "background-color:white;"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "comp",
+         "events": {
+          "beforerender": "if (Ext.isIE8m)\
+  comp.width = 100;",
+          "afterrender": "comp.mon(comp.el, 'click', app.monAppClick);"
+         }
+        }],
+        "type": "item",
+        "events": {"menushow": "app.createListView(app.listPanel);\
+if (Ext.isIE8m)\
+  app.listPanel.setWidth(app.listPanel.el.down('table').getWidth());"}
+       },
+       {
+        "configs": {
+         "itemId": "hideView",
+         "glyph": "@{#treeHidden#}?0xf204:0xf205",
+         "width": "26",
+         "tooltip": "@Str.toggleView"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.moduleView.setVisible(!app.moduleView.isVisible());"}
+       },
+       {
+        "configs": {
+         "itemId": "blank1",
+         "width": "10",
+         "text": " "
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "titleLabel",
+         "xtype": "tbtext",
+         "text": "{#Var.sys.app.title#}"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "blank2",
+         "width": "10",
+         "text": " "
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "userBtn",
+         "glyph": "f007",
+         "text": "{#sys.dispname#}"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.run({\
+  url: 'account'\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "msgLabel",
+         "xtype": "tbtext",
+         "flex": "1"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "backBtn",
+         "glyph": "f060",
+         "overflowText": "@Str.back",
+         "tooltip": "@Str.back"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "forwardBtn",
+         "glyph": "f061",
+         "overflowText": "@Str.forward",
+         "tooltip": "@Str.forward"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "downBtn",
+         "glyph": "f078",
+         "overflowText": "下载",
+         "tooltip": "插件下载"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "supcanBtn",
+           "glyph": "f09e",
+           "overflowText": "报表",
+           "tooltip": "报表插件",
+           "width": "100",
+           "text": "报表插件"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": " Wb.download('m?xwl=dev/ide/download', {\
+      files: ['{#rootPath#}/supcan/binary/supcan.crx'],\
+      zip: false\
+    });"}
+         },
+         {
+          "configs": {
+           "itemId": "printBtn",
+           "glyph": "f180",
+           "overflowText": "下载",
+           "tooltip": "打印插件",
+           "width": "100",
+           "text": "打印插件"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.download('m?xwl=dev/ide/download', {\
+  files: ['{#rootPath#}/supcan/binary/print.zip'],\
+  zip: false\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "printBtn1",
+           "glyph": "f160",
+           "overflowText": "下载",
+           "tooltip": "二维码插件",
+           "width": "100",
+           "text": "二维码插件"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": " Wb.download('m?xwl=dev/ide/download', {\
+   \
+         files: ['{#rootPath#}/supcan/binary/bxfsetup_BarCodeX.exe'],\
+\
+      zip: false\
+    });"}
+         },
+         {
+          "configs": {
+           "itemId": "panelItm",
+           "text": "手持终端",
+           "iconCls": "phone_icon"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "layout": "absolute",
+            "itemId": "panel1",
+            "width": "200",
+            "height": "200"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "image1",
+             "src": "wb/images/apk.png",
+             "width": "200",
+             "height": "200"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "image"
+           }],
+           "type": "panel"
+          }],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "panelItm1",
+           "text": "TTS语音包",
+           "iconCls": "phone_icon"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "layout": "absolute",
+            "itemId": "panel1",
+            "width": "200",
+            "height": "200"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "image1",
+             "src": "wb/images/tts.png",
+             "width": "200",
+             "height": "200"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "image"
+           }],
+           "type": "panel"
+          }],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "panelItm11",
+           "text": "吸车终端",
+           "iconCls": "yellow-derrick_icon"
+          },
+          "expanded": false,
+          "children": [{
+           "configs": {
+            "layout": "absolute",
+            "itemId": "panel1",
+            "width": "200",
+            "height": "200"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "image1",
+             "src": "wb/images/yard.png",
+             "width": "200",
+             "height": "200"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "image"
+           }],
+           "type": "panel"
+          }],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "panelItm111",
+           "text": "叉车终端",
+           "iconCls": "yellow-derrick_icon"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "layout": "absolute",
+            "itemId": "panel1",
+            "width": "200",
+            "height": "200"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {
+             "itemId": "image1",
+             "src": "wb/images/yardHandset.png",
+             "width": "200",
+             "height": "200"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "image"
+           }],
+           "type": "panel"
+          }],
+          "type": "item"
+         }
+        ],
+        "type": "item",
+        "events": {"click": "app.tab.setActiveTab(app.homeCard);"}
+       },
+       {
+        "configs": {
+         "itemId": "homeBtn",
+         "glyph": "f015",
+         "overflowText": "@Str.home",
+         "tooltip": "@Str.home"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.tab.setActiveTab(app.homeCard);"}
+       },
+       {
+        "configs": {
+         "itemId": "refreshPageBtn",
+         "glyph": "f021",
+         "overflowText": "@Str.refreshPage",
+         "tooltip": "@Str.refreshPage"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var card = app.tab.getActiveTab();\
+if (card) {\
+  if (card == app.homeCard) {\
+    Wb.each(app.homeCard.query('portlet'), function(portlet) {\
+      app.refreshPortlet(portlet);\
+    });\
+  } else {\
+    Wb.open({\
+      reloadCard: card\
+    });\
+  }\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "refreshAppsBtn",
+         "glyph": "f16a",
+         "overflowText": "@Str.refreshApps",
+         "tooltip": "@Str.refreshApps"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.reload(app.tree);"}
+       },
+       {
+        "configs": {
+         "itemId": "findModuleBtn",
+         "glyph": "f002",
+         "overflowText": "@Str.find",
+         "tooltip": "@Str.find"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var isTree = app.moduleView.getLayout().getActiveItem() == app.tree;\
+app.moduleView.show();\
+if (!isTree)\
+  app.moduleView.getLayout().setActiveItem(app.treeView);\
+app.searchBar.setVisible(isTree ? app.searchBar.hidden : true);\
+if (app.searchBar.isVisible())\
+  app.combo.focus(false, true);"}
+       },
+       {
+        "configs": {
+         "itemId": "line1",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "operateMenu",
+         "glyph": "f00a",
+         "overflowText": "@Str.operate"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "closeCurrentItem",
+           "text": "@Str.close"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (app.homeCard.isVisible())\
+  app.closePortal();\
+else\
+  Wb.close();"}
+         },
+         {
+          "configs": {
+           "itemId": "closeOthersItem",
+           "text": "@Str.closeOthers"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.close(false);"}
+         },
+         {
+          "configs": {
+           "itemId": "closeAppsItem",
+           "text": "@Str.closeApps"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.close(true);"}
+         },
+         {
+          "configs": {
+           "itemId": "closeAllItem",
+           "text": "@Str.closeAll"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Ext.suspendLayouts();\
+Wb.close(true);\
+app.closePortal();\
+Ext.resumeLayouts(true);"}
+         },
+         {
+          "configs": {
+           "itemId": "line1",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "classicItem",
+           "checked": "true",
+           "text": "@Str.classic",
+           "group": "theme"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "grayItem",
+           "checked": "false",
+           "text": "@Str.gray",
+           "group": "theme"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "neptuneItem",
+           "checked": "false",
+           "text": "@Str.neptune",
+           "group": "theme"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "line2",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "viewStyleMenu",
+           "text": "@Str.viewSetting"
+          },
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "viewStyle0",
+             "glyph": "f00b",
+             "checked": "false",
+             "text": "@Str.treeView",
+             "group": "viewStyle"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item"
+           },
+           {
+            "configs": {
+             "itemId": "viewStyle1",
+             "glyph": "f009",
+             "checked": "false",
+             "text": "@Str.listView",
+             "group": "viewStyle"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item"
+           },
+           {
+            "configs": {
+             "itemId": "viewStyle2",
+             "glyph": "f039",
+             "checked": "false",
+             "text": "@Str.cardView",
+             "group": "viewStyle"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item"
+           }
+          ],
+          "type": "item",
+          "events": {
+           "menuonshow": "app['viewStyle' + app.moduleView.items.indexOf(app.moduleView.getLayout().getActiveItem())].setChecked(true);",
+           "menuclick": "app.moduleView.show();\
+app.moduleView.getLayout().setActiveItem(app.viewStyleMenu.menu.items.indexOf(item));"
+          }
+         },
+         {
+          "configs": {
+           "itemId": "line3",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "saveDesktopBtn",
+           "text": "@Str.saveDesktop"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.saveDesktop(1);"}
+         },
+         {
+          "configs": {
+           "itemId": "saveAsDefaultDesktopItem",
+           "hidden": "true",
+           "text": "@Str.saveAsDefaultDesktop"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.confirm(Wb.format(Str.confirmDo, Str.saveAsDefaultDesktop), function() {\
+  app.saveDesktop(2);\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "saveAsAllDesktopItem",
+           "hidden": "true",
+           "text": "@Str.saveAsAllDesktop"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.confirm(Wb.format(Str.confirmDo, Str.saveAsAllDesktop), function() {\
+  app.saveDesktop(3);\
+});"}
+         }
+        ],
+        "type": "item",
+        "events": {
+         "menuclick": "if (item && item.group == 'theme') {\
+  var theme = item.itemId.slice(0, -4);\
+  Wb.request({\
+    url: 'm?xwl=system/sys/portal/home/set-theme',\
+    params: {\
+      theme: theme\
+    },\
+    success: function() {\
+      Wb.confirm(Str.refreshWindow, function() {\
+        location.reload();\
+      });\
+    }\
+  });\
+}",
+         "menushow": "app[Wb.theme + 'Item'].setChecked(true);"
+        }
+       },
+       {
+        "configs": {
+         "itemId": "winMenu",
+         "glyph": "f17a",
+         "overflowText": "@Str.currentAppList"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {"itemId": "item1"},
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        }],
+        "type": "item",
+        "events": {
+         "menubeforeshow": "var items = [];\
+app.tab.items.each(function(card) {\
+  items.push({\
+    iconCls: card.iconCls,\
+    icon: card.icon,\
+    text: card.title,\
+    cardId: card.id,\
+    tooltip: card.title == card.tab.tooltip ? '' : card.tab.tooltip\
+  });\
+});\
+menu.removeAll(true);\
+if (items.length === 0)\
+  items.push({\
+    text: Str.emptyHint\
+  });\
+Wb.sort(items, 'text');\
+menu.add(items);",
+         "menuclick": "if (item.cardId)\
+  app.tab.setActiveTab(Ext.getCmp(item.cardId));"
+        }
+       },
+       {
+        "configs": {
+         "itemId": "line2",
+         "text": "-"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "logoutBtn",
+         "overflowText": "@Str.logout",
+         "tooltip": "@Str.logout",
+         "iconCls": "logout_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "function doLogout() {\
+  Wb.request({\
+    url: 'logout',\
+    success: function(resp) {\
+      Wb.unloadEvents = null;\
+      window.location.replace('./');\
+    }\
+  });\
+}\
+var result = Wb.onBeforeUnload();\
+if (Wb.isValue(result))\
+  Wb.confirm(result + '<br><br>' + Str.confirmLogout, doLogout);\
+else\
+  doLogout();"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "card",
+       "itemId": "moduleView",
+       "split": "true",
+       "hidden": "{#treeHidden#}",
+       "activeItem": "@{#viewIndex#}",
+       "width": "{#treeWidth#}",
+       "header": "false",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "border": "false",
+         "itemId": "tree",
+         "root": "{\
+  fileName: 'Root'\
+}",
+         "tbar": "app.searchBar",
+         "rootVisible": "false"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "normalName": "treeStore",
+          "fields": "['text', 'path', 'fileName', 'inframe', 'pageLink']",
+          "url": "m?xwl=system/sys/portal/home/get-tree"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "treestore",
+         "events": {
+          "success": "app.listComp.listViewCreated = false;\
+app.listPanel.listViewCreated = false;\
+app.cardViewCreated = false;\
+app.createListView(app.listComp);\
+app.createCardView();",
+          "beforeload": "operation.params.path = operation.node.data.path;"
+         }
+        }],
+        "type": "tree",
+        "events": {
+         "itemclick": "if (record.isLeaf()) {\
+  app.openModule(record, e.ctrlKey);\
+} else {\
+  if (record.isExpanded())\
+    record.collapse();\
+  else record.expand();\
+}",
+         "tagEvents": "{\
+  itemkeydown: Wb.mimicClick\
+}"
+        }
+       },
+       {
+        "configs": {
+         "border": "false",
+         "itemId": "listComp",
+         "autoScroll": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "comp",
+        "events": {
+         "tagEvents": "{\
+  activate: function() {\
+    app.createListView(app.listComp);\
+  }\
+}",
+         "afterrender": "comp.mon(comp.el, 'click', app.monAppClick);"
+        }
+       },
+       {
+        "configs": {
+         "layout": "accordion",
+         "border": "false",
+         "itemId": "cardComp"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "container",
+        "events": {"tagEvents": "{\
+  activate: app.createCardView\
+}"}
+       }
+      ],
+      "type": "panel",
+      "events": {
+       "hide": "app.hideView.setGlyph(0xf204);",
+       "show": "app.hideView.setGlyph(0xf205);\
+app.createListView(app.listComp);\
+app.createCardView();"
+      }
+     },
+     {
+      "configs": {
+       "itemId": "tab",
+       "plugins": "'tabreorderer'",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "tab",
+      "events": {"tabchange": "if (newCard && newCard.notLoaded) {\
+  newCard.notLoaded = false;\
+  Wb.open({\
+    reloadCard: newCard,\
+    frameOnly: false,\
+    notActiveCard: false\
+  });\
+}"}
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "app.doAfterRender();",
+     "resize": "if (app.listMenu) {\
+  app.listMenu.maxWidth = width - 60;\
+  app.listMenu.maxHeight = height;\
+}"
+    }
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "if (app.demoVersion) {\
+  setTimeout(function() {\
+    Wb.tip('<div style=\"text-align:center;\"><b>欢迎使用岸基开发平台！<\/b><br>欢迎使用岸基开发平台将带给你卓越的开发体验<\/div>');\
+  }, 2000);\
+}\
+Wb.setCustomerJson(Wb.decode(\"{#jsonStr#}\"));\
+//alert(Wb.getCustomerByCode(\"1207030003CU\"));\
+Wb.yardCfsMap = Wb.decode('{#yardCfsMap#}');\
+\
+\
+",
+   "initialize": "Wb.apply(app, {\
+  portletHeader: '{#Var.sys.app.portletHeader#}' == 'true',\
+  demoVersion: '{#Var.sys.app.versionType#}' == 'd',\
+  /**\
+   * 在viewport1渲染完成后执行的方法。\
+   */\
+  doAfterRender: function() {\
+    Ext.suspendLayouts();\
+    Wb.setNavigate(app.tab, app.backBtn, app.forwardBtn);\
+    app.portal = app.tab.add({\
+      appScope: app,\
+      itemId: 'homeCard',\
+      xtype: 'portalpanel',\
+      iconCls: 'home_icon',\
+      title: Str.home,\
+      reorderable: false\
+    });\
+    app.tab.setActiveTab(app.portal);\
+    app.portal.add([{\
+      xtype: 'portalcolumn'\
+    }, {\
+      xtype: 'portalcolumn'\
+    }, {\
+      xtype: 'portalcolumn'\
+    }]);\
+    app.populatePortlets();\
+    app.populatePages();\
+    Ext.resumeLayouts(true);\
+  },\
+  /**\
+   * 加载保存的Portlets。\
+   */\
+  populatePortlets: function() {\
+    var items = \"{#portlets#}\",\
+      index = 0;\
+    if (items) {\
+      items = Wb.decode(items);\
+      if (items.length) {\
+        Wb.each(items, function(col) {\
+          Wb.each(col, function(portlet) {\
+            app.addPortlet(portlet, null, index);\
+          });\
+          index++;\
+        });\
+      }\
+    }\
+  },\
+  /**\
+   * 关闭所有Portlet。\
+   */\
+  closePortal: function() {\
+    Ext.suspendLayouts();\
+    app.homeCard.items.each(function(col) {\
+      col.items.each(function(item) {\
+        item.destroy();\
+      });\
+    });\
+    Ext.resumeLayouts(true);\
+  },\
+  /**\
+   * 加载保存的页面。\
+   */\
+  populatePages: function() {\
+    var tab = app.tab;\
+    tab.mon(tab.tabBar.el, 'dblclick', function() {\
+      var card = tab.getActiveTab(),\
+        url = card.bindFile;\
+      if (!card.hasParams && url) {\
+        if (Ext.String.endsWith(url, '.xwl'))\
+          url = 'm?xwl=' + url.slice(0, -4);\
+        window.open(url);\
+      }\
+    }, tab);\
+    var card, tabItems = \"{#tabItems#}\";\
+    if (tabItems) {\
+      tabItems = Wb.decode(tabItems);\
+      if (tabItems.length) {\
+        Wb.each(tabItems, function(item) {\
+          card = Wb.open(Wb.apply(item, {\
+            frameOnly: true,\
+            notActiveCard: true\
+          }));\
+          card.notLoaded = true;\
+        });\
+        app.tab.setActiveTab(parseInt('{#activeIndex#}', 10));\
+      }\
+    }\
+  },\
+  showTool: function(panel, visible) {\
+    Ext.suspendLayouts();\
+    Wb.each(panel.header.query('tool'), function(item) {\
+      item.setVisible(visible);\
+    });\
+    Ext.resumeLayouts(true);\
+  },\
+  /**\
+   * 在Portal首行首列添加指定模块作为Portlet。\
+   * @param {Object} config 配置项。\
+   * @param {Number} [rowIndex] 行索引号，缺省为最后一行。\
+   * @param {Number} [colIndex] 列索引号，缺省为0。\
+   */\
+  addPortlet: function(config, rowIndex, colIndex) {\
+    if (config.newWin || config.inframe || config.container === false || config.download) {\
+      Wb.info(Str.invalidPortlet);\
+      return;\
+    }\
+    app.tab.setActiveTab(app.homeCard);\
+    var portlet, portletObject = {\
+      xtype: 'portlet',\
+      layout: 'fit',\
+      title: config.title,\
+      iconCls: config.iconCls,\
+      doRefresh: app.refreshPortlet,\
+      doMaximize: app.maxPortlet,\
+      pageLink: config,\
+      collapsible: app.portletHeader,\
+      collapsed: config.collapsed || false,\
+      height: config.height || 240,\
+      lastHeight: config.height || 240,\
+      listeners: {\
+        afterrender: {\
+          single: true,\
+          fn: function(me) {\
+            if (app.portletHeader)\
+              app.showTool(me, false);\
+            else\
+              me.header.setVisible(false);\
+            me.mon(me.el, 'mouseenter', function() {\
+              if (app.portletHeader)\
+                app.showTool(me, true);\
+              else\
+                me.header.setVisible(true);\
+            });\
+            me.mon(me.el, 'mouseleave', function() {\
+              if (app.portletHeader)\
+                app.showTool(me, false);\
+              else\
+                me.header.setVisible(false);\
+            });\
+          }\
+        },\
+        resize: function(me) {\
+          if (!me.collapsed)\
+            me.lastHeight = me.getHeight();\
+        },\
+        beforecollapse: function(me) {\
+          me.lastHeight = me.getHeight();\
+        }\
+      }\
+    };\
+    if (rowIndex !== undefined)\
+      portlet = app.portal.items.items[colIndex || 0].insert(rowIndex, portletObject);\
+    else app.portal.items.items[colIndex || 0].add(portletObject);\
+    Wb.run({\
+      url: config.url,\
+      contextOwner: portlet,\
+      success: function(scope) {\
+        var entry = Wb.optMain(scope);\
+        if (entry)\
+          portlet.add(entry);\
+      }\
+    });\
+  },\
+  /**\
+   * 刷新Portlets。\
+   */\
+  refreshPortlet: function(portlet) {\
+    var me = portlet || this;\
+    me.removeAll();\
+    Wb.run({\
+      url: me.pageLink.url,\
+      contextOwner: me,\
+      success: function(scope) {\
+        var entry = Wb.optMain(scope);\
+        if (entry) {\
+          me.add(entry);\
+        }\
+      }\
+    });\
+  },\
+  /**\
+   * 最大化Portlets至Tab页。\
+   */\
+  maxPortlet: function() {\
+    Wb.open(this.pageLink);\
+  },\
+  /**\
+   * 获取应用模块的图标样式类。\
+   */\
+  getAppIcon: function(node, top) {\
+    return '<img src=\"data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==\" style=\"margin:' +\
+      ((top || 2) + (Wb.isNeptune ? -3 : 0)) + 'px 3px 0 4px;\" class=\"x-tree-icon ' + node.data.iconCls + '\">';\
+  },\
+  /**\
+   * 显示应用列表。\
+   */\
+  showAppList: function(e, target) {\
+    if (app.clearListTimer)\
+      clearTimeout(app.clearListTimer);\
+    if (app.showListTimer)\
+      clearTimeout(app.showListTimer);\
+    //如果鼠标在列表菜单上返回\
+    if (app.listMenu.el && app.listMenu.el.isAncestor(target))\
+      return;\
+    var trEl = Ext.get(target),\
+      node = app.treeStore.getNodeById(trEl.getAttribute('node'));\
+    if (node.isLeaf()) {\
+      app.listMenu.hide();\
+      return;\
+    }\
+    app.showListTimer = setTimeout(function() {\
+      var hasTable, adjustSize, index, html, first = true;\
+      if (app.listMenu.bindTarget != target) {\
+        html = '';\
+        index = 0;\
+        node.eachChild(function(item) {\
+          if (!item.isLeaf())\
+            return;\
+          if (first) {\
+            hasTable = true;\
+            html += '<p class=\"pt_item_title\">' + app.getAppIcon(node, -2) + node.data.text +\
+              '<\/p><table class=\"pt_module\" cellpadding=\"2\">';\
+            first = false;\
+          }\
+          if (index === 0)\
+            html += '<tr>';\
+          index++;\
+          html += '<td>' + app.getAppIcon(item, -1) + '<span node=\"' + item.id.substring(1) +\
+            '\">' + item.data.text + '<\/span><\/td>';\
+          if (index == 4) {\
+            index = 0;\
+            html += '<\/tr>';\
+          }\
+        });\
+        if (index !== 0)\
+          html += '<\/tr>';\
+        if (hasTable)\
+          html += '<\/table>';\
+        node.eachChild(function(item) {\
+          if (item.isLeaf())\
+            return;\
+          html += '<p class=\"pt_item_title\">' + app.getAppIcon(item, -2) + item.data.text +\
+            '<\/p><table class=\"pt_module\" cellpadding=\"2\">';\
+          index = 0;\
+          item.cascadeBy(function(child) {\
+            if (child.isLeaf()) {\
+              if (index === 0)\
+                html += '<tr>';\
+              index++;\
+              html += '<td>' + app.getAppIcon(child, -1) + '<span node=\"' + child.id.substring(1) +\
+                '\">' + child.data.text + '<\/span><\/td>';\
+              if (index == 4) {\
+                index = 0;\
+                html += '<\/tr>';\
+              }\
+            }\
+          });\
+          if (index !== 0)\
+            html += '<\/tr>';\
+          html += '<\/table>';\
+        });\
+        delete app.listMenu.width; //取消固定宽度\
+        if (app.listMenu.isVisible() && app.listMenu.bindTarget)\
+          app.listMenu.bindTarget.saveScrollTop = app.listMenu.el.dom.scrollTop;\
+        app.listMenu.update(html);\
+        adjustSize = true;\
+        app.listMenu.bindTarget = target;\
+      }\
+      if (adjustSize) {\
+        app.listMenu.maxHeight = app.viewport1.getHeight();\
+      }\
+      app.listMenu.show();\
+      if (adjustSize) {\
+        if (app.listMenu.el.isScrollable()) {\
+          app.listMenu.setWidth(app.listMenu.getWidth() + 20);\
+        }\
+        app.listMenu.el.alignTo(trEl, 'tr?', [0, -53]);\
+        if (app.listMenu.el.getLeft() === 0)\
+          app.listMenu.el.setLeft(app.viewport1.getWidth() - app.listMenu.getWidth());\
+      }\
+      if (app.listMenu.bindTarget.saveScrollTop !== undefined)\
+        app.listMenu.el.dom.scrollTop = app.listMenu.bindTarget.saveScrollTop;\
+      app.listMenu.focus();\
+      app.showListTimer = null;\
+    }, 300);\
+  },\
+  /**\
+   * 隐藏应用列表。\
+   */\
+  hideAppList: function() {\
+    if (app.clearListTimer)\
+      clearTimeout(app.clearListTimer);\
+    if (app.showListTimer)\
+      clearTimeout(app.showListTimer);\
+    if (app.listMenu.isVisible()) {\
+      app.clearListTimer = setTimeout(function() {\
+        if (app.listMenu.bindTarget && app.listMenu.el)\
+          app.listMenu.bindTarget.saveScrollTop = app.listMenu.el.dom.scrollTop;\
+        app.listMenu.hide();\
+        app.clearListTimer = null;\
+      }, 300);\
+    }\
+  },\
+  /**\
+   * 创建应用列表视图。\
+   */\
+  createListView: function(listComp) {\
+    if (listComp.listViewCreated)\
+      return;\
+    var root = app.tree.getRootNode();\
+    if (!root.isLoaded() || !listComp.isVisible())\
+      return;\
+    var trs, html = '<table cellpadding=\"0\" cellspacing=\"0\" class=\"pt_nav_table\">';\
+    root.eachChild(function(node) {\
+      html += '<tr node=\"' + node.id.substring(1) +\
+        '\"><td>' + app.getAppIcon(node) + node.data.text +\
+        (node.isLeaf() ? '' : '<span class=\"pt_menu_arrow\"><\/span>') + '<\/td><\/tr>';\
+    });\
+         //html += \"<div> <iframe frameborder='0' scrolling='no' style='background-color:transparent; position:absolute; z-index: 9999; width:100%; height:100%; top:0; left:0;'><\/iframe><\/div>\";\
+\
+     html += '<\/table>';\
+\
+    listComp.update(html);\
+    trs = listComp.el.query('tr');\
+    Wb.each(trs, function(tr) {\
+      tr = Ext.fly(tr);\
+      listComp.mon(tr, 'mouseenter', app.showAppList);\
+      listComp.mon(tr, 'mouseleave', app.hideAppList);\
+    });\
+    if (!listComp.unselSetted) {\
+      listComp.el.unselectable();\
+      listComp.unselSetted = true;\
+    }\
+    if (!app.listMenu) {\
+      app.listMenu = new Ext.Component({\
+        border: true,\
+        cls: 'pt_list_menu',\
+        style: 'background-color:white;',\
+        floating: true,\
+        maxWidth: app.viewport1.getWidth() - 60,\
+        minWidth: 120,\
+        padding: 4,\
+        minHeight: 30,\
+        autoScroll: true,\
+        listeners: {\
+          afterrender: {\
+            single: true,\
+            fn: function(me) {\
+              me.mon(me.el, 'click', app.monAppClick);\
+              me.mon(me.el, 'mouseenter', app.showAppList);\
+              me.mon(me.el, 'mouseleave', app.hideAppList);\
+            }\
+          }\
+        }\
+      });\
+      app.listMenuBtn.menu.bindMenuComp = app.listMenu;\
+    }\
+    listComp.listViewCreated = true;\
+  },\
+  /**\
+   * 根据节点打开指定的模块。\
+   * @param {NodeInterface} record 节点对象。\
+   */\
+  openModule: function(record, toPortal) {\
+    var data = record.data,\
+      pageLink = {\
+        url: Wb.toUrl(data.path),\
+        title: data.text,\
+        iconCls: data.iconCls,\
+        inframe: data.inframe\
+      };\
+    if (data.pageLink) {\
+      Ext.apply(pageLink, Wb.decode(data.pageLink));\
+    }\
+    if (toPortal)\
+      app.addPortlet(pageLink, 0);\
+    else\
+      Wb.open(pageLink);\
+  },\
+  /**\
+   * 监听应用点击时的事件。\
+   */\
+  monAppClick: function(e, target) {\
+    var nodeId, el = Ext.fly(target),\
+      toPortal = e.ctrlKey;\
+    el = el.up('[node]') || el;\
+    if (el && (nodeId = el.getAttribute('node'))) {\
+      var node = app.treeStore.getNodeById(nodeId);\
+      if (node.isLeaf()) {\
+        if (app.listMenu && app.listMenu.isVisible()) {\
+          app.listMenu.bindTarget.saveScrollTop = app.listMenu.el.dom.scrollTop;\
+          app.listMenu.hide();\
+        }\
+        if (app.listMenuBtn.menu.isVisible()) {\
+          app.listMenuBtn.menu.hide();\
+          app.listMenuBtn.blur();\
+        }\
+        app.openModule(node, toPortal);\
+      }\
+    }\
+  },\
+  /**\
+   * 创建应用卡片（抽屉式）视图。\
+   */\
+  createCardView: function() {\
+    if (app.cardViewCreated)\
+      return;\
+    var root = app.tree.getRootNode();\
+    if (!root.isLoaded() || !app.cardComp.isVisible())\
+      return;\
+    var items = [],\
+      hasLeaf, html, leafHtml = '';\
+    root.eachChild(function(node) {\
+      if (node.isLeaf()) {\
+        hasLeaf = true;\
+        leafHtml += '<tr><td node=\"' +\
+          node.id.substring(1) + '\">' + app.getAppIcon(node) + node.data.text + '<\/td><\/tr>';\
+      } else {\
+        html = '<table cellpadding=\"0\" cellspacing=\"0\" class=\"pt_nav_table\">';\
+        node.cascadeBy(function(child) {\
+          if (!child.isLeaf() && child.getDepth() == 2) {\
+            html += '<tr><td class=\"pt_card_title\">' + app.getAppIcon(child) +\
+              child.data.text + '<\/td><\/tr>';\
+          }\
+          if (child.isLeaf()) {\
+            html += '<tr><td node=\"' + child.id.substring(1) + '\">' + app.getAppIcon(child) +\
+              child.data.text + '<\/td><\/tr>';\
+          }\
+        });\
+        html += '<\/table>';\
+        items.push({\
+          xtype: 'panel',\
+          autoScroll: true,\
+          title: node.data.text,\
+          iconCls: node.data.iconCls,\
+          html: html\
+        });\
+      }\
+    });\
+    if (hasLeaf) {\
+      leafHtml = '<table cellpadding=\"0\" cellspacing=\"0\" class=\"pt_nav_table\">' + leafHtml + '<\/table>';\
+      items.push({\
+        xtype: 'panel',\
+        autoScroll: true,\
+        title: Str.others,\
+        iconCls: 'db_form_icon',\
+        html: leafHtml\
+      });\
+    }\
+    Ext.suspendLayouts();\
+    app.cardComp.removeAll();\
+    app.cardComp.add(items);\
+    Ext.resumeLayouts(true);\
+    if (!app.cardInited) {\
+      app.cardComp.el.unselectable();\
+      app.cardComp.mon(app.cardComp.el, 'click', app.monAppClick);\
+      app.cardInited = true;\
+    }\
+    app.cardViewCreated = true;\
+  },\
+  /**\
+   * 保存Portal、Tab页和模块树宽度。\
+   * @param {Number} type 必须参数说明。\
+   */\
+  saveDesktop: function(type) {\
+    var pages = [],\
+      portlets = [],\
+      url;\
+    switch (type) {\
+      case 1:\
+        url = 'save-desktop';\
+        break;\
+      case 2:\
+        url = 'save-default-desktop';\
+        break;\
+      case 3:\
+        url = 'save-all-desktop';\
+        break;\
+    }\
+    app.tab.items.each(function(item) {\
+      if (item != app.homeCard) {\
+        pages.push({\
+          url: item.bindFile,\
+          params: item.lastPortalConfigs.params\
+        });\
+      }\
+    });\
+    app.homeCard.items.each(function(col) {\
+      var items = [];\
+      portlets.push(items);\
+      col.items.each(function(portlet) {\
+        items.push({\
+          url: portlet.pageLink.url,\
+          height: portlet.lastHeight,\
+          collapsed: portlet.collapsed\
+        });\
+      });\
+    });\
+    Wb.request({\
+      url: 'm?xwl=system/sys/portal/home/' + url,\
+      params: {\
+        treeWidth: app.moduleView.width,\
+        treeCollapsed: app.moduleView.collapsed !== false,\
+        treeHidden: !app.moduleView.isVisible(),\
+        viewIndex: app.moduleView.items.indexOf(app.moduleView.getLayout().getActiveItem()),\
+        pages: pages,\
+        portlets: portlets,\
+        active: app.tab.items.indexOf(app.tab.getActiveTab())\
+      }\
+    });\
+  }\
+});"
+  }
+ }],
+ "roles": {
+  "default": 1,
+  "basic": 1
+ },
+ "title": "主页",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": "{path:'home', method: 'get', newWin: true}"
+}

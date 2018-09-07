@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var sql = \"select r.id,r.cntr,r.cntr_id,r.work_type,p.trade_id,p.cntr_operator_cod,p.cntr_operator,p.phase\" +\
+  \" from receipt r left join port_cntr p on r.cntr_id=p.id\" +\
+  \" where r.tenancy_id='\" + tenancyid + \"' and r.work_type<>'YOYI'\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and r.cntr like '%\" + data.cntr + \"%'\";\
+if (!Wb.isEmpty(data.tidate))\
+  sql += \" and r.gateout_time_t>=to_date('\" + data.tidate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and r.gateout_time_t<=to_date('\" + data.tidate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

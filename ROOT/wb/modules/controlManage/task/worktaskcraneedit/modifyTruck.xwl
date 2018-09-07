@@ -1,0 +1,133 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var truck = app.get('truck');\
+var result = app.run(\"select 1 from c_machine where mach_type='TC' and id={?truck?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+  jndi: 'jdbc/basecode'\
+});\
+if (!(result && result.next())) {\
+  var result = app.run(\"select 1 from c_truck where  truck_no={?truck?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (!(result && result.next()))\
+    throw '拖车号' + truck + '不存在';\
+}\
+/*\
+  var result = app.run(\"select 1 from move_list where move_type='DRB' and transporter1={?truck?} and phase='EXE' and tenancy_id={?sys.TENANCY_ID?}\");\
+  if (result && result.next()) {\
+    throw '拖车号' + truck + '正在拖箱';\
+  }\
+  */\
+var moves = Wb.decode(app.get(\"moves\"));\
+app.run(\"update move_list set transporter1=null where 1=0\", {\
+  transaction: \"start\"\
+});\
+var rs =  moves.map(function(id) {\
+    return {\
+      id: id\
+    };\
+  });\
+app.run(\"update move_list set \\\
+transporter1=decode(trclass1,'TG',{?truck?},transporter1),\\\
+transporter2=decode(trclass2,'TG',{?truck?},transporter2),\\\
+transporter3=decode(trclass3,'TG',{?truck?},transporter3),\\\
+transporter4=decode(trclass4,'TG',{?truck?},transporter4),\\\
+transporter5=decode(trclass5,'TG',{?truck?},transporter5),\\\
+updated_on=sysdate,updated_by={?sys.username?} \\\
+where id={?id?} or queue_id={?id?}\", {\
+  arrayData:rs\
+});\
+\
+app.run(\"update receipt set in_car={?truck?} where id = (select handle_id from move_list where id={?id?})\", {\
+  arrayData: rs\
+});\
+\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on,bus_data) \\\
+        values({?id?},'MOVE_LIST','MTRK',{?sys.username?},sysdate,{?truck?})\", {\
+  arrayData: rs\
+});\
+\
+app.run(\"update move_list set transporter1=null where 1=0\", {\
+  transaction: \"commit\"\
+});\
+\
+var taskId = app.get(\"taskId\"),\
+  username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"),\
+  type = app.get('type'); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+var mess = \"ship.\" + ship;\
+if (type == 'MOVE')\
+  mess = 'cy.#';\
+var sqlCntrs = '';\
+//发送消息\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (moves.length > 5) //批量修改，发送批量消息，防止多消息刷新页面卡死\
+  {\
+    if (!(client.open() && client.routeSend(\"ex_instruction\", mess, {\
+        info: {\
+          type: \"disc\",\
+          action: \"batch\",\
+          senduser: username,\
+          sendmodule: \"hanset\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: taskId\
+        }\
+      }))) return {\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    };\
+  } else //发送单个消息\
+  {\
+    if (client.open()) {\
+      for (var i in moves) {\
+        if (!(client.routeSend(\"ex_instruction\", mess, {\
+            info: {\
+              type: type,\
+              action: \"update\",\
+              senduser: username,\
+              sendmodule: \"taskManager\",\
+              sendtime: (new Date()).getTime()\
+            },\
+            data: {\
+              id: moves[i]\
+            }\
+          }))) return {\
+          success: false,\
+          errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+        };\
+      }\
+    }\
+  }\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "修改拖车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

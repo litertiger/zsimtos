@@ -1,0 +1,32 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var sql, data = app.get();\
+sql = '';\
+var t_id = data.t_id; //内外贸\
+var v_id = data.v_id;// 航次号\
+ app.run(\"update  vbill_head  set  trade_id='\" + t_id + \"',RELEASE_ID='1' where  vid='\" + v_id + \"' AND TRADE_ID = 1\", {\
+  transaction: \"start\"\
+});\
+app.run(\" update vload_list set trade_id = '\" + t_id + \"' where vid = '\" + v_id + \"'\");\
+ app.run(\" update port_cntr set trade_id = '\" + t_id + \"', RELEASE_ID = '1' where ID in (select cntr_id from vload_list where vid = '\" + v_id + \"') AND TRADE_ID = 1\", {\
+});\
+app.run(\" update receipt set trade_id = '\" + t_id + \"' where cntr_ID in (select cntr_id from vload_list where vid = '\" + v_id + \"') \", {\
+ \
+});\
+ app.run(\" update move_list set trade_id = '\" + t_id + \"' where cntr_ID in (select cntr_id from vload_list where vid = '\" + v_id + \"') \", {\
+  transaction: \"commit\"\
+});",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "内贸转外贸",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

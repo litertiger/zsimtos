@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),\
+  inOrOut = app.get(\"inOrOut\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  workType = app.get(\"workType\"),\
+  govCode = app.get(\"sys.GOV_CODE\"); //租户id\
+\
+var sql = \"SELECT extract(day from r.gateout_time_t  - r.gatein_time_t)||'天'||extract(hour from r.gateout_time_t  - r.gatein_time_t)||'小时'||extract(minute from r.gateout_time_t  - r.gatein_time_t)||'分' timelong,\" +\
+  \"r.CNTR_OPERATOR_COD,r.cntr_size,r.cntr_type,r.MBILL_NO,r.SHIP_ORDER,r.GATEOUT_BY_T, r.GATEIN_BY_S,r.car_team,r.in_car,r.in_campi,r.in_car in_car_hp,r.in_driver_id,r.out_car,r.out_car out_car_hp,r.out_campi,r.out_tray_no,\" +\
+  \"r.out_driver_id,r.cntr,r.trade_id,r.i_e_id,r.e_f_id,r.line,decode(r.i_e_id,'I',r.consignee,'E',r.shipper)shipper,r.seal_no,r.release_no,r.bill_no,\" +\
+  \"a.CONFIRM_TIME,r.gatein_time_t,r.gateout_time_t,nvl(r.gatein_no_t,r.gateout_no_t)gatein_no_t,r.pt_type,r.cntr_operator,r.SHIPPER_CONSIGNEE,\" +\
+  \"r.gateout_time_s,r.gatein_time_s,nvl(r.gatein_no_s,r.gateout_no_s)gatein_no_s,r.mbill_no,r.vessel_name,r.CNTR_OWNER_COD,r.WORK_TYPE,m.from_pos,m.updated_on,r.gatein_time_t gatein_time_t1,\" +\
+  \"extract(day from m.updated_on  - r.gatein_time_t)||'天'||extract(hour from m.updated_on  - r.gatein_time_t)||'小时'||extract(minute from m.updated_on  - r.gatein_time_t)||'分' ztime\" +\
+  \" FROM receipt r left join truck_app a on r.id=a.rcp_id left join move_list m on m.handle_id=r.id where r.TENANCY_ID='\" + tenancyid + \"' and nvl(a.task_type,'OUT')='OUT'\" +\
+  \" and m.move_type='LOD' and m.from_pos_typ='B' and m.to_pos_typ='G' and r.work_type<>'YOYI'\";\
+if (data.outgate == \"true\")\
+  sql += \" and trunc(r.gateout_time_t)>=trunc({?TIMESTAMP.begdate?}) and trunc(r.gateout_time_t)<=trunc({?TIMESTAMP.enddate?})\";\
+else if (data.ingate == \"true\")\
+  sql += \" and trunc(r.gatein_time_s)>=trunc({?TIMESTAMP.begdate?}) and trunc(r.gatein_time_s)<=trunc({?TIMESTAMP.enddate?})\";\
+if (nature == '5') {\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+}\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.shipperway)) {\
+  sql += \" and r.shipper_way='\" + data.shipperway + \"'\";\
+}\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and r.TRADE_ID={?tradeId?}\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and r.cntr like '%\" + data.cntr + \"%'\";\
+if (data.outgate == \"true\")\
+  sql += \" order by r.gateout_time_t desc\";\
+else if (data.ingate == \"true\")\
+  sql += \" order by r.gatein_time_s desc\";\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "xlcd": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

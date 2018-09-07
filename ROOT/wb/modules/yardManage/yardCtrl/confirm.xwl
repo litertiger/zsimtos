@@ -1,0 +1,707 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "function getDriver(mach) {\
+  app.set('driver', '');\
+  var result = app.run(\"select mach_oper from c_machine where id='\" + mach + \"' and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next())\
+    app.set('driver', result.getString(1));\
+  else {\
+    result = app.run(\"select trucker_no from c_truck where truck_no='\" + mach + \"' and nvl(tenancy_id,{?sys.TENANCY_ID?})={?sys.TENANCY_ID?}\", {\
+      jndi: 'jdbc/basecode'\
+    });\
+    if (result && result.next())\
+      app.set('driver', result.getString(1));\
+  }\
+}\
+\
+var id = app.get(\"ID\");\
+if (!id)\
+  throw \"任务ID不能为空\";\
+var moveType = app.get(\"MOVE_TYPE\");\
+var cntr = app.get(\"CNTR\");\
+if (!cntr)\
+  throw \"箱号不能为空\";\
+var queue_id = app.get(\"QUEUE_ID\");\
+if (!queue_id)\
+  throw \"来源任务ID不能为空\";\
+var pos = app.get(\"NEW_POS\");\
+if (moveType !== 'LOD' && !pos)\
+  throw \"场位不能为空\";\
+var truck = app.get(\"TRUCK\");\
+if (!(truck || moveType == 'ROR'))\
+  throw \"拖车号不能为空\";\
+var mach = app.get(\"MACH\");\
+if (!mach)\
+  throw \"场地机械号不能为空\";\
+\
+\
+//处理装船暂存逻辑\
+var result = app.run(\"select m.to_pos_typ,i.trclass1,m.carrier_call,i.transporter2 from move_list i,move_list m where i.queue_id=m.id and i.id={?ID?}\");\
+if (result && result.next()) {\
+  if (result.getString('to_pos_typ') == 'V' && result.getString('trclass1') == 'QC') {\
+    app.set('ship', result.getString('carrier_call'));\
+    app.set('cntr', app.get('CNTR'));\
+    app.set('truck', app.get('TRUCK'));\
+    app.set('pos', pos);\
+    app.set('funId', 'STORE_LOAD');\
+    app.execute(\"m?xwl=controlManage/handset/appFun\");\
+    return;\
+  }\
+}\
+\
+//处理卸船暂存逻辑\
+if (id == 'DIS-TMP') {\
+  var result = app.run(\"select carrier_call,to_pos,phase from move_list where id={?QUEUE_ID?}\");\
+  if (result && result.next()) {\
+    if (result.getString('phase') != 'TMP')\
+      throw '箱' + cntr + '未做暂存作业';\
+    app.set('ship', result.getString('carrier_call'));\
+    app.set('truck', truck);\
+    app.set('cntr', cntr);\
+    app.set('mach', mach);\
+    app.set('funId', 'SAVE_UNLOAD');\
+    app.execute(\"m?xwl=controlManage/handset/appCall\");\
+    var appRet = app.get('appRet');\
+    if(!appRet.success)\
+      return app.send(appRet);\
+    if (truck != mach)\
+      return;\
+    else //叉车直接作业，继续确认落箱\
+    {\
+      moveType = 'DIS';\
+    }\
+  }\
+}\
+\
+//发送消息\
+var client = new RabbitClient();\
+/*client.setHost(\"192.168.1.14\");\
+client.setUser(\"liaw\");\
+client.setPass(\"123\");\
+client.setVHost(\"test\");\
+client.setTimeout(10000);*/\
+var y2yId, shiftId, toPos;\
+var result = app.run(\"select cntr_id,y2y_id,move_type,phase,shift_id,to_pos,handle_id from move_list where id={?ID?}\");\
+if (result && result.next()) {\
+  app.set('cntrId', result.getString('cntr_id'));\
+  app.set('handleId', result.getString('handle_id'));\
+  shiftId = result.getInt('shift_id');\
+  toPos = result.getString('to_pos');\
+  y2yId = result.getInt(\"y2y_id\");\
+  if (result.getString('phase') == 'FIN')\
+    throw \"指令已完成，不能重复确认！\";\
+  if (result.getString('move_type') != moveType)\
+    throw \"指令类型不正确！\";\
+} else\
+  throw \"指令不存在！\";\
+var newCntr = app.get('NEW_CNTR');\
+if (newCntr) //换提新箱\
+{\
+  var result = app.run(\"select p.id,p.yard_position,p.e_f_id,p.pre_tak_id,p.cntr_size ps,r.cntr_size rs,\\\
+  p.cntr_type pt,r.cntr_type rt,p.cntr_owner_cod po,r.cntr_owner_cod ro,p.trade_id ptr,r.trade_id rtr,\\\
+  p.cntr_operator_cod pop,r.cntr_operator_cod rop\\\
+  from port_cntr p, receipt r\\\
+  where p.cntr={?NEW_CNTR?} and p.tenancy_id={?sys.TENANCY_ID?} and r.id={?handleId?}\");\
+  if (!(result && result.next()))\
+    throw newCntr + '不存在';\
+  if (result.getString('e_f_id') != 'E')\
+    throw newCntr + '不是吉柜';\
+  if (result.getString('pre_tak_id') == '1')\
+    throw newCntr + '已被预提';\
+  if (result.getString('ps') !== result.getString('rs'))\
+    throw newCntr + '柜尺寸和设备交接单不相符';\
+  if (result.getString('pt') !== result.getString('rt'))\
+    throw newCntr + '柜类型和设备交接单不相符';\
+  if (result.getString('po') !== result.getString('ro'))\
+    throw newCntr + '箱主和设备交接单不相符';\
+  if (result.getString('ptr') !== result.getString('rtr'))\
+    throw newCntr + '内外贸属性和设备交接单不相符';\
+  if (result.getString('pop') !== result.getString('rop'))\
+    throw newCntr + '驳船公司和设备交接单不相符';\
+  if (result.getString('yard_position').substr(0, 2) !== pos.substr(0, 2))\
+    throw newCntr + '和' + cntr + '不在同一场区';\
+  app.run(\"update port_cntr set pre_tak_id=0 where id={?cntrId?}\");\
+  app.set('from_pos', result.getString('yard_position'));\
+  cntr = newCntr;\
+  app.set('cntrId', result.getString('id'));\
+  app.run(\"update receipt set cntr={?NEW_CNTR?},cntr_id={?cntrId?} where id={?handleId?}\");\
+  app.run(\"update port_cntr set pre_tak_id=1 where id={?cntrId?}\");\
+  app.run(\"update move_list set cntr={?NEW_CNTR?},cntr_id={?cntrId?},from_pos={?from_pos?} where id={?QUEUE_ID?}\");\
+  app.run(\"update move_list set cntr={?NEW_CNTR?},cntr_id={?cntrId?},to_pos={?from_pos?} where queue_id={?QUEUE_ID?} and move_type='DRG'\");\
+}\
+var powerOn, ef, categroy, reefId;\
+result = app.run(\"select on_power,e_f_id,a.category,p.reef_id from  port_cntr p,c_cy_area a \\\
+where p.tenancy_id=a.tenancy_id and substr(nvl(p.yard_position,{?NEW_POS?}),1,2)=a.cy_area_no and p.id={?cntrId?}\");\
+if (result && result.next()) {\
+  powerOn = result.getString('on_power');\
+  category = result.getString('category');\
+  reefId = result.getString('reef_id');\
+  ef = result.getString('e_f_id');\
+}\
+if (moveType !== 'DIS' && powerOn == '1' && category == 'R' && reefId == '1')\
+  throw '冷柜尚未拨电';\
+\
+var ship, toTyp, fromTyp, fromPos, trClass4, trClass5, phase, cntrSize;\
+var result = app.run(\"select queue_id,carrier_call,from_pos_typ,to_pos_typ,decode({?MOVE_TYPE?},'LOD',p.yard_position,from_pos) from_pos,\\\
+trclass4,trclass5,to_pos,handle_id,m.phase,p.cntr_size from move_list m,port_cntr p where m.cntr_id=p.id and move_type='MOV' and m.id={?QUEUE_ID?} and m.phase <>'FIN'\");\
+if (result && result.next()) {\
+  app.set('taskId', result.getString('queue_id'));\
+  app.set('handleId', result.getString('handle_id'));\
+  ship = result.getString(\"carrier_call\");\
+  fromTyp = result.getString(\"from_pos_typ\");\
+  toTyp = result.getString(\"to_pos_typ\");\
+  trClass4 = result.getString(\"trclass4\");\
+  trClass5 = result.getString(\"trclass5\");\
+  fromPos = result.getString(\"from_pos\") || '';\
+  if (moveType !== 'ROR')\
+    toPos = result.getString(\"to_pos\") || '';\
+  phase = result.getString('phase');\
+  cntrSize = result.getInt('cntr_size');\
+  app.set('to_pos', toPos);\
+}\
+var yard = moveType == 'LOD' ? fromPos.substr(0, 2) : pos.substr(0, 2);\
+\
+if (mach !== 'APP') {\
+  //验证作业区域\
+  result = app.run(\"select address,mach_type from c_machine where id={?MACH?} and mach_class='YC' and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next()) {\
+    var address = result.getString('address');\
+    var machType = result.getString('mach_type');\
+    if (address && address.indexOf(yard) == -1)\
+      throw mach + '不能在场区' + yard + '作业';\
+    //非龙门吊机场不能进龙门吊区域作业\
+    if (!(machType == 'RMG' || machType == 'ERTG')) {\
+      result = app.run(\"select category,temp_enter from c_cy_area where cy_area_no='\" + yard + \"' and tenancy_id={?sys.TENANCY_ID?}\", {\
+        jndi: 'jdbc/basecode'\
+      });\
+      if (result && result.next()) {\
+        var category = result.getString('category');\
+        if ((category == 'I' || category == 'J') && result.getInt('temp_enter') !== 1)\
+          throw mach + '不能在龙门吊场区作业';\
+      }\
+    }\
+    if ((machType == 'ERTG' || machType == 'ERS' || machType == 'LF') && ef == 'F')\
+      throw mach + '不能进行重柜作业';\
+  } else\
+    throw '场地作业机械号' + mach + '不存在';\
+} else {\
+  result = app.run(\"select category from c_cy_area where cy_area_no='\" + yard + \"' and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+  if (result && result.next()) {\
+    var category = result.getString('category');\
+    if (category == 'I' || category == 'J')\
+      throw '拖车不能在龙门吊场区作业';\
+  }\
+}\
+\
+//更新堆场作业指令\
+getDriver(mach);\
+app.run(\"update move_list set phase='FIN',transporter1={?MACH?},transporter3={?driver?},updated_by={?sys.username?},updated_on=sysdate where id={?ID?}\", {\
+  transaction: \"start\"\
+});\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on,bus_data) \\\
+        values({?QUEUE_ID?},'MOVE_LIST','Y\" + moveType + \"',{?sys.username?},sysdate,'\" + (moveType == 'ROR' ? cntr : '') + \"')\");\
+var idDRG, idDRB, idQC, idYC;\
+if (moveType === 'LOD') //出场确认\
+{\
+  var result = app.run(\"select 1 from port_cntr where yard_position>'\" + fromPos + \"' and substr(yard_position,1,6)='\" + fromPos.substr(0, 6) + \"' and tenancy_id={?sys.TENANCY_ID?}\");\
+  if (result && result.next()) {\
+    throw '柜号' + cntr + '上面压箱，不能出场';\
+  }\
+  if (truck != '999') { //999表示未备案车辆,不做控制\
+    result = app.run(\"select 1 from c_machine where mach_type='TC' and id={?TRUCK?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+      jndi: 'jdbc/basecode'\
+    });\
+    if (!(result && result.next())) {\
+      var result = app.run(\"select 1 from c_truck where  truck_no={?TRUCK?} and nvl(tenancy_id,{?sys.TENANCY_ID?})={?sys.TENANCY_ID?}\", {\
+        jndi: 'jdbc/basecode'\
+      });\
+      if (!(result && result.next()))\
+        throw '拖车号' + truck + '不存在';\
+    }\
+    /*\
+    result = app.run(\"select m.cntr_size from move_list m,receipt r where m.handle_id=r.opp_id(+) and move_type='DRB' and\\\
+  transporter1={?TRUCK?} and m.phase='EXE' and m.tenancy_id={?sys.TENANCY_ID?} and nvl(r.id,'0')<>{?handleId?}\");\
+    if (result && result.next()) {\
+      if (result.getInt('cntr_size') > 20 || cntrSize > 20)\
+        throw '拖车号' + truck + '已装满';\
+      if (result.next())\
+        throw '拖车号' + truck + '已装满';\
+    }*/\
+  }\
+  result = app.run(\"select id,to_pos from move_list where move_type='DRG' and queue_id={?QUEUE_ID?} and phase<>'FIN'\");\
+  app.set('idDRB', idDRB = SysUtil.getId());\
+  if (trClass4 === \"YC\")\
+    app.set('idYC', idYC = SysUtil.getId());\
+  else if (toTyp == 'V')\
+    app.set('idQC', idQC = SysUtil.getId());\
+  if (trClass4 == \"QC\" && phase != 'CHK' && phase != 'TMP')\
+    app.set('idQC', idQC = SysUtil.getId());\
+  if (result && result.next()) {\
+    idDRG = result.getString(\"id\");\
+    pos = result.getString(\"to_pos\");\
+    if (!pos)\
+      pos = '';\
+    app.set(\"OLD_POS\", pos);\
+  }\
+  if (y2yId) //更新拼柜设备交接单\
+  {\
+    var result = app.run(\"select tray_no,trucker_no,plat_no from c_truck where truck_no={?TRUCK?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+      jndi: \"jdbc/basecode\"\
+    });\
+    if (result && result.next()) {\
+      app.set('tray_no', result.getString('tray_no'));\
+      app.set('hp', result.getString('plat_no'));\
+      app.set('trucker', result.getString('trucker_no'));\
+    } else {\
+      result = app.run(\"select tray_no,mach_name,mach_oper from c_machine where id={?TRUCK?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+        jndi: \"jdbc/basecode\"\
+      });\
+      if (result && result.next()) {\
+        app.set('tray_no', result.getString('tray_no'));\
+        app.set('hp', result.getString('mach_name'));\
+        app.set('trucker', result.getString('mach_oper'));\
+      }\
+    }\
+    app.run(\"update receipt set in_car={?TRUCK?},in_car_hp={?hp?},in_campi={?tray_no?},in_driver_id={?trucker?},\\\
+     out_car={?TRUCK?},out_campi={?tray_no?},out_car_hp={?hp?},out_driver_id={?trucker?}\\\
+     where work_type='YOYI' and cntr_id={?cntrId?} and phase<>'FIN' and tenancy_id={?sys.TENANCY_ID?}\");\
+  }\
+  getDriver(app.get('TRUCK'));\
+  //更新取箱任务状态\
+  app.run(\"update move_list set phase='FIN',transporter1={?TRUCK?},transporter2={?MACH?},transporter3={?driver?},updated_by={?sys.username?},updated_on=sysdate,end_execute=sysdate where queue_id={?QUEUE_ID?} and move_type='DRG'\");\
+  //更新总任务状态\
+  app.run(\"update move_list set phase='EXE',transporter1={?TRUCK?},transporter2={?MACH?},transporter3={?TRUCK?},updated_by={?sys.username?},updated_on=sysdate where id={?QUEUE_ID?}\");\
+  //更新场桥置\
+  app.run(\"update c_machine set updated_by={?sys.username?},updated_on=sysdate,cur_cy_area_no=substr({?OLD_POS?},1,2),cur_cy_bay_no=substr({?OLD_POS?},3,2) where id={?MACH?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+  app.run(\"declare\\
+\\\
+    row move_list%rowtype;\\
+\\\
+    begin\\
+\\\
+    select * into row from move_list where id={?ID?};\\
+\" +\
+    //插入拖车运箱指令\
+    \"row.updated_by:={?sys.username?};\\
+\\\
+    row.created_by:={?sys.username?};\\
+\\\
+    row.updated_on:=sysdate;\\
+\\\
+    row.created_on:=sysdate;\\
+\\\
+    row.trclass1:='TG';\\
+\\\
+    row.trclass2:='';\\
+\\\
+    row.transporter1:={?TRUCK?};\\
+\\\
+    row.transporter2:='';\\
+\\\
+    row.transporter3:={?driver?};\\
+\\\
+    row.move_type:='DRB';\\
+\\\
+    row.id:={?idDRB?};\\
+\\\
+    row.phase:='EXE';\\
+\\\
+    row.from_pos:={?TRUCK?};\\
+\\\
+    row.from_pos_typ:='T';\\
+\" +\
+    (trClass4 === 'YC' ?\
+      (\
+        \"row.to_pos:={?to_pos?};\\
+\\\
+        row.to_pos_typ:='B';\\
+\"\
+      ) :\
+      (\
+        \"row.to_pos:={?to_pos?};\\
+\\\
+        row.to_pos_typ:='V';\\
+\"\
+      )\
+    ) +\
+    \"insert into move_list values row;\\
+\\\
+     row.transporter3:=null;\\
+\" +\
+    (trClass4 === 'YC' ? (\
+      //插入场桥落箱指令\
+      \"row.id:={?idYC?};\\
+\" +\
+      \"row.transporter1:='';\\
+\" +\
+      \"row.transporter2:={?TRUCK?};\\
+\" +\
+      \"row.move_type:='DIS';\\
+\" +\
+      \"row.trclass1:='YC';\\
+\" +\
+      \"row.trclass2:='TG';\\
+\" +\
+      \"row.phase:='SND';\\
+\" +\
+      \"row.from_pos:={?TRUCK?};\\
+\" +\
+      \"row.from_pos_typ:='T';\\
+\" +\
+      \"insert into move_list values row;\\
+\") : \"\") +\
+    (idQC ? (\
+      //插入岸桥指令\
+      \"row.id:={?idQC?};\\
+\" +\
+      \"row.transporter1:=row.crane;\\
+\" +\
+      \"row.transporter2:={?TRUCK?};\\
+\" +\
+      \"row.move_type:='LOD';\\
+\" +\
+      \"row.trclass1:='QC';\\
+\" +\
+      \"row.trclass2:='TG';\\
+\" +\
+      \"row.phase:='SND';\\
+\" +\
+      \"row.from_pos:={?TRUCK?};\\
+\" +\
+      \"row.from_pos_typ:='T';\\
+\" +\
+      \"row.to_pos:='';\\
+\" +\
+      \"row.to_pos_typ:='V';\\
+\" +\
+      \"insert into move_list values row;\\
+\") : \"\") +\
+    \"end;\");\
+  //更新truck_app\
+  if (toTyp == 'G')\
+    app.run(\"update truck_app set confirm_time=systimestamp,update_time=systimestamp where rcp_id={?handleId?} and task_type='OUT'\");\
+  //更新在场箱位置\
+  app.run(\"update port_cntr set yard_position=null,updated_by={?sys.username?},updated_on=sysdate where id={?cntrId?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    transaction: \"commit\"\
+  });\
+  try {\
+    var lastSubKey = '#';\
+    switch (toTyp) {\
+      case 'G':\
+        lastSubKey = 'gate.#';\
+        break;\
+      case 'V':\
+        lastSubKey = 'ship.' + ship;\
+        break;\
+      case 'B':\
+        lastSubKey = 'cy.' + pos;\
+        break;\
+    }\
+    if (!(client.open() && client.routeSend(\"ex_instruction\", lastSubKey, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: queue_id\
+        }\
+      }) && (idYC ? client.routeSend(\"ex_instruction\", \"cy.\" + pos, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: idYC\
+        }\
+      }) : true) && (idQC ? client.routeSend(\"ex_instruction\", \"ship.\" + ship, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: idQC\
+        }\
+      }) : true) && client.routeSend(\"ex_instruction\", \"truck.\" + truck, {\
+        info: {\
+          type: \"load\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: idDRG\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"truck.\" + truck, {\
+        info: {\
+          type: \"load\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: idDRB\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"cy.\" + pos, {\
+        info: {\
+          type: \"load\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: id\
+        }\
+      }) && client.routeSend(\"ex_portcntr\", \"cy.\" + pos.substr(0, 2) + \".\" + pos.substr(2, 2) + \".\" + pos.substr(4, 2) + \".\" + pos.substr(6, 1), {\
+        info: {\
+          type: \"cntr\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          cntr: cntr\
+        }\
+      }) && client.routeSend(\"ex_machine\", \"yc.\" + mach, {\
+        info: {\
+          type: \"yc\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: mach\
+        }\
+      })))\
+      throw \"指令确认成功，但发送消息超时\";\
+  } catch (e) {\
+    throw e.message;\
+  } finally {\
+    client.close();\
+  }\
+  //如果是提箱任务，调用功能删除多余的装箱任务\
+  /*if (toTyp === 'G')\
+    app.execute(\"m?xwl=yardManage/yardCtrl/delOtherLoadCmd\");*/\
+} else //入场确认\
+{\
+  //验证场位\
+  var toYard = toPos.substr(0, 2);\
+  if (toYard && pos.substr(0, 2) != toYard)\
+    throw '目标位置' + pos + '不在计划场区' + toYard + '内';\
+  if (pos.length < 7)\
+    app.set('NEW_POS', pos = pos.substr(0, 2));\
+  //验证是否确认到原位\
+  var result = app.run(\"select count(1) from port_cntr where cntr={?CNTR?} and yard_position={?NEW_POS?} and tenancy_id={?sys.TENANCY_ID?}\");\
+  if (result && result.next() && result.getInt(1) > 0)\
+    throw '不能确认到原箱位';\
+  //验证箱位\
+  var ret = '调用验证箱位函数失败';\
+  var rCheck = app.run(\"SELECT F_CHECK_PLAC({?CNTR?},{?NEW_POS?},{?sys.TENANCY_ID?}) FROM DUAL\");\
+  if (rCheck && rCheck.next())\
+    ret = rCheck.getString(1);\
+  if (ret != '99') {\
+    app.send({\
+      success: false,\
+      errstr: ret\
+    });\
+    throw ret;\
+  }\
+  var idDRB;\
+  var result = app.run(\"select id from move_list where move_type='DRB' and queue_id={?QUEUE_ID?}\");\
+  if (result && result.next()) {\
+    idDRB = result.getString(\"id\");\
+  }\
+  if (moveType == 'DIS')\
+  //更新拖箱任务状态\
+    app.run(\"update move_list set phase='FIN',transporter2={?MACH?},updated_by={?sys.username?},updated_on=sysdate,end_execute=sysdate where queue_id={?QUEUE_ID?} and move_type='DRB'\");\
+  //更新总任务状态\
+  if (fromTyp === 'G') //出门后才完成\
+    app.run(\"update move_list set phase='EXE',transporter2={?MACH?},to_pos={?NEW_POS?},updated_by={?sys.username?},updated_on=sysdate where id={?QUEUE_ID?}\");\
+  else if (trClass5 !== 'QC' && !shiftId) //不是盘箱装船，完成任务\
+    app.run(\"update move_list set phase='FIN',transporter4={?MACH?},to_pos={?NEW_POS?},updated_by={?sys.username?},updated_on=sysdate,end_execute=sysdate where id={?QUEUE_ID?}\");\
+\
+  var oldPos = pos;\
+  pos = Ag.boundToYardPosition(app, oldPos);\
+  if (oldPos != pos) {\
+    app.set('NEW_POS', pos);\
+    app.set('bPos', oldPos);\
+  } else\
+    app.set('bPos', '');\
+\
+  //更新场桥置\
+  app.run(\"update c_machine set cur_cy_area_no=substr({?NEW_POS?},1,2),cur_cy_bay_no=substr({?NEW_POS?},3,2),updated_by={?sys.username?},updated_on=sysdate where id={?MACH?} and tenancy_id={?sys.TENANCY_ID?}\", {\
+    jndi: \"jdbc/basecode\"\
+  });\
+  //更新未完成的装车指令起点位置\
+  app.run(\"update move_list set from_pos={?NEW_POS?} where cntr={?CNTR?} and tenancy_id={?sys.TENANCY_ID?} and phase not in('FIN','CNL') and (from_pos_typ in ('B','C') or (move_type='MOV' and to_pos_typ='V'))\");\
+  if (toTyp == 'C') {\
+    app.set(\"cntr\", cntr);\
+    app.set('placeInfo', pos);\
+    app.execute(\"m?xwl=EDI/ediPro/check/checkApp\");\
+  }\
+  if (y2yId) //监管区闸口进出门控制\
+  {\
+    var map = Ag.getYardCfsMap(app);\
+    var cfsCod = map[toPos.substr(0, 2)];\
+    var fromCfsCod = map[fromPos.substr(0, 2)];\
+    if (cfsCod == fromCfsCod) //换位确认，不再需要设备交接单\
+      app.run(\"update move_list set y2y_id=0 where id={?QUEUE_ID?}\");\
+    else {\
+      var result = app.run(\"select phase from receipt where id={?handleId?}\");\
+      var rPhase = 'PLN';\
+      if (result && result.next())\
+        rPhase = result.getString('phase');\
+      //2018.05.11 去掉监管区入闸控制\
+      /*if (cfsCod == 'JGQ' && rPhase != 'FIN')\
+        throw ('监管区未做入闸确认！');*/\
+      if (cfsCod != 'JGQ' && rPhase == 'EXE' && fromCfsCod == 'JGQ')\
+        throw ('监管区未做出闸确认！');\
+    }\
+  }\
+  //更新truck_app\
+  if (fromTyp == 'G')\
+    app.run(\"update truck_app set confirm_time=systimestamp,update_time=systimestamp where rcp_id={?handleId?} and task_type='IN'\");\
+  //更新在场箱位置\
+  app.run(\"update port_cntr set yard_position={?NEW_POS?},bound_position={?bPos?},phase='ACT' where id={?cntrId?}\", {\
+    transaction: \"commit\"\
+  });\
+  try {\
+    var lastSubKey = '#';\
+    switch (trClass5 === 'QC' ? toTyp : fromTyp) {\
+      case 'G':\
+        lastSubKey = 'gate.#';\
+        break;\
+      case 'V':\
+        lastSubKey = 'ship.' + ship;\
+        break;\
+      case 'B':\
+        lastSubKey = 'cy.' + pos;\
+        break;\
+    }\
+    if (!(client.open() && (fromTyp !== 'G' ? true : client.routeSend('', \"qu_auto_outgate\", {\
+        info: {\
+          type: \"disc\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: id\
+        }\
+      })) && (moveType == 'ROR' && shiftId ? true : client.routeSend(\"ex_instruction\", lastSubKey, {\
+        info: {\
+          type: \"disc\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: queue_id\
+        }\
+      }) && client.routeSend(\"ex_instruction\", \"truck.\" + truck, {\
+        info: {\
+          type: \"disc\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: idDRB\
+        }\
+      })) && client.routeSend(\"ex_instruction\", \"cy.\" + pos, {\
+        info: {\
+          type: \"disc\",\
+          action: \"confirm\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: id\
+        }\
+      }) && client.routeSend(\"ex_portcntr\", \"cy.\" + pos.substr(0, 2) + \".\" + pos.substr(2, 2) + \".\" + pos.substr(4, 2) + \".\" + pos.substr(6, 1), {\
+        info: {\
+          type: \"cntr\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          cntr: cntr\
+        }\
+      }) && client.routeSend(\"ex_machine\", \"yc.\" + mach, {\
+        info: {\
+          type: \"yc\",\
+          action: \"update\",\
+          senduser: app.get(\"sys.username\"),\
+          sendmodule: \"yardctrl\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: mach\
+        }\
+      }))) throw \"指令确认成功，但发送消息超时\";\
+  } catch (e) {\
+    throw e.message;\
+  } finally {\
+    client.close();\
+  }\
+}\
+app.set('id', id);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "response1",
+    "json": "{\"success\":true,\"id\":\"{#id#}\"}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "response"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "指令列表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

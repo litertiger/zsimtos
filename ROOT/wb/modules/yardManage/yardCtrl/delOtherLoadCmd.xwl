@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//删除多余场地装箱任务\
+/*app.run(\"delete from move_list where move_type='LOD' and trclass1='YC' and queue_id<>{?QUEUE_ID?} and phase <>'FIN' and cntr={?CNTR?}\");\
+//删除移箱任务\
+var result = app.run(\"select m.id mid from move_list m,task t where t.id=m.queue_id and m.move_type='MOV' and m.cntr={?CNTR?} and m.id<>{?QUEUE_ID?} and m.phase<>'FIN' and t.task_type='MOVE'\");\
+var rows = Wb.getRecords(result);\
+app.run(\"delete from move_list where queue_id={?MID?} or id={?MID?} and phase<>'FIN'\", {\
+  arrayData: rows\
+});*/\
+app.run(\"delete from task where not exists(select id from move_list where queue_id=task.id) and not exists(select id from move_listb where queue_id=task.id)\");"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "response1",
+    "json": "{\"success\":true}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "response"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "yard": 1,
+  "ZSWNH": 1,
+  "xlczs": 1,
+  "ZSYARD": 1,
+  "YARDCTRL": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1
+ },
+ "title": "删除多余装箱任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

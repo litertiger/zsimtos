@@ -1,0 +1,139 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type="text/javascript" src="binary/dynaload.js?103"></script>
+
+<script>
+var uid;
+var count = 0;
+function OnReady(id)
+{
+	cooper();
+}
+function cooper()
+{
+	count++;
+	if(count != 3) return;
+
+	uid = getpsid();
+	AF1.func("SetSource", "reportdata/datacenter.xml");
+	AF1.func("build", "report/upmobile2.xml");
+	AF2.func("build", "treelist/qr.xml");
+	var url = "http://www.supcan.cn/dotnet/up.aspx?report=upmobile2&func=0&uid=" + uid;
+	AF2.func("SetValue", "QR \r\n " + url);
+	document.getElementById("test").innerHTML = url;
+	document.getElementById("test").href = url;
+	//定时轮询，取得上报的XML
+	setInterval("loadXML()", 15000);
+}
+
+//向服务器取得上报的XML
+function loadXML()
+{
+	var xml = AF1.func("Download", "http://www.supcan.cn/dotnet/up.aspx?func=24&uid=" + uid + "\r\n toString=true; isEcho=false");
+	if(xml == "") return;
+	AF1.func("RebuildTabOrder", "");
+	AF1.func("SetUploadXML", xml + "\r\n autocalc=false");
+}
+
+//生成伪随机数
+function getpsid()
+{
+  var s = new Date();
+  return s.getHours().toString() + s.getMinutes().toString() + s.getSeconds().toString() + s.getMilliseconds().toString();
+}
+</script>
+</head>
+<body onLoad="cooper()">
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>
+1.与上例基本雷同, 唯一不同的是: 报表中的三种下拉, 其数据均取自数据源. 在手机的输入过程中, 省份和城市的下拉内容是实时从数据源获取的!<br>
+2.您的后端的数据源服务不需要做任何改动, 能通用于移动端, 中心数据源返回的纯数据格式既支持 XML, 也支持 JSON.<br>
+</td></tr>
+<tr height=6><td colspan=2/></tr>
+</table>
+
+<table cols=5 border=0 width="95%">
+<col>
+<col width=600>
+<col width=100>
+<col width=400>
+<col>
+<tr height=23>
+	<td/>
+	<td><b>Step 1</b>:报表模版如下，请打开数据源看下, 其下拉全部是和中心数据源绑定的.</td>
+	<td/>
+	<td><b>Step 2</b>:如下二维码指向后端的aspx程序, 请拿出手机扫描, 进入上报填数模式.</td>
+	<td/></tr>
+<tr height="90">
+	<td/>
+	<td rowspan="4" height="360"><script>insertReport('AF1', 'rebar=main,form,,property')</script></td>
+	<td align="center"><img src="res/arrow_r.bmp"></td>
+	<td rowspan="2" height="180"><script>insertFreeForm('AF2', 'border=none')</script></td>
+	<td/>
+</tr>
+<tr height="90">
+	<td/>
+	<td/>
+	<td/>
+</tr>
+<tr height="90">
+	<td/>
+	<td/>
+	<td colspan="2">或者, 您就在 PC 端打开如下链接也行: <a id="test" href="" target=_blank></a>, 建议您查看该页面的源码, 结合模版分析;</td>
+</tr>
+<tr height="90">
+	<td/>
+	<td align="center"><img src="res/arrow_l.bmp"></td>
+	<td><b>Step 3</b>:在手机中任意输入，操作方法和上一例像似, 但本例的下拉数据是动态刷新的!</td>
+	<td/>
+</tr>
+<tr><td colspan="5"><br></td></tr>
+</table>
+<br>
+<br>
+
+<table width="90%" border="0">
+<tr><td colspan=4><img src='res/tech.jpg'></td></tr><tr><td>
+
+<tr><td colspan=4>
+<b>1</b>.由于下拉是数据源的动态数据, 所以制作报表模版比上一例简单多了, 下拉直接和数据源绑定就行, 但要注意：“省份”、“城市” 数据源都是带参数的, 别忘了下拉绑定后, 设置参数:<br>
+<img src="res/illu57.png">
+<br>
+<br>
+<b>2</b>.动态生成的 html 文件片段, 自动生成的数据源的格式是 json 对象：<br>
+<pre class='cpp'>
+&lt;script&gt;
+ var SupcanUploadURL = "http://www.supcan.cn/dotnet/up.aspx?report=upmobile2&func=33&uid=224145336";
+ var SupcanWorksheetName = "Sheet";
+ var sup_droplist1 = {listdata:[
+  {key:"01",data:"华东区"},
+  {key:"02",data:"华南区"},
+  {key:"03",data:"华北区"},
+  {key:"04",data:"华中区"}
+ ]};
+ var sup_droplist2 = {URL:"http:\/\/www.supcan.cn\/dotnet\/accesspub.aspx",dsdatacolumn:"key",dsdisplaycolumn:"text",paras:[
+  {para:"data",value:"prov",isPara:false},
+  {para:"area",value:null,isPara:true}
+ ]};
+ var sup_droplist3 = {URL:"http:\/\/www.supcan.cn\/dotnet\/accesspub.aspx",dsdatacolumn:"key",dsdisplaycolumn:"text",paras:[
+  {para:"data",value:"city",isPara:false},
+  {para:"prov",value:null,isPara:true}
+ ]};</pre>
+里面的 3 个数据源, 由于 “地区” 数据源没有参数, 所以直接就生成了 json 数组对象, 没必要在移动端实时访问数据源, 而另外 2 个数据源是有参数的, 由硕正提供的 uploadxml.js 解析, 在交互过程中通过 ajax 直接访问数据源获得数据.
+</td></tr>
+</table>
+
+</center>
+<br>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+
+</html>

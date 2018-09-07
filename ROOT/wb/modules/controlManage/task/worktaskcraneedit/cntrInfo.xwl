@@ -1,0 +1,43 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var find = app.get('find');\
+if(!find || find.length < 7)\
+  throw '至少录入7位箱号';\
+var result = app.run(\
+  \"select c.id cntr_id,c.cntr,c.cntr_size,c.cntr_type,c.yard_position,m.id mid,\\\
+r.id rid,m.handle_id,m.to_pos,m.to_pos_typ,c.e_f_id,r.in_car,tk.plat_no,\\\
+decode(c.release_id,1,'已放行','未放行') release_id,m.carrier_call,t.id tid,\\\
+nvl(t.task_type,decode(r.phase,'PLN','GIN','EXE','GIN','GET','GIN','GOUT')) task_type,\\\
+c.cntr_operator,c.i_e_id,(select max(goods_notes) from  vload_list where cntr_id=c.id and i_e_id=c.i_e_id) cmdy_code \\\
+from port_cntr c,move_list m,receipt r,task t,c_truck tk \\\
+where c.id= r.cntr_id(+) and r.phase(+) in('PLN','EXE','GET') and r.work_type(+) not in('FOFI','YOYI') \\\
+and  c.id=m.cntr_id(+) and m.move_type(+)='MOV' and m.phase(+) not in ('CNL','FIN') \\\
+and r.in_car=tk.truck_no(+) and tk.tenancy_id(+)={?sys.TENANCY_ID?} \\\
+and  m.queue_id = t.id(+) and c.cntr like'%'||{?find?} and c.tenancy_id={?sys.TENANCY_ID?}\");\
+var rows = Ag.getResultSet(result,true);\
+app.send(rows);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "在场箱信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

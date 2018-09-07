@@ -1,0 +1,64 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var feeid = \"\";\
+var nvlfee = \"\";\
+if (tenancyid == \"ZSG\") {\
+  nvlfee = \"0302\";\
+  feeid = \"('0301','0302','0303','2d8909e311b24ba7a4f53cdae26ba767')\";\
+}\
+if (tenancyid == \"XLG\") {\
+  feeid = \"小榄堆存费id\";\
+}\
+if (tenancyid == \"SWG\") {\
+  feeid = \"神湾堆存费id\";\
+}\
+var sql = \"select id,cntr,TRADE_ID,CNTR_OPERATOR_COD,CNTR_SIZE,E_F_ID,max(WSETTLE_TIME_ON)WSETTLE_TIME_ON,max(WSETTLE_TIME_END)WSETTLE_TIME_END,\" +\
+  \"max(SETTLE_TIME_ON)SETTLE_TIME_ON,max(SETTLE_TIME_END)SETTLE_TIME_END,IN_PORT_TIME,OUT_PORT_TIME,sum(DWELL_DAYS)DWELL_DAYS,sum(DERATE_DAYS)DERATE_DAYS,\" +\
+  \"SETTLE_DAYS,CUSTOMER_NAM,SETTLE_STATUS,IS_MANUAL,MANUAL_NODES,\" +\
+  \"sum(WAMOUNT)WAMOUNT,sum(AMOUNT)AMOUNT\" +\
+  \" from(select p.id,p.cntr,p.TRADE_ID,p.CNTR_OPERATOR_COD,p.CNTR_SIZE,p.E_F_ID,p.IN_PORT_TIME,p.OUT_PORT_TIME,\" +\
+  \"ad.DWELL_DAYS,ad.DERATE_DAYS,(trunc(nvl(p.OUT_PORT_TIME,sysdate))-trunc(p.IN_PORT_TIME)+1)SETTLE_DAYS,\" +\
+  \"ad.CUSTOMER_NAM,ad.SETTLE_STATUS,ad.IS_MANUAL,ad.MANUAL_NODES,\" +\
+  \"case when ad.SETTLE_STATUS=0 then ad.AMOUNT end WAMOUNT,case when ad.SETTLE_STATUS=1 then ad.AMOUNT end AMOUNT,\" +\
+  \"case when ad.SETTLE_STATUS=0 then ad.SETTLE_TIME_ON end WSETTLE_TIME_ON,\" +\
+  \"case when ad.SETTLE_STATUS=0 then ad.SETTLE_TIME_END end WSETTLE_TIME_END,\" +\
+  \"case when ad.SETTLE_STATUS=1 then ad.SETTLE_TIME_ON end SETTLE_TIME_ON,\" +\
+  \"case when ad.SETTLE_STATUS=1 then ad.SETTLE_TIME_END end SETTLE_TIME_END,\" +\
+  \"nvl(ad.FEE_LIST_ID,'\" + nvlfee + \"')FEE_LIST_ID\" +\
+  \" from port_cntr_new p left join (select * from ACCOUNTS_DETAILS where FEE_LIST_ID in \" + feeid + \") AD ON P.ID=AD.CNTR_ID\" +\
+  \" WHERE p.TENANCY_ID='\" + tenancyid + \"'\" +\
+  \" and ((p.IN_PORT_TIME>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and p.IN_PORT_TIME<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss'))\" +\
+  \" or(nvl(p.OUT_PORT_TIME,sysdate)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and nvl(p.OUT_PORT_TIME,sysdate)<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss'))\" +\
+  \" or(p.IN_PORT_TIME<=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and p.OUT_PORT_TIME>=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss'))))\" +\
+  \" where 1=1\";\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and cntr like '%\" + data.cntr + \"%'\";\
+if (!Wb.isEmpty(data.trade_id))\
+  sql += \" and TRADE_ID='\" + data.trade_id + \"'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+sql += \" group by id,cntr,TRADE_ID,CNTR_OPERATOR_COD,CNTR_SIZE,E_F_ID,SETTLE_DAYS,\" +\
+  \"IN_PORT_TIME,OUT_PORT_TIME,CUSTOMER_NAM,SETTLE_STATUS,IS_MANUAL,MANUAL_NODES\";\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "JCB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

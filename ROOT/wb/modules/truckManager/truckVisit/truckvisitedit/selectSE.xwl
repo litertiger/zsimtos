@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select ts.SEPARATE_TYPE,ts.separate_time,ts.trailor_id,r.in_car,r.in_driver_id,\" +\
+  \"r.gatein_no_t,r.gateout_time_t,ts.pick_time,r.cntr,ts.separate_address,r.shipper_consignee,\" +\
+  \"r.cntr_operator_cod,r.e_f_id,r.t_address,r.f_address from truck_separate_trailor ts\" +\
+  \" left join truck_receipt tr on ts.pre_visit_id=tr.tvid left join receipt r on tr.rpid=r.id\" +\
+  \" where ts.tenancy_id='\" + tenancyid + \"' and r.id is not null\";\
+if (!Wb.isEmpty(data.txtseCNTR))\
+  sql += \" and r.cntr like '%\" + data.txtseCNTR + \"%'\";\
+if (!Wb.isEmpty(data.txtsecar))\
+  sql += \" and r.in_car like '%\" + data.txtsecar + \"%'\";\
+if (!Wb.isEmpty(data.txtsetray))\
+  sql += \" and ts.trailor_id like '%\" + data.txtsetray + \"%'\";\
+if (!Wb.isEmpty(data.shco))\
+  sql += \" and r.ship_consign_cod='\" + data.shco + \"'\";\
+sql += \" group by ts.SEPARATE_TYPE,ts.separate_time,ts.trailor_id,r.in_car,r.in_driver_id,\" +\
+  \"r.gatein_no_t,r.gateout_time_t,ts.pick_time,r.cntr,ts.separate_address,r.shipper_consignee,\" +\
+  \"r.cntr_operator_cod,r.e_f_id,r.t_address,r.f_address\";\
+\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "甩卡记录查询显示",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

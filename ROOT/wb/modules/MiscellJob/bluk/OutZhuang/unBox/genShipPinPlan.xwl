@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var ieId=app.get(\"ieId\"),username=app.get(\"sys.username\"),vid=Wb.decode(app.get(\"vIds\")),TENANCY_ID=app.get(\"sys.TENANCY_ID\"),shipNam=app.get(\"shipNam\"),rs;\
+var  idArray=new Array();\
+ for(var i=0;i<vid.length;i++){\
+    idArray.push({VID:vid[i],ID:SysUtil.getId(),ieId:ieId});\
+  }\
+  app.run(\"insert  into BLUK_PLAN  (ID, VID, CNTR, CNTR_SIZE, CNTR_TYPE, SEAL_NO, CNTR_OPERATOR, \"+\
+        \" TASKSTATUS, VANNINGDV, CNTR_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY) \"+\
+\t\t\" select sys_guid(),  VID, CNTR, CNTR_SIZE, CNTR_TYPE,  SEAL_NO, CNTR_OPERATOR, 'PLN',{?ieId?},CNTR_ID,TENANCY_ID, \"+\
+\t\t\" sysdate,sysdate,'\"+username+\"','\"+username+\"' \"+\
+        \" from  VLOAD_LIST where  VID={?VID?} and I_E_ID={?ieId?}  and  phase>='1'  and  LCL_ID=1 and  main_flag=1 and VLOAD_LIST.TENANCY_ID='\"+TENANCY_ID+\"' and \"+\
+          \" not exists(select 1 from   BLUK_PLAN  where  {?ieId?}= VANNINGDV and  VID={?VID?}  and BLUK_PLAN.CNTR=VLOAD_LIST.CNTR  ) \"\
+        ,{transaction: 'start',\
+               arrayData: new org.json.JSONArray(Wb.encode(idArray))});\
+\
+// app.run(\"update BLUK_BILL  set  LCL_ID =(select  ID from BLUK_PLAN where BLUK_PLAN.CNTR_ID=bluk_bill.CNTR_ID  and 'E'=VANNINGDV and TENANCY_ID='\"+TENANCY_ID+\"' ) \"+\
+//         \" where BILL_ID in(select ID from  VBILL_HEAD where VID={?VID?} and I_E_ID={?ieId?} and bill_type='P') \",{ arrayData: new org.json.JSONArray(Wb.encode(idArray))});\
+\
+\
+ ",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "basic": 1
+ },
+ "title": "生成拼箱计划",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

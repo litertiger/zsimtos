@@ -1,0 +1,194 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "quoted": "true",
+     "itemId": "text",
+     "js": "(function() {\
+  //访问Java类\
+  var HashMap = Packages.java.util.HashMap; //访问Java类名以Packages.引导\
+  HashMap = java.util.HashMap; //如果以com, edu, java, javafx, javax, 和org开头的包名可以省去Packages.前缀，因为系统已经预定义了这些全局对象\
+  HashMap = Java.type('java.util.HashMap'); //通过Java.type来引用类，是建议使用的方法。\
+  var hashMap = new java.util.HashMap(); //通过完全的路径访问\
+  hashMap = new HashMap(); //通过定义的HashMap变量来访问\
+  hashMap.put('name', 'value'); //访问Java类的方法，向hashMap对象中添加值\
+\
+  //访问Java方法\
+  var System = Java.type('java.lang.System'); //定义System变量指向java.lang.System类\
+  System.out.println(10); //方法直接引用，等效于System.out['println'](10);\
+  System.out['println(double)'](10); //方法使用中括号引用，并在方法中指定参数原型来引用同名的重载方法。\
+\
+  //使用JavaBeans\
+  var date = new java.util.Date(); //创建Java Date对象\
+  year = date.year + 1900; //使用date.year替代date.getYear方法\
+  date.year = 2014 - 1900; //设置date.year替代date.setYear方法\
+\
+  //Java数组的访问\
+  var IntArray = Java.type('int[]'); //定义Java int 数组变量\
+  var arr = new IntArray(10); //创建Java数组\
+  var jsArr = ['a', 'b', 'c']; //定义js数组\
+  var strArrType = Java.type('java.lang.String[]');\
+  var javaArr = Java.to(jsArr); //使用Java.to方法把js数组转换为java Object[]数组\
+  javaArr = Java.to(jsArr, strArrType); //使用Java.to方法把js数组转换为指定原型String[]的java数组\
+\
+  for (var i in javaArr) print(i); //遍历数组，打印索引i\
+  Wb.each(javaArr, function(value) { //遍历数组，value为值\
+    print(value); //在控制台打印值\
+  });\
+  jsArr = Java.from(arr); //把Java数组或List转换为js数组。通常js数组作为参数传入到java方法时系统会自动转换\
+\
+  //数字的访问\
+  var intNum = 10; //Integer类型\
+  var dblNum = Number(intNum); //Double类型\
+\
+  //日期的访问\
+  var jsDate = new Date(); //JS日期\
+  var javaDate = new JavaDate(); //Java日期，JavaDate=java.util.Date\
+  javaDate = Wb.reverse(jsDate); //JS Date转换为Java Date\
+  //在jsDate/javaDate,Object/JSONObject,Array/JSONArray,array/JavaArray之间反转值类型建议使用Wb.reverse方法\
+  javaDate = new JavaDate(jsDate.getTime()); //JS Date转换为Java Date\
+  jsDate = Wb.reverse(javaDate); //Java Date转换为 JS Date\
+  jsDate = Wb.createDate(javaDate.getTime()); //Java Date转换为 JS Date\
+  jsDate = new Date(Number(javaDate.getTime())); //Java Date转换为 JS Date\
+  var dateText = Wb.dateToStr(jsDate); //JS日期转换为字符串\
+  jsDate = Wb.strToDate(dateText); //字符串转换为JS日期\
+  dateText = DateUtil.dateToStr(javaDate); //Java日期转换为字符串\
+  javaDate = DateUtil.strToDate(dateText); //字符串转换为Java日期\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'); //格式化Java日期\
+  dateText = Wb.format(jsDate, 'yyyy-MM-dd HH:mm:ss'); //格式化JS日期\
+\
+\
+  //Java集合的访问\
+  var ArrayList = java.util.ArrayList; //声明变量指向ArrayList\
+  var alist = new ArrayList(); //创建ArrayList实例\
+  alist.add(\"a\"); //添加值a\
+  alist.add(\"b\"); //添加值b\
+  alist.add(\"c\"); //添加值c\
+  print(alist[1]); //打印第二项值\u201cb\u201d，alist[1]等效于alist.get(1)\
+  alist.forEach(function(i) { //遍历alist对象\
+    print(i); //打印每一项的值\
+  });\
+\
+  var hm = new HashMap(); //创建HashMap实例\
+  hm.put(\"name\", \"Bob\"); //添加名称为name值为Bob的项\
+  hm.put(\"age\", 40); //添加名称为age值为40的项\
+  hm.put(\"weight\", 180); //添加名称为weight值为180的项\
+  hm.keySet().forEach(function(k) { //遍历键列表\
+    print(k);\
+  });\
+  hm.values().forEach(function(v) { //遍历值列表\
+    print(v);\
+  });\
+  hm.entrySet().forEach(function(e) { //遍历键值列表\
+    print(e.key + '=' + e.value);\
+  });\
+\
+  //Java类扩展\
+  var Run = Java.type(\"java.lang.Runnable\");\
+  var MyRun = Java.extend(Run, { //扩展Runnable类\
+    run: function() {\
+      print(\"Run in separate thread\");\
+    }\
+  });\
+\
+  var Thread = Java.type(\"java.lang.Thread\");\
+  var th = new Thread(new MyRun()); //创建线程类实例\
+\
+  //JSON处理\
+  var encodedText, javaObject, javaArray, jsObject = {\
+      a: 'foo',\
+      b: new Date(),\
+      c: 123\
+    },\
+    jsArray = ['abc', 123, new Date()];\
+\
+  encodedText = Wb.encode(jsObject); //把JSON对象转换为字符串\
+  jsObject = Wb.decode(encodedText); //把字符串转换成JSON对象\
+  javaObject = new JSONObject(encodedText); //把字符串转换为Java JSONObject\
+  encodedText = javaObject.toString(); //把Java JSONObject 转换为 String\
+  jsObject = Wb.decode(encodedText); //把String转换为JSON对象\
+\
+  encodedText = Wb.encode(jsArray); //把JSON数组转换为字符串\
+  jsArray = Wb.decode(encodedText); //把字符串转换成JSON数组\
+  javaArray = new JSONArray(encodedText); //把字符串转换为Java JSONArray\
+  encodedText = javaArray.toString(); //把Java JSONArray 转换为 String\
+  javaArray = Wb.decode(encodedText); //把String转换为JSON数组\
+\
+  javaArray = Wb.reverse(jsArray); //jsArray转javaArray\
+  jsArray = Wb.reverse(javaArray); //javaArray转jsArray\
+  javaObject = Wb.reverse(jsObject); //js Object转JSONObject\
+  jsObject = Wb.reverse(javaObject); //JSONObject转js Object\
+\
+  //调用方法的名称为关键字\
+  //obj.new()改为obj['new']();\
+  //file.delete()改为file['delete']();\
+  //所有关键字名称的方法均需按上述方法调用\
+\
+  //异常处理\
+  try {\
+    //throw 'error'; //抛出异常\
+  } catch (e) {\
+    //     if (e instanceof java.lang.RuntimeException) 判断具体的异常类型并作进一步处理\
+    //       throw e;   \
+  } finally {\
+    //进行一些处理\
+  }\
+\
+  //导入包\
+  //   var imports = new JavaImporter(java.util, java.lang);\
+  //   with(imports) {//不建议使用，建议通过全路径引用类\
+  //     var map = new HashMap();\
+  //     System.out.println(map.toString());\
+  //   }\
+\
+  //加载js文件\
+  //load('urlOrFile');//URL地址或文件名\
+\
+  //发送数据到客户端\
+  //使用app.send发送数据将立即进行提交，因此后续发送的数据将不再被发送\
+  //app.send('text');\
+  //app.send({foo:bar});\
+  //app.send(anyObject);\
+  //response.getWriter().print('sdf');使用传统的方法输出脚本，必须使用response.flushBuffer();进行立即提交\
+\
+  //参数获取和设置\
+  //var jsonObject=app.get();获取所有的request parameter/attribute和session attribute值\
+  //var myParm=app.get('myParam');获取指定名称的request parameter/attribute和session attribute值\
+  //app.set({foo:'bar',abc:123});//把对象中的值设置到request的attribute\
+})();"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "string"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "xwl1",
+      "file": "m?xwl=system/sys/dialog/dev/script-editor"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "xwl"
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "app.xwl1.setValue(\"{#text#}\", null, true);"}
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "示例代码片断",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

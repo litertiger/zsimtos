@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = app.get('id');\
+var time = new JavaDate();\
+app.set('time', time);\
+try {\
+  app.run(\"update truck_app set \" + app.get('field') + \"={?timestamp.time?},update_time=systimestamp where id={?id?}\");\
+  if (app.get('longitude') && app.get('latitude')) {\
+    app.run(\"update truck_app set fct_latitude={?latitude?},fct_longitude={?longitude?},fct_address={?address?} where id={?id?}\");\
+    var result = app.run(\"select  r.s_adress aid,decode(r.i_e_id, 'I', nvl(r.consignee_cod,r2.consignee_cod), nvl(r.shipper_cod,r2.shipper_cod)) code\\\
+   from truck_app t,receipt r,receipt r2  where t.rcp_id=r.id and r.rid2=r2.id(+) and t.id={?id?}\");\
+    if (result && result.next()) {\
+      app.set('aid', result.getString('aid'));\
+      app.set('code', result.getString('code'));\
+      app.run(\" merge into truck_app_address t1\\\
+   using (select {?aid?} address_id,{?code?} code from dual ) t2\\\
+   on (t1.address_id=t2.address_id and t1.code=t2.code)\\\
+   when matched then\\\
+   update set address={?address?},latitude={?latitude?},longitude={?longitude?},\\\
+   same_count = decode(address,{?address?},same_count+1,1),\\\
+   lock_id=decode(address,{?address?},decode(same_count,4,'1','0'),'0')\\\
+   where lock_id='0'\\\
+   when not matched then\\\
+   insert (address_id,code,address,latitude,longitude) values(t2.address_id,t2.code,{?address?},{?latitude?},{?longitude?})\");\
+    }\
+  }\
+  if (app.get('field') == 'OUT_GATE_TIME')\
+    app.run(\"update truck_app set phase='FIN',update_time=systimestamp where phase<>'FIN' and out_gate_time is not null and task_type='IN'\");\
+} catch (e) {\
+  var result = /ORA-\\d+:\\s(.*)\\
+/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  result = /ScriptException:\\s(.*)\\sin/.exec(e);\
+  if (result && result.length === 2) {\
+    app.send({\
+      success: false,\
+      errstr: result[1]\
+    });\
+  }\
+  app.send({\
+    success: false,\
+    errstr: e\
+  });\
+  throw e;\
+}\
+app.send({\
+  time: time\
+});",
+   "loginRequired": "false"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "任务时间点确认",
+ "iconCls": "aim_icon",
+ "inframe": false,
+ "pageLink": ""
+}

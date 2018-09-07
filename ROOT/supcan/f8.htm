@@ -1,0 +1,110 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var count=0;
+ function OnReady(id)
+ {
+   count++;
+   if(count != 2) return;
+ 
+  AFmaster.func("build", "treelist/freeform_master.xml");
+  AFdetail.func("build", "treelist/t_detail.xml");
+  var h = AFdetail.func("GetHandle", "");
+  AFmaster.func("BindAsMaster", h + "\r\n masterPart");
+  AFdetail.func("Load", "treelistdata/combine.xml \r\n Node=detailPart");
+  focusIE('AFmaster');
+  AFmaster.func("SelectCell", "");
+ }
+
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(id=='AFmaster') {
+   if(Event=='LooseFocus') {
+    //控制光标：跳转到表体首个单元格
+    if(p1=='city' && p2=='id') {
+     focusIE('AFdetail');
+     AFdetail.func("Selectcell","0\r\n0");
+    }
+   }
+  }
+ }
+ 
+ function commit()
+ {
+  var xml1 = AFmaster.func("GetChangedXML", "");
+  if(xml1=="0") return;
+  
+  var xml2 = AFdetail.func("GetChangedXML", "");
+  if(xml2=="0") returnl
+
+  alert(xml1 +"\r\n"+ xml2);
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff leftmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.上面是 Freeform 表头，下面是Treelist表体，实现了常见的主表-明细表的单据输入方式;<br>
+<b>2</b>.请注意分析源码中数据的加载方式;</td>
+</tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<div style="position:relative;width:800">
+	<script>insertFreeForm('AFmaster', '', 180)</script>
+</div>
+<div style="position:relative;width:800">
+	<script>insertTreeList('AFdetail', '', 200)</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.上面是 <a href='treelist/freeform_master.xml' target=_blank>Freeform</a> 表头，下面是Treelist表体，实现了常见的主表-明细表的单据输入方式;<br>
+<b>2</b>.在本例中，表头和表体共享了同一个<a href="treelistdata/combine.xml" target=_blank>XML数据</a>，OnReady( )源码如下;<br>
+<pre class='cpp'>
+var count=0;
+function OnReady(id)
+{
+ count++;
+ if(count != 2) return;
+
+ //创建Freeform、Treelist
+ AFmaster.func("build", "treelist/freeform_master.xml");
+ AFdetail.func("build", "treelist/t_detail.xml");
+ 
+ //Freeform作为 Master 绑定到Treelist，以共享Treelist加载的数据中的&lt;masterPart&gt;下的内容
+ var h = AFdetail.func("GetHandle", "");
+ AFmaster.func("BindAsMaster", h + "\r\n masterPart");
+ 
+ //Treelist加载数据，使用其中的&lt;detailPart&gt;下的数据
+ //同时把&lt;masterPart&gt;部分数据交给了Freeform
+ AFdetail.func("Load", "treelistdata/combine.xml \r\n Node=detailPart");
+}</pre>
+表头、表体使用了数据中不同部分，示意如下：<br>
+<center><img src='res/masterdetail.png'></center>
+<br>
+　　当然，也不一定要采用上述绑定的做法，因为Freeform 和 Treelist本身都有Load( )函数可以加载数据。本例的目的为：<br>
+　　　　<b><i>1</i></b>.表头表体数据放在一起，可以减轻后端开发工作量;<br>
+　　　　<b><i>2</i></b>.减少Http请求数;<br>
+<br>
+<b>3</b>.请注意上述OnReady( )中第13行源码，采用了一个变量readyCount，表示Treelist和Freeform全部已准备好才能绑定取数,因为本例中Treelist 和 Freeform处在不同的&lt;div&gt;中，而浏览器是以多线程方式工作的，写在脚本中靠前的位置的div<font color=red>未必</font>先完成创建！<br>
+<br>
+<b>4</b>.提交数据时，可以分别调用GetChangedXML( )取得二段XML，将其并在一起提交。请对表格作些操作，然后<input type=button value="模拟提交" onClick="commit()">
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

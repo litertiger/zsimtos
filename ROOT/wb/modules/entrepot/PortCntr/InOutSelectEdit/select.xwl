@@ -1,0 +1,192 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),\
+  goods = app.get(\"goods\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  bulkType = app.get(\"bulkType\"),\
+  govCode = app.get(\"sys.GOV_CODE\");; //租户id\
+var cfsId = app.get(\"cfsId\");\
+//出入库类型在单选框的情况下\
+// var sql = \"select a.ID, a.OUTFLAG, a.PIECES, a.TRUCKNO, a.RELEASE_NO, a.SEAL_NO, a.ID, a.CFSBILL_ID,b.* from BLUK_INOUT a,BLUK_GOODS b where a.ID=B.ID \";\
+\
+// app.log(data.inflag);\
+// if (data.inflag === 'true') {\
+//   //入库\
+//   sql += \"and OUTFLAG='0' and trunc(INTIME) = trunc(to_timestamp('\" + data.date + \"','yyyy-MM-dd hh24:mi:ss:ff'))\";\
+\
+// } else {\
+//   sql += \"and OUTFLAG='1' and trunc(OUTTIME) = trunc(to_timestamp('\" + data.date + \"','yyyy-MM-dd hh24:mi:ss:ff'))\";\
+// }\
+\
+// if (!Wb.isEmpty(data.type) && !Wb.isEmpty(data.date)) {\
+//   if (!Wb.isEmpty(data.names)) {\
+//     if (data.type === '0') {\
+//       //货名\
+//       sql += \" and GOODS like  '%'||{?names?}||'%'\";\
+//     } else if (data.type === '1') {\
+//       //提单号\
+//       sql += \" and BILL_NO like  '%'||{?names?}||'%'  \";\
+//     } else if (data.type === '2') {\
+//       //驳船公司\
+//       sql += \" and CNTR_OPERATOR like  '%'||{?names?}||'%'\";\
+//     } else if (data.type === '3') {\
+//       //货主\
+//       sql += \" and SHIPPER like  '%'||{?names?}||'%'\";\
+//     } else if (data.type === '4') {\
+//       //仓库编号\
+//       sql += \" and BILL_NO like  '%'||{?names?}||'%'\";\
+//     }\
+//   }\
+// }\
+\
+if (!Wb.isEmpty(data.sdate))\
+  var sql = \"select a.*,a.ID, a.OUTFLAG, a.PIECES, a.TRUCKNO, a.RELEASE_NO, a.SEAL_NO, a.ID, a.CFSBILL_ID,b.*,decode(outflag,0,'入库',1,'出库') state,A.INOUT_ID,A.WEIGHT,A.VOLUME,to_char(INTIME,'yyyy-MM-dd') INTIME,case when a.OUTFLAG='1' THEN nvl(to_char(STORE_TIME,'yyyy-MM-dd'),to_char(OUTTIME,'yyyy-MM-dd')) END OUTTIME,(inquty-NVL((SELECT SUM(PIECES) FROM BLUK_INOUT D WHERE D.BILL_NO=A.BILL_NO AND INOUT_ID<>A.INOUT_ID AND OUTFLAG=1 AND STORE_TIME<to_date('\" + data.date + \" 00:00:00','yyyy-MM-dd HH24:mi:ss')),0)-sum(pieces) over(partition by a.bill_no order by STORE_TIME asc)) perquty\" +\
+    \"\t\tfrom BLUK_INOUT a,BLUK_GOODS b where a.ID=B.ID and b.TENANCY_ID='\" + tenancyid + \"'\";\
+//   var sql = \"select a.*,a.ID, a.OUTFLAG, a.PIECES, a.TRUCKNO, a.RELEASE_NO, a.SEAL_NO, a.ID, a.CFSBILL_ID,b.*,decode(outflag,0,'入库',1,'出库') state,A.INOUT_ID,A.WEIGHT,A.VOLUME,nvl(to_char(STORE_TIME,'yyyy-MM-dd'),to_char(INTIME,'yyyy-MM-dd')) INTIME,nvl(to_char(STORE_TIME,'yyyy-MM-dd'),to_char(OUTTIME,'yyyy-MM-dd')) OUTTIME,(inquty-NVL((SELECT SUM(PIECES) FROM BLUK_INOUT D WHERE D.BILL_NO=A.BILL_NO AND INOUT_ID<>A.INOUT_ID AND OUTFLAG=1 AND STORE_TIME<to_date('\" + data.date + \" 00:00:00','yyyy-MM-dd HH24:mi:ss')),0)-sum(pieces) over(partition by a.bill_no order by STORE_TIME asc)) perquty\" +\
+//     \"\t\tfrom BLUK_INOUT a,BLUK_GOODS b where a.ID=B.ID and b.TENANCY_ID='\" + tenancyid + \"'\";\
+else\
+//   var sql = \"select a.*,a.ID, a.OUTFLAG, a.PIECES, a.TRUCKNO, a.RELEASE_NO, a.SEAL_NO, a.ID, a.CFSBILL_ID,b.*,decode(outflag,0,'入库',1,'出库') state,A.INOUT_ID,A.WEIGHT,A.VOLUME,nvl(to_char(STORE_TIME,'yyyy-MM-dd'),to_char(INTIME,'yyyy-MM-dd')) INTIME,nvl(to_char(STORE_TIME,'yyyy-MM-dd'),to_char(OUTTIME,'yyyy-MM-dd')) OUTTIME,(inquty-sum(pieces) over(partition by a.bill_no order by STORE_TIME asc)) perquty\" +\
+//     \"\t\tfrom BLUK_INOUT a,BLUK_GOODS b where a.ID=B.ID and b.TENANCY_ID='\" + tenancyid + \"'\";\
+    var sql = \"select a.*,a.ID, a.OUTFLAG, a.PIECES, a.TRUCKNO, a.RELEASE_NO, a.SEAL_NO, a.ID, a.CFSBILL_ID,b.*,decode(outflag,0,'入库',1,'出库') state,A.INOUT_ID,A.WEIGHT,A.VOLUME,to_char(INTIME,'yyyy-MM-dd') INTIME,case when a.OUTFLAG='1' THEN nvl(to_char(STORE_TIME,'yyyy-MM-dd'),to_char(OUTTIME,'yyyy-MM-dd')) END OUTTIME,(inquty-sum(pieces) over(partition by a.bill_no order by STORE_TIME asc)) perquty\" +\
+    \"\t\tfrom BLUK_INOUT a,BLUK_GOODS b where a.ID=B.ID and b.TENANCY_ID='\" + tenancyid + \"'\";\
+if (data.classfy == '1') {\
+  //in\
+  sql += \" and a.OUTFLAG='0'\";\
+  if (!Wb.isEmpty(data.date) && !Wb.isEmpty(data.edate)) {\
+    sql += \" and nvl(STORE_TIME,b.INTIME) between to_date('\" + data.date + \" 00:00:00','yyyy-MM-dd HH24:mi:ss') and to_date('\" + data.edate + \" 23:59:59','yyyy-MM-dd HH24:mi:ss')\";\
+  }\
+  if (!Wb.isEmpty(data.type)) {\
+    if (!Wb.isEmpty(data.names)) {\
+      if (data.type === '0') {\
+        //货名\
+        sql += \" and GOODS like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '1') {\
+        //提单号\
+        sql += \" and b.BILL_NO like  '%'||{?names?}||'%'  \";\
+      } else if (data.type === '2') {\
+        //驳船公司\
+        sql += \" and CNTR_OPERATOR like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '3') {\
+        //货主\
+        sql += \" and SHIPPER like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '4') {\
+        //仓库编号\
+        sql += \" and LOCATION like  '%'||{?names?}||'%'\";\
+      }\
+    }\
+  }\
+  //\
+  if (!Wb.isEmpty(data.cfsId)) {\
+    sql += \" and CFS_ID={?cfsId?}\";\
+  }\
+  //\
+} else if (data.classfy == '2') {\
+  //out\
+  sql += \" and a.OUTFLAG='1'\";\
+  if (!Wb.isEmpty(data.date) && !Wb.isEmpty(data.edate)) {\
+    sql += \" and nvl(STORE_TIME,b.OUTTIME) between to_date('\" + data.date + \" 00:00:00','yyyy-MM-dd HH24:mi:ss') and to_date('\" + data.edate + \" 23:59:59','yyyy-MM-dd HH24:mi:ss')\";\
+  }\
+  if (!Wb.isEmpty(data.type)) {\
+    if (!Wb.isEmpty(data.names)) {\
+      if (data.type === '0') {\
+        //货名\
+        sql += \" and GOODS like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '1') {\
+        //提单号\
+        sql += \" and b.BILL_NO like  '%'||{?names?}||'%'  \";\
+      } else if (data.type === '2') {\
+        //驳船公司\
+        sql += \" and CNTR_OPERATOR like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '3') {\
+        //货主\
+        sql += \" and SHIPPER like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '4') {\
+        //仓库编号\
+        sql += \" and LOCATION like  '%'||{?names?}||'%'\";\
+      }\
+    }\
+  }\
+  //\
+  if (!Wb.isEmpty(data.cfsId)) {\
+    sql += \" and CFS_ID={?cfsId?}\";\
+  }\
+  //\
+} else {\
+  if (!Wb.isEmpty(data.type)) {\
+    if (!Wb.isEmpty(data.names)) {\
+      if (data.type === '0') {\
+        //货名\
+        sql += \" and GOODS like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '1') {\
+        //提单号\
+        sql += \" and b.BILL_NO like  '%'||{?names?}||'%'  \";\
+      } else if (data.type === '2') {\
+        //驳船公司\
+        sql += \" and CNTR_OPERATOR like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '3') {\
+        //货主\
+        sql += \" and SHIPPER like  '%'||{?names?}||'%'\";\
+      } else if (data.type === '4') {\
+        //仓库编号\
+        sql += \" and LOCATION like  '%'||{?names?}||'%'\";\
+      }\
+    }\
+  }\
+  //\
+  if (!Wb.isEmpty(data.cfsId)) {\
+    sql += \" and CFS_ID={?cfsId?}\";\
+  }\
+  //\
+}\
+\
+// app.log(data.date);\
+// var dates = data.date;\
+// var date = new Date(Date.parse(dates.replace(/-/g, \"/\")));\
+// if (!Wb.isEmpty(data.type) && !Wb.isEmpty(data.date)) {\
+//   if (data.type === '0') {\
+//     //入库yyyy-MM-dd HH24:mm:ss\
+//     //   \tsql+=\" and INTIME <= to_date('\"+data.date+\"','yyyy-MM-dd HH:mm:ss') \";\
+//     sql += \" and OUTFLAG='0' and trunc(INTIME) = trunc(to_timestamp('\" + data.date + \"','yyyy-MM-dd hh24:mi:ss:ff')) \";\
+//   } else if (data.type === '1') {\
+//     //出库\
+//     sql += \" and OUTFLAG='1' and  trunc(OUTTIME) = trunc(to_timestamp('\" + data.date + \"','yyyy-MM-dd hh24:mi:ss:ff'))  \";\
+//   } else if (data.type === '2') {\
+//     //货名\
+//     sql += \" and b.GOODS like '%'||{??}\";\
+//   }\
+// }\
+// if(!Wb.isEmpty(data.goods))\
+//   sql+=\" and GOODS like '%'||{?goods?}||'%'  \";\
+\
+// if (!Wb.isEmpty(data.bulkType)) {\
+// //     sql+=\"  and  CFS_ID like '\"+data.bulkType+\"'\";\
+//   sql+=\"  and  CFS_ID like '%'||{?bulkType?}||'%'\";\
+\
+// }\
+// if(!Wb.isEmpty(data.CyAreaNo)){\
+// \tsql+=\" and LOCATION like '%'||{?CyAreaNo?}||'%'\";\
+// }\
+\
+// if(!Wb.isEmpty(data.cfsNo)){\
+// \tsql+=\" and CFS_ID || LOCATION ='\"+data.cfsNo+\"'\";\
+// }\
+// sql+=\"  and TRADE_ID={?tradeId?} \" ;\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "DCXK": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

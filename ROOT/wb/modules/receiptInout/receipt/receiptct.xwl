@@ -1,0 +1,323 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winSC",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 360,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "width": "400",
+     "title": "修改车队",
+     "height": "100"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "IDS",
+       "hidden": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "CAR_TEAM",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "车队",
+       "displayField": "CNAME",
+       "valueField": "ID",
+       "forceSelection": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "pageSize": "-1",
+        "url": "m?xwl=receiptInout/receipt/receiptedit/selectCarTeam"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/receiptctdedit/update\",\
+  out: app.winSC,\
+  success: function(resp) {\
+    Wb.info(\"操作完成\");\
+    app.winSC.close();\
+    app.gridReceipt.store.load({\
+      out: app.tbar\
+    });\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "gridReceipt",
+      "selType": "checkboxmodel",
+      "disabled": "false",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "txtBILL",
+          "labelAlign": "right",
+          "fieldLabel": "提单号",
+          "labelWidth": "60"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "text",
+         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+        },
+        {
+         "configs": {
+          "itemId": "searchBtn",
+          "text": "@Str.find",
+          "iconCls": "search_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.gridReceipt.store.load({\
+  out: app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "btnupdcd",
+          "text": "修改车队",
+          "iconCls": "vans_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridReceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择设备交接单\");\
+  return;\
+}\
+var ids = \"\";\
+Wb.each(sels, function(sel) {\
+  ids += \"'\" + sel.data.ID + \"',\";\
+});\
+ids = ids.substring(0, ids.length - 1);\
+var win = new Ext.window.Window(app._winSC);\
+win.show();\
+app.IDS.setValue(ids);"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=receiptInout/receipt/receiptctdedit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "ID"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTENANCY_ID",
+          "hidden": "true",
+          "dataIndex": "TENANCY_ID",
+          "text": "租户"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCNTR",
+          "dataIndex": "CNTR",
+          "text": "箱号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colBILL_NO",
+          "dataIndex": "BILL_NO",
+          "text": "提单号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colWORK_TYPE",
+          "dataIndex": "WORK_TYPE",
+          "keyName": "WORK_WAY",
+          "width": "80",
+          "text": "作业方式"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colPHASE",
+          "dataIndex": "PHASE",
+          "width": "60",
+          "text": "状态"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colTRADE_ID",
+          "dataIndex": "TRADE_ID",
+          "width": "60",
+          "keyName": "TRADE_ID",
+          "text": "内外贸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colI_E_ID",
+          "dataIndex": "I_E_ID",
+          "keyName": "I_E_ID",
+          "width": "60",
+          "text": "进出口"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colE_F_ID",
+          "dataIndex": "E_F_ID",
+          "keyName": "E_F_ID",
+          "width": "60",
+          "text": "空重"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCAR_TEAM",
+          "renderer": "return Wb.getCustomerByCode(value);",
+          "dataIndex": "CAR_TEAM",
+          "width": "200",
+          "text": "车队"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "JCB": 1,
+  "DCXK": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "车队修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

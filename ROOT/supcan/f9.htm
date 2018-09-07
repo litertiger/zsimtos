@@ -1,0 +1,142 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+ var count=0;
+ function OnReady(id)
+ {
+   count++;
+   if(count != 3) return;
+
+   report.func("build", "report/report0.xml");		//加载报表模板
+   AFmaster.func("build", "treelist/freeform_master.xml");
+   AFdetail.func("build", "treelist/t_detail.xml");
+   var h = AFdetail.func("GetHandle", "");
+   AFmaster.func("BindAsMaster", h + "\r\n masterPart");
+   AFdetail.func("Load", "treelistdata/combine.xml \r\n Node=detailPart");
+   //为表头初始些数据
+   AFmaster.func("SetValue", "id \r\n k1020");
+   AFmaster.func("SetValue", "rate \r\n 6.1203");
+   AFmaster.func("SetValue", "total \r\n 517223");
+   AFmaster.func("SetValue", "cust \r\n BSBEV");
+   AFmaster.func("SetValue", "country \r\n 4");
+   AFmaster.func("SetValue", "city \r\n charleroi");
+ }
+ 
+ //记忆上下2个div的高度
+ var m_storedH1, m_storedH2;
+ function initPos()
+ {
+  if(m_storedH1 != null) return;
+  m_storedH1 = document.getElementById('div1').offsetHeight;
+  m_storedH2 = document.getElementById('div2').offsetHeight;
+ }
+ 
+ //数据传递给report
+ function initReport()
+ {
+  report.func("SetSource", "ds0 \r\n " + AFmaster.func("Export", ""));
+  report.func("SetSource", "ds1 \r\n " + AFdetail.func("Export", ""));
+  report.func("Calc", "");
+ }
+ 
+ //3个按钮的js
+ function showReport()
+ {
+  initPos();
+  document.getElementById('div1').style.height='0px';
+  document.getElementById('div2').style.height='0px';
+  document.getElementById('div3').style.height=m_storedH1 + m_storedH2;
+  initReport();
+ }
+ function showBill()
+ {
+  initPos();
+  document.getElementById('div1').style.height = m_storedH1;
+  document.getElementById('div2').style.height = m_storedH2;
+  document.getElementById('div3').style.height = '0px';
+ }
+ function printBill()
+ {
+  initReport();
+  report.func("callfunc", "18");
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff leftmargin=0 rightmargin=0>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.全部沿用了上例的Treelist和Freeform，但本页面中引入了<font color=red>硕正报表(Report)组件</font>;<br>
+<b>2</b>.可以直接<input id="btn1" type=button value=' 打印预览 ' onClick='printBill()'>， 也可以切换：<input type=button value=' 报表 ' onClick='showReport()'>、<input type=button value=' 回到单据录入 ' onClick='showBill()'>，您在输入时可直接查看报表打印效果;</td>
+</tr>
+<tr height=8><td/><td/></tr>
+</table>
+
+<div id='div1' style="position:relative;width:800;height:180px">
+	<script>insertFreeForm('AFmaster', '')</script>
+</div>
+<div id='div2' style="position:relative;width:800;height:200px">
+	<script>insertTreeList('AFdetail', '')</script>
+</div>
+<div id='div3' style="position:relative;width:800px;height:1px">
+	<script>insertReport('report', '')</script>
+</div>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.页面中安置了3个实例组件:<br>
+<pre class='xml'>
+&lt;div id='div1' style="position:relative;width:800;height:180px"&gt;
+  &lt;script&gt;insertFreeForm('AFmaster', '')&lt;/script&gt;
+&lt;/div&gt;
+&lt;div id='div2' style="position:relative;width:800;height:200px"&gt;
+  &lt;script&gt;insertTreeList('AFdetail', '')&lt;/script&gt;
+&lt;/div&gt;
+&lt;div id='div3' style="position:relative;width:800px;height:1px"&gt;  //注意：高度为1px表示可见，以保证触发OnReady()事件
+  &lt;script&gt;insertReport('report', '')&lt;/script&gt;
+&lt;/div&gt;</pre>
+<br>
+<b>2</b>.Report在OnReady( )时加载了模板：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+  ...
+  report.func("build", "report/report0.xml");		//加载报表模板
+  ...(略)</pre>
+可见报表的模板是需要另外单独设计的.<br>
+<br>
+<b>3</b>.该报表模板中有2个临时数据源，一个为表头(ds0)，另一个为表体(ds1)，页面和Report交互的关键代码如下：<br>
+<pre class='cpp'>
+//数据传递给report
+function initReport()
+{
+ //取得表头的XML数据，作为数据源传递给Report
+ report.func("SetSource", "ds0 \r\n " + AFmaster.func("Export", ""));
+ //取得表体的XML数据，作为数据源传递给Report
+ report.func("SetSource", "ds1 \r\n " + AFdetail.func("Export", ""));
+ //填数、计算
+ report.func("Calc", "");
+}</pre>
+<br>
+<b>4</b>.该Report模板设置了若干较高深的打印选项，例如：<br>
+<img src='res/illu27.jpg'/>
+<br><br>
+<b>5</b>.如果您想设计出灵活的自定义打印方案，请深入了解Report的功能.<br>
+<br>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

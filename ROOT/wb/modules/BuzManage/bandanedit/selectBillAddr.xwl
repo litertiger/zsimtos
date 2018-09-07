@@ -1,0 +1,33 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+\
+var sql = \"select FORWARDER,a.name,bill_type from vbill_head vh left join c_address a on vh.forwarder=a.id\\
+\" +\
+  \"where bill_no='\" + data.billno + \"' and vh.tenancy_id='\" + tenancyid + \"'\";\
+var bill = Wb.getRecords(app.run(sql));\
+if (bill.length < 1)\
+  throw data.billno + \"不存在\";\
+if (bill.length > 0 && bill[0].BILL_TYPE != \"S\")\
+  throw data.billno + \"不是散货\";\
+app.send(bill);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "查询舱单散货地址",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

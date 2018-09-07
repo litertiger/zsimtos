@@ -1,0 +1,237 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId()\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbarGrid",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "cboY",
+         "allowBlank": "false",
+         "emptyText": "年",
+         "width": "80",
+         "displayField": "YEAR",
+         "valueField": "ID",
+         "forceSelection": "false"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = app.cboM.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "cboM",
+         "allowBlank": "false",
+         "pickList": "[\
+  [1, \"1月\"],\
+  [2, \"2月\"],\
+  [3, \"3月\"],\
+  [4, \"4月\"],\
+  [5, \"5月\"],\
+  [6, \"6月\"],\
+  [7, \"7月\"],\
+  [8, \"8月\"],\
+  [9, \"9月\"],\
+  [10, \"10月\"],\
+  [11, \"11月\"],\
+  [12, \"12月\"]\
+]",
+         "emptyText": "月",
+         "width": "60",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo",
+        "events": {"select": "var year = app.cboY.getValue();\
+var month = combo.getValue();\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);"}
+       },
+       {
+        "configs": {
+         "itemId": "sdate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "allowBlank": "false",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "170",
+         "labelWidth": "70"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbarGrid))\
+  return;\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var date = app.sdate.getRawValue().substring(0, 7);\
+var whereSql = encodeURI(\"(select to_char(v2.eta,'dd')days,\" +\
+  \"sum(case when e_f_id='F' and cntr_size<>'20' then 1 end) vinf40,\" +\
+  \"sum(case when e_f_id='F' and cntr_size='20' then 1 end) vinf20,\" +\
+  \"sum(case when e_f_id='E' and cntr_size<>'20' then 1 end) vine40,\" +\
+  \"sum(case when e_f_id='E' and cntr_size='20' then 1 end) vine20\" +\
+  \" from vload_list vl left join vessel_visit v2 on vl.vid=v2.id\" +\
+  \" where vl.tenancy_id='\" + tenancyid + \"' and vl.main_flag=1 and vl.i_e_id='I' and to_char(v2.eta,'yyyy-mm')='\" + date + \"'\" +\
+  \" group by to_char(v2.eta,'dd'))vin\" +\
+  \" inner join\" +\
+  \" (select to_char(gatein_time_s,'dd') days,\" +\
+  \"sum(case when e_f_id='F' and cntr_size<>'20' then 1 end) ginf40,\" +\
+  \"sum(case when e_f_id='F' and cntr_size='20' then 1 end) ginf20,\" +\
+  \"sum(case when e_f_id='E' and cntr_size<>'20' then 1 end) gine40,\" +\
+  \"sum(case when e_f_id='E' and cntr_size='20' then 1 end) gine20\" +\
+  \" from receipt where tenancy_id='\" + tenancyid + \"' and work_type<>'YOYI' and to_char(gatein_time_s,'yyyy-mm')='\" + date + \"'\" +\
+  \" group by to_char(gatein_time_s,'dd'))gin on vin.days=gin.days\" +\
+  \" left join\" +\
+  \" (select to_char(v2.etd,'dd')days,\" +\
+  \"sum(case when e_f_id='F' and cntr_size<>'20' then 1 end) voutf40,\" +\
+  \"sum(case when e_f_id='F' and cntr_size='20' then 1 end) voutf20,\" +\
+  \"sum(case when e_f_id='E' and cntr_size<>'20' then 1 end) voute40,\" +\
+  \"sum(case when e_f_id='E' and cntr_size='20' then 1 end) voute20\" +\
+  \" from vload_list vl left join vessel_visit v2 on vl.vid=v2.id\" +\
+  \" where vl.tenancy_id='\" + tenancyid + \"' and vl.main_flag=1 and vl.i_e_id='E' and to_char(v2.etd,'yyyy-mm')='\" + date + \"'\" +\
+  \" group by to_char(v2.etd,'dd'))vout on vin.days=vout.days\" +\
+  \" left join\" +\
+  \" (select to_char(gateout_time_t,'dd') days,\" +\
+  \"sum(case when e_f_id='F' and cntr_size<>'20' then 1 end) goutf40,\" +\
+  \"sum(case when e_f_id='F' and cntr_size='20' then 1 end) goutf20,\" +\
+  \"sum(case when e_f_id='E' and cntr_size<>'20' then 1 end) goute40,\" +\
+  \"sum(case when e_f_id='E' and cntr_size='20' then 1 end) goute20\" +\
+  \" from receipt where tenancy_id='\" + tenancyid + \"' and work_type<>'YOYI' and to_char(gateout_time_t,'yyyy-mm')='\" + date + \"'\" +\
+  \" group by to_char(gateout_time_t,'dd'))gout on vin.days=gout.days\" +\
+  \" order by vin.days\");\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data A2='\" + app.cboY.getValue() + \"年\" + app.cboM.getValue() + \"月'/>\");\
+AF1.func(\"Calc\", \"\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/mtbb/duichang.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+var yearjson = \"[]\";\
+var years = eval('(' + yearjson + ')');\
+for (var i = 2016; i <= 2050; i++) {\
+  var year = {\
+    \"ID\": i,\
+    \"YEAR\": i\
+  };\
+  years.push(year);\
+}\
+//定义一个Store,绑定数据\
+var yearStore = Ext.create('Ext.data.Store', {\
+  fields: ['ID', 'YEAR'],\
+  data: years\
+});\
+//combo通过代码绑定Stroe\
+app.cboY.bindStore(yearStore);\
+var today = new Date(); //获取当前日期\
+app.cboY.setValue(today.getFullYear());",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "DCXK": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "堆场使用情况",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

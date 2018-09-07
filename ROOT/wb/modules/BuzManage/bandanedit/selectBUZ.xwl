@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select boi.*,vl.REEF_ID,vh.RELEASE_ID,vl.pieces,trunc(v2.eta)in_port_time,p.phase,vl.e_f_id,\" +\
+  \"p.e_f_id pef,p.yard_position,vl.CARGO_TYPE,getCFSCOD(vl.cntr_id)cfs,p.in_jgq\" +\
+  \" from buz_order_item boi left join vload_list vl on vl.cntr_id=boi.cntr_id and vl.bill_no=boi.bill_no\" +\
+  \" left join vessel_visit v2 on v2.id=vl.vid\" +\
+  \" left join port_cntr p on p.id=vl.cntr_id and p.i_e_id=vl.i_e_id left join vbill_head vh on vh.id=vl.bill_id\" +\
+  \" where boi.tenancy_id='\" + tenancyid + \"' and vl.phase<>'9'\";\
+if (!Wb.isEmpty(data.txtBILL_NO_RB)) {\
+  sql += \" and boi.BILL_NO='\" + data.txtBILL_NO_RB + \"'\";\
+}\
+request.setAttribute('sql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "ZSGHUQD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "查询办单数据",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

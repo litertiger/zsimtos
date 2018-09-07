@@ -1,0 +1,61 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var aid = data.ID;\
+\
+app.run(\"insert into port_cntr_his(id,tenancy_id,cntr,phase,category_id,trade_id,i_e_id,e_f_id,cntr_iso,line,\" +\
+  \"cntr_operator,cntr_owner,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+  \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,\" +\
+  \"pod,pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,\" +\
+  \"cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,\" +\
+  \"imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+  \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+  \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+  \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,out_port_time,pretime,release_id,\" +\
+  \"exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,\" +\
+  \"pre_tak_id,trans_id,delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes,updated_on,created_on,\" +\
+  \"cntr_size,cntr_type,created_by,updated_by,cntr_operator_cod,line_cod)\" +\
+  \"select id,tenancy_id,cntr,'RET',category_id,trade_id,i_e_id,e_f_id,cntr_iso,line,\" +\
+  \"cntr_operator,cntr_owner,ib_mode,i_tool_no,safe_wt,scale_wt,seal_no,seal_no2,seal_no3,seal_no4,cntr_hight,cntr_length,\" +\
+  \"ship_no,ib_carrier_op,i_dship_no,ib_dcarrier_op,ob_mode,o_tool_no,ob_carrier_op,e_dship_no,ob_dcarrier_op,opl,origin,\" +\
+  \"pod,pol,spod,return_loc,trucking_co,datasource,arr_position,yard_position,planned_position,cy_area_no,cy_bay_no,cy_row_no,\" +\
+  \"cy_tier_no,agent1,agent2,bill_no,cargo_wt,cmdy_code,consignee,consignee_name,shipper,shipper_name,exam_status,dang_id,\" +\
+  \"imdg,undg,direct_id,spec_stow,spec_stow2,spec_stow3,weight,temp_set,temp_min,temp_max,reef_id,on_power,reqs_power,\" +\
+  \"reefer_type,alarm,co2_level,defrost_temp,fault_code,fuel_level,humidity_level,o2_level,last_remark,last_set_temp,\" +\
+  \"last_supply_temp,last_read_temp,overheight,overfront,overback,overleft,overright,oog_id,bundl_id,appttime,in_port_time,\" +\
+  \"dwell_days,ec_intime,last_move,load_time,on_power_time,off_power_time,sysdate,pretime,release_id,\" +\
+  \"exit_custom_id,emergency_id,custom_type,trans_type,condition_id,sealed_id,lcl_id,ciq_id,pti_id,check_id,lock_id,\" +\
+  \"pre_tak_id,trans_id,delv_term,hndl_reason,arrbookingnbr,bookingnbr,releasenbr,sequence,notes||'手工核销',sysdate,sysdate,\" +\
+  \"cntr_size,cntr_type,'\" + username + \"','\" + username + \"',cntr_operator_cod,line_cod\" +\
+  \" from port_cntr where id in(select cntr_id from port_cntr_ret_apply_item where aid='\" + aid + \"')\", {\
+    transaction: 'start'\
+  });\
+\
+app.run(\"update port_cntr_ret_apply set phase='AOK',updated_by='\" + username + \"',updated_on=sysdate where id='\" + aid + \"'\");\
+\
+app.run(\"delete from port_cntr where id in(select cntr_id from port_cntr_ret_apply_item where aid='\" + aid + \"')\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "核销",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

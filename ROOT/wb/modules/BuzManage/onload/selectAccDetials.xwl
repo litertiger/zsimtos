@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select ad.ID,ad.BILL_NO,ad.AMOUNT,ad.ACTUAL_JOB_COUNT,ad.RATE,ad.DWELL_DAYS,\" +\
+  \"ad.PAYMENT_TYPE,ad.PAY_FLAG,ad.CNTR,ad.CNTR_SIZE||ad.CNTR_TYPE CNTR_TYPE,\" +\
+  \"bci.DESCRIPTION FEI_ESCRIPTION,bi.DESCRIPTION,ad.SETTLE_BY,ad.SETTLE_ON,ad.SETTLEMENT_CODE,\" +\
+  \"ad.ACCOUNT_CUSTOMER_NAM,ad.PAYMENT_CUSTOMER_NAM,r.PAYER,ad.IS_MANUAL\" +\
+  \" from accounts_details ad left join remitting_item ri on ad.remittingitem_id=ri.id\" +\
+  \" left join remitting r on ri.c_id=r.id\" +\
+  \" left join C_BASE_INVOICE bi on bi.id=ad.INVOICE_TYPE\" +\
+  \" left join C_BASE_CHARGING_ITEM bci on bci.id=ad.FEE_LIST_ID\" +\
+  \" where ad.tenancy_id='\" + tenancyid + \"' and ad.PAYMENT_TYPE=1 and trade_id='1'\";\
+if (!Wb.isEmpty(data.billno)) {\
+  sql += \" and ad.BILL_NO='\" + data.billno + \"'\";\
+}\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "费用查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

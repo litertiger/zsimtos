@@ -1,0 +1,68 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var  id=Wb.decode(app.get(\"billIds\")),ids=\"\",username=app.get('sys.username'),\
+     ORG_NAME=app.get('sys.ORG_NAME'),GOV_CODE=app.get('sys.GOV_CODE'),\
+     cntrOperCod=app.get('cntrOperCod'),cntrOperName=app.get('cntrOperName'),\
+     colineCod=app.get('colineCod'),coline=app.get('coline'),\
+     tenancyid=app.get(\"sys.TENANCY_ID\");\
+for(var i=0;i<id.length;i++){\
+  if(i>0)\
+    ids+=\",\";\
+ids+=\"'\"+id[i]+\"'\";\
+}\
+var mainId = SysUtil.getId(); //主表ID\
+\
+// app.run(\" update VLOAD_LIST set( CNTR,CNTR_SIZE,CNTR_TYPE,CNTR_ISO) = \"+\
+// \"(select   CNTR,CNTR_SIZE,CNTR_TYPE,CNTR_ISO from  port_cntr where port_cntr.cntr=VLOAD_LIST.cntr and TENANCY_ID={?TENANCY_ID?} ) where bill_id in(\"+ids+\")\");\
+\
+\
+\
+\
+//插入主表\
+var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+  \"FROM_OPERATOR_COD,FROM_OPERATOR,TO_OPERATOR_COD,TO_OPERATOR,CHANGE_REASON,APPLY_DATE,CREATED_BY,CREATED_ON)\" +\
+  \" values('\" + mainId + \"','\" + tenancyid + \"','ACK','OTO','\"+GOV_CODE+\"','\"+ORG_NAME+\"',\" +\
+  \"'\"+GOV_CODE+\"','\"+ORG_NAME+\"','\"+colineCod+\"', '\"+coline+\"' ,\" +\
+  \"'舱单批量转柜',sysdate,'\" + username + \"',sysdate)\";\
+app.run(sqla, {\
+  transaction: 'start'\
+});\
+//插入字表\
+var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID) select sys_guid(),'\" + mainId + \"',CNTR_ID from  vload_list \"+\
+            \" where  bill_id in(\"+ids+\")\";\
+app.run(sqll);\
+\tapp.run(\"update  vbill_head set  COLINE='\"+coline +\"', COLINE_COD ='\"+colineCod+\"'   where  ID in(\"+ids+\")  and bill_type='C' \");\
+\trequest.setAttribute(\"ID\",mainId);\
+\trequest.setAttribute(\"CNTR_OPERATOR\", app.get(\"coline\"));\
+\trequest.setAttribute(\"CNTR_OPERATOR_COD\",app.get(\"colineCod\"));\
+\trequest.setAttribute(\"APPLY_TYPE\",\"OTO\");\
+\trequest.setAttribute(\"TRADE_ID\",\"1\");\
+   app.execute(\"m?xwl=controlManage/APPLY/cntrApplyedit/updateCntr\");\
+ "
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "批量转柜",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

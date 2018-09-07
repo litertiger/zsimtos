@@ -1,0 +1,1133 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "viewport1"},
+   "expanded": true,
+   "children": [
+    {
+     "configs": {"itemId": "container1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar1",
+        "title": "堆场作业确认",
+        "docked": "top",
+        "titleAlign": "center"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "button1",
+         "iconCls": "logout_icon",
+         "align": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "function doLogout() {\
+  Wb.request({\
+    url: 'logout',\
+    success: function(resp) {\
+      Wb.unloadEvents = null;\
+      window.location.reload();\
+    }\
+  });\
+}\
+var result = Wb.onBeforeUnload();\
+if (Wb.isValue(result))\
+  Wb.confirm(result + '<br><br>' + Str.confirmLogout, doLogout);\
+else\
+  doLogout();"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "cfs",
+        "margin": "2px",
+        "keyName": "K",
+        "displayField": "V",
+        "label": "选择闸口",
+        "clearIcon": "false",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=GET_CFS"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tselect",
+       "events": {"change": "var s = select.getStore();\
+var r = s.findRecord('K', newValue);\
+if (r) {\
+  app.canInGate = r.data.M_IN;\
+  app.autoOutGate = r.data.M_OUT;\
+  app.cfsName = r.data.V;\
+  app.cfsCod = r.data.K;\
+}"}
+      },
+      {
+       "configs": {
+        "itemId": "mach",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "机械",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "yard",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "场位"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "cntr1",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "箱号1",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "setCntrInfo(0,{});\
+setCntrInfo(1,{});\
+app.cntr2.setReadOnly(true);\
+app.pos2.setReadOnly(true);",
+        "action": "var cntr = text.getValue();\
+if (!cntr || cntr.length < 4)\
+  return Wb.error('至少录入4位数字');\
+var yard = app.yard.getValue();\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listCntr.store.reload({\
+  params: {\
+    cntr: cntr,\
+    yard: yard,\
+    cfs: app.cfsCod\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.cntrIndex = 0;\
+        app.viewport1.setActiveItem(app.selectCntr);\
+      } else {\
+        var data = records[0].data;\
+        setCntrInfo(0, data);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "pos1",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "箱位1",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "type",
+        "margin": "2px",
+        "readOnly": "true",
+        "label": "作业类型"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "truck",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "车号",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "cntr2",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "readOnly": "true",
+        "label": "箱号2"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "setCntrInfo(1,{});",
+        "action": "var cntr = text.getValue();\
+if (!cntr || cntr.length < 4)\
+  return Wb.error('至少录入4位数字');\
+var yard = app.yard.getValue();\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listCntr.store.reload({\
+  params: {\
+    cntr: cntr,\
+    yard: yard,\
+    cfs: app.cfsCod\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.cntrIndex = 1;\
+        app.viewport1.setActiveItem(app.selectCntr);\
+      } else {\
+        var data = records[0].data;\
+        setCntrInfo(1, data);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "pos2",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "readOnly": "true",
+        "label": "箱位2"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "fieldset1"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "button1",
+          "style": "width:50%",
+          "text": "进闸",
+          "iconCls": "wharehouse_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "if(!app.canInGate)\
+  return Wb.error(app.cfsName + '不允许进行手持入闸确认');\
+app.viewport1.setActiveItem(app.gate);"}
+        },
+        {
+         "configs": {
+          "itemId": "button11",
+          "style": "width:50%",
+          "text": "作业确认",
+          "iconCls": "yellow-derrick_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "var data = cntrInfos[0];\
+if (!(data && data.CNTR))\
+  return Wb.error('请先匹配箱号1');\
+var params = {\
+  cntr: data.CNTR,\
+  id: data.ID,\
+  queue_id: data.QUEUE_ID,\
+  type: data.TYPE,\
+  truck: app.truck.getValue(),\
+  yard: app.yard.getValue(),\
+  mach: app.mach.getValue(),\
+  pos: app.pos1.getValue(),\
+  rid: data.RID\
+};\
+if (data.TASK_TYP == '提箱') {\
+  params.cfs = app.cfs.getValue();\
+  params.autoOut = app.autoOutGate;\
+}\
+data = cntrInfos[1];\
+if (data && data.CNTR) {\
+  params.cntr2 = data.CNTR;\
+  params.pos2 = app.pos2.getValue();\
+  params.id2 = data.ID;\
+  params.queue_id2 = data.QUEUE_ID;\
+  params.rid2 = data.RID;\
+}\
+Ext.Ajax.request({\
+  url: 'appFun?funId=SAVE_YARDCTRL',\
+  params: params,\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.success) {\
+      Wb.info('办理成功', function() {\
+        app.cntr1.getComponent().clearIcon.fireEvent('tap');\
+      });\
+    } else if (result.errstr === 'loginRequiered')\
+      Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));\
+    else\
+      Wb.error(result.errstr);\
+  }\
+});"}
+        }
+       ],
+       "type": "tfieldset"
+      },
+      {
+       "configs": {
+        "itemId": "scrollable",
+        "direction": "auto"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tscroller"
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectCntr",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择箱号",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right",
+         "iconCls": "undo_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.container1);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "listCntr",
+        "itemTpl": "{CNTR} {TASK_TYP}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=VALUE_YARDCTRL"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tlist",
+       "events": {"select": "app.viewport1.setActiveItem(app.container1);\
+var data = record.data;\
+setCntrInfo(app.cntrIndex, record.data);"}
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectGateCntr",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择箱号",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right",
+         "iconCls": "undo_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.gate);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "listGateCntr",
+        "itemTpl": "{CNTR} {TASK_TYP}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=GATE_CNTR"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tlist",
+       "events": {"select": "app.viewport1.setActiveItem(app.gate);\
+var data = record.data;\
+setCntrInfo(app.cntrIndex, record.data);"}
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectGateBill",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择箱号",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right",
+         "iconCls": "undo_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.gate);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "listGateBill",
+        "itemTpl": "{BILL_NO}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=GATE_BILL"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tlist",
+       "events": {"select": "app.viewport1.setActiveItem(app.gate);\
+var data = record.data;\
+setBill(app.billIndex, record.data.BILL_NO);"}
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {"itemId": "gate"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "进闸确认",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right",
+         "iconCls": "undo_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.bill1.getComponent().clearIcon.fireEvent('tap');\
+app.viewport1.setActiveItem(app.container1);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "bill1",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "单号1"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.gcntr1.setValue('');\
+app.gcntr2.setValue('');\
+app.bill2.setValue('');\
+app.gtruck.setValue('');\
+app.bno1.setValue('');\
+app.bno2.setValue('');\
+app.bill2.setReadOnly(true);\
+app.cntr2.setReadOnly(true);",
+        "action": "var bill = text.getValue();\
+if (!(bill && bill.length > 3))\
+  return Wb.error('至少录入4位单号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateBill.store.reload({\
+  params: {\
+    bill: bill\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.billIndex = 0;\
+        app.viewport1.setActiveItem(app.selectGateBill);\
+      } else {\
+        var data = records[0].data;\
+        setBill(0,data.BILL_NO);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "bno1",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "readOnly": "true",
+        "label": "推荐1"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.gcntr1.setValue('');\
+app.gcntr2.setValue('');\
+app.bill2.setValue('');\
+app.gtruck.setValue('');\
+app.bno1.setValue('');\
+app.bno2.setValue('');\
+app.bill2.setReadOnly(true);\
+app.cntr2.setReadOnly(true);",
+        "action": "var bill = text.getValue();\
+if (!(bill && bill.length > 3))\
+  return Wb.error('至少录入4位单号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateBill.store.reload({\
+  params: {\
+    bill: bill\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.billIndex = 0;\
+        app.viewport1.setActiveItem(app.selectGateBill);\
+      } else {\
+        var data = records[0].data;\
+        setBill(0,data.BILL_NO);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "gcntr1",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "箱号1",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {"action": "var cntr = text.getValue();\
+if (!(cntr && cntr.length > 3))\
+  return Wb.error('至少录入4位箱号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateCntr.store.reload({\
+  params: {\
+    cntr: cntr,\
+    no_cntr: app.bno1.getValue() ? 1 : 0,\
+    cfs:app.cfsCod\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.cntrIndex = 2;\
+        app.viewport1.setActiveItem(app.selectGateCntr);\
+      } else {\
+        var data = records[0].data;\
+        setCntrInfo(2, data);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"}
+      },
+      {
+       "configs": {"itemId": "id1"},
+       "expanded": false,
+       "children": [],
+       "type": "thidden"
+      },
+      {
+       "configs": {
+        "itemId": "bill2",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "readOnly": "true",
+        "label": "单号2"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.gcntr2.setValue('');\
+app.bno2.setValue('');",
+        "action": "var bill = text.getValue();\
+if (!(bill && bill.length > 3))\
+  return Wb.error('至少录入4位单号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateBill.store.reload({\
+  params: {\
+    bill: bill\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.billIndex = 1;\
+        app.viewport1.setActiveItem(app.selectGateBill);\
+      } else {\
+        var data = records[0].data;\
+        setBill(1,data.BILL_NO);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "bno2",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "readOnly": "true",
+        "label": "推荐2"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.gcntr1.setValue('');\
+app.gcntr2.setValue('');\
+app.bill2.setValue('');\
+app.gtruck.setValue('');\
+app.bno1.setValue('');\
+app.bno2.setValue('');\
+app.bill2.setReadOnly(true);\
+app.cntr2.setReadOnly(true);",
+        "action": "var bill = text.getValue();\
+if (!(bill && bill.length > 3))\
+  return Wb.error('至少录入4位单号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateBill.store.reload({\
+  params: {\
+    bill: bill\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.billIndex = 0;\
+        app.viewport1.setActiveItem(app.selectGateBill);\
+      } else {\
+        var data = records[0].data;\
+        setBill(0,data.BILL_NO);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "itemId": "gcntr2",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "readOnly": "true",
+        "label": "箱号2"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {"action": "var cntr = text.getValue();\
+if (!(cntr && cntr.length > 3))\
+  return Wb.error('至少录入4位箱号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateCntr.store.reload({\
+  params: {\
+    cntr: cntr,\
+    no_cntr: app.bno2.getValue() ? 1 : 0,\
+    cfs: app.cfsCod\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.cntrIndex = 3;\
+        app.viewport1.setActiveItem(app.selectGateCntr);\
+      } else {\
+        var data = records[0].data;\
+        setCntrInfo(3, data);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"}
+      },
+      {
+       "configs": {"itemId": "id2"},
+       "expanded": false,
+       "children": [],
+       "type": "thidden"
+      },
+      {
+       "configs": {
+        "itemId": "gtruck",
+        "margin": "2px",
+        "isUpperCase": "true",
+        "label": "车号",
+        "required": "true"
+       },
+       "expanded": true,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "type",
+        "margin": "2px",
+        "readOnly": "true",
+        "label": "作业"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.gcntr1.setValue('');\
+app.gcntr2.setValue('');\
+app.bill2.setValue('');\
+app.gtruck.setValue('');\
+app.bno1.setValue('');\
+app.bno2.setValue('');\
+app.bill2.setReadOnly(true);\
+app.cntr2.setReadOnly(true);",
+        "action": "var bill = text.getValue();\
+if (!(bill && bill.length > 3))\
+  return Wb.error('至少录入4位单号');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listGateBill.store.reload({\
+  params: {\
+    bill: bill\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1) {\
+        app.billIndex = 0;\
+        app.viewport1.setActiveItem(app.selectGateBill);\
+      } else {\
+        var data = records[0].data;\
+        setBill(0,data.BILL_NO);\
+      }\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {
+        "layout": "hbox",
+        "itemId": "fieldset1"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "button1",
+          "style": "width:50%",
+          "text": "进闸确认",
+          "iconCls": "wharehouse_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "var truck = app.gtruck.getValue();\
+if (!truck)\
+  return Wb.error('拖车号不能为空');\
+var cntrs = [];\
+var cntr = app.gcntr1.getValue();\
+if (cntr)\
+  cntrs.push({\
+    cntr: cntr,\
+    id: app.id1.getValue(),\
+    bill: app.bno1.getValue()\
+  });\
+else\
+  return Wb.error('请先匹配箱号1');\
+\
+cntr = app.gcntr2.getValue();\
+if (cntr) {\
+  if ((app.bno1.getValue() && !app.bno2.getValue()) || (!app.bno1.getValue() && app.bno2.getValue()))\
+    return Wb.error('两个设备交接单一个是不定箱号,一个是定箱号');\
+  cntrs.push({\
+    cntr: cntr,\
+    id: app.id2.getValue(),\
+    bill: app.bno2.getValue()\
+  });\
+}\
+Ext.Ajax.request({\
+  url: 'm?xwl=receiptInout/gate/gateinedit/selectPhone',\
+  params: {\
+    cntrs: cntrs,\
+    cfs: app.cfs.getValue(),\
+    truck: truck,\
+    yard: app.yard.getValue()\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.success) {\
+      Wb.info('办理成功', function() {\
+        var cntr1 = app.gcntr1.getValue();\
+        var cntr2 = app.gcntr2.getValue();\
+        app.truck.setValue(app.gtruck.getValue());\
+        app.bill1.getComponent().clearIcon.fireEvent('tap');\
+        app.viewport1.setActiveItem(app.container1);\
+        if (cntr1.length == 11) {\
+          app.cntr1.setValue(cntr1);\
+          app.cntr1.fireEvent('action', app.cntr1);\
+        }\
+        if (cntr2.length == 11) {\
+          app.cntr2.setValue(cntr2);\
+          app.cntr2.fireEvent('action', app.cntr2);\
+        }\
+      });\
+    } else\
+      Wb.error(result.errstr);\
+  },\
+  failure: function(resp) {\
+    Wb.error(resp.responseText);\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "button111",
+          "style": "width:50%",
+          "text": "修柜移箱",
+          "iconCls": "set_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tbutton",
+         "events": {"tap": "var cntrs = [];\
+var cntr = app.gcntr1.getValue();\
+if (cntr)\
+  cntrs.push(cntr);\
+\
+cntr = app.gcntr2.getValue();\
+if (cntr)\
+  cntrs.push(cntr);\
+Ext.Ajax.request({\
+  url: 'm?xwl=controlManage/task/worktaskcraneedit/insertTask',\
+  params: {\
+    cntrs: cntrs,\
+    to_pos: 'XG',\
+    task_type: 'MOVE',\
+    autoSend:true\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.success) {\
+      Wb.info('办理成功', function() {\
+        var cntr1 = app.gcntr1.getValue();\
+        var cntr2 = app.gcntr2.getValue();\
+        app.truck.setValue(app.gtruck.getValue());\
+        app.bill1.getComponent().clearIcon.fireEvent('tap');\
+        app.viewport1.setActiveItem(app.container1);\
+        if (cntr1.length == 11) {\
+          app.cntr1.setValue(cntr1);\
+          app.cntr1.fireEvent('action', app.cntr1);\
+        }\
+        if (cntr2.length == 11) {\
+          app.cntr2.setValue(cntr2);\
+          app.cntr2.fireEvent('action', app.cntr2);\
+        }\
+      });\
+    } else\
+      Wb.error(result.errstr);\
+  },\
+  failure: function(resp) {\
+    Wb.error(resp.responseText);\
+  }\
+});"}
+        }
+       ],
+       "type": "tfieldset"
+      },
+      {
+       "configs": {
+        "itemId": "scrollable",
+        "direction": "auto"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tscroller"
+      }
+     ],
+     "type": "tcontainer"
+    }
+   ],
+   "type": "tviewport"
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "Ext.Ajax.on('beforerequest', beforerequest);\
+app.cfs.getStore().load(function(records) {\
+  Wb.each(records, function(rec) {\
+    if (rec.data.M_IN) {\
+      app.cfs.setValue(rec.data.K);\
+      return false;\
+    }\
+  });\
+});",
+   "initialize": "var beforerequest = app.beforerequest = function(request, opt) {\
+  opt.success = translate;\
+  opt.failure = function() {\
+    Ext.Ajax.un('beforerequest', beforerequest);\
+  };\
+};\
+var translate = function(res) {\
+  Ext.Ajax.un('beforerequest', beforerequest);\
+  data = Ext.decode(res.responseText);\
+  if (data.success === false) {\
+    if (data.errstr === 'loginRequiered') {\
+      Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));\
+    } else if (data.errstr)\
+      Wb.error(data.errstr);\
+    else\
+      Wb.error('未知错误');\
+  }\
+  //处理Ag.getResultArray返回的数据\
+  if (data.cols)\
+    res.responseText = {\
+      success: true,\
+      metaData: {\
+        fields: data.cols\
+      },\
+      rows: Ext.Array.map(data.rows, function(r) {\
+        return data.cols.reduce(function(row, c, i) {\
+          row[c] = r[i];\
+          return row;\
+        }, {});\
+      })\
+    };\
+};\
+\
+var cntrInfos = {};\
+\
+function setCntrInfo(index, data) {\
+  cntrInfos[index] = data;\
+  switch (index) {\
+    case 0:\
+      Wb.setValue(app.container1, {\
+        cntr1: data.CNTR,\
+        pos1: data.POS,\
+        truck: data.TRUCK,\
+        type: (data.TASK_TYP || '') + (data.TYPE ? data.TYPE == 'LOD' ? '出场' : '入场' : '')\
+      });\
+      if (data.CNTR_SIZE == 20) {\
+        app.cntr2.setReadOnly(false);\
+        app.pos2.setReadOnly(false);\
+      }\
+      break;\
+    case 1:\
+      if (data.CNTR && data.CNTR == cntrInfos[0].CNTR)\
+        return Wb.error('箱号重复');\
+      if (data.CNTR_SIZE > 20)\
+        return Wb.error(data.CNTR + '是' + data.CNTR_SIZE + '尺箱');\
+      if (data.TASK_TYP && (data.TASK_TYP != cntrInfos[0].TASK_TYP || data.TYPE != cntrInfos[0].TYPE))\
+        return Wb.error(data.CNTR + '不是' + cntrInfos[0].TASK_TYP + (cntrInfos[0].TYPE === 'LOD' ? '出场' : '入场') + '作业');\
+      Wb.setValue(app.container1, {\
+        cntr2: data.CNTR,\
+        pos2: data.POS,\
+        id2: data.ID,\
+        queue_id2: data.QUEUE_ID,\
+        size2: data.CNTR_SIZE\
+      });\
+      break;\
+    case 2:\
+      var val = {\
+        gcntr1: data.CNTR,\
+        gtruck: data.TRUCK,\
+        id1: data.ID || app.id1.getValue(),\
+        type: data.PHASE == 'OUT' ? '收箱' : '提箱'\
+      };\
+      if (app.bill1.getValue())\
+        delete val.gtruck;\
+      Wb.setValue(app.gate, val);\
+\
+\
+      if (data.CNTR_SIZE == 20) {\
+        app.gcntr2.setReadOnly(false);\
+      }\
+      break;\
+    case 3:\
+      if (data.CNTR && data.CNTR == cntrInfos[2].CNTR)\
+        return Wb.error('箱号重复');\
+      if (data.CNTR_SIZE > 20)\
+        return Wb.error(data.CNTR + '是' + data.CNTR_SIZE + '尺箱');\
+      if (data.PHASE != cntrInfos[2].PHASE)\
+        return Wb.error(data.CNTR + '不是' + (cntrInfos[2].PHSAE == 'OUT' ? '收箱' : '提箱'));\
+      Wb.setValue(app.gate, {\
+        gcntr2: data.CNTR,\
+        id2: data.ID || app.id2.getValue()\
+      });\
+      break;\
+  }\
+}\
+\
+function setBill(index, bill) {\
+  switch (index) {\
+    case 0:\
+      app.bill1.setValue(bill);\
+      Ext.Ajax.request({\
+        url: 'appFun?funId=GATE_FIND_CNTR',\
+        params: {\
+          cfs: app.cfsCod,\
+          bill_no: bill\
+        },\
+        success: function(resp) {\
+          var result = Wb.decode(resp.responseText);\
+          if (result.success) {\
+            Wb.setValue(app.gate, {\
+              gcntr1: result.cntr,\
+              bno1: result.bno,\
+              gtruck: result.truck,\
+              id1: result.id,\
+              type: result.phase == 'OUT' ? '收箱' : '提箱'\
+            });\
+            if (result.size > 20) {\
+              app.bill2.setReadOnly(true);\
+              app.gcntr2.setReadOnly(true);\
+            } else {\
+              app.bill2.setReadOnly(false);\
+              app.gcntr2.setReadOnly(false);\
+            }\
+          } else if (result.errstr === 'loginRequiered')\
+            Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));\
+          else\
+            Wb.error(result.errstr);\
+        }\
+      });\
+      break;\
+    case 1:\
+      app.bill2.setValue(bill);\
+      /*if (app.bill1.getValue() == bill)\
+        return Wb.error('单号重复');*/\
+      Ext.Ajax.request({\
+        url: 'appFun?funId=GATE_FIND_CNTR',\
+        params: {\
+          cfs: app.cfsCod,\
+          bill_no: bill,\
+          id1: app.id1.getValue()\
+        },\
+        success: function(resp) {\
+          var result = Wb.decode(resp.responseText);\
+          if (result.success) {\
+            var val = Wb.getValue(app.gate);\
+            if (val.gtruck !== result.truck)\
+              return Wb.error(bill + '所派车不是' + val.gtruck);\
+            if (result.cntr && result.cntr == val.gcntr1)\
+              return Wb.error('箱号重复');\
+            if (result.size > 20)\
+              return Wb.error(result.cntr + '是' + result.size + '尺箱');\
+            if (val.type != (result.phase == 'OUT' ? '收箱' : '提箱'))\
+              return Wb.error(result.cntr + '不是' + val.type);\
+            Wb.setValue(app.gate, {\
+              gcntr2: result.cntr,\
+              bno2: result.bno,\
+              id2: result.id\
+            });\
+          } else if (result.errstr === 'loginRequiered')\
+            Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));\
+          else\
+            Wb.error(result.errstr);\
+        }\
+      });\
+      break;\
+  }\
+}"
+  }
+ }],
+ "roles": {
+  "yard": 1,
+  "default": 1
+ },
+ "title": "堆场作业",
+ "iconCls": "boxs_icon",
+ "inframe": true,
+ "pageLink": ""
+}

@@ -1,0 +1,93 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),\
+  tenancyid = app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+sql = \"select m.cntr,m.CNTR_SIZE,m.CNTR_TYPE,m.MOVE_TYPE,m.PHASE,m.TRANSPORTER1,m.TRCLASS1,\" +\
+  \"m.TRANSPORTER2,m.TRCLASS2,m.TRANSPORTER3,m.TRCLASS3,m.TRANSPORTER4,m.TRCLASS4,\" +\
+  \"m.FROM_POS_TYP,m.TO_POS_TYP,m.UPDATED_ON,m.FROM_POS,m.TO_POS,m.WAIT_UNTILL,m.END_EXECUTE,\" +\
+  \"case when m.move_type='MOV' and m.from_pos_typ='V' THEN '卸船'\" +\
+  \" when m.move_type='MOV' and m.from_pos_typ='G' and m.to_pos_typ='B' and m.e_f_id='F' THEN '收重'\" +\
+  \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='G' and m.e_f_id='F' THEN '提重'\" +\
+  \" when m.move_type='MOV' and m.from_pos_typ='G' and m.to_pos_typ='B' and m.e_f_id='E' THEN '返吉'\" +\
+  \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='G' and m.e_f_id='E' THEN '提吉'\" +\
+  \" when m.move_type='MOV' and m.to_pos_typ='V' THEN '装船'\" +\
+  \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='B' and m.shift_id=0 THEN '移箱'\" +\
+  \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='B' and m.shift_id=1 THEN '翻倒'\" +\
+  \" when m.move_type='SFT' then '盘箱' end work_type\" +\
+  \" from move_list m left join port_cntr p on p.id=m.cntr_id\" +\
+  \" where m.tenancy_id = '\" + tenancyid + \"' and (m.move_type='MOV' or m.move_type='SFT')\";\
+if (!Wb.isEmpty(data.CNTR))\
+  sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
+if (nature == '5')\
+  sql += \" and m.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+if (!Wb.isEmpty(data.cntrid))\
+  sql += \" and p.id='\" + data.cntrid + \"'\";\
+\
+if (data.ls == \"1\") {\
+  sql += \" union all\" +\
+    \" select m.cntr,m.CNTR_SIZE,m.CNTR_TYPE,m.MOVE_TYPE,m.PHASE,m.TRANSPORTER1,m.TRCLASS1,\" +\
+    \"m.TRANSPORTER2,m.TRCLASS2,m.TRANSPORTER3,m.TRCLASS3,m.TRANSPORTER4,m.TRCLASS4,\" +\
+    \"m.FROM_POS_TYP,m.TO_POS_TYP,m.UPDATED_ON,m.FROM_POS,m.TO_POS,m.WAIT_UNTILL,m.END_EXECUTE,\" +\
+    \"case when m.move_type='MOV' and m.from_pos_typ='V' THEN '卸船'\" +\
+    \" when m.move_type='MOV' and m.from_pos_typ='G' and m.to_pos_typ='B' and m.e_f_id='F' THEN '收重'\" +\
+    \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='G' and m.e_f_id='F' THEN '提重'\" +\
+    \" when m.move_type='MOV' and m.from_pos_typ='G' and m.to_pos_typ='B' and m.e_f_id='E' THEN '返吉'\" +\
+    \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='G' and m.e_f_id='E' THEN '提吉'\" +\
+    \" when m.move_type='MOV' and m.to_pos_typ='V' THEN '装船'\" +\
+    \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='B' and m.shift_id=0 THEN '移箱'\" +\
+    \" when m.move_type='MOV' and m.from_pos_typ='B' and m.to_pos_typ='B' and m.shift_id=1 THEN '翻倒'\" +\
+    \" when m.move_type='SFT' then '盘箱' end work_type\" +\
+    \" from move_list m left join port_cntr_his p on p.id=m.cntr_id\" +\
+    \" where m.tenancy_id = '\" + tenancyid + \"' and (m.move_type='MOV' or m.move_type='SFT')\";\
+  if (!Wb.isEmpty(data.CNTR))\
+    sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
+  if (nature == '5')\
+    sql += \" and m.CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+  if (!Wb.isEmpty(data.cntrid))\
+    sql += \" and p.id='\" + data.cntrid + \"'\";\
+}\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "ZSWNH": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "YARDCTRL": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "ZK": 1,
+  "default": 1,
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "指令信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

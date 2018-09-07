@@ -1,0 +1,227 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//每30分钟发一次\
+var num = \"\";\
+var type = \"\";\
+var vId = app.get(\"vId\"),\
+  tenancy_id = app.get(\"sys.TENANCY_ID\"),\
+  ieId = app.get(\"ieId\");\
+var voyageNo, cShipName, eShipName, head = \"\",\
+  order = \"\",\
+  i = 0,\
+  j = 0,\
+  eta, crew = \"\",\
+  xml = \"\",\
+  callSign = \"\",\
+  send = \"\";\
+if (tenancy_id == 'ZSG') {\
+  send = 'ZHO01';\
+} else if (tenancy_id == 'XLG') {\
+  send = 'ZHO01';\
+} else if (tenancy_id == 'SWG') {\
+  send = 'ZHO01';\
+}\
+var Load = com.ag.edi.EdiDownLoad;\
+var javaDate = new JavaDate(),\
+  //   dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'),\
+  //   dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmm'),\
+  dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmmss');;\
+\
+xml += '<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\\r\\
+';\
+head += '<Interchange_Message>\\r\\
+';\
+head += '<InterchangeHeader>\\r\\
+';\
+head += '<MessageType>ContainerDetails<\/MessageType>\\r\\
+';\
+head += '<SenderID>' + send + '<\/SenderID>\\r\\
+';\
+head += '<ReceiverID>ONEPORT<\/ReceiverID>\\r\\
+';\
+head += '<MsgCreateDate>' + dateName + '<\/MsgCreateDate>\\r\\
+';\
+head += '<MsgSeqNumber>00918<\/MsgSeqNumber>\\r\\
+';\
+head += '<\/InterchangeHeader>\\r\\
+';\
+xml += head;\
+order += \"<MsgList>\\r\\
+\";\
+///////////////////////////////\
+var rs = app.run(\"SELECT MSGSEQNUMBER,MESSAGETYPE,CNTR,CONTAINERTYPE,CONTAINER_SIZE,FULL_EMPTY_IND,SONUMBER,GROSSWEIGTH,SEALNUMBER,\" +\
+  \"\tCONSIGNEE,SHIPPER,COMMODITYENG,COMMODITYCHI,BILLOFLADING,SHIPPINGLINECODE,SHIPPINGLINENAME,\" +\
+  \"\tREEFERIND,REEFERTEMP,REEFERTEMPUNIT,GATEOUTDATETIME,GATEINDATETIME,\" +\
+  \"\tCUSTOMRELEASEDATETIME,BARGEDISCHARGEDATETIME,BARGELOADINGDATETIME,CASE WHEN INSTR(TO_TERMINAL,'HIT')>0 THEN 'HIT' WHEN INSTR(TO_TERMINAL,'MTL')>0 THEN 'MTL' ELSE '' END TO_TERMINAL,FROM_TERMINAL,\" +\
+  \" FROM_BARGECOMPANYNAMEENG,FROM_BARGEID,FROM_CUSTOMCODE,FROM_BARGENAMEENG,FROM_BARGENAMECHI,FROM_BARGESOA,FROM_BARGEVOYAGE,FROM_BARGEARRIVALDATETIME,FROM_BARGEBERTHDATETIME,FROM_BARGEDEPARTUREDATETIME,\" +\
+  \" VESSELNAME,VOYAGECODE,ESTIMATEDARRIVALDATETIME,ESTIMATEDBERTHDATETIME,ESTIMATEDDEPARTUREDATETIME,POLPORTNAME,POLUNCODE,PODPORTNAME,PODUNCODE,FDPORTNAME,FDUNCODE,I_E FROM ONE_PORT_CNTR_EDI where TENANCY_ID='\" + app.get(\"sys.TENANCY_ID\") + \"' /*and rownum=1*/ and MSGSEQNUMBER='32765' AND (PODUNCODE LIKE '%HIT%' OR PODUNCODE LIKE '%MTL%') OR (POLUNCODE LIKE '%HIT%' OR POLUNCODE LIKE '%MTL%') order by MSGSEQNUMBER desc \");\
+if (rs.next()) {\
+  order += \"<Message>\\r\\
+\";\
+  order += \"<ContainerDtl>\\r\\
+\";\
+  order += \"<ContainerId>\" + rs.getString('CNTR') + \"<\/ContainerId>\\r\\
+\";\
+  order += '<ContainerType>' + rs.getString('CONTAINERTYPE') + '<\/ContainerType>\\r\\
+';\
+  order += '<ContainerSize>' + rs.getString('CONTAINER_SIZE') + '<\/ContainerSize>\\r\\
+';\
+  order += '<FullEmptyInd>' + rs.getString('FULL_EMPTY_IND') + '<\/FullEmptyInd>\\r\\
+';\
+  order += '<SoNumber>' + rs.getString('SONUMBER') + '<\/SoNumber>\\r\\
+';\
+  order += '<GrossWeigth>' + rs.getString('GROSSWEIGTH') + '<\/GrossWeigth>\\r\\
+';\
+  order += '<SealNumber>' + rs.getString('SEALNUMBER') + '<\/SealNumber>\\r\\
+';\
+  order += '<Consignee>' + rs.getString('CONSIGNEE') + '<\/Consignee>\\r\\
+';\
+  order += '<Shipper>' + rs.getString('SHIPPER') + '<\/Shipper>\\r\\
+';\
+  order += '<CommodityEng>' + rs.getString('COMMODITYENG') + '<\/CommodityEng>\\r\\
+';\
+  order += '<CommodityChi>' + rs.getString('COMMODITYCHI') + '<\/CommodityChi>\\r\\
+';\
+  order += '<BillOfLading>' + rs.getString('BILLOFLADING') + '<\/BillOfLading>\\r\\
+';\
+  order += '<ShippingLineCode>' + rs.getString('SHIPPINGLINECODE') + '<\/ShippingLineCode>\\r\\
+';\
+  order += '<ShippingLineName>' + rs.getString('SHIPPINGLINENAME') + '<\/ShippingLineName>\\r\\
+';\
+  order += '<ReeferInd>' + rs.getString('REEFERIND') + '<\/ReeferInd>\\r\\
+';\
+  order += '<ReeferTemp>' + rs.getString('REEFERTEMP') + '<\/ReeferTemp>\\r\\
+';\
+  order += '<ReeferTempUnit>' + rs.getString('REEFERTEMPUNIT') + '<\/ReeferTempUnit>\\r\\
+';\
+  order += '<GateInDateTime>' + rs.getString('GATEINDATETIME') + '<\/GateInDateTime>\\r\\
+';\
+  order += '<GateOutDateTime>' + rs.getString('GATEOUTDATETIME') + '<\/GateOutDateTime>\\r\\
+';\
+  order += '<CustomReleaseDateTime>' + rs.getString('CUSTOMRELEASEDATETIME') + '<\/CustomReleaseDateTime>\\r\\
+';\
+  if (rs.getString('I_E') == 'I')\
+    order += '<BargeDischargeDateTime>' + rs.getString('BARGEDISCHARGEDATETIME') + '<\/BargeDischargeDateTime>\\r\\
+';\
+  else\
+    order += '<BargeDischargeDateTime><\/BargeDischargeDateTime>\\r\\
+';\
+  if (rs.getString('I_E') == 'E')\
+    order += '<BargeLoadingDateTime>' + rs.getString('BARGELOADINGDATETIME') + '<\/BargeLoadingDateTime>\\r\\
+';\
+  else\
+    order += '<BargeLoadingDateTime><\/BargeLoadingDateTime>\\r\\
+';\
+  order += '<\/ContainerDtl>\\r\\
+';\
+\
+  order += '<BargeInformationFrom>\\r\\
+';\
+  order += '<BargeCompanyNameEng>' + rs.getString('FROM_BARGECOMPANYNAMEENG') + '<\/BargeCompanyNameEng>\\r\\
+';\
+  order += '<BargeId>' + rs.getString('FROM_BARGEID') + '<\/BargeId>\\r\\
+';\
+  order += '<CustomCode>' + rs.getString('FROM_CUSTOMCODE') + '<\/CustomCode>\\r\\
+';\
+  order += '<BargeNameEng>' + rs.getString('FROM_BARGENAMEENG') + '<\/BargeNameEng>\\r\\
+';\
+  order += '<BargeNameChi>' + rs.getString('FROM_BARGENAMECHI') + '<\/BargeNameChi>\\r\\
+';\
+  order += '<BargeSOA>' + rs.getString('FROM_BARGESOA') + '<\/BargeSOA>\\r\\
+';\
+  order += '<BargeVoyage>' + rs.getString('FROM_BARGEVOYAGE') + '<\/BargeVoyage>\\r\\
+';\
+\
+  //2.5增加的装货港和卸货港\
+  order += '<FromTerminal>' + rs.getString('FROM_TERMINAL') + '<\/FromTerminal>\\r\\
+';\
+  order += '<ToTerminal>' + rs.getString('TO_TERMINAL') + '<\/ToTerminal>\\r\\
+';\
+\
+  order += '<BargeArrivalDateTime>' + rs.getString('FROM_BARGEARRIVALDATETIME') + '<\/BargeArrivalDateTime>\\r\\
+';\
+  order += '<BargeBerthDateTime>' + rs.getString('FROM_BARGEBERTHDATETIME') + '<\/BargeBerthDateTime>\\r\\
+';\
+  order += '<BargeDepartureDateTime>' + rs.getString('FROM_BARGEDEPARTUREDATETIME') + '<\/BargeDepartureDateTime>\\r\\
+';\
+  order += '<\/BargeInformationFrom>\\r\\
+';\
+\
+  order += '<ConnectVessel>\\r\\
+';\
+  order += '<VesselName>' + rs.getString('VESSELNAME') + '<\/VesselName>\\r\\
+';\
+  order += '<VoyageCode>' + rs.getString('VOYAGECODE') + '<\/VoyageCode>\\r\\
+';\
+  order += '<EstimatedArrivalDateTime>' + rs.getString('ESTIMATEDARRIVALDATETIME') + '<\/EstimatedArrivalDateTime>\\r\\
+';\
+  order += '<EstimatedBerthDateTime>' + rs.getString('ESTIMATEDBERTHDATETIME') + '<\/EstimatedBerthDateTime>\\r\\
+';\
+  order += '<EstimatedDepartureDateTime>' + rs.getString('ESTIMATEDDEPARTUREDATETIME') + '<\/EstimatedDepartureDateTime>\\r\\
+';\
+  order += '<PolPortName>' + rs.getString('POLPORTNAME') + '<\/PolPortName>\\r\\
+';\
+  order += '<PolUnCode>' + rs.getString('POLUNCODE') + '<\/PolUnCode>\\r\\
+';\
+  order += '<PodPortName>' + rs.getString('PODPORTNAME') + '<\/PodPortName>\\r\\
+';\
+  order += '<PodUnCode>' + rs.getString('PODUNCODE') + '<\/PodUnCode>\\r\\
+';\
+  order += '<FdPortName>' + rs.getString('FDPORTNAME') + '<\/FdPortName>\\r\\
+';\
+  order += '<FdUncode>' + rs.getString('FDUNCODE') + '<\/FdUncode>\\r\\
+';\
+  order += '<\/ConnectVessel>\\r\\
+';\
+\
+\
+  order += '<\/Message>\\r\\
+';\
+  num = rs.getString('MSGSEQNUMBER');\
+  type = rs.getString('MESSAGETYPE');\
+\
+}\
+xml = xml.replace('>ContainerDetails<', \">\" + type + \"<\");\
+xml = xml.replace('>00918<', \">\" + num + \"<\");\
+// app.log(order);\
+order += '<\/MsgList>\\r\\
+';\
+order += '<\/Interchange_Message>\\r\\
+';\
+xml += order;\
+xml = xml.replaceAll('null', '');\
+app.log(xml);\
+\
+\
+\
+// app.run(\"update VBILL_HEAD_E set LH='1' where ID in(select ID from VBILL_HEAD where VID='\" + vId + \"')\");\
+// request.setAttribute(\"fileName\", \"CN_MT5101_5721\" + dateName + \"\");\
+// request.setAttribute(\"message\", xml + order + crew);\
+// var name = \"CN_MT5101_\" + bahm + dateName + \"_\" + dateName1; //取文件名\
+// var content = xml + order + crew; //取文件内容\
+// //生成临时文件\
+// var file = '/tmp/' + name + '.xml';\
+// var tmp = new File(file);\
+// FileUtil.writeString(tmp, content);\
+// //调用下载功能\
+// var files = [];\
+// files[0] = file;\
+// app.set('zip', true);\
+// app.set('files', Wb.encode(files));\
+// app.set('downloadName', name + '.zip');\
+// app.execute('m?xwl=dev/ide/download');"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

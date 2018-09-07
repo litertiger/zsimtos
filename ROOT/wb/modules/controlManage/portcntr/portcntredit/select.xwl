@@ -1,0 +1,133 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\");\
+fieldValue = app.get(\"fieldValue\");\
+sql = '';\
+\
+// app.log(!Wb.isEmpty(data.fieldKey));\
+// app.log(data.fieldKey);\
+// app.log(data.efId);\
+if (nature == '5') {\
+  sql += \"  and  CNTR_OPERATOR_COD='\" + govCode + \"'\";\
+}\
+\
+if (!Wb.isEmpty(data.fieldKey)) {\
+  if (data.fieldKey != 'E_F_ID' && data.fieldKey != \"IN_PORT_TIME\") {\
+    if (fieldValue == '外贸') {\
+      fieldValue = '1';\
+    } else if (fieldValue == '内贸') {\
+      fieldValue = '2';\
+    } else if (fieldValue == '进口') {\
+      fieldValue = 'I';\
+    } else if (fieldValue == '出口') {\
+      fieldValue = 'E';\
+    } else if (fieldValue == '1') {\
+      fieldValue = 1;\
+    }\
+    sql += \" and  \" + data.fieldKey + \" like '%'||'\" + fieldValue + \"'||'%' \";\
+  }\
+  if (data.fieldKey == \"IN_PORT_TIME\" && !Wb.isEmpty(fieldValue)) {\
+    sql += \" and  trunc(\" + data.fieldKey + \")=to_date('\" + fieldValue + \"','yyyy-mm-dd')\";\
+  }\
+}\
+if (!Wb.isEmpty(data.size)) {\
+  sql += \" and CNTR_SIZE like '%'||{?size?}||'%' \";\
+}\
+\
+//\
+if (!Wb.isEmpty(data.fieldKey)) {\
+  if (data.fieldKey == 'E_F_ID') {\
+    if (!Wb.isEmpty(data.efId)) {\
+      if (data.efId === 'P') {\
+        sql += \" and E_F_ID ='F' and LCL_ID=1\";\
+      } else {\
+        sql += \" and E_F_ID ={?efId?}\";\
+      }\
+\
+    }\
+\
+  }\
+}\
+//\
+if (!Wb.isEmpty(data.yardposition)) {\
+  if (data.yardposition.indexOf(\",\")) {\
+    var s = data.yardposition.split(\",\");\
+    for (var i = 0; i < s.length; i++) {\
+      if (i === 0) {\
+        sql += \" and YARD_POSITION like '%'||'\" + s[i] + \"'||'%' \";\
+      } else\
+        sql += \" or YARD_POSITION like '%'||'\" + s[i] + \"'||'%' \";\
+    }\
+  } else\
+    sql += \" and YARD_POSITION like '%'||{?yardposition?}||'%' \";\
+}\
+if (!Wb.isEmpty(data.types)) {\
+  sql += \" and CNTR_TYPE like '%'||{?types?}||'%' \";\
+}\
+if(data.type=='1')\
+  sql+=\" and  (ALARM is not null  or FUEL_LEVEL is not null) \";\
+if(data.flag==1){\
+//   sql+=\" and SUBSTR(YARD_POSITION,1,2)='P2' AND EXISTS(SELECT 1 FROM VLOAD_LIST  WHERE     port_cntr.ID = CNTR_id)\";\
+  sql+=\" and exists (select 1 from vload_list_d where cntr_id=port_cntr.id and lcl_id=1 and main_flag=1)\";\
+}\
+\
+request.setAttribute(\"whereSql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createKeyValues": "false",
+    "totalSql": "select count(1)\
+from PORT_CNTR where TENANCY_ID={?sys.TENANCY_ID?} {#whereSql#} {#moreSql#}",
+    "sql": "select ID,TENANCY_ID,CNTR,PHASE,CATEGORY_ID,TRADE_ID,decode(LCL_ID,1,'P', E_F_ID) E_F_ID ,I_E_ID,CNTR_ISO,LINE,CNTR_OPERATOR,CNTR_OWNER_COD,CNTR_OWNER,IB_MODE,I_TOOL_NO,\
+SAFE_WT,SCALE_WT,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,CNTR_HIGHT,CNTR_LENGTH,SHIP_NO,IB_CARRIER_OP,I_DSHIP_NO,IB_DCARRIER_OP,OB_MODE\
+,O_TOOL_NO,OB_CARRIER_OP,E_DSHIP_NO,OB_DCARRIER_OP,OPL,ORIGIN,POD,POL,SPOD,RETURN_LOC,TRUCKING_CO,DATASOURCE,ARR_POSITION,\
+YARD_POSITION,PLANNED_POSITION,CY_AREA_NO,CY_BAY_NO,CY_ROW_NO,CY_TIER_NO,AGENT1,AGENT2,BILL_NO,CARGO_WT,CMDY_CODE,CONSIGNEE,\
+CONSIGNEE_NAME,SHIPPER,SHIPPER_NAME,EXAM_STATUS,DANG_ID,IMDG,UNDG,DIRECT_ID,SPEC_STOW,SPEC_STOW2,SPEC_STOW3,WEIGHT,TEMP_SET,\
+TEMP_MIN,TEMP_MAX,REEF_ID,ON_POWER,REQS_POWER,REEFER_TYPE,ALARM,CO2_LEVEL,DEFROST_TEMP,FAULT_CODE,FUEL_LEVEL,HUMIDITY_LEVEL,\
+O2_LEVEL,LAST_REMARK,LAST_SET_TEMP,LAST_SUPPLY_TEMP,LAST_READ_TEMP,OVERHEIGHT,OVERFRONT,OVERBACK,OVERLEFT,OVERRIGHT,OOG_ID,BUNDL_ID,\
+APPTTIME,IN_PORT_TIME,DWELL_DAYS,EC_INTIME,LAST_MOVE,LOAD_TIME,ON_POWER_TIME,OFF_POWER_TIME,OUT_PORT_TIME,PRETIME,RELEASE_ID,\
+EXIT_CUSTOM_ID,EMERGENCY_ID,CUSTOM_TYPE,TRANS_TYPE,CONDITION_ID,SEALED_ID,LCL_ID,CIQ_ID,PTI_ID,CHECK_ID,LOCK_ID,PRE_TAK_ID,TRANS_ID,\
+DELV_TERM,HNDL_REASON,ARRBOOKINGNBR,BOOKINGNBR,RELEASENBR,SEQUENCE,NOTES,UPDATED_ON,CREATED_ON,CNTR_SIZE,CNTR_TYPE,CREATED_BY,\
+UPDATED_BY,CNTR_OPERATOR_COD,LINE_COD , SEND_EDI,\
+( select VESSEL_NAME||'-'||VESSEL_VISIT.LIB_VYG from  VESSEL_VISIT ,VESSEL_VOYAGE where VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and VESSEL_VISIT.TENANCY_ID='{#sys.TENANCY_ID#}' \
+ and VESSEL_VISIT.ID=I_DSHIP_NO) I_VESSEL_NAME,\
+( select VESSEL_NAME||'-'||VESSEL_VISIT.LOB_VYG from  VESSEL_VISIT ,VESSEL_VOYAGE where VESSEL_VISIT.VID=VESSEL_VOYAGE.ID and VESSEL_VISIT.TENANCY_ID='{#sys.TENANCY_ID#}' \
+ and VESSEL_VISIT.ID=E_DSHIP_NO) E_VESSEL_NAME\
+from PORT_CNTR where TENANCY_ID={?sys.TENANCY_ID?} {#whereSql#} {#moreSql#}\
+\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "xlczs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "XLLONG": 1,
+  "ZSZKCZ": 1,
+  "xlwmcgs": 1,
+  "JTQGB": 1,
+  "xlzk": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

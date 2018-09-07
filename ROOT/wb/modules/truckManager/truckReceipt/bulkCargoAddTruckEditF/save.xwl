@@ -1,0 +1,149 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var tenancyId = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+var id, idc = [],\
+  idd = [],\
+  idu = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+recss = Wb.decode(request.getParameter('update'));\
+red = Wb.decode(request.getParameter('destroy'));\
+var data = [],\
+  pid;\
+app.log(recs);\
+app.log(recss);\
+app.log(red);\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  idc.push({\
+    ID: id,\
+    BILL_NO: rec.BILL_NO,\
+    PID: rec.PID,\
+    PIECES: rec.PIECES,\
+    WEIGHT: rec.WEIGHT\
+  });\
+  pid = rec.PID;\
+});\
+Wb.each(recss, function(rec) {\
+  idu.push({\
+    ID: rec.ID,\
+    WEIGHT: rec.WEIGHT,\
+    PIECES: rec.PIECES,\
+    PID: rec.PID\
+  });\
+});\
+Wb.each(red, function(rec) {\
+  idd.push({\
+    ID: rec.ID\
+  });\
+});\
+app.log(idd);\
+if (idd.length > 0) {\
+  app.run(\"delete from BLUK_TRUCK_D where pid={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd))\
+  });\
+  app.run(\"delete from BLUK_APPLY_TRUCK WHERE TID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idd))\
+  });\
+}\
+if (idc.length > 0 && idu.length == 0) {\
+  app.run(\"delete from BLUK_TRUCK_D where PID IN(SELECT ID FROM BLUK_TRUCK_M WHERE PID='\" + pid + \"')\");\
+  app.run(\"delete from BLUK_TRUCK_M where PID='\" + pid + \"'\");\
+}\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'BLUK_TRUCK_M',\
+  whereFields: 'ID',\
+  uniqueUpdate: false\
+});\
+app.log(idc);\
+if (idc.length > 0 && idu.length == 0) {\
+  app.run(\"insert into BLUK_TRUCK_D(ID, PID, WEIGHT, PIECES, TENANCY_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE)\" +\
+    \"select sys_guid(),ID,WEIGHT,PIECES,'\" + tenancyId + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN' from BLUK_TRUCK_M WHERE PID='\" + pid + \"'\");\
+  var rs = app.run(\"SELECT ID FROM BLUK_TRUCK_M WHERE PID='\" + pid + \"'\");\
+  while (rs.next()) {\
+    app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)VALUES('\" + pid + \"','\" + rs.getString('ID') + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate)\");\
+  }\
+  //   app.run(\"insert into BLUK_TRUCK_D(ID, PID, WEIGHT, PIECES, TENANCY_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE)\" +\
+  //     \"values(sys_guid(),{?PID?},{?WEIGHT?},{?PIECES?},'\" + tenancyId + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN')\", {\
+  //       arrayData: new org.json.JSONArray(Wb.encode(idc))\
+  //     });\
+  //   app.run(\"update BLUK_TRUCK_D set WEIGHT=(select weight from BLUK_TRUCK_M where id=BLUK_TRUCK_D.pid),\" +\
+  //     \"PIECES=(select PIECES from BLUK_TRUCK_M where id=BLUK_TRUCK_D.pid) WHERE PID in(SELECT ID FROM BLUK_TRUCK_M WHERE PID='\" + pid + \"')\");\
+}\
+if (idc.length > 0 && idu.length > 0) {\
+  app.run(\"insert into BLUK_TRUCK_D(ID, PID, WEIGHT, PIECES, TENANCY_ID, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, PHASE)\" +\
+    \"values(sys_guid(),{?ID?},{?WEIGHT?},{?PIECES?},'\" + tenancyId + \"','\" + username + \"',sysdate,'\" + username + \"',sysdate,'PLN')\",{arrayData: new org.json.JSONArray(Wb.encode(idc))});\
+  app.run(\"insert into BLUK_APPLY_TRUCK(ID,TID,CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON)values('\" + pid + \"',{?ID?},'\" + username + \"',sysdate,'\" + username + \"',sysdate)\",{arrayData: new org.json.JSONArray(Wb.encode(idc))});\
+  app.run(\"update BLUK_TRUCK_D set WEIGHT={?WEIGHT?},PIECES={?PIECES?} WHERE PID={?ID?}\",{arrayData: new org.json.JSONArray(Wb.encode(idu))});\
+}\
+\
+app.log(idu);\
+if (idu.length > 0) {\
+  app.run(\"update BLUK_TRUCK_D set WEIGHT={?WEIGHT?},PIECES={?PIECES?} WHERE PID={?ID?}\", {\
+    arrayData: new org.json.JSONArray(Wb.encode(idu))\
+  });\
+}\
+\
+// data.push({\
+//   create: recs,\
+//   update: recss,\
+//   ids: ids\
+// });\
+\
+\
+app.send(data); //把id列表发送到客户端以同步到表格\
+\
+\
+\
+\
+// var id, ids = [],\
+// recs = Wb.decode(request.getParameter('create'));\
+// recss = Wb.decode(request.getParameter('update'));\
+// var data=[];\
+// Wb.each(recs, function(rec) {\
+//   id = SysUtil.getId();\
+//  \t rec.ID = id;\
+//     ids.push({\
+//     ID: id\
+//   });\
+// });\
+// Wb.each(recss, function(rec) {\
+//   id = SysUtil.getId();\
+//  \t rec.ID = id;\
+//     ids.push({\
+//     ID: id\
+//   });\
+// });\
+// data.push({\
+//   create: recs,\
+//   update: recss,\
+//   ids:ids\
+// });\
+// request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+// app.update({\
+//   tableName: 'BLUK_TRUCK',\
+//    whereFields: 'ID'\
+\
+// });\
+// app.send(data); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "check": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

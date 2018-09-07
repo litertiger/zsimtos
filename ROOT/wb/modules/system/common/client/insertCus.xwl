@@ -1,0 +1,36 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {
+   "serverScript": "var cod=app.get(\"CODE\"), name=app.get(\"NAME\"), govCode=app.get(\"GOV_CODE\"),message=\"\";\
+var rs=app.run(\"select CODE ,NAME, GOV_CODE from C_CUSTOMER  where CODE={?CODE?} or  NAME={?NAME?} or GOV_CODE={?GOV_CODE?}\",{jndi:'jdbc/basecode'});\
+if(rs.next()){\
+\t\tif(cod!=rs.getString(\"CODE\"))\
+          message+=\"代码已经存在\";\
+       if(name!=rs.getString(\"NAME\"))\
+          message+=\"名称已经存在\";\
+       if(govCode!=rs.getString(\"GOV_CODE\"))\
+          message+=\"工商注册号已经存在\";\
+}\
+if(message.length>0)\
+  Wb.error(message);\
+else\
+app.run(\"insert into C_CUSTOMER(ID,CODE,NAME,GOV_CODE,STATE_FLAG,CLIENT_TYPE) values(sys_guid(),{?CODE?},{?NAME?},{?GOV_CODE?},'9','[\\\"CE\\\"]')\",{jndi:'jdbc/basecode'});\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1
+ },
+ "title": "客户维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,227 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<p class="sz1">5.工具条功能号</p><hr color=#2266ee size=1>
+　　通过上面的CallFunc函数可以调用工具条中的各个功能，各个工具条中的功能号规则如下：<br>
+<p class="sz3">5.1.主工具条 ( <img src='image/Toolbar1.bmp'> )：</p>
+<table cols=4 width=98% border=1 align="center">
+<col align=center width=20>
+<col align=center width=20>
+<col align=left>
+<tr><th align=center colspan=2>功能号</th><th align=center>含义</th><th align=center>CallFunc函数参数</th></tr>
+<tr><td colspan=2>102</td><td>新建报表</td><td>
+如果没有参数，表示直接打开对话框，就像鼠标点击工具条一样; 如果含有参数，则不打开对话框，而是直接建立新表，参数规则如下：<br>
+name=[?]; rows=[?];cols=[?]; rowheight=[?]; colwidth=[?]; filename=[?], 含义如下：<br>
+name - 工作表名;<br>
+rows/cols - 总行数/列数;<br>
+rowheight/colwidth - 行高/列宽<br>
+filename - 本地的XML全文件名, 可以不指定<br>
+示例： AF.func("callfunc", "102 \r\n name=我的工作表;rows=20;cols=8");
+</td></tr>
+<tr><td colspan=2>103</td><td>弹出打开报表文件的对话框</td><td>如果没有参数，就表示像鼠标点击工具条一样；如果有参数，那么参数格式为: <br>
+type=[?];Dir=[?], 含义如下：<br>
+type - xml 或 xlsx、xls，表示对话框默认的文件类型;<br>
+dir - 本地文件目录，表示对话框的初始目录定位;<br>
+isWithFormula - true/false, 含义为当打开 xlsx、xls 文件时，是否导入计算公式, 默认是true
+</td></tr>
+<tr><td colspan=2>104</td><td>保存报表</td><td>文件名，用于强制指定文件名，文件类型可以是xml、zip</td></tr>
+<tr><td colspan=2>1074</td><td>报表另存为</td><td>如果没有参数，表示直接打开对话框，就像鼠标点击工具条一样; 如果含有参数，参数格式为 "Filename=[?]; WorkSheets=[?]; isReturnContent=[?]; isSaveCalculateResult=[?]"，这些参数均可选.<br>
+　<b>Filename</b> - 本地文件名, 可以是全文件名，也可以不包含路径，如果不含路径，则会生成到 BC\Temp 下。指定文件名后将不会弹出文件选择对话框; <br>
+　<b>WorkSheets</b> 或 <b>WorkSheet</b>- 指定工作表顺序号，用于有多工作表的情形，如果需要多个工作表，需以逗号分隔，指定工作表顺序号后将不会弹出工作表选择对话框; <br>
+　<b>isReturnContent</b> - 如果为true, 表示函数返回的不是文件名，而是内容本身的XML串, 默认是false. 如果 isReturnContent = true, 那么 Filename 就不需要指定了，也不会弹出文件选择对话框, 因为不输出到文件了;<br>
+　<b>isSaveCalculateResult</b> - true/false, 是否将数据源填入的数据也一起保存，默认值是该报表属性中的同名选项; <br>
+<b>示例</b>：<br>
+　var filename = AF.func("callfunc", "1074\r\n WorkSheets=3,5");  　//表示将第四、第六工作表另存<br>
+<b>返回值</b>：<br>
+　含路径的全文件名, 或 XML 串 (在 isReturnContent=true 时)<br></td></tr>
+<tr><td colspan=2>105</td><td>转换输出.</td>
+<td>
+如果没有参数，表示直接打开转换输出对话框，就像鼠标点击工具条一样; 如果含有参数，则不打开对话框，而是直接生成转换文件，并返回文件名，参数格式分数据文件和图像文件二种。<br>
+<h3>1.数据文件</h3>
+参数格式为："Type=[?]; asData=[?]; includeHide=[?]; gridLine=[?];filename=[?];isForMobile=[?];isReturnContent=[?]"<br>
+　<b>Type</b>是输出文档格式，有xlsx, xls, htm, mht, doc, txt, xml, dif, rtf 这几种; <br>
+　<b>asData</b> 为 true 表示输出纯数据，否则是包含了格式掩码的数据(比如含千位符)，默认false;<br>
+　<b>includeHide</b> 表示是否包含隐藏行、隐藏列，默认false;<br>
+　<b>gridLine</b> 表示是否是否显示表格线，仅用于XLS，默认false;<br>
+　<b>includeFormula</b> 用于 xlsx、xls 格式的转换，表示是否连公式一起转换, 默认是true.<br>
+　<b>filename</b> 要生成的全文件名，如果文件名为空或没有指定目录，则文件生成到硕正的临时目录 (BC\Temp) 下.<br>
+如果转换格式是 xlsx 或 xls, 则还可以有如下选项：<br>
+　<b>WorkSheet</b> 工作表范围, all - 全部工作表, current - 当前工作表，默认是全部工作表.<br>
+如果转换格式是 htm, 则还可以有如下选项, 主要用于服务器专版的移动端展现功能：<br>
+　<b>isForMobile</b> 是否用于手机客户端 (服务器专版), 该选项将对转换输出作优化, 比如采用单一字体、减少格式冗余, 默认是false;<br>
+　<b>isReturnContent</b> 如果为true, 表示函数返回的不是文件名，而是内容本身的字符串, 默认是false;<br>
+　<b>isUsingDefineFormat</b> 是否套用报表属性对话框中“当前工作表属性(3)”中指定的格式转换, 默认是 true;<br>
+　<b>Template</b> 指定模板文件，可以是URL、或文件，用于服务器专版，详细说明请参考开发文档 "服务器专版" 中的 "9.报表转换模板";<br>
+　<b>isQueryPage</b> 是否用于转换一体化查询的 jQuery Mobile查询条件页，请看 "服务器专版" 中的 "9.报表转换模板";<br>
+　<b>uploadURL</b> 用于生成上报汇总模式的 html, 当手机端输入后，用 ajax 把 XML 数据发往该目的地，详细说明请参考开发文档“服务器专版”中的“9.3.上报汇总模板”；<br>
+
+<h3>2.图像文件</h3>
+参数格式为："Type=[?]; Scale=[?]; Precision=[?];filename=[?];WorkSheet=[?]"<br>
+　<b>Type</b>是输出文档格式，有pdf, jpg, bmp, gif, png, tif 这6种，默认是jpg; <br>
+　<b>ExportAsPrint</b>, true - 按打印预览的分页方式输出; false - 按显示尺寸(和打印无关)输出.<br>
+　<b>Scale</b>是打印比例，范围是10 到 400，默认100。对于PDF而言，Scale越大越清晰，例如300表示在300%的显示比例下仍很清晰;<br>
+　<b>Precision</b>是JPG精度，仅对JPG有效，精度范围1-100(默认85)，越接近100越清晰，但文件尺寸越大.<br>
+　<b>filename</b> 要生成的全文件名，如果文件名为空或没有指定目录，则文件生成到硕正的临时目录 (BC\Temp) 下.<br>
+　<b>WorkSheet</b> 工作表范围, all - 全部工作表, current - 当前工作表，默认是当前工作表.<br>
+<br>
+<b>示例</b>：<br>
+　var filename = func("callfunc", "105\r\nType=jpg; Scale=100; Precision=85");<br>
+<br>
+<b>返回值</b>：<br>
+　均为输出文件名(含路径的全文件名)，由于图像文件是分页输出的，所以象jpg、bmp这些格式可能会有多个文件名(PDF除外)，文件名间以回车分隔，空串表示转换过程有错误.
+<br><br>
+<b>备注</b>：<br>
+　1.如果无法确定输出文件位置、希望能弹出对话框让用户选择文件目录，那么请先调用全局函数 FileDialog;<br>
+　2.如果指定了 filename 参数，则 Type 参数可以省去，因为插件也能根据文件名后缀辨认类型的.
+</td></tr>
+<tr><td colspan=2>100</td><td>报表属性设置</td><td/></tr>
+<tr><td colspan=2>189</td><td>关于</td><td/></tr>
+<tr><td rowspan=2>20</td><td>20</td><td>复制</td><td/></tr>
+<tr><td>31</td><td>剪切</td><td/></tr>
+<tr><td rowspan=2>32</td><td>34</td><td>粘贴格式和文字</td><td/></tr>
+<tr><td>35</td><td>仅粘贴文字</td><td/></tr>
+<tr><td colspan=2>106</td><td>Undo</td><td/></tr>
+<tr><td rowspan=2>107</td><td>427</td><td>查找</td><td/></tr>
+<tr><td>426</td><td>替换</td><td/></tr>
+</table><br>
+<br>
+
+<p class="sz3">2.打印工具条 ( <img src='image/Toolbar2.bmp'> )：</p>
+<table cols=4 width=98% border=1 align="center">
+<col align=center width=20>
+<col align=center width=20>
+<col align=left>
+<tr><th align=center colspan=2>功能号</th><th align=center>含义</th><th align=center>CallFunc函数参数</th></tr>
+<tr><td rowspan=2>11</td><td>11</td><td>打印报表</td><td>请参考 Print( ) 函数</td></tr>
+<tr><td>318</td><td>转换为PDF或图片文件</td><td>请参考功能号105(转换输出)</td></tr>
+<tr><td colspan=2>216</td><td>打印设置</td><td/></tr>
+<tr><td colspan=2>18</td><td>打印预览</td><td/></tr>
+</table><br>
+<br>
+
+<p class="sz3">3.常用功能工具条 ( <img src='image/Toolbar4.bmp'> )：</p>
+<table cols=4 width=98% border=1 align="center">
+<col align=center width=20>
+<col align=center width=20>
+<col align=left>
+<tr><th align=center colspan=2>功能号</th><th align=center>含义</th><th align=center>CallFunc函数参数</th></tr>
+<tr><td colspan=2>110</td><td>单元合并</td><td/></tr>
+<tr><td colspan=2>162</td><td>求和</td><td/></tr>
+<tr><td colspan=2>164</td><td>计算器</td><td/></tr>
+<tr><td rowspan=3>163</td><td>163</td><td>重新计算</td><td/></tr>
+<tr><td>260</td><td>除数据源外，重新计算</td><td/></tr>
+<tr><td>630</td><td>仅计算当前工作表</td><td/></tr>
+<tr><td rowspan=7>140</td><td>140</td><td>打开数据源对话框</td><td/></tr>
+<tr><td>536</td><td>自定义显示列</td><td>数据源的ID, 或数据源的顺序号</td></tr>
+<tr><td>537</td><td>自定义排序</td><td>同上</td></tr>
+<tr><td>116</td><td>自定义超链接</td><td>同上</td></tr>
+<tr><td>395</td><td>数据分类汇总</td><td>同上</td></tr>
+<tr><td>520</td><td>交叉表</td><td>同上</td></tr>
+<tr><td>143</td><td>清理从数据源填入的数据</td><td>如果参数是 true, 表示同时清理表头的信息</td></tr>
+<tr><td colspan=2>717</td><td>全屏显示</td><td>0-自动，1-退出全屏, 2-进入全屏</td></tr>
+<tr><td colspan=2>4</td><td>折叠/展开工具条</td><td/></tr>
+</table><br>
+<br>
+
+<p class="sz3">4.工具箱工具条 ( <img src='image/Toolbar32.bmp'> )：</p>
+<table cols=4 width=98% border=1 align="center">
+<col align=center width=20>
+<col align=center width=20>
+<col align=left>
+<tr><th align=center colspan=2>功能号</th><th align=center>含义</th><th align=center>CallFunc函数参数</th></tr>
+<tr><td colspan=2>301</td><td>打开工具箱</td><td>参数可以为1、2、3、4、5，分别表示将当前页定位在属性、计算公式、数据源、字典、上报的指标库页</td></tr>
+<tr><td rowspan=6>2</td><td>2</td><td>单元格显示计算公式</td><td/></tr>
+<tr><td>64</td><td>单元格显示计算结果</td><td/></tr>
+<tr><td>734</td><td>单元格显示计算公式、数据源标题</td><td/></tr>
+<tr><td>759</td><td>单元格显示别名</td><td/></tr>
+<tr><td>25</td><td>设置数据验证</td><td/></tr>
+<tr><td>50</td><td>执行数据验证</td><td>如果没有参数，就表示像鼠标点击工具条一样; 如果含有参数，参数格式为: range=[?];isReport=[?];isBeforeCalc=[?];isAfterCalc=[?];isIgnoreEmpty=[?], 其参数含义如下：<br>
+<b>range</b> - 表示工作表范围，空串或忽略该参数表示验证全部工作表；-1表示仅验证当前工作表; 0 到 n 或工作表名称，表示验证指定名称或次序的工作表;<br>
+<b>isReport</b> - true/one/false, 表示是否仅返回验证报告, true 表示返回全部错误, one 表示只要返回第一条错误即可, 默认是 false;<br>
+<b>isBeforeCalc</b> - 表示是否匹配标记为计算前的那部分验证, 默认是 false;<br>
+<b>isAfterCalc</b> - 表示是否匹配标记为计算后的那部分验证, 默认是 false;<br>
+<b>isIgnoreEmpty</b> - 如果为 true, 表示当没有发现验证条项时，无论如何都不弹出提示, 默认是 false;<br>
+返回值：如果 isReport = FALSE, 返回1表示通过验证, 0表示未通过，空串表示工作表不存在; 如果 isReport = true, 则返回验证报告串，空串表示全部通过验证;<br>
+示例:<br>
+var ErrStr = AF.func("callfunc", "50 \r\n isReport = true");<br>
+ErrStr = ErrStr.replace(/\r\n/g, "\\r\\n");<br>
+AF.func("MessageBoxFloat", ErrStr + "\r\n center=true;hold=20");<br>
+</td></tr>
+
+<tr><td colspan=2>112</td><td>添加文本框</td><td>
+如果没有参数，就表示像鼠标点击工具条一样; 如果含有参数，则参数规则如下:<br>
+x=[?];y=[?];width=[?];height=[?]; alias=[?];text=[?]  或<br>
+x1=[?];y1=[?];x2=[?];y2=[?]; alias=[?];text=[?]  或<br>
+其中的 x / y / x1 / x2 / y1 / y2 / width / height为坐标参数，alias表示别名，text表示文本框的文字(也可以是计算函数)。<br>
+坐标参数含义及可用值语法为：<br>
+　<b>x / y 或 x1 / y1</b> - 左上角坐标, 可以是像素数，也可以是单元格名 (表示位于该单元格的左上角位置)，此外，如果是串<b>"drag"</b>, 表示位置不固定，并将随即出现拖拽中的鼠标，效果如同点击该按钮;<br>
+　<b>x2 / y2</b> - 右下角坐标, 可以是像素数，或单元格名 (表示位于该单元格的右下角位置);<br>
+　<b>width / height</b> - 宽度和高度, 像素数<br>
+备注：如果 x / y 使用像素单位，它们是相对于报表第一行、第一列左上角的, 和插件在页面的位置完全无关.<br>
+示例：<br>
+　AF.func("callfunc", "112 \r\n x=drag; text=测试");
+</td></tr>
+
+<tr><td rowspan=3>192</td><td>192</td><td>添加图片</td><td>同上，但有三个跟图片相关的参数：URL、IsSaveURLOnly、MaxSize, 其含义如下：<br>
+<b>URL</b> - 图片的URL(也可以是本地的全文件名)；<br>
+<b>IsSaveURLOnly</b> - 是否仅仅将图片的URL保存入到报表，默认是false；<br>
+<b>MaxSize</b> - 限定图片尺寸，格式为宽度和高度的像素数，逗号分隔。当图片的宽度或高度超过时，将自动转换到该尺寸，以减小报表文件的尺寸，仅用于IsSaveURLOnly=false时。当设置了maxSize后，图片将按比例缩放，x2、y2、width、height参数可以省略；<br>
+示例：<br>
+　AF.func("callfunc", "192 \r\n x=drag; URL=../mylib/demo.jpg; maxSize=400,400");
+</td></tr>
+<tr><td>17</td><td>添加图片(打开对话框)</td><td></td></tr>
+<tr><td>683</td><td>从剪切板粘贴图片</td><td></td></tr>
+
+<tr><td colspan=2>144</td><td>添加线条</td><td>同上，但有二个跟线条相关的参数：color、thick, 其含义如下：<br>
+thick - 线条粗细，像素数，默认是1；<br>
+color - 线条颜色；<br>
+</td></tr>
+<tr><td colspan=2>478</td><td>添加统计图</td><td/></tr>
+<tr><td colspan=2>382</td><td>添加树列表</td><td>同上，但有三个跟树列表相关的参数：URL、isSaveURLOnly、isBackGround, 其含义如下：<br>
+URL - 树列表的URL(也可以直接是XML大串);<br>
+isSaveURLOnly - true/false, 分别表示仅将URL保存到报表/把树列表的XML串储存到报表中, 默认是true；<br>
+isBackGround - true/false, 分别表示树列表采用原始背景效果/采用白色背景， 默认是true.<br>
+</td></tr>
+<tr><td rowspan=2>274</td><td>274</td><td>格式刷</td><td/></tr>
+<tr><td>122</td><td>表格线橡皮</td><td/></tr>
+</table><br>
+<br>
+
+<p class="sz3">5.文字输入工具条 ( <img src='image/text.png'> )：</p>
+<table cols=4 width=98% border=1 align="center">
+<col align=center width=20>
+<col align=center width=20>
+<col align=left>
+<tr><th align=center colspan=2>功能号</th><th align=center>含义</th><th align=center>CallFunc函数参数</th></tr>
+<tr><td colspan=2>541</td><td>公式/计算结果录入为主</td><td>如果没有参数表示切换, 否则: 1 - 公式录入为主; 2 - 计算结果录入为主</td></tr>
+<tr><td colspan=2>585</td><td>弹出公式引导输入对话框</td><td/></tr>
+</table><br>
+<br>
+
+
+<p class="sz3">6.不在工具条上的其它功能号</p>
+　　如下功能不在工具条上，部分在鼠标右键菜单中，也允许通过 callfunc 函数调用:<br>
+<table cols=4 width=98% border=1 align="center">
+<col align=center width=80>
+<col align=left>
+<tr><th align=center colspan=2>功能号</th><th align=center>含义</th><th align=center>CallFunc函数参数</th></tr>
+<tr><td colspan=2>404</td><td>自动调整行高，使文字能全部显示</td><td/></tr>
+<tr><td colspan=2>405</td><td>自动调整列宽，使文字能全部显示</td><td/></tr>
+<tr><td colspan=2>446</td><td>合并相同内容行</td><td>参数为列号，列号从0开始；也可以是多个列按大类、小类合并, 列号之间以逗号分隔</td></tr>
+<tr><td colspan=2>0</td><td>计算消息窗的打开方式</td><td>0－始终不打开；1-遇到计算有错误就打开</td></tr>
+<tr><td colspan=2>900</td><td>取得当前报表已打印的次数，返回值其实是整数</td><td/></tr>
+<tr><td colspan=2>108</td><td>切换为分页显示</td><td/></tr>
+<tr><td colspan=2>109</td><td>切换为常规显示</td><td/></tr>
+<tr><td colspan=2>15</td><td>切换显示比例</td><td>参数可为20、50、80、100、150、200</td></tr>
+<tr><td colspan=2>309</td><td>切换上报模式时的普通输入和设定输入顺序.</td><td/></tr>
+<tr><td colspan=2>786</td><td>仅计算当前单元格.</td><td/></tr>
+<tr><td colspan=2>800</td><td>分析当前单元格数据构成.</td><td/></tr>
+</table>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

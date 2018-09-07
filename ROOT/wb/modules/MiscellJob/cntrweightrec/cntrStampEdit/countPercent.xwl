@@ -1,0 +1,157 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//整柜：一票提单和多个柜；拼柜：多票和一个柜\
+var data = app.get();\
+var percent = 0;\
+var state = true;\
+//整柜\
+if (data.BILL_TYPE == 'C') {\
+  var rs = app.run(\"select port_cntr.SCALE_WT from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and vload_list.BILL_ID ={?BILL_ID?}\"),\
+    pw = 0;;\
+  while (rs.next()) {\
+    pw += rs.getInt('SCALE_WT');\
+  }\
+  if (pw < data.VWEIGHT) {\
+    //     percent = (data.VWEIGHT - pw) / data.VWEIGHT;\
+    percent = pw / data.VWEIGHT;\
+  } else {\
+    //     percent = (data.VWEIGHT - pw) / data.VWEIGHT;\
+    percent = pw / data.VWEIGHT;\
+  }\
+  if (pw > data.VWEIGHT * 0.95 && pw < data.VWEIGHT * 1.05) {\
+    state = true;\
+  } else {\
+    state = false;\
+  }\
+}\
+//拼柜\
+if (data.BILL_TYPE == 'P') {\
+  var rs = app.run(\"select weight from vbill_head WHERE id in(select BILL_ID from vload_list where cntr_id={?CNTR_ID?} ) \"),\
+    vw = 0;\
+  while (rs.next()) {\
+    vw += rs.getInt('WEIGHT');\
+  }\
+\
+\
+  ///\
+  var r = app.run(\"select port_cntr.SCALE_WT from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and cntr_id={?CNTR_ID?} \");\
+  var s = 0;\
+  while (r.next()) {\
+    s += r.getString('SCALE_WT');\
+  }\
+  ///\
+  if (s < vw) {\
+    //     percent = (vw - s) / vw;\
+    percnet = s / vw;\
+  } else {\
+    //     percent = (vw - s) / vw;\
+    percent = s / vw;\
+  }\
+  if (s > vw * 0.95 && s < vw * 1.05) {\
+    state = true;\
+  } else {\
+    state = false;\
+  }\
+}\
+var k = app.run(\"select GBZ from vbill_head_e where ID={?BILL_ID?} AND GBZ=1\");\
+if (k.next()) {\
+  state = \"hasStamp\";\
+}\
+// percent = Math.round(percent * 100) / 100;\
+percent =percent * 100 / 100;\
+percent = percent * 100-100 + \"%\";\
+percent = percent.substring(0,4)+\"%\";\
+var datas = [];\
+datas.push({\
+  percent: percent,\
+  state: state\
+});\
+app.send(datas);\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// //整柜：一票提单和多个柜；拼柜：多票和一个柜\
+// var data = app.get();\
+// var percent = 0;\
+// //整柜\
+// if (data.BILL_TYPE == 'C') {\
+//   var rs = app.run(\"select port_cntr.SCALE_WT from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and vload_list.BILL_ID ={?BILL_ID?}\"),\
+//     pw = 0;;\
+//   while (rs.next()) {\
+//     pw += rs.getInt('SCALE_WT');\
+//   }\
+//   if (pw < data.VWEIGHT) {\
+//     percent = (data.VWEIGHT - pw) / data.VWEIGHT;\
+//   } else {\
+//     percent = (data.VWEIGHT - pw) / data.VWEIGHT;\
+//   }\
+// }\
+// //拼柜\
+// if (data.BILL_TYPE == 'P') {\
+//   var rs = app.run(\"select weight from vbill_head WHERE id in(select BILL_ID from vload_list where cntr_id={?CNTR_ID?} ) \"),\
+//     vw = 0;;\
+//   while (rs.next()) {\
+//     vw += rs.getInt('WEIGHT');\
+//   }\
+\
+\
+//   ///\
+//   var r = app.run(\"select port_cntr.SCALE_WT from vload_list,port_cntr where vload_list.cntr_id=port_cntr.id(+) and cntr_id={?CNTR_ID?} \");\
+//   var s = 0;\
+//   while (r.next()) {\
+//     s += r.getString('SCALE_WT');\
+//   }\
+//   ///\
+//   if (s < vw) {\
+//     percent = (vw - s) / vw;\
+//   } else {\
+//     percent = (vw - s) / vw;\
+//   }\
+// }\
+// percent = Math.round(percent * 100) / 100;\
+// percent = percent * 100 + \"%\";\
+// app.send(percent);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "ZSBF": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "计算误差百分比",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

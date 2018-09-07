@@ -1,0 +1,134 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+//验证是否有数据？有数据不能初始化\
+// app.run(\"select 1 from C_EMPLOYEE_TEAM where PID='-1'\",{errorText:\"不能初始化！\",jndi: \"jdbc/basecode\"});\
+\
+//插入父节点\
+app.run(\"insert into C_EMPLOYEE_TEAM(ID, ETM_CLASS, TEAM_NAME, TEAM_TYPE, PID, DEPT, TENANCY_ID, NOTE, ORDER_INDEX)\\\
+values({?ID?},'0',{?TEAM_NAME?},'',{?PID?},'',{?TENANCY_ID?},'',{?ORDER_INDEX?})\", {\
+  arrayData: new org.json.JSONArray(data.datas),\
+  jndi: \"jdbc/basecode\"\
+});\
+\
+//取出C_EMPLOYEE_TEAM查出的ID\
+var rs = Wb.getRecords(app.run(\"select * from C_EMPLOYEE_TEAM where pid='-1' and TENANCY_ID={?sys.TENANCY_ID?}\", {\
+    jndi: \"jdbc/basecode\"\
+  })),\
+  ids = \"\";\
+for (var i = 0; i < rs.length; i++) {\
+  if (i == rs.length - 1) {\
+    ids += \"'\" + rs[i].ID + \"'\";\
+  } else {\
+    ids += \"'\" + rs[i].ID + \"',\";\
+  }\
+}\
+\
+//取出AUTH_ORGANIZATION的下层分支的数据\
+var s = [];\
+var os = Wb.getRecords(app.run(\"select * from AUTH_ORGANIZATION where ID in(\"+ids+\") AND TENANCY_ID={?sys.TENANCY_ID?}\"));\
+for (var i = 0; i < os.length; i++) {\
+  s.push({\
+    TEAM_NAME: os[i].ORG_NAME,\
+    PID: os[i].ID,\
+    TENANCY_ID: os[i].TENANCY_ID,\
+    ORDER_INDEX: i + 1\
+  });\
+}\
+\
+//循环取出C_EMPLOYEE_TEAM查出的ID\
+for (var i = 0; i < ids.length; i++) {\
+  app.run(\"insert into C_EMPLOYEE_TEAM(ID, ETM_CLASS, TEAM_NAME, TEAM_TYPE, PID, DEPT, TENANCY_ID, NOTE, ORDER_INDEX)\\\
+values(sys_guid(),'0',{?TEAM_NAME?},'','\" + ids[i] + \"','',{?TENANCY_ID?},'',{?ORDER_INDEX?}) where '\" + ids[i] + \"'={?PID?}\", {\
+    arrayData: new org.json.JSONArray(data.s),\
+    jndi: \"jdbc/basecode\"\
+  });\
+}\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+// var data = app.get();\
+// //验证是否有数据？有数据不能初始化\
+// // app.run(\"select 1 from C_EMPLOYEE_TEAM where PID='-1'\",{errorText:\"不能初始化！\",jndi: \"jdbc/basecode\"});\
+\
+// //插入父节点\
+// app.run(\"insert into C_EMPLOYEE_TEAM(ID, ETM_CLASS, TEAM_NAME, TEAM_TYPE, PID, DEPT, TENANCY_ID, NOTE, ORDER_INDEX)\\\
+// values(sys_guid(),'0',{?TEAM_NAME?},'',{?PID?},'',{?TENANCY_ID?},'',{?ORDER_INDEX?})\", {\
+//   arrayData: new org.json.JSONArray(data.datas),\
+//   jndi: \"jdbc/basecode\"\
+// });\
+\
+// //取出C_EMPLOYEE_TEAM查出的ID\
+// var rs = Wb.getRecords(app.run(\"select * from C_EMPLOYEE_TEAM where pid='-1'\", {\
+//     jndi: \"jdbc/basecode\"\
+//   })),\
+//   ids = [];\
+// for (var i = 0; i < rs.length; i++) {\
+//   ids.push({\
+//     ID: rs[i].ID\
+//   });\
+// }\
+\
+// //取出AUTH_ORGANIZATION的下层分支的数据\
+// var s = [];\
+// var os = Wb.getRecords(app.run(\"select * from AUTH_ORGANIZATION where ID={?ID?}\", {\
+//   arrayData: new org.json.JSONArray(data.datas)\
+// }));\
+// for (var i = 0; i < os.length; i++) {\
+//   s.push({\
+//     TEAM_NAME: os[i].ORG_NAME,\
+//     PID: os[i].ID,\
+//     TENANCY_ID: os[i].TENANCY_ID,\
+//     ORDER_INDEX: i + 1\
+//   });\
+// }\
+\
+// //循环取出C_EMPLOYEE_TEAM查出的ID\
+// for (var i = 0; i < ids.length; i++) {\
+//   app.run(\"insert into C_EMPLOYEE_TEAM(ID, ETM_CLASS, TEAM_NAME, TEAM_TYPE, PID, DEPT, TENANCY_ID, NOTE, ORDER_INDEX)\\\
+// values(sys_guid(),'0',{?TEAM_NAME?},'','\" + ids[i] + \"','',{?TENANCY_ID?},'',{?ORDER_INDEX?}) where '\" + ids[i] + \"'={?PID?}\", {\
+//     arrayData: new org.json.JSONArray(data.s),\
+//     jndi: \"jdbc/basecode\"\
+//   });\
+// }"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "ZSBF": 1
+ },
+ "title": "插入班组",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

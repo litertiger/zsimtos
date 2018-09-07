@@ -1,0 +1,55 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var ret = app.run(\"delete task where id={?id?} and phase='PLN'\", {\
+  transaction: \"start\"\
+});\
+if (ret === 0)\
+  return;\
+app.run(\"delete move_listb where queue_id={?id?} \");\
+app.run(\"delete move_list where queue_id={?id?} \", {\
+  transaction: \"commit\"\
+});\
+var client = new RabbitClient();\
+try{\
+var send = client.open() && client.routeSend(\"ex_task\", '#', {\
+  info: {\
+    type: \"task\",\
+    action: \"delete\",\
+    senduser: app.get(\"sys.username\"),\
+    sendmodule: \"taskMointor\",\
+    sendtime: (new Date()).getTime()\
+  },\
+  data: {\
+    id: app.get('id')\
+  }\
+});\
+}\
+catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "删除任务",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

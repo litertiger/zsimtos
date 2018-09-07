@@ -1,0 +1,375 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var feeids = \"\";\
+var feegroup = \"\";\
+var jsgroup = \"\";\
+var fees = Wb.decode(data.fees);\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+Wb.each(fees, function(fee) {\
+  feeids += \"'\" + fee.ID + \"',\";\
+  //   feegroup += \"sum(case when ad.FEE_LIST_ID='\" + fee.ID + \"' and ad.enabled=1 then ad.AMOUNT\" +\
+  //     \" when ad.FEE_LIST_ID='\" + fee.ID + \"' and ad.enabled=0 then ad.AMOUNT/ad.CONTRACT_ADD_RATE*100 end) \\\"\" + fee.NAME + \"\\\",\";\
+  feegroup += \"sum(case when ad.FEE_LIST_ID='\" + fee.ID + \"' then ad.AMOUNT end) \\\"\" + fee.ITEM_CODE + \"\\\",\";\
+});\
+feeids = feeids.substring(0, feeids.length - 1);\
+// var sql = \"SELECT R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR,R.IN_CAR IN_CAR_HP,R.IN_TRAY_NO,R.NOTES,R.PT_TYPE,R.GATEOUT_TIME_T,R.CNTR,\" +\
+//   \"R.CNTR_SIZE,R.WORK_TYPE,R.SHIPPER_CONSIGNEE,R.S_ADRESS,R.BILL_NO,R.CMDY_CODE,R.SEAL_NO,R.SHIP_ORDER,R.IN_DRIVER_ID IN_DRIVER_NAME,\" +\
+//   \"R.OUT_DRIVER_ID OUT_DRIVER_NAME,R.OUT_CAR,R.OUT_CAR OUT_CAR_HP,R.GATEIN_TIME_S,R.POL,R.POD,a.distance,a.distance*2 zbdistance,R.TRADE_ID,\" +\
+//   \"nvl(AD.ACCOUNT_CUSTOMER_CODE,r.ACCOUNT_CUSTOMER_CODE)ACCOUNT_CUSTOMER_CODE,wm_concat(distinct MANUAL_NODES)MANUAL_NODES,\" +\
+//   \"nvl(AD.ACCOUNT_CUSTOMER_NAM,r.ACCOUNT_CUSTOMER)ACCOUNT_CUSTOMER_NAM,AD.PAYMENT_CUSTOMER_CODE,AD.PAYMENT_CUSTOMER_NAM,\" +\
+//   \"R.WORK_TYPE,f_get_mdate(R.CNTR_ID,R.I_E_ID,R.WORK_TYPE) CREATED_ON,R.I_E_ID,R.CAR_TEAM,\" +\
+//   //   \"sum(decode(ad.enabled,0,ad.amount,0)) jsamount,\" +\
+//   feegroup +\
+//   \"CASE WHEN R.WORK_TYPE in('EOFI','EOEI','EOTC') THEN 'E' WHEN R.WORK_TYPE in('FOFI','FOTC','FOEI') THEN 'F' END E_F_C,\" +\
+//   \"CASE WHEN R.WORK_TYPE in('EOFI','FOFI','FITC') THEN 'F' WHEN R.WORK_TYPE in('EOEI','FOEI','EITC') THEN 'E' END E_F_I,\" +\
+//   \"                case WHEN R.WORK_TYPE IN('EOEI','FOFI') AND (select GROSSWT-DECODE(CNTR_SIZE,'20',24000,27000) cntrWeight from CNTR_WEIGHT_REC WHERE RECEIPT_ID=r.id and R.WORK_TYPE IN('EOEI','FOFI')  )<=0 THEN R.WORK_TYPE \" +\
+//   \"           when R.WORK_TYPE IN('EOEI') AND (select GROSSWT-DECODE(CNTR_SIZE,'20',24000,27000) cntrWeight from CNTR_WEIGHT_REC WHERE RECEIPT_ID=r.id and R.WORK_TYPE IN('EOEI') )>0 then '吉出吉回(超重)'  \" +\
+//   \"           when R.WORK_TYPE IN('FOFI') AND (select GROSSWT-DECODE(CNTR_SIZE,'20',24000,27000) cntrWeight from CNTR_WEIGHT_REC WHERE RECEIPT_ID=r.id and R.WORK_TYPE IN('FOFI') )>0 then R.WORK_TYPE||'重出重回(超重)' \" +\
+//   \"           WHEN R.WORK_TYPE NOT IN('EOEI','FOFI') AND (select GROSSWT-DECODE(CNTR_SIZE,'20',24000,27000) cntrWeight from CNTR_WEIGHT_REC WHERE RECEIPT_ID=r.id and R.WORK_TYPE NOT IN('EOEI','FOFI') AND WEIGHTIME=(select MAX(WEIGHTIME) from CNTR_WEIGHT_REC where RECEIPT_ID = r.id) )>0 then '超重'\t\" +\
+//   \"           WHEN R.WORK_TYPE NOT IN('EOEI','FOFI') AND (select GROSSWT-DECODE(CNTR_SIZE,'20',24000,27000) cntrWeight from CNTR_WEIGHT_REC WHERE RECEIPT_ID=r.id and R.WORK_TYPE NOT IN('EOEI','FOFI') AND WEIGHTIME=(select MAX(WEIGHTIME) from CNTR_WEIGHT_REC where RECEIPT_ID = r.id )   )<=0 then '' END P_TYPE       \" +\
+//   \" FROM RECEIPT R LEFT JOIN ACCOUNTS_DETAILS ad ON R.ID=AD.BUSSINESS_CODE left join c_address a on r.s_adress=a.id\" +\
+//   \" WHERE R.TENANCY_ID='ZSG' AND R.WORK_TYPE<>'YOYI' \" +\
+//   //内外贸拖车显示在一张表上\
+//   //\"and (r.TRADE_ID='1' or (r.TRADE_ID = '2'  and f_get_service(R.POD)='ZS2SZD'))\" +\
+//   //   \" and ad.BUSSINESS_CODE is not null and r.GATEOUT_TIME_T is not null\" +\
+//   \" and ad.BUSSINESS_CODE is not null \" +\
+//   \" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//   \" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')and ad.FEE_LIST_ID in(\" + feeids + \")\";\
+\
+// var sql = \"SELECT EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR, R.IN_CAR IN_CAR_HP,R.IN_TRAY_NO, R.NOTES, R.PT_TYPE,  R.GATEOUT_TIME_T,\" +\
+//   \"  R.CNTR, R.CNTR_SIZE, R.WORK_TYPE, R.SHIPPER_CONSIGNEE, R.S_ADRESS,   VH.GOODS_NOTES CMDY_CODE, R.SEAL_NO, R.SHIP_ORDER,R.IN_DRIVER_ID IN_DRIVER_NAME,\" +\
+//   \" R.OUT_DRIVER_ID OUT_DRIVER_NAME,R.OUT_CAR, R.OUT_CAR OUT_CAR_HP, R.GATEIN_TIME_S, VH.POL, VH.POD, a.distance,\" +\
+//   \"     a.distance * 2 zbdistance, R.TRADE_ID,\" +\
+//   \" (SELECT max(BILL_NO) FROM VLOAD_LIST  VL WHERE R.CNTR_ID=VL.CNTR_ID AND R.I_E_ID=VL.I_E_ID) BILL_NO,\" +\
+//   \"     NVL (AD.ACCOUNT_CUSTOMER_CODE, r.ACCOUNT_CUSTOMER_CODE)\" +\
+//   \"        ACCOUNT_CUSTOMER_CODE,\" +\
+//   \"     wm_concat (DISTINCT MANUAL_NODES) MANUAL_NODES,\" +\
+//   \"     NVL (AD.ACCOUNT_CUSTOMER_NAM, r.ACCOUNT_CUSTOMER) ACCOUNT_CUSTOMER_NAM,\" +\
+//   \"     AD.PAYMENT_CUSTOMER_CODE,\" +\
+//   \"     AD.PAYMENT_CUSTOMER_NAM, R.WORK_TYPE,\" +\
+//   \"     f_get_mdate (R.CNTR_ID, R.I_E_ID, R.WORK_TYPE) CREATED_ON, R.I_E_ID, R.CAR_TEAM,\" +\
+//   \"     SUM (\" +\
+//   \"        CASE\" +\
+//   \"           WHEN ad.FEE_LIST_ID = 'c7592353553349bfa008a30fcb840653'\" +\
+//   \"           THEN\" +\
+//   \"              ad.AMOUNT\" +\
+//   \"        END)\" +\
+//   \"       ZSG_RE13,\" +\
+//   \"    SUM (\" +\
+//   \"       CASE\" +\
+//   \"          WHEN ad.FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9'\" +\
+//   \"          THEN\" +\
+//   \"             ad.AMOUNT\" +\
+//   \"       END)\" +\
+//   \"       ZSG_RE06,\" +\
+//   \"    SUM (\" +\
+//   \"       CASE\" +\
+//   \"          WHEN ad.FEE_LIST_ID = '9a29e9f7784646d395fd3af3b3c21377'\" +\
+//   \"          THEN\" +\
+//   \"             ad.AMOUNT\" +\
+//   \"       END)\" +\
+//   \"       ZSG_RE07,\" +\
+//   \"    SUM (\" +\
+//   \"       CASE\" +\
+//   \"              WHEN ad.FEE_LIST_ID = 'ab7001972c564366a449ecdd5b364e90'\" +\
+//   \"              THEN\" +\
+//   \"                  ad.AMOUNT\" +\
+//   \"            END)\" +\
+//   \"            ZSG_RE09,\" +\
+//   \"         SUM (CASE WHEN ad.FEE_LIST_ID = '022201' THEN ad.AMOUNT END)\" +\
+//   \"            ZSG_RE05,\" +\
+//   \"         SUM (\" +\
+//   \"            CASE\" +\
+//   \"               WHEN ad.FEE_LIST_ID = '7ab6a08042944c348e6a2dbdcfb241b3'\" +\
+//   \"               THEN\" +\
+//   \"                  ad.AMOUNT\" +\
+//   \"            END)\" +\
+//   \"            ZSG_RE11,\" +\
+//   \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0222' THEN ad.AMOUNT END) ZSG_RE03,\" +\
+//   \"         SUM (\" +\
+//   \"            CASE\" +\
+//   \"               WHEN ad.FEE_LIST_ID = '497d472d16dd4c9e99dee45bbacc6961'\" +\
+//   \"               THEN\" +\
+//   \"                  ad.AMOUNT\" +\
+//   \"            END)\" +\
+//   \"            ZSG_RE12,\" +\
+//   \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0213' THEN ad.AMOUNT END) ZSG_RE02,\" +\
+//   \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0211' THEN ad.AMOUNT END) ZSG_RE01,\" +\
+//   \"         SUM (\" +\
+//   \"            CASE\" +\
+//   \"              WHEN ad.FEE_LIST_ID = '4f11957a1546427e9f360f2ac8dd0033'\" +\
+//   \"               THEN\" +\
+//   \"                 ad.AMOUNT\" +\
+//   \"            END) ZCCSF472, \" +\
+//   \"         CASE\" +\
+//   \"            WHEN R.WORK_TYPE IN ('EOFI', 'EOEI', 'EOTC') THEN 'E'\" +\
+//   \"            WHEN R.WORK_TYPE IN ('FOFI', 'FOTC', 'FOEI') THEN 'F'\" +\
+//   \"         END\" +\
+//   \"            E_F_C,\" +\
+//   \"         CASE\" +\
+//   \"            WHEN R.WORK_TYPE IN ('EOFI', 'FOFI', 'FITC') THEN 'F'\" +\
+//   \"            WHEN R.WORK_TYPE IN ('EOEI', 'FOEI', 'EITC') THEN 'E'\" +\
+//   \"         END\" +\
+//   \"            E_F_I,\" +\
+//   \"         CASE\" +\
+//   \"            WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+//   \"                    AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+//   \"            THEN\" +\
+//   \"               R.WORK_TYPE\" +\
+//   \"            WHEN     R.WORK_TYPE IN ('EOEI')\" +\
+//   \"                 AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+//   \"            THEN\" +\
+//   \"              R.WORK_TYPE\" +\
+//   \"           WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+//   \"               AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+//   \"               AND SHIP_CONSIGN_SAME = 1\" +\
+//   \"         THEN\" +\
+//   \"           '重出重回(超重)'\" +\
+//   \"       WHEN nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+//   \"       AND R.WORK_TYPE not IN ('FOFI')\" +\
+//   \"     THEN '超重'  \" +\
+//   \" END P_TYPE\" +\
+//   \"    FROM RECEIPT R LEFT JOIN ACCOUNTS_DETAILS ad ON R.ID = AD.BUSSINESS_CODE LEFT JOIN c_address a ON r.s_adress = a.id\" +\
+//   \" LEFT JOIN VLOAD_LIST VH ON VH.CNTR_ID=R.CNTR_ID AND VH.I_E_ID=R.I_E_ID AND vh.main_flag='1' AND VH.PHASE='2'\" +\
+//   \"   WHERE R.TENANCY_ID = '\" + tenancyid + \"' AND R.WORK_TYPE <> 'YOYI' AND ad.BUSSINESS_CODE IS NOT NULL\";\
+\
+\
+\
+// if(data.radioS=='true')\
+//   sql+=\" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//   \" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')and ad.FEE_LIST_ID in(\" + feeids + \")\";\
+// if(data.radioC=='true')\
+//   sql+=\" and f_get_mdate (R.CNTR_ID, R.I_E_ID, R.WORK_TYPE)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//   \" and f_get_mdate (R.CNTR_ID, R.I_E_ID, R.WORK_TYPE)<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')and ad.FEE_LIST_ID in(\" + feeids + \")\";\
+\
+//根据郭哥生成的中间表改，2018/08/18\
+var sql = \"SELECT EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR, R.IN_CAR IN_CAR_HP,R.IN_TRAY_NO, R.NOTES, R.PT_TYPE,  R.GATEOUT_TIME_T,\" +\
+  \"  R.CNTR, R.CNTR_SIZE, R.WORK_TYPE, R.SHIPPER_CONSIGNEE, R.S_ADRESS,   VH.GOODS_NOTES CMDY_CODE, R.SEAL_NO, R.SHIP_ORDER,R.IN_DRIVER_ID IN_DRIVER_NAME,\" +\
+  \" R.OUT_DRIVER_ID OUT_DRIVER_NAME,R.OUT_CAR, R.OUT_CAR OUT_CAR_HP, R.GATEIN_TIME_S, VH.POL, VH.POD, a.distance,\" +\
+  \"     a.distance * 2 zbdistance, R.TRADE_ID,\" +\
+  \" (SELECT max(BILL_NO) FROM VLOAD_LIST  VL WHERE R.CNTR_ID=VL.CNTR_ID AND R.I_E_ID=VL.I_E_ID) BILL_NO,\" +\
+  \"     NVL (AD.ACCOUNT_CUSTOMER_CODE, r.ACCOUNT_CUSTOMER_CODE)\" +\
+  \"        ACCOUNT_CUSTOMER_CODE,\" +\
+  \"     wm_concat (DISTINCT MANUAL_NODES) MANUAL_NODES,\" +\
+  \"     NVL (AD.ACCOUNT_CUSTOMER_NAM, r.ACCOUNT_CUSTOMER) ACCOUNT_CUSTOMER_NAM,\" +\
+  \"     AD.PAYMENT_CUSTOMER_CODE,\" +\
+  \"     AD.PAYMENT_CUSTOMER_NAM, R.WORK_TYPE,\" +\
+  \"     f_get_mdate (R.CNTR_ID, R.I_E_ID, R.WORK_TYPE) CREATED_ON, R.I_E_ID, (SELECT NAME FROM C_CUSTOMER WHERE CODE=R.CAR_TEAM) CAR_TEAM,\" +\
+  \"     SUM (\" +\
+  \"        CASE\" +\
+  \"           WHEN ad.FEE_LIST_ID = 'c7592353553349bfa008a30fcb840653'\" +\
+  \"           THEN\" +\
+  \"              ad.AMOUNT\" +\
+  \"        END)\" +\
+  \"       ZSG_RE13,\" +\
+  \"    SUM (\" +\
+  \"       CASE\" +\
+  \"          WHEN ad.FEE_LIST_ID = 'fbba1752c5f044218fe8838b705169b9'\" +\
+  \"          THEN\" +\
+  \"             ad.AMOUNT\" +\
+  \"       END)\" +\
+  \"       ZSG_RE06,\" +\
+  \"    SUM (\" +\
+  \"       CASE\" +\
+  \"          WHEN ad.FEE_LIST_ID = '9a29e9f7784646d395fd3af3b3c21377'\" +\
+  \"          THEN\" +\
+  \"             ad.AMOUNT\" +\
+  \"       END)\" +\
+  \"       ZSG_RE07,\" +\
+  \"    SUM (\" +\
+  \"       CASE\" +\
+  \"              WHEN ad.FEE_LIST_ID = 'ab7001972c564366a449ecdd5b364e90'\" +\
+  \"              THEN\" +\
+  \"                  ad.AMOUNT\" +\
+  \"            END)\" +\
+  \"            ZSG_RE09,\" +\
+  \"         SUM (CASE WHEN ad.FEE_LIST_ID = '022201' THEN ad.AMOUNT END)\" +\
+  \"            ZSG_RE05,\" +\
+  \"         SUM (\" +\
+  \"            CASE\" +\
+  \"               WHEN ad.FEE_LIST_ID = '7ab6a08042944c348e6a2dbdcfb241b3'\" +\
+  \"               THEN\" +\
+  \"                  ad.AMOUNT\" +\
+  \"            END)\" +\
+  \"            ZSG_RE11,\" +\
+  \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0222' THEN ad.AMOUNT END) ZSG_RE03,\" +\
+  \"         SUM (\" +\
+  \"            CASE\" +\
+  \"               WHEN ad.FEE_LIST_ID = '497d472d16dd4c9e99dee45bbacc6961'\" +\
+  \"               THEN\" +\
+  \"                  ad.AMOUNT\" +\
+  \"            END)\" +\
+  \"            ZSG_RE12,\" +\
+  \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0213' THEN ad.AMOUNT END) ZSG_RE02,\" +\
+  \"         SUM (CASE WHEN ad.FEE_LIST_ID = '0211' THEN ad.AMOUNT END) ZSG_RE01,\" +\
+  \"         SUM (\" +\
+  \"            CASE\" +\
+  \"              WHEN ad.FEE_LIST_ID = '4f11957a1546427e9f360f2ac8dd0033'\" +\
+  \"               THEN\" +\
+  \"                 ad.AMOUNT\" +\
+  \"            END) ZCCSF472, \" +\
+  \"         CASE\" +\
+  \"            WHEN R.WORK_TYPE IN ('EOFI', 'EOEI', 'EOTC') THEN 'E'\" +\
+  \"            WHEN R.WORK_TYPE IN ('FOFI', 'FOTC', 'FOEI') THEN 'F'\" +\
+  \"         END\" +\
+  \"            E_F_C,\" +\
+  \"         CASE\" +\
+  \"            WHEN R.WORK_TYPE IN ('EOFI', 'FOFI', 'FITC') THEN 'F'\" +\
+  \"            WHEN R.WORK_TYPE IN ('EOEI', 'FOEI', 'EITC') THEN 'E'\" +\
+  \"         END\" +\
+  \"            E_F_I,\" +\
+  \"         CASE\" +\
+  \"            WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+  \"                    AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+  \"            THEN\" +\
+  \"               R.WORK_TYPE\" +\
+  \"            WHEN     R.WORK_TYPE IN ('EOEI')\" +\
+  \"                 AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)<>1\" +\
+  \"            THEN\" +\
+  \"              R.WORK_TYPE\" +\
+  \"           WHEN     R.WORK_TYPE IN ('FOFI')\" +\
+  \"               AND nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+  \"               AND SHIP_CONSIGN_SAME = 1\" +\
+  \"         THEN\" +\
+  \"           '重出重回(超重)'\" +\
+  \"       WHEN nvl((select 1 from accounts_details where FEE_LIST_ID='b5c7ffe860274ea785ef3482e14ffb81' and BUSSINESS_CODE=r.id),0)=1\" +\
+  \"       AND R.WORK_TYPE not IN ('FOFI')\" +\
+  \"     THEN '超重'  \" +\
+  \" END P_TYPE\" +\
+  \"    FROM RECEIPT R LEFT JOIN ACCOUNTS_DETAILS ad ON R.ID = AD.BUSSINESS_CODE LEFT JOIN c_address a ON r.s_adress = a.id\" +\
+  \" LEFT JOIN RECEIPT_BILL_FEE VH ON VH.RID=R.ID\t\" +\
+  \"   WHERE R.TENANCY_ID = '\" + tenancyid + \"' AND R.WORK_TYPE <> 'YOYI' AND ad.BUSSINESS_CODE IS NOT NULL\";\
+\
+if(data.radioS=='true')\
+  sql+=\" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and NVL(R.GATEOUT_TIME_T,R.GATEIN_TIME_S)<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')and ad.FEE_LIST_ID in(\" + feeids + \")\";\
+if(data.radioC=='true')\
+  sql+=\" and SHIP_DTE>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and SHIP_DTE<=to_date('\" + data.edate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')and ad.FEE_LIST_ID in(\" + feeids + \")\";\
+\
+if (!Wb.isEmpty(data.SHIP_CONSIGN_COD)) {\
+  var ship = \"\";\
+  var shiper = Wb.decode(data.SHIP_CONSIGN_COD);\
+  for (var i = 0; i < shiper.length; i++) {\
+    ship += \"'\" + shiper[i] + \"',\";\
+  }\
+  if (shiper.length > 0) {\
+    sql += \" and R.SHIP_CONSIGN_COD in(\" + ship.substring(0, ship.length - 1) + \")\";\
+  }\
+}\
+// if (!Wb.isEmpty(data.IDS))\
+//   sql += \" and R.SHIP_CONSIGN_COD in(\" + data.IDS + \")\";\
+//2018/09/05 应阿森提出的问题修改\
+// if (!Wb.isEmpty(data.ACCOUNT_CUSTOMER_CODE))\
+//   sql += \" and AD.ACCOUNT_CUSTOMER_CODE='\" + data.ACCOUNT_CUSTOMER_CODE + \"'\";\
+if (!Wb.isEmpty(data.ACCOUNT_CUSTOMER_CODE)){\
+  var s=\"\";\
+  var ss=Wb.decode(data.ACCOUNT_CUSTOMER_CODE);\
+  for (var i = 0; i < ss.length; i++) {\
+    s += \"'\" + ss[i] + \"',\";\
+  }\
+  if (s.length > 0)\
+  sql += \" and AD.ACCOUNT_CUSTOMER_CODE in(\" + s.substring(0, s.length - 1) + \")\";\
+}\
+if (!Wb.isEmpty(data.PAYMENT_CUSTOMER_CODE))\
+  sql += \" and AD.PAYMENT_CUSTOMER_CODE='\" + data.PAYMENT_CUSTOMER_CODE + \"'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and R.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.POD))\
+  sql += \" and R.POD='\" + data.POD + \"'\";\
+if (!Wb.isEmpty(data.S_ADRESS))\
+  sql += \" and R.S_ADRESS='\" + data.S_ADRESS + \"'\";\
+if (!Wb.isEmpty(data.PT_TYPE)) {\
+  //   sql += \" and R.PT_TYPE='\" + data.PT_TYPE + \"'\";\
+  var types = \"\";\
+  var s = Wb.decode(data.PT_TYPE);\
+  for (var i = 0; i < s.length; i++) {\
+    types += \"'\" + s[i] + \"',\";\
+  }\
+  if (s.length > 0)\
+    sql += \" and R.PT_TYPE in(\" + types.substring(0, types.length - 1) + \")\";\
+}\
+if (!Wb.isEmpty(data.work_type))\
+  sql += \" and R.WORK_TYPE='\" + data.work_type + \"'\";\
+if (!Wb.isEmpty(data.i_e_id))\
+  sql += \" and R.I_E_ID='\" + data.i_e_id + \"'\";\
+if (!Wb.isEmpty(data.cntr_size))\
+  sql += \" and R.CNTR_SIZE='\" + data.cntr_size + \"'\";\
+// if (!Wb.isEmpty(data.money)) {\
+//   if (data.money == \"1\")\
+//     sql += \" and AD.BUSSINESS_CODE is not null\";\
+//   if (data.money == \"2\")\
+//     sql += \" and AD.BUSSINESS_CODE is null\";\
+// }\
+if (!Wb.isEmpty(data.cntr))\
+  sql += \" and R.CNTR like '%\" + data.cntr + \"%'\";\
+if (data.gt == \"true\")\
+  sql += \" and R.SHIPPER_WAY=1\";\
+if (data.bt == \"true\")\
+  sql += \" and R.SHIPPER_WAY=3\";\
+if (data.cg == \"true\" && data.cb == \"true\") {\
+  sql += \" and (R.SHIPPER_WAY=1 or R.SHIPPER_WAY=3)\";\
+} else {\
+  //1码头（港方）承运\t3驳船承运\
+  if (data.cg == \"true\")\
+    sql += \" and R.SHIPPER_WAY=1\";\
+  if (data.cb == \"true\")\
+    sql += \" and R.SHIPPER_WAY=3\";\
+}\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and R.TRADE_ID='\" + data.tradeId + \"'\";\
+if (!Wb.isEmpty(data.YH)) {\
+  if (data.YH == 'OVER')\
+    sql += \" and (SELECT 1 FROM accounts_details  WHERE     FEE_LIST_ID = 'b5c7ffe860274ea785ef3482e14ffb81' AND BUSSINESS_CODE = r.id) = 1\" +\
+    \" AND R.WORK_TYPE NOT IN ('FOFI')\";\
+  else\
+    sql += \" and  R.WORK_TYPE ='\" + data.YH + \"' AND nvl((SELECT 1 FROM accounts_details WHERE FEE_LIST_ID = 'b5c7ffe860274ea785ef3482e14ffb81'\" +\
+    \"     AND BUSSINESS_CODE = r.id),0) <> 1\";\
+}\
+if (!Wb.isEmpty(data.car_team))\
+  sql += \" and r.car_team='\" + data.car_team + \"'\";\
+if (nature == 5 && GOV_CODE != \"HU\") {\
+  sql += \" and r.CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+}\
+\
+if (!Wb.isEmpty(data.HX)) {\
+  if (data.HX == '0')\
+    sql += \" and r.OSERVICE<>'ZS2SZD'\";\
+  else\
+    sql += \" and r.OSERVICE='\" + data.HX + \"'\";\
+}\
+if (!Wb.isEmpty(data.BILL_NO)) {\
+  sql += \" and r.bill_no='\" + data.BILL_NO + \"'\";\
+}\
+sql += \" GROUP BY EMPTY_DRIVING_FLAG,R.ID,R.CNTR_OPERATOR_COD,R.IN_CAR,R.IN_TRAY_NO,R.NOTES,R.PT_TYPE,R.GATEOUT_TIME_T,R.CNTR,\" +\
+  \"R.CNTR_SIZE,R.WORK_TYPE,R.SHIPPER_CONSIGNEE,R.S_ADRESS,R.BILL_NO,VH.GOODS_NOTES,R.SEAL_NO,R.SHIP_ORDER,\" +\
+  \"R.IN_DRIVER_ID,R.OUT_DRIVER_ID,R.OUT_CAR,R.GATEIN_TIME_S,VH.POL,VH.POD,R.S_ADRESS,R.TRADE_ID,\" +\
+  \"ad.ACCOUNT_CUSTOMER_CODE,ad.ACCOUNT_CUSTOMER_NAM,ad.PAYMENT_CUSTOMER_CODE,ad.PAYMENT_CUSTOMER_NAM,\" +\
+  \"r.ACCOUNT_CUSTOMER_CODE,r.ACCOUNT_CUSTOMER,R.CNTR_ID,R.I_E_ID,R.CAR_TEAM,a.distance,R.SHIP_CONSIGN_SAME order by GATEOUT_TIME_T asc\";\
+app.info(sql);\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "DCXK": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

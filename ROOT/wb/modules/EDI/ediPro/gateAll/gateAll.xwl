@@ -1,0 +1,156 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//交换发送方send//交换接收方accept（少CN周一问）\
+var javaDate = new JavaDate();\
+var date = DateUtil.format(javaDate, 'yyMMdd:HHmm');\
+var date1 = DateUtil.format(javaDate, 'yyyyMMddHHmm');\
+var date2 = DateUtil.format(javaDate, 'yyyyMMddHHmmssuu');\
+var t = DateUtil.format(javaDate, 'yyyyMMdduu');\
+var tenancyId = app.get('sys.TENANCY_ID'),\
+  send = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+if (tenancyId == 'ZSG') {\
+  send = 'CNZSN';\
+} else if (tenancyId == 'XLG') {\
+  send = 'CNXLG';\
+} else if (tenancyId == 'SWG') {\
+  send = 'CNSWG';\
+}\
+//变量\
+var title = \"\";\
+var heads = \"\";\
+var ss = \"\";\
+var head = \"\",\
+  ran, ieId = \"\",\
+  inoutType = \"\",\
+  i = 0,\
+  cntrOwnerCod = \"\";\
+var rs = app.run(\"select cursor(select WEIGHT,BILL_NO,CNTR_ISO,CNTR,IN_OUT_TYPE,to_char(IN_OUT_TIME,'yyyyMMddhhmm') IN_OUT_TIME,I_E_ID,E_F_ID,SEAL_NO from IN_OUT_EDI a where a.E_F_ID=IN_OUT_EDI.E_F_ID and a.IN_OUT_TYPE=IN_OUT_EDI.IN_OUT_TYPE order by cntr asc) b,E_F_ID,IN_OUT_TYPE from IN_OUT_EDI group by E_F_ID,IN_OUT_TYPE\");\
+while (rs.next()) {\
+  var s = t + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);\
+  head = \"UNB+UNOA:2+\" + send + \"+COSCOCN+\" + date + \"+\" + s + \"'\\r\\
+\";\
+  i = 0;\
+  //详细信息\
+  var rm = rs.getObject(1);\
+  while (rm.next()) {\
+\
+    head += \"UNH+\" + s + \"+CODECO:D:95B:UN'\\r\\
+\";\
+    if (rm.getString(\"IN_OUT_TYPE\") == \"IN\") {\
+      head += \"BGM+34+1+9'\\r\\
+\";\
+    } else if (rm.getString(\"IN_OUT_TYPE\") == \"OUT\") {\
+      head += \"BGM+36+1+9'\\r\\
+\";\
+    }\
+    head += \"TDT+20++1+++++'\\r\\
+\";\
+    if (rm.getString(\"IN_OUT_TYPE\") == \"IN\") {\
+      head += \"LOC+9+\" + send + \"'\\r\\
+\";\
+    } else if (rm.getString(\"IN_OUT_TYPE\") == \"OUT\") {\
+      head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    }\
+    head += \"DTM+178:\" + date1 + \":203'\\r\\
+\";\
+    head += \"DTM+133:\" + date1 + \":203'\\r\\
+\";\
+    //160政党认同166美国NMFCA (SCAC) \
+    //     head += \"NAD+CA+\" + rs.getString(\"CNTR_OWNER_COD\") + \":160:166'\\r\\
+\";\
+    head += \"NAD+CA+COSCO:160:166'\\r\\
+\";\
+    //货物明细GID\
+    head += \"GID+00001'\\r\\
+\";\
+    //SGP拆分物品摆放位置\
+    head += \"SGP+\" + rm.getString(\"CNTR\") + \"'\\r\\
+\";\
+    //EQD\tCN--集装箱\t\t柜的类型\
+    head += \"EQD+CN+\" + rm.getString(\"CNTR\") + \"+\" + rm.getString(\"CNTR_ISO\") + \":102:5++\" + rm.getString(\"I_E_ID\") + \"+\" + rm.getString(\"E_F_ID\") + \"'\\r\\
+\";\
+    if (rm.getString(\"I_E_ID\") == \"3\") {\
+      if (rm.getString(\"BILL_NO\") == null || rm.getString(\"BILL_NO\") == \"\") {\
+        head += \"RFF+BM:'\\r\\
+\";\
+      } else\
+      //RFF+提单号\
+        head += \"RFF+BM:\" + rm.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+    } else if (rm.getString(\"I_E_ID\") == \"2\") {\
+      if (rm.getString(\"BILL_NO\") == null || rm.getString(\"BILL_NO\") == \"\") {\
+        head += \"RFF+BN:'\\r\\
+\";\
+      } else\
+      //RFF+提单号\
+        head += \"RFF+BN:\" + rm.getString(\"BILL_NO\") + \"'\\r\\
+\";\
+    }\
+    //DTM\tEffective Date/time有效时间（少）\
+    head += \"DTM+7:\" + rm.getString(\"IN_OUT_TIME\") + \":203'\\r\\
+\";\
+    head += \"LOC+9+'\\r\\
+\";\
+    head += \"LOC+11+\" + send + \"'\\r\\
+\";\
+    if (rm.getString(\"E_F_ID\") != \"4\" && rm.getString(\"IN_OUT_TYPE\") == \"IN\") {\
+      //MEA+WT++KGM:14690'\
+      head += \"MEA+WT++KGM:\" + rm.getString(\"WEIGHT\") + \"'\\r\\
+\";\
+      // SEL+CB097468+CA'\t铅封号\
+      head += \"SEL+\" + rm.getString(\"SEAL_NO\") + \"+CA'\\r\\
+\";\
+    }\
+    head += \"TDT+1++3+++++'\\r\\
+\";\
+    head += \"CNT+16:0001'\\r\\
+\";\
+    if (rm.getString(\"E_F_ID\") != \"4\" && rm.getString(\"IN_OUT_TYPE\") == \"IN\") {\
+      //UNT+19(标明报文中段的总数,其中包括UNH段和UNT段。)+201612220013'\
+      head += \"UNT+19+\" + s + \"'\\r\\
+\";\
+    } else {\
+      head += \"UNT+17+\" + s + \"'\\r\\
+\";\
+    }\
+    i++;\
+\
+\
+    //     if (rs.getString(\"IN_OUT_TYPE\") == \"IN\" && rs.getString(\"E_F_ID\") == '4') {\
+\
+    //     } else if (rs.getString(\"IN_OUT_TYPE\") == \"OUT\" && rs.getString(\"E_F_ID\") == '4') {\
+    // \t\thead+=\"BGM+36+1+9'\";\
+    //     } else if (rs.getString(\"IN_OUT_TYPE\") == \"IN\" && rs.getString(\"E_F_ID\") != '4') {\
+\
+    //     } else if (rs.getString(\"IN_OUT_TYPE\") == \"OUT\" && rs.getString(\"E_F_ID\") != '4') {\
+\
+    //     }\
+  }\
+  head += \"UNZ+\" + i + \"+\" + s + \"'\\r\\
+\";\
+  app.log(i + \"个报文格式\");\
+  app.log(head);\
+  request.setAttribute(\"fileName\",\"COSCO_\"+rs.getString(\"E_F_ID\")+\"_\"+rs.getString(\"IN_OUT_TYPE\")+\"_\"+s);\
+  request.setAttribute(\"message\", head);\
+  Load.download(request, response);\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

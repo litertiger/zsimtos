@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var cntrdata = Wb.decode(data.cntrdata);\
+if (!Wb.isEmpty(data.bd)) {\
+  var sql = \"update buz_order_item set bd_by={?BD_BY?},bd_on={?TIMESTAMP.BD_ON?},yjt_time=nvl(yjt_time,{?TIMESTAMP.YJT_TIME?})\" +\
+    \" where id in (\" + data.ids + \")\";\
+  app.run(sql);\
+\
+  var kg = Wb.getRecords(app.run(\"select sys_value from s_code where sys_category='BD_DC' and sys_key='ONOFF'\", {\
+    jndi: \"jdbc/basecode\"\
+  }));\
+  if (kg[0].SYS_VALUE == \"ON\")\
+    if (!Wb.isEmpty(cntrdata)) { //堆存\
+      Wb.each(cntrdata, function(cntr) {\
+        if (cntr.I_E_ID == \"I\") {\
+          request.setAttribute(\"cntrId\", cntr.CNTR_ID);\
+          request.setAttribute(\"moveType\", \"QD\");\
+          request.setAttribute(\"efId\", cntr.E_F_ID);\
+          request.setAttribute(\"ytDate\", data.YJT_TIME);\
+          app.execute('m?xwl=system/common/cntrStore/cntrStorePro');\
+          app.run(\"insert into aaa(CAP_XML,create_on) values ('办单生成堆存,箱:'||'\" + cntr.CNTR + \"'||',操作人:'||'\" + username + \"',sysdate)\");\
+        }\
+      });\
+    }\
+} else {\
+  var sql = \"update buz_order_item set bd_by='',bd_on='' where id in (\" + data.ids + \")\";\
+  app.run(sql);\
+}"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "办单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,50 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get(); //获取request parameter，request attribute和session attributes值组成的对象。\
+var username = app.get(\"sys.username\");\
+var files = app.getFiles('zpfile');\
+var IOUtils = org.apache.commons.io.IOUtils; //创建快捷方式引用\
+Wb.each(files, function(file) {\
+  if (!file)\
+    return;\
+  var timestamp = new Date().getTime();\
+  var newName = timestamp + (file.name.substring(file.name.lastIndexOf('.'), file.name.length));\
+  var wjfile = new File(Base.path + '/wb/vesselImage', newName);\
+  var jfile = new java.io.File(Base.path + '/wb/vesselImage');\
+  app.run(\"insert into W_FILE(ID,T_NAME,T_ID,F_PATH,CREATED_BY,CREATED_ON)\" +\
+    \"values(sys_guid(),'C_VESSEL_CODE','\" + data.id + \"','/wb/vesselImage/'||'\" + newName + \"','\" + username + \"',sysdate)\");\
+  if (jfile.exists()) { //判断路径是否存在\
+    if (!jfile.isDirectory()) //判断是否为文件夹\
+      jfile.mkdir(); //创建文件夹\
+  } else {\
+    jfile.mkdir();\
+  }\
+  var os = new java.io.FileOutputStream(wjfile); //在应用根目录创建文件输出流\
+  try {\
+    //file.size为上传的文件大小\
+    IOUtils.copy(file.stream, os);\
+  } finally {\
+    //file.stream可不用关闭，系统会自动关闭\
+    os.close();\
+  }\
+});",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "船舶照片上传处理",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

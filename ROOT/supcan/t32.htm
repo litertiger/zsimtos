@@ -1,0 +1,227 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+  var url = "http://www.supcan.cn/DotNet/access.aspx?rows=@rows&startRow=@startRow";
+//也可以把 startRow=@startRow 换成 page=@page, 比如：
+//var url = "http://www.supcan.cn/DotNet/access.aspx?rows=@rows&page=@page";
+  var f1="", f2="", od1="", od2="", rd1="", rd2="";		//where条件
+
+ //子函数：拼装成URL (警告：有SQL注入的安全漏洞，勿模仿)
+ function genUrl()
+ {
+  var where="", ret=url;
+  if(f1 != 0) where += " and freight>=" + f1;
+  if(f2 != 0) where += " and freight<=" + f2;
+  if(od1 != 0) where += " and orderDate>='" + od1 + "'";
+  if(od2 != 0) where += " and orderDate<='" + od2 + "'";
+  if(rd1 != 0) where += " and requiredDate>='" + rd1 + "'";
+  if(rd2 != 0) where += " and requiredDate<='" + rd2 + "'";
+  if(where != "") ret += "&where=" + where.substring(5, where.length);
+  //排序
+  var sort = AF.func("GetProp", "Sort");
+  if(sort != "") ret += "&OrderBy="+sort;
+  return ret;
+ }
+
+ function OnReady(id)
+ {
+  AF.func("Build", "treelist/t1.xml");
+  AF.func("OpenFreeformBar","treelist/query2.xml \r\n tBar");  //打开topBar
+  AF.func("OpenFreeformBar","treelist/pager2.xml \r\n bBar");   //打开bottomBar
+  AF.func("SetProp", "IsRemoteSort \r\n true"); 	//指定服务器端排序
+
+  //绑定分页器=======
+  //取得Treelist句柄
+  var h = AF.func("GetHandle", "");
+  //调用bottomBar的freeform的扩展函数：绑定Treelist
+  AF.func("bBar.BindPager", h + "\r\n ID0");
+  //设置分页器的dataURL (将自动加载Treelist数据)
+  AF.func("bBar.SetObjectProp", "ID0\r\n dataURL  \r\n" + genUrl() + "\r\n mode=asynch");	//让Treelist异步加载数据
+ }
+ 
+ function OnEvent(id, Event, p1, p2, p3, p4)
+ {
+  if(Event=="ButtonClicked") {
+   //bottomBar中左侧的按钮事件=========
+   if(p1=="IDRefresh") {
+    AF.func("refresh", "");
+	return;
+   }
+   if(p1=="IDPrint") {
+    AF.func("printPreview", "");
+	return;
+   }
+   
+   //topBar的事件============
+   if(p1 == "close1" || p1=="close2")		//关闭查询
+	AF.func("tBar.SetObjectProp", "layout1,layout2,mirror \r\n visible \r\n 0");
+   else if(p1 == "btn1") {		//开启查询条件1
+	AF.func("tBar.SetObjectProp", "layout2 \r\n visible \r\n 0");
+	AF.func("tBar.SetObjectProp", "mirror, layout1 \r\n visible \r\n 1");
+   }
+   else if(p1 == "btn2") {		//开启查询条件2
+	AF.func("tBar.SetObjectProp", "layout1 \r\n visible \r\n 0");
+	AF.func("tBar.SetObjectProp", "mirror, layout2 \r\n visible \r\n 1");
+   }
+   else if(p1=="ok1" || p1=="ok2") {	//查询动作
+	if(p1=="ok1") {
+	 od1 = AF.func("tBar.GetValue", "orderDate1");
+	 od2 = AF.func("tBar.GetValue", "orderDate2");
+	 rd1 = AF.func("tBar.GetValue", "requireDate1");
+	 rd2 = AF.func("tBar.GetValue", "requireDate2");
+	 f1 = f2 = "";
+	}
+    else {
+	 f1 = AF.func("tBar.GetValue", "freight1");
+	 f2 = AF.func("tBar.GetValue", "freight2");
+	 od1 = od2 = rd1 = rd2 = "";
+	}
+    AF.func("bBar.SetObjectProp", "ID0\r\ndataURL\r\n" + genUrl() + "\r\n mode=Asynch;  isResetPage=true");
+   }
+   else if(p1 == "btn3")		//打印预览
+	AF.func("PrintPreview", "");
+  }
+  //排序事件: 交由服务器排序
+  else if(Event == "Sort") {
+   AF.func("bBar.SetObjectProp", "ID0\r\ndataURL\r\n" + genUrl() + "\r\n mode=Asynch; isResetPage=true");
+  }
+ }
+ //更换分页器样式
+ function changeStyle() {
+  var layout = "first, prior, 0, input, next, last, showtext";
+  var style = "pagecode=button; firstImg=treelist/pagerbutton.zip#first.png; priorImg=treelist/pagerbutton.zip#prior.png; nextImg=treelist/pagerbutton.zip#next.png; lastImage=treelist/pagerbutton.zip#last.png";
+  AF.func("bBar.SetObjProp", "ID0 \r\n showText \r\n 共@pages页");
+  AF.func("bBar.SetObjProp", "ID0 \r\n layout \r\n" + layout);
+  AF.func("bBar.SetObjProp", "ID0 \r\n style \r\n" + style);
+ }
+ //更换前后页切换淡入淡出
+ function changeFadeIn() {
+ 	var obj = document.getElementsByName("fadeInGroup");
+  if(obj!=null){
+   var i;
+   for(i=0;i<obj.length;i++){
+     if(obj[i].checked){
+     	AF.func("SetProp", "FadeInPager \r\n" + obj[i].value);
+     	return;
+     }
+   }
+  }
+ }
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>
+<b>1</b>.实时查询、分页、以及后端排序的完整例子;<br>
+<b>2</b>.这是单个Treelist组件，同时开启了topBar和bottomBar，其中树列表的XML、查询条件 和 分页器的freeform XML直接采用了以前的例子;<br>
+</td>
+</tr>
+<tr height=8><td colspan=2></td></tr>
+</table>
+
+<div style="position:relative;width:97%;height:360px">
+	<script>insertTreeList('AF', 'borderColor=#7f9db9')</script>
+</div>
+<br>
+</center>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>3</b>.分页器另一种外观样式： <input type="button" value=" 更换样式 " onClick="changeStyle()">, 点击该按钮后，请查看分页器的模样;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>4</b>.前后页切换淡入淡出方式：<input type="radio" name="fadeInGroup" onClick="changeFadeIn()" value="none" />无 &nbsp;&nbsp;&nbsp; <input type="radio" name="fadeInGroup" value="cross" onClick="changeFadeIn()" checked="checked"/>交替渐变 &nbsp;&nbsp;&nbsp; <input type="radio" name="fadeInGroup" onClick="changeFadeIn()" value="flash" />快速点亮<br>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<center>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.XML描述文件、数据库都采用了前面的例子，这是全部的资源：<br>
+<a href="treelist/t1.xml" target=_Blank>Treelist的XML描述文件</a>、 <a href="treelist/query2.xml" target=_Blank>topBar的XML描述文件</a>、
+<a href="treelist/pager2.xml" target=_Blank>freeform分页器的XML描述文件</a>、<a href="http://www.supcan.cn/dotnet/access.mdb.zip" target=_Blank>后端的access数据库文件(access.mdb)</a>、
+<a href="treelistdata/access.aspx.txt" target=_Blank>后端的C#源码</a>.<br>
+<br>
+<b>2</b>.在OnReady( )中开启了tBar和bBar：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ AF.func("Build", "treelist/t1.xml");
+ AF.func("OpenFreeformBar","treelist/query2.xml \r\n tBar");  //打开topBar
+ AF.func("OpenFreeformBar","treelist/pager2.xml \r\n bBar");   //打开bottomBar
+ AF.func("SetProp", "IsRemoteSort \r\n true"); 	//指定服务器端排序
+
+ //绑定分页器=======
+ //取得Treelist句柄
+ var h = AF.func("GetHandle", "");
+ //调用bottomBar的freeform的扩展函数：绑定Treelist
+ AF.func("bBar.BindPager", h + "\r\n ID0");
+ //设置分页器的dataURL (将自动加载Treelist数据)
+ AF.func("bBar.SetObjectProp", "ID0\r\n dataURL  \r\n" + genUrl() + "\r\n mode=asynch");	//让Treelist异步加载数据
+}</pre>
+<br>
+<b>3</b>.在OnEvent( )事件的源码：
+<pre class='cpp'>
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ //按钮事件============
+ if(Event=="ButtonClicked") {
+  //bottomBar中左侧的按钮事件
+  if(p1=="IDRefresh") {
+   AF.func("refresh", "");
+   return;
+  }
+  if(p1=="IDPrint") {
+   AF.func("printPreview", "");
+   return;
+  }
+  
+  //工具条功能
+  if(p1 == "close1" || p1=="close2")		//关闭查询
+   AF.func("TBar.SetObjectProp", "layout1,layout2,mirror \r\n visible \r\n 0");
+  else if(p1 == "btn1") {		//开启查询条件1
+   AF.func("TBar.SetObjectProp", "layout2 \r\n visible \r\n 0");
+   AF.func("TBar.SetObjectProp", "mirror, layout1 \r\n visible \r\n 1");
+  }
+  else if(p1 == "btn2") {		//开启查询条件2
+   AF.func("TBar.SetObjectProp", "layout1 \r\n visible \r\n 0");
+   AF.func("TBar.SetObjectProp", "mirror, layout2 \r\n visible \r\n 1");
+  }
+  else if(p1=="ok1" || p1=="ok2") {	//查询动作
+   if(p1=="ok1") { //取得日期条件
+    od1 = AF.func("TBar.GetValue", "orderDate1");
+    od2 = AF.func("TBar.GetValue", "orderDate2");
+    rd1 = AF.func("TBar.GetValue", "requireDate1");
+    rd2 = AF.func("TBar.GetValue", "requireDate2");
+    f1 = f2 = "";
+   }
+   else { //取得货重条件
+    f1 = AF.func("TBar.GetValue", "freight1");
+    f2 = AF.func("TBar.GetValue", "freight2");
+    od1 = od2 = rd1 = rd2 = "";
+   }
+   AF.func("BBar.SetObjectProp", "ID0\r\ndataURL\r\n" + genUrl() + "\r\n mode=Asynch; isResetPage=true");
+  }
+  else if(p1 == "btn3")		//打印预览
+   AF.func("PrintPreview", "");
+ }
+ //排序事件: 交由服务器排序
+ else if(Event == "Sort") {
+  AF.func("bBar.SetObjectProp", "ID0\r\ndataURL\r\n" + genUrl() + "\r\n mode=Asynch; isResetPage=true");
+ }
+}</pre>
+<br>
+<b>4</b>.关于事件部分，对Treelist而言，topBar、bottomBar并无区别，只要保证二者内部的输入对象id不重复就行，请自行参考页面的js源码.<br>
+</td></tr></table>
+
+<br><br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

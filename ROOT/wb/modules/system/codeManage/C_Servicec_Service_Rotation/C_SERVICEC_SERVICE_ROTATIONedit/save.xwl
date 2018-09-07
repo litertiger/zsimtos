@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var id, ids = [],\
+  recs = Wb.decode(request.getParameter('create'));\
+var username = request.getAttribute('sys.userid');\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+    rec.ID = id;\
+    rec.UPDATED_ON = new JavaDate(),\
+    rec.CREATED_ON = new JavaDate(),\
+    rec.UPDATED_BY = username,\
+    rec.CREATED_BY = username,\
+    ids.push({\
+      ID: id\
+    });\
+});\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'C_ROUTE',\
+  jndi: 'jdbc/basecode',\
+  whereFields: 'ID',\
+  uniqueUpdate: true\
+});\
+app.send(ids); //把id列表发送到客户端以同步到表格",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

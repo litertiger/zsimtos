@@ -1,0 +1,41 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var sql = \"\";\
+if (data.rd == \"true\")\
+  sql = \"SELECT b.id,a.VESSEL_NAME cname,\" +\
+  \"case b.i_e when 'I' then '进口' when 'E' then '出口' when 'I_E' then '进出口' end i_e\" +\
+  \" FROM VESSEL_VOYAGE a,VESSEL_VISIT b WHERE a.ID = b.vid and b.TENANCY_ID='\" + tenancyid + \"'\" +\
+  \" and b.ETA > to_date('\" + data.date + \" 00:00:00','yyyy-MM-dd HH24:mi:ss')\" +\
+  \" and b.ETA < to_date('\" + data.date + \" 23:59:59','yyyy-MM-dd HH24:mi:ss') and a.VESSEL_NAME like '%'||{?query?}||'%'\";\
+if (data.rd == \"false\")\
+  sql = \"SELECT * from dual where 1=2\";\
+request.setAttribute(\"sql\", sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "获取船名航次",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

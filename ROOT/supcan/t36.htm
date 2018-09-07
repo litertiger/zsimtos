@@ -1,0 +1,117 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+function OnReady(id)
+{
+  AF.func("Build", "treelist/orders.xml \r\n ListTreeSwitchAble=false; isHighLightModified=true; isHighLightNewRow=true");
+  AF.func("load", "treelistdata/orders.txt \r\n FadeInStep=0");
+  AF.func("deleteRows", "10\r\n100");
+  AF.func("ResetChanged", "");
+  AF.func("OpenFreeformBar","treelist/undoredo.xml \r\n tBar");  //打开topBar
+
+  //开启Undo
+  AF.func("EnableUndo", "");
+  RefreshUndoButtonState();
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+  if(Event == "UndoState") {
+    //Undo/Redo状态有变事件
+	RefreshUndoButtonState();
+  }
+  else if(Event == "ButtonClicked") {
+    //Undo/Redo按钮点击事件
+    if(p1 == "btn1" || p1 == "btn2") {
+     AF.func(p1 == "btn1" ? "undo" : "redo", "");
+     RefreshUndoButtonState();
+    }
+  }
+}
+
+//取得UndoAble、RedoAble，将状态体现到工具条按钮
+function RefreshUndoButtonState()
+{
+  var b = AF.func("UndoAble", "");
+  AF.func("tBar.SetObjectProp", "btn1 \r\n enable \r\n" + (b==true ? "true" : "false"));
+  b = AF.func("RedoAble", "");
+  AF.func("tBar.SetObjectProp", "btn2 \r\n enable \r\n" + (b==true ? "true" : "false"));
+}
+</script>
+</head>
+
+<body vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>
+<b>1</b>.已开启了 Undo/Redo 功能;<br>
+<b>2</b>.请任意作增删改操作，然后点击工具条的 Undo/Redo 按钮，查看数据恢复情况;<br>
+</td>
+</tr>
+<tr height=8><td colspan=2></td></tr>
+</table>
+
+<div style="position:relative;width:912;height:320px">
+	<script>insertTreeList('AF', 'borderColor=#7f9db9')</script>
+</div>
+<br>
+</center>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<center>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.源码比较简单：<br>
+<pre class='cpp'>
+function OnReady(id)
+{
+ AF.func("Build", "treelist/orders.xml \r\n ListTreeSwitchAble=false; isHighLightModified=true; isHighLightNewRow=true");
+ AF.func("load", "treelistdata/orders.txt \r\n FadeInStep=0");
+ AF.func("deleteRows", "10\r\n100");
+ AF.func("ResetChanged", "");
+ AF.func("OpenFreeformBar","treelist/undoredo.xml \r\n tBar");  //打开topBar
+ //开启Undo
+ AF.func("EnableUndo", "");
+ RefreshUndoButtonState();
+}
+ 
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(Event == "UndoState") {
+  //Undo/Redo状态有变事件
+  RefreshUndoButtonState();
+ }
+ else if(Event == "ButtonClicked") {
+  //Undo/Redo按钮点击事件
+  if(p1 == "btn1" || p1 == "btn2") {
+   AF.func(p1 == "btn1" ? "undo" : "redo", "");
+   RefreshUndoButtonState();
+  }
+ }
+}
+ 
+//取得UndoAble、RedoAble，将状态体现到工具条按钮
+function RefreshUndoButtonState()
+{
+ var b = AF.func("UndoAble", "");
+ AF.func("tBar.SetObjectProp", "btn1 \r\n enable \r\n" + (b==true ? "true" : "false"));
+ b = AF.func("RedoAble", "");
+ AF.func("tBar.SetObjectProp", "btn2 \r\n enable \r\n" + (b==true ? "true" : "false"));
+}</pre>
+<br>
+</pre>
+</td></tr></table>
+
+<br><br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,39 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var  cntr=app.get(\"cntr\"), CheckApp=com.ag.task.apply.CheckApp;\
+var rs=app.run(\"select CHECKID,CHECKNO, COMMAND_TYPE, APPUNIT from  CUSM_CHECK  where  cntr='\"+cntr+\"' and  PHASE!='FIN' and COMMAND_TYPE='E' and APPUNIT='HG'\");\
+\
+if(rs.next()){\
+          var javaDate = new JavaDate();\
+          request.setAttribute(\"checckId\",rs.getString(\"CHECKNO\"));\
+          request.setAttribute(\"cntr\",cntr);\
+          request.setAttribute(\"placeInfo\",app.get(\"placeInfo\"));\
+          request.setAttribute(\"inPlaceTime\",DateUtil.dateToStr(javaDate));  \
+          request.setAttribute(\"inNote\",\"\");\
+          CheckApp.checkApp(request,response); \
+}\
+app.run(\"update  CUSM_CHECK  set  PHASE='ATD' where  cntr='\"+cntr+\"'   and  PHASE!='FIN' \");\
+\
+\
+\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "basic": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "吊柜到位",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

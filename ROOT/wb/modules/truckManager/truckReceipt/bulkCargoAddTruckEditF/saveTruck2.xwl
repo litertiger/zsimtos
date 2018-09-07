@@ -1,0 +1,80 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var tenancyId = app.get('sys.TENANCY_ID');\
+var username = app.get('sys.username');\
+var id, idc = [],\
+  idu = [],\
+  idd = [],\
+  rec = Wb.decode(request.getParameter('create'));\
+reu = Wb.decode(request.getParameter('update'));\
+red = Wb.decode(request.getParameter('destroy'));\
+var data = [];\
+Wb.each(rec, function(rec) {\
+  id = SysUtil.getId();\
+  rec.ID = id;\
+  idc.push({\
+    ID: id,\
+    BILL_NO: app.get('BILL_NO'),\
+    PID: rec.PID,\
+    PIECES: rec.PIECES,\
+    WEIGHT: rec.WEIGHT,\
+    TRUCK: rec.TRUCK,\
+    TRAY: rec.TRAY,\
+    DRIVER: rec.DRIVER\
+  });\
+  pid = rec.PID;\
+});\
+// var map=new HashMap();\
+Wb.each(reu, function(rec) {\
+//   if (rec.TRUCK != '' && rec.TRAY != '' && rec.DRIVER != '') {\
+//     /**散货拖车费*/\
+//     map.put(\"rpId\", rec.ID);\
+//     Wb.newClass(\"dubboForBulkCar\").call(request, map);\
+//   }\
+  idu.push({\
+    ID: rec.ID,\
+    WEIGHT: rec.WEIGHT,\
+    PIECES: rec.PIECES,\
+    PID: rec.PID,\
+    BILL_NO: app.get('BILL_NO'),\
+    TRUCK: rec.TRUCK,\
+    TRAY: rec.TRAY,\
+    DRIVER: rec.DRIVER\
+  });\
+});\
+Wb.each(red, function(rec) {\
+  idd.push({\
+    ID: rec.ID\
+  });\
+});\
+data.push({\
+  create: rec,\
+  update: reu,\
+  ids: idc\
+});\
+\
+request.setAttribute('create', Wb.encode(rec)); //重置create记录\
+app.update({\
+  tableName: 'BLUK_TRUCK_M',\
+  whereFields: 'ID'\
+});\
+app.send(data); //把id列表发送到客户端以同步到表格"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "default": 1,
+  "check": 1,
+  "xlcd": 1
+ },
+ "title": "保存车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

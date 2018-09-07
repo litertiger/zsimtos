@@ -1,0 +1,312 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sdate = data.sdate;\
+var edate = data.edate;\
+if (Wb.isEmpty(sdate))\
+  sdate = '2018-05-01';\
+if (Wb.isEmpty(edate))\
+  edate = '2018-07-31';\
+var year = sdate.substring(0, 4) + \"-01-01\";\
+var sql = \"select * from(select c.short_name,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)zsi,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)zsif,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)zse,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)zsef,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)zs,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)zsf,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)zsy,\\
+\" +\
+  \"sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='ZSG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)zsyf,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)xli,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)xlif,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)xle,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)xlef,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)xl,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)xlf,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)xly,\\
+\" +\
+  \"sum(case when t.tenancy_id='XLG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='XLG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)xlyf,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)swi,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and i_e_id='I' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)swif,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)swe,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and i_e_id='E' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)swef,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)sw,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)swf,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)swy,\\
+\" +\
+  \"sum(case when t.tenancy_id='SWG' and cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when t.tenancy_id='SWG' and cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)swyf,\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)a,\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)af,\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') then 2.25 else 0 end)ay,\\
+\" +\
+  \"sum(case when cntr_siz_cod='20' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 1 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='40' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2 else 0 end)\\
+\" +\
+  \"+sum(case when cntr_siz_cod='45' and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and e_f_id='F' then 2.25 else 0 end)ayf,\\
+\" +\
+  \"to_char(round(sum(case when trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and cntr_siz_cod is not null then 1 else 0 end)/\\
+\" +\
+  \"nvl((select count(1) from t_sas_ship_thruput where trade_id='1' and cntr_siz_cod is not null and trunc(bill_date)>=to_date('\" + sdate + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd')),1)*100,1),'99990.0')||'%' mbi,\\
+\" +\
+  \"to_char(round(sum(case when trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd') and cntr_siz_cod is not null then 1 else 0 end)/\\
+\" +\
+  \"nvl((select count(1) from t_sas_ship_thruput where trade_id='1' and cntr_siz_cod is not null and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd') and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd')),1)*100,1),'99990.0')||'%' ybi\\
+\" +\
+  \"from t_sas_ship_thruput t left join c_customer c on c.code=t.SH_AGENT_COD where trade_id='\" + data.trade_id + \"'\\
+\" +\
+  \"and trunc(bill_date)>=to_date('\" + year + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(bill_date)<=to_date('\" + edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"group by c.short_name) where a>0\";\
+var rsn = app.run(sql);\
+var xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?> <DataRoot>\",\
+  SHORT_NAME = \"\",\
+  ZSI = 0,\
+  ZSIF = 0,\
+  ZSE = 0,\
+  ZSEF = 0,\
+  ZS = 0,\
+  ZSF = 0,\
+  ZSY = 0,\
+  ZSYF = 0,\
+  XLI = 0,\
+  XLIF = 0,\
+  XLE = 0,\
+  XLEF = 0,\
+  XL = 0,\
+  XLF = 0,\
+  XLY = 0,\
+  XLYF = 0,\
+  SWI = 0,\
+  SWIF = 0,\
+  SWE = 0,\
+  SWEF = 0,\
+  SW = 0,\
+  SWF = 0,\
+  SWY = 0,\
+  SWYF = 0,\
+  A = 0,\
+  AF = 0,\
+  AY = 0,\
+  AYF = 0,\
+  MBI = 0,\
+  YBI = 0;\
+while (rsn.next()) {\
+  xml += \"<Record>\";\
+  SHORT_NAME = rsn.getString(\"SHORT_NAME\");\
+  ZSI = rsn.getString(\"ZSI\");\
+  ZSIF = rsn.getString(\"ZSIF\");\
+  ZSE = rsn.getString(\"ZSE\");\
+  ZSEF = rsn.getString(\"ZSEF\");\
+  ZS = rsn.getString(\"ZS\");\
+  ZSF = rsn.getString(\"ZSF\");\
+  ZSY = rsn.getString(\"ZSY\");\
+  ZSYF = rsn.getString(\"ZSYF\");\
+  XLI = rsn.getString(\"XLI\");\
+  XLIF = rsn.getString(\"XLIF\");\
+  XLE = rsn.getString(\"XLE\");\
+  XLEF = rsn.getString(\"XLEF\");\
+  XL = rsn.getString(\"XL\");\
+  XLF = rsn.getString(\"XLF\");\
+  XLY = rsn.getString(\"XLY\");\
+  XLYF = rsn.getString(\"XLYF\");\
+  SWI = rsn.getString(\"SWI\");\
+  SWIF = rsn.getString(\"SWIF\");\
+  SWE = rsn.getString(\"SWE\");\
+  SWEF = rsn.getString(\"SWEF\");\
+  SW = rsn.getString(\"SW\");\
+  SWF = rsn.getString(\"SWF\");\
+  SWY = rsn.getString(\"SWY\");\
+  SWYF = rsn.getString(\"SWYF\");\
+  A = rsn.getString(\"A\");\
+  AF = rsn.getString(\"AF\");\
+  AY = rsn.getString(\"AY\");\
+  AYF = rsn.getString(\"AYF\");\
+  MBI = rsn.getString(\"MBI\");\
+  YBI = rsn.getString(\"YBI\");\
+  xml += \"<SHORT_NAME>\" + SHORT_NAME + \"<\/SHORT_NAME>\";\
+  xml += \"<ZSI>\" + ZSI + \"<\/ZSI>\";\
+  xml += \"<ZSIF>\" + ZSIF + \"<\/ZSIF>\";\
+  xml += \"<ZSE>\" + ZSE + \"<\/ZSE>\";\
+  xml += \"<ZSEF>\" + ZSEF + \"<\/ZSEF>\";\
+  xml += \"<ZS>\" + ZS + \"<\/ZS>\";\
+  xml += \"<ZSF>\" + ZSF + \"<\/ZSF>\";\
+  xml += \"<ZSY>\" + ZSY + \"<\/ZSY>\";\
+  xml += \"<ZSYF>\" + ZSYF + \"<\/ZSYF>\";\
+  xml += \"<XLI>\" + XLI + \"<\/XLI>\";\
+  xml += \"<XLIF>\" + XLIF + \"<\/XLIF>\";\
+  xml += \"<XLE>\" + XLE + \"<\/XLE>\";\
+  xml += \"<XLEF>\" + XLEF + \"<\/XLEF>\";\
+  xml += \"<XL>\" + XL + \"<\/XL>\";\
+  xml += \"<XLF>\" + XLF + \"<\/XLF>\";\
+  xml += \"<XLY>\" + XLY + \"<\/XLY>\";\
+  xml += \"<XLYF>\" + XLYF + \"<\/XLYF>\";\
+  xml += \"<SWI>\" + SWI + \"<\/SWI>\";\
+  xml += \"<SWIF>\" + SWIF + \"<\/SWIF>\";\
+  xml += \"<SWE>\" + SWE + \"<\/SWE>\";\
+  xml += \"<SWEF>\" + SWEF + \"<\/SWEF>\";\
+  xml += \"<SW>\" + SW + \"<\/SW>\";\
+  xml += \"<SWF>\" + SWF + \"<\/SWF>\";\
+  xml += \"<SWY>\" + SWY + \"<\/SWY>\";\
+  xml += \"<SWYF>\" + SWYF + \"<\/SWYF>\";\
+  xml += \"<A>\" + A + \"<\/A>\";\
+  xml += \"<AF>\" + AF + \"<\/AF>\";\
+  xml += \"<AY>\" + AY + \"<\/AY>\";\
+  xml += \"<AYF>\" + AYF + \"<\/AYF>\";\
+  xml += \"<MBI>\" + MBI + \"<\/MBI>\";\
+  xml += \"<YBI>\" + YBI + \"<\/YBI>\";\
+  xml += \"<\/Record>\";\
+}\
+xml += \"<\/DataRoot>\";\
+var strxxml = xml;\
+app.send(strxxml);"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

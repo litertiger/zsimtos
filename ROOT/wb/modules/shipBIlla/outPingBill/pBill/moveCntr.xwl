@@ -1,0 +1,44 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var atriArr = Wb.decode(data.atriArr);\
+var cntrnum;\
+  resultSet = app.run(\"select count(*) cntrnum from MOVE_LIST where CNTR ={?cntrno?} and PHASE !='FIN'\");\
+  if(resultSet.next()){\
+  cntrnum = resultSet.getString('cntrnum');\
+  }\
+if(cntrnum>0)\
+{\
+ throw('箱号已存在');\
+}\
+var sql = \"insert into RECEIPT (ID,PHASE,CNTR, CNTR_ISO, CNTR_SIZE, CNTR_TYPE, POD, POL,WORK_TYPE,TENANCY_ID,CREATED_ON,CREATED_BY)\"+\
+\" select '\" + SysUtil.getId() + \"','PLN',CNTR, CNTR_ISO, CNTR_SIZE, CNTR_TYPE, POD, POL,'EOPI','\" + tenancyid + \"',sysdate,'\" + username + \"' from BULK_CONTRACT where ID={?bulkid?}\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+app.execute('m?xwl=controlManage/task/worktaskcraneedit/insertTask');//在这能调用前台的xwl文件。\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "移箱申请",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

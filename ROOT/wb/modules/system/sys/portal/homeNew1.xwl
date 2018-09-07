@@ -1,0 +1,1778 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "head": "<style>\
+  .btn-default {\
+    color: #333;\
+    background-color: #f0f0f0;\
+    border-color: #ccc;\
+  }\
+  #nav { \
+    height: 50px; \
+    float:left;\
+  } \
+  #nav ul { \
+    margin: 0 0 0 30px; \
+    padding: 0px; \
+    font-size: 12px; \
+    color: #FFF; \
+    line-height: 50px; \
+    white-space: nowrap; \
+  } \
+  #nav li { \
+    list-style-type: none; \
+    display: inline; \
+    padding: 0 20px; \
+  } \
+  #nav li a { \
+    text-decoration: none; \
+    font-weight:bold;\
+    padding: 7px 10px; \
+    color: #FFF; \
+  } \
+  #nav li a:hover { \
+    color: #65cea7; \
+  } \
+<\/style>\
+<script>\
+  \
+  function setWidthpanle(){\
+   if(app.basicsPanel.getWidth()=='240'){\
+      jQuery('.toggle-btn').css({\"margin-left\": '50px'});\
+      app.basicsPanel.setWidth(50);\
+   }\
+   else{\
+    app.basicsPanel.setWidth(240);\
+    jQuery('.toggle-btn').css({\"marginLeft\": '240px'});\
+   }\
+       $(\".left-side\").getNiceScroll().hide();\
+       \
+       if ($('body').hasClass('left-side-collapsed')) {\
+           $(\".left-side\").getNiceScroll().hide();\
+       }\
+      var body = jQuery('body');\
+      var bodyposition = body.css('position');\
+\
+      if(bodyposition != 'relative') {\
+\
+         if(!body.hasClass('left-side-collapsed')) {\
+            body.addClass('left-side-collapsed');\
+            jQuery('.custom-nav ul').attr('style','');\
+\
+            jQuery(this).addClass('menu-collapsed');\
+\
+         } else {\
+            body.removeClass('left-side-collapsed chat-view');\
+            jQuery('.custom-nav li.active ul').css({display: 'block'});\
+\
+            jQuery(this).removeClass('menu-collapsed');\
+\
+         }\
+      } else {\
+\
+         if(body.hasClass('left-side-show'))\
+            body.removeClass('left-side-show');\
+         else\
+            body.addClass('left-side-show');\
+\
+         mainContentHeightAdjust();\
+      }\
+   \
+  }\
+  function changeurl( url,title,iconCls,inframe,pageLink){\
+    //  alert(url+\"==\"+title+\"==\"+iconCls+\"===\"+inframe+\"===\"+pageLink);\
+      if (pageLink!='null') { \
+\t\t pageLink=ReplaceAll(pageLink,\"*\",\"'\");\
+   \t\t pageLink=Wb.decode(pageLink);\
+      }\
+      else{\
+         pageLink = {\
+          url: url,\
+          title: title,\
+      \t  iconCls: iconCls,\
+          inframe: inframe\
+        }; \
+      }\
+    Wb.open(pageLink);\
+  }\
+  //通过子系统控制左边显示panel\
+  function subsclick(subsId,roleId){\
+    Wb.request({\
+      url: 'm?xwl=system/sys/portal/homeNew1/select', \
+      params:{subsId:subsId},\
+      success: function(resp) { \
+        \
+       \
+      \
+        var html='<section class=\"sticky-header\">'\
+ \
+   +' <div class=\"left-side sticky-left-side\">'\
+      \
+      +'  <div class=\"logo\" style=\"background-color:#424f63;margin-top: 2px\">'\
+        +'    <a onclick=\"changeurl()\"><img src=\"wb/images/logoqiyi.jpg\"  style=\"background-color:#424f63;width:40px;height:40px;\" alt=\"\"><\/a>'\
+          +'<strong><font size=\"3\" color=\"#fff\" >{#Str.systemName#}<\/font><\/strong>'\
+        +'<\/div>'\
+\
+       +' <div class=\"logo-icon text-center\"  style=\"background-color: white;height:47px\">'\
+         +'   <a onclick=\"changeurl()\"><img src=\"wb/images/logoqiyi.jpg\"  style=\"background-color: white;width:40px;height:40px;\"  alt=\"\"><\/a>'\
+       +' <\/div>'\
+     \
+\
+        +'<div class=\"left-side-inner\">'\
+\
+        \
+          +'  <div class=\"visible-xs hidden-sm hidden-md hidden-lg\"><\/div>'\
+           \
+            +'<ul class=\"nav nav-pills nav-stacked custom-nav\">'\
+              +' <li class=\"active\"><a href=\"\"><i class=\"fa fa-home\"><\/i> <span>{#Str.home#}<\/span><\/a><\/li>'\
+              +resp.responseText+'<\/ul>'\
+        +'<\/div>'\
+    +'<\/div>'\
+    \
+    \
++'<\/section>';\
+        var htmls=\"<span>\"+subsId+\"<\/span>\";\
+       \
+         //app.basicsPanel.removeAll(false);\
+        app.basicsPanel.update(html);\
+       /* var panel = new Ext.panel.Panel(app.xwl1.panela); //_window1为配置对象，window1为实例\
+        app.basicsPanel.add(panel);\
+        console.info(html);\
+        app.xwl1.panela.update(html);*/\
+        \
+        Wb.addLink(['admin/js/bootstrap.min.js',\
+              'admin/js/modernizr.min.js', 'admin/js/scripts.js']);\
+        // app.basicsPanel.update();\
+     //  app.basicsPanel.add(app.xwl1.panela);\
+       \
+       // app.xwl1.load();\
+       // app.basicsPanel.html='<span>aaaaaaaaaaaaa<\/span>';\
+       // app.basicsPanel.add(app.xwl1);\
+       // console.info(app.xwl1.panela.update(html));\
+     /*   console.info(\"----fdsfsfs----\");\
+        var cardConfig = app.xwl1;\
+      cardConfig.itemId ='panel40';\
+      app.basicsPanel.add(cardConfig); */\
+        /*var s= Wb.decode(resp.responseText)\
+        console.info(s);\
+        var menuName = s.rows[0].MENU_NAME;\
+        if(menuName == '客户中心'){\
+          app.basicsPanel.setVisible(false);\
+          app.userPanel.setVisible(true);\
+          app.orderPanel.setVisible(false);\
+          app.settlePanel.setVisible(false);\
+        }\
+        if(menuName == '订单中心'){\
+          app.basicsPanel.setVisible(false);\
+          app.userPanel.setVisible(false);\
+          app.orderPanel.setVisible(true);\
+          app.settlePanel.setVisible(false);\
+        }\
+        if(menuName == '结算中心'){\
+          app.basicsPanel.setVisible(false);\
+          app.userPanel.setVisible(false);\
+          app.orderPanel.setVisible(false);\
+          app.settlePanel.setVisible(true);\
+        }*/\
+      }\
+    });\
+    \
+  }\
+  function ReplaceAll(str, sptr, sptr1){\
+                    while (str.indexOf(sptr) >= 0){\
+                       str = str.replace(sptr, sptr1);\
+                    }\
+                    return str;\
+             }\
+<\/script>\
+  ",
+   "itemId": "sys.home",
+   "finalHtml": "\
+  <link href=\"admin/css/clndr.css\" rel=\"stylesheet\">\
+\
+  <!--Morris Chart CSS -->\
+  <link rel=\"stylesheet\" href=\"admin/js/morris-chart/morris.css\">\
+\
+  \
+  <link href=\"admin/css/style.css\" rel=\"stylesheet\"><!--common-->\
+  <link href=\"admin/css/style-responsive.css\" rel=\"stylesheet\">\
+\
+<script src=\"admin/js/jquery-1.10.2.min.js\"><\/script>\
+<script src=\"admin/js/jquery-migrate-1.2.1.min.js\"><\/script>\
+<script src=\"admin/js/jquery-ui-1.9.2.custom.min.js\"><\/script>\
+<script src=\"admin/js/jquery.nicescroll.js\"><\/script>\
+",
+   "serverMethod": "com.wb.interact.Portal.initHome",
+   "title": "业务管理系统"
+  },
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "getModule",
+     "method": "com.ag.secp.platform.common.WbUtil.getAppList"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "method"
+   },
+   {
+    "configs": {
+     "itemId": "searchBar",
+     "hidden": "true"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "combo",
+      "onTriggerClick": "app.tree.selectPath('/Root/' + this.getValue(), 'fileName');",
+      "flex": "1",
+      "triggerCls": "x-form-search-trigger",
+      "displayField": "title",
+      "enterKeyTriggerClick": "true",
+      "listConfig": "{\
+  itemTpl: [\
+    '<div>{fullPath}<\/div>'\
+  ]\
+}",
+      "valueField": "fullFile"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "store",
+       "fields": "['path', 'title', 'file', 'parentFile', {\
+  name: 'fullPath',\
+  convert: function(v, rec) {\
+    var data = rec.data;\
+    if (data.path)\
+      return data.path.substring(1) + '/' + data.title;\
+    else return data.title;\
+  }\
+}, {\
+  name: 'fullFile',\
+  convert: function(v, rec) {\
+    var data = rec.data;\
+    if (data.parentFile)\
+      return data.parentFile.substring(1) + '/' + data.file;\
+    else return data.file;\
+  }\
+}]",
+       "url": "m?xwl=system/sys/portal/home/find"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     }],
+     "type": "combo",
+     "events": {
+      "beforequery": "if (plan.query.indexOf('/') != -1 || plan.query.indexOf('\\\\') != -1) {\
+  plan.combo.collapse();\
+  return false;\
+}",
+      "select": "combo.onTriggerClick();"
+     }
+    }],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "basicsPanel",
+       "width": "240",
+       "bodyStyle": "background:#424f63",
+       "html": "\
+<section class=\"sticky-header\">\
+    <!-- left side start-->\
+    <div class=\"left-side sticky-left-side\">\
+        <!--logo and iconic logo start-->\
+        <div class=\"logo\" style=\"background-color:#424f63;margin-top: 2px\">\
+            <a onclick=\"changeurl()\"><img src=\"admin/images/logoqiyi.jpg\"  style=\"background-color:#424f63;width:50px;height:40px;\" alt=\"\"><\/a>\
+          <strong><font size=\"3\" color=\"#fff\" >{#Str.systemName#}<\/font><\/strong>\
+        <\/div>\
+\
+        <div class=\"logo-icon text-center\"  style=\"background-color: white;height:47px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logoqiyi.jpg\"  style=\"background-color: white;width:40px;height:40px;\"  alt=\"\"><\/a>\
+        <\/div>\
+        <!--logo and iconic logo end-->\
+\
+        <div class=\"left-side-inner\">\
+\
+            <!-- visible to small devices only -->\
+            <div class=\"visible-xs hidden-sm hidden-md hidden-lg\"><\/div>\
+            <!--sidebar nav start-->\
+            <ul class=\"nav nav-pills nav-stacked custom-nav\">\
+               <li class=\"active\"><a href=\"\"><i class=\"fa fa-home\"><\/i> <span>{#Str.home#}<\/span><\/a><\/li>\
+               {#basicsLust#}\
+            <\/ul>\
+        <\/div>\
+    <\/div>\
+    <!-- left side end-->\
+    \
+    <!-- main content start-->\
+    \
+<\/section>",
+       "region": "west",
+       "autoScroll": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel",
+      "events": {"afterrender": "Wb.addLink(['admin/js/bootstrap.min.js',\
+              'admin/js/modernizr.min.js', 'admin/js/scripts.js']);\
+\
+\
+\
+"}
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "userPanel",
+       "width": "240",
+       "bodyStyle": "background:#424f63",
+       "html": "\
+\
+<section class=\"sticky-header\">\
+    <!-- left side start-->\
+    <div class=\"left-side sticky-left-side\">\
+        <!--logo and iconic logo start-->\
+        <div class=\"logo\" style=\"background-color:#424f63;margin-top: 2px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logojj1.png\"  style=\"background-color:#424f63;width:50px;height:40px;\" alt=\"\"><\/a>\
+          <strong><font size=\"3\" color=\"#fff\" >{#Str.systemName#}<\/font><\/strong>\
+        <\/div>\
+\
+        <div class=\"logo-icon text-center\"  style=\"background-color: white;height:47px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logojj1.png\"  style=\"background-color: white;width:40px;height:40px;\"  alt=\"\"><\/a>\
+        <\/div>\
+        <!--logo and iconic logo end-->\
+\
+        <div class=\"left-side-inner\">\
+\
+            <!-- visible to small devices only -->\
+            <div class=\"visible-xs hidden-sm hidden-md hidden-lg\"><\/div>\
+            <!--sidebar nav start-->\
+            <ul class=\"nav nav-pills nav-stacked custom-nav\">\
+               <li class=\"active\"><a href=\"\"><i class=\"fa fa-home\"><\/i> <span>{#Str.home#}<\/span><\/a><\/li>\
+               {#userLust#}\
+            <\/ul>\
+           <ul class=\"nav nav-pills nav-stacked custom-nav\">\
+               <li class=\"active\"><a href=\"\"><i class=\"fa fa-home\"><\/i> <span>1111<\/span><\/a><\/li>\
+              aaaaa\
+            <\/ul>\
+        <\/div>\
+    <\/div>\
+    <!-- left side end-->\
+    \
+    <!-- main content start-->\
+    \
+<\/section>\
+",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel",
+      "events": {"afterrender": "Wb.addLink(['admin/js/bootstrap.min.js',\
+              'admin/js/modernizr.min.js', 'admin/js/scripts.js']);\
+\
+ \
+\
+"}
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "orderPanel",
+       "width": "240",
+       "bodyStyle": "background:#424f63",
+       "html": "\
+\
+<section class=\"sticky-header\">\
+    <!-- left side start-->\
+    <div class=\"left-side sticky-left-side\">\
+        <!--logo and iconic logo start-->\
+        <div class=\"logo\" style=\"background-color:#424f63;margin-top: 2px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logojj1.png\"  style=\"background-color:#424f63;width:50px;height:40px;\" alt=\"\"><\/a>\
+          <strong><font size=\"3\" color=\"#fff\" >{#Str.systemName#}<\/font><\/strong>\
+        <\/div>\
+\
+        <div class=\"logo-icon text-center\"  style=\"background-color: white;height:47px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logojj1.png\"  style=\"background-color: white;width:40px;height:40px;\"  alt=\"\"><\/a>\
+        <\/div>\
+        <!--logo and iconic logo end-->\
+\
+        <div class=\"left-side-inner\">\
+\
+            <!-- visible to small devices only -->\
+            <div class=\"visible-xs hidden-sm hidden-md hidden-lg\"><\/div>\
+            <!--sidebar nav start-->\
+            <ul class=\"nav nav-pills nav-stacked custom-nav\">\
+               <li class=\"active\"><a href=\"\"><i class=\"fa fa-home\"><\/i> <span>{#Str.home#}<\/span><\/a><\/li>\
+               {#orderLust#}\
+            <\/ul>\
+        <\/div>\
+    <\/div>\
+    <!-- left side end-->\
+    \
+    <!-- main content start-->\
+    \
+<\/section>",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel",
+      "events": {"afterrender": "Wb.addLink(['admin/js/bootstrap.min.js',\
+              'admin/js/modernizr.min.js', 'admin/js/scripts.js']);\
+\
+ \
+\
+"}
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "settlePanel",
+       "width": "240",
+       "bodyStyle": "background:#424f63",
+       "html": "\
+\
+<section class=\"sticky-header\">\
+    <!-- left side start-->\
+    <div class=\"left-side sticky-left-side\">\
+        <!--logo and iconic logo start-->\
+        <div class=\"logo\" style=\"background-color:#424f63;margin-top: 2px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logojj1.png\"  style=\"background-color:#424f63;width:50px;height:40px;\" alt=\"\"><\/a>\
+          <strong><font size=\"3\" color=\"#fff\" >{#Str.systemName#}<\/font><\/strong>\
+        <\/div>\
+\
+        <div class=\"logo-icon text-center\"  style=\"background-color: white;height:47px\">\
+            <a onclick=\"changeurl()\"><img src=\"wb/images/logojj1.png\"  style=\"background-color: white;width:40px;height:40px;\"  alt=\"\"><\/a>\
+        <\/div>\
+        <!--logo and iconic logo end-->\
+\
+        <div class=\"left-side-inner\">\
+\
+            <!-- visible to small devices only -->\
+            <div class=\"visible-xs hidden-sm hidden-md hidden-lg\"><\/div>\
+            <!--sidebar nav start-->\
+            <ul class=\"nav nav-pills nav-stacked custom-nav\">\
+               <li class=\"active\"><a href=\"\"><i class=\"fa fa-home\"><\/i> <span>{#Str.home#}<\/span><\/a><\/li>\
+               {#settleLust#}\
+            <\/ul>\
+          \
+        <\/div>\
+    <\/div>\
+    <!-- left side end-->\
+    \
+    <!-- main content start-->\
+    \
+<\/section>",
+       "region": "west"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel",
+      "events": {"afterrender": "Wb.addLink(['admin/js/bootstrap.min.js',\
+              'admin/js/modernizr.min.js', 'admin/js/scripts.js']);\
+\
+ \
+\
+"}
+     },
+     {
+      "configs": {
+       "border": "false",
+       "itemId": "toolbar1",
+       "hidden": "true",
+       "enableOverflow": "true",
+       "style": "background:#d6d6d6",
+       "region": "north",
+       "height": "50"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "blank1",
+         "width": "10",
+         "text": " 4444"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "setWidthpanle();\
+\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "titleLabel",
+         "xtype": "tbtext",
+         "text": "<font color='white'>{#Var.sys.app.title#}<\/font>"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "blank2",
+         "width": "10",
+         "text": " "
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "userBtn",
+         "glyph": "f007",
+         "text": "<font color='white'>{#sys.dispname#}<\/font>"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.run({\
+  url: 'account'\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "msgLabel",
+         "xtype": "tbtext",
+         "flex": "1"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "backBtn",
+         "glyph": "f060",
+         "overflowText": "@Str.back",
+         "tooltip": "@Str.back",
+         "style": "color:#red",
+         "text": "<font color='white'>后退<\/font>"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "forwardBtn",
+         "glyph": "f061",
+         "overflowText": "@Str.forward",
+         "tooltip": "@Str.forward",
+         "text": "<font color='white'>前进<\/font>"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "homeBtn",
+         "glyph": "f015",
+         "overflowText": "@Str.home",
+         "tooltip": "@Str.home",
+         "text": "<font color='white'>主页<\/font>"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.tab.setActiveTab(app.homeCard);"}
+       },
+       {
+        "configs": {
+         "itemId": "refreshPageBtn",
+         "glyph": "f021",
+         "overflowText": "@Str.refreshPage",
+         "tooltip": "@Str.refreshPage",
+         "text": "<font color='white'>刷新<\/font>"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var card = app.tab.getActiveTab();\
+if (card) {\
+  if (card == app.homeCard) {\
+    Wb.each(app.homeCard.query('portlet'), function(portlet) {\
+      app.refreshPortlet(portlet);\
+    });\
+  } else {\
+    Wb.open({\
+      reloadCard: card\
+    });\
+  }\
+}"}
+       },
+       {
+        "configs": {
+         "itemId": "refreshAppsBtn",
+         "glyph": "f16a",
+         "overflowText": "@Str.refreshApps",
+         "tooltip": "@Str.refreshApps",
+         "text": "<font color='white'>刷新应用列表<\/font>"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.reload(app.tree);"}
+       },
+       {
+        "configs": {
+         "itemId": "findModuleBtn",
+         "glyph": "f002",
+         "hidden": "true",
+         "overflowText": "@Str.find",
+         "tooltip": "@Str.find"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "app.tree.setVisible(true);\
+app.searchBar.setVisible(app.searchBar.hidden);\
+app.combo.focus(false, true);"}
+       },
+       {
+        "configs": {
+         "itemId": "line1",
+         "text": "-"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "operateMenu",
+         "glyph": "f0c9",
+         "overflowText": "@Str.operate",
+         "text": "<font color='white'>应用<\/font>"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "closeCurrentItem",
+           "text": "@Str.close"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "if (app.homeCard.isVisible())\
+  app.closePortal();\
+else\
+  Wb.close();"}
+         },
+         {
+          "configs": {
+           "itemId": "closeOthersItem",
+           "text": "@Str.closeOthers"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.close(false);"}
+         },
+         {
+          "configs": {
+           "itemId": "closeAppsItem",
+           "text": "@Str.closeApps"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.close(true);"}
+         },
+         {
+          "configs": {
+           "itemId": "closeAllItem",
+           "text": "@Str.closeAll"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Ext.suspendLayouts();\
+Wb.close(true);\
+app.closePortal();\
+Ext.resumeLayouts(true);"}
+         },
+         {
+          "configs": {
+           "itemId": "line1",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "classicItem",
+           "checked": "true",
+           "text": "@Str.classic",
+           "group": "theme"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "grayItem",
+           "checked": "false",
+           "text": "@Str.gray",
+           "group": "theme"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "neptuneItem",
+           "checked": "false",
+           "text": "@Str.neptune",
+           "group": "theme"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "line2",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "appListItem",
+           "checked": "true",
+           "text": "@Str.appList"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.tree.setVisible(item.checked);\
+app.operateMenu.menu.hide();"}
+         },
+         {
+          "configs": {
+           "itemId": "line3",
+           "text": "-"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "saveDesktopBtn",
+           "text": "@Str.saveDesktop"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "app.saveDesktop(1);"}
+         },
+         {
+          "configs": {
+           "itemId": "saveAsDefaultDesktopItem",
+           "hidden": "{#hideSetDefaultDesktop#}",
+           "text": "@Str.saveAsDefaultDesktop"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.confirm(Wb.format(Str.confirmDo, Str.saveAsDefaultDesktop), function() {\
+  app.saveDesktop(2);\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "saveAsAllDesktopItem",
+           "hidden": "{#hideSetAllDesktop#}",
+           "text": "@Str.saveAsAllDesktop"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "Wb.confirm(Wb.format(Str.confirmDo, Str.saveAsAllDesktop), function() {\
+  app.saveDesktop(3);\
+});"}
+         }
+        ],
+        "type": "item",
+        "events": {
+         "menuclick": "if (item && item.group == 'theme') {\
+  var theme = item.itemId.slice(0, -4);\
+  Wb.request({\
+    url: 'm?xwl=system/sys/portal/home/set-theme',\
+    params: {\
+      theme: theme\
+    },\
+    success: function() {\
+      Wb.confirm(Str.refreshWindow, function() {\
+        location.reload();\
+      });\
+    }\
+  });\
+}",
+         "menushow": "app[Wb.theme + 'Item'].setChecked(true);\
+app.appListItem.setChecked(app.tree.isVisible());"
+        }
+       },
+       {
+        "configs": {
+         "itemId": "winMenu",
+         "glyph": "f17a",
+         "overflowText": "@Str.currentAppList",
+         "text": "<font color='white'>窗体<\/font>"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {"itemId": "item1"},
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        }],
+        "type": "item",
+        "events": {
+         "menubeforeshow": "var items = [];\
+app.tab.items.each(function(card) {\
+  items.push({\
+    iconCls: card.iconCls,\
+    icon: card.icon,\
+    text: card.title,\
+    cardId: card.id,\
+    tooltip: card.title == card.tab.tooltip ? '' : card.tab.tooltip\
+  });\
+});\
+menu.removeAll(true);\
+if (items.length === 0)\
+  items.push({\
+    text: Str.emptyHint\
+  });\
+Wb.sort(items, 'text');\
+menu.add(items);",
+         "menuclick": "if (item.cardId)\
+  app.tab.setActiveTab(Ext.getCmp(item.cardId));"
+        }
+       },
+       {
+        "configs": {
+         "itemId": "line2",
+         "text": "-"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "item"
+       },
+       {
+        "configs": {
+         "itemId": "logoutBtn",
+         "overflowText": "@Str.logout",
+         "tooltip": "@Str.logout",
+         "text": "<font color='white'>退出<\/font>",
+         "iconCls": "logout_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "Wb.request({\
+  url: 'logout',\
+  success: function(resp) {\
+    window.location.replace('./');\
+  }\
+});"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "panel2",
+       "hidden": "false",
+       "bodyStyle": "background:#d6d6d6",
+       "html": "\
+      <div class=\"header-section\" style=\"background:rgb(53,63,79);\">\
+            <!--toggle button start-->\
+            <a style=\" margin-left:240px \" class=\"toggle-btn\" href=\"javascript:void(0)\" onclick=\"setWidthpanle();\"><i class=\"fa fa-bars\" ><\/i><\/a>\
+            <!--toggle button end-->\
+\
+            <!--search start\
+            <form class=\"searchform\" action=\"index.html\" method=\"post\">\
+                <input type=\"text\" class=\"form-control\" name=\"keyword\" placeholder=\"Search here...\" />\
+            <\/form>-->\
+            <!--search end-->\
+            <div id=\"nav\"> \
+                <ul> \
+                   <!--<li>\
+                      <img src=\"wb/images/photos/user.png\" alt=\"\" style=\"margin-bottom:3px\"/><a href=\"#\">用户中心<\/a>\
+                    <\/li> \
+                    <li>\
+                       <img src=\"wb/images/photos/order.png\" alt=\"\" style=\"margin-bottom:3px\"/><a href=\"#\">订单中心<\/a>\
+                    <\/li> \
+                    <li>\
+                      <img src=\"wb/images/photos/settle.png\" alt=\"\" style=\"margin-bottom:3px\"/><a href=\"#\">结算中心<\/a>\
+                    <\/li>  -->\
+                    {#subsList#}\
+                <\/ul> \
+            <\/div> \
+            <!--notification menu start -->\
+            <div class=\"menu-right\" style=\"background:rgb(53,69,79)\">\
+                <ul class=\"notification-menu\">\
+                   <!-- <li style=\"background:#f0f0f0\">\
+                        <a  style=\"background:#f0f0f0\" href=\"#\" class=\"btn btn-default dropdown-toggle info-number\" data-toggle=\"dropdown\">\
+                            <i class=\"fa fa-tasks\"><\/i>\
+                            <span class=\"badge\">8<\/span>\
+                        <\/a>\
+                        <div class=\"dropdown-menu dropdown-menu-head pull-right\">\
+                        <\/div>\
+                    <\/li>-->\
+                    <li>\
+                        <a onclick=\"app.refreshTab();\" alt=\"close tab\"  style=\"background:rgb(53,63,79)\" class=\"btn btn-default dropdown-toggle info-number\" data-toggle=\"dropdown\">\
+                            <i class=\"fa fa-refresh \"><\/i>   \
+                        <\/a>\
+                    <\/li>\
+                    <li>\
+                        <a onclick=\"app.colseCurrent();\" alt=\"close tab\"  style=\"background:rgb(53,63,79)\" class=\"btn btn-default dropdown-toggle info-number\" data-toggle=\"dropdown\">\
+                            <i class=\"fa  fa-ban \" ><\/i>\
+                           \
+                        <\/a>\
+              \
+                    <\/li>\
+                  <li>\
+                        <a onclick=\"app.colseOtherTab();\" alt=\"close other tab\" style=\"background:rgb(53,63,79)\" class=\"btn btn-default dropdown-toggle info-number\" data-toggle=\"dropdown\">\
+                            <i class=\"fa  fa-times-circle\"><\/i>\
+                           \
+                        <\/a>\
+              \
+                    <\/li>\
+                    <li>\
+                        <a  onclick=\"app.logout();\" style=\"background:rgb(53,63,79);\" class=\"btn btn-default dropdown-toggle info-number\" data-toggle=\"dropdown\">\
+                            <i class=\"fa fa-power-off\"><\/i>\
+                            \
+                        <\/a>\
+                       \
+                    <\/li>\
+                    <li>\
+                        <a href=\"#\" style=\"background:rgb(53,63,79)\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">\
+                            <img src=\"wb/images/photos/user-avatar.png\" alt=\"\"/>\
+                            {#sys.username#}\
+                            <span class=\"caret\"><\/span>\
+                        <\/a>\
+                     \
+                    <\/li>\
+\
+                <\/ul>\
+            <\/div>\
+            <!--notification menu end -->\
+\
+        <\/div>\
+        <!-- header section end-->\
+   \
+",
+       "region": "north",
+       "height": "50"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "tab",
+       "plugins": "'tabreorderer'",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "panelhome",
+        "html": "<div class=\"wrapper\">\
+            <div class=\"row\">\
+                <div class=\"col-md-6\">\
+                    <!--statistics start-->\
+                    <div class=\"row state-overview\">\
+                        <div class=\"col-md-6 col-xs-12 col-sm-6\">\
+                            <div class=\"panel purple\">\
+                                <div class=\"symbol\">\
+                                    <i class=\"fa fa-gavel\"><\/i>\
+                                <\/div>\
+                                <div class=\"state-value\">\
+                                    <div class=\"value\">230<\/div>\
+                                    <div class=\"title\">New Order<\/div>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                        <div class=\"col-md-6 col-xs-12 col-sm-6\">\
+                            <div class=\"panel red\">\
+                                <div class=\"symbol\">\
+                                    <i class=\"fa fa-tags\"><\/i>\
+                                <\/div>\
+                                <div class=\"state-value\">\
+                                    <div class=\"value\">3490<\/div>\
+                                    <div class=\"title\">Copy Sold<\/div>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                    <div class=\"row state-overview\">\
+                        <div class=\"col-md-6 col-xs-12 col-sm-6\">\
+                            <div class=\"panel blue\">\
+                                <div class=\"symbol\">\
+                                    <i class=\"fa fa-money\"><\/i>\
+                                <\/div>\
+                                <div class=\"state-value\">\
+                                    <div class=\"value\">22014<\/div>\
+                                    <div class=\"title\"> Total Revenue<\/div>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                        <div class=\"col-md-6 col-xs-12 col-sm-6\">\
+                            <div class=\"panel green\">\
+                                <div class=\"symbol\">\
+                                    <i class=\"fa fa-eye\"><\/i>\
+                                <\/div>\
+                                <div class=\"state-value\">\
+                                    <div class=\"value\">390<\/div>\
+                                    <div class=\"title\"> Unique Visitors<\/div>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                    <!--statistics end-->\
+                <\/div>\
+                <div class=\"col-md-6\">\
+                    <!--more statistics box start-->\
+                    <div class=\"panel deep-purple-box\">\
+                        <div class=\"panel-body\">\
+                            <div class=\"row\">\
+                                <div class=\"col-md-7 col-sm-7 col-xs-7\">\
+                                    <div id=\"graph-donut\" class=\"revenue-graph\"><svg height=\"220\" version=\"1.1\" width=\"303\" xmlns=\"http://www.w3.org/2000/svg\" style=\"overflow: hidden; position: relative;\"><desc>Created with Raphaël 2.1.2<\/desc><defs><\/defs><path fill=\"none\" stroke=\"#4acacb\" d=\"M151.5,176.66666666666669A66.66666666666667,66.66666666666667,0,0,0,193.07879551323234,57.88811835950217\" stroke-width=\"2\" opacity=\"0\" style=\"opacity: 0;\"><\/path><path fill=\"#4acacb\" stroke=\"none\" d=\"M151.5,179.66666666666669A69.66666666666667,69.66666666666667,0,0,0,194.94984131132782,55.54308368567977L210.7497836063561,35.7405686622906A95,95,0,0,1,151.5,205Z\" stroke-width=\"3\" style=\"\"><\/path><path fill=\"none\" stroke=\"#6a8bc0\" d=\"M193.07879551323234,57.88811835950217A66.66666666666667,66.66666666666667,0,0,0,89.45101113025744,85.6203481426209\" stroke-width=\"2\" opacity=\"0\" style=\"opacity: 0;\"><\/path><path fill=\"#6a8bc0\" stroke=\"none\" d=\"M194.94984131132782,55.54308368567977A69.66666666666667,69.66666666666667,0,0,0,86.65880663111902,84.52326380903884L63.08019086061685,75.25899610323478A95,95,0,0,1,210.7497836063561,35.7405686622906Z\" stroke-width=\"3\" style=\"\"><\/path><path fill=\"none\" stroke=\"#5ab6df\" d=\"M89.45101113025744,85.6203481426209A66.66666666666667,66.66666666666667,0,0,0,109.91301928453285,162.10534981569367\" stroke-width=\"2\" opacity=\"1\" style=\"opacity: 1;\"><\/path><path fill=\"#5ab6df\" stroke=\"none\" d=\"M86.65880663111902,84.52326380903884A69.66666666666667,69.66666666666667,0,0,0,108.04160515233681,164.45009055739988L89.11952892679928,188.1580247235405A100,100,0,0,1,58.42651669538617,73.43052221393134Z\" stroke-width=\"3\" style=\"\"><\/path><path fill=\"none\" stroke=\"#fe8676\" d=\"M109.91301928453285,162.10534981569367A66.66666666666667,66.66666666666667,0,0,0,151.47905604932066,176.66666337679857\" stroke-width=\"2\" opacity=\"0\" style=\"opacity: 0;\"><\/path><path fill=\"#fe8676\" stroke=\"none\" d=\"M108.04160515233681,164.45009055739988A69.66666666666667,69.66666666666667,0,0,0,151.4781135715401,179.6666632287545L151.47015487028193,204.99999531193794A95,95,0,0,1,92.2385524804593,184.25012348736345Z\" stroke-width=\"3\" style=\"\"><\/path><text x=\"151.5\" y=\"100\" text-anchor=\"middle\" font=\"10px &quot;Arial&quot;\" stroke=\"none\" fill=\"#ffffff\" font-size=\"15px\" font-weight=\"800\" transform=\"matrix(1.3088,0,0,1.3088,-46.7822,-33.4703)\" stroke-width=\"0.7640625\" style=\"text-anchor: middle; font-style: normal; font-variant-caps: normal; font-weight: 800; font-size: 15px; line-height: normal; font-family: Arial;\"><tspan dy=\"5.203125\">Bounce Rate<\/tspan><\/text><text x=\"151.5\" y=\"120\" text-anchor=\"middle\" font=\"10px &quot;Arial&quot;\" stroke=\"none\" fill=\"#ffffff\" font-size=\"14px\" transform=\"matrix(1.4194,0,0,1.4194,-63.5366,-47.0561)\" stroke-width=\"0.7045312499999999\" style=\"text-anchor: middle; font-style: normal; font-variant-caps: normal; font-weight: normal; font-size: 14px; line-height: normal; font-family: Arial;\"><tspan dy=\"4.8828125\">approx. 10%<\/tspan><\/text><\/svg><\/div>\
+\
+                                <\/div>\
+                                <div class=\"col-md-5 col-sm-5 col-xs-5\">\
+                                    <ul class=\"bar-legend\">\
+                                        <li><span class=\"blue\"><\/span> Open rate<\/li>\
+                                        <li><span class=\"green\"><\/span> Click rate<\/li>\
+                                        <li><span class=\"purple\"><\/span> Share rate<\/li>\
+                                        <li><span class=\"red\"><\/span> Unsubscribed rate<\/li>\
+                                    <\/ul>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                    <!--more statistics box end-->\
+                <\/div>\
+            <\/div>\
+            <div class=\"row\">\
+                <div class=\"col-md-8\">\
+                    <div class=\"panel\">\
+                        <div class=\"panel-body\">\
+                            <div class=\"row revenue-states\">\
+                                <div class=\"col-md-6 col-sm-6 col-xs-12\">\
+                                    <h4>Monthly revenue report<\/h4>\
+                                    <div class=\"icheck\">\
+                                        <div class=\"square-red single-row\">\
+                                            <div class=\"checkbox \">\
+                                                <div class=\"icheckbox_square-red checked\" style=\"position: relative;\"><input type=\"checkbox\" checked=\"\" style=\"position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background-color: rgb(255, 255, 255); border: 0px; opacity: 0; background-position: initial initial; background-repeat: initial initial;\"><ins class=\"iCheck-helper\" style=\"position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background-color: rgb(255, 255, 255); border: 0px; opacity: 0; background-position: initial initial; background-repeat: initial initial;\"><\/ins><\/div>\
+                                                <label>Online<\/label>\
+                                            <\/div>\
+                                        <\/div>\
+                                        <div class=\"square-blue single-row\">\
+                                            <div class=\"checkbox \">\
+                                                <div class=\"icheckbox_square-blue\" style=\"position: relative;\"><input type=\"checkbox\" style=\"position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background-color: rgb(255, 255, 255); border: 0px; opacity: 0; background-position: initial initial; background-repeat: initial initial;\"><ins class=\"iCheck-helper\" style=\"position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background-color: rgb(255, 255, 255); border: 0px; opacity: 0; background-position: initial initial; background-repeat: initial initial;\"><\/ins><\/div>\
+                                                <label>Offline <\/label>\
+                                            <\/div>\
+                                        <\/div>\
+                                    <\/div>\
+\
+                                <\/div>\
+                                <div class=\"col-md-6 col-sm-6 col-xs-12\">\
+                                    <ul class=\"revenue-nav\">\
+                                        <li><a href=\"#\">weekly<\/a><\/li>\
+                                        <li><a href=\"#\">monthly<\/a><\/li>\
+                                        <li class=\"active\"><a href=\"#\">yearly<\/a><\/li>\
+                                    <\/ul>\
+                                <\/div>\
+                            <\/div>\
+                            <div class=\"row\">\
+                                <div class=\"col-md-12\">\
+                                    <div class=\"clearfix\">\
+                                        <div id=\"main-chart-legend\" class=\"pull-right\"><table style=\"font-size:smaller;color:#545454\"><tbody><tr><td class=\"legendColorBox\"><div style=\"border:1px solid #000000;padding:1px\"><div style=\"width:4px;height:0;border:5px solid rgb(90,188,223);overflow:hidden\"><\/div><\/div><\/td><td class=\"legendLabel\">New Visitors<\/td><td class=\"legendColorBox\"><div style=\"border:1px solid #000000;padding:1px\"><div style=\"width:4px;height:0;border:5px solid rgb(255,134,115);overflow:hidden\"><\/div><\/div><\/td><td class=\"legendLabel\">Unique Visitors<\/td><\/tr><\/tbody><\/table><\/div>\
+                                    <\/div>\
+\
+                                    <div id=\"main-chart\">\
+                                        <div id=\"main-chart-container\" class=\"main-chart\" style=\"padding: 0px; position: relative;\">\
+                                        <canvas class=\"flot-base\" width=\"1480\" height=\"600\" style=\"direction: ltr; position: absolute; left: 0px; top: 0px; width: 740px; height: 300px;\"><\/canvas><div class=\"flot-text\" style=\"position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; font-size: smaller; color: rgb(84, 84, 84);\"><div class=\"flot-x-axis flot-x1-axis xAxis x1Axis\" style=\"position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; display: block;\"><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 24px; text-align: center;\">0<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 94px; text-align: center;\">1<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 165px; text-align: center;\">2<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 235px; text-align: center;\">3<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 306px; text-align: center;\">4<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 376px; text-align: center;\">5<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 447px; text-align: center;\">6<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 517px; text-align: center;\">7<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 588px; text-align: center;\">8<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 658px; text-align: center;\">9<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; max-width: 67px; top: 279px; left: 725px; text-align: center;\">10<\/div><\/div><div class=\"flot-y-axis flot-y1-axis yAxis y1Axis\" style=\"position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px; display: block;\"><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 264px; left: 15px; text-align: right;\">0<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 231px; left: 1px; text-align: right;\">100<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 198px; left: 1px; text-align: right;\">200<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 165px; left: 1px; text-align: right;\">300<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 132px; left: 1px; text-align: right;\">400<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 99px; left: 1px; text-align: right;\">500<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 66px; left: 1px; text-align: right;\">600<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 33px; left: 1px; text-align: right;\">700<\/div><div class=\"flot-tick-label tickLabel\" style=\"position: absolute; top: 0px; left: 1px; text-align: right;\">800<\/div><\/div><\/div><canvas class=\"flot-overlay\" width=\"1480\" height=\"600\" style=\"direction: ltr; position: absolute; left: 0px; top: 0px; width: 740px; height: 300px;\"><\/canvas><\/div>\
+                                    <\/div>\
+                                    <ul class=\"revenue-short-info\">\
+                                        <li>\
+                                            <h1 class=\"red\">15%<\/h1>\
+                                            <p>Server Load<\/p>\
+                                        <\/li>\
+                                        <li>\
+                                            <h1 class=\"purple\">30%<\/h1>\
+                                            <p>Disk Space<\/p>\
+                                        <\/li>\
+                                        <li>\
+                                            <h1 class=\"green\">84%<\/h1>\
+                                            <p>Transferred<\/p>\
+                                        <\/li>\
+                                        <li>\
+                                            <h1 class=\"blue\">28%<\/h1>\
+                                            <p>Temperature<\/p>\
+                                        <\/li>\
+                                    <\/ul>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+                <div class=\"col-md-4\">\
+                    <div class=\"panel\">\
+                        <header class=\"panel-heading\">\
+                            goal progress\
+                            <span class=\"tools pull-right\">\
+                                <a href=\"javascript:;\" class=\"fa fa-chevron-down\"><\/a>\
+                                <a href=\"javascript:;\" class=\"fa fa-times\"><\/a>\
+                             <\/span>\
+                        <\/header>\
+                        <div class=\"panel-body\">\
+                            <ul class=\"goal-progress\">\
+                                <li>\
+                                    <div class=\"prog-avatar\">\
+                                        <img src=\"images/photos/user1.png\" alt=\"\">\
+                                    <\/div>\
+                                    <div class=\"details\">\
+                                        <div class=\"title\">\
+                                            <a href=\"#\">John Doe<\/a> - Project Lead\
+                                        <\/div>\
+                                        <div class=\"progress progress-xs\">\
+                                            <div class=\"progress-bar progress-bar-info\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 70%\">\
+                                                <span class=\"\">70%<\/span>\
+                                            <\/div>\
+                                        <\/div>\
+                                    <\/div>\
+                                <\/li>\
+                                <li>\
+                                    <div class=\"prog-avatar\">\
+                                        <img src=\"images/photos/user2.png\" alt=\"\">\
+                                    <\/div>\
+                                    <div class=\"details\">\
+                                        <div class=\"title\">\
+                                            <a href=\"#\">Cameron Doe<\/a> - Sales\
+                                        <\/div>\
+                                        <div class=\"progress progress-xs\">\
+                                            <div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 91%\">\
+                                                <span class=\"\">91%<\/span>\
+                                            <\/div>\
+                                        <\/div>\
+                                    <\/div>\
+                                <\/li>\
+                                <li>\
+                                    <div class=\"prog-avatar\">\
+                                        <img src=\"images/photos/user3.png\" alt=\"\">\
+                                    <\/div>\
+                                    <div class=\"details\">\
+                                        <div class=\"title\">\
+                                            <a href=\"#\">Hoffman Doe<\/a> - Support\
+                                        <\/div>\
+                                        <div class=\"progress progress-xs\">\
+                                            <div class=\"progress-bar progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 40%\">\
+                                                <span class=\"\">40%<\/span>\
+                                            <\/div>\
+                                        <\/div>\
+                                    <\/div>\
+                                <\/li>\
+                                <li>\
+                                    <div class=\"prog-avatar\">\
+                                        <img src=\"images/photos/user4.png\" alt=\"\">\
+                                    <\/div>\
+                                    <div class=\"details\">\
+                                        <div class=\"title\">\
+                                            <a href=\"#\">Jane Doe<\/a> - Marketing\
+                                        <\/div>\
+                                        <div class=\"progress progress-xs\">\
+                                            <div class=\"progress-bar progress-bar-danger\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 20%\">\
+                                                <span class=\"\">20%<\/span>\
+                                            <\/div>\
+                                        <\/div>\
+                                    <\/div>\
+                                <\/li>\
+                                <li>\
+                                    <div class=\"prog-avatar\">\
+                                        <img src=\"images/photos/user5.png\" alt=\"\">\
+                                    <\/div>\
+                                    <div class=\"details\">\
+                                        <div class=\"title\">\
+                                            <a href=\"#\">Hoffman Doe<\/a> - Support\
+                                        <\/div>\
+                                        <div class=\"progress progress-xs\">\
+                                            <div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 45%\">\
+                                                <span class=\"\">45%<\/span>\
+                                            <\/div>\
+                                        <\/div>\
+                                    <\/div>\
+                                <\/li>\
+                            <\/ul>\
+                            <div class=\"text-center\"><a href=\"#\">View all Goals<\/a><\/div>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+            <\/div>\
+\
+            <div class=\"row\">\
+                <div class=\"col-md-4\">\
+                    <div class=\"panel\">\
+                        <div class=\"panel-body extra-pad\">\
+                            <h4 class=\"pros-title\">prospective <span>leads<\/span><\/h4>\
+                            <div class=\"row\">\
+                                <div class=\"col-sm-4 col-xs-4\">\
+                                    <div id=\"p-lead-1\"><canvas width=\"68\" height=\"35\" style=\"display: inline-block; width: 68px; height: 35px; vertical-align: top;\"><\/canvas><\/div>\
+                                    <p class=\"p-chart-title\">Laptop<\/p>\
+                                <\/div>\
+                                <div class=\"col-sm-4 col-xs-4\">\
+                                    <div id=\"p-lead-2\"><canvas width=\"68\" height=\"35\" style=\"display: inline-block; width: 68px; height: 35px; vertical-align: top;\"><\/canvas><\/div>\
+                                    <p class=\"p-chart-title\">iPhone<\/p>\
+                                <\/div>\
+                                <div class=\"col-sm-4 col-xs-4\">\
+                                    <div id=\"p-lead-3\"><canvas width=\"68\" height=\"35\" style=\"display: inline-block; width: 68px; height: 35px; vertical-align: top;\"><\/canvas><\/div>\
+                                    <p class=\"p-chart-title\">iPad<\/p>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+                <div class=\"col-md-4\">\
+                    <div class=\"panel\">\
+                        <div class=\"panel-body extra-pad\">\
+                            <div class=\"col-sm-6 col-xs-6\">\
+                                <div class=\"v-title\">Visits<\/div>\
+                                <div class=\"v-value\">10,090<\/div>\
+                                <div id=\"visit-1\"><canvas width=\"100\" height=\"25\" style=\"display: inline-block; width: 100px; height: 25px; vertical-align: top;\"><\/canvas><\/div>\
+                                <div class=\"v-info\">Pages/Visit<\/div>\
+                            <\/div>\
+                            <div class=\"col-sm-6 col-xs-6\">\
+                                <div class=\"v-title\">Unique Visitors<\/div>\
+                                <div class=\"v-value\">8,173<\/div>\
+                                <div id=\"visit-2\"><canvas width=\"100\" height=\"25\" style=\"display: inline-block; width: 100px; height: 25px; vertical-align: top;\"><\/canvas><\/div>\
+                                <div class=\"v-info\">Avg. Visit Duration<\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+                <div class=\"col-md-4\">\
+\
+                    <div class=\"panel green-box\">\
+                        <div class=\"panel-body extra-pad\">\
+                            <div class=\"row\">\
+                                <div class=\"col-sm-6 col-xs-6\">\
+                                    <div class=\"knob\">\
+                                        <span class=\"chart\" data-percent=\"79\">\
+                                            <span class=\"percent\">79% <span class=\"sm\">New Visit<\/span><\/span>\
+                                        <canvas height=\"170\" width=\"170\" style=\"height: 85px; width: 85px;\"><\/canvas><\/span>\
+                                    <\/div>\
+                                <\/div>\
+                                <div class=\"col-sm-6 col-xs-6\">\
+                                    <div class=\"knob\">\
+                                        <span class=\"chart\" data-percent=\"56\">\
+                                            <span class=\"percent\">56% <span class=\"sm\">Bounce rate<\/span><\/span>\
+                                        <canvas height=\"170\" width=\"170\" style=\"height: 85px; width: 85px;\"><\/canvas><\/span>\
+                                    <\/div>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+            <\/div>\
+\
+            <div class=\"row\">\
+                <div class=\"col-md-4\">\
+                    <div class=\"panel\">\
+                        <div class=\"panel-body\">\
+                            <div class=\"calendar-block \">\
+                                <div class=\"cal1\"><div class=\"clndr\"><div class=\"clndr-controls\"><div class=\"clndr-control-button\"><span class=\"clndr-previous-button\"><i class=\"fa fa-chevron-left\"><\/i><\/span><\/div><div class=\"month\"><span>February<\/span> 2017<\/div><div class=\"clndr-control-button leftalign\"><span class=\"clndr-next-button\"><i class=\"fa fa-chevron-right\"><\/i><\/span><\/div><\/div><table class=\"clndr-table\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><thead><tr class=\"header-days\"><td class=\"header-day\">S<\/td><td class=\"header-day\">M<\/td><td class=\"header-day\">T<\/td><td class=\"header-day\">W<\/td><td class=\"header-day\">T<\/td><td class=\"header-day\">F<\/td><td class=\"header-day\">S<\/td><\/tr><\/thead><tbody><tr><td class=\"day past adjacent-month last-month calendar-day-2017-01-29\"><div class=\"day-contents\">29<\/div><\/td><td class=\"day past adjacent-month last-month calendar-day-2017-01-30\"><div class=\"day-contents\">30<\/div><\/td><td class=\"day past adjacent-month last-month calendar-day-2017-01-31\"><div class=\"day-contents\">31<\/div><\/td><td class=\"day past calendar-day-2017-02-01\"><div class=\"day-contents\">1<\/div><\/td><td class=\"day past calendar-day-2017-02-02\"><div class=\"day-contents\">2<\/div><\/td><td class=\"day past calendar-day-2017-02-03\"><div class=\"day-contents\">3<\/div><\/td><td class=\"day past calendar-day-2017-02-04\"><div class=\"day-contents\">4<\/div><\/td><\/tr><tr><td class=\"day past calendar-day-2017-02-05\"><div class=\"day-contents\">5<\/div><\/td><td class=\"day past calendar-day-2017-02-06\"><div class=\"day-contents\">6<\/div><\/td><td class=\"day past calendar-day-2017-02-07\"><div class=\"day-contents\">7<\/div><\/td><td class=\"day past calendar-day-2017-02-08\"><div class=\"day-contents\">8<\/div><\/td><td class=\"day past calendar-day-2017-02-09\"><div class=\"day-contents\">9<\/div><\/td><td class=\"day past event calendar-day-2017-02-10\"><div class=\"day-contents\">10<\/div><\/td><td class=\"day past event calendar-day-2017-02-11\"><div class=\"day-contents\">11<\/div><\/td><\/tr><tr><td class=\"day past event calendar-day-2017-02-12\"><div class=\"day-contents\">12<\/div><\/td><td class=\"day past event calendar-day-2017-02-13\"><div class=\"day-contents\">13<\/div><\/td><td class=\"day past event calendar-day-2017-02-14\"><div class=\"day-contents\">14<\/div><\/td><td class=\"day past calendar-day-2017-02-15\"><div class=\"day-contents\">15<\/div><\/td><td class=\"day past calendar-day-2017-02-16\"><div class=\"day-contents\">16<\/div><\/td><td class=\"day past calendar-day-2017-02-17\"><div class=\"day-contents\">17<\/div><\/td><td class=\"day past calendar-day-2017-02-18\"><div class=\"day-contents\">18<\/div><\/td><\/tr><tr><td class=\"day past calendar-day-2017-02-19\"><div class=\"day-contents\">19<\/div><\/td><td class=\"day past calendar-day-2017-02-20\"><div class=\"day-contents\">20<\/div><\/td><td class=\"day past event calendar-day-2017-02-21\"><div class=\"day-contents\">21<\/div><\/td><td class=\"day past event calendar-day-2017-02-22\"><div class=\"day-contents\">22<\/div><\/td><td class=\"day past event calendar-day-2017-02-23\"><div class=\"day-contents\">23<\/div><\/td><td class=\"day today calendar-day-2017-02-24\"><div class=\"day-contents\">24<\/div><\/td><td class=\"day calendar-day-2017-02-25\"><div class=\"day-contents\">25<\/div><\/td><\/tr><tr><td class=\"day calendar-day-2017-02-26\"><div class=\"day-contents\">26<\/div><\/td><td class=\"day calendar-day-2017-02-27\"><div class=\"day-contents\">27<\/div><\/td><td class=\"day calendar-day-2017-02-28\"><div class=\"day-contents\">28<\/div><\/td><td class=\"day adjacent-month next-month calendar-day-2017-03-01\"><div class=\"day-contents\">1<\/div><\/td><td class=\"day adjacent-month next-month calendar-day-2017-03-02\"><div class=\"day-contents\">2<\/div><\/td><td class=\"day adjacent-month next-month calendar-day-2017-03-03\"><div class=\"day-contents\">3<\/div><\/td><td class=\"day adjacent-month next-month calendar-day-2017-03-04\"><div class=\"day-contents\">4<\/div><\/td><\/tr><\/tbody><\/table><\/div><\/div>\
+                            <\/div>\
+\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+                <div class=\"col-md-4\">\
+                    <div class=\"panel\">\
+                        <header class=\"panel-heading\">\
+                            Todo List\
+                            <span class=\"tools pull-right\">\
+                                <a class=\"fa fa-chevron-down\" href=\"javascript:;\"><\/a>\
+                                <a class=\"fa fa-times\" href=\"javascript:;\"><\/a>\
+                             <\/span>\
+                        <\/header>\
+                        <div class=\"panel-body\">\
+                            <ul class=\"to-do-list ui-sortable\" id=\"sortable-todo\">\
+                                <li class=\"clearfix\">\
+                                    <span class=\"drag-marker\">\
+                                    <i><\/i>\
+                                    <\/span>\
+                                    <div class=\"todo-check pull-left\">\
+                                        <input type=\"checkbox\" value=\"None\" id=\"todo-check\">\
+                                        <label for=\"todo-check\"><\/label>\
+                                    <\/div>\
+                                    <p class=\"todo-title\">\
+                                        Dashboard Design &amp; Wiget placement\
+                                    <\/p>\
+                                    <div class=\"todo-actionlist pull-right clearfix\">\
+\
+                                        <a href=\"#\" class=\"todo-remove\"><i class=\"fa fa-times\"><\/i><\/a>\
+                                    <\/div>\
+                                <\/li>\
+                                <li class=\"clearfix\">\
+                                    <span class=\"drag-marker\">\
+                                    <i><\/i>\
+                                    <\/span>\
+                                    <div class=\"todo-check pull-left\">\
+                                        <input type=\"checkbox\" value=\"None\" id=\"todo-check1\">\
+                                        <label for=\"todo-check1\"><\/label>\
+                                    <\/div>\
+                                    <p class=\"todo-title\">\
+                                        Wireframe prepare for new design\
+                                    <\/p>\
+                                    <div class=\"todo-actionlist pull-right clearfix\">\
+\
+                                        <a href=\"#\" class=\"todo-remove\"><i class=\"fa fa-times\"><\/i><\/a>\
+                                    <\/div>\
+                                <\/li>\
+                                <li class=\"clearfix\">\
+                                    <span class=\"drag-marker\">\
+                                    <i><\/i>\
+                                    <\/span>\
+                                    <div class=\"todo-check pull-left\">\
+                                        <input type=\"checkbox\" value=\"None\" id=\"todo-check2\">\
+                                        <label for=\"todo-check2\"><\/label>\
+                                    <\/div>\
+                                    <p class=\"todo-title\">\
+                                        UI perfection testing for Mega Section\
+                                    <\/p>\
+                                    <div class=\"todo-actionlist pull-right clearfix\">\
+\
+                                        <a href=\"#\" class=\"todo-remove\"><i class=\"fa fa-times\"><\/i><\/a>\
+                                    <\/div>\
+                                <\/li>\
+                                <li class=\"clearfix\">\
+                                    <span class=\"drag-marker\">\
+                                    <i><\/i>\
+                                    <\/span>\
+                                    <div class=\"todo-check pull-left\">\
+                                        <input type=\"checkbox\" value=\"None\" id=\"todo-check3\">\
+                                        <label for=\"todo-check3\"><\/label>\
+                                    <\/div>\
+                                    <p class=\"todo-title\">\
+                                        Wiget &amp; Design placement\
+                                    <\/p>\
+                                    <div class=\"todo-actionlist pull-right clearfix\">\
+\
+                                        <a href=\"#\" class=\"todo-remove\"><i class=\"fa fa-times\"><\/i><\/a>\
+                                    <\/div>\
+                                <\/li>\
+                                <li class=\"clearfix\">\
+                                    <span class=\"drag-marker\">\
+                                    <i><\/i>\
+                                    <\/span>\
+                                    <div class=\"todo-check pull-left\">\
+                                        <input type=\"checkbox\" value=\"None\" id=\"todo-check4\">\
+                                        <label for=\"todo-check4\"><\/label>\
+                                    <\/div>\
+                                    <p class=\"todo-title\">\
+                                        Development &amp; Wiget placement\
+                                    <\/p>\
+                                    <div class=\"todo-actionlist pull-right clearfix\">\
+\
+                                        <a href=\"#\" class=\"todo-remove\"><i class=\"fa fa-times\"><\/i><\/a>\
+                                    <\/div>\
+                                <\/li>\
+\
+                            <\/ul>\
+                            <div class=\"row\">\
+                                <div class=\"col-md-12\">\
+                                    <form role=\"form\" class=\"form-inline\">\
+                                        <div class=\"form-group todo-entry\">\
+                                            <input type=\"text\" placeholder=\"Enter your ToDo List\" class=\"form-control\" style=\"width: 100%\">\
+                                        <\/div>\
+                                        <button class=\"btn btn-primary pull-right\" type=\"submit\">+<\/button>\
+                                    <\/form>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+                <div class=\"col-md-4\">\
+                    <div class=\"panel blue-box twt-info\">\
+                        <div class=\"panel-body\">\
+                            <h3>19 Februay 2014<\/h3>\
+\
+                            <p>AdminEx is new model of admin\
+                            dashboard <a href=\"#\">http://t.co/3laCVziTw4<\/a>\
+                            4 days ago by John Doe<\/p>\
+                        <\/div>\
+                    <\/div>\
+                    <div class=\"panel\">\
+                        <div class=\"panel-body\">\
+                            <div class=\"media usr-info\">\
+                                <a href=\"#\" class=\"pull-left\">\
+                                    <img class=\"thumb\" src=\"images/photos/user2.png\" alt=\"\">\
+                                <\/a>\
+                                <div class=\"media-body\">\
+                                    <h4 class=\"media-heading\">Mila Watson<\/h4>\
+                                    <span>Senior UI Designer<\/span>\
+                                    <p>I use to design websites and applications for the web.<\/p>\
+                                <\/div>\
+                            <\/div>\
+                        <\/div>\
+                        <div class=\"panel-footer custom-trq-footer\">\
+                            <ul class=\"user-states\">\
+                                <li>\
+                                    <i class=\"fa fa-heart\"><\/i> 127\
+                                <\/li>\
+                                <li>\
+                                    <i class=\"fa fa-eye\"><\/i> 853\
+                                <\/li>\
+                                <li>\
+                                    <i class=\"fa fa-user\"><\/i> 311\
+                                <\/li>\
+                            <\/ul>\
+                        <\/div>\
+                    <\/div>\
+                <\/div>\
+            <\/div>\
+        <\/div>",
+        "title": "主页"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "panel"
+      }],
+      "type": "tab",
+      "events": {"tabchange": "if (newCard && newCard.notLoaded) {\
+  newCard.notLoaded = false;\
+  Wb.open({\
+    reloadCard: newCard,\
+    frameOnly: false,\
+    notActiveCard: false\
+  });\
+}"}
+     }
+    ],
+    "type": "viewport",
+    "events": {"afterrender": "app.doAfterRender();\
+app.basicsPanel.setVisible(true);\
+app.userPanel.setVisible(false);\
+app.orderPanel.setVisible(false);\
+app.settlePanel.setVisible(false);"}
+   }
+  ],
+  "type": "module",
+  "events": {"initialize": "Wb.apply(app, {\
+  \
+  \
+   \
+  \
+  portletHeader: '{#Var.sys.app.portletHeader#}' == 'true',\
+  /**\
+   * 在viewport1渲染完成后执行的方法。\
+   */\
+\
+  refreshTab:function(){\
+  var card = app.tab.getActiveTab();\
+if (card) {\
+  \
+    Wb.open({\
+      reloadCard: card\
+    });\
+}},\
+  colseCurrent:function(){\
+\
+  Wb.close();\
+  \
+  },\
+    colseOtherTab:function(){\
+\
+  Wb.close(false);\
+  \
+  },\
+  \
+  doAfterRender: function() {\
+    Ext.suspendLayouts();\
+    Wb.setNavigate(app.tab, app.backBtn, app.forwardBtn);\
+   /*  app.portal = app.tab.add({\
+      appScope: app,\
+      itemId: 'homeCard',\
+      xtype: 'portalpanel',\
+      iconCls: 'home_icon',\
+      title: Str.home,\
+      reorderable: false\
+    });\
+    app.tab.setActiveTab(app.portal);\
+    app.portal.add([{\
+      xtype: 'portalcolumn'\
+    }, {\
+      xtype: 'portalcolumn'\
+    }, {\
+      xtype: 'portalcolumn'\
+    }]);\
+   app.populatePortlets();\
+    app.populatePages();*/\
+    Ext.resumeLayouts(true);\
+  },\
+  /**\
+   * 加载保存的Portlets。\
+   */\
+  populatePortlets: function() {\
+    var items = \"{#portlets#}\",\
+      index = 0;\
+    if (items) {\
+      items = Wb.decode(items);\
+      if (items.length) {\
+        Wb.each(items, function(col) {\
+          Wb.each(col, function(portlet) {\
+            app.addPortlet(portlet, null, index);\
+          });\
+          index++;\
+        });\
+      }\
+    }\
+  },\
+  /**\
+   * 关闭所有Portlet。\
+   */\
+  closePortal: function() {\
+    Ext.suspendLayouts();\
+    app.homeCard.items.each(function(col) {\
+      col.items.each(function(item) {\
+        item.destroy();\
+      });\
+    });\
+    Ext.resumeLayouts(true);\
+  },\
+  logout:function(){\
+  Wb.request({\
+  url: 'logout',\
+  success: function(resp) {\
+    window.location.replace('./');\
+  }\
+});\
+  \
+  },\
+  /**\
+   * 加载保存的页面。\
+   */\
+  populatePages: function() {\
+    var tab = app.tab;\
+    tab.mon(tab.tabBar.el, 'dblclick', function() {\
+      var card = tab.getActiveTab(),\
+        url = card.bindFile;\
+      if (!card.hasParams && url) {\
+        if (Ext.String.endsWith(url, '.xwl'))\
+          url = 'm?xwl=' + url.slice(0, -4);\
+        window.open(url);\
+      }\
+    }, tab);\
+    var card, tabItems = \"{#tabItems#}\";\
+    if (tabItems) {\
+      tabItems = Wb.decode(tabItems);\
+      if (tabItems.length) {\
+        Wb.each(tabItems, function(item) {\
+          card = Wb.open(Wb.apply(item, {\
+            frameOnly: true,\
+            notActiveCard: true\
+          }));\
+          card.notLoaded = true;\
+        });\
+        app.tab.setActiveTab(parseInt('{#activeIndex#}', 10));\
+      }\
+    }\
+  },\
+  showTool: function(panel, visible) {\
+    Ext.suspendLayouts();\
+    Wb.each(panel.header.query('tool'), function(item) {\
+      item.setVisible(visible);\
+    });\
+    Ext.resumeLayouts(true);\
+  },\
+  /**\
+   * 在Portal首行首列添加指定模块作为Portlet。\
+   * @param {Object} config 配置项。\
+   * @param {Number} [rowIndex] 行索引号，缺省为最后一行。\
+   * @param {Number} [colIndex] 列索引号，缺省为0。\
+   */\
+  addPortlet: function(config, rowIndex, colIndex) {\
+    if (config.newWin || config.inframe || config.container === false || config.download) {\
+      Wb.info(Str.invalidPortlet);\
+      return;\
+    }\
+    app.tab.setActiveTab(app.homeCard);\
+    var portlet, portletObject = {\
+      xtype: 'portlet',\
+      layout: 'fit',\
+      title: config.title,\
+      iconCls: config.iconCls,\
+      doRefresh: app.refreshPortlet,\
+      doMaximize: app.maxPortlet,\
+      pageLink: config,\
+      collapsible: app.portletHeader,\
+      collapsed: config.collapsed || false,\
+      height: config.height || 240,\
+      lastHeight: config.height || 240,\
+      listeners: {\
+        afterrender: {\
+          single: true,\
+          fn: function(me) {\
+            if (app.portletHeader)\
+              app.showTool(me, false);\
+            else\
+              me.header.setVisible(false);\
+            me.mon(me.el, 'mouseenter', function() {\
+              if (app.portletHeader)\
+                app.showTool(me, true);\
+              else\
+                me.header.setVisible(true);\
+            });\
+            me.mon(me.el, 'mouseleave', function() {\
+              if (app.portletHeader)\
+                app.showTool(me, false);\
+              else\
+                me.header.setVisible(false);\
+            });\
+          }\
+        },\
+        resize: function(me) {\
+          if (!me.collapsed)\
+            me.lastHeight = me.getHeight();\
+        },\
+        beforecollapse: function(me) {\
+          me.lastHeight = me.getHeight();\
+        }\
+      }\
+    };\
+    if (rowIndex !== undefined)\
+      portlet = app.portal.items.items[colIndex || 0].insert(rowIndex, portletObject);\
+    else app.portal.items.items[colIndex || 0].add(portletObject);\
+    Wb.run({\
+      url: config.url,\
+      contextOwner: portlet,\
+      success: function(scope) {\
+        var entry = Wb.optMain(scope);\
+        if (entry)\
+          portlet.add(entry);\
+      }\
+    });\
+  },\
+  /**\
+   * 刷新Portlets。\
+   */\
+  refreshPortlet: function(portlet) {\
+    var me = portlet || this;\
+    me.removeAll();\
+    Wb.run({\
+      url: me.pageLink.url,\
+      contextOwner: me,\
+      success: function(scope) {\
+        var entry = Wb.optMain(scope);\
+        if (entry) {\
+          me.add(entry);\
+        }\
+      }\
+    });\
+  },\
+  /**\
+   * 最大化Portlets至Tab页。\
+   */\
+  maxPortlet: function() {\
+    Wb.open(this.pageLink);\
+  },\
+  /**\
+   * 保存Portal、Tab页和模块树宽度。\
+   * @param {Number} type 必须参数说明。\
+   */\
+  saveDesktop: function(type) {\
+    var pages = [],\
+      portlets = [],\
+      url, homeVisible = app.homeCard.rendered && app.g;\
+    switch (type) {\
+      case 1:\
+        url = 'save-desktop';\
+        break;\
+      case 2:\
+        url = 'save-default-desktop';\
+        break;\
+      case 3:\
+        url = 'save-all-desktop';\
+        break;\
+    }\
+    app.tab.items.each(function(item) {\
+      if (item != app.homeCard) {\
+        pages.push({\
+          url: item.bindFile,\
+          params: item.lastPortalConfigs.params\
+        });\
+      }\
+    });\
+    app.homeCard.items.each(function(col) {\
+      var items = [];\
+      portlets.push(items);\
+      col.items.each(function(portlet) {\
+        items.push({\
+          url: portlet.pageLink.url,\
+          height: portlet.lastHeight,\
+          collapsed: portlet.collapsed\
+        });\
+      });\
+    });\
+    Wb.request({\
+      url: 'm?xwl=system/sys/portal/home/' + url,\
+      params: {\
+        treeWidth: app.tree.width,\
+        treeCollapsed: app.tree.collapsed !== false,\
+        treeHidden: app.tree.hidden,\
+        pages: pages,\
+        portlets: portlets,\
+        active: app.tab.items.indexOf(app.tab.getActiveTab())\
+      }\
+    });\
+  }\
+});"}
+ }],
+ "roles": {
+  "default": 1,
+  "jj_japan_role": 1,
+  "basic": 1,
+  "客户管理": 1,
+  "salerole": 1
+ },
+ "title": "主页",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": "{path:'home', method: 'get', newWin: true}"
+}

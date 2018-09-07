@@ -1,0 +1,84 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+if (!Wb.isEmpty(data.name)) {\
+  // \tsql=\" and bill_no like '%'||{?billNo?}||'%'\";\
+  sql += \" and instr((SELECT wm_concat('提单号码:'||BILL_NO||'-货名：'|| good_notes|| '- 件数'|| pieces) FROM BLUK_APPLY_D WHERE BLUK_APPLY_D.P_ID=m.ID),{?name?})>0\";\
+}\
+\
+if (!Wb.isEmpty(data.sdate)) {\
+  var s = data.sdate;\
+  sql += \" and d.CREATED_ON>=to_date('\"+s.substring(0,10)+\" 00:00:00','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+if (!Wb.isEmpty(data.edate)) {\
+  var s = data.edate;\
+  sql += \" and d.CREATED_ON<=to_date('\"+s.substring(0,10)+\" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+request.setAttribute('sql', sql);\
+\
+\
+// SELECT BLUK_APPLY_M.ID,(SELECT wm_concat('提单号码:'||BILL_NO||'-货名：'|| good_notes|| '- 件数'|| pieces) FROM BLUK_APPLY_D WHERE BLUK_APPLY_D.P_ID=BLUK_APPLY_M.ID) A FROM BLUK_APPLY_M\
+\
+\
+/* Formatted on 2018/2/1 15:17:32 (QP5 v5.227.12220.39754) */\
+// SELECT MD.ID,\
+//        (SELECT wm_concat (\
+//                      '提单号码:'\
+//                   || BILL_NO\
+//                   || '-货名：'\
+//                   || good_notes\
+//                   || '- 件数'\
+//                   || pieces)\
+//           FROM BLUK_APPLY_D\
+//          WHERE BLUK_APPLY_D.P_ID = MD.ID)\
+//           A,\
+//           (SELECT wm_concat(BILL_NO)\
+//           FROM BLUK_APPLY_D\
+//          WHERE BLUK_APPLY_D.P_ID = mD.ID)  BILL_NO,\
+//          (SELECT sum(weight) FROM BLUK_APPLY_D where BLUK_APPLY_D.P_ID = mD.ID) weight,\
+//          (SELECT sum(PIECES) FROM BLUK_APPLY_D where BLUK_APPLY_D.P_ID = mD.ID) PIECES,\
+//           (SELECT wm_concat(GOOD_NOTES) FROM BLUK_APPLY_D where BLUK_APPLY_D.P_ID = mD.ID) GOOD_NOTES,\
+//           (SELECT wm_concat(SHIPPER)\
+//           FROM BLUK_APPLY_D\
+//          WHERE BLUK_APPLY_D.P_ID = mD.ID) SHIPPER  ,MD.PHASE\
+//   FROM (  SELECT m.id,M.PHASE \
+//             FROM BLUK_APPLY_D d, BLUK_APPLY_M m\
+//            WHERE m.ID = d.P_ID(+)\
+//         GROUP BY m.id,M.PHASE ) MD"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": " select  m.ID, m.phase  ,wm_concat (   '提单号码:'\
+                          || d.bill_no\
+                          || '-货名：'\
+                          || d.good_notes\
+                          || '- 件数'\
+                          || d.pieces\
+                         ) A,sum(d.pieces) pieces,SUM(D.WEIGHT) WEIGHT,wm_concat(BILL_NO) BILL_NO,\
+wm_concat(D.GOOD_NOTES) GOOD_NOTES,wm_concat(D.SHIPPER) SHIPPER,max(d.CREATED_ON) CREATED_ON from    bluk_apply_d d, bluk_apply_m m where  m.ID = d.p_id\
+   {#sql#}    GROUP BY m.ID, m.phase order by max(d.CREATED_ON) desc\
+"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "check": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

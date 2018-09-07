@@ -1,0 +1,167 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var vId = app.get(\"vId\"),\
+  tenancyId = app.get(\"sys.TENANCY_ID\"),\
+  ieId = app.get(\"ieId\");\
+var voyageNo, cShipName, eShipName, head = \"<Head>\\r\\
+\",\
+  order = \"\",\
+  i = 0,\
+  j = 0,\
+  eta, crew = \"\",\
+  xml = \"\",\
+  callSign = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+var hsCod = '442010',\
+  port = '442001',\
+  hgCod, bahm = \"5721618120004\";\
+\
+\
+if (tenancyId === 'ZSG') {\
+  hscod = '442010';\
+  port = \"442001\";\
+  hgCod = '5721';\
+} else if (tenancyId === 'XLG') {\
+  hscod = '442020';\
+  port = '442006';\
+  hgCod = '5727';\
+\
+} else {\
+  hscod = '442050';\
+  port = '442007';\
+  hgCod = '5728';\
+\
+}\
+var javaDate = new JavaDate(),\
+  dateText = DateUtil.format(javaDate, 'yyyy-MM-dd HH:mm:ss'),\
+  dateyear = DateUtil.format(javaDate, 'yyyy-MM-dd'),\
+  dateName = DateUtil.format(javaDate, 'yyyyMMddHHmmssuuu'),\
+  dateName1 = DateUtil.format(javaDate, 'yyyyMMddHHmmss');;\
+\
+\
+xml += '<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\\r\\
+';\
+xml += '<Manifest xmlns=\"urn:Declaration:datamodel:standard:CN:MT5101:1\">\\r\\
+';\
+xml += '<Head><MessageID>CN_MT5101_' + hgCod + '_' + dateName1 + '<\/MessageID>\\r\\
+';\
+xml += '<FunctionCode>2<\/FunctionCode>\\r\\
+';\
+xml += '<MessageType>MT5101<\/MessageType>\\r\\
+';\
+xml += '<SenderID>6020190358598_SW44000020170509<\/SenderID>\\r\\
+';\
+xml += '<ReceiverID>EPORT<\/ReceiverID>\\r\\
+';\
+xml += '<SendTime>' + dateName + '<\/SendTime>\\r\\
+';\
+xml += '<Version>1.0<\/Version>\\r\\
+<\/Head>\\r\\
+';\
+\
+xml += \"<Declaration>\\r\\
+\";\
+///////////////////////////////\
+var rs = app.run(\"select decode('\" + ieId + \"','I',LIB_VYG, LOB_VYG) voyageNo, sysdate NOW,to_char(nvl(ATA,ETA),'yyyyMMdd') ETA,nvl(ATD,ETD) ETD, c.CALL_SIGN,\" +\
+  \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"' and D.TENANCY_ID='\" + tenancyId + \"'\");\
+if (rs.next()) {\
+  voyageNo = rs.getString(\"VOYAGENO\");\
+  cShipName = rs.getString(\"VESSEL_NAME\");\
+  eShipName = rs.getString(\"E_NAME\");\
+  eta = rs.getString(\"ETA\");\
+  callSign = rs.getString(\"CALL_SIGN\");\
+}\
+xml += \"<DeclarationOfficeID>\" + hgCod + \"<\/DeclarationOfficeID>\\r\\
+\";\
+xml += \"<BorderTransportMeans>\\r\\
+\";\
+xml += \"<JourneyID>\" + voyageNo + \"<\/JourneyID>\\r\\
+\"; //航次\
+xml += \"<TypeCode>1<\/TypeCode>\\r\\
+\";\
+xml += \"<ID>\" + callSign + \"<\/ID>\\r\\
+\"; //运输工具\
+xml += \"<Name>\" + eShipName + \"<\/Name>\\r\\
+\"; //船名\
+xml += \"<ActualDateTime>\" + eta + \"200000<\/ActualDateTime>\\r\\
+\";\
+xml += \"<CompletedDateTime>\" + eta + \"230000<\/CompletedDateTime>\\r\\
+\";\
+\
+xml += \"<UnloadingLocation>\\r\\
+\";\
+if (tenancyId == \"ZSG\") // 根据组生成，根据单一窗口\
+  xml += \"<ID>\" + hgCod + \"0/\" + hgCod + \"<\/ID>\\r\\
+\";\
+else if (tenancyId == \"XLG\")\
+  xml += \"<ID>0\" + hgCod + \"/\" + hgCod + \"<\/ID>\\r\\
+\";\
+else\
+  xml += \"<ID>\" + hgCod + \"0/\" + hgCod + \"<\/ID>\\r\\
+\";\
+\
+xml += \"<\/UnloadingLocation>\\r\\
+\";\
+xml += \"<\/BorderTransportMeans>\\r\\
+\";\
+\
+\
+xml += \"<TallyParty>\\r\\
+\";\
+xml += \"<ID>\" + bahm + \"<\/ID>\\r\\
+\";\
+xml += \"<\/TallyParty>\\r\\
+\";\
+\
+var rsCntr = app.run(\"select VID,ID,BILL_ID, SPEC_STOW,CNTR, CNTR_ID, GsizeToISO95(CNTR_SIZE,CNTR_TYPE) CNTR_ISO,decode(lcl_id,1,'7',decode(e_f_id,'E','4','5')) e_f_id ,CNTR_SIZE,CNTR_TYPE, CNTR_OPERATOR, CMDY_CODE, GOODS_NOTES, WEIGHT, VOLUME, PIECES, BILL_NO, SEAL_NO, LCL_ID, CARGO_TYPE from  VLOAD_LIST where main_flag=1 and BILL_ID in(select ID from VBILL_HEAD where VID='\" + vId + \"')\");\
+while (rsCntr.next()) {\
+  cntr = rsCntr.getString('CNTR');\
+  cntrIso = rsCntr.getString('CNTR_ISO');\
+  efId = rsCntr.getString('E_F_ID');\
+  xml += \"<TransportEquipment>\\r\\
+\";\
+  xml += \"<EquipmentIdentification>\\r\\
+\";\
+  xml += \"<ID>\" + cntr + \"<\/ID>\\r\\
+\";\
+  xml += \"<\/EquipmentIdentification>\\r\\
+\";\
+  xml += \"<CharacteristicCode>\" + cntrIso + \"<\/CharacteristicCode>\\r\\
+\";\
+  xml += \"<FullnessCode>\" + efId + \"<\/FullnessCode>\\r\\
+\";\
+  xml += \"<\/TransportEquipment>\\r\\
+\";\
+\
+}\
+xml += \"<CiqInformation><OrgCode>\" + hsCod + \"<\/OrgCode><QuayCode>\" + port + \"<\/QuayCode><\/CiqInformation><\/Declaration><\/Manifest>\";\
+app.run(\"update VBILL_HEAD_E set LH='1' where ID in(select ID from VBILL_HEAD where VID='\" + vId + \"')\");\
+\
+var StaticHttpclientCall = com.ag.util.StaticHttpclientCall;\
+var message = StaticHttpclientCall.doPostSoap(xml, \"CN_MT5101_\" + dateName);\
+app.send(message);\
+app.log(xml);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "进口理货报文",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

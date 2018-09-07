@@ -1,0 +1,92 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var sql=\"\";\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+sql=\"select vl.cntr,vh.bill_type,vl.cntr_size,\\\
+DECODE (vv.i_e,  'I', lib_vyg,  'E', lob_vyg) voyage_no,\\\
+v.VESSEL_NAME,vh.cntr_operator_cod,decode(vh.i_e_id,'E',O_BERTH_CODE,'I',BERTH_CODE) BERTH_CODE,\\\
+decode((select max(1) from move_list where cntr_id=vl.cntr_id and move_type='LOD'),'1','是','否') is_load,\\\
+decode((select 1 from PORT_CNTR_HIS where ID=vl.cntr_id),'1','核销','') is_hx,\\\
+(select yard_position from PORT_CNTR where ID=VL.CNTR_ID) YARD_POSITION\\\
+ from vbill_head vh,vload_list vl,vessel_visit vv,vessel_voyage v \\\
+where vh.id=vl.bill_id and vh.vid=VV.ID and vv.vid=v.id\\\
+ and vh.trade_id='1' and vh.i_e_id='E' AND vh.main_flag='1' and  to_char(ETA,'yyyy-MM-dd HH24:MI:SS') between '\"+data.date+\" 00:00:00' and '\"+data.date+\" 23:59:59' and vh.TENANCY_ID={?sys.TENANCY_ID?}\";\
+\
+\
+// if(!Wb.isEmpty(data.billType)){\
+//   if(data.billType==='P')\
+//     sql+=\" and VBILL_HEAD.BILL_TYPE = '\"+data.billType+\"' \t\";\
+//   else\
+// \tsql+=\" and VBILL_HEAD.BILL_TYPE = '\"+data.billType+\"' and  VBILL_HEAD.MAIN_FLAG=1\";\
+// }\
+//   else\
+// \tsql+=\" and (VBILL_HEAD.BILL_TYPE = 'P'\tOR VBILL_HEAD.MAIN_FLAG=1)\";\
+\
+// if(!Wb.isEmpty(data.billNo)){\
+// \tsql += \" and VBILL_HEAD.BILL_NO LIKE '%'||{?billNo?}||'%'\";\
+// }\
+\
+// if(!Wb.isEmpty(data.cntr)){\
+// \tsql+=\" and VLOAD_LIST.CNTR LIKE '%'||{?cntr?}||'%'\";\
+// }\
+\
+// if(!Wb.isEmpty(data.CNTR_OPERATOR_COD)){\
+// \tsql+=\" and VBILL_HEAD.CNTR_OPERATOR_COD like '%'||{?CNTR_OPERATOR_COD?}||'%'\";\
+// }\
+\
+// if(!Wb.isEmpty(data.SHIP_CONSIGN_COD)){\
+// \tsql+=\" and decode(VBILL_HEAD.I_E_ID,'I',VBILL_HEAD.CONSIGNEE_COD,'E',VBILL_HEAD.SHIPPER_COD) like '%'||{?SHIP_CONSIGN_COD?}||'%'\";\
+// }\
+\
+// if(!Wb.isEmpty(data.ieId)){\
+// \tsql+=\" and VBILL_HEAD.I_E_ID ='\"+data.ieId+\"'\t\";\
+// }\
+\
+// if(!Wb.isEmpty(data.tradeId)){\
+// \tsql+=\" and VBILL_HEAD.TRADE_ID like '%'||{?tradeId?}||'%'\";\
+// }\
+\
+// if(!Wb.isEmpty(data.voyageNo)){\
+// \tsql+=\" and VESSEL_VISIT.VID={?voyageNo?}\";\
+// }\
+\
+if(nature==5){\
+\tsql+=\" and VH.CNTR_OPERATOR_COD='\"+GOV_CODE+\"'\";\
+}\
+\
+app.send(Wb.getRecords(app.run(sql)));\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "SCANJB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

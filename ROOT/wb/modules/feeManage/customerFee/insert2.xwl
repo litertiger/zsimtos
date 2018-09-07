@@ -1,0 +1,97 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var orgId = app.get(\"sys.ORG_ID\"),\
+  username = app.get(\"sys.username\"),\
+  tenancyId = app.get(\"sys.TENANCY_ID\"),\
+  shipNam = app.get(\"shipNam\");\
+var dataArray = new Array();\
+var id = SysUtil.getId();\
+app.run(\"select 1 from C_CUSTOMER where CODE={?CODE?}\",{errorText:\"客户代码重复！\"});\
+app.run(\"select 1 from C_CUSTOMER where GOV_CODE={?GOV_CODE?}\",{errorText:\"此工商注册码已存在！\"});\
+\
+app.run(\"INSERT INTO C_CUSTOMER(ID, ORG_ID, CODE, NAME, SHORT_NAME, E_CODE, E_SHORT_NAME, ABLETIME, CLIENT_TYPE, AREA_CODE, AREA, ADDRESS, \" +\
+  \"ZIP, BIZ_LINKMAN, TEL, TELEX, FAX, FINANCE_LINKMAN, EMAIL, EMAIL_FILE, FILE_FORMAT, WEBSITE, \" +\
+  \"EMPTY_PRICE_TYPE, MIN_CONTAINER, DEFAULT_PROTOCOL, CREDIT_LIMIT, PROTOCOL_ABLETIME, PAY_TYPE, ACCOUNT_TYPE,\" +\
+  \"RESERVE_PRICE, REMARK, CREATEUSER, \" +\
+  \"CREATETIME, UPDATEUSER, UPDATETIME, DELETED, REGEDIT_STATUS, GOV_CODE, TENANCY_ID,STATE_FLAG,SUBCOMPANY)\" +\
+  \"values('\" + id + \"',{?ORG_ID?},{?CODE?}, {?NAME?}, {?SHORT_NAME?}, {?E_CODE?},{?E_SHORT_NAME?}, {?TIMESTAMP.ABLETIME?}, {?CLIENT_TYPE?}, {?AREA_CODE?},\" +\
+  \"{?AREA?}, {?ADDRESS?}, {?ZIP?}, {?BIZ_LINKMAN?}, {?TEL?}, {?TELEX?}, {?FAX?}, {?FINANCE_LINKMAN?}, {?EMAIL?}, {?EMAIL_FILE?},\" +\
+  \" {?FILE_FORMAT?}, {?WEBSITE?}, {?EMPTY_PRICE_TYPE?}, {?MIN_CONTAINER?}, {?DEFAULT_PROTOCOL?}, {?CREDIT_LIMIT?}, \" +\
+  \"{?TIMESTAMP.PROTOCOL_ABLETIME?}, {?PAY_TYPE?}, {?ACCOUNT_TYPE?}, {?RESERVE_PRICE?}, {?REMARK?}, \" +\
+  \"'\" + username + \"', sysdate, '\" + username + \"', sysdate, \" +\
+  \" 0, {?REGEDIT_STATUS?}, {?GOV_CODE?}, '\" + tenancyId + \"',{?STATE_FLAG?},{?SUBCOMPANY?})\", {\
+    jndi: 'jdbc/basecode'\
+  });\
+\
+\
+var result = app.run(\"select TENANCY_ID,ID,ORG_NAME,SHORT_COD from AUTH_ORGANIZATION where TENANCY_ID in ('ZSG','XLG','SWG') and ORG_NAME in ('中山港','小榄港','神湾港') \");\
+// while(result.next()){\
+// \tdataArray.push({TENANCY_ID:result.getString('TENANCY_ID'),ORG_ID:result.getString('ID'),ORG_NAME:result.getString('ORG_NAME'),SHORT_COD:result.getString('SHORT_COD')});\
+// }\
+// app.log(dataArray);\
+\
+// app.run(\"INSERT INTO C_CUSTOMER_CONTACT\"+\
+// \"(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,O_SHORT_COD, DEFAULT_PROTOCOL,\"+\
+// \"EMPTY_PRICE_TYPE,MIN_CONTAINER,PROTOCOL_ABLETIME,PAY_TYPE,\"+\
+// \"ACCOUNT_TYPE,RESERVE_PRICE)VALUES(SYS_GUID(),'\"+id+\"',{?TENANCY_ID?},{?ORG_ID?},{?ORG_NAME?},{?SHORT_COD?},\"+\
+//        \"{?DEFAULT_PROTOCOL?},\"+\
+//        \"{?EMPTY_PRICE_TYPE?},{?MIN_CONTAINER?},{?PROTOCOL_ABLETIME?},{?PAY_TYPE?},{?ACCOUNT_TYPE?},{?RESERVE_PRICE?})\",\
+//         {   arrayData: new org.json.JSONArray(Wb.encode(dataArray)),jndi:'jdbc/basecode'});\
+\
+\
+\
+while (result.next()) {\
+  var tenId = result.getString('TENANCY_ID');\
+  var OrId = result.getString('ID');\
+  var orgNam = result.getString('ORG_NAME');\
+  var shortCod = result.getString('SHORT_COD');\
+  app.log(tenId);\
+  app.log(\"系统\");\
+  app.log(tenancyId);\
+  if (tenId === tenancyId) {\
+    app.run(\"INSERT INTO C_CUSTOMER_CONTACT\" +\
+      \"(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,O_SHORT_COD, DEFAULT_PROTOCOL,\" +\
+      \"EMPTY_PRICE_TYPE,MIN_CONTAINER,PROTOCOL_ABLETIME,PAY_TYPE,\" +\
+      \"ACCOUNT_TYPE,RESERVE_PRICE,I_E_ID_FEE, CNTR_OPERATOR_CODS)VALUES(SYS_GUID(),'\" + id + \"','\"+tenId+\"','\"+OrId+\"','\"+orgNam+\"','\"+shortCod+\"',\" +\
+      \"{?DEFAULT_PROTOCOL?},\" +\
+      \"{?EMPTY_PRICE_TYPE?},{?MIN_CONTAINER?},{?PROTOCOL_ABLETIME?},{?PAY_TYPE?},{?ACCOUNT_TYPE?},{?RESERVE_PRICE?},{?I_E_ID_FEE?}, {?CNTR_OPERATOR_CODS?})\", {\
+        jndi: 'jdbc/basecode'\
+      });\
+  }else{\
+  \tapp.run(\"INSERT INTO C_CUSTOMER_CONTACT\" +\
+      \"(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,O_SHORT_COD, DEFAULT_PROTOCOL,\" +\
+      \"EMPTY_PRICE_TYPE,MIN_CONTAINER,PROTOCOL_ABLETIME,PAY_TYPE,\" +\
+      \"ACCOUNT_TYPE,RESERVE_PRICE,I_E_ID_FEE, CNTR_OPERATOR_CODS)VALUES(SYS_GUID(),'\" + id + \"','\"+tenId+\"','\"+OrId+\"','\"+orgNam+\"','\"+shortCod+\"',\" +\
+      \"'',\" +\
+      \"'','','','','','',{?I_E_ID_FEE?}, {?CNTR_OPERATOR_CODS?})\", {\
+        jndi: 'jdbc/basecode'\
+      });\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "method1",
+    "method": "com.ag.util.CodeUtil.setCustomBuffer"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "method"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

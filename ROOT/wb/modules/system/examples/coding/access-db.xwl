@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "quoted": "true",
+     "itemId": "text",
+     "js": "//*** 比较经典的数据库访问代码片断 ***\
+var statement, connection = DbUtil.getConnection( /*jndi，缺省表示默认数据库，获取一个新的连接*/ );\
+//var conn=DbUtil.getConnection(request); //获取本次请求共享的连接，使用该方法获取的连接系统会在请求结束后自动释放\
+try {\
+  connection.setAutoCommit(false);\
+  statement = connection.prepareStatement('update WB_MISC set INT_FIELD=123 where 1=0');\
+  statement.executeUpdate();\
+  //其他业务代码\
+  connection.commit();\
+} catch (e) {\
+  throw e.message;\
+} finally {\
+  //DbUtil.close(resultSet);\
+  DbUtil.close(statement);\
+  DbUtil.close(connection); //该方法会自动回滚事务（如果未显式提交）并关闭连接\
+}"
+    },
+    "expanded": false,
+    "children": [],
+    "type": "string"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "xwl1",
+      "file": "m?xwl=system/sys/dialog/dev/script-editor"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "xwl"
+    }],
+    "type": "viewport",
+    "events": {"afterrender": "app.xwl1.setValue(\"{#text#}\", null, true);"}
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "访问数据库",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

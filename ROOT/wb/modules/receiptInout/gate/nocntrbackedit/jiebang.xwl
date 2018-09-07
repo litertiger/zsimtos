@@ -1,0 +1,127 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+\
+\
+\
+\
+var tid = \"\";\
+var task = Wb.getRecords(app.run(\"select id from task where TASK_TYPE='MOVE'\" +\
+  \" and TASK_NAME=to_char(sysdate,'yyyy-mm-dd')||'修箱' and tenancy_id='\" + tenancyid + \"'\"));\
+//记录task的id,判断是否已经有task,没有insert,有则update\
+if (task.length > 0) {\
+  tid = task[0].ID;\
+  app.run(\"update task set MOVES=MOVES+1 where id='\" + tid + \"'\", {\
+    transaction: 'start'\
+  });\
+} else {\
+  tid = SysUtil.getId();\
+  app.run(\"insert into task(ID,TENANCY_ID,TASK_TYPE,TASK_NAME,PHASE,AUTO_RELEASE,AUTO_POSITION,REPOSITION,\" +\
+    \"PRIORITY,MOVES,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON)\" +\
+    \" values('\" + tid + \"','\" + tenancyid + \"','MOVE',\" +\
+    \"to_char(sysdate,'yyyy-mm-dd')||'修箱',\" +\
+    \"'EXE',0,0,0,1,1,'\" + username + \"',\" +\
+    \"sysdate,'\" + username + \"',sysdate)\", {\
+      transaction: 'start'\
+    });\
+}\
+\
+//根据箱号查询数据,提供给move_list\
+var selsql = \"select null ID,'\" + tenancyid + \"' TENANCY_ID,'\" + tid + \"' QUEUE_ID,\" +\
+  \"r.CNTR,'SND' PHASE,r.CATEGORY_ID,r.TRADE_ID,r.I_E_ID,r.E_F_ID,\" +\
+  \"r.CNTR_ISO,r.LINE,r.CNTR_OPERATOR,c.SAFE_WT,c.SCALE_WT,r.SEAL_NO,r.SEAL_NO2,r.SEAL_NO3,\" +\
+  \"r.SEAL_NO4,r.CNTR_HIGHT,r.CNTR_LENGTH,c.OPL,c.ORIGIN,r.POD,r.POL,r.SPOD,c.RETURN_LOC,\" +\
+  \"c.TRUCKING_CO,c.PLANNED_POSITION,c.CY_AREA_NO,c.CY_BAY_NO,c.CY_ROW_NO,c.CY_TIER_NO,c.DANG_ID,\" +\
+  \"r.IMDG,r.UNDG,c.WEIGHT,r.TEMP_SET,r.TEMP_MIN,r.TEMP_MAX,r.REEF_ID,c.ON_POWER,c.REQS_POWER,\" +\
+  \"c.REEFER_TYPE,c.ALARM,c.CO2_LEVEL,c.DEFROST_TEMP,c.FAULT_CODE,c.FUEL_LEVEL,r.HUMIDITY_LEVEL,\" +\
+  \"c.O2_LEVEL,c.LAST_REMARK,c.LAST_SET_TEMP,c.LAST_SUPPLY_TEMP,c.LAST_READ_TEMP,r.OVERHEIGHT,\" +\
+  \"r.OVERFRONT,r.OVERBACK,r.OVERLEFT,r.OVERRIGHT,r.OOG_ID,c.BUNDL_ID,c.ON_POWER_TIME,\" +\
+  \"c.OFF_POWER_TIME,c.CONDITION_ID,sysdate UPDATED_ON,sysdate CREATED_ON,r.CNTR_SIZE,\" +\
+  \"r.CNTR_TYPE,'\" + username + \"' CREATED_BY,'\" + username + \"' UPDATED_BY,r.CNTR_OPERATOR_COD,\" +\
+  \"r.BILL_NO,'MOV' MOVE_TYPE,1 PRIORITY,'' HANDLE_ID,r.WORK_TYPE,c.ID CNTR_ID,\" +\
+  \"r.IN_CAR CARRIER_CODE,'T' CARRIER_TYPE,\" +\
+  \"'TG' TRCLASS1,'YC' TRCLASS2,'G' FROM_POS_TYP,'B' TO_POS_TYP,r.T_ADDRESS FROM_POS,'\" + data.cfs + \"' TO_POS,\" +\
+  \"R.IN_CAR TRANSPORTER1,'' TRANSPORTER2\" +\
+  \" from receipt r,port_cntr c where r.id='\" + data.rid + \"' and c.id='\" + data.pid + \"'\" +\
+  \" and r.tenancy_id='\" + tenancyid + \"' and c.tenancy_id='\" + tenancyid + \"'\";\
+var results = Wb.getRecords(app.run(selsql));\
+\
+//组织move_list数组数据\
+var inarr = new Array();\
+var in0 = {},\
+  in1 = {},\
+  in2 = {};\
+Wb.apply(in0, results[0]); //复制数据move_list\
+Wb.apply(in1, results[0]); //复制数据move_list\
+Wb.apply(in2, results[0]); //复制数据move_list\
+inarr[0] = in0;\
+inarr[0].ID = SysUtil.getId();\
+inarr[1] = in1;\
+inarr[1].ID = SysUtil.getId();\
+inarr[1].QUEUE_ID = inarr[0].ID;\
+inarr[1].MOVE_TYPE = 'DIS';\
+inarr[1].TRCLASS1 = 'YC';\
+inarr[1].TRCLASS2 = 'TG';\
+inarr[1].TRANSPORTER1 = \"\";\
+inarr[1].TRANSPORTER2 = inarr[0].TRANSPORTER1;\
+inarr[2] = in2;\
+inarr[2].ID = SysUtil.getId();\
+inarr[2].QUEUE_ID = inarr[0].ID;\
+inarr[2].MOVE_TYPE = 'DRB';\
+inarr[2].PHASE = 'EXE';\
+inarr[2].TRANSPORTER2 = \"\";\
+\
+//插入move_list\
+var sqlmovelist = \"insert into move_list(ID,TENANCY_ID,QUEUE_ID,CNTR,PHASE,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,\" +\
+  \"CNTR_ISO,LINE,CNTR_OPERATOR,SAFE_WT,SCALE_WT,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,CNTR_HIGHT,\" +\
+  \"CNTR_LENGTH,OPL,ORIGIN,POD,POL,SPOD,RETURN_LOC,TRUCKING_CO,PLANNED_POSITION,CY_AREA_NO,CY_BAY_NO,\" +\
+  \"CY_ROW_NO,CY_TIER_NO,DANG_ID,IMDG,UNDG,WEIGHT,TEMP_SET,TEMP_MIN,TEMP_MAX,REEF_ID,ON_POWER,REQS_POWER,\" +\
+  \"REEFER_TYPE,ALARM,CO2_LEVEL,DEFROST_TEMP,FAULT_CODE,FUEL_LEVEL,HUMIDITY_LEVEL,O2_LEVEL,LAST_REMARK,\" +\
+  \"LAST_SET_TEMP,LAST_SUPPLY_TEMP,LAST_READ_TEMP,OVERHEIGHT,OVERFRONT,OVERBACK,OVERLEFT,OVERRIGHT,\" +\
+  \"OOG_ID,BUNDL_ID,ON_POWER_TIME,OFF_POWER_TIME,CONDITION_ID,UPDATED_ON,CREATED_ON,CNTR_SIZE,\" +\
+  \"CNTR_TYPE,CREATED_BY,UPDATED_BY,CNTR_OPERATOR_COD,BILL_NO,MOVE_TYPE,PRIORITY,HANDLE_ID,\" +\
+  \"TO_POS_TYP,FROM_POS_TYP,TO_POS,FROM_POS,TRCLASS1,TRCLASS2,TRANSPORTER1,TRANSPORTER2,\" +\
+  \"CARRIER_CODE,CARRIER_TYPE,CNTR_ID,WAIT_UNTILL)\" +\
+  \"values({?ID?},{?TENANCY_ID?},{?QUEUE_ID?},{?CNTR?},{?PHASE?},{?CATEGORY_ID?},{?TRADE_ID?},{?I_E_ID?},{?E_F_ID?},\" +\
+  \"{?CNTR_ISO?},{?LINE?},{?CNTR_OPERATOR?},{?SAFE_WT?},{?SCALE_WT?},{?SEAL_NO?},{?SEAL_NO2?},{?SEAL_NO3?},\" +\
+  \"{?SEAL_NO4?},{?CNTR_HIGHT?},{?CNTR_LENGTH?},{?OPL?},{?ORIGIN?},{?POD?},{?POL?},{?SPOD?},{?RETURN_LOC?},\" +\
+  \"{?TRUCKING_CO?},{?PLANNED_POSITION?},{?CY_AREA_NO?},{?CY_BAY_NO?},{?CY_ROW_NO?},{?CY_TIER_NO?},{?DANG_ID?},\" +\
+  \"{?IMDG?},{?UNDG?},{?WEIGHT?},{?TEMP_SET?},{?TEMP_MIN?},{?TEMP_MAX?},{?REEF_ID?},{?ON_POWER?},{?REQS_POWER?},\" +\
+  \"{?REEFER_TYPE?},{?ALARM?},{?CO2_LEVEL?},{?DEFROST_TEMP?},{?FAULT_CODE?},{?FUEL_LEVEL?},{?HUMIDITY_LEVEL?},\" +\
+  \"{?O2_LEVEL?},{?LAST_REMARK?},{?LAST_SET_TEMP?},{?LAST_SUPPLY_TEMP?},{?LAST_READ_TEMP?},{?OVERHEIGHT?},\" +\
+  \"{?OVERFRONT?},{?OVERBACK?},{?OVERLEFT?},{?OVERRIGHT?},{?OOG_ID?},{?BUNDL_ID?},{?timestamp.ON_POWER_TIME?},\" +\
+  \"{?timestamp.OFF_POWER_TIME?},{?CONDITION_ID?},{?timestamp.UPDATED_ON?},{?timestamp.CREATED_ON?},{?CNTR_SIZE?},\" +\
+  \"{?CNTR_TYPE?},{?CREATED_BY?},{?UPDATED_BY?},{?CNTR_OPERATOR_COD?},{?BILL_NO?},{?MOVE_TYPE?},{?PRIORITY?},{?HANDLE_ID?},\" +\
+  \"{?TO_POS_TYP?},{?FROM_POS_TYP?},{?TO_POS?},{?FROM_POS?},{?TRCLASS1?},{?TRCLASS2?},{?TRANSPORTER1?},{?TRANSPORTER2?},\" +\
+  \"{?CARRIER_CODE?},{?CARRIER_TYPE?},{?CNTR_ID?},sysdate)\";\
+app.run(sqlmovelist, {\
+  arrayData: inarr\
+});\
+\
+app.run(\"update receipt set cntr_id='',cntr='',phase='EXE' where id='\" + data.rid + \"'\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSWNH": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZSBF": 1,
+  "YARDCTRL": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "SWB": 1
+ },
+ "title": "解绑",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

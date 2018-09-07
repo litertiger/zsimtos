@@ -1,0 +1,70 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var nature = app.get(\"sys.NATURE\");\
+var res = Wb.decode(DbUtil.getData(app.run(\"select * from receipt where bill_no={?BILL_NO?}||-1\"), request));\
+if (res.length > 0) {\
+  app.send({\
+    success: false,\
+    errstr: \"有重复的提单号,请重新输入\"\
+  });\
+  return;\
+}\
+if (tenancyid == \"ZSG\") {\
+  app.log(data.SHIPPER_WAY);\
+  app.log(data.CAR_TEAM);\
+  if (data.SHIPPER_WAY == \"3\") { //码头承运\
+    if (data.CAR_TEAM == \"HYLY\" && data.CNTR_OPERATOR_COD != \"CK\")\
+      throw \"错误:驳船承运,不能选择码头车队\";\
+  }\
+}\
+var trade = data.TRADE_ID;\
+var fcntr = 0;\
+if (trade == \"1\" || nature != \"5\") {\
+  fcntr = 1;\
+}\
+for (var i = 0; i < data.CNTR_COUNT; i++) {\
+  app.run(\"insert into receipt(ID,TENANCY_ID,CNTR_ISO,CNTR_SIZE,CNTR_TYPE,WORK_TYPE,PLAN_STIME,PT_TYPE,\" +\
+    \"CNTR_OPERATOR,CNTR_OPERATOR_COD,T_ADDRESS,F_ADDRESS,S_ADRESS,BILL_NO,SHIPPER_COD,SHIPPER,\" +\
+    \"CONSIGNEE_COD,CONSIGNEE,ACCOUNT_CUSTOMER_CODE,ACCOUNT_CUSTOMER,POD,POL,SPOD,I_E_ID,E_F_ID,CREATED_BY,CREATED_ON,\" +\
+    \"PHASE,VID,LINE,TRADE_ID,LINE_COD,CNTR_OWNER_COD,CNTR_OWNER,SHIP_ORDER,MBILL_NO,YZC_ON,CAR_TEAM,SHIPPER_WAY,FEI_ADDDRESS,\" +\
+    \"SHIP_CONSIGN_COD,SHIPPER_CONSIGNEE,NO_CNTR,F_CNTR,F_ON,F_BY,CAR_TEAM_P)\" +\
+    \" values (sys_guid(),'\" + tenancyid + \"',{?CNTR_ISO?},{?CNTR_SIZE?},{?CNTR_TYPE?},{?WORK_TYPE?},\" +\
+    \"{?TIMESTAMP.PLAN_STIME?},{?SHIPPER_WAY?},{?CNTR_OPERATOR?},{?CNTR_OPERATOR_COD?},{?T_ADDRESS?},{?F_ADDRESS?},\" +\
+    \"{?S_ADRESS?},{?BILL_NO?}||-\" + (i + 1) + \",{?SHIPPER_COD?},{?SHIPPER?},{?CONSIGNEE_COD?},{?CONSIGNEE?},\" +\
+    \"{?ACCOUNT_CUSTOMER_CODE?},{?ACCOUNT_CUSTOMER?},{?POD?},{?POL?},{?SPOD?},'E','E','\" + username + \"',sysdate,'PLN',\" +\
+    \"{?VID?},{?LINE_COD?},{?TRADE_ID?},{?LINE_COD?},{?LINE_COD?},{?LINE_COD?},{?SHIP_ORDER?},{?MBILL_NO?},\" +\
+    \"{?TIMESTAMP.YZC_ON?},{?CAR_TEAM?},{?SHIPPER_WAY?},\" +\
+    \"(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id={?S_ADRESS?}),\" +\
+    \"{?SHIPPER_COD?},{?SHIPPER?},1,\" + fcntr + \",\" +\
+    \"(case \" + fcntr + \" when 1 then sysdate end),(case \" + fcntr + \" when 1 then '\" + username + \"' end),{?CAR_TEAM?})\", {\
+      transaction: 'start'\
+    });\
+}\
+app.send({\
+  success: true,\
+  errstr: \"完成\"\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "基本添加记录",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

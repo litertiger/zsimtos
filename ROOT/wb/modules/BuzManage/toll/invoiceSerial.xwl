@@ -1,0 +1,809 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "customWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "312",
+     "height": "272"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "x": "8",
+       "width": "240",
+       "y": "8",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "INVOICE_TYPE",
+       "pickList": "[[0,'普票'],[1,'专票']]",
+       "fieldLabel": "发票类型",
+       "x": "16",
+       "width": "240",
+       "y": "32",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "ENABLED",
+       "pickList": "[[1,'启用'],[0,'不启用']]",
+       "fieldLabel": "启用状态",
+       "x": "16",
+       "width": "240",
+       "y": "64",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "INVOICE_HEAD",
+       "fieldLabel": "发票前置",
+       "x": "16",
+       "width": "240",
+       "y": "96",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "START_NO",
+       "fieldLabel": "起始号",
+       "x": "16",
+       "width": "240",
+       "y": "128",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "END_NO",
+       "fieldLabel": "截止号",
+       "x": "16",
+       "width": "240",
+       "y": "160",
+       "labelWidth": "60",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue([app.customWin]);\
+var cid = app.ID.getValue();\
+var url = \"\";\
+if(cid === \"\"){\
+  url = \"m?xwl=BuzManage/toll/invoiceSerial/insert\";\
+}else{\
+  url = \"m?xwl=BuzManage/toll/invoiceSerial/update\";\
+}\
+Wb.request({\
+  url: url,\
+  params: values,\
+  success: function(resp) {\
+    app.grid1.store.load({\
+\t\tout: app.panel1      \
+\t});\
+    app.customWin.hide();\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "viewWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "312",
+     "height": "272"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panel2",
+       "width": "480",
+       "x": "8",
+       "y": "208",
+       "height": "224"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "combo1",
+         "pickList": "[[0,'普票'],[1,'专票']]",
+         "displayField": "开票类型"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {"itemId": "text1"},
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "addRecord",
+         "text": "确认开票",
+         "iconCls": "record_add_icon",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "/**属性排序*/\
+var sc = app.feeRitemGrid.store;\
+var arr = new Array();\
+var remark = \"\";\
+for(var  i=0; i<sc.getCount(); i++){\
+  arr.push(parseInt(sc.getAt(i).get(\"COMNAME1\")));\
+}\
+arr.sort();\
+//console.log(arr);\
+for(var j = 0; j< arr.length; j++){\
+  for(var  i=0; i<sc.getCount(); i++){\
+    if(arr[j] == parseInt(sc.getAt(i).get(\"COMNAME1\"))){\
+      var val = sc.getAt(i).get(\"COMPARE_NAME\");\
+      if(!Wb.isEmpty(val)){\
+        remark += \"[\" + val + \"]\";\
+      }\
+      break;\
+    }\
+  }\
+}\
+app.DESCRIPTION.setValue(remark);\
+\
+Wb.add(app.feeRitemGrid,{},'last',1,false);\
+"}
+       },
+       {
+        "configs": {
+         "itemId": "feeRitemGrid",
+         "editable": "true",
+         "pagingBar": "false",
+         "multiSelect": "true"
+        },
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "store",
+           "remoteSort": "true",
+           "autoLoad": "true",
+           "url": "m?xwl=feeManage/rule/java/queryItemByRule"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store",
+          "events": {"load": "//Wb.bindChange(app.grid1, app.setModified);"}
+         },
+         {
+          "configs": {"itemId": "columns"},
+          "expanded": false,
+          "children": [
+           {
+            "configs": {
+             "itemId": "numCol",
+             "xtype": "rownumberer"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "childID",
+             "xtype": "rownumberer",
+             "hidden": "true",
+             "dataIndex": "ID"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "rule_id",
+             "xtype": "rownumberer",
+             "hidden": "true",
+             "dataIndex": "RULE_ID"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "KEY_NAME",
+             "dataIndex": "KEY_NAME",
+             "width": "80",
+             "keyName": "C_BASE_DICT",
+             "text": "约束条件"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "CNAME",
+              "valueField": "ID",
+              "queryDelay": "500"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "params": "{fldId:'C_BASE_DICT'}",
+               "url": "m?xwl=system/common/codeSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo",
+             "events": {"select": "var rec = app.feeRitemGrid.getSelection()[0];\
+rec.set('COMNAME1',records[0].data.COMNAME1);\
+"}
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "OPER_CHAR",
+             "dataIndex": "OPER_CHAR",
+             "width": "120",
+             "keyName": "compareCode",
+             "text": "运算符"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "CNAME",
+              "valueField": "ID",
+              "queryDelay": "500"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "params": "{fldId:'compareCode'}",
+               "url": "m?xwl=system/common/codeSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store"
+             }],
+             "type": "combo"
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "COMPARE_VAL",
+             "dataIndex": "COMPARE_VAL",
+             "width": "100",
+             "text": "比较键"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "editor",
+              "displayField": "CNAME",
+              "valueField": "ID",
+              "queryDelay": "500",
+              "multiSelect": "true"
+             },
+             "expanded": false,
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "true",
+               "url": "m?xwl=system/common/codeSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store",
+              "events": {"beforeload": "\
+operation.params={fldId:app.getColNam()};\
+"}
+             }],
+             "type": "combo",
+             "events": {"select": "\
+var rec = app.feeRitemGrid.getSelection()[0];\
+rec.set('COMPARE_NAME',combo.getRawValue());\
+\
+var sc = app.feeRitemGrid.store;\
+var arr = new Array();\
+\
+var remark = \"\";\
+for(var  i=0; i<sc.getCount(); i++){\
+  arr.push(parseInt(sc.getAt(i).get(\"COMNAME1\")));\
+}\
+arr.sort();\
+//console.log(arr);\
+for(var j = 0; j< arr.length; j++){\
+  for(var  i=0; i<sc.getCount(); i++){\
+    if(arr[j] == parseInt(sc.getAt(i).get(\"COMNAME1\"))){\
+      var val = sc.getAt(i).get(\"COMPARE_NAME\");\
+      if(!Wb.isEmpty(val)){\
+        remark += \"[\" + val + \"]\";\
+      }\
+      break;\
+    }\
+  }\
+}\
+app.DESCRIPTION.setValue(remark);"}
+            }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "COMPARE_NAME",
+             "dataIndex": "COMPARE_NAME",
+             "width": "100",
+             "text": "比较值"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "COMNAME1",
+             "hidden": "true",
+             "dataIndex": "COMNAME1",
+             "width": "100",
+             "text": "排序"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "column"
+           }
+          ],
+          "type": "array"
+         },
+         {
+          "configs": {
+           "itemId": "tbar",
+           "x": "8",
+           "width": "400",
+           "y": "8",
+           "height": "28"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "addRecord",
+             "text": "新增",
+             "iconCls": "record_add_icon",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "button",
+            "events": {"click": "/**属性排序*/\
+var sc = app.feeRitemGrid.store;\
+var arr = new Array();\
+var remark = \"\";\
+for(var  i=0; i<sc.getCount(); i++){\
+  arr.push(parseInt(sc.getAt(i).get(\"COMNAME1\")));\
+}\
+arr.sort();\
+//console.log(arr);\
+for(var j = 0; j< arr.length; j++){\
+  for(var  i=0; i<sc.getCount(); i++){\
+    if(arr[j] == parseInt(sc.getAt(i).get(\"COMNAME1\"))){\
+      var val = sc.getAt(i).get(\"COMPARE_NAME\");\
+      if(!Wb.isEmpty(val)){\
+        remark += \"[\" + val + \"]\";\
+      }\
+      break;\
+    }\
+  }\
+}\
+app.DESCRIPTION.setValue(remark);\
+\
+Wb.add(app.feeRitemGrid,{},'last',1,false);\
+"}
+           },
+           {
+            "configs": {
+             "itemId": "delRecord",
+             "text": "删除",
+             "iconCls": "record_delete_icon",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "button",
+            "events": {"click": "// var rec = app.feeRitemGrid.getSelection()[0];\
+// if (!rec) {\
+//   Wb.warn('请选择 1 条需要删除的记录');\
+//   return;\
+// }\
+\
+Wb.remove(app.feeRitemGrid);\
+\
+var sc = app.feeRitemGrid.store;\
+var remark = \"\";\
+for(var  i=0; i<sc.getCount(); i++){\
+  var val = sc.getAt(i).get(\"COMPARE_NAME\");\
+  if(!Wb.isEmpty(val)){\
+    remark += \"[\" + val + \"]\";\
+  }\
+}\
+app.DESCRIPTION.setValue(remark);\
+\
+/**属性排序*/\
+var sc = app.feeRitemGrid.store;\
+var arr = new Array();\
+var remark = \"\";\
+for(var  i=0; i<sc.getCount(); i++){\
+  arr.push(parseInt(sc.getAt(i).get(\"COMNAME1\")));\
+}\
+arr.sort();\
+//console.log(arr);\
+for(var j = 0; j< arr.length; j++){\
+  for(var  i=0; i<sc.getCount(); i++){\
+    if(arr[j] == parseInt(sc.getAt(i).get(\"COMNAME1\"))){\
+      var val = sc.getAt(i).get(\"COMPARE_NAME\");\
+      if(!Wb.isEmpty(val)){\
+        remark += \"[\" + val + \"]\";\
+      }\
+      break;\
+    }\
+  }\
+}\
+app.DESCRIPTION.setValue(remark);\
+\
+\
+"}
+           }
+          ],
+          "type": "toolbar"
+         }
+        ],
+        "type": "grid"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "itemId": "addRecord",
+       "text": "确认开票",
+       "iconCls": "record_add_icon",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "button",
+      "events": {"click": "/**属性排序*/\
+var sc = app.feeRitemGrid.store;\
+var arr = new Array();\
+var remark = \"\";\
+for(var  i=0; i<sc.getCount(); i++){\
+  arr.push(parseInt(sc.getAt(i).get(\"COMNAME1\")));\
+}\
+arr.sort();\
+//console.log(arr);\
+for(var j = 0; j< arr.length; j++){\
+  for(var  i=0; i<sc.getCount(); i++){\
+    if(arr[j] == parseInt(sc.getAt(i).get(\"COMNAME1\"))){\
+      var val = sc.getAt(i).get(\"COMPARE_NAME\");\
+      if(!Wb.isEmpty(val)){\
+        remark += \"[\" + val + \"]\";\
+      }\
+      break;\
+    }\
+  }\
+}\
+app.DESCRIPTION.setValue(remark);\
+\
+Wb.add(app.feeRitemGrid,{},'last',1,false);\
+"}
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue([app.customWin]);\
+var cid = app.ID.getValue();\
+var url = \"\";\
+if(cid === \"\"){\
+  url = \"m?xwl=BuzManage/toll/invoiceSerial/insert\";\
+}else{\
+  url = \"m?xwl=BuzManage/toll/invoiceSerial/update\";\
+}\
+Wb.request({\
+  url: url,\
+  params: values,\
+  success: function(resp) {\
+    app.grid1.store.load({\
+\t\tout: app.panel1      \
+\t});\
+    app.customWin.hide();\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "border",
+      "itemId": "panel1",
+      "region": "center"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "toolbar1",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "addBtn",
+          "text": "新增",
+          "iconCls": "record_add_icon",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "Wb.reset(app.customWin);\
+app.customWin.setTitle('添加 - 发票类别');\
+app.customWin.setIconCls('record_add_icon');\
+app.customWin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+app.INVOICE_TYPE.setDisabled(false);"}
+        },
+        {
+         "configs": {
+          "itemId": "editBtn",
+          "text": "编辑",
+          "iconCls": "record_edit_icon",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "var rec = app.grid1.getSelection()[0];\
+if (!rec) {\
+  Wb.warn('请选择 1 条需要修改的记录');\
+  return;\
+}\
+app.customWin.setIconCls('record_edit_icon');\
+app.customWin.setTitle('修改-发票序号');\
+app.customWin.show();\
+Wb.setValue(app.customWin,rec.data); \
+\
+\
+//把记录数据应用到窗口\
+app.isEdit = true;\
+app.INVOICE_TYPE.setDisabled(true);"}
+        },
+        {
+         "configs": {
+          "itemId": "queryBtn",
+          "text": "查询",
+          "iconCls": "ajax_icon",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "\
+app.grid1.store.load({\
+  out: app.toolbar1\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "testSettle",
+          "text": "测试收费",
+          "iconCls": "record_add_icon",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "button",
+         "events": {"click": "\
+var url = \"m?xwl=BuzManage/toll/invoiceSerial/testSettlement\";\
+\
+Wb.request({\
+  url: url,\
+  params: {billNo:\"TM2017101024\"},//明细生成账单测试参数\
+  //params: {invoiceType:0},//获取发票号测试参数\
+  //params: {invoiceType:0, invoiceNo:'pp5460002', bodyIds:'b7dc51c4db3b4f32a4141072fe38d25a,fdcb45cf20c04d779c4cbd11b887e72d,'},//选择账单开票测试参数\
+  //params: {billNo:\"GF2017791201\"},//删除账单、还原计费明细=未结算测试参数\
+  //params: {headId:\"6fbf420af0f442e4be92d8402b7de6e6\"},//作废发票，并删除账单、还原计费明细=未结算测试参数\
+  //params: {mainBillNo:'SU2017170634', subBillNos:'SU2017170633,TM2017101024,TM2017091076,GF2017791201,'},\
+  success: function(resp) {\
+    console.info(resp.responseText);\
+    //alert(\"执行完成！\");\
+  }\
+});"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "grid1",
+        "region": "center"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "url": "m?xwl=BuzManage/toll/invoiceSerial/queryByUser"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "id",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "编号"
+           },
+           "expanded": true,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "col_INVOICE_TYPE",
+            "renderer": "if(value == 0){\
+  return \"普票\";\
+}\
+if(value == 1){\
+  return \"专票\";\
+}",
+            "dataIndex": "INVOICE_TYPE",
+            "width": "150",
+            "text": "发票类型"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "col_ENABLED",
+            "renderer": "if(value == 0){\
+  return \"不启用\";\
+}\
+if(value == 1){\
+  return \"启用\";\
+}",
+            "dataIndex": "ENABLED",
+            "width": "120",
+            "text": "启用状态"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "col_INVOICE_HEAD",
+            "dataIndex": "INVOICE_HEAD",
+            "width": "150",
+            "text": "发票前置"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "col_START_NO",
+            "dataIndex": "START_NO",
+            "width": "150",
+            "text": "起始号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "col_END_NO",
+            "dataIndex": "END_NO",
+            "width": "360",
+            "text": "截止号"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "col_UPDATED_ON",
+            "dataIndex": "UPDATED_ON",
+            "width": "120",
+            "text": "更新时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "xlcwb": 1,
+  "JCB": 1,
+  "SWB": 1
+ },
+ "title": "发票号维护",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

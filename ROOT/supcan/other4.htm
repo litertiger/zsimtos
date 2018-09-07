@@ -1,0 +1,124 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var count=0;
+function OnReady(id)
+{
+  count++;
+  if(count != 4) return;
+ 
+  AF1.func('ReadXML','tree/tree1.xml');
+  AF1.func('Expand','02');
+  AF2.func('ReadXML','tree/tree2.xml');
+  AF2.func('ExpandAll','');
+}
+function OnEvent(id, Event, p1, p2, p3, p4)
+{
+ if(id=='AF1') {
+  if(Event=="SelChanged")
+   document.getElementById('eveText').innerHTML = "左边的Tree, id="+p1;
+  else if(Event=="LazyLoad")  //动态加载
+   AF1.func("ReadXML", "tree/tree3.xml \r\n " + p1);
+ }
+ else if(id=='AF2') {
+  if(Event=="SelChanged") document.getElementById('eveText').innerHTML = "右边的Tree, id="+p1;
+ }
+ else if(id=='Edit1') {
+　if(Event == "EditChanged") {
+   var v1 = Edit1.func("getValue", "");
+   var v2 = Edit2.func("getValue", "");
+   AF2.func("ChangeImage", v1 + "\r\n" + v2);
+  }
+ }
+ else if(id=='Edit2') {
+ if(Event == "EditChanged") {
+   var v1 = Edit1.func("getValue", "");
+   var v2 = Edit2.func("getValue", "");
+   AF2.func("ChangeImage", v1 + "\r\n" + v2);
+  }
+ }
+}
+</script>
+</head>
+
+<body>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=110>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td>演示Tree小控件的图标、背景、Tip、事件、边框和其它样式，及自定义配置.</td></tr>
+</table>
+
+<table cols=2 border=0 width=75%>
+<col width=50%>
+<col width=50%>
+<tr height=30><td align=center>树1：自定义图标、背景</td><td align=center>树2：使用内部图标、含Checkbox的方案</td></tr>
+<tr height=300>
+	<td align=left><script>insertTree('AF1', 'style=hasButton,singleExpand;BackPicture=tree/back2.gif', '300px')</script></td>
+	<td align=right><script>insertTree('AF2', 'border=3d; style=hasButton,hasline,hasCheckBox,showSelAlways', '300px')</script></td>
+</tr>
+<tr height=1><td/><td/></tr>
+<tr height=24><td>事件: <font color=#880000><label id="eveText"> </label></font></td>
+<td align=center>
+<table border=0 width=80% cols=4 height=24>
+<tr height=24>
+	<td align=right>树杈图:</td><td width=80><script>insertEdit('Edit1', 'border=client;type=droptreelist;treelist=tree/treeinner1.xml;DataCol=id;displaycol=picture;value=0', '24px')</script></td>
+	<td align=center>树叶图:</td><td align=left width=80><script>insertEdit('Edit2', 'border=client;type=droptreelist;treelist=tree/treeinner2.xml;DataCol=id;displaycol=picture;value=0', '24px')</script></td>
+</tr>
+</table>
+</td></tr></table>
+</td></tr>
+</table>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style="line-height:21px">
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.HTML中，2个Tree的创建脚本分别如下：<br>
+<pre class='xml'>
+&lt;script&gt;insertTree('AF1', 'style=hasButton,singleExpand;BackPicture=tree/back2.gif', '300px')&lt;/script&gt;</pre>
+<pre class='xml'>
+&lt;script&gt;insertTree('AF2', 'border=3d; style=hasButton,hasline,hasCheckBox,showSelAlways', '300px')&lt;/script&gt;</pre>
+<br>
+<b>2</b>.树的内容在XML文档中，可查看<a href='tree/tree1.xml' target=_blank>树1的内容</a>、<a href='tree/tree2.xml' target=_blank>树2的内容</a>、以及树1“我的好友的”<a href='tree/tree3.xml' target=_blank>动态加载</a>的内容。分析树1的内容，就能发现其使用了自己的图片zip包；<br>
+<br>
+<b>3</b>.页面js中，和树相关的源码如下：<br>
+<pre class='cpp'>
+function OnReady(id)  //初始事件
+{
+  if(id=='AF1') {
+   AF1.func('ReadXML','tree/tree1.xml');
+   AF1.func('Expand','02');  //展开id为02的树节点
+  }
+  else if(id=='AF2') {
+   AF2.func('ReadXML','tree/tree2.xml');
+   AF2.func('ExpandAll','');  //全部展开
+  }
+}
+function OnEvent(id, Event, p1, p2, p3, p4)  //树的事件
+{
+ var obj = document.getElementById('eveText');
+ if(id=='AF1') {
+  if(Event=="SelChanged")
+   obj.innerHTML = "左边的Tree, id="+p1;
+  else if(Event=="LazyLoad")  //动态加载
+   AF1.func("ReadXML", "tree/tree3.xml \r\n " + p1);
+ }
+ else if(id=='AF2') {
+  if(Event=="SelChanged") obj.innerHTML = "右边的Tree, id="+p1;
+ }
+ ...(略)
+}</pre>
+</td></tr></table>
+
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

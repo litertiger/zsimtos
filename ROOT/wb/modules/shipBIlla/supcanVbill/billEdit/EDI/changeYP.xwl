@@ -1,0 +1,32 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var  username =app.get(\"sys.username\");\
+app.run(\"update vbill_head_e  set YP=0 where id={?billId?}\");\
+app.run(\"UPDATE vbill_head_e\\\
+    SET yp =0  \\\
+    WHERE ID IN (SELECT A.ID  \\\
+                FROM vbill_head A ,vbill_head B  \\\
+               WHERE A.p_billno =B.bill_no  and    A.ZF_ID=1 and  B.ZF_ID=1 and  b.ID={?billId?} and b.VID=A.VID ) \");\
+\
+app.run(\"insert into SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO)\\\
+select '舱单预配重置','\"+username+\"',sysdate, BILL_NO from  vbill_head where  ID ={?billId?} \");\
+\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "更改预配标志",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "// var result = {},\
+//   records = {},\
+//   record, nodes, rs, meta;\
+\
+// rs = app.run('select * from WB_MENU order by ORDER_INDEX');\
+// meta = rs.getMetaData();\
+// while (rs.next()) {\
+//   record = Wb.getRecord(rs, meta);\
+//   Wb.apply(record, {\
+//     text: record.MENU_NAME,\
+//     iconCls: 'db_field_icon'\
+//   });\
+//   nodes = records[record.PARENT_MENU];\
+//   if (nodes) {\
+//     nodes.push(record);\
+//   } else {\
+//     nodes = [record];\
+//     records[record.PARENT_MENU] = nodes;\
+//   }\
+// }\
+\
+// function createNodes(items, parentMenu) {\
+//   items.children = records[parentMenu] || [];\
+//   if (items.children.length)\
+//     items.expanded = true;\
+//   Wb.each(items.children, function(item) {\
+//     createNodes(item, item.MENU_ID);\
+//   });\
+// }\
+// createNodes(result, '-1');\
+// app.send(result);",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "type": "tree",
+    "sql": "select MENU_ID , MENU_NAME as \"text\", MENU_NAME, MENU_URL as \"url\", MENU_TYPE, PARENT_MENU , \
+case when (select count(*) from WB_MENU b where b.PARENT_MENU= WB_MENU.MENU_ID)>0 then 'false' else 'true' end as \"leaf\",\
+ORDER_INDEX, MENU_ICON as \"iconCls\" from WB_MENU where   PARENT_MENU={?parentId?}  order by ORDER_INDEX"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "查询菜单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

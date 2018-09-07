@@ -1,0 +1,196 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=GB2312">
+<link rel="stylesheet" href="res/temp1.css" type="text/css">
+<script type='text/javascript' src='binary/dynaload.js?103'></script>
+<script language="JavaScript">
+var countForFirefox=0;
+var AF1Ready = 0, AF2Ready = 0;
+function OnReady(id)
+{
+	cooper(id);
+}
+function cooper(id) {
+ if($isFirefox) {
+  countForFirefox++;
+  if(countForFirefox != 5) return;
+  id='';
+ }
+ if(id=='AF1' || id=='')  {
+  AF1.func("Build", "treelist/citymulti.xml");
+  AF1.func("Load", "treelist/city.xml \r\n Node=\\Table\\TR");
+  AF1Ready = 1;
+ }
+ if(id=='AF2' || id=='')  {
+  AF2.func("Build", "treelist/citymulti.xml");
+  AF2Ready = 1;
+ }
+ if(id=='AF3' || id=='')  {
+  AF3.func("Build", "treelist/t2.xml \r\n editAble=false; treeformat='format=byid;autoid=true'");
+  AF3.func("HideCol", "kmdm \r\n true");
+  AF3.func("Load", "treelistdata/km.json.txt");
+  var handle=AF3.func("GetHandle", "");
+  AF3.func("EnableDrag", handle);
+ }
+ if(id=='AF4' || id=='')  {
+  AF4.func("Build", "treelist/t7.xml");
+  var handle=AF4.func("GetHandle", "");
+  AF4.func("EnableDrag", handle);
+ }
+ if(AF1Ready==1 && AF2Ready==1) {
+ 	 enableDrag();
+ 	 AF1Ready = AF2Ready = -1;
+ }
+}
+function onPageLoad()
+{
+	if($isFirefox) cooper('');
+}
+
+function enableDrag()
+{
+	//AF1 <==> AF2
+	var handle=AF1.func("GetHandle", "");
+	AF2.func("EnableDrag", handle);
+
+	//AF2 Self dragAble
+	handle=AF2.func("GetHandle", "");
+	AF2.func("EnableDrag", handle);
+}
+ 
+function rebuild()
+{
+	AF1.func("Build", "treelist/t2.xml \r\n editAble=false");
+	AF1.func("Load", "treelistdata/km.json.txt");
+	AF2.func("Build", "treelist/t2.xml \r\n editAble=false");
+}
+</script>
+</head>
+
+<body onload='onPageLoad()' vlink=#0000ff link=#0000ff>
+<center>
+
+<table cols=2 border=0 width=100%>
+<col valign=top width=90>
+<col valign=top>
+<tr>
+<td align=center><img src='res/how.bmp'></td>
+<td><b>1</b>.支持Shift+鼠标、Ctrl+鼠标的多行选择；表头鼠标右键菜单有“全选”、“反选”；
+<br><b>2</b>.用鼠标进行Treelist之间的单行拖曳、多行拖曳;
+<br><b>3</b>.表二支持自我拖曳;
+<br><b>4</b>.切换成“以树方式显示”，相互拖拽;
+<br><b>5</b>.单列多层树也能相互拖拽，请 <input type="button" value=" 加载单列多层树 " onClick="rebuild()"></td></tr>
+</table>
+
+
+<table cols=3 border=0>
+<tr>
+<td align=center>表一</td>
+<td/>
+<td align=center>表二</td>
+</tr>
+<tr height=360>
+<td align=right width=350>
+	<script>insertTreeList('AF1', '', '360px')</script>
+</td>
+<td width=10/>
+<td align=left width=350>
+	<script>insertTreeList('AF2', '', '360px')</script>
+</td>
+</tr>
+</table>
+
+<!--  以下为技术分析区 -->
+<br><br><br>
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><img src='res/tech.jpg'></td></tr><tr><td>
+<b>1</b>.查看创建该TreeList的<a href="treelist/citymulti.xml" target=_blank>XML描述文件</a>；<br>
+<b>2</b>.源码分析：页面中创建Treelist控件实例的js如下：<br>
+<pre class='cpp'>
+&lt;script language="JavaScript"&gt;
+ var countForFirefox=0;
+ var AF1Ready = 0, AF2Ready = 0;
+ function OnReady(id)
+ {
+  cooper(id);
+ }
+ function cooper(id) {
+  if($isFirefox) {
+   countForFirefox++;
+   if(countForFirefox != 5) return;
+   id='';
+  }
+  if(id=='AF1' || id=='')  {
+   AF1.func("Build", "treelist/citymulti.xml");
+   AF1.func("Load", "treelist/city.xml \r\n Node=\\Table\\TR");  //加载指定节点的XML数据
+   AF1Ready = 1;
+  }
+  if(id=='AF2' || id=='')  {
+   AF2.func("Build", "treelist/citymulti.xml");
+   AF2Ready = 1;
+  }
+  if(id=='AF3' || id=='')  {
+   AF3.func("Build", "treelist/t2.xml \r\n editAble=false; treeformat='format=byid;autoid=true'");
+   AF3.func("HideCol", "kmdm \r\n true");
+   AF3.func("Load", "treelistdata/km.json.txt");
+   var handle=AF3.func("GetHandle", "");
+   AF3.func("EnableDrag", handle);
+  }
+  if(id=='AF4' || id=='')  {
+   AF4.func("Build", "treelist/t7.xml");
+   var handle=AF4.func("GetHandle", "");
+   AF4.func("EnableDrag", handle);
+  }
+  if(AF1Ready==1 && AF2Ready==1) {
+   enableDrag();
+   AF1Ready = AF2Ready = -1;
+  }
+ }
+ 
+ //用于Firefox页面的 onLoad
+ function onPageLoad( )
+ {
+ 	if($isFirefox) cooper('');
+ }
+ 
+ //Main: Enable拖曳操作
+ function enableDrag( )
+ {
+  //Enable AF1 、 AF2 相互拖曳
+  var handle=AF1.func("GetHandle", "");
+  AF2.func("EnableDrag", handle);
+  //Enable AF2 自我拖曳
+  handle=AF2.func("GetHandle", "");
+  AF2.func("EnableDrag", handle);
+ }
+ 
+ //按钮的功能： 重新执行Build( )，换成另一个Treelist
+ function rebuild( )
+ {
+  AF1.func("Build", "treelist/t2.xml \r\n editAble=false");
+  AF1.func("Load", "treelistdata/km.json.txt");
+  AF2.func("Build", "treelist/t2.xml \r\n editAble=false");
+ }
+&lt;/script&gt;
+ 
+&lt;body onload='onPageLoad( )'  ...</pre>
+
+<b>3</b>.增强功能：Treeformat 的 "autoid=true"子句效果：  任意拖拽。 即任一行可拖拽到另一行的前、后、或作为子孙.<br>
+</td></tr></table>
+<div style="position:relative;width:700px;height:330px">
+	<script>insertTreeList('AF3', '')</script>
+</div>
+<br>
+
+<table border=0 cols=1 border=0 width=97% style='line-height:21px'>
+<tr><td><b>4</b>.同上，但 Treeformat 为 "byPid"。 拖拽后，Id 始终保持不变，但其 Pid 能自动更新。 这是它的<a href='treelist/t7.xml' target=_blank>XML模式文件</a></td></tr>
+</table>
+<div style="position:relative;width:700px;height:330px">
+	<script>insertTreeList('AF4', '')</script>
+</div>
+<br>
+<br>
+</center>
+</body>
+<script type='text/javascript' src='res/nstd.js'></script>
+</html>

@@ -1,0 +1,118 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var ieId = app.get('ieId'),\
+  TENANCY_ID = app.get('sys.TENANCY_ID'),\
+  username = app.get('sys.username'),\
+  createDate, id = SysUtil.getId(),\
+  shipNo = app.get('shipNo'), //app.get(\"batch\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  cntrCod = app.get(\"sys.GOV_CODE\"),\
+  data = app.get(),\
+  vHeandwhereSql = \"\",\
+  vListwhereSql = \"\",\
+  ysSql = \"\",\
+  proSql, eFsql;\
+\
+if (nature == '5') {\
+  ysSql = \"select  cntr,l.bill_no   from  vload_list l,vbill_head h where  h.ID=l.BILL_ID and h.VID='\" + shipNo + \"' and h.MAIN_FLAG='1'  and h.bill_type in('C','E')  \" +\
+    \" and h.tenancy_id='\" + TENANCY_ID + \"' and h.CREATED_BY='\" + username + \"'  group by l.cntr,l.bill_no having count(1)>1\"+\
+     \"  union  all select  cntr,vload_list.bill_no from vload_list,vbill_head  where   vload_list.bill_id=vbill_head.ID and vload_list.cntr_id in(\"+\
+    \" select port_cntr.ID from vload_list ,port_cntr where  vload_list.cntr =port_cntr.cntr \"+\
+    \" and vload_list.VID='\" + shipNo + \"' and port_cntr.tenancy_id='\" + TENANCY_ID + \"'   )\"+\
+    \" and vload_list.VID!='\" + shipNo + \"'   and vload_list.I_E_ID='E'\";\
+  vHeandwhereSql = \" and  VBILL_HEAD.CREATED_BY='\" + username + \"'\";\
+  vListwhereSql = \"  and  VLOAD_LIST.CREATED_BY='\" + username + \"'\";\
+  proSql = \"{call pro_portBIll('\" + shipNo + \"','\" + TENANCY_ID + \"','\" + ieId + \"','\" + cntrCod + \"')}\";\
+  eFsql = \" SELECT 1 \\\
+     FROM vload_list vl, vbill_head vh\\\
+   WHERE vh.ID = vl.bill_id\\\
+   AND vh.vid = '\" + shipNo + \"'\\\
+   AND vh.phase = '9'\\\
+   AND vh.tenancy_id = '\" + TENANCY_ID + \"'\\\
+   AND vh.created_by = '\" + username + \"'\\\
+   and (decode(bill_type,'P','F','C','F','E')<>VL.E_F_ID) \";\
+  \
+ var billRs= app.run(\"select fshipbillcntr('\" + shipNo + \"','\" + TENANCY_ID + \"','\"+cntrCod+\"') BILL_NO  from dual\");\
+  while(billRs.next()){\
+    var billNo=billRs.getString(\"BILL_NO\");\
+    if(!Wb.isEmpty(billNo)){\
+       Wb.error(billNo);\
+    }\
+  }\
+  \
+} else {\
+  ysSql = \"select  cntr,l.bill_no   from  vload_list l,vbill_head h where  h.ID=l.BILL_ID and h.VID='\" + shipNo + \"' and h.MAIN_FLAG='1'  and h.bill_type in('C','E')  \" +\
+    \" and h.tenancy_id='\" + TENANCY_ID + \"' and h.CREATED_BY='\" + username + \"'  group by l.cntr,l.bill_no having count(1)>1\"+\
+    \"  union  all select  cntr,vload_list.bill_no from vload_list,vbill_head  where   vload_list.bill_id=vbill_head.ID and vload_list.cntr_id in(\"+\
+    \" select port_cntr.ID from vload_list ,port_cntr where  vload_list.cntr =port_cntr.cntr \"+\
+    \" and vload_list.VID='\" + shipNo + \"' and port_cntr.tenancy_id='\" + TENANCY_ID + \"' and vload_list.CREATED_BY='\" + username + \"'  )\"+\
+    \" and vload_list.VID!='\" + shipNo + \"' and vload_list.I_E_ID='E'\";\
+  proSql = \"{call pro_portBIll('\" + shipNo + \"','\" + TENANCY_ID + \"','\" + ieId + \"',null)}\";\
+  eFsql = \" SELECT 1 \\\
+     FROM vload_list vl, vbill_head vh\\\
+   WHERE vh.ID = vl.bill_id\\\
+   AND vh.vid = '\" + shipNo + \"'\\\
+   AND vh.phase = '9'\\\
+   AND vh.tenancy_id = '\" + TENANCY_ID + \"'\\\
+   and (decode(bill_type,'P','F','C','F','E')<>VL.E_F_ID  or (E_F_ID='F'  and ( nvl(vl.WEIGHT,0)=0 or  nvl(vl.PIECES,0)=0 )) ) \";\
+}\
+var ysRs = app.run(ysSql),\
+  yzMessage = \"\";\
+while (ysRs.next()) {\
+  yzMessage += \"箱号：\" + ysRs.getString(\"CNTR\") + \"在提单\" + ysRs.getString(\"BILL_NO\") + \"<br>\";\
+\
+}\
+app.run(eFsql, {\
+  errorText: '上传舱单空重不一致或者是重箱件数重量为空，请检查后再上传码头！'\
+});\
+if (yzMessage != \"\") {\
+  Wb.error(yzMessage);\
+  return;\
+}\
+app.run(proSql);\
+\
+app.run(\"update  ZS_IMTOS.PORT_CNTR  set E_DSHIP_NO={?shipNo?} where TENANCY_ID='\" + TENANCY_ID + \"' and  CNTR  in (select VLOAD_LIST.CNTR    \" +\
+  \"  FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id \" + vHeandwhereSql + \" and  VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' \" +\
+  \" and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  vbill_head.I_E_ID='E'  and  vbill_head.VID={?shipNo?} )\", {\
+    transaction: 'start'\
+  });\
+app.run(\"update   zs_imtos.VLOAD_LIST set CNTR_ID=(select  ID from ZS_IMTOS.PORT_CNTR where PORT_CNTR.CNTR=VLOAD_LIST.cntr and TENANCY_ID='\" + TENANCY_ID + \"' ) \" +\
+  \"  where    VLOAD_LIST.VID={?shipNo?} and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' and  I_E_ID='E'  \");\
+app.run(\"update  port_cntr  set   (PIECES,WEIGHT, VOLUME)=(select sum(PIECES),sum(WEIGHT), sum(VOLUME) from VLOAD_LIST where VID={?shipNo?} and CNTR_ID=port_cntr.ID and I_E_ID='E' )  \" +\
+  \" where  E_DSHIP_NO={?shipNo?}  and I_E_ID='E' and  exists (select 1 from VLOAD_LIST where CNTR_ID=port_cntr.ID and   VID={?shipNo?}  and lcl_id=1 )\");\
+app.run(\"update  vbill_head  set cntr_id=(select cntr_id from  vload_list where bill_id=vbill_head.ID ) where  bill_type='P' and  I_E_ID='E' \" +\
+  \"   \" + vHeandwhereSql + \" and  vbill_head.VID={?shipNo?}  and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' \");\
+\
+app.run(\"insert into vload_list_D select * from vload_list where  lcl_id=1 and I_E_ID='E'  and main_flag=1 \" +\
+  \"and VID={?shipNo?} and   PHASE='9'  \" + vListwhereSql + \"  and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' \" +\
+  \"and not exists(select 1 from  vload_list_D D where   D.cntr_ID=vload_list.CNTR_ID)\");\
+\
+app.run(\"update vbill_head set WEIGHT=(select sum( decode(cntr_size,'20',2000,4000))  from  vload_list v  where v.bill_id=vbill_head.ID  and v.VID={?shipNo?} )  where  VID={?shipNo?}   and I_E_ID='E' and TENANCY_ID='\" + TENANCY_ID + \"' and bill_type='E'\");\
+\
+app.run(\"update  vbill_head set  PHASE='1'  where  VID={?shipNo?} and  I_E_ID='E' and  PHASE='9'  \" + vHeandwhereSql + \" and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' \");\
+app.run(\"update  VLOAD_LIST set  PHASE='1'  where  VID={?shipNo?} and  I_E_ID='E' and PHASE='9'  \" + vListwhereSql + \"  and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"' \");\
+app.run(\"call BILL_LCL_ID('\" + shipNo + \"','\" + TENANCY_ID + \"','E')\");",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "ZSGHUQD": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "出口同步上传",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

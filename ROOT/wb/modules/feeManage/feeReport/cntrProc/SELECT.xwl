@@ -1,0 +1,223 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.log(app.get());\
+// app.log(app.get(\"sys.GOV_CODE\"));\
+var begdate = (new JavaDate()).getTime();\
+// var rows = app.get(\"rows\")==null?100:app.get(\"startRow\"),\
+//   startRow = app.get(\"startRow\")==null?1:app.get(\"startRow\"),\
+//   selsql = app.get(\"selsql\");\
+var rows = app.get(\"rows\"),\
+  startRow = app.get(\"startRow\"),\
+  selsql = app.get(\"selsql\");\
+var URLDecoder = java.net.URLDecoder;\
+var decodesql = app.get('decodesql');\
+if (decodesql != null)\
+  decodesql = URLDecoder.decode(app.get(\"decodesql\"), \"utf-8\");\
+else\
+  decodesql = \"\";\
+// app.log(selsql);\
+var beginPage = startRow,\
+  endPage = Number(startRow) + Number(rows),\
+  num = 50;\
+// // app.log(app.get());\
+// app.log(\"===================\");\
+// app.log(startRow);\
+// // app.log(rows);\
+var sqlnum = app.run(\"SELECT sum(1) num \" +\
+  \" FROM cntr_store_record_proc WHERE     1 = 1 AND IN_TIME IS NOT NULL and trade_id='1' \" + selsql+decodesql);\
+while (sqlnum.next()) {\
+  //   app.log(sqlnum.getString(\"NUM\"));\
+  num = sqlnum.getString(\"NUM\");\
+}\
+// num=10;\
+app.log(\"总条数====\" + num);\
+\
+app.log(startRow + \"====\" + rows);\
+\
+var sql = \"\";\
+if (rows != '99999') {\
+  sql = \"select FEE_UNIT,CNTR_OPERATOR_COD,CNTR,CNTR_ID,CNTR_SIZE,E_F_ID_IMPORT,IN_BUS_NOTES,IMPORT_TIME,BD_DATE,IN_TIME,TRADE_ID,\" +\
+    \"EXPORT_TIME,OUT_TIME,OUT_BUS_NOTES,E_F_ID_EXPORT,DWELL_DAYS,FREE_DAYS,((DWELL_DAYS-FREE_DAYS)*(decode(CNTR_SIZE,'20',1,'40',2,'45',2.25))) FEE_DAYS,(DWELL_DAYS-FREE_DAYS) JF_DAYS,AMOUNT,BILL_NO_IMPORT,BILL_NO_EXPORT,CNTR_ISO,\" +\
+    \"E_F_ID,I_E_ID,CNTR_OWNER,STUFF_DATE,SHIP_DATE,GATE_DATE,IN_PORT_DATE,IN_BUS_ID,OUT_BUS_ID,NODE_ID,ID \" +\
+    \"from (SELECT A.*, ROWNUM RN  FROM (SELECT AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
+    \"(select name from c_customer where code=CNTR_OPERATOR_COD) CNTR_OPERATOR_COD,(select name from c_customer where code=CNTR_OWNER) CNTR_OWNER, CNTR_ISO, decode (TRADE_ID,'1','外贸','2','内贸') TRADE_ID,decode (E_F_ID , 'E', '吉柜',  'F', '重柜') E_F_ID,decode(I_E_ID,'I','进口','E','出口') I_E_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,\" +\
+    \"ACTION,IN_BUS_ID,OUT_BUS_ID,TO_CHAR (BD_DATE, 'yyyy-MM-dd hh24:mi') BD_DATE,TO_CHAR (STUFF_DATE, 'yyyy-MM-dd hh24:mi') STUFF_DATE,\" +\
+    \" TO_CHAR (SHIP_DATE, 'yyyy-MM-dd hh24:mi') SHIP_DATE,TO_CHAR (GATE_DATE, 'yyyy-MM-dd hh24:mi') GATE_DATE,TO_CHAR (IN_PORT_DATE, 'yyyy-MM-dd hh24:mi') IN_PORT_DATE,\" +\
+    \"BILL_NO_IMPORT,BILL_NO_EXPORT,TO_CHAR (EXPORT_TIME, 'yyyy-MM-dd hh24:mi') EXPORT_TIME,TO_CHAR (IMPORT_TIME, 'yyyy-MM-dd hh24:mi') IMPORT_TIME,\" +\
+    \"DWELL_DAYS,FREE_DAYS,DECODE (E_F_ID_EXPORT,  'E', '吉柜',  'F', '重柜', 'P','拼柜', '未知')E_F_ID_EXPORT,\" +\
+    \" DECODE (E_F_ID_IMPORT,  'E', '吉柜',  'F', '重柜',  'P','拼柜', '未知') E_F_ID_IMPORT,(select name from c_customer where code=FEE_UNIT) FEE_UNIT,NODE_ID \" +\
+    \" FROM cntr_store_record_proc WHERE     1 = 1 /*AND IN_TIME IS NOT NULL*/ \" + selsql + decodesql + \" order by CNTR,IN_TIME  asc) A \" +\
+    \"WHERE ROWNUM <= \" + endPage + \")WHERE RN >  \" + beginPage;\
+}\
+if (rows == '99999') {\
+  app.log(\"==========\");\
+  app.log(rows);\
+  sql = \"SELECT AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
+    \"(select name from c_customer where code=CNTR_OPERATOR_COD) CNTR_OPERATOR_COD,(select name from c_customer where code=CNTR_OWNER) CNTR_OWNER,\" +\
+    \" CNTR_ISO, decode (TRADE_ID,'1','外贸','2','内贸') TRADE_ID,decode (E_F_ID , 'E', '吉柜',  'F', '重柜') E_F_ID,\" +\
+    \"decode(I_E_ID,'I','进口','E','出口') I_E_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,ACTION,IN_BUS_ID,OUT_BUS_ID,\" +\
+    \"TO_CHAR (BD_DATE, 'yyyy-MM-dd hh24:mi') BD_DATE,TO_CHAR (STUFF_DATE, 'yyyy-MM-dd hh24:mi') STUFF_DATE,\" +\
+    \" TO_CHAR (SHIP_DATE, 'yyyy-MM-dd hh24:mi') SHIP_DATE,TO_CHAR (GATE_DATE, 'yyyy-MM-dd hh24:mi') GATE_DATE,\" +\
+    \"TO_CHAR (IN_PORT_DATE, 'yyyy-MM-dd hh24:mi') IN_PORT_DATE,BILL_NO_IMPORT,BILL_NO_EXPORT,TO_CHAR (EXPORT_TIME, 'yyyy-MM-dd hh24:mi') EXPORT_TIME,\" +\
+    \"TO_CHAR (IMPORT_TIME, 'yyyy-MM-dd hh24:mi') IMPORT_TIME,DWELL_DAYS,FREE_DAYS,((DWELL_DAYS-FREE_DAYS)*(decode(CNTR_SIZE,'20',1,'40',2,'45',2.25))) FEE_DAYS,(DWELL_DAYS-FREE_DAYS) JF_DAYS,DECODE (E_F_ID_EXPORT,  'E', '吉柜',  'F', '重柜',  'P','拼柜', '未知')E_F_ID_EXPORT,\" +\
+    \" DECODE (E_F_ID_IMPORT,  'E', '吉柜',  'F', '重柜',  'P','拼柜', '未知') E_F_ID_IMPORT,(select name from c_customer where code=FEE_UNIT) FEE_UNIT,\" +\
+    \"NODE_ID  FROM cntr_store_record_proc WHERE     1 = 1 /*AND IN_TIME IS NOT NULL*/ \" + selsql + decodesql + \"  order by CNTR,IN_TIME  asc\";\
+}\
+// var rs=app.run(\"\");\
+/* @whereSql@\
+request.setAttribute('sql', sql);*/\
+var rs = app.run(sql);\
+var xml = \"<root><table totalrows='\" + num + \"'>\";\
+while (rs.next()) {\
+  xml += \"<row>\";\
+  /* xml += \"<FEE_UNIT>\" + rs.getString(\"FEE_UNIT\") + \"<\/FEE_UNIT>\";*/\
+  xml += \"<CNTR_OPERATOR_COD>\" + rs.getString(\"CNTR_OPERATOR_COD\") + \"<\/CNTR_OPERATOR_COD>\";\
+  xml += \"<CNTR>\" + rs.getString(\"CNTR\") + \"<\/CNTR>\";\
+  xml += \"<CNTR_SIZE>\" + rs.getString(\"CNTR_SIZE\") + \"<\/CNTR_SIZE>\";\
+  xml += \"<E_F_ID_IMPORT>\" + rs.getString(\"E_F_ID_IMPORT\") + \"<\/E_F_ID_IMPORT>\";\
+  xml += \"<IN_BUS_NOTES>\" + rs.getString(\"IN_BUS_NOTES\") + \"<\/IN_BUS_NOTES>\";\
+  xml += \"<IMPORT_TIME>\" + rs.getString(\"IMPORT_TIME\") + \"<\/IMPORT_TIME>\";\
+  xml += \"<BD_DATE>\" + rs.getString(\"BD_DATE\") + \"<\/BD_DATE>\";\
+  xml += \"<IN_TIME>\" + rs.getString(\"IN_TIME\") + \"<\/IN_TIME>\";\
+  xml += \"<TRADE_ID>\" + rs.getString(\"TRADE_ID\") + \"<\/TRADE_ID>\";\
+  xml += \"<EXPORT_TIME>\" + rs.getString(\"EXPORT_TIME\") + \"<\/EXPORT_TIME>\";\
+  xml += \"<OUT_TIME>\" + rs.getString(\"OUT_TIME\") + \"<\/OUT_TIME>\";\
+  xml += \"<OUT_BUS_NOTES>\" + rs.getString(\"OUT_BUS_NOTES\") + \"<\/OUT_BUS_NOTES>\";\
+  xml += \"<E_F_ID_EXPORT>\" + rs.getString(\"E_F_ID_EXPORT\") + \"<\/E_F_ID_EXPORT>\";\
+  xml += \"<DWELL_DAYS>\" + rs.getString(\"DWELL_DAYS\") + \"<\/DWELL_DAYS>\";\
+  xml += \"<JF_DAYS>\" + rs.getString(\"JF_DAYS\") + \"<\/JF_DAYS>\";\
+  xml += \"<FREE_DAYS>\" + rs.getString(\"FREE_DAYS\") + \"<\/FREE_DAYS>\";\
+  xml += \"<FEE_DAYS>\" + rs.getString(\"FEE_DAYS\") + \"<\/FEE_DAYS>\";\
+  xml += \"<AMOUNT>\" + rs.getString(\"AMOUNT\") + \"<\/AMOUNT>\";\
+  xml += \"<BILL_NO_IMPORT>\" + rs.getString(\"BILL_NO_IMPORT\") + \"<\/BILL_NO_IMPORT>\";\
+  xml += \"<BILL_NO_EXPORT>\" + rs.getString(\"BILL_NO_EXPORT\") + \"<\/BILL_NO_EXPORT>\";\
+  /*xml += \"<CNTR_ISO>\" + rs.getString(\"CNTR_ISO\") + \"<\/CNTR_ISO>\";*/\
+  xml += \"<E_F_ID>\" + rs.getString(\"E_F_ID\") + \"<\/E_F_ID>\";\
+  xml += \"<I_E_ID>\" + rs.getString(\"I_E_ID\") + \"<\/I_E_ID>\";\
+  /*xml += \"<CNTR_OWNER>\" + rs.getString(\"CNTR_OWNER\") + \"<\/CNTR_OWNER>\";\
+  xml += \"<STUFF_DATE>\" + rs.getString(\"STUFF_DATE\") + \"<\/STUFF_DATE>\";\
+  xml += \"<SHIP_DATE>\" + rs.getString(\"SHIP_DATE\") + \"<\/SHIP_DATE>\";\
+  xml += \"<GATE_DATE>\" + rs.getString(\"GATE_DATE\") + \"<\/GATE_DATE>\";\
+  xml += \"<IN_PORT_DATE>\" + rs.getString(\"IN_PORT_DATE\") + \"<\/IN_PORT_DATE>\";\
+  xml += \"<IN_BUS_ID>\" + rs.getString(\"IN_BUS_ID\") + \"<\/IN_BUS_ID>\";\
+  xml += \"<OUT_BUS_ID>\" + rs.getString(\"OUT_BUS_ID\") + \"<\/OUT_BUS_ID>\";*/\
+  xml += \"<NODE_ID>\" + rs.getString(\"NODE_ID\") + \"<\/NODE_ID>\";\
+  xml += \"<CNTR_ID>\" + rs.getString(\"CNTR_ID\") + \"<\/CNTR_ID>\";\
+  xml += \"<\/row>\";\
+\
+}\
+var enddate = (new JavaDate()).getTime();\
+app.log(enddate - begdate);\
+// app.log(xml);\
+app.send(xml);\
+//===============================================================================\
+\
+// app.log(app.get());\
+// app.log(app.get(\"sys.GOV_CODE\"));\
+// var begdate = (new JavaDate()).getTime();\
+// var rows = app.get(\"rows\"),\
+//   startRow = app.get(\"startRow\"),\
+//   selsql = app.get(\"selsql\");\
+// app.log(selsql);\
+// var beginPage = startRow,\
+//   endPage = Number(startRow) + Number(rows),\
+//   num = 50;\
+// app.log(app.get());\
+// // app.log(startRow);\
+// // app.log(rows);\
+// var sqlnum = app.run(\"SELECT sum(1) num \" +\
+//   \" FROM cntr_store_record_proc WHERE     1 = 1 AND IN_TIME IS NOT NULL and trade_id='1' \" + selsql);\
+// while (sqlnum.next()) {\
+//   //   app.log(sqlnum.getString(\"NUM\"));\
+//   num = sqlnum.getString(\"NUM\");\
+// }\
+// // num=10;\
+// var sql = \"\";\
+// if (rows != '99999') {\
+//   sql = \"select FEE_UNIT,CNTR_OPERATOR_COD,CNTR,CNTR_ID,CNTR_SIZE,E_F_ID_IMPORT,IN_BUS_NOTES,IMPORT_TIME,BD_DATE,IN_TIME,TRADE_ID,\" +\
+//     \"EXPORT_TIME,OUT_TIME,OUT_BUS_NOTES,E_F_ID_EXPORT,DWELL_DAYS,FREE_DAYS,AMOUNT,BILL_NO_IMPORT,BILL_NO_EXPORT,CNTR_ISO,\" +\
+//     \"E_F_ID,I_E_ID,CNTR_OWNER,STUFF_DATE,SHIP_DATE,GATE_DATE,IN_PORT_DATE,IN_BUS_ID,OUT_BUS_ID,NODE_ID,ID \" +\
+//     \"from (SELECT A.*, ROWNUM RN  FROM (SELECT AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
+//     \"(select name from c_customer where code=CNTR_OPERATOR_COD) CNTR_OPERATOR_COD,(select name from c_customer where code=CNTR_OWNER) CNTR_OWNER, CNTR_ISO, decode (TRADE_ID,'1','外贸','2','内贸') TRADE_ID,decode (E_F_ID , 'E', '吉柜',  'F', '重柜') E_F_ID,decode(I_E_ID,'I','进口','E','出口') I_E_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,\" +\
+//     \"ACTION,IN_BUS_ID,OUT_BUS_ID,TO_CHAR (BD_DATE, 'yyyy-MM-dd hh24:mi') BD_DATE,TO_CHAR (STUFF_DATE, 'yyyy-MM-dd hh24:mi') STUFF_DATE,\" +\
+//     \" TO_CHAR (SHIP_DATE, 'yyyy-MM-dd hh24:mi') SHIP_DATE,TO_CHAR (GATE_DATE, 'yyyy-MM-dd hh24:mi') GATE_DATE,TO_CHAR (IN_PORT_DATE, 'yyyy-MM-dd hh24:mi') IN_PORT_DATE,\" +\
+//     \"BILL_NO_IMPORT,BILL_NO_EXPORT,TO_CHAR (EXPORT_TIME, 'yyyy-MM-dd hh24:mi') EXPORT_TIME,TO_CHAR (IMPORT_TIME, 'yyyy-MM-dd hh24:mi') IMPORT_TIME,\" +\
+//     \"DWELL_DAYS,FREE_DAYS,DECODE (E_F_ID_EXPORT,  'E', '吉柜',  'F', '重柜',  '未知')E_F_ID_EXPORT,\" +\
+//     \" DECODE (E_F_ID_IMPORT,  'E', '吉柜',  'F', '重柜',  '未知') E_F_ID_IMPORT,(select name from c_customer where code=FEE_UNIT) FEE_UNIT,NODE_ID \" +\
+//     \" FROM cntr_store_record_proc WHERE     1 = 1 AND IN_TIME IS NOT NULL and trade_id='1' \" + selsql + \" order by CNTR,IN_TIME  asc) A \" +\
+//     \"WHERE ROWNUM <= \" + endPage + \")WHERE RN >  \" + beginPage;\
+// }\
+// if (rows == '99999') {\
+//   app.log(rows);\
+//   sql = \"SELECT AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
+//     \"(select name from c_customer where code=CNTR_OPERATOR_COD) CNTR_OPERATOR_COD,(select name from c_customer where code=CNTR_OWNER) CNTR_OWNER,\" +\
+//     \" CNTR_ISO, decode (TRADE_ID,'1','外贸','2','内贸') TRADE_ID,decode (E_F_ID , 'E', '吉柜',  'F', '重柜') E_F_ID,\" +\
+//     \"decode(I_E_ID,'I','进口','E','出口') I_E_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,ACTION,IN_BUS_ID,OUT_BUS_ID,\" +\
+//     \"TO_CHAR (BD_DATE, 'yyyy-MM-dd hh24:mi') BD_DATE,TO_CHAR (STUFF_DATE, 'yyyy-MM-dd hh24:mi') STUFF_DATE,\" +\
+//     \" TO_CHAR (SHIP_DATE, 'yyyy-MM-dd hh24:mi') SHIP_DATE,TO_CHAR (GATE_DATE, 'yyyy-MM-dd hh24:mi') GATE_DATE,\" +\
+//     \"TO_CHAR (IN_PORT_DATE, 'yyyy-MM-dd hh24:mi') IN_PORT_DATE,BILL_NO_IMPORT,BILL_NO_EXPORT,TO_CHAR (EXPORT_TIME, 'yyyy-MM-dd hh24:mi') EXPORT_TIME,\" +\
+//     \"TO_CHAR (IMPORT_TIME, 'yyyy-MM-dd hh24:mi') IMPORT_TIME,DWELL_DAYS,FREE_DAYS,DECODE (E_F_ID_EXPORT,  'E', '吉柜',  'F', '重柜',  '未知')E_F_ID_EXPORT,\" +\
+//     \" DECODE (E_F_ID_IMPORT,  'E', '吉柜',  'F', '重柜',  '未知') E_F_ID_IMPORT,(select name from c_customer where code=FEE_UNIT) FEE_UNIT,\" +\
+//     \"NODE_ID  FROM cntr_store_record_proc WHERE     1 = 1 AND IN_TIME IS NOT NULL and trade_id='1' \" + selsql + \"  order by CNTR,IN_TIME  asc\";\
+// }\
+// // var rs=app.run(\"\");\
+// /* @whereSql@\
+// request.setAttribute('sql', sql);*/\
+// var rs = app.run(sql);\
+// var xml = \"<root><table totalrows='\" + num + \"'>\";\
+// while (rs.next()) {\
+//   xml += \"<row>\";\
+//   /* xml += \"<FEE_UNIT>\" + rs.getString(\"FEE_UNIT\") + \"<\/FEE_UNIT>\";*/\
+//   xml += \"<CNTR_OPERATOR_COD>\" + rs.getString(\"CNTR_OPERATOR_COD\") + \"<\/CNTR_OPERATOR_COD>\";\
+//   xml += \"<CNTR>\" + rs.getString(\"CNTR\") + \"<\/CNTR>\";\
+//   xml += \"<CNTR_SIZE>\" + rs.getString(\"CNTR_SIZE\") + \"<\/CNTR_SIZE>\";\
+//   xml += \"<E_F_ID_IMPORT>\" + rs.getString(\"E_F_ID_IMPORT\") + \"<\/E_F_ID_IMPORT>\";\
+//   xml += \"<IN_BUS_NOTES>\" + rs.getString(\"IN_BUS_NOTES\") + \"<\/IN_BUS_NOTES>\";\
+//   xml += \"<IMPORT_TIME>\" + rs.getString(\"IMPORT_TIME\") + \"<\/IMPORT_TIME>\";\
+//   xml += \"<BD_DATE>\" + rs.getString(\"BD_DATE\") + \"<\/BD_DATE>\";\
+//   xml += \"<IN_TIME>\" + rs.getString(\"IN_TIME\") + \"<\/IN_TIME>\";\
+//   xml += \"<TRADE_ID>\" + rs.getString(\"TRADE_ID\") + \"<\/TRADE_ID>\";\
+//   xml += \"<EXPORT_TIME>\" + rs.getString(\"EXPORT_TIME\") + \"<\/EXPORT_TIME>\";\
+//   xml += \"<OUT_TIME>\" + rs.getString(\"OUT_TIME\") + \"<\/OUT_TIME>\";\
+//   xml += \"<OUT_BUS_NOTES>\" + rs.getString(\"OUT_BUS_NOTES\") + \"<\/OUT_BUS_NOTES>\";\
+//   xml += \"<E_F_ID_EXPORT>\" + rs.getString(\"E_F_ID_EXPORT\") + \"<\/E_F_ID_EXPORT>\";\
+//   xml += \"<DWELL_DAYS>\" + rs.getString(\"DWELL_DAYS\") + \"<\/DWELL_DAYS>\";\
+//   xml += \"<FREE_DAYS>\" + rs.getString(\"FREE_DAYS\") + \"<\/FREE_DAYS>\";\
+//   xml += \"<AMOUNT>\" + rs.getString(\"AMOUNT\") + \"<\/AMOUNT>\";\
+//   xml += \"<BILL_NO_IMPORT>\" + rs.getString(\"BILL_NO_IMPORT\") + \"<\/BILL_NO_IMPORT>\";\
+//   xml += \"<BILL_NO_EXPORT>\" + rs.getString(\"BILL_NO_EXPORT\") + \"<\/BILL_NO_EXPORT>\";\
+//   /*xml += \"<CNTR_ISO>\" + rs.getString(\"CNTR_ISO\") + \"<\/CNTR_ISO>\";*/\
+//   xml += \"<E_F_ID>\" + rs.getString(\"E_F_ID\") + \"<\/E_F_ID>\";\
+//   xml += \"<I_E_ID>\" + rs.getString(\"I_E_ID\") + \"<\/I_E_ID>\";\
+//   /*xml += \"<CNTR_OWNER>\" + rs.getString(\"CNTR_OWNER\") + \"<\/CNTR_OWNER>\";\
+//   xml += \"<STUFF_DATE>\" + rs.getString(\"STUFF_DATE\") + \"<\/STUFF_DATE>\";\
+//   xml += \"<SHIP_DATE>\" + rs.getString(\"SHIP_DATE\") + \"<\/SHIP_DATE>\";\
+//   xml += \"<GATE_DATE>\" + rs.getString(\"GATE_DATE\") + \"<\/GATE_DATE>\";\
+//   xml += \"<IN_PORT_DATE>\" + rs.getString(\"IN_PORT_DATE\") + \"<\/IN_PORT_DATE>\";\
+//   xml += \"<IN_BUS_ID>\" + rs.getString(\"IN_BUS_ID\") + \"<\/IN_BUS_ID>\";\
+//   xml += \"<OUT_BUS_ID>\" + rs.getString(\"OUT_BUS_ID\") + \"<\/OUT_BUS_ID>\";*/\
+//   xml += \"<NODE_ID>\" + rs.getString(\"NODE_ID\") + \"<\/NODE_ID>\";\
+//   xml += \"<CNTR_ID>\" + rs.getString(\"CNTR_ID\") + \"<\/CNTR_ID>\";\
+//   xml += \"<\/row>\";\
+\
+// }\
+// var enddate = (new JavaDate()).getTime();\
+// app.log(enddate - begdate);\
+// app.send(xml);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "default": 1,
+  "ZSBCFEE": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,28 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data=app.get();\
+var map = new HashMap();\
+var sql = \"select ID from BLUK_GOODS where TENANCY_ID={?sys.TENANCY_ID?} \"+\
+    \"and created_on>to_date('\"+data.sdate+\" 00:00:00','yyyy-MM-dd HH24:mi:ss') \"+\
+     \"and created_on<to_date('\"+data.edate+\" 23:59:59','yyyy-MM-dd HH24:mi:ss')\"+\
+    \" and work_type<>'YOYI' and trade_id='\"+data.tradeId+\"' and outcarteam='\"+data.truckType+\"' and oservice<>'ZS2SZD'\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+Wb.each(records,function(data){\
+  map.put(\"rpId\", data.ID);\
+  Wb.newClass(\"dubboForReceipt\").call(request, map);\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"JCB": 1},
+ "title": "箱堆存计费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

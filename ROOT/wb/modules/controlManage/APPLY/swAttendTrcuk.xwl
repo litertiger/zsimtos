@@ -1,0 +1,763 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "toolbar11",
+     "height": "30"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "sdate",
+       "labelAlign": "right",
+       "fieldLabel": "开始时间",
+       "width": "165",
+       "labelWidth": "65"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "edate",
+       "labelAlign": "right",
+       "fieldLabel": "结束时间",
+       "width": "165",
+       "labelWidth": "65"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "date"
+     },
+     {
+      "configs": {
+       "itemId": "cntr",
+       "labelAlign": "right",
+       "fieldLabel": "柜号",
+       "width": "140",
+       "labelWidth": "40"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "carTeam",
+       "labelAlign": "right",
+       "fieldLabel": "车队",
+       "keyName": "TU_CUSTOMER",
+       "labelWidth": "40",
+       "anyMatch": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "tagConfigs": " matchFieldWidth:false",
+       "emptyText": "货主",
+       "pageSize": "50",
+       "selectOnTab": "true",
+       "labelWidth": "40",
+       "listConfig": "{width:450}",
+       "valueField": "ID",
+       "queryDelay": "500",
+       "hideTrigger": "true",
+       "itemId": "CUSTOM",
+       "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+       "labelAlign": "right",
+       "width": "180",
+       "x": "200",
+       "y": "67",
+       "displayField": "CNAME",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "params": "{fldId:\"CE\"}",
+        "url": "m?xwl=system/common/client/clientSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "seekMenu",
+       "text": "查找",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "// app.grid11.store.load({\
+// \tout:app.toolbar11\
+// });\
+\
+app.grid11.store.load({\
+  params: {\
+    sdate: app.sdate.getValue(),\
+    edate: app.edate.getValue(),\
+    cntr: app.cntr.getValue()\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "addBtn",
+       "text": "处理数据",
+       "iconCls": "object_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.request({\
+  url: 'm?xwl=controlManage/APPLY/swAttendTrcukEdit/insert',\
+  params: {\
+    sdate: app.sdate.getRawValue(),\
+    edate: app.edate.getRawValue()\
+  },\
+  success: function(resp) {\
+  \tWb.warn(\"成功!\");\
+    app.seekMenu.fireEvent('click');\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "edit",
+       "tooltip": "修改记录",
+       "text": "修改",
+       "iconCls": "record_edit_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.grid11.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+var ids = \"\";\
+for (var i = 0; i < sels.length; i++) {\
+  ids += \"'\" + sels[i].data.ID + \"',\";\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var win = new Ext.window.Window(app._editwin);\
+win.show();\
+win.setIconCls('record_edit_icon');\
+Wb.setTitle(win, '修改');\
+// Wb.setValue(win, sels[0].data);\
+\
+\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  //   var values = Wb.applyIf(Wb.getValue(win));\
+  Wb.request({\
+    url: 'm?xwl=controlManage/APPLY/swAttendTrcukEdit/update',\
+    //     params: values,\
+    out: win,\
+    params: {\
+      ids: ids\
+    },\
+    success: function(resp) {\
+      win.close();\
+      app.seekMenu.fireEvent('click');\
+    }\
+  });\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panel1"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "grid11",
+       "selType": "checkboxmodel",
+       "tbar": "app.toolbar11",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=controlManage/APPLY/swAttendTrcukEdit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store",
+        "events": {"beforeload": "operation.params = {\
+  sdate: app.sdate.getValue(),\
+  edate: app.edate.getValue(),\
+  cntr: app.cntr.getValue(),\
+  CAR_TEAM: app.carTeam.getValue(),\
+  CUSTOMER: app.CUSTOM.getValue()\
+};"}
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "ID325225",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "REPORT_DATE092",
+           "hidden": "true",
+           "dataIndex": "REPORT_DATE",
+           "width": "40",
+           "text": "生成时间",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_OPERATOR_COD",
+           "dataIndex": "CNTR_OPERATOR_COD",
+           "keyName": "AG_SHORT",
+           "width": "70",
+           "text": "船公司",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CAR_NO3214",
+           "dataIndex": "CAR_NO",
+           "width": "70",
+           "text": "车头",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CAR_TEAMS23",
+           "dataIndex": "YCAR_TEAM",
+           "keyName": "TU_CUSTOMER",
+           "width": "180",
+           "text": "车队",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CAR_TEAMS231",
+           "dataIndex": "SCAR_TEAM",
+           "keyName": "TU_CUSTOMER",
+           "width": "180",
+           "text": "实付车队",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "E_F_ID124",
+           "hidden": "true",
+           "dataIndex": "E_F_ID",
+           "width": "40",
+           "text": "空重",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "TRADE_ID23",
+           "dataIndex": "TRADE_ID",
+           "width": "50",
+           "keyName": "TRADE_ID",
+           "text": "内外贸",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "PT_TYPE12",
+           "dataIndex": "PT_TYPE",
+           "width": "120",
+           "keyName": "PT_TYPE",
+           "text": "车辆性质",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "OUT_TIME12",
+           "dataIndex": "OUT_TIME",
+           "width": "100",
+           "format": "Y-m-d",
+           "text": "出闸时间",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR232",
+           "dataIndex": "CNTR",
+           "text": "柜号",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CNTR_SIZE12",
+           "dataIndex": "CNTR_SIZE",
+           "width": "50",
+           "text": "尺寸",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "WORK_TYPE2134",
+           "dataIndex": "WORK_TYPE",
+           "keyName": "WORK_WAY",
+           "width": "80",
+           "text": "作业方式",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SHIPPER9878",
+           "dataIndex": "SHIPPER",
+           "width": "180",
+           "text": "货主",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SHIPPER_COD8587",
+           "hidden": "true",
+           "dataIndex": "SHIPPER_COD",
+           "width": "50",
+           "text": "货主",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "T_ADDRESS24313",
+           "dataIndex": "T_ADDRESS",
+           "keyName": "C_ADDRESS",
+           "width": "80",
+           "text": "送货地址",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "TRUCK_FEE48",
+           "hidden": "true",
+           "dataIndex": "TRUCK_FEE",
+           "width": "70",
+           "text": "拖车费",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "OIL_FEE78",
+           "hidden": "true",
+           "dataIndex": "OIL_FEE",
+           "width": "70",
+           "text": "燃油费",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "AREA_FEE234",
+           "hidden": "true",
+           "dataIndex": "AREA_FEE",
+           "width": "70",
+           "text": "区内拖运费",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": true,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "YF_FEE74",
+           "hidden": "true",
+           "dataIndex": "YF_FEE",
+           "width": "70",
+           "text": "应收费用",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SF_FEE12",
+           "dataIndex": "SF_FEE",
+           "width": "70",
+           "text": "外付费用",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "SG_FEE12",
+           "dataIndex": "SG_FEE",
+           "width": "70",
+           "text": "手工费用",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "ALL_FEE23",
+           "dataIndex": "ALL_FEE",
+           "width": "70",
+           "text": "总费用",
+           "align": "right",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "EMP_ID3214",
+           "renderer": "if (value == '0') {\
+  return '非空跑';\
+} else if (value == '1') {\
+  return '空跑';\
+}",
+           "dataIndex": "EMP_ID",
+           "width": "60",
+           "text": "空跑标志",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "MILE21",
+           "dataIndex": "MILE",
+           "width": "40",
+           "text": "里程",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "P_TYPE12",
+           "dataIndex": "P_TYPE",
+           "width": "70",
+           "text": "优惠类型",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "NOTES12",
+           "dataIndex": "NOTES",
+           "width": "80",
+           "text": "备注",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "PC_BY121",
+           "dataIndex": "PC_BY",
+           "width": "120",
+           "keyName": "WB_USER",
+           "text": "派车人",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "createdMan",
+           "hidden": "true",
+           "dataIndex": "CREATED_MAN",
+           "text": "创建人",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "createdOn",
+           "hidden": "true",
+           "dataIndex": "CREATED_ON",
+           "text": "创建时间",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "updatedMan",
+           "hidden": "true",
+           "dataIndex": "UPDATED_MAN",
+           "text": "修改人",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "updatedOn",
+           "hidden": "true",
+           "dataIndex": "UPDATED_ON",
+           "text": "修改时间",
+           "titleAlign": "center"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }],
+     "type": "panel"
+    }],
+    "type": "viewport"
+   },
+   {
+    "configs": {
+     "itemId": "editwin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "320",
+     "height": "200"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "layout": "@{type:'table',columns:1}",
+      "itemId": "panel1",
+      "defaults": "{\
+  labelWidth: 70,\
+  width: 280,\
+  margin: '8 8 0 8'\
+}",
+      "width": "648",
+      "region": "north",
+      "height": "200",
+      "frame": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "CAR_TEAM",
+        "labelAlign": "right",
+        "fieldLabel": "实付车队",
+        "keyName": "TU_CUSTOMER",
+        "anyMatch": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "combo"
+      },
+      {
+       "configs": {
+        "itemId": "ID",
+        "hidden": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "SG_FEE",
+        "labelAlign": "right",
+        "fieldLabel": "手工费用"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      },
+      {
+       "configs": {
+        "itemId": "NOTES",
+        "labelAlign": "right",
+        "fieldLabel": "备注"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "textarea"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window"
+   }
+  ],
+  "type": "module",
+  "events": {"finalize": "var s = new Date();\
+var s1 = s.getTime() - 7 * 24 * 60 * 60 * 1000;\
+app.sdate.setValue(new Date(s1));\
+app.edate.setValue(new Date());\
+// app.seekMenu.fireEvent('click');"}
+ }],
+ "roles": {
+  "xlzk": 1,
+  "SWB": 1
+ },
+ "title": "商务派车",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

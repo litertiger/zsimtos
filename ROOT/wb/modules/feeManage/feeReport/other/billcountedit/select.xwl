@@ -1,0 +1,58 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\";\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+\
+sql = \"select vh.vid,vh.vessel_name,vh.CNTR_OPERATOR,vh.bill_no,decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER)CS,\" +\
+  \"vh.i_e_id,vh.trade_id,vh.zf_id,vh.pol,vh.pod,vh.bill_type,decode(vh.I_E_ID,'I',NVL(V2.ATA,v2.eta),'E',NVL(ATD,ETD)) ETA,vh.goods_notes,vh.cargo_type\" +\
+  \" from vbill_head vh left join vessel_visit v2 on vh.vid=v2.id\" +\
+  \" where vh.TENANCY_ID='\" + tenancyid + \"'\" +\
+  \" AND to_char(v2.ETA,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59'\";\
+if (!Wb.isEmpty(data.billType))\
+  sql += \" and vh.BILL_TYPE = '\" + data.billType + \"'\";\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and vh.BILL_NO LIKE '%\" + data.billNo + \"%'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(data.SHIP_CONSIGN_COD))\
+  sql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD)='\" + data.SHIP_CONSIGN_COD + \"'\";\
+if (!Wb.isEmpty(data.ieId))\
+  sql += \" and vh.I_E_ID='\" + data.ieId + \"'\";\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and vh.TRADE_ID='\" + data.tradeId + \"'\";\
+if (!Wb.isEmpty(data.voyageNo))\
+  sql += \" and v2.VID='\" + data.voyageNo + \"'\";\
+// if (data.zong == \"false\" && data.fen == \"false\")\
+//   sql += \" and vh.main_flag=1\";\
+if (data.zong == \"true\" && data.fen == \"false\")\
+  sql += \" and (vh.zf_id=0 or (vh.zf_id=1 and vh.main_flag=0))\";\
+if (data.zong == \"false\" && data.fen == \"true\")\
+  sql += \" and (vh.zf_id=0 or (vh.zf_id=1 and vh.main_flag=1))\";\
+if (data.zong == \"true\" && data.fen == \"true\")\
+  sql += \" and vh.zf_id=0\";\
+if (nature == 5)\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

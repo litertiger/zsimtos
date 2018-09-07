@@ -1,0 +1,145 @@
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<link rel="stylesheet" href="temp1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff vlink=#0000ff>
+<br>
+<h3>附录：Json书写举例</h3>
+　　硕正软件从1.0.82.0版开始，支持以Json语法书写Treelist了，如下是举例：<br>
+<b>例1.最简单的Treelist</b><br>
+　　该例子对应于 treelist\t1.xml:<br>
+<pre class='xml'>
+{
+ "Properties": {"Title":"订单明细表", "HeaderFontIndex":"2"}, 
+ "Fonts": [
+  {"faceName":"Consolas"},
+  {"Font":null},
+  {"faceName":"微软雅黑", "bold":"1"},
+  {"bold":"true"}
+ ],
+ 
+ "Cols": [
+  {"name":"Country", "width":"100", "text":"国家"},
+  {"name":"OrderID", "width":"70", "align":"center", "text":"订单号"},
+  {"name":"CustomerID", "width":"70", "text":"客户号"},
+  {"name":"OrderDate", "width":"90", "datatype":"date", "text":"销售日期"},
+  {"name":"RequiredDate", "width":"90", "datatype":"date", "text":"接单日期"},
+  {"name":"Freight", "width":"80", "datatype":"double", "decimal":"2", "text":"货重"},
+  {"name":"ShipName", "width":"210", "text":"船名"},
+  {"name":"ShipCity", "width":"130", "text":"城市"},
+  {"name":"ShipAddress", "width":"340", "text":"地址"}
+ ]
+}</pre>
+<br><br>
+<b>例2.带分组、表达式、Droplist的Treelist</b><br>
+　　该例子对应于 treelist\t2.xml:<br>
+<pre class='xml'>
+{
+ "Properties": {
+  "Title":"科目余额表", "editAble":"true", "isTree":"true", "treeformat":"format=byId", "HeaderFontIndex":"1",
+  "Expresses": [
+   {"Express":"jd2=jd"},
+   {"Express":"qmye = if(jd==2, qcye + dfe - jfe, qcye + jfe - dfe)"}
+  ]
+ },
+ 
+ "Fonts": [
+  {"faceName":"Consolas"},
+  {"Font":null}
+ ],
+ 
+ "Cols": [
+  {"name":"kmdm", "width":"150", "text":"科目代码"},
+  {"name":"kmmc", "width":"180", "text":"科目名称"},
+  {"name":"期初", "cols": [
+    {"name":"jd", "width":"40", "align":"center", "editType":"droplist", "droplistID":"jdList", "text":"方向"},
+    {"name":"qcye", "width":"100", "dataType":"double", "decimal":"2", "subTotalExpress":"@sum", "text":"余额"}
+   ]
+  },
+  {"name":"本期发生", "cols": [
+    {"name":"jfe", "width":"100", "dataType":"double", "decimal":"2", "subTotalExpress":"@sum", "text":"借方"},
+    {"name":"dfe", "width":"100", "dataType":"double", "decimal":"2", "subTotalExpress":"@sum", "text":"贷方"}
+   ]
+  }, 
+  {"name":"期末", "cols": [
+    {"name":"jd2", "width":"40", "align":"center", "editType":"droplist", "droplistID":"jdList", "text":"方向"},
+    {"name":"qmye", "width":"100", "dataType":"double", "decimal":"2", "subTotalExpress":"@sum", "text":"余额"}
+   ]
+  }
+ ],
+ 
+ "Droplists": {
+  "Droplist": {"id":"jdList", "item": [
+    {"key":"1", "text":"借"},
+    {"key":"2", "text":"贷"},
+    {"key":"3", "text":"平"}
+   ]
+  }
+ }
+}</pre>
+<br>
+<b>例3.BackGround片段</b><br>
+<pre class='xml'>
+{
+ "Properties": {"editAble":"true", "rowHeight":"65", "key":"Model", 
+  "BackGround": {"picture":"..\/res\/treelistsh.jpg", "alpha":"12", "rotate":"315", "arrange":"tile", "bgColor":"#dfdfdf"}
+ },
+ ...
+}</pre>
+<br>
+<b>例4.validations片段</b><br>
+<pre class='xml'>
+{
+ "Properties": {"editAble":"true", "rowHeight":"22",  
+  "validations":  [
+   {"errorText":"产品编码必须以1、3开头!", "text":"left(productID,1)=\'1\' or left(productId,1)=\'3\'"},
+   {"errorText":"产品名称的第一位必须和产品编码的第一位一致!", "text":"left(productID,1) = left(productname,1)"},
+   {"errorText":"交货日期至少要在明天!", "text":" CompareDate(dt, now())&gt;0"},
+   {"errorText":"未通过审核!", "icon":"stop", "text":"passed"},
+   {"errorText":"定价只能在100-200、或500-600之间!", "text":" (100&lt;=price and price&lt;=200) or (500&lt;=price and price&lt;=600)"}
+  ]
+ },
+ ...
+}</pre>
+<br>
+
+<b>例5.PrintPage片段</b><br>
+<pre class='xml'>
+{
+ "Properties": {"Title":"订单明细表", "HeaderFontIndex":"2",
+  "PrintPage":{
+   "Margin": { "left":"20", "right":"50" },
+   "PageHeader": { [
+     {"height":"22", "bgColor":"#eeeeee","border.bottom":"1"},
+     {"height":"22", "valign"="middle","align":"left", "fontIndex":"2", "text":"北风公司货运资料"},
+     {"y":"22", "height":"5", "bgcolor":"#ffffff"},
+    ],
+   },
+   "header": {
+    "isFirstPageOnly":"true", "layer": [
+     {"height":"50", "valign":"middle", "fontindex":"4", "text":"货运单"},
+     {"y":"70", "align":"left", "text":"制表单位:______________"},
+     {"y":"70", "align":"right", "text":"填表日期:______________"},
+    ]
+   }
+  }
+ },</pre>
+<br>
+
+
+<b>例6.Table片段</b><br>
+<pre class='xml'>
+...
+"table": [
+ {"pid":null,    "id":"101",    "kmmc":"现金",    "jd":"1",    "qcye":"392093.00",    "jfe":"223399.00",    "dfe":"98300.00",    "jd2":"1",    "qmye":"517192.00"},
+ {"pid":null,    "id":"102",    "kmmc":"银行存款",    "jd":"1",    "qcye":"549888.00",    "jfe":"220000.00",    "dfe":"200000.00",    "jd2":"1",    "qmye":"569888.00"},
+ {"pid":"102",    "id":"10201",    "kmmc":"招商银行",    "jd":"1",    "qcye":"339888.00",    "jfe":null,    "dfe":"200000.00",    "jd2":"1",    "qmye":"139888.00"},
+ {"pid":"102",    "id":"10202",    "kmmc":"工商银行",    "jd":"1",    "qcye":"210000.00",    "jfe":"220000.00",    "dfe":"0.00",    "jd2":"1",    "qmye":"430000.00"},
+ {"pid":"10202",    "id":"1020201",    "kmmc":"工商银行垭口支行",    "jd":"1",    "qcye":"209000.00",    "jfe":"200000.00",    "dfe":null,    "jd2":"1",    "qmye":"409000.00"}
+]
+...</pre>
+
+<br><br><br>
+<script type='text/javascript' src='nstd.js'></script>
+</body></html>

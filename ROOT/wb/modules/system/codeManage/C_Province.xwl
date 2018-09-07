@@ -1,0 +1,334 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "window1",
+     "dialog": "true",
+     "closeAction": "hide",
+     "autoReset": "true",
+     "width": "544",
+     "title": "增删改查",
+     "modal": "true",
+     "height": "149"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "allowBlank": "true",
+       "itemId": "PROVINCE_NAME",
+       "labelAlign": "right",
+       "maxLengthText": "最大长度为20",
+       "fieldLabel": "所属省份",
+       "width": "237",
+       "x": "248",
+       "y": "16",
+       "labelWidth": "90",
+       "maxLength": "20",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "allowBlank": "false",
+       "emptyText": "该项不能为空",
+       "maxLengthText": "最大长度为10",
+       "labelWidth": "90",
+       "blankText": "该项不能为空",
+       "itemId": "PROVINCE_SHORT",
+       "labelAlign": "right",
+       "fieldLabel": "地区简称",
+       "width": "237",
+       "x": "16",
+       "y": "16",
+       "maxLength": "10",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "NOTES",
+       "labelAlign": "right",
+       "fieldLabel": "备注",
+       "width": "237",
+       "x": "16",
+       "y": "48",
+       "labelWidth": "90",
+       "maxLength": "200",
+       "height": "22"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "tableName",
+       "hidden": "true",
+       "value": "C_PROVINCE"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.window1);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Province/C_ProvinceEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.search_button.fireEvent('click');\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Province/C_ProvinceEdit/insert',\
+    out: app.window1,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      Wb.add(app.grid1, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.window1.close();\
+      app.search_button.fireEvent('click');\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "grid1",
+      "multiSelect": "false"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "tbar"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "search",
+          "labelAlign": "right",
+          "fieldLabel": "所属省份",
+          "labelWidth": "65"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "search_button",
+          "text": "搜索",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.grid1.store.load({\
+out:app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "add_button",
+          "text": "增加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.window1.setTitle('添加 - 省份');\
+app.window1.setIconCls('record_add_icon');\
+app.isEdit = false;\
+app.window1.show();\
+"}
+        },
+        {
+         "configs": {
+          "itemId": "edit_button",
+          "text": "修改",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.window1.setTitle('修改 - ' + app.selRec.data.PROVINCE_SHORT);\
+app.window1.setIconCls('record_edit_icon');\
+Wb.setValue(app.window1, app.selRec.data);\
+app.window1.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性"}
+        },
+        {
+         "configs": {
+          "itemId": "delete_button",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.grid1.getSelection();\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/C_Province/C_ProvinceEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true),tableName:'C_PROVINCE'\
+    },\
+    success: function() {\
+      Wb.remove(app.grid1, sels);\
+    }\
+  });\
+}, 'PROVINCE_SHORT');"}
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/C_Province/C_ProvinceEdit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "provinceName",
+          "dataIndex": "PROVINCE_NAME",
+          "text": "所属省份",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "provinceShort",
+          "dataIndex": "PROVINCE_SHORT",
+          "text": "地区简称",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "notes",
+          "dataIndex": "NOTES",
+          "text": "备注",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdBy",
+          "dataIndex": "CREATED_BY",
+          "text": "创建人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "createdOn",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "创建时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updatedBy",
+          "dataIndex": "UPDATED_BY",
+          "text": "修改人",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "updateOn",
+          "dataIndex": "UPDATED_ON",
+          "width": "120",
+          "text": "修改时间",
+          "align": "center"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.edit_button.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "SWB": 1
+ },
+ "title": "省份维护",
+ "iconCls": "shopping_cart_icon",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -1,0 +1,120 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var taskId = app.get(\"taskId\"),\
+  username = app.get(\"sys.username\"),\
+  ship = app.get(\"ship\"); //type GIN 收箱 GOUT 提箱 MOVE 移箱 VIN 卸船 VOUT 装船\
+var mess = \"ship.\" + ship;\
+var sqlMoves = '';\
+var moves = Wb.decode(app.get(\"moves\"));\
+if (moves) {\
+  if (moves.length > 1)\
+    sqlMoves = \" and a.id in('\" + moves.join(\"','\") + \"')\";\
+  else\
+    sqlMoves = \" and a.id='\" + moves[0] + \"'\";\
+}\
+\
+switch (app.get(\"type\")) {\
+  case 'VIN':\
+    break;\
+  case 'VOUT':\
+    break;\
+  case 'MOVE':\
+    mess = \"cy.#\";\
+    break;\
+  default:\
+    throw '指令不能取消';\
+}\
+\
+var rs = Wb.getRecords(app.run(\"select  id from move_list a where  queue_id={?taskId?} and phase='SND'\" + sqlMoves));\
+var rsin = Wb.getRecords(app.run(\"select  i.id from move_list a,move_list i  \\\
+where  a.queue_id={?taskId?} and i.queue_id=a.id and a.phase='SND' and i.trclass1='YC'\" + sqlMoves));\
+app.run(\"update port_cntr set id=id where 1=2\", {\
+  transaction: 'start'\
+});\
+app.run(\"delete from move_list a where queue_id={?ID?}\", {\
+  arrayData: rs\
+});\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on) \\\
+        values({?ID?},'MOVE_LIST','PLN',{?sys.username?},sysdate)\", {\
+  arrayData: rs\
+});\
+app.run(\"update  move_list a set  phase='PLN',updated_on=sysdate,updated_by={?sys.username?} where queue_id={?taskId?} and phase='SND'\" + sqlMoves);\
+app.run(\"update task   set phase='PLN'  where phase='SND' and  id={?taskId?} and not exists( select 1 from move_list  where queue_id={?taskId?} and  phase in('FIN','EXE') )\", {\
+  transaction: 'commit'\
+});\
+\
+//发送消息\
+var RabbitClient = com.ag.util.RabbitClient;\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && (rs.length == 1 ? client.routeSend(\"ex_instruction\", mess, {\
+      info: {\
+        type: \"disc\",\
+        action: \"update\",\
+        senduser: username,\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: rs[0].ID\
+      }\
+    }) : client.routeSend(\"ex_instruction\", mess, {\
+      info: {\
+        type: \"disc\",\
+        action: \"batch\",\
+        senduser: username,\
+        sendmodule: \"hanset\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: taskId\
+      }\
+    })) && rsin.reduce(function(success, record) {\
+      if (!success)\
+        return false;\
+      return client.routeSend(\"ex_instruction\", 'cy.#', {\
+        info: {\
+          type: \"disc\",\
+          action: \"delete\",\
+          senduser: username,\
+          sendmodule: \"hanset\",\
+          sendtime: (new Date()).getTime()\
+        },\
+        data: {\
+          id: record.ID\
+        }\
+      });\
+    }, true))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send('异常');\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1,
+  "SWB": 1
+ },
+ "title": "取消拆分",
+ "iconCls": "arrow_divide_icon",
+ "inframe": false,
+ "pageLink": ""
+}

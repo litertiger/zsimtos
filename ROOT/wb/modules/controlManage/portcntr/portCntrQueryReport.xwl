@@ -1,0 +1,234 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.set({\
+  JSESSIONID: request.getSession().getId(),\
+  nature:request.getSession().getAttribute('sys.NATURE'),\
+  govCode:request.getSession().getAttribute('sys.GOV_CODE')\
+});"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "fit",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "layout": "border",
+     "border": "false",
+     "itemId": "panel1",
+     "rbar": "app.tbarGrid"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "enableOverflow": "true",
+       "region": "north"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "txtcntr",
+         "labelAlign": "right",
+         "fieldLabel": "箱号",
+         "width": "150",
+         "isUpperCase": "true",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "labelAlign": "right",
+         "pickList": "[\
+  [\"1\", \"外贸\"],\
+  [\"2\", \"内贸\"]\
+]",
+         "fieldLabel": "内外贸",
+         "width": "120",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "ieId",
+         "labelAlign": "right",
+         "fieldLabel": "进出口",
+         "width": "120",
+         "keyName": "I_E_ID",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "hideTrigger": "true",
+         "itemId": "CNTR_OPERATOR_COD",
+         "labelAlign": "right",
+         "fieldLabel": "船公司",
+         "displayField": "CNAME",
+         "enterKeyTriggerClick": "true",
+         "labelWidth": "50",
+         "listConfig": "{\
+  width: 250\
+}",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "params": "{fldId:'AG'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": "matchFieldWidth: false",
+         "hideTrigger": "true",
+         "itemId": "CNTR_OWNER",
+         "labelAlign": "right",
+         "fieldLabel": "箱主",
+         "displayField": "CNAME",
+         "enterKeyTriggerClick": "true",
+         "labelWidth": "50",
+         "listConfig": "{\
+  width: 250\
+}",
+         "valueField": "ID",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "pageSize": "-1",
+          "params": "{fldId:'CM'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "selBtn",
+         "text": "查询",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "if (!Wb.verify(app.tbar))\
+  return;\
+var AF1 = document.getElementById(opt);\
+var whereSql = \"\";\
+\
+// whereSql += \" and created_on>=to_date('\" + app.begdate.getRawValue() + \" 00:00:00','yyyy-MM-dd HH24:MI:SS') and created_on<=to_date('\" + app.enddate.getRawValue() + \" 23:59:59','yyyy-MM-dd HH24:MI:SS')\";\
+\
+whereSql+=\" and TENANCY_ID='{#sys.TENANCY_ID#}'\";\
+if ('{#nature#}' == '5') {\
+  whereSql += \" and CNTR_OPERATOR_COD='\"+'{#govCode#}'+\"'\";\
+}\
+// Wb.info(whereSql);\
+\
+\
+\
+if (!Wb.isEmpty(app.ieId.getValue()))\
+  whereSql += \" and I_E_ID='\" + app.ieId.getValue() + \"'\";\
+if (!Wb.isEmpty(app.tradeId.getValue()))\
+  whereSql += \" and TRADE_ID='\" + app.tradeId.getValue() + \"'\";\
+if (!Wb.isEmpty(app.txtcntr.getValue()))\
+  whereSql += \" and cntr ='\" + app.txtcntr.getValue() + \"'\";\
+if (!Wb.isEmpty(app.CNTR_OPERATOR_COD.getValue()))\
+  whereSql += \" and CNTR_OPERATOR_COD ='\" + app.CNTR_OPERATOR_COD.getValue() + \"'\";\
+if (!Wb.isEmpty(app.CNTR_OWNER.getValue()))\
+  whereSql += \" and CNTR_OWNER_COD = '\" + app.CNTR_OWNER.getValue() + \"'\";\
+\
+whereSql=encodeURI(whereSql);\
+\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+AF1.func(\"Calc\", \"range=current\");"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "layout": "absolute",
+       "border": "false",
+       "itemId": "panelAcc",
+       "region": "center",
+       "height": "350"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "panel"
+   }],
+   "type": "viewport",
+   "events": {"afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelAcc.update(mt1);"}
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/fee_report/PORTCNTR_STAREPORT.xml?'+'V1.1');\
+    m.func(\"callfunc\", \"4\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource\");\
+    m.func(\"SetCurrentWorksheet\", \"0\");\
+  }\
+};\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {};\
+\
+",
+   "initialize": "var opt = Wb.getId();"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "SCANJB": 1,
+  "JCB": 1,
+  "JTQGB": 1,
+  "JTCWB": 1
+ },
+ "title": "在场箱统计报表",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

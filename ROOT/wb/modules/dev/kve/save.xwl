@@ -1,0 +1,42 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "var data = app.get(),\
+  id, ids = [],\
+  recs = Wb.decode(data.create);\
+Wb.each(recs, function(rec) {\
+  id = SysUtil.getId();\
+  rec.KEY_ID = id;\
+  ids.push({\
+    KEY_ID: id\
+  });\
+});\
+request.setAttribute('create', Wb.encode(recs)); //重置create记录\
+app.update({\
+  tableName: 'WB_KEY'\
+});\
+var K, map = new java.util.concurrent.ConcurrentHashMap(),\
+  buffer = com.wb.common.KVBuffer.buffer,\
+  rs = app.run('select * from WB_KEY where KEY_NAME={?KEY_NAME?} order by KEY_NAME');\
+while (rs.next()) {\
+  K = rs.getString('K');\
+  map.put(rs.getInt('TYPE') == 1 ? K : SysUtil.javaInt(K), rs.getString('V'));\
+}\
+if (map.isEmpty())\
+  buffer.remove(data.KEY_NAME);\
+else\
+  buffer.put(data.KEY_NAME, map);\
+app.send(ids); //把id列表发送到客户端以回填到表格",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {},
+ "title": "保存",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

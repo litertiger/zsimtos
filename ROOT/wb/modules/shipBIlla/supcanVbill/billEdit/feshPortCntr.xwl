@@ -1,0 +1,36 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "serverScript": "\
+var rs=app.run(\"select rownum+12 rn, AUTH_ORGANIZATION.* from AUTH_ORGANIZATION  where ORG_TYPE='5' and TENANCY_ID='SWG'\");\
+\
+while(rs.next())\
+app.run(\"insert into  C_CUSTOMER_CONTACT(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME)\"+\
+\" select  sys_guid(),ID,'SWG','\"+rs.getString(\"ID\")+\"' ,'\"+rs.getString(\"ORG_NAME\")+\"'  \"+\
+        \" from  (select rownum rn  ,c_customer.*   from c_customer where CLIENT_TYPE  like '%CE%' ) where mod(rn,\"+rs.getInt(\"RN\")+\")=1\",{jndi:\"jdbc/basecode\"});\
+",
+   "itemId": "module"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "更新在场箱",
+ "iconCls": "check_icon",
+ "inframe": false,
+ "pageLink": ""
+}

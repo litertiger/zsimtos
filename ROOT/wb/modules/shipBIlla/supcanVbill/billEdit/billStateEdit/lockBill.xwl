@@ -1,0 +1,85 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = Wb.decode(app.get(\"ID\")),\
+  vId, billNo,\
+  ids = \"\",\
+  TENANCY_ID = app.get('sys.TENANCY_ID'),\
+   username = app.get('sys.username'),\
+  ieId = app.get('ieId');\
+for (var i = 0; i < id.length; i++) {\
+  if (i > 0)\
+    ids += \",\";\
+  ids += \"'\" + id[i] + \"'\";\
+}//or CONSIGNEE_COD is null\
+app.run(\"select 1 from   vbill_head where ID in (\" + ids + \") and I_E_ID='E' and ( nvl(NOTIFIER_ADDRESS,'@@')='@@' or\\\
+    nvl(CONTRACT_TEL,'@@')='@@' or  nvl(NOTIFIER_TEL,'@@')='@@'  or  nvl(CONTRACT_ADDRESS,'@@')='@@' or  SHIPPER_COD is null   )    \\\
+    and exists(select 1 from c_port where (c_port.ID=pod or PORT_NAME=POD) and AMOUNT_CODE = 'HKHKG' )\",{  errorText: \
+         '应海关要求提单中发货人代码、地址、电话和收货人代码、地址、电话不能为空,不能锁定运单'});\
+app.run(\"update  VBILL_HEAD  set PHASE='2'  where  ID in (\" + ids + \") \", {\
+  transaction: 'start'\
+});\
+\
+app.run(\"update  VLOAD_LIST  set PHASE='2'  where  BILL_ID in(\" + ids + \") \",{\
+  transaction: 'commit'\
+});\
+\
+app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) \"+\
+        \"select '舱单锁定','\"+username+\"',sysdate, BILL_NO from  vbill_head where   ID in (\"+ids+\")  \");\
+var rs = app.run(\"select  VID,BILL_NO from  vbill_head  where ID in (\" + ids + \") and ZF_ID=1 \");\
+while (rs.next()) {\
+  vId = rs.getString(\"VID\");\
+  billNo = rs.getString(\"BILL_NO\");\
+\
+  app.run(\"update vbill_head  set PHASE='2' where VID='\" + vId + \"'   and  P_BILLNO='\" + billNo + \"' \");\
+  app.run(\"update vload_list  set PHASE='2' where VID='\" + vId + \"'   and  BILL_ID \" +\
+    \"in ( select ID  from  vbill_head where  VID='\" + vId + \"' and  P_BILLNO=  '\" + billNo + \"')\");\
+}\
+if (ieId == 'E')\
+  app.run(\"UPDATE port_cntr\" +\
+    \"   SET (i_e_id,  cntr_iso, line, cntr_operator, cntr_owner, seal_no,\" +\
+    \"        seal_no2, seal_no3, seal_no4, e_dship_no, pod, pol, spod, bill_no,\" +\
+    \"        cmdy_code, spec_stow, weight, temp_set, temp_min, temp_max,\" +\
+    \"        overheight, overfront, overback, overleft, overright, oog_id,\" +\
+    \"        bundl_id, release_id, exit_custom_id, emergency_id, lcl_id, pti_id,\" +\
+    \"        cntr_size, cntr_type, cntr_operator_cod, line_cod,PIECES, VOLUME) =\" +\
+    \"          (SELECT max(i_e_id),max( cntr_iso),max( line),max( cntr_operator),max( cntr_owner),\" +\
+    \"                  seal_no),max( seal_no2),max( seal_no3),max( seal_no4),max( e_dship_no),max( pod),max( pol),\" +\
+    \"                  max(spod),max( bill_no),max( cmdy_code),max( spec_stow),sum( weight),max( temp_set),\" +\
+    \"                  max(temp_min),max( temp_max),max( overheight),max( overfront),max( overback),\" +\
+    \"                  max(overleft),max( overright),max( oog_id),max( bundl_id),max( release_id),\" +\
+    \"                  max(exit_custom_id),max( emergency_id),max( lcl_id),max( pti_id),max( cntr_size),\" +\
+    \"                  max(cntr_type),max( cntr_operator_cod),max( line_cod),sum(PIECES),sum(VOLUME)\" +\
+    \"             FROM vload_list\" +\
+    \"            WHERE cntr_id = port_cntr.ID AND bill_ID in(\" + ids + \") and I_E_ID='E')\" +\
+    \" WHERE ID IN (\" +\
+    \"          SELECT cntr_id\" +\
+    \"            FROM vload_list\" +\
+    \"           WHERE bill_ID in(\" + ids + \")    and I_E_ID='E'\" +\
+    \"             AND (phase = '0' OR phase = '1')\" +\
+    \"             AND tenancy_id = '\" + TENANCY_ID + \"')\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "锁定提单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

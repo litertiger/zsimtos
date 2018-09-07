@@ -1,0 +1,80 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'),\
+  inOrOut = app.get(\"inOrOut\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  workType = app.get(\"workType\"),\
+  govCode = app.get(\"sys.GOV_CODE\"); //租户id\
+var sql = \"select r.BILL_NO,r.CNTR,c.short_name,\\
+\" +\
+  \"decode(r.WORK_TYPE,'EOFI','吉出重回','EOEI','吉出吉回','EITC','吉进转关','EOTC','吉出转关','FOEI','重出吉回','FOFI','重出重回','FITC','重进转关','FOTC','重出转关')WORK_TYPE,\\
+\" +\
+  \"decode(r.TRADE_ID,'1','外贸','内贸')TRADE_ID,\\
+\" +\
+  \"decode(r.I_E_ID,'I','进口','出口')I_E_ID,t.name car_team,r.in_car,\\
+\" +\
+  \"decode(r.SHIPPER_WAY,1,'码头承运','驳船承运')SHIPPER_WAY,\\
+\" +\
+  \"decode(r.PT_TYPE,'1','公司车队自有车','2','公司车队租用外来车','3','船公司自有车','4','船公司租用码头车','5','船公司租用外来车')PT_TYPE,\\
+\" +\
+  \"A.NAME,E.AREANAME,r.SHIPPER_CONSIGNEE,\\
+\" +\
+  \"r.T_ADDRESS,r.GATEOUT_TIME_T,r.GATEIN_NO_S,r.GATEIN_TIME_S,r.PC_BY,PC_ON,r.CREATED_BY,r.CREATED_ON,\\
+\" +\
+  \"decode(r.PHASE,'PLN','未派车','EXE','已派车','GET','正在提箱','OUT','场外','RTN','正在还箱','FIN','完成','CNL','取消')PHASE\\
+\" +\
+  \"from receipt r left join c_address a on r.s_adress=a.id left join c_area e on r.fei_adddress=e.id\\
+\" +\
+  \"left join c_customer c on r.cntr_operator_cod=c.code left join c_customer t on r.car_team=t.code\\
+\" +\
+  \"where r.tenancy_id='ZSG' and work_type<>'YOYI'\\
+\";\
+if (data.errid == \"1\")\
+  sql += \"and r.phase<>'PLN' and ((r.shipper_way=1 and r.car_team='HYLY' and r.pt_type<>'1')\\
+\" +\
+  \"or(r.shipper_way=1 and r.car_team<>'HYLY' and r.pt_type<>'2')\\
+\" +\
+  \"or(r.shipper_way=3 and r.CNTR_OPERATOR_COD<>'CK' and r.car_team='HYLY')\\
+\" +\
+  \"or(r.shipper_way=3 and r.CNTR_OPERATOR_COD<>'CK' and r.car_team<>'HYLY' and r.pt_type not in('3','5'))\\
+\" +\
+  \"or(r.shipper_way=3 and r.CNTR_OPERATOR_COD='CK' and r.car_team<>'HYLY' and r.pt_type not in('3','5'))\\
+\" +\
+  \"or(r.shipper_way=3 and r.CNTR_OPERATOR_COD='CK' and r.car_team='HYLY' and r.pt_type<>'4'))\\
+\";\
+if (data.errid == \"2\")\
+  sql += \"and r.phase<>'PLN' and r.s_adress is null and r.cntr is not null\";\
+if (data.errid == \"3\")\
+  sql += \"and r.phase not in('PLN','EXE','GET') and r.work_type not in('EITC','FITC') and r.gateout_time_t is null\\
+\";\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and r.TRADE_ID={?tradeId?}\";\
+if (!Wb.isEmpty(data.shipperway))\
+  sql += \" and r.shipper_way={?shipperway?}\";\
+sql += \" and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd') order by r.shipper_way,r.created_on\";\
+\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "JCB": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "基本查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

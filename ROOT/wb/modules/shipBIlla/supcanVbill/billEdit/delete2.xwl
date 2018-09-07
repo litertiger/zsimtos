@@ -1,0 +1,89 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "app.run(\"select 1  from VBILL_HEAD where ID={?ID?} and PHASE='2'\", {\
+    errorText: '锁定提单不能删除。'\
+});\
+app.run(\"select 1 from  move_list where cntr in (select cntr from vload_list where bill_id ={?ID?})\\\
+     and CARRIER_CALL={?vId?} and  phase  <>'CNL'\", {\
+    errorText: '存在装卸船指令不能删除。'\
+});\
+app.run(\"select 1  from VBILL_HEAD_E where ID={?ID?} and (REALSE_COMPARE=1 or SIGN_DATE is not null)\", {\
+    errorText: '舱单已核对或者签到，不允许删除！'\
+});\
+\
+app.run(\"select 1  from BLUK_GOODS where BILL_ID={?ID?} and IMPEXP='E'\", {\
+    errorText: '该票已经入库，不能删除，请联系仓库取消入库后再删除'\
+});\
+app.run(\"select 1 from receipt where work_type<>'YOYI' and  phase<>'CNL' and  cntr_id in (select cntr_id from vload_list where bill_id={?ID?} and I_E_ID='I')  \", {\
+    errorText: '已经做设备交接单不能删除，先删除交接单'\
+});\
+\
+\tvar ieId=request.getAttribute(\"ieId\");\
+    var vId=request.getAttribute(\"VID\");\
+    var tenancyId=app.get('sys.TENANCY_ID');\
+    var username=app.get('sys.username');\
+//     app.run(\"select  1  from ACCOUNTS_DETAILS where bill_no=(select bill_no from  vbill_head where id={?ID?}) and( PAY_FLAG=1  or  SETTLE_STATUS<>0\\\
+//     or  PRINTNO is not null  or REMITTINGITEM_ID is not null  or MONTH_MONEY_FLAG is not null )\\\
+//     and  tenancy_id='\"+tenancyId+\"'\", {\
+//         errorText: '已经收费或者托收不允许删除提单'\
+//     });\
+    app.run(\"insert into SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO)\\\
+    select '舱单删除','\"+username+\"',sysdate, BILL_NO from  vbill_head where  ID={?ID?} \");\
+    app.run(\"delete from port_cntr where ID  in(   select  VLOAD_LIST.CNTR_ID  from VBILL_HEAD ,VLOAD_LIST  \\\
+          where    VBILL_HEAD.ID=VLOAD_LIST.BILL_ID and VBILL_HEAD.ID={?ID?} and VBILL_HEAD.main_flag=1 ) and {?I_E_ID?}='I'\\\
+    and PHASE='ADV'\",{transaction: 'start'});\
+//     app.run(\"delete from port_cntr where ID  in(   select  VLOAD_LIST.CNTR_ID  from VBILL_HEAD ,VLOAD_LIST  \\\
+//           where    VBILL_HEAD.ID=VLOAD_LIST.BILL_ID and VBILL_HEAD.ID={?ID?} and VBILL_HEAD.main_flag=1 ) and {?I_E_ID?}='I'\\\
+//     and PHASE='ADV'\");\
+\
+    app.run(\"update  port_cntr set BILL_NO=null, E_DSHIP_NO=null,SPEC_STOW=null where\\\
+            ID  in(   select  VLOAD_LIST.CNTR_ID  from VBILL_HEAD ,VLOAD_LIST  \\\
+     where  VBILL_HEAD.I_E_ID='E' and  VBILL_HEAD.ID=VLOAD_LIST.BILL_ID and VBILL_HEAD.ID={?ID?} and VBILL_HEAD.main_flag=1 )\");\
+\
+    app.run(\"delete  from VLOAD_LIST where  BILL_ID={?ID?}\");\
+    app.run(\"delete  from VLOAD_LIST_D where  BILL_ID={?ID?}\");\
+    app.run(\"delete from  VLOAD_LIST where \\\
+       BILL_ID in( select ID  from VBILL_HEAD where P_BILLNO  in( select  BILL_NO  from VBILL_HEAD where   ID={?ID?} and ZF_ID=1)\\\
+       and VID={?VID?} )\");\
+\
+    app.run(\"delete from   port_cntr  where  phase='ADV'  and   \\\
+            ID  in (   select  VLOAD_LIST.CNTR_ID  from VBILL_HEAD ,VLOAD_LIST  \\\
+     where  VBILL_HEAD.I_E_ID='I' and  VBILL_HEAD.ID=VLOAD_LIST.BILL_ID and VBILL_HEAD.ID={?ID?} and VBILL_HEAD.main_flag=1 )\");\
+    app.run(\"delete from VBILL_HEAD where P_BILLNO  in( select  BILL_NO  from VBILL_HEAD where   ID={?ID?} and ZF_ID=1)\\\
+    and VID={?VID?} and  tenancy_id ='\"+tenancyId+\"' and ZF_ID=1\");\
+\
+    app.run(\"update  move_list set phase='CNL' where  cntr_id in (select cntr_ID from vload_list where bill_id ={?ID?} and I_E_ID='I')\");\
+    app.run(\"delete  from VBILL_HEAD where  ID={?ID?}\");\
+    app.run(\" delete from   BUZ_ORDER  where  bill_id={?ID?}\");\
+    app.run(\" delete from   BUZ_ORDER_ITEM where  ORDER_ID in(select ID from BUZ_ORDER where  bill_id ={?ID?})\",{transaction: 'commit'});\
+//     app.run(\" update  port_cntr set  E_DSHIP_NO=null where  ID=(select  cntr_id  from vload_list where bill_id={?ID?})\",{transaction: 'commit'});\
+    app.run(\"call bill_lcl_id ('\"+vId+\"',  '\"+tenancyId+\"', '\"+ieId+\"')\");\
+\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "NMBC": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "ZHBG": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "删除提单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

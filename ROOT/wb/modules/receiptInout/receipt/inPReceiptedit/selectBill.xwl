@@ -1,0 +1,52 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var sql = \"select 1 from dual where not exists(select 1 from BLUK_BILL where TENANCY_ID='\" + tenancyid + \"' and BILL_NO={?billNo?} and TASKSTATUS in('FIN','END'))\";\
+// app.run(sql, {\
+//   errorText: '提单号 \"' + data.billNo + '\" 货物没有入库，不能做设备交接单。'\
+// });\
+sql = \"select id from vbill_head where bill_no='\" + data.billNo + \"' and (bill_type in('P','S') or (zf_id=1 and main_flag=0))\";\
+var bill = Wb.getRecords(app.run(sql));\
+if (bill.length < 1) {\
+  app.send({\
+    success: false,\
+    msg: \"没有找到提单\"\
+  });\
+  return;\
+}\
+sql = \"select h.TENANCY_ID,h.VID,l.CNTR,l.CATEGORY_ID,h.TRADE_ID,h.I_E_ID,l.E_F_ID,l.CNTR_ISO,h.LINE,h.CNTR_OPERATOR,\" +\
+  \"l.SEAL_NO,l.SEAL_NO2,l.SEAL_NO3,l.SEAL_NO4,h.POD,h.POL,h.SPOD,h.IMDG,h.UNDG,l.SPEC_STOW,h.TEMP_SET,l.TEMP_MIN,\" +\
+  \"l.TEMP_MAX,l.REEF_ID,l.OVERHEIGHT,l.OVERBACK,l.OVERLEFT,l.OVERRIGHT,l.OOG_ID,l.CNTR_SIZE,l.CNTR_TYPE,\" +\
+  \"h.CNTR_OPERATOR_COD,h.BILL_NO,h.MBILL_NO,h.SHIPPER_COD,h.SHIPPER,h.CONSIGNEE_COD,h.CONSIGNEE,h.CNTR_ID,\" +\
+  \"nvl(l.GOODS_NOTES,h.Goods_Notes) CMDY_CODE,h.SHIP_ORDER,h.LINE_COD,h.CONTRACT_MAN,\" +\
+  \"nvl(h.CONTRACT_PHONE,h.CONTRACT_TEL) CONTRACT_PHONE,h.id bill_id,h.weight GROS_WEIGHT\" +\
+  \" from vbill_head h left join vload_list l on l.bill_id=h.id\" +\
+  \" where h.tenancy_id='\" + tenancyid + \"' and h.id='\" + bill[0].ID + \"'\";\
+var result = DbUtil.getData(app.run(sql), request);\
+app.send({\
+  cntr: result,\
+  success: true\
+});"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "查询提单",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

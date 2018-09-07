@@ -1,0 +1,241 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var id = app.get('id');\
+var cntr, truck, from_pos, idOldTask;\
+var to_pos = app.get('to_pos');\
+var result = app.run(\"select phase,from_pos,transporter1,transporter2,cntr,queue_id,handle_id from move_list where id={?id?} and move_type='MOV' and to_pos_typ='G' and phase<>'FIN'\");\
+if (result.next()) {\
+  phase = result.getString(\"phase\");\
+  app.set('truck', truck = result.getString('transporter1'));\
+  app.set('yc', result.getString('transporter2'));\
+  app.set('from_pos', from_pos = result.getString('from_pos'));\
+  cntr = result.getString('cntr');\
+  app.set('idOldTask', result.getString('queue_id'));\
+  app.set('rid',result.getString('handle_id'));\
+} else\
+  return app.send({\
+    success: false,\
+    errstr: \"箱号\" + cntr + \"无对应的提箱指令\"\
+  });\
+if (phase != 'EXE')\
+  return app.send({\
+    success: false,\
+    errstr: \"箱号\" + cntr + \"对应的提箱指令未上车\"\
+  });\
+\
+var idYC1, idDRG, idDRB, idYC, idTask;\
+app.set('idDRB', idDRB = com.wb.util.SysUtil.getId());\
+app.set('idYC', idYC = com.wb.util.SysUtil.getId());\
+app.set('idTask', idTask = com.wb.util.SysUtil.getId());\
+\
+app.run(\"insert into task(id,tenancy_id,task_type,task_name,phase,auto_release,auto_position,reposition,priority,created_by,created_on,updated_by,updated_on,wait_untill) \" +\
+  \"values({?idTask?},{?sys.TENANCY_ID?},'MOVE','\" + Wb.dateToStr(new JavaDate()).split(' ')[0] + \"因提箱返场移箱到'||{?to_pos?},'EXE','1','1','1',1,{?sys.username?},sysdate,{?sys.username?},sysdate,{?timestamp.wait_untill?})\", {\
+    transaction: \"start\"\
+  });\
+\
+//分解指令\
+app.run(\"declare\\
+\\\
+ row move_list%rowtype;\\
+\\\
+ begin\\
+\\\
+ select * into row from move_list where id={?id?};\\
+\\\
+ row.created_on:=sysdate;\\
+\\\
+ row.wait_untill:=sysdate;\\
+\\\
+ row.created_by:={?sys.username?};\\
+\\\
+ row.updated_by:={?sys.username?};\\
+\\\
+ row.updated_on:=sysdate;\\
+\\\
+ row.queue_id:={?idTask?};\\
+\\\
+ row.id:={?sys.id?};\\
+\\\
+ row.trclass1:='TG';\\
+\\\
+ row.trclass2:='YC';\\
+\\\
+ row.trclass3:='TG';\\
+\\\
+ row.transporter1:={?truck?};\\
+\\\
+ row.transporter2:={?yc?};\\
+\\\
+ row.transporter3:={?truck?};\\
+\\\
+ row.phase:='EXE';\\
+\\\
+ row.from_pos:={?from_pos?};\\
+\\\
+ row.from_pos_typ:='B';\\
+\\\
+ row.to_pos:={?to_pos?};\\
+\\\
+ row.to_pos_typ:='B';\\
+\\\
+ insert into move_list values row;\\
+\\\
+ row.queue_id:={?sys.id?};\\
+\" +\
+\
+  //插入拖车运箱指令\
+  \"row.trclass1:='TG';\\
+\\\
+ row.trclass2:='YC';\\
+\\\
+ row.transporter1:={?truck?};\\
+\\\
+ row.transporter2:=null;\\
+\\\
+ row.move_type:='DRB';\\
+\\\
+ row.id:={?idDRB?};\\
+\\\
+ row.phase:='EXE';\\
+\\\
+ row.from_pos:={?from_pos?};\\
+\\\
+ row.from_pos_typ:='V';\\
+\\\
+ row.to_pos:={?to_pos?};\\
+\\\
+ row.to_pos_typ:='B';\\
+\\\
+ insert into move_list values row;\\
+\" +\
+  //插入堆场作业指令\
+  \"row.trclass1:='YC';\\
+\\\
+ row.move_type:='DIS';\\
+\\\
+ row.transporter1:='';\\
+\\\
+ row.trclass2:='TG';\\
+\\\
+ row.transporter2:={?truck?};\\
+\\\
+ row.id:={?idYC?};\\
+\\\
+ row.phase:='SND';\\
+\\\
+ row.from_pos:={?truck?};\\
+\\\
+ row.from_pos_typ:='T';\\
+\\\
+ insert into move_list values row;\\
+\\\
+ end;\");\
+//取消提箱任务\
+//app.run(\"update task set phase='CNL',updated_on=sysdate,updated_by={?sys.username?} where id={?idOldTask?}\");\
+app.run(\"update receipt set phase='EXE',cntr=decode(no_cntr,1,null,cntr),cntr_id=decode(no_cntr,1,null,cntr_id) where id={?rid?} and phase='GET'\");\
+app.run(\"insert into bus_action(bus_id,bus_typ,act_cod,act_by,act_on) \\\
+        values({?id?},'MOVE_LIST','YBCK',{?sys.username?},sysdate)\");\
+app.run(\"update move_list set phase='CNL',updated_on=sysdate,updated_by={?sys.username?} where id={?id?} or queue_id={?id?}\", {\
+  transaction: \"commit\"\
+});\
+//发送消息\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_task\", '#', {\
+      info: {\
+        type: \"task\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"taskMointor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idTask\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"cy.\" + to_pos, {\
+      info: {\
+        type: \"disc\",\
+        action: \"delete\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"taskMointor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: id,\
+        cntr: cntr\
+      }\
+    })  && client.routeSend(\"ex_machine\", \"truck.\" + truck, {\
+      info: {\
+        type: \"truck\",\
+        action: \"update\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"taskMointor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: truck\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"truck.\" + truck, {\
+      info: {\
+        type: \"disc\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"taskMointor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idDRB\
+      }\
+    }) && client.routeSend(\"ex_instruction\", \"cy.\" + to_pos, {\
+      info: {\
+        type: \"disc\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"taskMointor\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: idYC,\
+        cntr: cntr\
+      }\
+    })))\
+    return app.send({\
+      success: false,\
+      errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+    });\
+} catch (e) {\
+  return app.send({\
+    success: false,\
+    errstr: e\
+  });\
+} finally {\
+  client.close();\
+}\
+app.send({\
+  success: true,\
+  id: id\
+});"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "HSEDI": 1,
+  "ZSJJ": 1,
+  "SCANJB": 1,
+  "xlzk": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "ZSYARDCONT": 1
+ },
+ "title": "返场",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

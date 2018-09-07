@@ -1,0 +1,315 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [
+    {
+     "configs": {
+      "itemId": "toolbar1",
+      "region": "north"
+     },
+     "expanded": false,
+     "children": [
+      {
+       "configs": {
+        "itemId": "newBtn",
+        "tooltip": "添加新的记录 (Ctrl+E)",
+        "text": "添加",
+        "iconCls": "record_add_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "if (!app.selDept) {\
+  Wb.warn('部门未选择。');\
+  return;\
+}\
+Wb.addEdit(app.grid1, {\
+  DEPT_ID: app.selDept.data.DEPT_ID\
+});"}
+      },
+      {
+       "configs": {
+        "itemId": "delBtn",
+        "tooltip": "删除选择的记录",
+        "text": "删除",
+        "iconCls": "record_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.remove(app.grid1);"}
+      },
+      {
+       "configs": {
+        "itemId": "item1",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "saveBtn",
+        "tooltip": "保存所有的更改 (Ctrl+S)",
+        "text": "保存",
+        "iconCls": "save_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "if (!Wb.verifyGrid(app.grid1))\
+  return;\
+Wb.sync({\
+  grid: app.grid1,\
+  url: 'm?xwl=system/examples/employee/edit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+    app.unModified();\
+  },\
+  failure: function(resp) {\
+    //可以根据后台返回的错误重置错误信息\
+    if (resp.responseText.indexOf('WB_EMPLOYEE_EMPLOYEE_CODE') != -1) {\
+      Wb.error('员工编号重复。');\
+    }\
+  }\
+});"}
+      },
+      {
+       "configs": {
+        "itemId": "rejectBtn",
+        "tooltip": "放弃自上次保存以来所有的更改",
+        "text": "放弃",
+        "iconCls": "table_delete_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "Wb.confirm('确定要放弃对表格的所有更改吗？', function() {\
+  app.grid1.store.rejectChanges();\
+  app.unModified();\
+});"}
+      },
+      {
+       "configs": {
+        "itemId": "item2",
+        "text": "-"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item"
+      },
+      {
+       "configs": {
+        "itemId": "searchCombo",
+        "onTriggerClick": "this.collapse();\
+app.grid1.store.load({\
+  out: app.toolbar1 //toolbar1内的所有控件值作为参数列表\
+});",
+        "emptyText": "姓名",
+        "triggerCls": "x-form-search-trigger",
+        "width": "150",
+        "displayField": "REAL_NAME",
+        "enterKeyTriggerClick": "true"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=system/examples/employee/edit/search"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo",
+       "events": {"select": "Ext.callback(combo.onTriggerClick, combo);"}
+      },
+      {
+       "configs": {
+        "itemId": "resetSearchBtn",
+        "tooltip": "重置搜索结果",
+        "text": "重置搜索",
+        "iconCls": "undo_icon"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "item",
+       "events": {"click": "app.loadData();"}
+      }
+     ],
+     "type": "toolbar"
+    },
+    {
+     "configs": {
+      "itemId": "deptTree",
+      "file": "m?xwl=system/examples/employee/public/dept-tree"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "xwl"
+    },
+    {
+     "configs": {
+      "itemId": "grid1",
+      "editable": "true",
+      "collapsed": "true",
+      "viewConfig": "{\
+  plugins: {\
+    ptype: 'gridviewdragdrop',\
+    ddGroup: 'dept',\
+    enableDrop: false\
+  }\
+}",
+      "region": "center",
+      "multiSelect": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "store",
+        "remoteSort": "true",
+        "sorters": "'EMPLOYEE_CODE'",
+        "url": "m?xwl=system/examples/employee/dict-edit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store",
+       "events": {"load": "if (!app.grid1.columnConfiged) {\
+  Wb.getColumn(store, 'COMPANY_NAME').editor = app.grid1.companyEditor;\
+  Wb.bindChange(app.grid1, app.setModified);\
+  app.grid1.columnConfiged = true;\
+}"}
+      },
+      {
+       "configs": {
+        "itemId": "companyEditor",
+        "bindField": "COMPANY_ID",
+        "displayField": "COMPANY_NAME",
+        "listConfig": "{\
+  minWidth: 200\
+}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=system/examples/employee/edit/company-list"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       }],
+       "type": "combo"
+      }
+     ],
+     "type": "grid"
+    }
+   ],
+   "type": "viewport",
+   "events": {"afterrender": "app.afterRender();"}
+  }],
+  "type": "module",
+  "events": {
+   "beforeunload": "if (app.isModified)\
+  return '可编辑表格示例数据已经被更改';",
+   "initialize": "Wb.apply(app, {\
+  /**\
+   * tree1配置拖放事件，允许grid数据拖动到tree以调整人员所属部门。\
+   */\
+  treeViewConfig: {\
+    plugins: {\
+      ptype: 'treeviewdragdrop',\
+      ddGroup: 'dept',\
+      enableDrag: false\
+    },\
+    listeners: {\
+      beforedrop: function(node, data, om, dp, dh) {\
+        dh.wait = true;\
+        dh.cancelDrop();\
+        Wb.request({\
+          url: 'm?xwl=system/examples/employee/edit/change-dept',\
+          params: {\
+            newDeptId: om.data.DEPT_ID,\
+            recs: Wb.getData(data.records)\
+          },\
+          success: function() {\
+            //停止删除store记录时触发的app.setModified方法\
+            app.suspendSetModified = true;\
+            Wb.remove(app.grid1);\
+            app.suspendSetModified = false;\
+          }\
+        });\
+      },\
+      nodedragover: function(node, dp, data) {\
+        return dp == 'append' && app.selectDeptNode != node;\
+      }\
+    }\
+  },\
+  /**\
+   * 加载指定部门的人员数据。\
+   */\
+  loadData: function() {\
+    if (app.selDept)\
+      app.grid1.store.load({\
+        params: app.selDept.data\
+      });\
+  },\
+  /**\
+   * 在Viewport1渲染完成后执行的方法。\
+   */\
+  afterRender: function() {\
+    app.navKey = new Ext.KeyNav({\
+      viewport: app.viewport1,\
+      E: {\
+        ctrl: true,\
+        fn: function() {\
+          app.newBtn.fireEvent('click');\
+        }\
+      },\
+      S: {\
+        ctrl: true,\
+        fn: function() {\
+          app.saveBtn.fireEvent('click');\
+        }\
+      }\
+    });\
+    app.unModified();\
+  },\
+  /**\
+   * 设置为数据已经修改的状态。\
+   */\
+  setModified: function() {\
+    if (app.suspendSetModified)\
+      return;\
+    app.isModified = true;\
+    Wb.setDisabled([app.searchCombo, app.resetSearchBtn, app.deptTree.tree1, app.grid1.down('toolbar')], true);\
+    Wb.setDisabled([app.saveBtn, app.rejectBtn], false);\
+  },\
+  /**\
+   * 设置为数据未修改状态。\
+   */\
+  unModified: function() {\
+    app.isModified = false;\
+    Wb.setDisabled([app.searchCombo, app.resetSearchBtn, app.deptTree.tree1, app.grid1.down('toolbar')], false);\
+    Wb.setDisabled([app.saveBtn, app.rejectBtn], true);\
+  }\
+});"
+  }
+ }],
+ "roles": {"default": 1},
+ "title": "字典可编辑表格",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

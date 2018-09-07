@@ -1,0 +1,195 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var username = app.get('sys.username'); //用户ID\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var zsck = data.ZSPORT_ID; //中山港check状态\
+var xlck = data.XLPORT_ID; //小榄港check状态\
+var swck = data.SWPORT_ID; //神湾港check状态\
+var otherck = data.OTHER_ID;\
+var id = SysUtil.getId(); //奥海或集团账号添加数据用这个ID\
+\
+if (Wb.isEmpty(data.VESSEL_CODE)) {\
+  app.send({\
+    success: false,\
+    errstr: \"船舶代码为空\"\
+  });\
+  return;\
+}\
+var selsql1 = \"select v1.id from vessel_voyage v1 left join vessel_visit v2 on v1.id=v2.vid\" +\
+  \" where v1.VESSEL_CODE='\" + data.VESSEL_CODE + \"' and v2.LIB_VYG='\" + data.LIB_VYG + \"' and v2.I_E='I'\" +\
+  \" and v2.phase<>'FIN' and v2.tenancy_id='\" + tenancyid + \"'\";\
+var v1 = Wb.decode(DbUtil.getData(app.run(selsql1), request));\
+if (v1.length > 0) {\
+  app.send({\
+    success: false,\
+    errstr: \"船名和进口航次存在重复\"\
+  });\
+  return;\
+}\
+var selsql2 = \"select v1.id from vessel_voyage v1 left join vessel_visit v2 on v1.id=v2.vid\" +\
+  \" where v1.VESSEL_CODE='\" + data.VESSEL_CODE + \"' and trunc(v2.ETA)=trunc({?TIMESTAMP.ETA?}) and v2.tenancy_id='\" + tenancyid + \"' and '\"+tenancyid+\"'='XLG' \" +\
+  \"\";\
+app.run(selsql2,{ errorText:\"已经存在相同船名，不能再次建船\"});\
+\
+\
+var selsql2 = \"select v1.id from vessel_voyage v1 left join vessel_visit v2 on v1.id=v2.vid\" +\
+  \" where v1.VESSEL_CODE='\" + data.VESSEL_CODE + \"' and v2.LOB_VYG='\" + data.LOB_VYG + \"' and v2.I_E='E'\" +\
+  \" and v2.phase<>'FIN' and v2.tenancy_id='\" + tenancyid + \"'\";\
+var v2 = Wb.decode(DbUtil.getData(app.run(selsql2), request));\
+if (v2.length > 0) {\
+  app.send({\
+    success: false,\
+    errstr: \"船名和出口航次存在重复\"\
+  });\
+  return;\
+}\
+app.run(\"insert into vessel_voyage(ID,VESSEL_CODE,VESSEL_NAME,LINE,SERVICE,SERVICE_NAME,OSERVICE,OSERVICE_NAME,\" +\
+  \"IB_VYG,OB_VYG,CLASS,TENANCY_ID,ZSPORT_ID,XLPORT_ID,SWPORT_ID,OTHER_ID,INBOUND_CAPTAIN,OUTBOUND_CAPTAIN,\" +\
+  \"LENGTH,GRT,NRT,NOTES,CREATED_BY,CREATED_ON,ZSGUPD,XLGUPD,SWGUPD,VESSEL_USE,TRADE_ID,EDI_CALL_SIGN,DPORT,APORT,IS_JK,PHASE)\" +\
+  \" values('\" + id + \"',{?VESSEL_CODE?},{?VESSEL_NAME?},{?LINE?},{?SERVICE?},{?SERVICE_NAME?},{?OSERVICE?},{?OSERVICE_NAME?},\" +\
+  \"{?IB_VYG?},{?OB_VYG?},{?CLASS?},'\" + tenancyid + \"',\" + zsck + \",\" + xlck + \",\" + swck + \",\" + otherck + \",\" +\
+  \"{?INBOUND_CAPTAIN?},{?OUTBOUND_CAPTAIN?},{?LENGTH?},{?GRT?},{?NRT?},{?NOTES?},'\" + username + \"',sysdate,0,0,0,\" +\
+  \"{?VESSEL_USE?},{?ITRADE_ID?},{?EDI_CALL_SIGN?},{?DPORTI?},{?APORTI?},{?IS_JK?},{?APHASE?})\", {\
+    transaction: 'start'\
+  });\
+app.run(\"insert into vessel_visit(ID,VID,ETA,ETD,TENANCY_ID,CALL_SIGN,IC_CALL,OC_CALL,BERTH_CODE,BERTH_WAY,NEXT_PORT,\" +\
+  \"PHASE,ATA,ATD,PETA,PETD,IMP_MNFT_DATE,EXP_MNFT_DATE,BEGINRECEIVE,DRYCUTOFF,HAZCUTOFF,REEFCUTOFF,PILOTONBOARD,\" +\
+  \"PILOTOFFBOARD,LABORONBOARD,LABOROFFBOARD,OPA,OPD,STARTWORK,ENDWORK,STARTDISC,COMPLETEDISC,STARTLOAD,COMPLETELOAD,\" +\
+  \"LOAD_NOTE,DISC_NOTE,RESTOW_NOTE,SHIFT_NOTE,I_SHIP_NO,E_SHIP_NO,FORE_BOLLARD,AFT_BOLLARD,FORE_OFFSET,AFT_OFFSET,\" +\
+  \"CREATED_BY,CREATED_ON,IS_QG,IS_SD,IS_SB,IS_PF,IN_ZL,OUT_ZL,IN_BZ,OUT_BZ,IN_BJ,OUT_BJ,LIB_VYG,LOB_VYG,\" +\
+  \"DPORTI,APORTI,DPORTE,APORTE,ITRADE_ID,ETRADE_ID,I_E,O_BERTH_CODE,NOTES,ONOTES,I_OPERATOR,O_OPERATOR,SB_DATE)\" +\
+  \" values('\" + SysUtil.getId() + \"','\" + id + \"',{?TIMESTAMP.ETA?},{?TIMESTAMP.ETD?},'\" + tenancyid + \"',{?CALL_SIGN?},\" +\
+  \"{?IC_CALL?},{?OC_CALL?},{?BERTH_CODE?},{?BERTH_WAY?},{?NEXT_PORT?},{?APHASE?},{?TIMESTAMP.ATA?},{?TIMESTAMP.ATD?},\" +\
+  \"{?TIMESTAMP.PETA?},{?TIMESTAMP.PETD?},{?TIMESTAMP.IMP_MNFT_DATE?},{?TIMESTAMP.EXP_MNFT_DATE?},{?TIMESTAMP.BEGINRECEIVE?},\" +\
+  \"{?TIMESTAMP.DRYCUTOFF?},{?TIMESTAMP.HAZCUTOFF?},{?TIMESTAMP.REEFCUTOFF?},{?TIMESTAMP.PILOTONBOARD?},\" +\
+  \"{?TIMESTAMP.PILOTOFFBOARD?},{?TIMESTAMP.LABORONBOARD?},{?TIMESTAMP.LABOROFFBOARD?},{?TIMESTAMP.OPA?},\" +\
+  \"{?TIMESTAMP.OPD?},{?TIMESTAMP.STARTWORK?},{?TIMESTAMP.ENDWORK?},{?TIMESTAMP.STARTDISC?},{?TIMESTAMP.COMPLETEDISC?},\" +\
+  \"{?TIMESTAMP.STARTLOAD?},{?TIMESTAMP.COMPLETELOAD?},{?LOAD_NOTE?},{?DISC_NOTE?},{?RESTOW_NOTE?},{?SHIFT_NOTE?},\" +\
+  \"{?I_SHIP_NO?},{?E_SHIP_NO?},{?FORE_BOLLARD?},{?AFT_BOLLARD?},{?FORE_OFFSET?},{?AFT_OFFSET?},\" +\
+  \"'\" + username + \"',sysdate,{?IS_QG?},{?IS_SD?},{?IS_SB?},{?IS_PF?},{?IN_ZL?},{?OUT_ZL?},{?IN_BZ?},{?OUT_BZ?},\" +\
+  \"{?IN_BJ?},{?OUT_BJ?},{?LIB_VYG?},{?LOB_VYG?},{?DPORTI?},{?APORTI?},{?DPORTE?},{?APORTE?},{?ITRADE_ID?},{?ETRADE_ID?},\" +\
+  \"{?I_E?},{?O_BERTH_CODE?},{?NOTES?},{?ONOTES?},{?I_OPERATOR?},{?O_OPERATOR?},{?TIMESTAMP.SB_DATE?})\");\
+//↓↓↓↓↓↓↓↓↓↓奥海或集团账号添加数据↓↓↓↓↓↓↓↓↓↓\
+if (tenancyid === 'AT' || tenancyid === 'JT') {\
+  //插入中山港数据\
+  if (zsck == 1) {\
+    app.run(\"insert into vessel_visit(ID,VID,ETA,ETD,TENANCY_ID,CALL_SIGN,IC_CALL,OC_CALL,BERTH_CODE,BERTH_WAY,\" +\
+      \"NEXT_PORT,PHASE,ATA,ATD,PETA,PETD,IMP_MNFT_DATE,EXP_MNFT_DATE,BEGINRECEIVE,DRYCUTOFF,HAZCUTOFF,REEFCUTOFF,\" +\
+      \"PILOTONBOARD,PILOTOFFBOARD,LABORONBOARD,LABOROFFBOARD,OPA,OPD,STARTWORK,ENDWORK,STARTDISC,COMPLETEDISC,\" +\
+      \"STARTLOAD,COMPLETELOAD,LOAD_NOTE,DISC_NOTE,RESTOW_NOTE,SHIFT_NOTE,I_SHIP_NO,E_SHIP_NO,FORE_BOLLARD,AFT_BOLLARD,\" +\
+      \"FORE_OFFSET,AFT_OFFSET,CREATED_BY,CREATED_ON,IS_QG,IS_SD,IS_SB,IS_PF,IN_ZL,OUT_ZL,IN_BZ,OUT_BZ,IN_BJ,OUT_BJ,\" +\
+      \"LIB_VYG,LOB_VYG,DPORTI,APORTI,DPORTE,APORTE,ITRADE_ID,ETRADE_ID,I_E,O_BERTH_CODE,NOTES,ONOTES,I_OPERATOR,O_OPERATOR,\" +\
+      \"SB_DATE)\" +\
+      \" values('\" + SysUtil.getId() + \"','\" + id + \"',{?TIMESTAMP.ETA?},{?TIMESTAMP.ETD?},'ZSG',{?CALL_SIGN?},{?IC_CALL?},\" +\
+      \"{?OC_CALL?},{?BERTH_CODE?},{?BERTH_WAY?},{?NEXT_PORT?},{?APHASE?},{?TIMESTAMP.ATA?},{?TIMESTAMP.ATD?},{?TIMESTAMP.PETA?},\" +\
+      \"{?TIMESTAMP.PETD?},{?TIMESTAMP.IMP_MNFT_DATE?},{?TIMESTAMP.EXP_MNFT_DATE?},{?TIMESTAMP.BEGINRECEIVE?},\" +\
+      \"{?TIMESTAMP.DRYCUTOFF?},{?TIMESTAMP.HAZCUTOFF?},{?TIMESTAMP.REEFCUTOFF?},{?TIMESTAMP.PILOTONBOARD?},\" +\
+      \"{?TIMESTAMP.PILOTOFFBOARD?},{?TIMESTAMP.LABORONBOARD?},{?TIMESTAMP.LABOROFFBOARD?},{?TIMESTAMP.OPA?},\" +\
+      \"{?TIMESTAMP.OPD?},{?TIMESTAMP.STARTWORK?},{?TIMESTAMP.ENDWORK?},{?TIMESTAMP.STARTDISC?},{?TIMESTAMP.COMPLETEDISC?},\" +\
+      \"{?TIMESTAMP.STARTLOAD?},{?TIMESTAMP.COMPLETELOAD?},{?LOAD_NOTE?},{?DISC_NOTE?},{?RESTOW_NOTE?},{?SHIFT_NOTE?},\" +\
+      \"{?I_SHIP_NO?},{?E_SHIP_NO?},{?FORE_BOLLARD?},{?AFT_BOLLARD?},{?FORE_OFFSET?},{?AFT_OFFSET?},\" +\
+      \"'\" + username + \"',sysdate,{?IS_QG?},{?IS_SD?},{?IS_SB?},{?IS_PF?},{?IN_ZL?},{?OUT_ZL?},{?IN_BZ?},{?OUT_BZ?},\" +\
+      \"{?IN_BJ?},{?OUT_BJ?},{?LIB_VYG?},{?LOB_VYG?},{?DPORTI?},{?APORTI?},{?DPORTE?},{?APORTE?},{?ITRADE_ID?},{?ETRADE_ID?},\" +\
+      \"{?I_E?},{?O_BERTH_CODE?},{?NOTES?},{?ONOTES?},{?I_OPERATOR?},{?O_OPERATOR?},{?TIMESTAMP.SB_DATE?})\");\
+  }\
+  //插入小榄港数据\
+  if (xlck == 1) {\
+    app.run(\"insert into vessel_visit(ID,VID,ETA,ETD,TENANCY_ID,CALL_SIGN,IC_CALL,OC_CALL,BERTH_CODE,BERTH_WAY,NEXT_PORT,\" +\
+      \"PHASE,ATA,ATD,PETA,PETD,IMP_MNFT_DATE,EXP_MNFT_DATE,BEGINRECEIVE,DRYCUTOFF,HAZCUTOFF,REEFCUTOFF,PILOTONBOARD,\" +\
+      \"PILOTOFFBOARD,LABORONBOARD,LABOROFFBOARD,OPA,OPD,STARTWORK,ENDWORK,STARTDISC,COMPLETEDISC,STARTLOAD,COMPLETELOAD,\" +\
+      \"LOAD_NOTE,DISC_NOTE,RESTOW_NOTE,SHIFT_NOTE,I_SHIP_NO,E_SHIP_NO,FORE_BOLLARD,AFT_BOLLARD,FORE_OFFSET,AFT_OFFSET,\" +\
+      \"CREATED_BY,CREATED_ON,IS_QG,IS_SD,IS_SB,IS_PF,IN_ZL,OUT_ZL,IN_BZ,OUT_BZ,IN_BJ,OUT_BJ,LIB_VYG,LOB_VYG,\" +\
+      \"DPORTI,APORTI,DPORTE,APORTE,ITRADE_ID,ETRADE_ID,I_E,O_BERTH_CODE,NOTES,ONOTES,I_OPERATOR,O_OPERATOR,SB_DATE)\" +\
+      \" values('\" + SysUtil.getId() + \"','\" + id + \"',{?TIMESTAMP.ETA?},{?TIMESTAMP.ETD?},'XLG',{?CALL_SIGN?},{?IC_CALL?},\" +\
+      \"{?OC_CALL?},{?BERTH_CODE?},{?BERTH_WAY?},{?NEXT_PORT?},{?APHASE?},{?TIMESTAMP.ATA?},{?TIMESTAMP.ATD?},{?TIMESTAMP.PETA?},\" +\
+      \"{?TIMESTAMP.PETD?},{?TIMESTAMP.IMP_MNFT_DATE?},{?TIMESTAMP.EXP_MNFT_DATE?},{?TIMESTAMP.BEGINRECEIVE?},\" +\
+      \"{?TIMESTAMP.DRYCUTOFF?},{?TIMESTAMP.HAZCUTOFF?},{?TIMESTAMP.REEFCUTOFF?},{?TIMESTAMP.PILOTONBOARD?},\" +\
+      \"{?TIMESTAMP.PILOTOFFBOARD?},{?TIMESTAMP.LABORONBOARD?},{?TIMESTAMP.LABOROFFBOARD?},{?TIMESTAMP.OPA?},\" +\
+      \"{?TIMESTAMP.OPD?},{?TIMESTAMP.STARTWORK?},{?TIMESTAMP.ENDWORK?},{?TIMESTAMP.STARTDISC?},{?TIMESTAMP.COMPLETEDISC?},\" +\
+      \"{?TIMESTAMP.STARTLOAD?},{?TIMESTAMP.COMPLETELOAD?},{?LOAD_NOTE?},{?DISC_NOTE?},{?RESTOW_NOTE?},{?SHIFT_NOTE?},\" +\
+      \"{?I_SHIP_NO?},{?E_SHIP_NO?},{?FORE_BOLLARD?},{?AFT_BOLLARD?},{?FORE_OFFSET?},{?AFT_OFFSET?},\" +\
+      \"'\" + username + \"',sysdate,{?IS_QG?},{?IS_SD?},{?IS_SB?},{?IS_PF?},{?IN_ZL?},{?OUT_ZL?},{?IN_BZ?},{?OUT_BZ?},\" +\
+      \"{?IN_BJ?},{?OUT_BJ?},{?LIB_VYG?},{?LOB_VYG?},{?DPORTI?},{?APORTI?},{?DPORTE?},{?APORTE?},{?ITRADE_ID?},{?ETRADE_ID?},\" +\
+      \"{?I_E?},{?O_BERTH_CODE?},{?NOTES?},{?ONOTES?},{?I_OPERATOR?},{?O_OPERATOR?},{?TIMESTAMP.SB_DATE?})\");\
+  }\
+  //插入神湾港数据\
+  if (swck == 1) {\
+    app.run(\"insert into vessel_visit(ID,VID,ETA,ETD,TENANCY_ID,CALL_SIGN,IC_CALL,OC_CALL,BERTH_CODE,BERTH_WAY,NEXT_PORT,\" +\
+      \"PHASE,ATA,ATD,PETA,PETD,IMP_MNFT_DATE,EXP_MNFT_DATE,BEGINRECEIVE,DRYCUTOFF,HAZCUTOFF,REEFCUTOFF,PILOTONBOARD,\" +\
+      \"PILOTOFFBOARD,LABORONBOARD,LABOROFFBOARD,OPA,OPD,STARTWORK,ENDWORK,STARTDISC,COMPLETEDISC,STARTLOAD,COMPLETELOAD,\" +\
+      \"LOAD_NOTE,DISC_NOTE,RESTOW_NOTE,SHIFT_NOTE,I_SHIP_NO,E_SHIP_NO,FORE_BOLLARD,AFT_BOLLARD,FORE_OFFSET,AFT_OFFSET,\" +\
+      \"CREATED_BY,CREATED_ON,IS_QG,IS_SD,IS_SB,IS_PF,IN_ZL,OUT_ZL,IN_BZ,OUT_BZ,IN_BJ,OUT_BJ,LIB_VYG,LOB_VYG,\" +\
+      \"DPORTI,APORTI,DPORTE,APORTE,ITRADE_ID,ETRADE_ID,I_E,O_BERTH_CODE,NOTES,ONOTES,I_OPERATOR,O_OPERATOR,SB_DATE)\" +\
+      \" values('\" + SysUtil.getId() + \"','\" + id + \"',{?TIMESTAMP.ETA?},{?TIMESTAMP.ETD?},'SWG',{?CALL_SIGN?},{?IC_CALL?},\" +\
+      \"{?OC_CALL?},{?BERTH_CODE?},{?BERTH_WAY?},{?NEXT_PORT?},{?APHASE?},{?TIMESTAMP.ATA?},{?TIMESTAMP.ATD?},{?TIMESTAMP.PETA?},\" +\
+      \"{?TIMESTAMP.PETD?},{?TIMESTAMP.IMP_MNFT_DATE?},{?TIMESTAMP.EXP_MNFT_DATE?},{?TIMESTAMP.BEGINRECEIVE?},\" +\
+      \"{?TIMESTAMP.DRYCUTOFF?},{?TIMESTAMP.HAZCUTOFF?},{?TIMESTAMP.REEFCUTOFF?},{?TIMESTAMP.PILOTONBOARD?},\" +\
+      \"{?TIMESTAMP.PILOTOFFBOARD?},{?TIMESTAMP.LABORONBOARD?},{?TIMESTAMP.LABOROFFBOARD?},{?TIMESTAMP.OPA?},\" +\
+      \"{?TIMESTAMP.OPD?},{?TIMESTAMP.STARTWORK?},{?TIMESTAMP.ENDWORK?},{?TIMESTAMP.STARTDISC?},{?TIMESTAMP.COMPLETEDISC?},\" +\
+      \"{?TIMESTAMP.STARTLOAD?},{?TIMESTAMP.COMPLETELOAD?},{?LOAD_NOTE?},{?DISC_NOTE?},{?RESTOW_NOTE?},{?SHIFT_NOTE?},\" +\
+      \"{?I_SHIP_NO?},{?E_SHIP_NO?},{?FORE_BOLLARD?},{?AFT_BOLLARD?},{?FORE_OFFSET?},{?AFT_OFFSET?},\" +\
+      \"'\" + username + \"',sysdate,{?IS_QG?},{?IS_SD?},{?IS_SB?},{?IS_PF?},{?IN_ZL?},{?OUT_ZL?},{?IN_BZ?},{?OUT_BZ?},\" +\
+      \"{?IN_BJ?},{?OUT_BJ?},{?LIB_VYG?},{?LOB_VYG?},{?DPORTI?},{?APORTI?},{?DPORTE?},{?APORTE?},{?ITRADE_ID?},{?ETRADE_ID?},\" +\
+      \"{?I_E?},{?O_BERTH_CODE?},{?NOTES?},{?ONOTES?},{?I_OPERATOR?},{?O_OPERATOR?},{?TIMESTAMP.SB_DATE?})\");\
+  }\
+}\
+app.run(\"update vessel_visit set id='' where 1=2\", {\
+  transaction: 'commit'\
+});\
+app.send({\
+  success: true,\
+  errstr: \"完成\"\
+});\
+var message = app.get(\"VESSEL_NAME\") + \"将于\" + app.get(\"ETA\") + \"到港\";\
+app.sendMessage(\"qu_wechat\", '{\"ID\":\"600000\",\"MESSAGE\":\"' + message + '\"}');\
+\
+//==============发送消息==============\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_vessel\", \"ship.\" + data.VESSEL_CODE, {\
+      info: {\
+        type: \"vesselVisit\",\
+        action: \"create\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"vesselVisit\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: id\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"指令确认成功，但发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "xlwmcgs": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "ZSG_GA": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "新增航次",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
