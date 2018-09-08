@@ -18,7 +18,7 @@
       "width": "378",
       "height": "448"
      },
-     "expanded": false,
+     "expanded": true,
      "children": [
       {
        "configs": {
@@ -311,18 +311,33 @@ app.BILL_NO.store.load({\
       "hide": "\
 app.plan = false;",
       "ok": "var values = Wb.getValue(app.editor);\
-\
+console.info(values);\
 if (app.isEdit) {\
+  return;\
+  //修改\
   Wb.request({\
     url: \"m?xwl=MiscellJob/cangchuKl/plugPullPowerEdit/update\",\
     params: values,\
+    async: false,\
     success: function() {\
       Wb.update(app.setRec, values);\
+      /*\
+      Wb.request({\
+        url: \"m?xwl=MiscellJob/cangchuKl/plugPullPowerEdit/batchAudit\",\
+        params: {\
+          ID: ids\
+        },\
+        success: function() {\
+          alert(\"计费完成！\");\
+        }\
+      });*/\
+          \
       app.editor.close();\
       app.findMenu.fireEvent('click');\
     }\
   });\
 } else {\
+  //新增\
   if (verificationTime(values) > 0 && values.PULLOUTTIME != null) {\
     Wb.error(\"插电时间不能在拔电时间之前\");\
     return;\
@@ -342,7 +357,17 @@ if (app.isEdit) {\
   Wb.request({\
     url: src,\
     out: app.editor,\
+    async: false,\
     success: function(resp) {\
+        Wb.request({\
+          url: \"m?xwl=MiscellJob/cangchuKl/plugPullPowerEdit/batchAudit\",\
+          params: {\
+            ID: ids\
+          },\
+          success: function() {\
+            alert(\"计费完成！\");\
+          }\
+        });\
       app.editor.close();\
       app.findMenu.fireEvent('click');\
     }\

@@ -1,0 +1,45 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = Wb.decode(app.get('BILLS')),\
+  oldVid = app.get('oldVid'),\
+  vId = app.get(\"vId\"),\
+  TENANCY_ID = app.get(\"sys.TENANCY_ID\");\
+var ids = new Array();\
+mainFlag = 0;\
+for (var i = 0; i < data.length; i++) {\
+  ids.push({\
+    ID: data[i].ID\
+  });\
+}\
+app.run(\"update VBILL_HEAD set CNTR_ID='' ,main_flag=0,VID='\" + vId + \"' where ID ={?ID?}\", {\
+  arrayData: new org.json.JSONArray(ids),\
+  transaction: 'start'\
+});\
+\
+app.run(\"delete from   VLOAD_LIST  where BILL_ID ={?ID?}\", {\
+  arrayData: new org.json.JSONArray(ids),\
+  transaction: 'commit'\
+});\
+app.run(\"{call bill_lcl_id('\" + oldVid + \"','\" + TENANCY_ID + \"','E')}\");"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "提单换船",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

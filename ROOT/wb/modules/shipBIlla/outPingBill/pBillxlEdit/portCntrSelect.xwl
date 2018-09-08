@@ -1,0 +1,53 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql=\"\", ieId=app.get(\"ieId\"),message=\"\",TENANCY_ID=app.get(\"sys.TENANCY_ID\"), nature=app.get(\"sys.NATURE\"),  govCode=app.get(\"sys.GOV_CODE\");\
+\
+var rs=app.run(\"select  VESSEL_NAME , OC_CALL CALL from   PORT_CNTR ,VESSEL_VOYAGE,VESSEL_VISIT where \"+\
+\"  VESSEL_VOYAGE.ID=VESSEL_VISIT.VID and VESSEL_VISIT.ID= E_DSHIP_NO and CNTR={?cntrNo?} and \"+\
+\"  E_DSHIP_NO <>{?vid?} and  PORT_CNTR.TENANCY_ID= '\"+TENANCY_ID+\"' \" );\
+if(rs.next()){\
+message=\"此箱已经存在\"+rs.getString(\"VESSEL_NAME\")+\"航次号\"+rs.getString(\"CALL\")+\"，不能录入舱单<\/br>\";\
+}\
+\
+\
+if(nature=='5')\
+  sql=\" and CNTR_OPERATOR_COD='\"+govCode+\"'\";\
+var result=app.run(\" select CNTR_OPERATOR_COD,CNTR_OPERATOR,port_cntr.ID ,CNTR_ISO ,CNTR_SIZE, CNTR_TYPE ,E_F_ID,CNTR from  port_cntr \"+\
+                   \" where cntr={?cntrNo?} and TENANCY_ID= '\"+TENANCY_ID+\"' \"+  sql+\" and PHASE!='RET' \"),jsObject={};\
+jsObject.message=message;\
+if(result.next()){\
+  jsObject={CNTR_ID:result.getString('ID'),TYPE:1,CNTR_ISO:result.getString('CNTR_ISO') ,CNTR_SIZE:result.getString('CNTR_SIZE'), \
+            CNTR_TYPE:result.getString('CNTR_TYPE'),CNTR_OPERATOR_COD:result.getString('CNTR_OPERATOR_COD'),CNTR_OPERATOR:result.getString('CNTR_OPERATOR'),\
+            E_F_ID:result.getString('E_F_ID'),CNTR:result.getString('CNTR')};\
+  \
+}\
+else{\
+    jsObject={TYPE:0,CNTR_ID:SysUtil.getId(),message:\"箱子没有找到在场箱不能录入\"};\
+}\
+\
+\
+app.send(jsObject);\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "在场箱查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

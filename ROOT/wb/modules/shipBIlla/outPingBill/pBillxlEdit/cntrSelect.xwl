@@ -1,0 +1,52 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),    nature=app.get(\"sys.NATURE\"),  govCode=app.get(\"sys.GOV_CODE\"), tenancy=app.get(\"sys.TENANCY_ID\");\
+\
+sql = \"  TENANCY_ID='\"+tenancy+\"' and VID={?shipNo?} and  lcl_id =1 \";\
+\
+if(nature=='5')//表示驳船\
+  sql+=\" and  CNTR_OPERATOR_COD='\"+govCode+\"' \";\
+if (!Wb.isEmpty(data.billno)) {\
+  sql += \" and CNTR_ID=(SELECT CNTR_ID FROM VBILL_HEAD WHERE i_e_id='E' and BILL_TYPE='P'  and vid={?shipNo?} AND BILL_NO like '%'||{?billno?}||'%')\";\
+}\
+\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createColumns": "false",
+    "sql": "select MAIN_FLAG,LCL_ID,VOYAGE_NO,CATEGORY_ID, ID, CNTR_ID, SPLIT_ID,CNTR, CNTR_OPERATOR_COD, I_E_ID, PHASE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TRADE_ID,\
+VID, CNTR_SIZE, CNTR_TYPE, POL, POD, TENANCY_ID, CNTR_ISO, CNTR_OPERATOR ,LINE, LINE_COD,E_F_ID ,SPOD,CNTR_OWNER,CNTR_OWNER_COD,\
+(to_number(decode(cntr_size,'20','25','40','55','45','75','75'))- volume ) volume\
+from  (select MAIN_FLAG,LCL_ID,SPLIT_ID,VOYAGE_NO,CATEGORY_ID, ID, CNTR_ID, CNTR, CNTR_OPERATOR_COD, I_E_ID, PHASE, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TRADE_ID,\
+VID, CNTR_SIZE, CNTR_TYPE, POL, POD, TENANCY_ID, CNTR_ISO, CNTR_OPERATOR ,LINE, LINE_COD,E_F_ID ,SPOD,CNTR_OWNER,CNTR_OWNER_COD,\
+(select sum(volume) from vbill_head where vbill_head.cntr_id=VLOAD_LIST_D.cntr_id and i_e_id='E' and vid={?shipNo?}\
+ and  TENANCY_ID='{#sys.TENANCY_ID#}' ) volume  from VLOAD_LIST_D\
+ where {#whereSql#} and Main_flag=1 and lcl_id=1)"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {
+  "xlwmcgs": 1,
+  "DHSHIP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "箱信息查询",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
