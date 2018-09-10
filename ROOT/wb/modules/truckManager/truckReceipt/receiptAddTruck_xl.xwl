@@ -651,34 +651,48 @@ Wb.request({\
       "expanded": false,
       "children": [],
       "type": "item",
-      "events": {"click": "if (app.SHIPPER_WAY.getValue() == \"1\") {\
-  app.S_ADRESS.allowBlank = false;\
-  app.FEI_ADDDRESS.allowBlank = false;\
-} else {\
-  app.S_ADRESS.allowBlank = true;\
-  app.FEI_ADDDRESS.allowBlank = true;\
+      "events": {"click": "/*var taskType = pnl.cntrInfo && pnl.cntrInfo.TASK_TYPE;\
+if(taskType != 'GOUT')\
+  return Wb.error(\"请先选择提箱任务\");*/\
+\
+var ids = [];\
+var cfs;\
+var pnl = app.panelCntr1;\
+var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
+if (id) {\
+  ids.push(id);\
+  var pos = pnl.cntrInfo.YARD_POSITION || '';\
+  cfs = Wb.yardCfsMap[pos.substr(0, 2)] || 'JGQ';\
 }\
-if (Wb.isEmpty(app.RID.getValue())) {\
-  Wb.warn(\"请选择设备交接单\");\
-  return;\
+pnl = app.panelCntr2;\
+var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
+if (id) {\
+  var pos = pnl.cntrInfo.YARD_POSITION || '';\
+  var cfs2 = Wb.yardCfsMap[pos.substr(0, 2)] || 'JGQ';\
+  if (cfs2 !== cfs)\
+    return Wb.error(\"双箱所在闸区不一致\");\
+  ids.push(id);\
 }\
-if (!Wb.verify(app.panelForm)) {\
-  return;\
-}\
+if (ids.length === 0)\
+  return Wb.error(\"无待入闸设备交接单\");\
 Wb.request({\
-  url: 'm?xwl=truckManager/truckReceipt/receiptAddTruckedit/paiche',\
-  out: app.panelForm,\
+  url: \"m?xwl=controlManage/task/worktaskcraneedit/inGate\",\
+  params: Wb.apply({\
+    ids: ids,\
+    cfs: cfs,\
+    truck: truck\
+  }),\
   success: function(resp) {\
     var result = Wb.decode(resp.responseText);\
     if (result.success) {\
-      Wb.reset(app.panelForm);\
-      app.searchRBtn.fireEvent(\"click\");\
-      //       Wb.info(\"派车完成\");\
-      app.txtCNTR_NO_R.focus();\
-      app.txtCNTR_NO_R.selectText();\
-    } else {\
+      Wb.info('办理成功', function() {\
+        var find = app.tabCntr.getRefOwner().queryById('find');\
+        find.fireEvent('specialkey', find, {\
+          keyCode: 13\
+        });\
+      });\
+    } else\
       Wb.error(result.errstr);\
-    }\
   }\
 });"}
      },
