@@ -654,25 +654,64 @@ Wb.request({\
       "events": {"click": "/*var taskType = pnl.cntrInfo && pnl.cntrInfo.TASK_TYPE;\
 if(taskType != 'GOUT')\
   return Wb.error(\"请先选择提箱任务\");*/\
+  var pnl = app.panelForm;\
+  pnl.cntrInfo = {\
+    CNTR: '',\
+    CNTR_SIZE: '',\
+    TO_POS: '',\
+    YARD_POSITION: '',\
+    RELEASE_ID: '',\
+    IN_CAR: '',\
+    PLAT_NO: '',\
+    E_F_ID: '',\
+    I_E_ID: '',\
+    CMDY_CODE: '',\
+    CNTR_OPERATOR: ''\
 \
+  };\
+  Wb.setValue(pnl, pnl.cntrInfo);\
+  Wb.request({\
+    url: 'm?xwl=controlManage/task/worktaskcraneedit/cntrInfo',\
+    params: {\
+      find: app.CNTR.getValue().trim()\
+    },\
+    success: function(resp) {\
+      var rows = JSON.parse(resp.responseText);\
+      if (rows.length === 0) {\
+        Wb.error('找不到箱信息');\
+      } else if (rows.length > 1) {\
+        app.selCntrWin.target = pnl;\
+        app.selCntrWin.data = rows;\
+        app.selCntrWin.show();\
+      }\
+//       } else if (pnl === app.panelCntr2 && rows[0].CNTR_SIZE > 20)\
+//         Wb.error('孖柜不能有40尺柜');\
+      else {\
+        pnl.cntrInfo = rows[0];\
+        Wb.setValue(pnl, pnl.cntrInfo);\
+//         app.truck.setValue(pnl.cntrInfo.IN_CAR);\
+//         app.plate.setValue(pnl.cntrInfo.PLAT_NO);\
+      }\
+    }\
+  });\
 var ids = [];\
 var cfs;\
-var pnl = app.panelCntr1;\
+\
 var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
 if (id) {\
   ids.push(id);\
   var pos = pnl.cntrInfo.YARD_POSITION || '';\
   cfs = Wb.yardCfsMap[pos.substr(0, 2)] || 'JGQ';\
 }\
-pnl = app.panelCntr2;\
-var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
-if (id) {\
-  var pos = pnl.cntrInfo.YARD_POSITION || '';\
-  var cfs2 = Wb.yardCfsMap[pos.substr(0, 2)] || 'JGQ';\
-  if (cfs2 !== cfs)\
-    return Wb.error(\"双箱所在闸区不一致\");\
-  ids.push(id);\
-}\
+// pnl = app.panelCntr2;\
+// var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
+// if (id) {\
+//   var pos = pnl.cntrInfo.YARD_POSITION || '';\
+//   var cfs2 = Wb.yardCfsMap[pos.substr(0, 2)] || 'JGQ';\
+//   if (cfs2 !== cfs)\
+//     return Wb.error(\"双箱所在闸区不一致\");\
+//   ids.push(id);\
+// }\
 if (ids.length === 0)\
   return Wb.error(\"无待入闸设备交接单\");\
 Wb.request({\
