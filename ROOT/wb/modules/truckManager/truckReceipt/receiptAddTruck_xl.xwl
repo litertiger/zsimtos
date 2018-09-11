@@ -2697,7 +2697,7 @@ return value === 'P' ? '拼柜' : value === 'F' ? '重柜' : '吉柜';",
          "itemId": "popupMenu",
          "normalName": "menu1"
         },
-        "expanded": false,
+        "expanded": true,
         "children": [
          {
           "configs": {
@@ -2725,133 +2725,6 @@ return value === 'P' ? '拼柜' : value === 'F' ? '重柜' : '吉柜';",
          },
          {
           "configs": {
-           "itemId": "sendBtn",
-           "tooltip": "发送",
-           "text": "发送",
-           "iconCls": "flag1_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "if (app.taskType == 'VOUT') //装船替换掉小伟的逻辑\
-{\
-  Wb.request({\
-    url: 'm?xwl=controlManage/task/worktaskcraneedit/sendIns',\
-    params: {\
-      tskid: app.taskId,\
-      ship: app.treeTask.getSelection()[0].raw.ship,\
-      type: app.taskType,\
-      moves: app.moveGrid.getSelection().map(function(sel) {\
-        return sel.data.ID;\
-      })\
-    },\
-    success: function(resp) {\
-      Wb.info(resp.responseText);\
-    }\
-  });\
-  return;\
-} else if (app.taskType == 'MOVE') { //移箱逻辑\
-  var sel = app.treeTask.getSelection();\
-  if (sel.length > 1) {\
-    Wb.error('移箱一次只能激活一个！');\
-    return;\
-  }\
-}\
-\
-Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/taskDubbo/instSplit',\
-  params: {\
-    id: app.taskId,\
-    type: app.taskType,\
-    cntrs: app.moveGrid.getSelection().map(function(sel) {\
-      return sel.data.CNTR;\
-    }),\
-    moves: app.moveGrid.getSelection().map(function(sel) {\
-      return sel.data.ID;\
-    })\
-  },\
-  success: function(resp) {\
-    Wb.info(resp.responseText);\
-  }\
-});"}
-         },
-         {
-          "configs": {
-           "itemId": "cancelBtn",
-           "tooltip": "取消发送",
-           "text": "取消",
-           "iconCls": "undo_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/taskDubbo/delInstSplit',\
-  params: {\
-    taskId: app.taskId,\
-    ship: app.treeTask.getSelection()[0].raw.ship,\
-    type: app.treeTask.getSelection()[0].parentNode.data.id,\
-    moves: app.moveGrid.getSelection().map(function(sel) {\
-      return sel.data.ID;\
-    })\
-  },\
-  success: function(resp) {\
-    Wb.info(\"成功\"); //resp.responseText);\
-  }\
-});"}
-         },
-         {
-          "configs": {
-           "itemId": "enableBtn",
-           "tooltip": "启用指令",
-           "text": "启用",
-           "iconCls": "lamp_green_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "// Wb.info(app.menu1.popupComp.itemId); //同一menu可以用于多个控件，popupComp指向使菜单弹出的控件\
-//(激活现在就先改下状态)\
-var sels = app.moveGrid.getSelection();\
-Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/enableIns',\
-  params: {\
-    ship: app.treeTask.getSelection()[0].raw.ship,\
-    type: app.treeTask.getSelection()[0].parentNode.data.id,\
-    ids: sels.map(function(s){return s.data.ID;}),\
-    taskId: app.taskId\
-  },\
-  success: function(resp) {}\
-});"}
-         },
-         {
-          "configs": {
-           "itemId": "disableBtn",
-           "tooltip": "禁用指令",
-           "text": "禁用",
-           "iconCls": "lamp_red_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "// Wb.info(app.menu1.popupComp.itemId); //同一menu可以用于多个控件，popupComp指向使菜单弹出的控件\
-//(激活现在就先改下状态)\
-var sels = app.moveGrid.getSelection();\
-Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/disableIns',\
-  params: {\
-    ship: app.treeTask.getSelection()[0].raw.ship,\
-    type: app.treeTask.getSelection()[0].parentNode.data.id,\
-    ids: sels.map(function(s) {\
-      return s.data.ID;\
-    }),\
-    taskId: app.taskId\
-  },\
-  success: function(resp) {}\
-});"}
-         },
-         {
-          "configs": {
            "itemId": "writeCardBtn",
            "tooltip": "写卡",
            "text": "写卡",
@@ -2862,60 +2735,6 @@ Wb.request({\
           "type": "item",
           "events": {"click": "app.card.writeCardWin.HANDLE_ID = app.moveGrid.selModel.lastFocused.data.ID;\
 app.card.writeCardWin.show();"}
-         },
-         {
-          "configs": {
-           "itemId": "unloadBtn",
-           "tooltip": "卸船测试",
-           "text": "卸船测试",
-           "iconCls": "yellow-freighter_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "var sels = app.moveGrid.getSelection();\
-Wb.each(sels, function(sel) {\
-  Wb.request({\
-    url: 'appFun',\
-    params: {\
-      funId: 'SAVE_UNLOAD',\
-      cntr: sel.data.CNTR,\
-      ship:app.treeTask.selModel.selected.items[0].raw.ship\
-    },\
-    success: function(resp) {\
-      var ret = Wb.decode(resp.responseText);\
-      if (!ret.sucess && ret.errstr)\
-        Wb.error(ret.errstr);\
-    }\
-  });\
-});"}
-         },
-         {
-          "configs": {
-           "itemId": "loadBtn",
-           "tooltip": "装船测试",
-           "text": "装船测试",
-           "iconCls": "yellow-freighter_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "var sels = app.moveGrid.getSelection();\
-Wb.each(sels, function(sel) {\
-  Wb.request({\
-    url: 'appFun',\
-    params: {\
-      funId: 'SAVE_LOAD',\
-      cntr: sel.data.CNTR,\
-      ship:app.treeTask.selModel.selected.items[0].raw.ship\
-    },\
-    success: function(resp) {\
-      var ret = Wb.decode(resp.responseText);\
-      if (!ret.sucess && ret.errstr)\
-        Wb.error(ret.errstr);\
-    }\
-  });\
-});"}
          },
          {
           "configs": {
@@ -3015,47 +2834,6 @@ app.truckWin.show();"}
          },
          {
           "configs": {
-           "itemId": "popupLoadBack",
-           "tooltip": "退装",
-           "text": "退装",
-           "iconCls": "yellow-line-conveyor-belt_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "app.loadBackWin.show();\
-"}
-         },
-         {
-          "configs": {
-           "itemId": "popupRevoke",
-           "tooltip": "撤销",
-           "text": "撤销",
-           "iconCls": "cancel_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/revoke',\
-  params: {\
-    id: app.moveGrid.selModel.lastFocused.data.ID,\
-    cntr: app.moveGrid.selModel.lastFocused.data.CNTR,\
-    type: app.taskType\
-  },\
-  success: function(resp) {\
-    var ret = Wb.decode(resp.responseText);\
-    if (!ret.success) {\
-      Wb.error(\"保存撤销标志失败\");\
-      return;\
-    }\
-    app.moveGrid.selModel.lastFocused.set('PHASE', 'CNL');\
-    app.moveGrid.selModel.lastFocused.commit();\
-  }\
-});"}
-         },
-         {
-          "configs": {
            "itemId": "popupCyBack",
            "tooltip": "返场",
            "text": "返场",
@@ -3098,77 +2876,6 @@ Wb.request({\
     }\
   }\
 });"}
-         },
-         {
-          "configs": {
-           "itemId": "popupPriority",
-           "tooltip": "设置优先作业",
-           "text": "设置优先作业",
-           "iconCls": "top_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "var sels = app.moveGrid.getSelection();\
-if (sels.length < 0)\
-  return;\
-Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/prior',\
-  params: {\
-    ship: app.treeTask.getSelection()[0].raw.ship,\
-    type: app.treeTask.getSelection()[0].parentNode.data.id,\
-    ids: sels.map(function(s) {\
-      return s.data.ID;\
-    }),\
-    taskId: app.taskId\
-  },\
-  success: function(resp) {}\
-});"}
-         },
-         {
-          "configs": {
-           "itemId": "popupPriorityCnl",
-           "tooltip": "取消优先作业",
-           "text": "取消优先作业",
-           "iconCls": "top_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "var sels = app.moveGrid.getSelection();\
-if (sels.length < 0)\
-  return;\
-Wb.request({\
-  url: 'm?xwl=controlManage/task/worktaskcraneedit/canclePrior',\
-  params: {\
-    ship: app.treeTask.getSelection()[0].raw.ship,\
-    type: app.treeTask.getSelection()[0].parentNode.data.id,\
-    ids: sels.map(function(s) {\
-      return s.data.ID;\
-    }),\
-    taskId: app.taskId\
-  },\
-  success: function(resp) {}\
-});"}
-         },
-         {
-          "configs": {
-           "itemId": "popupRemark",
-           "tooltip": "设置备注",
-           "text": "备注",
-           "iconCls": "notepad_icon"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "item",
-          "events": {"click": "var sels = app.moveGrid.getSelection();\
-if (sels.length < 0)\
-  return;\
-Wb.setValue(app.remarkWin, {\
-  notes: sels[0].data.NOTES,\
-  id:sels[0].data.ID\
-});\
-app.remarkWin.show();"}
          }
         ],
         "type": "menu",
@@ -3177,125 +2884,81 @@ if (!(rows && rows[0])) {\
   menu.hide();\
   return;\
 }\
-//发送按钮是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.PHASE === 'PLN';\
-  }))\
-  menu.down(\"#sendBtn\").show();\
-else\
-  menu.down(\"#sendBtn\").hide();\
 \
-//取消按钮是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.PHASE === 'SND';\
-  }) && (app.taskType === 'VIN' || app.taskType === 'VOUT' || app.taskType === 'MOVE'))\
-  menu.down(\"#cancelBtn\").show();\
-else\
-  menu.down(\"#cancelBtn\").hide();\
 \
-//启用按钮是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.ENABLE_ID === 0;\
-  }))\
-  menu.down(\"#enableBtn\").show();\
-else\
-  menu.down(\"#enableBtn\").hide();\
 \
-//取消按钮是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.ENABLE_ID === 1;\
-  }))\
-  menu.down(\"#disableBtn\").show();\
-else\
-  menu.down(\"#disableBtn\").hide();\
 \
-//写卡按钮是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.RELEASE_ID == 1 && (r.data.Y2Y_ID === 1 || r.data.TO_POS_TYP === 'G' || r.data.FROM_POS_TYP === 'G');\
-  }))\
-  menu.down(\"#writeCardBtn\").show();\
-else\
-  menu.down(\"#writeCardBtn\").hide();\
+// //启用按钮是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.ENABLE_ID === 0;\
+//   }))\
+//   menu.down(\"#enableBtn\").show();\
+// else\
+//   menu.down(\"#enableBtn\").hide();\
 \
-//卸船测试是否可见\
-if (app.taskType === 'VIN' && Ext.Array.findBy(rows, function(r) {\
-    return r.data.PHASE === 'PLN' || r.data.PHASE === 'SND' || r.data.PHASE === 'TMP';\
-  }))\
-  menu.down(\"#unloadBtn\").show();\
-else\
-  menu.down(\"#unloadBtn\").hide();\
+// //取消按钮是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.ENABLE_ID === 1;\
+//   }))\
+//   menu.down(\"#disableBtn\").show();\
+// else\
+//   menu.down(\"#disableBtn\").hide();\
 \
-//装船测试是否可见\
-if (app.taskType === 'VOUT' && Ext.Array.findBy(rows, function(r) {\
-    return r.data.PHASE === 'EXE' || r.data.PHASE === 'TMP';\
-  }))\
-  menu.down(\"#loadBtn\").show();\
-else\
-  menu.down(\"#loadBtn\").hide();\
+// //写卡按钮是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.RELEASE_ID == 1 && (r.data.Y2Y_ID === 1 || r.data.TO_POS_TYP === 'G' || r.data.FROM_POS_TYP === 'G');\
+//   }))\
+//   menu.down(\"#writeCardBtn\").show();\
+// else\
+//   menu.down(\"#writeCardBtn\").hide();\
 \
-//修改场位是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return (r.data.TO_POS_TYP === 'B' || r.data.TO_POS_TYP === 'V' || r.data.TRCLASS4 === 'YC') && r.data.PHASE !== 'FIN';\
-  }))\
-  menu.down(\"#modifyCyBtn\").show();\
-else\
-  menu.down(\"#modifyCyBtn\").hide();\
 \
-//装船回退是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.TO_POS_TYP === 'V' && (r.data.PHASE == 'FIN' || r.data.PHASE == 'EXE');\
-  }))\
-  menu.down(\"#popupLoadBack\").show();\
-else\
-  menu.down(\"#popupLoadBack\").hide();\
 \
-//撤销是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.PHASE === 'PLN';\
-  }))\
-  menu.down(\"#popupRevoke\").show();\
-else\
-  menu.down(\"#popupRevoke\").hide();\
+// //修改场位是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return (r.data.TO_POS_TYP === 'B' || r.data.TO_POS_TYP === 'V' || r.data.TRCLASS4 === 'YC') && r.data.PHASE !== 'FIN';\
+//   }))\
+//   menu.down(\"#modifyCyBtn\").show();\
+// else\
+//   menu.down(\"#modifyCyBtn\").hide();\
 \
-//返场是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.TO_POS_TYP === 'G' && r.data.PHASE === 'EXE';\
-  }))\
-  menu.down(\"#popupCyBack\").show();\
-else\
-  menu.down(\"#popupCyBack\").hide();\
 \
-//取消进门是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.TO_POS_TYP === 'G' && r.data.PHASE === 'SND';\
-  }))\
-  menu.down(\"#popupGateCnl\").show();\
-else\
-  menu.down(\"#popupGateCnl\").hide();\
 \
-//设置优先作业是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.PRIORITY === 1;\
-  }))\
-  menu.down(\"#popupPriority\").show();\
-else\
-  menu.down(\"#popupPriority\").hide();\
+// //撤销是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.PHASE === 'PLN';\
+//   }))\
+//   menu.down(\"#popupRevoke\").show();\
+// else\
+//   menu.down(\"#popupRevoke\").hide();\
 \
-//取消优先作业是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.PRIORITY === 2;\
-  }))\
-  menu.down(\"#popupPriorityCnl\").show();\
-else\
-  menu.down(\"#popupPriorityCnl\").hide();\
+// //返场是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.TO_POS_TYP === 'G' && r.data.PHASE === 'EXE';\
+//   }))\
+//   menu.down(\"#popupCyBack\").show();\
+// else\
+//   menu.down(\"#popupCyBack\").hide();\
 \
-//打印放行条是否可见\
-if (Ext.Array.findBy(rows, function(r) {\
-    return r.data.Y2Y_ID;\
-  }))\
-  menu.down(\"#popupPrint\").show();\
-else\
-  menu.down(\"#popupPrint\").hide();"}
+// //取消进门是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.TO_POS_TYP === 'G' && r.data.PHASE === 'SND';\
+//   }))\
+//   menu.down(\"#popupGateCnl\").show();\
+// else\
+//   menu.down(\"#popupGateCnl\").hide();\
+\
+\
+\
+\
+\
+// //打印放行条是否可见\
+// if (Ext.Array.findBy(rows, function(r) {\
+//     return r.data.Y2Y_ID;\
+//   }))\
+//   menu.down(\"#popupPrint\").show();\
+// else\
+//   menu.down(\"#popupPrint\").hide();"}
        }
       ],
       "type": "grid",
