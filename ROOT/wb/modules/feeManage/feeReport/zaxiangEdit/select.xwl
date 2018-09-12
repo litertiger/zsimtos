@@ -66,7 +66,7 @@ sql=\"select * from (SELECT DECODE (FEE_LIST_ID,\t\"+\
 \"       ACTUAL_JOB_COUNT,\"+\
 \"       AMOUNT,NVL(CONTRACT_RATE,RATE) RATE,\"+\
 \"       ACCOUNTS_DETAILS.TENANCY_ID,\"+\
-\"       ACCOUNTS_DETAILS.PAYMENT_TYPE,(select name from c_customer where code = VBILL_HEAD_OTH.CUSTOMER_ID) CUSTOMER_ID,VBILL_HEAD_OTH.NOTES,SETTLEMENT_CODE,ACCOUNTS_DETAILS.CNTR\"+\
+\"       ACCOUNTS_DETAILS.PAYMENT_TYPE,nvl((select name from c_customer where code = VBILL_HEAD_OTH.CUSTOMER_ID),VBILL_HEAD_OTH.CUSTOMER_ID) CUSTOMER_ID,VBILL_HEAD_OTH.NOTES,SETTLEMENT_CODE,ACCOUNTS_DETAILS.CNTR\"+\
 \"  FROM (  SELECT TO_CHAR (VBILL_HEAD_OTH.CREATED_ON, 'yyyy-MM-dd') CREATED_ON,VBILL_HEAD_OTH.ID,\"+\
 \"                 ORDER_NO,\"+\
 \"                 VBILL_HEAD_OTH.BILL_NO,\"+\
@@ -75,7 +75,7 @@ sql=\"select * from (SELECT DECODE (FEE_LIST_ID,\t\"+\
   \"                 CARGO_PIECES PIECES,\"+\
      \"              CARGO_GROSS_WGT WEIGHT,\"+\
         \"           CARGO_VOLUME VOLUME,\"+\
-           \"        nvl((select name from c_customer where code =TRUCKFEE_PAYER_COD),TRUCKFEE_PAYER) CUSTOMER_ID,\"+\
+           \"        nvl(TRUCKFEE_PAYER_COD,TRUCKFEE_PAYER) CUSTOMER_ID,\"+\
            \"        VBILL_HEAD_OTH.NOTES\"+\
          \"     FROM VBILL_HEAD_OTH, VBILL_OTH_CARGO\"+\
         \"     WHERE VBILL_OTH_CARGO.BILL_ID = VBILL_HEAD_OTH.ID\"+\
@@ -103,7 +103,7 @@ sql=\"select * from (SELECT DECODE (FEE_LIST_ID,\t\"+\
  \"      AMOUNT,NVL(CONTRACT_RATE,RATE) RATE,\"+\
  \"      ACCOUNTS_DETAILS.TENANCY_ID,\"+\
  \"      ACCOUNTS_DETAILS.PAYMENT_TYPE,\"+\
- \"      CUSTOMER_ID,\"+\
+ \"      (select name from c_Customer where code=CUSTOMER_ID) CUSTOMER_ID,\"+\
  \"      NOTES,SETTLEMENT_CODE,DEV_CNTR.CNTR\"+\
 \"  FROM DEV_CNTR, ACCOUNTS_DETAILS\"+\
 \" WHERE DEV_CNTR.ID = ACCOUNTS_DETAILS.BUSSINESS_CODE AND is_Manual = 1) where 1=1 \"+data.whereSql+\" order by CREATED_ON asc\";\
