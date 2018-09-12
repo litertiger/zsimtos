@@ -5,6 +5,7 @@
    "itemId": "module",
    "serverScript": "var sql = \"\";\
 var data = app.get();\
+var tenancyId=app.get('sys.TENANCY_ID');\
 sql = \"select ri.FEE_LIST_ID,CUSTOMER_ID,R.ID rid,ri.ACTUAL_JOB_COUNT,SETTLEMENT_CODE,\" +\
   \" accounts_details.BILL_NO,nvl(CONTRACT_RATE,RATE) RATE,\" +\
   \" ri.AMOUNT,\" +\
@@ -43,9 +44,9 @@ sql = \"SELECT DWELL_DAYS,(select DESCRIPTION from C_BASE_CHARGING_ITEM where id
   \"       (SELECT QD_ON  FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO) QD_ON,\" +\
   \"       /*(SELECT PAY_ON FROM BUZ_ORDER WHERE BILL_NO = accounts_details.BILL_NO)*/ rem_date PAY_ON,\" +\
   \"       to_char((SELECT ETA FROM VBILL_HEAD A,VESSEL_VISIT B WHERE A.VID=B.ID AND BILL_NO = accounts_details.BILL_NO AND ROWNUM=1),'yyyy-MM-dd') ETA,\" +\
-  \"       accounts_details.CNTR, accounts_details.I_E_ID,accounts_details.CNTR_OPERATOR_COD,INVOICE_CODE,INVOICE_TYPE,BILL_TYPE,\" +\
+  \"       accounts_details.CNTR, accounts_details.I_E_ID,NVL(accounts_details.CNTR_OPERATOR_COD,(SELECT CNTR_OPERATOR_COD FROM VBILL_HEAD WHERE BILL_NO=accounts_details.BILL_NO AND PHASE<>'9')) CNTR_OPERATOR_COD,INVOICE_CODE,INVOICE_TYPE,BILL_TYPE,\" +\
   \"       SETTLE_DAYS,'RMB' YUAN FROM accounts_details, REMITTING R, REMITTING_ITEM RI\" +\
-  \" WHERE    R.ID = RI.C_ID AND RI.AD_ID = accounts_details.ID(+) and r.r_ok={?phase?}\" + data.conditionSql + \"\" + data.conditionSql1;\
+  \" WHERE    R.ID = RI.C_ID AND RI.AD_ID = accounts_details.ID(+) and accounts_details.TENANCY_ID='\"+tenancyId+\"' AND r.r_ok={?phase?}\" + data.conditionSql + \"\" + data.conditionSql1;\
 app.send(Wb.getRecords(app.run(sql)));"
   },
   "expanded": false,
