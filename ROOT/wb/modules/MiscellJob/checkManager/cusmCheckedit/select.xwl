@@ -33,11 +33,22 @@ if (!Wb.isEmpty(data.billNo))\
   sql += \" and (cc.BILL_NO like '%'||{?billNo?}||'%'  or CHECKID like '%'||{?billNo?}||'%' )\";\
 if (!Wb.isEmpty(data.state) && data.state != 'ALL')\
   sql += \" and cc.PHASE={?state?} \";\
+// if (!Wb.isEmpty(data.startdate)) {\
+//   var s = data.startdate.split(\" \");\
+//   app.log(s[0]);\
+//   sql += \" and to_char(APPLYTIME,'yyyy-MM-dd')='\" + s[0] + \"'\";\
+// }\
+\
 if (!Wb.isEmpty(data.startdate)) {\
   var s = data.startdate.split(\" \");\
-  app.log(s[0]);\
-  sql += \" and to_char(APPLYTIME,'yyyy-MM-dd')='\" + s[0] + \"'\";\
+  sql += \" and APPLYTIME>=to_date('\"+s[0]+\" 00:00:00','yyyy-MM-dd hh24:mi:ss')\";\
 }\
+if (!Wb.isEmpty(data.edate)) {\
+  var s = data.edate.split(\" \");\
+  sql += \" and APPLYTIME<=to_date('\"+s[0]+\" 23:59:59','yyyy-MM-dd hh24:mi:ss')\";\
+}\
+\
+\
 // if (!Wb.isEmpty(data.startdate)) {\
 //   var s = data.startdate.split(\" \");\
 //   app.log(s[0]);\
