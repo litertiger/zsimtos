@@ -753,7 +753,29 @@ app.listGateCntr.store.reload({\
        },
        "expanded": true,
        "children": [],
-       "type": "ttext"
+       "type": "ttext",
+       "events": {"action": "//目前只有小榄港可以按拖车带单号\
+if('{#sys.TENANCY_ID#}' !== 'XLG')\
+  return;\
+var truck = text.getValue();\
+if (!truck)\
+  return Wb.error('拖车号不能为空');\
+Ext.Ajax.request({\
+  url: 'appFun?funId=GET_RCPT',\
+  params: {\
+    truck: truck\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.success) {\
+     Wb.setValue(app.gate,result.data);\
+    } else\
+      Wb.error(result.errstr);\
+  },\
+  failure: function(resp) {\
+    Wb.error(resp.responseText);\
+  }\
+});"}
       },
       {
        "configs": {
