@@ -17,7 +17,7 @@
      "enableOverflow": "true",
      "region": "north"
     },
-    "expanded": true,
+    "expanded": false,
     "children": [
      {
       "configs": {
@@ -572,7 +572,7 @@ Wb.request({\
      "title": "变更作业类型",
      "height": "160"
     },
-    "expanded": true,
+    "expanded": false,
     "children": [
      {
       "configs": {
@@ -677,10 +677,271 @@ Wb.request({\
    },
    {
     "configs": {
+     "layout": "fit",
+     "itemId": "winStation",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "685",
+     "title": "加装",
+     "height": "430"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "gridStation",
+      "editable": "true",
+      "multiSelect": "true"
+     },
+     "expanded": false,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "normalName": "tbstation",
+        "region": "north"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "srid",
+          "hidden": "true"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "addStation",
+          "text": "添加",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.addEdit(app.gridStation, {\
+  ID: Wb.guid(),\
+  RID: app.srid.getValue(),\
+  ZX: \"装车\"\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "delStation",
+          "text": "删除",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.remove(app.gridStation);"}
+        },
+        {
+         "configs": {
+          "itemId": "saveStation",
+          "text": "保存",
+          "iconCls": "save_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "if (!Wb.verifyGrid(app.gridStation)) //验证数据是否合法\
+  return;\
+\
+Wb.sync({\
+  grid: app.gridStation,\
+  url: 'm?xwl=truckManager/truckVisit/truckvisitedit/saveStation',\
+  params: {\
+    rid: app.srid.getValue()\
+  },\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    app.gridStation.store.load({\
+      params: {\
+        ID: app.srid.getValue()\
+      }\
+    });\
+  }\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=truckManager/truckVisit/truckvisitedit/selectStation"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colADDRESS",
+          "dataIndex": "ADDRESS",
+          "width": "200",
+          "text": "地址"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "tagConfigs": "matchFieldWidth: false",
+           "itemId": "editor",
+           "allowBlank": "false",
+           "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      地址\
+    <\/td>\
+    <td>\
+      距离\
+    <\/td>\
+    <td>\
+      区域\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {NAME}\
+      <\/td>\
+      <td>\
+        {DISTANCE}\
+      <\/td>\
+      <td>\
+        {AREANAME}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+           "queryMode": "remote",
+           "labelAlign": "right",
+           "displayField": "NAME",
+           "listConfig": "{\
+  width: 300\
+}",
+           "valueField": "NAME"
+          },
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "store",
+            "autoLoad": "true",
+            "pageSize": "-1",
+            "url": "m?xwl=receiptInout/receipt/receiptedit/selectADRESS"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "store"
+          }],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colKM",
+          "dataIndex": "KM",
+          "text": "公里数"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {"itemId": "editor"},
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colZX",
+          "dataIndex": "ZX",
+          "text": "装卸标志"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "editor",
+           "pickList": "[\
+  [\"装车\", \"装车\"],\
+  [\"卸车\", \"卸车\"]\
+]"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "combo"
+         }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colAMOUNT",
+          "dataIndex": "AMOUNT",
+          "text": "金额"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {"itemId": "editor"},
+          "expanded": false,
+          "children": [],
+          "type": "number"
+         }],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid"
+    }],
+    "type": "window",
+    "events": {"ok": "if (!Wb.verifyGrid(app.gridStation)) //验证数据是否合法\
+  return;\
+\
+Wb.sync({\
+  grid: app.gridStation,\
+  url: 'm?xwl=truckManager/truckVisit/truckvisitedit/saveStation',\
+  params: {\
+    rid: app.srid.getValue()\
+  },\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    app.winStation.close();\
+  }\
+});"}
+   },
+   {
+    "configs": {
      "layout": "border",
      "itemId": "viewport1"
     },
-    "expanded": true,
+    "expanded": false,
     "children": [
      {
       "configs": {
@@ -705,7 +966,7 @@ Wb.request({\
        "autoScroll": "true",
        "height": "340"
       },
-      "expanded": true,
+      "expanded": false,
       "children": [
        {
         "configs": {
@@ -1876,7 +2137,7 @@ else\
        },
        {
         "configs": {"itemId": "columns"},
-        "expanded": true,
+        "expanded": false,
         "children": [
          {
           "configs": {
@@ -2152,16 +2413,17 @@ if (value == '1')\
        {
         "configs": {"itemId": "popupMenu"},
         "expanded": true,
-        "children": [{
-         "configs": {
-          "itemId": "popupWORKTYPE",
-          "text": "变更申请",
-          "iconCls": "object_icon"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "item",
-         "events": {"click": "var rowData = app.popupMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+        "children": [
+         {
+          "configs": {
+           "itemId": "popupWORKTYPE",
+           "text": "变更申请",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.popupMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
 var tenid = '{#sys.TENANCY_ID#}';\
 if (rowData.PHASE == \"FIN\") {\
   Wb.warn(\"已经完成的设备交接单不能修改作业类型\");\
@@ -2173,7 +2435,28 @@ app.UP_WORK_TYPE.setValue(\"\");\
 app.radioN.setValue(true);\
 app.radioN.setDisabled(true);\
 app.radioY.setDisabled(true);"}
-        }],
+         },
+         {
+          "configs": {
+           "itemId": "popupZX",
+           "text": "多地装车",
+           "iconCls": "yellow-forklift_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menuR.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._winStation); //app._win指向配置对象而非实例\
+win.setTitle(\"多点装车\");\
+win.show();\
+app.srid.setValue(rowData.ID);\
+app.gridStation.store.load({\
+  params: {\
+    ID: rowData.ID\
+  }\
+});"}
+         }
+        ],
         "type": "menu",
         "events": {"show": "var rows = app.gridReceipt.getSelection();\
 app.popupWORKTYPE.setDisabled(rows.length != 1);\
