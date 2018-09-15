@@ -5,8 +5,17 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
-var sql = \"select ts.*,ad.id aid,ad.amount from truck_station ts left join accounts_details ad on ts.rid=ad.bussiness_code\" +\
-  \" where ts.rid ={?ID?} and ad.FEE_LIST_ID=(select id from C_BASE_CHARGING_ITEM where description like '%多地加装%' and tenancy_id='\" + tenancyid + \"' and rownum=1)\";\
+var sql = \" \";\
+if(tenancyid=='ZSG'){\
+  sql = \"select ts.*,ad.id aid,ad.amount from truck_station ts left join accounts_details ad on ts.rid=ad.bussiness_code\" +\
+  \" where ts.rid ={?ID?} \";\
+   sql+=\"and ad.FEE_LIST_ID=(select id from C_BASE_CHARGING_ITEM where description like '%多地加装%' and tenancy_id='\" + tenancyid + \"' and rownum=1)\";\
+}\
+else if \
+  (tenancyid=='XLG'){\
+  sql = \"select ts.* from truck_station ts  \" +\
+  \" where ts.rid ={?ID?} \";\
+}\
 request.setAttribute(\"sql\", sql);"
   },
   "expanded": true,
