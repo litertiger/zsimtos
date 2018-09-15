@@ -295,6 +295,8 @@ function drawyard(newdata) {
 }
 
 function loadCntr(cntr) {
+    var selTier = app.cmbTier.getValue();
+    console.log(selTier);
     return Ajax({
         url: 'm?xwl=yardManage/yardmonitor/getcntrs', // 跳转到 action
         type: 'post',
