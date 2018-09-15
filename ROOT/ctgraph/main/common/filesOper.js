@@ -295,8 +295,10 @@ function drawyard(newdata) {
 }
 
 function loadCntr(cntr) {
-    var selTier = app.cmbTier.getValue();
-    console.log(selTier);
+    if(app.comboTier)
+    {
+      var selTier = app.comboTier.getValue();
+    }
     return Ajax({
         url: 'm?xwl=yardManage/yardmonitor/getcntrs', // 跳转到 action
         type: 'post',
@@ -312,6 +314,8 @@ function loadCntr(cntr) {
         var cntr = seajs.require("main/ct/obj/container");
         for (var i = 0; i < datarows.length; i++) {
             if (datarows[i].POS) {
+                if(selTier && datarows[i].POS.substr(-1,1) != selTier)
+                  continue;
                 var param = findSlot(yards, datarows[i]);
                 if (param) {
                     for (var k in datarows[i]) {
