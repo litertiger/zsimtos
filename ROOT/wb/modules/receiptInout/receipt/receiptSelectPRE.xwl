@@ -492,6 +492,66 @@ Wb.confirmDo(sels, function() {\
            "expanded": true,
            "children": [],
            "type": "item"
+          },
+          {
+           "configs": {
+            "itemId": "btnts",
+            "text": "托收",
+            "iconCls": "share_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择设备交接单\");\
+  return;\
+}\
+\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=receiptInout/receipt/receiptedit/delete',\
+    params: {\
+      ID: sels[0].data.ID\
+    },\
+    success: function() {\
+      app.gridReceipt.store.load({\
+        out: app.tbar\
+      });\
+      //       app.resetBtn.fireEvent('click');\
+    }\
+  });\
+}, 'CNTR');"}
+          },
+          {
+           "configs": {
+            "itemId": "btntsprint",
+            "text": "托收单打印",
+            "iconCls": "printer_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "item",
+           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+if (sels.length < 1) {\
+  Wb.warn(\"请选择设备交接单\");\
+  return;\
+}\
+\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=receiptInout/receipt/receiptedit/delete',\
+    params: {\
+      ID: sels[0].data.ID\
+    },\
+    success: function() {\
+      app.gridReceipt.store.load({\
+        out: app.tbar\
+      });\
+      //       app.resetBtn.fireEvent('click');\
+    }\
+  });\
+}, 'CNTR');"}
           }
          ],
          "type": "toolbar"
@@ -1022,7 +1082,14 @@ app.panelPrint.update(mt1);",
   "events": {
    "finalize": "app.cboPHASE.setValue(\"\");\
 app.cboWTYPE.setValue(\"\");\
-\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+if (tenancyid == \"XLG\") {\
+  app.btnts.setVisible(true);\
+  app.btntsprint.setVisible(true);\
+} else {\
+  app.btnts.setVisible(false);\
+  app.btntsprint.setVisible(false);\
+}\
 window[\"init\" + opt] = function(id) {\
   var m = document.getElementById(opt);\
   if (id == opt) {\

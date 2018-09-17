@@ -9,6 +9,10 @@
   govCode = app.get(\"sys.GOV_CODE\");\
 var sql = \"select w.* from CNTR_WEIGHT_REC w left join port_cntr p on w.cntr_id=p.id\" +\
   \" where w.tenancy_id='\" + tenancyid + \"'\";\
+//增加小榄港的外磅 \
+if (tenancyid == 'XLG') {\
+  sql += \" and ISOUT='1'\";\
+}\
 if (!Wb.isEmpty(data.CNTR))\
   sql += \" and p.cntr like '%\" + data.CNTR + \"%'\";\
 if (nature == '5')\
@@ -28,7 +32,7 @@ if (data.ls == \"1\") {\
     sql += \" and p.id='\" + data.cntrid + \"'\";\
 }\
 \
-    sql += \" and w.GROSSWT>0\";\
+sql += \" and w.GROSSWT>0\";\
 \
 request.setAttribute(\"sql\", sql);"
   },
