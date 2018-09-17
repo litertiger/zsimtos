@@ -67,7 +67,8 @@
        "type": "store"
       }],
       "type": "combo",
-      "events": {"select": "app.IN_CAR.setValue(records[0].data.IN_CAR);\
+      "events": {"select": "app.CNTR.setValue(records[0].data.CNTR);\
+app.IN_CAR.setValue(records[0].data.IN_CAR);\
 app.CNTR_SIZE.setValue(records[0].data.CNTR_SIZE);\
 app.CNTR_OPERATOR_COD.setValue(records[0].data.CNTR_OPERATOR_COD);\
 app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
@@ -76,7 +77,7 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
       "configs": {
        "itemId": "CNTR",
        "labelAlign": "right",
-       "fieldLabel": "船公司",
+       "fieldLabel": "箱号",
        "readOnly": "true"
       },
       "expanded": false,
@@ -164,7 +165,20 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
       "type": "text"
      }
     ],
-    "type": "window"
+    "type": "window",
+    "events": {"ok": "if (app.edit) { //编辑\
+\
+} else { //新增\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckReceipt/truckworkfeeEdit/insert',\
+    out: app.winEdit,\
+    success: function(resp) {\
+      Wb.info(\"操作完成\");\
+      app.btnfind.fireEvent('click');\
+      app.winEdit.close();\
+    }\
+  });\
+}"}
    },
    {
     "configs": {
@@ -230,7 +244,7 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
         },
         {
          "configs": {
-          "itemId": "searchRBtn",
+          "itemId": "btnfind",
           "text": "查询",
           "iconCls": "search_icon"
          },
@@ -266,7 +280,8 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
          "events": {"click": "var win = new Ext.window.Window(app._winEdit);\
 win.setTitle(\"新增\");\
 win.show();\
-app.WORK_TYPE.setValue(\"Z\");"}
+app.WORK_TYPE.setValue(\"Z\");\
+app.edit = false;"}
         },
         {
          "configs": {
@@ -514,7 +529,7 @@ else if (value == \"Y\")\
   "type": "module",
   "events": {"finalize": "app.sdate.setValue(new Date());\
 app.edate.setValue(new Date());\
-app.searchRBtn.fireEvent('click');"}
+app.btnfind.fireEvent('click');"}
  }],
  "roles": {
   "CD": 1,
