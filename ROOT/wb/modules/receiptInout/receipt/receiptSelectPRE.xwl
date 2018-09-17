@@ -16,13 +16,14 @@
 }",
      "width": "400",
      "title": "托收",
-     "height": "300"
+     "height": "130"
     },
     "expanded": true,
     "children": [
      {
       "configs": {
        "itemId": "ID",
+       "hidden": "true",
        "labelAlign": "right",
        "fieldLabel": "ID"
       },
@@ -35,15 +36,15 @@
        "tagConfigs": "matchFieldWidth: false",
        "hideTrigger": "true",
        "itemId": "PAYCOD",
+       "allowBlank": "false",
        "labelAlign": "right",
-       "emptyText": "托收方",
-       "width": "100",
+       "fieldLabel": "托收方",
        "pageSize": "50",
        "displayField": "CNAME",
        "listConfig": "{width:250}",
        "valueField": "ID",
        "queryDelay": "500",
-       "height": "22"
+       "forceSelection": "true"
       },
       "expanded": false,
       "children": [{
@@ -58,28 +59,35 @@
        "type": "store"
       }],
       "type": "combo"
+     },
+     {
+      "configs": {
+       "itemId": "PAYMENTTYPE",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "pickList": "[\
+  ['0', '现金'],\
+  ['1', '月结']\
+]",
+       "fieldLabel": "类型",
+       "forceSelection": "true"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "combo"
      }
     ],
     "type": "window",
-    "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
-//插入变更记录表,变更设备交接单类型\
-Wb.request({\
-  url: \"m?xwl=receiptInout/receipt/receiptedit/updateWP\",\
+    "events": {"ok": "Wb.request({\
+  url: 'm?xwl=receiptInout/receipt/receiptselectPRE/remitting',\
   params: {\
-    ID: sel.data.ID,\
-    CNTR: sel.data.CNTR,\
-    CNTR_ID: sel.data.CNTR_ID,\
-    WORK_TYPE_OLD: sel.data.WORK_TYPE,\
-    WORK_TYPE: app.UP_WORK_TYPE.getValue(),\
-    NOTES: app.UP_REASON.getValue(),\
-    kp: app.radioN.checked ? 0 : 1\
+    rid: app.ID.getValue(),\
+    paycod: app.PAYCOD.getValue(),\
+    payname: app.PAYCOD.getRawValue(),\
+    paymenttype: app.PAYMENTTYPE.getValue()\
   },\
   success: function(resp) {\
     Wb.info(\"操作完成\");\
-    app.winWork_type.close();\
-    app.gridReceipt.store.load({\
-      out: app.tbar\
-    });\
   }\
 });"}
    },
@@ -589,7 +597,8 @@ if (!sel) {\
   return;\
 }\
 var win = new Ext.window.Window(app._winremitting);\
-win.show();"}
+win.show();\
+app.ID.setValue(sel.data.ID);"}
            },
            {
             "configs": {
