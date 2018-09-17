@@ -1,0 +1,35 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username');\
+var tw = Wb.getRecords(app.run(\"select phase from truck_work_fee where id={?id?}\"));\
+if (tw.length < 1)\
+  throw \"已经删除了,请刷新\";\
+else if (tw[0].PHASE == 'FIN')\
+  throw \"已审核,不能修改\";\
+else if (tw[0].PHASE == 'CNL')\
+  throw \"已作废,不能修改\";\
+\
+var sql = \"update truck_work_fee set RID={?RID?},CNTR={?CNTR?},UPDATED_BY='\" + username + \"',UPDATED_ON=sysdate,\" +\
+  \"TENANCY_ID='\" + tenancyid + \"',WORK_TIME={?date.WORK_TIME?},WORK_TYPE={?WORK_TYPE?},TRUCK_NO={?TRUCK_NO?},NOTES={?NOTES?},\" +\
+  \"CNTR_OPERATOR_COD,CNTR_SIZEwhere id={?id?}\";\
+app.run(sql);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "CD": 1,
+  "xlcd": 1,
+  "SWB": 1
+ },
+ "title": "修改",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
