@@ -68,7 +68,7 @@
       }],
       "type": "combo",
       "events": {"select": "app.CNTR.setValue(records[0].data.CNTR);\
-app.IN_CAR.setValue(records[0].data.IN_CAR);\
+app.TRUCK_NO.setValue(records[0].data.IN_CAR);\
 app.CNTR_SIZE.setValue(records[0].data.CNTR_SIZE);\
 app.CNTR_OPERATOR_COD.setValue(records[0].data.CNTR_OPERATOR_COD);\
 app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
@@ -97,7 +97,7 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
      },
      {
       "configs": {
-       "itemId": "IN_CAR",
+       "itemId": "TRUCK_NO",
        "labelAlign": "right",
        "fieldLabel": "车头",
        "readOnly": "true"
@@ -291,7 +291,16 @@ app.edit = false;"}
          },
          "expanded": false,
          "children": [],
-         "type": "item"
+         "type": "item",
+         "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
+if (!sel) {\
+  Wb.warn(\"请选择要修改的数据\");\
+  return;\
+}\
+var win = new Ext.window.Window(app._winEdit);\
+win.setTitle(\"新增\");\
+win.show();\
+Wb.setValue(win, sel.data);"}
         },
         {
          "configs": {
@@ -305,7 +314,20 @@ app.edit = false;"}
          "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
 if (!sel) {\
   Wb.warn(\"请选择要删除的数据\");\
-}"}
+  return;\
+}\
+Wb.confirm(\"确定删除\", function() {\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckReceipt/truckworkfeeEdit/delete',\
+    params: {\
+      id: sel.data.ID\
+    },\
+    success: function(resp) {\
+      Wb.info(\"操作完成\");\
+      app.btnfind.fireEvent('click');\
+    }\
+  });\
+});"}
         },
         {
          "configs": {
@@ -383,7 +405,7 @@ else if (value == \"FIN\")\
 else if (value == \"CNL\")\
   return \"作废\";",
           "dataIndex": "PHASE",
-          "width": "66",
+          "width": "60",
           "text": "状态"
          },
          "expanded": false,
@@ -406,6 +428,7 @@ else if (value == \"CNL\")\
           "itemId": "colCNTR_OPERATOR_COD",
           "dataIndex": "CNTR_OPERATOR_COD",
           "keyName": "AG_SHORT",
+          "width": "80",
           "text": "船公司"
          },
          "expanded": false,
@@ -420,6 +443,7 @@ else if (value == \"CNL\")\
 else if (value == \"Y\")\
   return \"压卡\";",
           "dataIndex": "WORK_TYPE",
+          "width": "50",
           "text": "类型"
          },
          "expanded": false,
@@ -431,7 +455,7 @@ else if (value == \"Y\")\
           "itemId": "colCNTR_SIZE",
           "dataIndex": "CNTR_SIZE",
           "keyName": "CNTR_SIZE",
-          "width": "66",
+          "width": "60",
           "text": "箱尺寸"
          },
          "expanded": false,
@@ -442,7 +466,7 @@ else if (value == \"Y\")\
          "configs": {
           "itemId": "colTRUCK_NO",
           "dataIndex": "TRUCK_NO",
-          "width": "80",
+          "width": "50",
           "text": "车头"
          },
          "expanded": true,
