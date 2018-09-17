@@ -5,8 +5,10 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
-var sql = \"select id,cntr,in_car from RECEIPT where tenancy_id='\" + tenancyid + \"' and cntr like '%'||{?query?}||'%'\" +\
-  \" and work_type not in('FOFI') and shipper_way=1 and phase not in('PLN','CNL')\";\
+var sql = \"select id,cntr,nvl(in_car,out_car)in_car from RECEIPT\" +\
+  \" where tenancy_id='\" + tenancyid + \"' and cntr like '%'||{?query?}||'%'\" +\
+  \" and work_type not in('YOYI') and shipper_way=1 and phase not in('PLN','CNL')\" +\
+  \" and trunc(created_on)>=trunc(add_months(sysdate,-2)) and trunc(created_on)<=trunc(sysdate)\";\
 request.setAttribute('sql', sql);"
   },
   "expanded": true,
