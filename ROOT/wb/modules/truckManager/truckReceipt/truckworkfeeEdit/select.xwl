@@ -3,59 +3,13 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "var nature = request.getSession().getAttribute('sys.NATURE'),\
-  govCode = request.getSession().getAttribute('sys.GOV_CODE');\
-var data = app.get();\
+   "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
-var allcntr = (data.txtCNTR_NO_R.split(\",\"));\
-app.log(data.tbPHASE.substring(1, data.tbPHASE.length - 1));\
-var phases = data.tbPHASE.substring(1, data.tbPHASE.length - 1).split(\",\");\
-var phase1 = \"\";\
-Wb.each(phases, function(phase) {\
-  phase1 += \"'\" + phase.substring(1, phase.length - 1) + \"',\";\
-});\
-phase1 = phase1.substring(0, phase1.length - 1);\
-\
-var sql = \"select r.*,p.yard_position,case r.I_E_ID when 'I' then r.RECEIVER when 'E' then r.SHIPPER end pig\" +\
-  \" from RECEIPT r left join port_cntr p on r.cntr_id=p.id\" +\
-  \" where r.tenancy_id='\" + tenancyid + \"' and r.work_type not in('YOYI','FOFI')\";\
+var sql = \"select f.* from truck_work_fee f left join receipt r on f.rid=r.id where f.tenancy_id='\" + tenancyid + \"'\";\
 if (!Wb.isEmpty(data.sdate))\
-  sql += \" and trunc(nvl(r.pc_on,r.created_on))>=to_date('\" + data.sdate.substring(0, 10) + \"','yyyy-MM-dd')\";\
+  sql += \"and f.created_on>=to_date('\" + data.sdate + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\";\
 if (!Wb.isEmpty(data.edate))\
-  sql += \" and trunc(nvl(r.pc_on,r.created_on))<=to_date('\" + data.edate.substring(0, 10) + \"','yyyy-MM-dd')\";\
-if (phase1 != \"''\")\
-  sql += \" and r.PHASE in (\" + phase1 + \")\";\
-if (!Wb.isEmpty(data.txtCAR))\
-  sql += \" and (r.IN_CAR='\" + data.txtCAR + \"' or r.OUT_CAR='\" + data.txtCAR + \"')\";\
-if (!Wb.isEmpty(data.txtTRAY))\
-  sql += \" and (r.IN_CAMPI='\" + data.txtTRAY + \"' or r.OUT_CAMPI='\" + data.txtTRAY + \"')\";\
-if (!Wb.isEmpty(data.tbI_E_ID))\
-  sql += \" and r.I_E_ID='\" + data.tbI_E_ID + \"'\";\
-if (!Wb.isEmpty(data.tbTRADE))\
-  sql += \" and r.TRADE_ID='\" + data.tbTRADE + \"'\";\
-if (!Wb.isEmpty(data.tradeid))\
-  sql += \" and r.cntr_operator_cod='\" + cntroperator + \"'\";\
-if (!Wb.isEmpty(data.tbSHIPPER_WAY))\
-  sql += \" and r.shipper_way=\" + data.tbSHIPPER_WAY;\
-if (!Wb.isEmpty(data.txtCNTR_NO_R)) {\
-  sql += \" and(1=2\";\
-  Wb.each(allcntr, function(cntr) {\
-    if (!Wb.isEmpty(cntr))\
-      sql += \" or r.cntr like '%\" + cntr + \"%'\";\
-  });\
-  sql += \")\";\
-}\
-if (!Wb.isEmpty(data.ismy)) //查询是不是外来车\
-  sql += \"and r.PT_TYPE='\" + data.ismy + \"'\";\
-if (nature == '5') {\
-  sql += \" and r.cntr_operator_cod='\" + govCode + \"'\";\
-}\
-\
-\
-sql += \" order by r.created_on desc\";\
-\
-\
-\
+  sql += \"and f.created_on<=to_date('\" + data.sdate + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
 request.setAttribute('sql', sql);"
   },
   "expanded": true,
