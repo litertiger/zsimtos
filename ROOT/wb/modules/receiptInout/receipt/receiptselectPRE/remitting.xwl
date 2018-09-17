@@ -6,19 +6,19 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
-\
+var id = Wb.getRecords(app.run(\"select to_char(sysdate,'yyyyMMdd')||lpad(accounts_print_no.nextval,4,'0')id from dual\")); //生成ID\
 app.run(\"call P_XL_TRUCK_FEE({?rid?},{?paycod?},{?payname?},{?paymenttype?})\", {\
   transaction: 'start'\
 });\
 \
 var sql = \"insert into remitting(ID,REM_DATE,REM_CUS,PAYER,,\" +\
   \"CREATED_BY,CREATED_ON,TENANCY_ID,REM_CUS_COD,PAYER_COD,R_TYPE,R_OK,created_type,print_type)\" +\
-  \"values('\" + id[0].ID + \"',sysdate,{?REM_CUS?},{?PAYER?},\" +\
-  \"'\" + username + \"',sysdate,'\" + tenancyid + \"',{?REM_CUS_COD?},{?PAYER_COD?},'ts',0,1,{?paymenttype?})\";\
+  \"values('\" + id[0].ID + \"',sysdate,{?REM_CUS?},{?payname?},\" +\
+  \"'\" + username + \"',sysdate,'\" + tenancyid + \"',{?REM_CUS_COD?},{?paycod?},'ts',1,1,{?paymenttype?})\";\
 app.run(sql);\
 \
 var sqlitem = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT) \" +\
-  \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,0,FEE_LIST_ID,\" + (print_type == 1 ? 1 : 2) + \",ACTUAL_JOB_COUNT,AMOUNT\" +\
+  \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,1,FEE_LIST_ID,\" + (print_type == 1 ? 1 : 2) + \",ACTUAL_JOB_COUNT,AMOUNT\" +\
   \" from accounts_details where id in (\" + data.ids + \")\";\
 app.run(sqlitem);\
 \
