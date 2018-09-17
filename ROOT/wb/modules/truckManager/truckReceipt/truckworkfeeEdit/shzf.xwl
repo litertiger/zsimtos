@@ -6,13 +6,21 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
-var tw = Wb.getRecords(app.run(\"select phase from truck_work_fee where id={?id?}\"));\
+var sql = \"select phase from truck_work_fee where id={?id?}\";\
+var tw = Wb.getRecords(app.run(sql));\
 if (tw.length < 1)\
   throw \"已经删除了,请刷新\";\
-else if (tw[0].PHASE == 'FIN')\
-  throw \"已审核,不能删除\";\
-\
-var sql = \"delete from truck_work_fee where id={?id?}\";\
+else if (data.sh == '1') { //审核\
+  if (tw[0].PHASE == 'FIN')\
+    throw \"已审核,不能重复审核\";\
+  else if (tw[0].PHASE == 'CNL')\
+    throw \"已作废,不能审核\";\
+  sql = \"update truck_work_fee set PHASE='FIN',CHECK_BY='\" + username + \"',CHECK_ON=sysdate where id={?id?}\";\
+} else { //作废\
+  if (tw[0].PHASE == 'CNL')\
+    throw \"已作废,不能重复作废\";\
+  sql = \"update truck_work_fee set PHASE='CNL',INVALID_BY='\" + username + \"',INVALID_ON=sysdate where id={?id?}\";\
+}\
 app.run(sql);"
   },
   "expanded": true,
