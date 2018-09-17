@@ -8,6 +8,7 @@
     "configs": {
      "layout": "@{type:'table',columns:1}",
      "itemId": "winEdit",
+     "dialog": "true",
      "defaults": "{\
   labelWidth: 60,\
   width: 220,\
@@ -18,15 +19,32 @@
     "children": [
      {
       "configs": {
-       "itemId": "CNTR",
+       "itemId": "RID",
+       "labelAlign": "right",
        "fieldLabel": "箱号",
-       "width": "300",
-       "readOnly": "true",
-       "labelWidth": "50"
+       "displayField": "CNTR",
+       "isUpperCase": "true",
+       "valueField": "ID",
+       "queryDelay": "200",
+       "forceSelection": "true"
       },
-      "expanded": false,
-      "children": [],
-      "type": "text"
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "url": "m?xwl=truckManager/truckReceipt/truckworkfeeEdit/selectReceipt"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo",
+      "events": {"specialkey": "if (e.getKey() == e.ENTER) {\
+  if (!combo.isExpanded) { //判断combo不展开才切换焦点\
+    app.SHIPPER_WAY.focus();\
+    app.SHIPPER_WAY.selectText();\
+  }\
+}"}
      },
      {
       "configs": {
@@ -77,8 +95,10 @@
         {
          "configs": {
           "itemId": "sdate",
-          "emptyText": "开始日期",
-          "width": "100"
+          "labelAlign": "right",
+          "fieldLabel": "开始日期",
+          "width": "170",
+          "labelWidth": "70"
          },
          "expanded": false,
          "children": [],
@@ -87,8 +107,10 @@
         {
          "configs": {
           "itemId": "edate",
-          "emptyText": "结束日期",
-          "width": "100"
+          "labelAlign": "right",
+          "fieldLabel": "结束日期",
+          "width": "170",
+          "labelWidth": "70"
          },
          "expanded": false,
          "children": [],
@@ -114,7 +136,7 @@
         {
          "configs": {
           "itemId": "searchRBtn",
-          "text": "@Str.find",
+          "text": "查询",
           "iconCls": "search_icon"
          },
          "expanded": true,
@@ -123,9 +145,72 @@
          "events": {"click": "app.gridReceipt.store.load({\
   params: {\
     sdate: app.sdate.getRawValue(),\
-    edate: app.edate.getRawValue()\
+    edate: app.edate.getRawValue(),\
+    phase: app.tbPHASE.getValue()\
   }\
 });"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "btnadd",
+          "text": "增加",
+          "iconCls": "table_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var win = new Ext.window.Window(app._winEdit);\
+win.setTitle(\"新增\");\
+win.show();"}
+        },
+        {
+         "configs": {
+          "itemId": "btnupd",
+          "text": "修改",
+          "iconCls": "table_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "btndel",
+          "text": "删除",
+          "iconCls": "table_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "btnfin",
+          "text": "审核",
+          "iconCls": "ok_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        },
+        {
+         "configs": {
+          "itemId": "btncnl",
+          "text": "作废",
+          "iconCls": "cancel_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
         }
        ],
        "type": "toolbar"
