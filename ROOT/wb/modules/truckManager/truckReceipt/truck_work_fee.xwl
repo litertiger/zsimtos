@@ -6,8 +6,13 @@
   "children": [
    {
     "configs": {
-     "itemId": "signImgWnd",
-     "title": "交接签名"
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winEdit",
+     "defaults": "{\
+  labelWidth: 60,\
+  width: 220,\
+  margin: '8 8 0 8'\
+}"
     },
     "expanded": true,
     "children": [
@@ -91,146 +96,16 @@
         },
         {
          "configs": {
-          "itemId": "txtCNTR_NO_R",
-          "emptyText": "箱号,箱号,箱号",
-          "isUpperCase": "true"
-         },
-         "expanded": true,
-         "children": [],
-         "type": "text",
-         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchRBtn.fireEvent('click');"}
-        },
-        {
-         "configs": {
-          "itemId": "txtCAR",
-          "emptyText": "拖车",
-          "width": "60",
-          "isUpperCase": "true"
-         },
-         "expanded": true,
-         "children": [],
-         "type": "text",
-         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchRBtn.fireEvent('click');"}
-        },
-        {
-         "configs": {
-          "itemId": "txtTRAY",
-          "emptyText": "拖卡",
-          "width": "60",
-          "isUpperCase": "true"
-         },
-         "expanded": true,
-         "children": [],
-         "type": "text",
-         "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchRBtn.fireEvent('click');"}
-        },
-        {
-         "configs": {
-          "itemId": "tbSHIPPER_WAY",
-          "pickList": "[\
-  [\"1\", \"港方承运\"],\
-  [\"3\", \"驳船承运\"]\
-]",
-          "emptyText": "承运方式",
-          "width": "80",
-          "anyMatch": "true",
-          "forceSelection": "true"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "combo"
-        },
-        {
-         "configs": {
-          "itemId": "ismy",
-          "emptyText": "车辆性质",
-          "keyName": "PT_TYPE",
-          "forceSelection": "true"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "combo"
-        },
-        {
-         "configs": {
-          "tagConfigs": "matchFieldWidth: false",
-          "hideTrigger": "true",
-          "itemId": "cntroperator",
-          "labelAlign": "right",
-          "emptyText": "船公司",
-          "width": "160",
-          "displayField": "CNAME",
-          "enterKeyTriggerClick": "true",
-          "listConfig": "{\
-  width: 250\
-}",
-          "valueField": "ID",
-          "forceSelection": "true"
-         },
-         "expanded": false,
-         "children": [{
-          "configs": {
-           "itemId": "store",
-           "autoLoad": "true",
-           "pageSize": "-1",
-           "params": "{fldId:'AG'}",
-           "url": "m?xwl=system/common/client/clientSelect"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "store"
-         }],
-         "type": "combo"
-        },
-        {
-         "configs": {
-          "itemId": "tbI_E_ID",
-          "emptyText": "进出口",
-          "keyName": "I_E_ID",
-          "width": "70",
-          "anyMatch": "true",
-          "forceSelection": "true"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "combo"
-        },
-        {
-         "configs": {
-          "itemId": "tbTRADE",
-          "emptyText": "内外贸",
-          "pickList": "[\
-  ['1', '外贸'],\
-  ['2', '内贸']\
-]",
-          "width": "70",
-          "anyMatch": "true",
-          "forceSelection": "true"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "combo"
-        },
-        {
-         "configs": {
           "itemId": "tbPHASE",
           "pickList": "[\
-  [\"PLN\", \"未派车\"],\
-  [\"EXE\", \"已派车\"],\
-  [\"FIN\", \"完成\"],\
-  [\"CNL\", \"取消\"],\
-  [\"GET\", \"进闸提箱\"],\
-  [\"RTN\", \"场内还箱\"],\
-  [\"OUT\", \"场外\"]\
+  [\"PLN\", \"未审核\"],\
+  [\"FIN\", \"已审核\"],\
+  [\"CNL\", \"作废\"]\
 ]",
           "emptyText": "状态",
           "width": "80",
           "anyMatch": "true",
-          "forceSelection": "true",
-          "multiSelect": "true"
+          "forceSelection": "true"
          },
          "expanded": false,
          "children": [],
@@ -246,7 +121,10 @@
          "children": [],
          "type": "item",
          "events": {"click": "app.gridReceipt.store.load({\
-  out: app.tbar\
+  params: {\
+    sdate: app.sdate.getRawValue(),\
+    edate: app.edate.getRawValue()\
+  }\
 });"}
         }
        ],
@@ -299,19 +177,11 @@
          "configs": {
           "itemId": "colPHASE",
           "renderer": "if (value == \"PLN\")\
-  return \"计划\";\
-if (value == \"EXE\")\
-  return \"执行\";\
-if (value == \"FIN\")\
-  return \"完成\";\
-if (value == \"CAL\")\
-  return \"取消\";\
-if (value == \"GET\")\
-  return \"场内提箱\";\
-if (value == \"RTN\")\
-  return \"场内还箱\";\
-if (value == \"OUT\")\
-  return \"场外\";",
+  return \"未审核\";\
+else if (value == \"FIN\")\
+  return \"已审核\";\
+else if (value == \"CNL\")\
+  return \"作废\";",
           "dataIndex": "PHASE",
           "width": "66",
           "text": "状态"
@@ -391,112 +261,48 @@ else if (value == \"Y\")\
         },
         {
          "configs": {
-          "itemId": "colT_ADDRESS",
-          "dataIndex": "T_ADDRESS",
+          "itemId": "colCHECK_BY",
+          "dataIndex": "CHECK_BY",
           "width": "80",
-          "keyName": "C_CFS",
-          "text": "提箱地点"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colF_ADDRESS",
-          "dataIndex": "F_ADDRESS",
-          "width": "80",
-          "keyName": "C_CFS",
-          "text": "返场地址"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPT_TYPE",
-          "dataIndex": "PT_TYPE",
-          "keyName": "PT_TYPE",
-          "text": "派车方式"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colGATEOUT_TIME_T",
-          "dataIndex": "GATEOUT_TIME_T",
-          "width": "120",
-          "text": "出门时间"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colGATEIN_TIME_S",
-          "dataIndex": "GATEIN_TIME_S",
-          "width": "120",
-          "text": "进门时间"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPC_BY",
-          "dataIndex": "PC_BY",
-          "width": "60",
           "keyName": "WB_USER",
-          "text": "调度员"
+          "text": "审核人"
          },
-         "expanded": true,
+         "expanded": false,
          "children": [],
          "type": "column"
         },
         {
          "configs": {
-          "itemId": "colPC_ON",
-          "dataIndex": "PC_ON",
+          "itemId": "colCHECK_ON",
+          "dataIndex": "CHECK_ON",
           "width": "120",
-          "text": "派车时间"
+          "text": "审核时间"
          },
-         "expanded": true,
+         "expanded": false,
          "children": [],
          "type": "column"
         },
         {
          "configs": {
-          "itemId": "actionColumns",
-          "xtype": "actioncolumn",
-          "dataIndex": "OPTION",
+          "itemId": "colINVALID_BY",
+          "dataIndex": "INVALID_BY",
+          "keyName": "WB_USER",
           "width": "80",
-          "text": "签收签名",
-          "align": "center"
+          "text": "作废人"
          },
-         "expanded": true,
-         "children": [{
-          "configs": {"itemId": "items"},
-          "expanded": true,
-          "children": [{
-           "configs": {
-            "itemId": "showPhoto",
-            "handler": "Wb.setValue(app.signImgWnd,record.data);\
-app.signImgWnd.show();\
-app.signImg.setSrc(\"m?xwl=truckManager/truckReceipt/pt_phaseedit/selectImg&ID=\"+record.data.ID);",
-            "tooltip": "查看图片",
-            "iconCls": "zoom_icon"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "column"
-          }],
-          "type": "array"
-         }],
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colINVALID_ON",
+          "dataIndex": "INVALID_ON",
+          "width": "120",
+          "text": "作废时间"
+         },
+         "expanded": false,
+         "children": [],
          "type": "column"
         }
        ],
@@ -525,8 +331,7 @@ app.signImg.setSrc(\"m?xwl=truckManager/truckReceipt/pt_phaseedit/selectImg&ID=\
    }
   ],
   "type": "module",
-  "events": {"finalize": "app.tbPHASE.setValue(\"PLN\");\
-app.sdate.setValue(new Date());\
+  "events": {"finalize": "app.sdate.setValue(new Date());\
 app.edate.setValue(new Date());\
 app.searchRBtn.fireEvent('click');"}
  }],
