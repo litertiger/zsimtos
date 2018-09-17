@@ -3,63 +3,143 @@
  "children": [{
   "configs": {"itemId": "module"},
   "expanded": true,
-  "children": [{
-   "configs": {
-    "layout": "border",
-    "itemId": "viewport1"
-   },
-   "expanded": true,
-   "children": [
-    {
-     "configs": {
-      "itemId": "gridReceipt",
-      "selType": "checkboxmodel",
-      "disabled": "false",
-      "region": "center"
+  "children": [
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winremitting",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 360,\
+  margin: '8 8 0 8'\
+}",
+     "width": "400",
+     "title": "托收",
+     "height": "300"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "labelAlign": "right",
+       "fieldLabel": "ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
      },
-     "expanded": true,
-     "children": [
-      {
-       "configs": {"itemId": "dockedItems"},
-       "expanded": true,
-       "children": [
-        {
-         "configs": {
-          "itemId": "tbar",
-          "enableOverflow": "true",
-          "region": "north"
-         },
-         "expanded": false,
-         "children": [
-          {
-           "configs": {
-            "itemId": "txtCNTR",
-            "labelAlign": "right",
-            "emptyText": "箱号"
-           },
-           "expanded": true,
-           "children": [],
-           "type": "text",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent('click');"}
+     {
+      "configs": {
+       "tagConfigs": "matchFieldWidth: false",
+       "hideTrigger": "true",
+       "itemId": "PAYCOD",
+       "labelAlign": "right",
+       "emptyText": "托收方",
+       "width": "100",
+       "pageSize": "50",
+       "displayField": "CNAME",
+       "listConfig": "{width:250}",
+       "valueField": "ID",
+       "queryDelay": "500",
+       "height": "22"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "params": "{fldId:'CE'}",
+        "url": "m?xwl=system/common/client/clientSelect"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
+//插入变更记录表,变更设备交接单类型\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/receiptedit/updateWP\",\
+  params: {\
+    ID: sel.data.ID,\
+    CNTR: sel.data.CNTR,\
+    CNTR_ID: sel.data.CNTR_ID,\
+    WORK_TYPE_OLD: sel.data.WORK_TYPE,\
+    WORK_TYPE: app.UP_WORK_TYPE.getValue(),\
+    NOTES: app.UP_REASON.getValue(),\
+    kp: app.radioN.checked ? 0 : 1\
+  },\
+  success: function(resp) {\
+    Wb.info(\"操作完成\");\
+    app.winWork_type.close();\
+    app.gridReceipt.store.load({\
+      out: app.tbar\
+    });\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "gridReceipt",
+       "selType": "checkboxmodel",
+       "disabled": "false",
+       "region": "center"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {"itemId": "dockedItems"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "tbar",
+           "enableOverflow": "true",
+           "region": "north"
           },
-          {
-           "configs": {
-            "itemId": "txtBILL",
-            "labelAlign": "right",
-            "emptyText": "提单号"
-           },
-           "expanded": true,
-           "children": [],
-           "type": "text",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "txtCNTR",
+             "labelAlign": "right",
+             "emptyText": "箱号"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "text",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
   app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "itemId": "cboPHASE",
-            "labelAlign": "right",
-            "pickList": "[\
+           },
+           {
+            "configs": {
+             "itemId": "txtBILL",
+             "labelAlign": "right",
+             "emptyText": "提单号"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "text",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+           },
+           {
+            "configs": {
+             "itemId": "cboPHASE",
+             "labelAlign": "right",
+             "pickList": "[\
   ['', '全部'],\
   ['PLN', '计划'],\
   ['EXE', '执行'],\
@@ -69,21 +149,21 @@
   ['OUT', '离场'],\
   ['RTN', '还箱']\
 ]",
-            "emptyText": "状态",
-            "width": "60",
-            "forceSelection": "true"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "combo",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+             "emptyText": "状态",
+             "width": "60",
+             "forceSelection": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
   app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "itemId": "cboWTYPE",
-            "labelAlign": "right",
-            "pickList": "[\
+           },
+           {
+            "configs": {
+             "itemId": "cboWTYPE",
+             "labelAlign": "right",
+             "pickList": "[\
   ['', '全部'],\
   ['FOEI', '重出吉回'],\
   ['EOFI', '吉出重回'],\
@@ -95,208 +175,208 @@
   ['FONI', '重出不回'],\
   ['YOYI', '移箱']\
 ]",
-            "emptyText": "作业类型",
-            "width": "80",
-            "forceSelection": "true"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "combo",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "itemId": "cboCNTR_SIZE",
-            "labelAlign": "right",
-            "emptyText": "尺寸",
-            "width": "60",
-            "keyName": "CNTR_SIZE",
-            "forceSelection": "true"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "combo",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "itemId": "cboI_E_ID",
-            "labelAlign": "right",
-            "emptyText": "进出口",
-            "width": "60",
-            "keyName": "I_E_ID",
-            "forceSelection": "true"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "combo",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "itemId": "cboTRADE_ID",
-            "labelAlign": "right",
-            "emptyText": "内外贸",
-            "width": "60",
-            "keyName": "TRADE_ID",
-            "forceSelection": "true"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "combo",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "itemId": "cboCAR_TEAM",
-            "labelAlign": "right",
-            "emptyText": "车队",
-            "width": "150",
-            "keyName": "TU_CUSTOMER",
-            "anyMatch": "true",
-            "forceSelection": "true"
-           },
-           "expanded": false,
-           "children": [],
-           "type": "combo",
-           "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent('click');"}
-          },
-          {
-           "configs": {
-            "tagConfigs": "matchFieldWidth: false",
-            "emptyText": "发货人",
-            "pageSize": "50",
-            "enterKeyTriggerClick": "true",
-            "listConfig": "{width:250}",
-            "valueField": "ID",
-            "queryDelay": "500",
-            "hideTrigger": "true",
-            "itemId": "SHIPPER_COD",
-            "labelAlign": "right",
-            "width": "100",
-            "displayField": "CNAME",
-            "height": "22"
-           },
-           "expanded": false,
-           "children": [{
-            "configs": {
-             "itemId": "store",
-             "autoLoad": "true",
-             "params": "{fldId:'CE'}",
-             "url": "m?xwl=system/common/client/clientSelect"
+             "emptyText": "作业类型",
+             "width": "80",
+             "forceSelection": "true"
             },
             "expanded": false,
             "children": [],
-            "type": "store"
-           }],
-           "type": "combo"
-          },
-          {
-           "configs": {
-            "tagConfigs": "matchFieldWidth: false",
-            "emptyText": "收货人",
-            "pageSize": "50",
-            "enterKeyTriggerClick": "true",
-            "listConfig": "{\
+            "type": "combo",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+           },
+           {
+            "configs": {
+             "itemId": "cboCNTR_SIZE",
+             "labelAlign": "right",
+             "emptyText": "尺寸",
+             "width": "60",
+             "keyName": "CNTR_SIZE",
+             "forceSelection": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+           },
+           {
+            "configs": {
+             "itemId": "cboI_E_ID",
+             "labelAlign": "right",
+             "emptyText": "进出口",
+             "width": "60",
+             "keyName": "I_E_ID",
+             "forceSelection": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+           },
+           {
+            "configs": {
+             "itemId": "cboTRADE_ID",
+             "labelAlign": "right",
+             "emptyText": "内外贸",
+             "width": "60",
+             "keyName": "TRADE_ID",
+             "forceSelection": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+           },
+           {
+            "configs": {
+             "itemId": "cboCAR_TEAM",
+             "labelAlign": "right",
+             "emptyText": "车队",
+             "width": "150",
+             "keyName": "TU_CUSTOMER",
+             "anyMatch": "true",
+             "forceSelection": "true"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "combo",
+            "events": {"specialkey": "if (e.getKey() == e.ENTER)\
+  app.searchBtn.fireEvent('click');"}
+           },
+           {
+            "configs": {
+             "tagConfigs": "matchFieldWidth: false",
+             "emptyText": "发货人",
+             "pageSize": "50",
+             "enterKeyTriggerClick": "true",
+             "listConfig": "{width:250}",
+             "valueField": "ID",
+             "queryDelay": "500",
+             "hideTrigger": "true",
+             "itemId": "SHIPPER_COD",
+             "labelAlign": "right",
+             "width": "100",
+             "displayField": "CNAME",
+             "height": "22"
+            },
+            "expanded": false,
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "autoLoad": "true",
+              "params": "{fldId:'CE'}",
+              "url": "m?xwl=system/common/client/clientSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           },
+           {
+            "configs": {
+             "tagConfigs": "matchFieldWidth: false",
+             "emptyText": "收货人",
+             "pageSize": "50",
+             "enterKeyTriggerClick": "true",
+             "listConfig": "{\
   width: 250\
 }",
-            "valueField": "ID",
-            "queryDelay": "500",
-            "hideTrigger": "true",
-            "itemId": "CONSIGNEE_COD",
-            "labelAlign": "right",
-            "width": "100",
-            "displayField": "CNAME",
-            "forceSelection": "true",
-            "height": "22"
-           },
-           "expanded": false,
-           "children": [{
-            "configs": {
-             "itemId": "store",
-             "autoLoad": "true",
-             "params": "{fldId:'CE'}",
-             "url": "m?xwl=system/common/client/clientSelect"
+             "valueField": "ID",
+             "queryDelay": "500",
+             "hideTrigger": "true",
+             "itemId": "CONSIGNEE_COD",
+             "labelAlign": "right",
+             "width": "100",
+             "displayField": "CNAME",
+             "forceSelection": "true",
+             "height": "22"
             },
             "expanded": false,
-            "children": [],
-            "type": "store"
-           }],
-           "type": "combo"
-          }
-         ],
-         "type": "toolbar"
-        },
-        {
-         "configs": {
-          "itemId": "tbar2",
-          "enableOverflow": "true",
-          "region": "north"
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "autoLoad": "true",
+              "params": "{fldId:'CE'}",
+              "url": "m?xwl=system/common/client/clientSelect"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store"
+            }],
+            "type": "combo"
+           }
+          ],
+          "type": "toolbar"
          },
-         "expanded": true,
-         "children": [
-          {
-           "configs": {
-            "tagConfigs": "matchFieldWidth: false",
-            "hideTrigger": "true",
-            "itemId": "ACCOUNT_CUSTOMER_CODE",
-            "labelAlign": "right",
-            "emptyText": "计费对象",
-            "width": "100",
-            "displayField": "CNAME",
-            "enterKeyTriggerClick": "true",
-            "listConfig": "{width:250}",
-            "valueField": "ID",
-            "queryDelay": "500"
-           },
-           "expanded": false,
-           "children": [{
+         {
+          "configs": {
+           "itemId": "tbar2",
+           "enableOverflow": "true",
+           "region": "north"
+          },
+          "expanded": true,
+          "children": [
+           {
             "configs": {
-             "itemId": "store",
-             "autoLoad": "false",
-             "pageSize": "-1",
-             "url": "m?xwl=receiptInout/receipt/receiptedit/selectFEI"
+             "tagConfigs": "matchFieldWidth: false",
+             "hideTrigger": "true",
+             "itemId": "ACCOUNT_CUSTOMER_CODE",
+             "labelAlign": "right",
+             "emptyText": "计费对象",
+             "width": "100",
+             "displayField": "CNAME",
+             "enterKeyTriggerClick": "true",
+             "listConfig": "{width:250}",
+             "valueField": "ID",
+             "queryDelay": "500"
             },
             "expanded": false,
-            "children": [],
-            "type": "store",
-            "events": {"beforeload": "operation.params = {\
+            "children": [{
+             "configs": {
+              "itemId": "store",
+              "autoLoad": "false",
+              "pageSize": "-1",
+              "url": "m?xwl=receiptInout/receipt/receiptedit/selectFEI"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "store",
+             "events": {"beforeload": "operation.params = {\
   code: app.CONSIGNEE_COD.getValue(),\
   query: operation.params.query\
 };"}
-           }],
-           "type": "combo"
-          },
-          {
-           "configs": {
-            "itemId": "searchBtn",
-            "text": "@Str.find",
-            "iconCls": "search_icon"
+            }],
+            "type": "combo"
            },
-           "expanded": true,
-           "children": [],
-           "type": "item",
-           "events": {"click": "app.gridReceipt.store.load({\
+           {
+            "configs": {
+             "itemId": "searchBtn",
+             "text": "@Str.find",
+             "iconCls": "search_icon"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item",
+            "events": {"click": "app.gridReceipt.store.load({\
   out: app.tbar,\
   params:{ACCOUNT_CUSTOMER_CODE:app.ACCOUNT_CUSTOMER_CODE.getValue(),\
          gateOutTime:app.gateOutTime.getValue()}\
 });"}
-          },
-          {
-           "configs": {
-            "itemId": "printfxtBtn",
-            "text": "打印放行条",
-            "iconCls": "printer_icon"
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+           {
+            "configs": {
+             "itemId": "printfxtBtn",
+             "text": "打印放行条",
+             "iconCls": "printer_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.gridReceipt.getSelection();\
 if (sels.length <= 0) {\
   Wb.warn(\"请选择设备交接单\");\
   return;\
@@ -305,18 +385,18 @@ if (sels[0].data.E_F_ID == \"F\")\
   app.printfxtIBtn.fireEvent(\"click\");\
 if (sels[0].data.E_F_ID == \"E\")\
   app.printfxtEBtn.fireEvent(\"click\");"}
-          },
-          {
-           "configs": {
-            "itemId": "printfxtIBtn",
-            "hidden": "true",
-            "text": "重箱放行条",
-            "iconCls": "dp_icon"
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
+           {
+            "configs": {
+             "itemId": "printfxtIBtn",
+             "hidden": "true",
+             "text": "重箱放行条",
+             "iconCls": "dp_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
 var tenancyid = \"{#sys.TENANCY_ID#}\";\
 var AF1 = document.getElementById(opt);\
 var whereSql = encodeURI(\" and r.tenancy_id='\" + tenancyid + \"' and r.id='\" + sel.data.ID + \"'\");\
@@ -337,18 +417,18 @@ Wb.request({\
   },\
   success: function(resp) {}\
 });"}
-          },
-          {
-           "configs": {
-            "itemId": "printfxtEBtn",
-            "hidden": "true",
-            "text": "空箱放行条",
-            "iconCls": "dp_icon"
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
+           {
+            "configs": {
+             "itemId": "printfxtEBtn",
+             "hidden": "true",
+             "text": "空箱放行条",
+             "iconCls": "dp_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
 var tenancyid = \"{#sys.TENANCY_ID#}\";\
 var AF1 = document.getElementById(opt);\
 var whereSql = encodeURI(\" and r.tenancy_id='\" + tenancyid + \"' and r.id='\" + sel.data.ID + \"'\");\
@@ -369,17 +449,17 @@ Wb.request({\
   },\
   success: function(resp) {}\
 });"}
-          },
-          {
-           "configs": {
-            "itemId": "printplBtn",
-            "text": "批量打印",
-            "iconCls": "printer_icon"
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+           {
+            "configs": {
+             "itemId": "printplBtn",
+             "text": "批量打印",
+             "iconCls": "printer_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.gridReceipt.getSelection();\
 if (sels.length <= 0) {\
   Wb.warn(\"请选择设备交接单\");\
   return;\
@@ -440,30 +520,30 @@ Wb.request({\
   },\
   success: function(resp) {}\
 });"}
-          },
-          {
-           "configs": {
-            "itemId": "gateOutTime",
-            "boxLabel": "提箱超三天",
-            "labelAlign": "right",
-            "width": "80",
-            "labelWidth": "70"
            },
-           "expanded": false,
-           "children": [],
-           "type": "check"
-          },
-          {
-           "configs": {
-            "itemId": "delBtn",
-            "tooltip": "删除选择的记录",
-            "text": "@Str.del",
-            "iconCls": "record_delete_icon"
+           {
+            "configs": {
+             "itemId": "gateOutTime",
+             "boxLabel": "提箱超三天",
+             "labelAlign": "right",
+             "width": "80",
+             "labelWidth": "70"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "check"
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+           {
+            "configs": {
+             "itemId": "delBtn",
+             "tooltip": "删除选择的记录",
+             "text": "@Str.del",
+             "iconCls": "record_delete_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.gridReceipt.getSelection();\
 if (sels.length < 1) {\
   Wb.warn(\"请选择设备交接单\");\
   return;\
@@ -483,58 +563,45 @@ Wb.confirmDo(sels, function() {\
     }\
   });\
 }, 'CNTR');"}
-          },
-          {
-           "configs": {
-            "itemId": "item1",
-            "text": "-"
            },
-           "expanded": true,
-           "children": [],
-           "type": "item"
-          },
-          {
-           "configs": {
-            "itemId": "btnts",
-            "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
-            "text": "托收",
-            "iconCls": "share_icon"
+           {
+            "configs": {
+             "itemId": "item1",
+             "text": "-"
+            },
+            "expanded": true,
+            "children": [],
+            "type": "item"
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sels = app.gridReceipt.getSelection();\
-if (sels.length < 1) {\
-  Wb.warn(\"请选择设备交接单\");\
+           {
+            "configs": {
+             "itemId": "btnts",
+             "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
+             "text": "托收",
+             "iconCls": "share_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
+if (!sel) {\
+  Wb.warn(\"请选择要托收的设备交接单\");\
   return;\
 }\
-\
-Wb.confirm(sels[0].data.CNTR + \"生成托收单\", function() {\
-  Wb.request({\
-    url: 'm?xwl=receiptInout/receipt/receiptedit/delete',\
-    params: {\
-      ID: sels[0].data.ID\
-    },\
-    success: function() {\
-      app.gridReceipt.store.load({\
-        out: app.tbar\
-      });\
-      //       app.resetBtn.fireEvent('click');\
-    }\
-  });\
-}, 'CNTR');"}
-          },
-          {
-           "configs": {
-            "itemId": "btntsprint",
-            "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
-            "text": "托收单打印",
-            "iconCls": "printer_icon"
+var win = new Ext.window.Window(app._winremitting);\
+win.show();"}
            },
-           "expanded": false,
-           "children": [],
-           "type": "item",
-           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+           {
+            "configs": {
+             "itemId": "btntsprint",
+             "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
+             "text": "托收单打印",
+             "iconCls": "printer_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var sels = app.gridReceipt.getSelection();\
 if (sels.length < 1) {\
   Wb.warn(\"请选择设备交接单\");\
   return;\
@@ -554,117 +621,117 @@ Wb.confirmDo(sels, function() {\
     }\
   });\
 }, 'CNTR');"}
-          }
-         ],
-         "type": "toolbar"
-        }
-       ],
-       "type": "array"
-      },
-      {
-       "configs": {
-        "itemId": "store",
-        "autoLoad": "true",
-        "url": "m?xwl=receiptInout/receipt/receiptselectPRE/select"
+           }
+          ],
+          "type": "toolbar"
+         }
+        ],
+        "type": "array"
        },
-       "expanded": false,
-       "children": [],
-       "type": "store"
-      },
-      {
-       "configs": {"itemId": "columns"},
-       "expanded": true,
-       "children": [
-        {
-         "configs": {
-          "itemId": "colID",
-          "hidden": "true",
-          "dataIndex": "ID",
-          "text": "ID"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
+       {
+        "configs": {
+         "itemId": "store",
+         "autoLoad": "true",
+         "url": "m?xwl=receiptInout/receipt/receiptselectPRE/select"
         },
-        {
-         "configs": {
-          "itemId": "colTENANCY_ID",
-          "hidden": "true",
-          "dataIndex": "TENANCY_ID",
-          "text": "租户"
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "column1",
-          "xtype": "rownumberer"
+         {
+          "configs": {
+           "itemId": "colTENANCY_ID",
+           "hidden": "true",
+           "dataIndex": "TENANCY_ID",
+           "text": "租户"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCREATED_ON",
-          "dataIndex": "CREATED_ON",
-          "width": "120",
-          "text": "创建时间"
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCNTR",
-          "dataIndex": "CNTR",
-          "text": "箱号"
+         {
+          "configs": {
+           "itemId": "colCREATED_ON",
+           "dataIndex": "CREATED_ON",
+           "width": "120",
+           "text": "创建时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colBILL_NO",
-          "dataIndex": "BILL_NO",
-          "text": "提单号"
+         {
+          "configs": {
+           "itemId": "colCNTR",
+           "dataIndex": "CNTR",
+           "text": "箱号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "solPLAN_STIME",
-          "dataIndex": "PLAN_STIME",
-          "format": "Y-m-d H:i",
-          "width": "120",
-          "text": "计划送货时间"
+         {
+          "configs": {
+           "itemId": "colBILL_NO",
+           "dataIndex": "BILL_NO",
+           "text": "提单号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colWORK_TYPE",
-          "dataIndex": "WORK_TYPE",
-          "keyName": "WORK_WAY",
-          "width": "80",
-          "text": "作业方式"
+         {
+          "configs": {
+           "itemId": "solPLAN_STIME",
+           "dataIndex": "PLAN_STIME",
+           "format": "Y-m-d H:i",
+           "width": "120",
+           "text": "计划送货时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPHASE",
-          "renderer": "if (value == \"PLN\")\
+         {
+          "configs": {
+           "itemId": "colWORK_TYPE",
+           "dataIndex": "WORK_TYPE",
+           "keyName": "WORK_WAY",
+           "width": "80",
+           "text": "作业方式"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colPHASE",
+           "renderer": "if (value == \"PLN\")\
   return \"计划\";\
 if (value == \"EXE\")\
   return \"已派车\";\
@@ -678,408 +745,409 @@ if (value == \"FIN\")\
   return \"完成\";\
 if (value == \"CNL\")\
   return \"取消\";",
-          "dataIndex": "PHASE",
-          "width": "60",
-          "text": "状态"
+           "dataIndex": "PHASE",
+           "width": "60",
+           "text": "状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colORDER_TYPE",
-          "renderer": "if (Wb.isEmpty(value) || value == '0')\
+         {
+          "configs": {
+           "itemId": "colORDER_TYPE",
+           "renderer": "if (Wb.isEmpty(value) || value == '0')\
   return \"线下\";\
 if (value == '1')\
   return \"网络\";",
-          "dataIndex": "ORDER_TYPE",
-          "width": "60",
-          "text": "类型"
+           "dataIndex": "ORDER_TYPE",
+           "width": "60",
+           "text": "类型"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colORDER_STATUS",
-          "hidden": "true",
-          "dataIndex": "ORDER_STATUS",
-          "keyName": "ORDER_STATUS",
-          "width": "80",
-          "text": "网办状态"
+         {
+          "configs": {
+           "itemId": "colORDER_STATUS",
+           "hidden": "true",
+           "dataIndex": "ORDER_STATUS",
+           "keyName": "ORDER_STATUS",
+           "width": "80",
+           "text": "网办状态"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colI_E_ID",
-          "dataIndex": "I_E_ID",
-          "keyName": "I_E_ID",
-          "width": "60",
-          "text": "进出口"
+         {
+          "configs": {
+           "itemId": "colI_E_ID",
+           "dataIndex": "I_E_ID",
+           "keyName": "I_E_ID",
+           "width": "60",
+           "text": "进出口"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colI_E_ID1",
-          "dataIndex": "SHIP_ORDER",
-          "width": "100",
-          "text": "SO订舱号"
+         {
+          "configs": {
+           "itemId": "colI_E_ID1",
+           "dataIndex": "SHIP_ORDER",
+           "width": "100",
+           "text": "SO订舱号"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCNTR_SIZE",
-          "dataIndex": "CNTR_SIZE",
-          "keyName": "CNTR_SIZE",
-          "text": "箱尺寸"
+         {
+          "configs": {
+           "itemId": "colCNTR_SIZE",
+           "dataIndex": "CNTR_SIZE",
+           "keyName": "CNTR_SIZE",
+           "text": "箱尺寸"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colE_F_ID",
-          "dataIndex": "E_F_ID",
-          "keyName": "E_F_ID",
-          "width": "60",
-          "text": "空重"
+         {
+          "configs": {
+           "itemId": "colE_F_ID",
+           "dataIndex": "E_F_ID",
+           "keyName": "E_F_ID",
+           "width": "60",
+           "text": "空重"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colE_F_ID1",
-          "dataIndex": "CNTR_OWNER_COD",
-          "keyName": "E_F_ID",
-          "width": "60",
-          "text": "箱主"
+         {
+          "configs": {
+           "itemId": "colE_F_ID1",
+           "dataIndex": "CNTR_OWNER_COD",
+           "keyName": "E_F_ID",
+           "width": "60",
+           "text": "箱主"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colSCALE_WEIGHT",
-          "dataIndex": "SCALE_WEIGHT",
-          "width": "60",
-          "text": "磅重"
+         {
+          "configs": {
+           "itemId": "colSCALE_WEIGHT",
+           "dataIndex": "SCALE_WEIGHT",
+           "width": "60",
+           "text": "磅重"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colSHIPPER",
-          "dataIndex": "SHIPPER",
-          "text": "发货人"
+         {
+          "configs": {
+           "itemId": "colSHIPPER",
+           "dataIndex": "SHIPPER",
+           "text": "发货人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCONSIGNEE",
-          "dataIndex": "CONSIGNEE",
-          "text": "收货人"
+         {
+          "configs": {
+           "itemId": "colCONSIGNEE",
+           "dataIndex": "CONSIGNEE",
+           "text": "收货人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCAR_TEAM",
-          "dataIndex": "CAR_TEAM",
-          "keyName": "TU_CUSTOMER",
-          "text": "车队"
+         {
+          "configs": {
+           "itemId": "colCAR_TEAM",
+           "dataIndex": "CAR_TEAM",
+           "keyName": "TU_CUSTOMER",
+           "text": "车队"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCAR_TEAM_P",
-          "dataIndex": "CAR_TEAM_P",
-          "keyName": "TU_CUSTOMER",
-          "text": "办单车队"
+         {
+          "configs": {
+           "itemId": "colCAR_TEAM_P",
+           "dataIndex": "CAR_TEAM_P",
+           "keyName": "TU_CUSTOMER",
+           "text": "办单车队"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCNTR_OPERATOR",
-          "dataIndex": "CNTR_OPERATOR",
-          "text": "箱代理"
+         {
+          "configs": {
+           "itemId": "colCNTR_OPERATOR",
+           "dataIndex": "CNTR_OPERATOR",
+           "text": "箱代理"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colS_ADRESS",
-          "dataIndex": "S_ADRESS",
-          "keyName": "C_ADDRESS",
-          "text": "交货地址"
+         {
+          "configs": {
+           "itemId": "colS_ADRESS",
+           "dataIndex": "S_ADRESS",
+           "keyName": "C_ADDRESS",
+           "text": "交货地址"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colT_ADDRESS",
-          "dataIndex": "T_ADDRESS",
-          "keyName": "C_CFS",
-          "text": "提箱地点"
+         {
+          "configs": {
+           "itemId": "colT_ADDRESS",
+           "dataIndex": "T_ADDRESS",
+           "keyName": "C_CFS",
+           "text": "提箱地点"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colF_ADDRESS",
-          "dataIndex": "F_ADDRESS",
-          "keyName": "C_CFS",
-          "text": "返场地址"
+         {
+          "configs": {
+           "itemId": "colF_ADDRESS",
+           "dataIndex": "F_ADDRESS",
+           "keyName": "C_CFS",
+           "text": "返场地址"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPT_TYPE",
-          "dataIndex": "PT_TYPE",
-          "keyName": "PT_TYPE",
-          "text": "派车方式"
+         {
+          "configs": {
+           "itemId": "colPT_TYPE",
+           "dataIndex": "PT_TYPE",
+           "keyName": "PT_TYPE",
+           "text": "派车方式"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colYAC_ON",
-          "dataIndex": "YZC_ON",
-          "text": "预装船时间"
+         {
+          "configs": {
+           "itemId": "colYAC_ON",
+           "dataIndex": "YZC_ON",
+           "text": "预装船时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_VESSEL",
-          "dataIndex": "PRE_VESSEL",
-          "text": "前程船"
+         {
+          "configs": {
+           "itemId": "colPRE_VESSEL",
+           "dataIndex": "PRE_VESSEL",
+           "text": "前程船"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_VOYAGE_NO",
-          "dataIndex": "PRE_VOYAGE_NO",
-          "text": "前程航次"
+         {
+          "configs": {
+           "itemId": "colPRE_VOYAGE_NO",
+           "dataIndex": "PRE_VOYAGE_NO",
+           "text": "前程航次"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_POL",
-          "dataIndex": "PRE_POL",
-          "text": "大船装货港"
+         {
+          "configs": {
+           "itemId": "colPRE_POL",
+           "dataIndex": "PRE_POL",
+           "text": "大船装货港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_POD",
-          "dataIndex": "PRE_POD",
-          "text": "大船卸货港"
+         {
+          "configs": {
+           "itemId": "colPRE_POD",
+           "dataIndex": "PRE_POD",
+           "text": "大船卸货港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_SPOD",
-          "dataIndex": "PRE_SPOD",
-          "text": "前程中转港"
+         {
+          "configs": {
+           "itemId": "colPRE_SPOD",
+           "dataIndex": "PRE_SPOD",
+           "text": "前程中转港"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_ETD",
-          "dataIndex": "PRE_ETD",
-          "text": "大船离港时间"
+         {
+          "configs": {
+           "itemId": "colPRE_ETD",
+           "dataIndex": "PRE_ETD",
+           "text": "大船离港时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_CUTOFF",
-          "dataIndex": "PRE_CUTOFF",
-          "text": "大船VGM截关时间"
+         {
+          "configs": {
+           "itemId": "colPRE_CUTOFF",
+           "dataIndex": "PRE_CUTOFF",
+           "text": "大船VGM截关时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_RECEIV_DATE",
-          "dataIndex": "PRE_RECEIV_DATE",
-          "text": "大船收货时间"
+         {
+          "configs": {
+           "itemId": "colPRE_RECEIV_DATE",
+           "dataIndex": "PRE_RECEIV_DATE",
+           "text": "大船收货时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_CLOSING",
-          "dataIndex": "PRE_CLOSING",
-          "text": "大船截关时间"
+         {
+          "configs": {
+           "itemId": "colPRE_CLOSING",
+           "dataIndex": "PRE_CLOSING",
+           "text": "大船截关时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_BOOKING_DATE",
-          "dataIndex": "PRE_BOOKING_DATE",
-          "text": "大船订舱时间"
+         {
+          "configs": {
+           "itemId": "colPRE_BOOKING_DATE",
+           "dataIndex": "PRE_BOOKING_DATE",
+           "text": "大船订舱时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_IMO",
-          "dataIndex": "PRE_IMO",
-          "text": "大船IMO"
+         {
+          "configs": {
+           "itemId": "colPRE_IMO",
+           "dataIndex": "PRE_IMO",
+           "text": "大船IMO"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_DELIVERY",
-          "dataIndex": "PRE_DELIVERY",
-          "text": "大船交货地"
+         {
+          "configs": {
+           "itemId": "colPRE_DELIVERY",
+           "dataIndex": "PRE_DELIVERY",
+           "text": "大船交货地"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colPRE_ETA",
-          "dataIndex": "PRE_ETA",
-          "text": "大船抵港时间"
+         {
+          "configs": {
+           "itemId": "colPRE_ETA",
+           "dataIndex": "PRE_ETA",
+           "text": "大船抵港时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colSERVICE",
-          "dataIndex": "SERVICE",
-          "keyName": "C_SERVICE",
-          "width": "75",
-          "text": "航线"
+         {
+          "configs": {
+           "itemId": "colSERVICE",
+           "dataIndex": "SERVICE",
+           "keyName": "C_SERVICE",
+           "width": "75",
+           "text": "航线"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colF_ON",
-          "dataIndex": "F_ON",
-          "width": "120",
-          "text": "放箱时间"
+         {
+          "configs": {
+           "itemId": "colF_ON",
+           "dataIndex": "F_ON",
+           "width": "120",
+           "text": "放箱时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
          },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colF_BY",
-          "dataIndex": "F_BY",
-          "width": "60",
-          "keyName": "WB_USER",
-          "text": "放箱人"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "column"
-        }
-       ],
-       "type": "array"
-      }
-     ],
-     "type": "grid"
-    },
-    {
-     "configs": {
-      "border": "false",
-      "layout": "border",
-      "itemId": "panelPrint",
-      "region": "south",
-      "height": "0"
+         {
+          "configs": {
+           "itemId": "colF_BY",
+           "dataIndex": "F_BY",
+           "width": "60",
+           "keyName": "WB_USER",
+           "text": "放箱人"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
      },
-     "expanded": true,
-     "children": [],
-     "type": "panel"
-    }
-   ],
-   "type": "viewport",
-   "events": {
-    "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+     {
+      "configs": {
+       "border": "false",
+       "layout": "border",
+       "itemId": "panelPrint",
+       "region": "south",
+       "height": "0"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "panel"
+     }
+    ],
+    "type": "viewport",
+    "events": {
+     "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
 app.panelPrint.update(mt1);",
-    "destroy": "delete window[\"init\" + opt];"
+     "destroy": "delete window[\"init\" + opt];"
+    }
    }
-  }],
+  ],
   "type": "module",
   "events": {
    "finalize": "app.cboPHASE.setValue(\"\");\
