@@ -15,10 +15,22 @@
   margin: '8 8 0 0'\
 }",
      "width": "480",
-     "height": "300"
+     "height": "190"
     },
     "expanded": true,
     "children": [
+     {
+      "configs": {
+       "itemId": "ID",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "ID",
+       "readOnly": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
      {
       "configs": {
        "tagConfigs": "matchFieldWidth: false",
@@ -76,6 +88,7 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
      {
       "configs": {
        "itemId": "CNTR",
+       "hidden": "true",
        "labelAlign": "right",
        "fieldLabel": "箱号",
        "readOnly": "true"
@@ -120,6 +133,7 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
      {
       "configs": {
        "itemId": "CNTR_OPERATOR_COD",
+       "hidden": "true",
        "labelAlign": "right",
        "fieldLabel": "船公司",
        "readOnly": "true"
@@ -167,7 +181,15 @@ app.CNTR_OPERATOR.setValue(records[0].data.SHORT_NAME);"}
     ],
     "type": "window",
     "events": {"ok": "if (app.edit) { //编辑\
-\
+  Wb.request({\
+    url: 'm?xwl=truckManager/truckReceipt/truckworkfeeEdit/update',\
+    out: app.winEdit,\
+    success: function(resp) {\
+      Wb.info(\"操作完成\");\
+      app.btnfind.fireEvent('click');\
+      app.winEdit.close();\
+    }\
+  });\
 } else { //新增\
   Wb.request({\
     url: 'm?xwl=truckManager/truckReceipt/truckworkfeeEdit/insert',\
@@ -300,6 +322,7 @@ if (!sel) {\
 var win = new Ext.window.Window(app._winEdit);\
 win.setTitle(\"新增\");\
 win.show();\
+app.edit = true;\
 Wb.setValue(win, sel.data);\
 app.RID.store.load({\
   params: {\
