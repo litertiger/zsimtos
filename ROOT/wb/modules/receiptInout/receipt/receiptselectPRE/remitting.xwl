@@ -9,7 +9,28 @@ var username = app.get('sys.username');\
 \
 app.run(\"call P_XL_TRUCK_FEE({?rid?},{?paycod?},{?payname?},{?paymenttype?})\", {\
   transaction: 'start'\
-});"
+});\
+\
+//转给船公司,定义为船公司托收单,转给货主的,根据货主结算类型,定义托收单打印类型\
+var print_type = 0;\
+var paytype = Wb.getRecords(app.run(\"select decode(c1.ACCOUNT_TYPE,'',1,c1.ACCOUNT_TYPE)ACCOUNT_TYPE,CLIENT_TYPE\\
+\" +\
+  \"from c_customer c left join C_CUSTOMER_CONTACT c1 on c.id=c1.c_id where c.code='\" + data.PAYER_COD + \"' and c.tenancy_id='\" + tenancyid + \"'\"));\
+if (paytype[0].CLIENT_TYPE.indexOf(\"AG\") == -1)\
+  print_type = paytype[0].ACCOUNT_TYPE;\
+\
+var sql = \"insert into remitting(ID,REM_DATE,REM_CUS,PAYER,,\" +\
+  \"CREATED_BY,CREATED_ON,TENANCY_ID,REM_CUS_COD,PAYER_COD,R_TYPE,R_OK,created_type,print_type)\" +\
+  \"values('\" + id[0].ID + \"',sysdate,{?REM_CUS?},{?PAYER?},\" +\
+  \"'\" + username + \"',sysdate,'\" + tenancyid + \"',{?REM_CUS_COD?},{?PAYER_COD?},'ts',0,\" + crtp + \",\" + print_type + \")\";\
+app.run(sql);\
+\
+var sqlitem = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT) \" +\
+  \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,0,FEE_LIST_ID,\" + (print_type == 1 ? 1 : 2) + \",ACTUAL_JOB_COUNT,AMOUNT\" +\
+  \" from accounts_details where id in (\" + data.ids + \")\";\
+app.run(sqlitem);\
+\
+app.run(\"update accounts_details set IS_MANUAL=1 where id in (\" + data.ids + \")\");"
   },
   "expanded": true,
   "children": [],
