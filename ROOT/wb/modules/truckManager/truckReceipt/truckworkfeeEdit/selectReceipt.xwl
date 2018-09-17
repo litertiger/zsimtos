@@ -5,10 +5,11 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
-var sql = \"select id,cntr,nvl(in_car,out_car)in_car from RECEIPT\" +\
-  \" where tenancy_id='\" + tenancyid + \"' and cntr like '%'||{?query?}||'%'\" +\
-  \" and work_type not in('YOYI') and shipper_way=1 and phase not in('PLN','CNL')\" +\
-  \" and trunc(created_on)>=trunc(add_months(sysdate,-2)) and trunc(created_on)<=trunc(sysdate)\";\
+var sql = \"select r.id,r.cntr,nvl(r.in_car,r.out_car)in_car,r.cntr_size,r.cntr_operator_cod,c.short_name from RECEIPT r\" +\
+  \" left join c_customer c on r.cntr_operator_cod=c.code\" +\
+  \" where r.tenancy_id='\" + tenancyid + \"' and r.cntr like '%'||{?query?}||'%'\" +\
+  \" and r.work_type not in('YOYI') and r.shipper_way=1 and r.phase not in('PLN','CNL')\" +\
+  \" and trunc(r.created_on)>=trunc(add_months(sysdate,-2)) and trunc(r.created_on)<=trunc(sysdate)\";\
 request.setAttribute('sql', sql);"
   },
   "expanded": true,
