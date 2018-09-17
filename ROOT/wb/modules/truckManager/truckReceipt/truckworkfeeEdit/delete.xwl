@@ -6,6 +6,12 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
+var tw = Wb.getRecords(app.run(\"select phase from truck_work_fee where id={?id?}\"));\
+if (tw.length < 1)\
+  throw \"已经删除了,请刷新\";\
+else if (tw[0].PHASE == 'FIN')\
+  throw \"已审核,不能删除\";\
+\
 var sql = \"delete from truck_work_fee where id={?id?}\";\
 app.run(sql);"
   },
