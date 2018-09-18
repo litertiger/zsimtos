@@ -17,10 +17,10 @@ if (trade == 1 && ((data.I_E_ID == \"E\" && Wb.isEmpty(data.SHIPPER_COD)) || (da
 \
 //重出重回\
 if (data.WORK_TYPE == \"FOFI\") {\
-  var have = Wb.getRecords(app.run(\"select work_type,phase from receipt where cntr='\" + data.CNTR + \"'\" +\
+  var have = Wb.getRecords(app.run(\"select work_type,phase,CNTR_OPERATOR_COD from receipt where cntr='\" + data.CNTR + \"'\" +\
     \" and phase not in('FIN','CNL') and work_type not in('FOEI','YOYI') and tenancy_id='\" + tenancyid + \"'\"));\
   if (have.length > 0)\
-    throw data.CNTR + \"已有\" + have[0].WORK_TYPE + \"设备交接单,状态\" + have[0].PHASE + \"\";\
+    throw data.CNTR + \"已有\" + have[0].WORK_TYPE + \"设备交接单,状态\" + have[0].PHASE + \",驳船：\"+ have[0].CNTR_OPERATOR_COD ;\
   var getid = \"select id,CONSIGNEE_COD,GATEOUT_TIME_T from receipt where cntr='\" + data.CNTR + \"'\" +\
     \" and phase not in('FIN','RTN','CAL') and WORK_TYPE='FOEI'\";\
   var rid = Wb.decode(DbUtil.getData(app.run(getid), request));\
