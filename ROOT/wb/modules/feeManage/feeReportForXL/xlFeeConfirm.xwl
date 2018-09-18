@@ -11,7 +11,7 @@
    "expanded": true,
    "children": [{
     "configs": {
-     "itemId": "cntrGrid",
+     "itemId": "grid1",
      "multiSelect": "true"
     },
     "expanded": true,
@@ -20,7 +20,7 @@
       "configs": {
        "itemId": "store",
        "autoLoad": "false",
-       "url": "m?xwl=entrepot/InPin/unBox/cntrSelect"
+       "url": "m?xwl=feeManage/feeReportForXL/xlFeeConfirmEdit/select"
       },
       "expanded": false,
       "children": [],
@@ -46,7 +46,7 @@
         "configs": {
          "itemId": "FeeListIdmn1511",
          "dataIndex": "FEE_LIST_ID",
-         "width": "100",
+         "width": "130",
          "keyName": "C_BASE_CHARGING_ITEM",
          "text": "费用",
          "titleAlign": "center"
@@ -71,7 +71,7 @@
         "configs": {
          "itemId": "CNTR_SIZEmn15",
          "dataIndex": "CNTR_SIZE",
-         "width": "60",
+         "width": "40",
          "text": "尺寸",
          "titleAlign": "center"
         },
@@ -83,7 +83,7 @@
         "configs": {
          "itemId": "BILL_NOCol",
          "dataIndex": "BILL_NO",
-         "width": "60",
+         "width": "140",
          "text": "提单号",
          "titleAlign": "center"
         },
@@ -95,7 +95,7 @@
         "configs": {
          "itemId": "CNTR_OPERATOR_CODmn11",
          "dataIndex": "CNTR_OPERATOR_COD",
-         "width": "80",
+         "width": "60",
          "keyName": "AG_SHORT",
          "text": "船公司",
          "titleAlign": "center"
@@ -134,8 +134,9 @@
         "configs": {
          "itemId": "colACTUAL_JOB_COUNT",
          "dataIndex": "ACTUAL_JOB_COUNT",
-         "width": "120",
+         "width": "50",
          "text": "作业量",
+         "align": "right",
          "titleAlign": "center"
         },
         "expanded": false,
@@ -157,8 +158,13 @@
        {
         "configs": {
          "itemId": "colPAY_FLAG",
+         "renderer": "if (value == '0') {\
+  return '未收费';\
+} else if (value == '1') {\
+  return '已收费';\
+}",
          "dataIndex": "PAY_FLAG",
-         "width": "120",
+         "width": "60",
          "text": "收费",
          "titleAlign": "center"
         },
@@ -184,7 +190,7 @@
          "itemId": "billNo",
          "fieldLabel": "提单号",
          "width": "150",
-         "labelWidth": "50"
+         "labelWidth": "55"
         },
         "expanded": false,
         "children": [],
@@ -205,16 +211,38 @@
        {
         "configs": {
          "itemId": "seekMenu",
-         "hidden": "true",
          "text": "@Str.find",
          "iconCls": "search_icon"
         },
         "expanded": false,
         "children": [],
         "type": "item",
-        "events": {"click": "app.cntrGrid.store.load({\
-  out:app.cntrTbar\
-});\
+        "events": {"click": "// app.grid1.store.load({\
+//   out:app.tbar\
+// });\
+\
+app.grid1.store.load({\
+  params: {\
+    billNo: app.billNo.getValue(),\
+    cntr: app.cntr.getValue()\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "feeMenu1",
+         "text": "确认收费",
+         "iconCls": "object_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "var row = app.grid1.getSelection();\
+if (row.length < 1) {\
+  Wb.warn(\"请选择一条记录!\");\
+  return;\
+}\
+\
 "}
        }
       ],
