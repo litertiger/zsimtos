@@ -9,7 +9,7 @@
      "layout": "fit",
      "itemId": "viewport1"
     },
-    "expanded": false,
+    "expanded": true,
     "children": [{
      "configs": {
       "itemId": "grid1",
@@ -267,66 +267,73 @@ app.grid1.store.load({\
          "expanded": false,
          "children": [],
          "type": "item",
-         "events": {"click": "if (Wb.isEmpty(app.billNo.getValue())) {\
-  Wb.warn(\"没有找到提单\");\
-  return;\
-}\
-Wb.request({\
-  url: \"m?xwl=BuzManage/toll/invoiceSerial/testSettlement\",\
-  params: {\
-    billNo: app.billNo.getValue()\
-  },\
-  success: function(resp) {\
-    var customer = Wb.decode(\"{\" + resp.responseText + \"}\");\
-    var win = new Ext.window.Window(app._winSETTLEMENTBODY);\
-    win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
-    win.show();\
-    app.cboP.setValue(\"2\");\
-    Wb.loadComboFilter(app.ACCOUNT_CUSTOMER_ID, {\
-      query: customer.NAME\
-    }, function() {\
-      app.ACCOUNT_CUSTOMER_ID.setValue(customer.ID);\
-    });\
-    Wb.request({\
-      url: \"m?xwl=BuzManage/bandanedit/fapiaohao\",\
-      params: {\
-        invoiceType: app.cboP.getValue()\
-      },\
-      success: function(resp) {\
-        console.log(resp.responseText);\
-        app.txtSETTLEMENT_CODE.setValue(resp.responseText);\
-      }\
-    });\
-    app.gridSETTLEBODY.store.load({\
-      params: {\
-        billno: app.billNo.getValue()\
-      }\
-    });\
-  }\
-});\
-\
-\
-\
-// var row = app.grid1.getSelection();\
-// if (row.length < 1) {\
-//   Wb.warn(\"请选择一条记录!\");\
+         "events": {"click": "// if (Wb.isEmpty(app.billNo.getValue())) {\
+//   Wb.warn(\"没有找到提单\");\
 //   return;\
 // }\
-// var ids = \"\";\
-// for (var i = 0; i < row.length; i++) {\
-//   ids += \"'\" + row[i].data.ID + \"',\";\
-// }\
-\
 // Wb.request({\
-//   url: 'm?xwl=feeManage/feeReportForXL/xlFeeConfirmEdit/confirmFee',\
+//   url: \"m?xwl=BuzManage/toll/invoiceSerial/testSettlement\",\
 //   params: {\
-//   \tids:ids.substring(0,ids.length-1)\
+//     billNo: app.billNo.getValue()\
 //   },\
 //   success: function(resp) {\
-//   \tWb.info('成功');\
-//     app.seekMenu.fireEvent('click');\
+//     var customer = Wb.decode(\"{\" + resp.responseText + \"}\");\
+//     var win = new Ext.window.Window(app._winSETTLEMENTBODY);\
+//     win.down('[iconCls=ok_icon]').hide(); //隐藏窗体确定按钮\
+//     win.show();\
+//     app.cboP.setValue(\"2\");\
+//     Wb.loadComboFilter(app.ACCOUNT_CUSTOMER_ID, {\
+//       query: customer.NAME\
+//     }, function() {\
+//       app.ACCOUNT_CUSTOMER_ID.setValue(customer.ID);\
+//     });\
+//     Wb.request({\
+//       url: \"m?xwl=BuzManage/bandanedit/fapiaohao\",\
+//       params: {\
+//         invoiceType: app.cboP.getValue()\
+//       },\
+//       success: function(resp) {\
+//         console.log(resp.responseText);\
+//         app.txtSETTLEMENT_CODE.setValue(resp.responseText);\
+//       }\
+//     });\
+//     app.gridSETTLEBODY.store.load({\
+//       params: {\
+//         billno: app.billNo.getValue()\
+//       }\
+//     });\
 //   }\
-// });"}
+// });\
+\
+\
+\
+var row = app.grid1.getSelection();\
+if (row.length < 1) {\
+  Wb.warn(\"请选择一条记录!\");\
+  return;\
+}\
+var ids = \"\";\
+for (var i = 0; i < row.length; i++) {\
+  ids += \"'\" + row[i].data.ID + \"',\";\
+}\
+var win = new Ext.window.Window(app._editwin); //app._win指向配置对象而非实例\
+win.show();\
+win.setIconCls('record_add_icon');\
+Wb.setTitle(win, '添加');\
+//窗口每次动态生成,方法在窗口销毁时自动销毁\
+win.mon(win, 'ok', function() {\
+  var values = Wb.getValue([win, app.tbar]);\
+  Wb.request({\
+    url: 'm?xwl=feeManage/feeReportForXL/xlFeeConfirmEdit/confirmFee',\
+    params: {\
+      ids: ids.substring(0, ids.length - 1)\
+    },\
+    success: function(resp) {\
+      Wb.info('成功');\
+      app.seekMenu.fireEvent('click');\
+    }\
+  });\
+});"}
         }
        ],
        "type": "toolbar"
@@ -921,6 +928,33 @@ app.lblhj.setText(msg + hj);"}
   success: function(resp) {}\
 });"
     }
+   },
+   {
+    "configs": {
+     "layout": "absolute",
+     "itemId": "editwin",
+     "dialog": "true",
+     "closeAction": "destroy",
+     "width": "288",
+     "height": "96"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "SETTLE_BODY",
+      "labelAlign": "right",
+      "fieldLabel": "发票号",
+      "x": "8",
+      "width": "240",
+      "y": "8",
+      "labelWidth": "50",
+      "height": "22"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    }],
+    "type": "window"
    }
   ],
   "type": "module",
