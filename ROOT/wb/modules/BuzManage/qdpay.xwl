@@ -1587,7 +1587,7 @@ if (store.data.items[0].data.BILL_TYPE == \"P\" || store.data.items[0].data.BILL
     return;\
   }\
   if (store.data.items[0].data.PIECES != store.data.items[0].data.INQUTY) {\
-   Wb.warn(\"计划入库和实际入库不相等,不能签到\");\
+    Wb.warn(\"计划入库和实际入库不相等,不能签到\");\
     return;\
   }\
 }\
@@ -1595,12 +1595,12 @@ var errmsg = \"\";\
 if ((store.data.items[0].data.BILL_TYPE == \"C\" || store.data.items[0].data.BILL_TYPE == \"E\") && store.data.items[0].data.I_E_ID == \"E\") {\
   Wb.each(storeC.data.items, function(item) {\
     console.log(item.data.CFS);\
-        console.log(!Wb.isEmpty(item.data.CFS) && item.data.CFS != \"JGQ\");\
-        console.log(Wb.isEmpty(item.data.CFS) && item.data.IN_JGQ == \"1\");\
+    console.log(!Wb.isEmpty(item.data.CFS) && item.data.CFS != \"JGQ\");\
+    console.log(Wb.isEmpty(item.data.CFS) && item.data.IN_JGQ == \"1\");\
 \
     if (((!Wb.isEmpty(item.data.CFS) && item.data.CFS != \"JGQ\") ||\
-        item.data.PHASE=='OUT'|| \
-        (Wb.isEmpty(item.data.CFS) && item.data.IN_JGQ == \"1\")))//&& item.data.PHASE!='DEP'\
+        item.data.PHASE == 'OUT' ||\
+        (Wb.isEmpty(item.data.CFS) && item.data.IN_JGQ == \"1\"))) //&& item.data.PHASE!='DEP'\
       errmsg += \"箱:\" + item.data.CNTR + \"不在监管区,不能签到 \";\
     if (item.data.PEF != item.data.E_F_ID)\
       errmsg += \"箱:\" + item.data.CNTR + \"空重不符,不能签到 \";\
@@ -1615,7 +1615,8 @@ Wb.request({\
   params: {\
     QD_BY: username,\
     QD_ON: new Date(),\
-    billno: app.txtBILL_NO_RB.getValue()\
+    billno: app.txtBILL_NO_RB.getValue(),\
+    YJT_TIME: app.YJT_TIME.getValue()\
   },\
   success: function(resp) {\
     app.gridXiang.store.load({\
