@@ -651,25 +651,27 @@ Wb.request({\
   },\
   success: function(resp) {\
     var res = Wb.decode(resp.responseText);\
-    console.log(res);\
-  }\
-});\
-// var date = new Date();\
-// var printdate = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate();\
-\
-// var tenancyid = \"{#sys.TENANCY_ID#}\";\
-// var AF1 = document.getElementById(opt);\
-// var whereSql = encodeURI(\" and nvl(vh.tenancy_id,r.tenancy_id)='\" + tenancyid + \"' and (vh.bill_no='\" + sels[0].data.BILL_NO + \"' or r.id='\" + sels[0].data.R_ID + \"')\");\
-// var whereSql1 = encodeURI(\" and ri.c_id='\" + sels[0].data.ID + \"'\");\
-// AF1.func(\"Build\", '/supcan/report/fee/month_cgs.xml?' + Math.round(Math.random() * 100));\
-// AF1.func(\"SetParas\", \"ds1 \\r\\
+    if (res.length < 1)\
+      Wb.warn(sels[0].data.CNTR + \"没有做托收\");\
+    else {\
+      var date = new Date();\
+      var printdate = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate();\
+      var tenancyid = \"{#sys.TENANCY_ID#}\";\
+      var AF1 = document.getElementById(opt);\
+      var whereSql = encodeURI(\" and nvl(vh.tenancy_id,r.tenancy_id)='\" + tenancyid + \"' and (vh.bill_no='' or r.id='\" + sels[0].data.ID + \"')\");\
+      var whereSql1 = encodeURI(\" and ri.c_id='\" + res[0].ID + \"'\");\
+      AF1.func(\"Build\", '/supcan/report/fee/month_cgs.xml?' + Math.round(Math.random() * 100));\
+      AF1.func(\"SetParas\", \"ds1 \\r\\
  para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
-// AF1.func(\"SetParas\", \"ds2 \\r\\
+      AF1.func(\"SetParas\", \"ds2 \\r\\
  para=1;whereSql=\" + whereSql1 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
-// AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + sels[0].data.ID + \"' ID='\" + sels[0].data.ID + \"'/>\");\
-// AF1.func(\"SetCellData\", \"<data A1='小榄港国际货柜码头船公司缴费通知单' D2='船公司缴费托收单号：' A10='船公司缴费托收单位(签章)：' F10='业务员：\" + \"{#sys.dispname#}\" + \"'/>\");\
-// AF1.func(\"Calc\", \"\");\
-// AF1.func(\"callfunc\", \"18\");"}
+      AF1.func(\"SetCellData\", \"<data B2='\" + printdate + \"' E2='\" + res[0].ID + \"' ID='\" + res[0].ID + \"'/>\");\
+      AF1.func(\"SetCellData\", \"<data A1='小榄港国际货柜码头船公司缴费通知单' D2='船公司缴费托收单号：' A10='船公司缴费托收单位(签章)：' F10='业务员：\" + \"{#sys.dispname#}\" + \"'/>\");\
+      AF1.func(\"Calc\", \"\");\
+      AF1.func(\"callfunc\", \"18\");\
+    }\
+  }\
+});"}
            }
           ],
           "type": "toolbar"

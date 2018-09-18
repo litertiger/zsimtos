@@ -6,6 +6,10 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
+var ret = Wb.getRecords(app.run(\"select r_id from remitting where r_id={?rid?}\"));\
+if (ret.length > 0)\
+  throw \"此单已经做过托收,如果重新托收,需要先作废\";\
+\
 var id = Wb.getRecords(app.run(\"select to_char(sysdate,'yyyyMMdd')||lpad(accounts_print_no.nextval,4,'0')id from dual\")); //生成ID\
 app.run(\"call P_XL_TRUCK_FEE({?rid?},{?paycod?},{?payname?},{?paymenttype?})\", {\
   transaction: 'start'\
