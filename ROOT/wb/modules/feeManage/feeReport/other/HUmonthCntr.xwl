@@ -565,7 +565,8 @@ window[\"init\" + opt] = function(id) {\
     m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
     m.func(\"callfunc\", \"4\");\
     m.func(\"SubscribeEvent\", \"Clicked\"); //预订鼠标点击事件\
-    m.func(\"Build\", '/supcan/report/fee/HU.xml?' + Math.round(Math.random() * 100));\
+    //     m.func(\"Build\", '/supcan/report/fee/HU.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"Build\", '/supcan/report/fee/month_acc.xml?' + Math.round(Math.random() * 100));\
     m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
  true\");\
     m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&\" + Math.random() * 1000);\
@@ -589,12 +590,12 @@ window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
     if (p4 != \"HID\") return;\
     var arr = p3.split(\"@\");\
     var sheetName = Wb.find(ms, ['ITEM_ID'], arr[0]);\
-    if(sheetName==null){\
+    if (sheetName == null) {\
       //针对费用报表维护的内外贸为空的情况\
-    \tsheetName = Wb.find(ms, ['ITEM_ID_S'], (arr[0] + \"-\" + arr[2]));\
-    }else if(sheetName.TRADE_ID!=arr[2] && sheetName.TRADE_ID!=\"\"){\
+      sheetName = Wb.find(ms, ['ITEM_ID_S'], (arr[0] + \"-\" + arr[2]));\
+    } else if (sheetName.TRADE_ID != arr[2] && sheetName.TRADE_ID != \"\") {\
       //针对费用报表维护中--内外贸都有维护的情况\
-    \tsheetName = Wb.find(ms, ['ITEM_ID_S'], (arr[0] + \"-\" + arr[2]));\
+      sheetName = Wb.find(ms, ['ITEM_ID_S'], (arr[0] + \"-\" + arr[2]));\
     }\
     //     if (sheetName.TRADE_ID != arr[2]) {\
     //       sheetName = Wb.find(ms, ['ITEM_ID_S'], (arr[0] + \"-\" + arr[2]));\
@@ -606,7 +607,7 @@ window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
     //切换到第二个工作表：明细表\
     AF.func(\"appendWorksheet\", sheetName.PATH + \" \\r\\
  sheetName=222222; isOpenDialog=true\");\
-//     AF.func(\"SetWorksheetName\", \"1 \\r\\
+    //     AF.func(\"SetWorksheetName\", \"1 \\r\\
 \" + sheetName.ITEM_NAME);\
     AF.func(\"SetWorksheetName\", \"2 \\r\\
 \" + sheetName.ITEM_NAME);\
@@ -631,8 +632,8 @@ window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
       \" and accounts_details.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
     if (!Wb.isEmpty(app.cboTRADE.getValue()))\
       whereSql += \" and accounts_details.trade_id = '\" + app.cboTRADE.getValue() + \"'\";\
-//     if (!Wb.isEmpty(app.CUSTOM.getValue()))\
-//       whereSql += \" and accounts_details.PAYMENT_CUSTOMER_CODE = '\" + app.CUSTOM.getValue() + \"'\";\
+    //     if (!Wb.isEmpty(app.CUSTOM.getValue()))\
+    //       whereSql += \" and accounts_details.PAYMENT_CUSTOMER_CODE = '\" + app.CUSTOM.getValue() + \"'\";\
     if (!Wb.isEmpty(app.CUSTOM.getValue()))\
       whereSql += \" and PAYMENT_CUSTOMER_CODE IN(\" + app.IDS.getValue() + \")  \";\
     if (!Wb.isEmpty(app.cboSettleStatus.getValue()))\
@@ -690,10 +691,12 @@ window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
     app.CUSTOM.setValue(arr[0]);\
     app.CUSTOM.focus();\
     app.CUSTOM.store.load({\
-    \tparams:{query:arr[0]}\
+      params: {\
+        query: arr[0]\
+      }\
     });\
-//     Wb.select(app.CUSTOM,arr[0]);\
-    detailSql+=\" and PAYMENT_CUSTOMER_CODE IN('\" + arr[0] + \"') \";\
+    //     Wb.select(app.CUSTOM,arr[0]);\
+    detailSql += \" and PAYMENT_CUSTOMER_CODE IN('\" + arr[0] + \"') \";\
     AF.func(\"SetCurrentWorkSheet\", \"0\");\
 \
     //为别名为 \"pzh\" 的单元格 (B2) 赋值\
@@ -722,7 +725,7 @@ window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
     if (!Wb.isEmpty(app.cboPayType.getValue())) {\
       detailSql += \" and PAYMENT_TYPE=\" + app.cboPayType.getValue() + \"\";\
     }\
-    detailSql+=\" and PAYMENT_CUSTOMER_CODE IN('\" + arr[0] + \"') \";\
+    detailSql += \" and PAYMENT_CUSTOMER_CODE IN('\" + arr[0] + \"') \";\
     AF.func(\"SetCurrentWorkSheet\", \"0\");\
 \
     //为别名为 \"pzh\" 的单元格 (B2) 赋值\
