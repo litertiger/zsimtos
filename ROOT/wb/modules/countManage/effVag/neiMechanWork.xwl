@@ -227,29 +227,36 @@ app.edate.setValue(edate);"}
   return;\
 \
 var AF1 = document.getElementById(opt);\
-var addSql=\"\";\
-if(app.tradeId.getValue()==0)\
-   addSql=\" and  1=1\";\
+var addSql = \"\";\
+if (app.tradeId.getValue() == 0)\
+  addSql = \" and  1=1\";\
 else\
-   addSql=\" and TRADE_ID=\"+app.tradeId.getValue();\
+  addSql = \" and TRADE_ID=\" + app.tradeId.getValue();\
+\
+//2018/09/19，小婷说要把时间查询改为8:00-次日6.59\
+var s = app.edate.getValue();\
+var s1 = new Date(s.getTime() + 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000);\
+var whereSql = encodeURI(\" and move_list.updated_on>=to_date('\" + app.sdate.getRawValue() + \" 08:00:00','yyyy-MM-dd hh24:mi:ss') \" +\
+  \" and move_list.updated_on<=to_date('\" + Wb.format(s1, 'Y:m:d H-i-s') + \"','yyyy-MM-dd hh24:mi:ss')\");\
+whereSql += \"and move_list.tenancy_id='{#sys.TENANCY_ID#}'\" + addSql;\
 if (app.radioD.getValue() === true) {\
-  var whereSql = encodeURI(\" and trunc(move_list.updated_on)=to_date('\" + app.date1.getRawValue() + \"','yyyy-MM-dd') and move_list.tenancy_id='{#sys.TENANCY_ID#}'\"+addSql);\
+//   var whereSql = encodeURI(\" and trunc(move_list.updated_on)=to_date('\" + app.date1.getRawValue() + \"','yyyy-MM-dd') and move_list.tenancy_id='{#sys.TENANCY_ID#}'\" + addSql);\
   AF1.func(\"SetParas\", \"ds1 \\r\\
- para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime()+\";tenancyId=\"+'{#sys.TENANCY_ID#}');\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
   AF1.func(\"SetCellData\", \"<data B1='\" + app.date1.getRawValue() + \"\" + \"中山港作业量统计\" + \"' /> \");\
 }\
 if (app.radioM.getValue() === true) {\
-   var  month= app.cboM.getValue()<10?('0'+app.cboM.getValue()):app.cboM.getValue() ;\
-  var whereSql = encodeURI(\" and TO_char (move_list.updated_on,'YYYY-MM') ='\" + app.cboY.getValue() + \"-\" +month+ \"' and move_list.tenancy_id='{#sys.TENANCY_ID#}'\"+addSql);\
+//   var month = app.cboM.getValue() < 10 ? ('0' + app.cboM.getValue()) : app.cboM.getValue();\
+//   var whereSql = encodeURI(\" and TO_char (move_list.updated_on,'YYYY-MM') ='\" + app.cboY.getValue() + \"-\" + month + \"' and move_list.tenancy_id='{#sys.TENANCY_ID#}'\" + addSql);\
   AF1.func(\"SetParas\", \"ds1 \\r\\
- para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime()+\";tenancyId=\"+'{#sys.TENANCY_ID#}');                                                                                            \
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
   AF1.func(\"SetCellData\", \"<data A1='\" + app.cboY.getValue() + \"-\" + app.cboM.getValue() + \"\" + \"中山港拖车作业量统计\" + \"' /> \");\
 }\
 \
 \
 AF1.func(\"Calc\", \"range=current\");\
 AF1.func(\"SeparateView\", \"3 \\r\\
- 0\"); "}
+ 0\");"}
        }
       ],
       "type": "toolbar"
