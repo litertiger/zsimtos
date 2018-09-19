@@ -5,12 +5,13 @@
    "itemId": "module",
    "serverScript": "var  ID =app.get(\"ID\");\
 var  cntrId =app.get(\"cntrId\");\
+var  username =app.get(\"sys.username\");\
 \
 app.run(\"select 1 ID from  vload_list where ID in (\"+ID+\") and phase='2'\", {\
     errorText: '已锁定不能删除。'\
 });\
-app.run(\"select 1 ID from  move_list where cntr_id  in (\"+cntrId+\") \\\
- and ( to_POS_TYP='V' or from_POS_TYP='V' ) and move_type='MOV' and CARRIER_CALL={?vId?} and  phase  in ('PLN','SND','EXE','FIN')\\\
+app.run(\"select 1 ID from  move_list,task where cntr_id  in (\"+cntrId+\") \\\
+ and ( to_POS_TYP='V' or from_POS_TYP='V' ) and move_type='MOV'  and task.TASK_NAME in('VIN','VOUT') and   move_list.QUEUE_ID=task.ID  and move_list.CARRIER_CALL={?vId?} and move_list.phase  in ('PLN','SND','EXE','FIN')\\\
 \", {\
     errorText: '存在装船指令不能删除。'\
 });\
@@ -24,7 +25,7 @@ app.run(\"update   port_cntr set  BILL_NO=null, E_DSHIP_NO=null,SPEC_STOW=null  
 app.run(\"update  move_list set phase='CNL' where  cntr_id in (select cntr_ID from vload_list where ID in (\"+ID+\") and I_E_ID='I')\");\
 \
 app.run(\"insert into SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO)\\\
-    select '柜号删除','\"+username+\"',sysdate, BILL_NO|'-'|||CNTR from  vload_list where   ID in( \"+cntrId+\")  \");\
+    select '柜号删除','\"+username+\"',sysdate, BILL_NO||'-'||CNTR from  vload_list where   ID in( \"+cntrId+\")  \");\
 "
   },
   "expanded": true,
