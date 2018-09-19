@@ -87,7 +87,7 @@ if (tenancyid === 'AT' || tenancyid === 'JT') {\
     \"I_OPERATOR={?I_OPERATOR?},O_OPERATOR={?O_OPERATOR?},SB_DATE={?TIMESTAMP.SB_DATE?} where VID={?AID?}\");\
   //判断港口打钩状态,与原来不同删除,然后判断如果被勾选则重新插入数据\
   if (zsck !== zsckold) {\
-    app.run(\"select 1 from vbill_head where vid='\" + vid + \"' and phase<>9\", {\
+      app.run(\"select 1 from vbill_head where vid in ( select ID from VESSEL_VISIT where VID='\" + data.AID + \"')  and phase<>9\", {\
       errorText: \"中山港已经做舱单,不能删除\"\
     });\
     app.run(\"delete from voyage_crew where vid=(select id from vessel_visit where vid='\" + vid + \"' and tenancy_id='ZSG')\");\
