@@ -152,7 +152,7 @@
         "configs": {
          "itemId": "CARGO_TYPE13",
          "dataIndex": "CARGO_TYPE",
-         "width": "150",
+         "width": "90",
          "keyName": "CARGO_TYPE",
          "text": "货物类型",
          "titleAlign": "center"
@@ -173,7 +173,7 @@
         "configs": {
          "itemId": "CNTR_TYPEmn151",
          "dataIndex": "CNTR_TYPE",
-         "width": "60",
+         "width": "80",
          "keyName": "CNTR_TYPE",
          "text": "箱型",
          "titleAlign": "center"
@@ -194,8 +194,8 @@
         "configs": {
          "itemId": "colC_ADDRESS",
          "dataIndex": "C_ADDRESS",
-         "width": "50",
-         "keyName": "S_ADDRESS",
+         "width": "80",
+         "keyName": "C_ADDRESS",
          "text": "地址",
          "titleAlign": "center"
         },
@@ -203,7 +203,7 @@
         "children": [{
          "configs": {
           "itemId": "editor",
-          "keyName": "S_ADDRESS"
+          "keyName": "C_ADDRESS"
          },
          "expanded": false,
          "children": [],
@@ -220,21 +220,37 @@
          "align": "right",
          "titleAlign": "center"
         },
-        "expanded": false,
-        "children": [],
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "minValue": "0"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        }],
         "type": "column"
        },
        {
         "configs": {
          "itemId": "colFREE_PRICES",
          "dataIndex": "FREE_PRICES",
-         "width": "60",
+         "width": "80",
          "text": "减免后费用",
          "align": "right",
          "titleAlign": "center"
         },
-        "expanded": false,
-        "children": [],
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "editor",
+          "minValue": "0"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "number"
+        }],
         "type": "column"
        },
        {
@@ -242,17 +258,36 @@
          "itemId": "colPAYER",
          "dataIndex": "PAYER",
          "width": "160",
+         "keyName": "AG_CUSTOMER",
          "text": "付费方",
          "titleAlign": "center"
         },
         "expanded": true,
         "children": [{
          "configs": {
+          "tagConfigs": "matchFieldWidth: false",
           "itemId": "editor",
-          "keyName": "TRADE_ID"
+          "labelAlign": "right",
+          "pageSize": "50",
+          "displayField": "CNAME",
+          "enterKeyTriggerClick": "true",
+          "listConfig": "{width:250}",
+          "valueField": "ID",
+          "queryDelay": "500",
+          "forceSelection": "true",
+          "multiSelect": "true"
          },
-         "expanded": false,
-         "children": [],
+         "expanded": true,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/common/client/clientSelect"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
          "type": "combo"
         }],
         "type": "column"
@@ -422,7 +457,7 @@ app.grid1.store.load({\
         "expanded": false,
         "children": [],
         "type": "button",
-        "events": {"click": "Wb.addEdit(app.grid1,{CREATED_ON:new Date(),CREATED_BY:'{#sys.username#}'});  "}
+        "events": {"click": "Wb.addEdit(app.grid1,{CREATED_ON:new Date(),CREATED_BY:'{#sys.username#}',UPDATED_ON:new Date(),UPDATED_BY:'{#sys.username#}',TENANCY_ID:'{#sys.TENANCY_ID#}'});  "}
        },
        {
         "configs": {
@@ -448,7 +483,7 @@ app.grid1.store.load({\
   return;\
 Wb.sync({\
   grid: app.grid1,\
-  url: 'm?xwl=system/customer/customer/address/saveaddress',\
+  url: 'm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/save',\
   message: '正在保存中...',\
   success: function(resp) {\
     //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
