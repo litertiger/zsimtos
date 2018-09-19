@@ -3,7 +3,20 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "var data = app.get(),\
+   "serverScript": "//添加判断2018/09/19\
+app.run(\"select 1 from C_CUSTOMER where GOV_CODE={?GOV_CODE?}\", {\
+  jndi: 'jdbc/basecode',\
+  errorText: '工商注册号重复！'\
+});\
+app.run(\"select 1 from C_CUSTOMER where GOV_CODE={?GOV_CODE?}\", {\
+  jndi: 'jdbc/basecode',\
+  errorText: '工商注册号重复！'\
+});\
+app.run(\"select 1 from C_CUSTOMER where GOV_CODE={?GOV_CODE?}\", {\
+  jndi: 'jdbc/basecode',\
+  errorText: '工商注册号重复！'\
+});\
+var data = app.get(),\
   username = app.get('sys.username'),\
   orgName;\
 var org = app.run(\"select AUTH_ORGANIZATION.ID, AUTH_ORGANIZATION.ORG_NAME\\\
@@ -13,7 +26,7 @@ while (org.next()) {\
 }\
 app.run(\"UPDATE C_ORG_CUSTOMER set STATE_FLAG={?STATE_FLAGB?} where ID={?ID?}\", {\
   jndi: 'jdbc/basecode',\
-  transaction:\"start\"\
+  transaction: \"start\"\
 });\
 \
 \
@@ -53,8 +66,9 @@ while (result.next()) {\
 app.run(\"INSERT INTO C_CUSTOMER_CONTACT\" +\
   \"(ID, C_ID, TENANCY_ID, ORG_ID, ORG_NAME,O_SHORT_COD)VALUES(SYS_GUID(),{?sys.id?},{?TENANCY_ID?},{?ORG_ID?} ,{?ORG_NAME?},{?O_SHORT_COD?})\", {\
     jndi: 'jdbc/basecode',\
-//   arrayData: new org.json.JSONArray(Wb.encode(idArray))\
-  arrayData:  datas,transaction:\"commit\"\
+    //   arrayData: new org.json.JSONArray(Wb.encode(idArray))\
+    arrayData: datas,\
+    transaction: \"commit\"\
   });"
   },
   "expanded": true,
