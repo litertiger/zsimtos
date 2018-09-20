@@ -5,11 +5,11 @@
    "itemId": "module",
    "serverScript": "var renancyId = app.get(\"sys.TENANCY_ID\");\
 var username = app.get(\"sys.username\");\
-  var mvs = Wb.decode(app.get('moves'));\
-  var moves = mvs.join(\"','\");\
-  app.run(\"select 1 from  move_list m where  queue_id={?id?}\"+\
-      \"  and  tenancy_id={?sys.TENANCY_ID?}\" +\
-    \"  and m.id in('\" + moves + \"') and  phase='SND'\",{ errorText: '指令已经激活不能再次激活'});\
+//   var mvs = Wb.decode(app.get('moves'));\
+//   var moves = mvs.join(\"','\");\
+//   app.run(\"select 1 from  move_list m where  queue_id={?id?}\"+\
+//       \"  and  tenancy_id={?sys.TENANCY_ID?}\" +\
+//     \"  and m.id in('\" + moves + \"') and  phase='SND'\",{ errorText: '指令已经激活不能再次激活'});\
 \
 if (app.get(\"type\") == 'MOVE') //移箱\
 {\
@@ -17,7 +17,11 @@ if (app.get(\"type\") == 'MOVE') //移箱\
     throw '未选定要发送的箱';\
   var mvs = Wb.decode(app.get('moves'));\
   var moves = mvs.join(\"','\");\
-  \
+    var mvs = Wb.decode(app.get('moves'));\
+  var moves = mvs.join(\"','\");\
+  app.run(\"select 1 from  move_list m where  queue_id={?id?}\"+\
+      \"  and  tenancy_id={?sys.TENANCY_ID?}\" +\
+    \"  and m.id in('\" + moves + \"') and  phase='SND'\",{ errorText: '指令已经激活不能再次激活'});\
 \
   var rs = app.run(\"select distinct cntr_id from  move_list m,c_cy_area a where  queue_id={?id?} and  a.tenancy_id={?sys.TENANCY_ID?}\" +\
     \" and a.cy_area_no=substr(to_pos,0,2) and CATEGORY='C' and m.id in('\" + moves + \"')\");\
