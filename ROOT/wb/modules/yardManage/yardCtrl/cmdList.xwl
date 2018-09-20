@@ -43,16 +43,24 @@ switch (app.get('workType')) {\
     break;\
 }\
 \
-result = app.run(\"select t.task_type,i.TRANSPORTER2 truck,c.plat_no,i.cntr,i.cntr_iso,decode(i.move_type,'LOD',p.yard_position,i.to_pos) pos,i.queue_id,i.id,i.move_type,m.to_pos,m.priority,i.updated_on,p.cntr_operator,p.i_e_id ie,decode(p.lcl_id,'1','P',p.e_f_id) e_f_id,m.notes \\\
+app.set('sql',\"select t.task_type,i.TRANSPORTER2 truck,c.plat_no,i.cntr,i.cntr_iso,decode(i.move_type,'LOD',p.yard_position,i.to_pos) pos,i.queue_id,i.id,i.move_type,m.to_pos,m.priority,i.updated_on,p.cntr_operator,p.i_e_id ie,decode(p.lcl_id,'1','P',p.e_f_id) e_f_id,m.notes \\\
 from move_list m,move_list i,task t,port_cntr p,v_car c \\\
 where  i.transporter2=c.truck_no(+) and c.tenancy_id(+)={?sys.TENANCY_ID?} and m.id=i.queue_id and t.id = m.queue_id and i.cntr_id=p.id and i.phase not in('CNL','FIN') and m.phase not in('CNL','FIN') and i.TENANCY_ID={?sys.TENANCY_ID?} and i.cntr like '%'||{?cntr?}||'%' and \" + typefilter +\
   \" and ({?address?} is null or instr({?address?},substr(decode(i.move_type,'LOD',p.yard_position,i.to_pos),1,2))>0) \" + machFilter +\
-  \"order by priority desc,pos desc,updated_on\");\
-\
-app.send(Ag.getResultSet(result));"
+  \"order by priority desc,pos desc,updated_on\");"
   },
   "expanded": true,
-  "children": [],
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createColumns": "false",
+    "createKeyValues": "false",
+    "sql": "{#sql#}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
   "type": "module"
  }],
  "roles": {
