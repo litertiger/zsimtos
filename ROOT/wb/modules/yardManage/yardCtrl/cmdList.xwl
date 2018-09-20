@@ -47,7 +47,7 @@ result = app.run(\"select t.task_type,i.TRANSPORTER2 truck,c.plat_no,i.cntr,i.cn
 from move_list m,move_list i,task t,port_cntr p,v_car c \\\
 where  i.transporter2=c.truck_no(+) and c.tenancy_id(+)={?sys.TENANCY_ID?} and m.id=i.queue_id and t.id = m.queue_id and i.cntr_id=p.id and i.phase not in('CNL','FIN') and m.phase not in('CNL','FIN') and i.TENANCY_ID={?sys.TENANCY_ID?} and i.cntr like '%'||{?cntr?}||'%' and \" + typefilter +\
   \" and ({?address?} is null or instr({?address?},substr(decode(i.move_type,'LOD',p.yard_position,i.to_pos),1,2))>0) \" + machFilter +\
-  \"order by priority desc,updated_on\");\
+  \"order by priority desc,pos desc,updated_on\");\
 \
 app.send(Ag.getResultSet(result));"
   },
