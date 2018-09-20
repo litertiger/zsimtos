@@ -1216,13 +1216,14 @@ var Base = com.wb.common.Base,
         return pos;
     },
     getYardCfsMap: function(app) {
-      var map;
-      if (!map) {
-        map = Ag.getResultObj(app.run("select cy_area_no,cfs_cod  from c_cy_area where tenancy_id={?sys.TENANCY_ID?}", {
+      var map={};
+      var tenancy = app.get('sys.TENANCY_ID');
+      if (!map[tenancy]) {
+        map[tenancy] = Ag.getResultObj(app.run("select cy_area_no,cfs_cod  from c_cy_area where tenancy_id={?sys.TENANCY_ID?}", {
           jndi: 'jdbc/basecode'
         }));
       }
-      return map;
+      return map[tenancy];
     }
   };
 //# sourceURL=AgimtosSystem/src/main/webapp/wb/system/server.js
