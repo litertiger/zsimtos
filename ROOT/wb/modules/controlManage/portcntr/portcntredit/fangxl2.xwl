@@ -3,7 +3,12 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "app.run(\"update port_cntr set RELEASE_ID=1  where  tenancy_id='XLG' and RELEASE_ID=0\");"
+   "serverScript": "app.run(\"insert into   port_cntr(ID, TENANCY_ID, CNTR, PHASE, CATEGORY_ID, TRADE_ID, I_E_ID, E_F_ID, CNTR_ISO, CNTR_OPERATOR, CREATED_ON, CNTR_SIZE, CNTR_TYPE, CNTR_OPERATOR_COD) \"+\
+ \"select sys_guid(),'XLG',GNO,'ACT','E', decode(TRADEKIND,'外贸','1','2') , decode(IMPEXP,'进口','I','E')  ,decode(GSTATUS,'吉柜','E','F') ,GSIZE||GTYPE,\"+\
+ \"AGENT_ID,sysdate,GSIZE, GTYPE ,decode(AGENT_ID,'航力郁州','HL','合德','HD','小榄港商务','XLGSWB','洋扬','YY','安通','AT','宁波远洋','OT','小榄港','XLG',\"+\
+  \"    '颖图','WA','伟达','WT','高珠','GZ','华晖','HU','金信','GX','利信','OT','百得','PT','德宝','TM','航力君安','HL','中谷新良','KW', \"+\
+  \"    '向盈','EC','小榄车场','XLG','中远海','COSCO','中转','CK','中海','CS') \"+\
+ \" from    xlgport.ngloc  where gno not in(select cntr from port_cntr where tenancy_id='XLG'  )\");"
   },
   "expanded": true,
   "children": [],
