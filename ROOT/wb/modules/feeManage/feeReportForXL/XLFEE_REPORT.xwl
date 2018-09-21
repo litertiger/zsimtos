@@ -193,7 +193,7 @@ app.edate.setValue(value);"}
        {
         "configs": {
          "itemId": "cboI_E",
-         "hidden": "true",
+         "allowBlank": "false",
          "labelAlign": "right",
          "pickList": "[\
   [\"I\", \"进口\"],\
@@ -201,7 +201,7 @@ app.edate.setValue(value);"}
 ]",
          "fieldLabel": "进出口",
          "width": "130",
-         "labelWidth": "50",
+         "labelWidth": "55",
          "forceSelection": "true"
         },
         "expanded": false,
@@ -370,7 +370,12 @@ app.edate.setValue(value);"}
         "expanded": false,
         "children": [],
         "type": "item",
-        "events": {"click": "var AF1 = document.getElementById(opt);\
+        "events": {"click": "if (Wb.isEmpty(app.cboI_E.getValue())) {\
+  Wb.warn('进出口不能为空!');\
+  app.cboI_E.focus();\
+  return;\
+}\
+var AF1 = document.getElementById(opt);\
 AF1.func(\"SetCurrentWorkSheet\", \"0\");\
 var whereSql = \"\";\
 if (!Wb.isEmpty(app.CUSTOM.getValue())) {\
@@ -378,6 +383,9 @@ if (!Wb.isEmpty(app.CUSTOM.getValue())) {\
 }\
 if (!Wb.isEmpty(app.VID.getValue())) {\
   whereSql += \" and CNTR_OPERATOR_COD='\" + app.VID.getValue() + \"'\";\
+}\
+if (!Wb.isEmpty(app.cboI_E.getValue())) {\
+  whereSql += \" and I_E_ID='\" + app.cboI_E.getValue() + \"'\";\
 }\
 if (!Wb.isEmpty(app.cboI_E.getValue()))\
   whereSql += \" and VH.i_e_id='\" + app.cboI_E.getValue() + \"'\";\
