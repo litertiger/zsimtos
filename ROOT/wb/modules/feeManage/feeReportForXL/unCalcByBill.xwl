@@ -26,52 +26,6 @@
       "children": [
        {
         "configs": {
-         "itemId": "SETTLEMENT_CODE",
-         "labelAlign": "right",
-         "fieldLabel": "发票/提单号",
-         "width": "200",
-         "isUpperCase": "true",
-         "labelWidth": "80"
-        },
-        "expanded": true,
-        "children": [],
-        "type": "text",
-        "events": {"specialkey": "if (e.getKey() == e.ENTER)\
-  app.searchBtn.fireEvent(\"click\");"}
-       },
-       {
-        "configs": {
-         "pageSize": "50",
-         "selectOnTab": "true",
-         "isUpperCase": "true",
-         "labelWidth": "60",
-         "valueField": "ID",
-         "queryDelay": "500",
-         "hideTrigger": "true",
-         "itemId": "PAYMENT_CUSTOMER_ID",
-         "labelAlign": "right",
-         "fieldLabel": "发票抬头",
-         "x": "8",
-         "width": "200",
-         "y": "40",
-         "displayField": "CNAME",
-         "height": "22"
-        },
-        "expanded": false,
-        "children": [{
-         "configs": {
-          "itemId": "store",
-          "autoLoad": "true",
-          "url": "m?xwl=system/common/client/clientSelect"
-         },
-         "expanded": false,
-         "children": [],
-         "type": "store"
-        }],
-        "type": "combo"
-       },
-       {
-        "configs": {
          "itemId": "sdate",
          "labelAlign": "right",
          "fieldLabel": "航次日期",
@@ -98,19 +52,6 @@
        },
        {
         "configs": {
-         "itemId": "INVOICE_STATUS",
-         "labelAlign": "right",
-         "pickList": "[ [0,'已取消'], [1,'已开票'], [2,'已作废']]",
-         "fieldLabel": "开票状态",
-         "width": "150",
-         "labelWidth": "60"
-        },
-        "expanded": false,
-        "children": [],
-        "type": "combo"
-       },
-       {
-        "configs": {
          "itemId": "searchBtn",
          "text": "@Str.find",
          "iconCls": "search_icon"
@@ -119,77 +60,7 @@
         "children": [],
         "type": "item",
         "events": {"click": "var values = Wb.getValue(app.tbar);\
-app.invoice_grid.store.load({params : values});"}
-       },
-       {
-        "configs": {
-         "itemId": "cancelBtn",
-         "text": "取消收费",
-         "iconCls": "record_add_icon"
-        },
-        "expanded": false,
-        "children": [],
-        "type": "item",
-        "events": {"click": "\
-var rec = app.invoice_grid.getSelection()[0];\
-if (!rec) {\
-  Wb.warn('请选择 1 条需要删除的记录');\
-  return;\
-}\
-var url = \"m?xwl=BuzManage/cancelHead/cancelHeadSql\";\
-\
-\
-Ext.Msg.confirm('系统提示','确定要取消收费吗？',\
-      function(btn){\
-        if(btn=='yes'){\
-          Wb.request({\
-  \t\t\turl: url,\
-  \t\t\tparams: {headId:rec.data.ID},\
-  \t\t\tsuccess: function(resp) {\
-                var values = Wb.getValue(app.tbar);\
-    \t\t\tapp.invoice_grid.store.load({params : values});\
-    \t\t    app.customWin.hide();\
-  \t\t\t}\
-\t\t});\t\t\t\t\t\
-        }\
-      }, this);\
-\
-"}
-       },
-       {
-        "configs": {
-         "itemId": "deleteBtn",
-         "text": "作废发票",
-         "iconCls": "record_add_icon"
-        },
-        "expanded": false,
-        "children": [],
-        "type": "item",
-        "events": {"click": "\
-var rec = app.invoice_grid.getSelection()[0];\
-if (!rec) {\
-  Wb.warn('请选择 1 条需要删除的记录');\
-  return;\
-}\
-var url = \"m?xwl=BuzManage/cancelHead/deleteHead\";\
-\
-\
-Ext.Msg.confirm('系统提示','确定要作废发票号吗？',\
-      function(btn){\
-        if(btn=='yes'){\
-          Wb.request({\
-  \t\t\turl: url,\
-  \t\t\tparams: {headId:rec.data.ID},\
-  \t\t\tsuccess: function(resp) {\
-                var values = Wb.getValue(app.tbar);\
-    \t\t\tapp.invoice_grid.store.load({params : values});\
-    \t\t    app.customWin.hide();\
-  \t\t\t}\
-\t\t});\t\t\t\t\t\
-        }\
-      }, this);\
-\
-"}
+app.ship_grid.store.load({params : values});"}
        }
       ],
       "type": "toolbar"
@@ -205,7 +76,7 @@ Ext.Msg.confirm('系统提示','确定要作废发票号吗？',\
         "configs": {
          "itemId": "store",
          "autoLoad": "false",
-         "url": "m?xwl=BuzManage/cancelHead/queryHeadByCondition"
+         "url": "m?xwl=feeManage/feeReportForXL/unCalcByBill/select"
         },
         "expanded": false,
         "children": [],
@@ -300,60 +171,6 @@ if(value==1){\
            "itemId": "col_VOYAGE_NO",
            "dataIndex": "VOYAGE_NO",
            "text": "航次号"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "column"
-         },
-         {
-          "configs": {
-           "itemId": "col_BILL_NO",
-           "dataIndex": "BILL_NO",
-           "text": "提单号"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "column"
-         },
-         {
-          "configs": {
-           "itemId": "col_SETTLE_BY",
-           "dataIndex": "SETTLE_BY",
-           "keyName": "WB_USER",
-           "text": "收费人"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "column"
-         },
-         {
-          "configs": {
-           "itemId": "col_SETTLE_ON",
-           "dataIndex": "SETTLE_ON",
-           "format": "y-m-d h:m:s",
-           "text": "收费时间"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "column"
-         },
-         {
-          "configs": {
-           "itemId": "col_DELETE_BY",
-           "dataIndex": "DELETE_BY",
-           "keyName": "WB_USER",
-           "text": "作废人"
-          },
-          "expanded": false,
-          "children": [],
-          "type": "column"
-         },
-         {
-          "configs": {
-           "itemId": "col_DELETE_ON",
-           "dataIndex": "DELETE_ON",
-           "format": "y-m-d h:m:s",
-           "text": "作废时间"
           },
           "expanded": false,
           "children": [],
