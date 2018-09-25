@@ -554,7 +554,10 @@ window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
         whereSql = \" and vh.TENANCY_ID='\" + '{#sys.TENANCY_ID#}' + \"' AND VH.I_E_ID='I' AND CNTR_SIZE='45' \" +\
         \" AND INSTR(DECODE(VH.I_E_ID,'E',SHIPPER,CONSIGNEE),'佳能')>0 \";\
       whereSql += \" and ETA>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
-        \" and ETA<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+        \" and ETA<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') and VH.TENANCY_ID='{#sys.TENANCY_ID#}' \";\
+      if (!Wb.isEmpty(app.VID.getValue())) {\
+        whereSql += \" and VH.CNTR_OPERATOR_COD='\" + app.VID.getValue() + \"'\";\
+      }\
       AF.func(\"SetParas\", \"ds2 \\r\\
  para=1;whereSql=\" + encodeURI(whereSql) + \";drr=\" + new Date().getTime() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
       //动态设置参数：科目代码\
