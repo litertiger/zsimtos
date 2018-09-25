@@ -12,10 +12,12 @@ var receipt = Wb.getRecords(app.run(\"select r.cntr,nvl(c.short_name,c.name)name
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"' and r.phase not in('FIN','CNL') and r.work_type not in('YOYI') and r.cntr_id in(select cntr_id from cntr_apply_list where aid={?ID?})\"));\
 if (receipt.length > 1) {\
-  var h = \"\";\
+  var h = \"箱:\";\
   Wb.each(receipt, function(r) {\
-\
+    h += r.CNTR + \",\";\
   });\
+  h = h.substring(0, h.length - 1);\
+  throw h + \"已经存在设备交接单,需要转柜方作废设备交接单\";\
 }\
 //修改port_cntr\
 if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
