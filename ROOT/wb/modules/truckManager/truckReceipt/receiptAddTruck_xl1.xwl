@@ -594,6 +594,96 @@ Wb.request({\
    },
    {
     "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winWork_type",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 360,\
+  margin: '8 8 0 8'\
+}",
+     "width": "400",
+     "title": "吉出吉回",
+     "height": "160"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "layout": "hbox",
+       "itemId": "radioKP",
+       "width": "200",
+       "style": "padding-left:18px;"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "radioN",
+         "labelAlign": "right",
+         "flex": "1",
+         "fieldLabel": "非空跑",
+         "name": "radioKP",
+         "checked": "true",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio"
+       },
+       {
+        "configs": {
+         "itemId": "radioY",
+         "labelAlign": "right",
+         "flex": "1",
+         "fieldLabel": "空跑",
+         "name": "radioKP",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio"
+       }
+      ],
+      "type": "container"
+     },
+     {
+      "configs": {
+       "itemId": "UP_REASON",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "变更原因"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
+//插入变更记录表,变更设备交接单类型\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/receiptedit/updateWP\",\
+  params: {\
+    ID: sel.data.ID,\
+    CNTR: sel.data.CNTR,\
+    CNTR_ID: sel.data.CNTR_ID,\
+    WORK_TYPE_OLD: sel.data.WORK_TYPE,\
+    WORK_TYPE: app.UP_WORK_TYPE.getValue(),\
+    NOTES: app.UP_REASON.getValue(),\
+    kp: app.radioN.checked ? 0 : 1\
+  },\
+  success: function(resp) {\
+    Wb.info(\"操作完成\");\
+    app.winWork_type.close();\
+    app.gridReceipt.store.load({\
+      out: app.tbar\
+    });\
+  }\
+});"}
+   },
+   {
+    "configs": {
      "itemId": "bbarp",
      "enableOverflow": "true",
      "style": "background:white;"
@@ -779,7 +869,7 @@ Wb.request({\
        "title": "派车信息",
        "bbar": "app.bbarp"
       },
-      "expanded": true,
+      "expanded": false,
       "children": [
        {
         "configs": {
@@ -2161,6 +2251,32 @@ app.gridStation.store.load({\
 var win = new Ext.window.Window(app._winShuai); //app._win指向配置对象而非实例\
 win.show();\
 app.shuaiid.setValue(rowData.ID);"}
+         },
+         {
+          "configs": {
+           "itemId": "popupEOEI",
+           "text": "吉出吉回",
+           "iconCls": "undo_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menuR.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._winShuai); //app._win指向配置对象而非实例\
+win.show();\
+app.shuaiid.setValue(rowData.ID);\
+\
+var rowData = app.popupMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+// if (rowData.PHASE == \"FIN\") {\
+//   Wb.warn(\"已经完成的设备交接单不能修改作业类型\");\
+//   return;\
+// }\
+var win = Ext.window.Window(app._winWork_type);\
+win.show();\
+app.UP_WORK_TYPE.setValue(\"\");\
+app.radioN.setValue(true);\
+app.radioN.setDisabled(true);\
+app.radioY.setDisabled(true);"}
          }
         ],
         "type": "menu",
