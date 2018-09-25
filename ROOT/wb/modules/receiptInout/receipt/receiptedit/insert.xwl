@@ -17,10 +17,14 @@ if (trade == 1 && ((data.I_E_ID == \"E\" && Wb.isEmpty(data.SHIPPER_COD)) || (da
 \
 //重出重回\
 if (data.WORK_TYPE == \"FOFI\") {\
-  var have = Wb.getRecords(app.run(\"select work_type,phase,CNTR_OPERATOR_COD from receipt where cntr='\" + data.CNTR + \"'\" +\
-    \" and phase not in('FIN','CNL') and work_type not in('FOEI','YOYI') and tenancy_id='\" + tenancyid + \"'\"));\
+  var have = Wb.getRecords(app.run(\"select decode(work_type,'EOFI','吉出重回','FOEI','重出吉回','EOEI','吉出吉回','FOFI','重出重回','EOTC','吉出转关','EITC','吉进转关','FOTC','重出转关','FITC','重进转关')work_type,\\
+\" +\
+    \"decode(phase,'PLN','计划','EXE','已派车','GET','正在提香','OUT','场外','RTN','正在还箱')phase,\\
+\" +\
+    \"nvl(c.short_name,c.name)name from receipt r left join c_customer c on r.cntr_operator_cod=c.code where cntr='\" + data.CNTR + \"'\" +\
+    \" and phase not in('FIN','CNL') and work_type not in('FOEI','YOYI') and r.tenancy_id='\" + tenancyid + \"'\"));\
   if (have.length > 0)\
-    throw data.CNTR + \"已有\" + have[0].WORK_TYPE + \"设备交接单,状态\" + have[0].PHASE + \",驳船：\" + have[0].CNTR_OPERATOR_COD;\
+    throw data.CNTR + \"已有设备交接单,状态:\" + have[0].PHASE + \",类型:\" + have[0].WORK_TYPE + \",船公司:\" + have[0].NAME;\
   var getid = \"select id,CONSIGNEE_COD,GATEOUT_TIME_T from receipt where cntr='\" + data.CNTR + \"'\" +\
     \" and phase not in('FIN','RTN','CNL') and WORK_TYPE='FOEI' and tenancy_id='\" + tenancyid + \"'\";\
   var rid = Wb.decode(DbUtil.getData(app.run(getid), request));\
@@ -73,10 +77,14 @@ if (data.WORK_TYPE == \"FOFI\") {\
     });\
   app.send(id);\
 } else {\
-  var have = Wb.getRecords(app.run(\"select work_type,phase from receipt where cntr='\" + data.CNTR + \"'\" +\
-    \" and phase not in('FIN','CNL') and work_type<>'YOYI' and tenancy_id='\" + tenancyid + \"'\"));\
+  var have = Wb.getRecords(app.run(\"select decode(work_type,'EOFI','吉出重回','FOEI','重出吉回','EOEI','吉出吉回','FOFI','重出重回','EOTC','吉出转关','EITC','吉进转关','FOTC','重出转关','FITC','重进转关')work_type,\\
+\" +\
+    \"decode(phase,'PLN','计划','EXE','已派车','GET','正在提香','OUT','场外','RTN','正在还箱')phase,\\
+\" +\
+    \"nvl(c.short_name,c.name)name from receipt r left join c_customer c on r.cntr_operator_cod=c.code where cntr='\" + data.CNTR + \"'\" +\
+    \" and phase not in('FIN','CNL') and work_type<>'YOYI' and r.tenancy_id='\" + tenancyid + \"'\"));\
   if (have.length > 0)\
-    throw data.CNTR + \"已有\" + have[0].WORK_TYPE + \"设备交接单,状态\" + have[0].PHASE + \"\";\
+    throw data.CNTR + \"已有设备交接单,状态:\" + have[0].PHASE + \",类型:\" + have[0].WORK_TYPE + \",船公司:\" + have[0].NAME;\
   var id = SysUtil.getId();\
   var addsql = \"insert into RECEIPT (ID,VID,TENANCY_ID,DRIVER_ID,ORDER_ID,ORDER_SEQ,CNTR,CNTR_REQ,CATEGORY_ID,\" +\
     \"TRADE_ID,I_E_ID,E_F_ID,CNTR_ISO,CNTR_SIZE,CNTR_TYPE,CNTR_HIGHT,CNTR_LENGTH,CNTR_OWNER,CNTR_OPERATOR_COD,CONSIGNEE_COD,\" +\
