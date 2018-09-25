@@ -18,7 +18,9 @@
 // }\
 \
 \
-var  rs=app.run(\"SELECT GNO , GSTATUS , TRADEKIND, IMPEXP ,LOCATION , AGENT_ID FROM  NGLOC\",{jndi:\"wb_oracle2\"});\
+var  rs=app.run(\"SELECT GNO , decode(GSTATUS,'吉柜','E','F') GSTATUS ,decode(TRADEKIND,'外贸','1','2') TRADEKIND,decode(TRADEKIND,'进口','I','E') IMPEXP ,LOCATION , decode(AGENT_ID,'航力郁州','HL','合德','HD','小榄港商务','XLGSWB','洋扬','ES','安通','AT','宁波远洋','OT','小榄港','XLG',\"+\
+  \"    '颖图','WA','伟达','WT','高珠','GZ','华晖','HU','金信','GX','利信','OT','百得','PT','德宝','TM','航力君安','HL','中谷新良','KW', \"+\
+  \"    '向盈','EC','小榄车场','XLG','中远海','COSCO','中转','CK','中海','CS') AGENT_ID FROM  NGLOC\",{jndi:\"wb_oracle2\"});\
 var  cntrs=new Array();\
 while(rs.next()){\
 cntrs.push({\"CNTR\":rs.getString(\"GNO\"),\
@@ -29,7 +31,8 @@ cntrs.push({\"CNTR\":rs.getString(\"GNO\"),\
             \"CNTR_OPERATOR_COD\":rs.getString(\"AGENT_ID\")\
         \
            });\
-}"
+}\
+app.run(\"update port_cntr set E_F_ID={?E_F_ID?} ,TRADE_ID={?TRADE_ID?} ,I_E_ID={?I_E_ID?} ,YARD_POSITION={?YARD_POSITION?} ,CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?} where   cntr={?CNTR?} and tenancy_id='XLG'\");"
   },
   "expanded": true,
   "children": [],
