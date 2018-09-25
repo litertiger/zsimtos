@@ -3,7 +3,10 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "app.run(\"update IN_OUT_EDI set BILL_NO={?billNo?},IN_OUT_TIME=to_date({?iotime?},'yyyy-MM-dd hh24:mi:ss') where ID={?ids?}\");\
+   "serverScript": "app.run(\"select 1 from C_CUSTOMER WHERE CODE!={?code?}\", {\
+  errorText: \"箱主不符合!\"\
+});\
+app.run(\"update IN_OUT_EDI set CNTR_OWNER_COD={?code?},BILL_NO={?billNo?},IN_OUT_TIME=to_date({?iotime?},'yyyy-MM-dd hh24:mi:ss') where ID={?ids?}\");\
 app.run(\"insert into SHP_BILL_LOG(BILL_NO, MESSAGE, OPE_DATE, OPE_MAN)values({?billNo?},'进出门数据修改',sysdate,{?sys.username?})\");"
   },
   "expanded": false,
