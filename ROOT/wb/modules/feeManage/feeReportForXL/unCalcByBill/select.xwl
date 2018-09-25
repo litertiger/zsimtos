@@ -1,1 +1,36 @@
-{"hidden":false,"children":[{"configs":{"itemId":"module"},"children":[],"type":"module"}],"roles":{"default":1},"title":"","iconCls":"","inframe":false,"pageLink":""}
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql=\"\", data = app.get();\
+  sql += \" and v.SHIP_DT>=TO_DATE('\"+data.sdate.substring(0,10)+\" 00:00:00','yyyy-MM-dd HH24:mi:ss')\";\
+  sql += \" and v.SHIP_DT<=TO_DATE('\"+data.edate.substring(0,10)+\" 23:59:59','yyyy-MM-dd HH24:mi:ss')\";\
+request.setAttribute('whereSql', sql);"
+  },
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "createColumns": "false",
+    "sql": "SELECT * FROM V_VISIT_VOYAGE WHERE ID IN (\
+   SELECT v.ID FROM VBILL_HEAD h, VLOAD_LIST L,V_VISIT_VOYAGE v\
+   WHERE h.ID=l.BILL_ID AND v.ID=h.VID\
+   AND l.MAIN_FLAG=1\
+   AND h.TENANCY_ID='{#sys.TENANCY_ID#}'\
+   AND NOT EXISTS (SELECT 1 FROM ACCOUNTS_DETAILS ad WHERE ad.BUSSINESS_CODE=h.ID OR ad.BUSSINESS_CODE=l.ID)\
+  {#whereSql#}\
+   )"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
