@@ -8,7 +8,15 @@ var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username'); //用户ID\
 var aid = data.ID;\
 var sqlp = \"\";\
+var receipt = Wb.getRecords(app.run(\"select r.cntr,nvl(c.short_name,c.name)name from receipt r left join c_customer c on r.cntr_operator_cod=c.code\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.phase not in('FIN','CNL') and r.work_type not in('YOYI') and r.cntr_id in(select cntr_id from cntr_apply_list where aid={?ID?})\"));\
+if (receipt.length > 1) {\
+  var h = \"\";\
+  Wb.each(receipt, function(r) {\
 \
+  });\
+}\
 //修改port_cntr\
 if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
   sqlp = \"update port_cntr set CNTR_OPERATOR={?CNTR_OPERATOR?},CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?}\" +\
@@ -19,7 +27,7 @@ app.run(sqlp, {\
   transaction: 'start'\
 });\
 //修改主表状态\
-sqla = \"update cntr_apply set phase='AOK',TO_NAME='\"+username+\"' where id={?ID?}\";\
+sqla = \"update cntr_apply set phase='AOK',TO_NAME='\" + username + \"' where id={?ID?}\";\
 app.run(sqla, {\
   transaction: 'commit'\
 });\
