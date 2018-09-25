@@ -5,10 +5,25 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username');\
+\
 var sql = \"select work_type from receipt where id={?id?}\";\
 var receipt = Wb.getRecords(app.run(sql));\
 if (receipt.length < 1)\
-  throw \"设备交接单已经被删除或作废,请刷新\";"
+  throw \"设备交接单已经被删除或作废,请刷新\";\
+else if (receipt[0].WORK_TYPE == 'EOEI')\
+  throw \"设备交接单已经是吉出吉回\";\
+\
+app.run(\"insert into receipt_updwp(id,rid,TENANCY_ID,CNTR,WORK_TYPE_OLD,WORK_TYPE,CNTR_ID,NOTES,CREATED_BY,CREATED_ON,PHASE,EMPTY_DRIVING_FLAG)\" +\
+  \"select sys_guid(),id,'\" + tenancyid + \"',CNTR,WORK_TYPE,'EOEI',CNTR_ID,{?NOTES?},\" +\
+  \"'\" + username + \"',sysdate,'FIN','\" + data.kp + \"' from receipt where id={?id?}\", {\
+    transaction: \"start\"\
+  });\
+\
+app.run(\"update receipt set work_type='EOEI',EMPTY_DRIVING_FLAG=\" + data.kp +\
+  \" where id={?id?}\", {\
+    transaction: 'commit'\
+  });"
   },
   "expanded": true,
   "children": [],
