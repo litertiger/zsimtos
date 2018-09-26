@@ -31,7 +31,7 @@
          "itemId": "gridh",
          "editable": "true"
         },
-        "expanded": false,
+        "expanded": true,
         "children": [
          {
           "configs": {
@@ -45,7 +45,7 @@
          },
          {
           "configs": {"itemId": "columns"},
-          "expanded": false,
+          "expanded": true,
           "children": [
            {
             "configs": {
@@ -114,6 +114,7 @@
             "configs": {
              "itemId": "colNOTE",
              "dataIndex": "NOTE",
+             "flex": "-1",
              "width": "70",
              "text": "备注",
              "titleAlign": "center"
@@ -337,6 +338,11 @@ app.grid1.store.load({\
     P_ID: record.data.ID\
   }\
 });\
+app.gridcontract.store.load({\
+  params: {\
+    PID: record.data.ID\
+  }\
+});\
 app.ids.setValue(record.data.ID);"}
        }],
        "type": "panel"
@@ -361,7 +367,7 @@ app.ids.setValue(record.data.ID);"}
           "configs": {
            "itemId": "store",
            "autoLoad": "true",
-           "url": "m?xwl=feeManage/feeReportForXL/xltruckfeeEdit/headedit/selectm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/contract/select"
+           "url": "m?xwl=feeManage/feeReportForXL/xltruckfeeEdit/contract/select"
           },
           "expanded": false,
           "children": [],
@@ -388,16 +394,82 @@ app.ids.setValue(record.data.ID);"}
              "itemId": "colCNTR_OPERATOR_COD",
              "dataIndex": "CNTR_OPERATOR_COD",
              "width": "100",
+             "keyName": "AG_SHORT",
              "text": "船公司",
              "titleAlign": "center"
             },
             "expanded": true,
             "children": [{
-             "configs": {"itemId": "editor"},
+             "configs": {
+              "tagConfigs": "matchFieldWidth: false",
+              "labelWidth": "50",
+              "listConfig": "{\
+  width: 300\
+}",
+              "valueField": "ID",
+              "queryDelay": "500",
+              "itemId": "editor",
+              "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      船公司\
+    <\/td>\
+    <td>\
+      编号\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {CNAME}\
+      <\/td>\
+      <td>\
+        {ID}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+              "labelAlign": "right",
+              "x": "648",
+              "width": "180",
+              "y": "8",
+              "displayField": "CNAME",
+              "forceSelection": "true",
+              "height": "22"
+             },
              "expanded": false,
-             "children": [],
-             "type": "text"
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "false",
+               "params": "{fldId:\"AG\"}",
+               "url": "m?xwl=system/common/client/clientSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store",
+              "events": {"beforeload": "// operation.params = {\
+//   rd: app.radioD.getValue(),\
+//   date: app.date1.getRawValue()\
+// };"}
+             }],
+             "type": "combo",
+             "events": {"select": "var row=app.gridcontract.getSelection();\
+row[0].set('CNTR_OPERATOR',records[0].data.CNAME);"}
             }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colCNTR_OPERATOR_COD1",
+             "hidden": "true",
+             "dataIndex": "CNTR_OPERATOR",
+             "width": "100",
+             "text": "船公司",
+             "titleAlign": "center"
+            },
+            "expanded": true,
+            "children": [],
             "type": "column"
            },
            {
@@ -405,32 +477,102 @@ app.ids.setValue(record.data.ID);"}
              "itemId": "colSHIPPER_COD",
              "dataIndex": "SHIPPER_COD",
              "width": "120",
+             "keyName": "AG_CUSTOMER",
              "text": "货主",
              "titleAlign": "center"
             },
             "expanded": true,
             "children": [{
-             "configs": {"itemId": "editor"},
+             "configs": {
+              "tagConfigs": "matchFieldWidth: false",
+              "labelWidth": "50",
+              "listConfig": "{\
+  width: 300\
+}",
+              "valueField": "ID",
+              "queryDelay": "500",
+              "itemId": "editor",
+              "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td>\
+      船公司\
+    <\/td>\
+    <td>\
+      编号\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {CNAME}\
+      <\/td>\
+      <td>\
+        {ID}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+              "labelAlign": "right",
+              "x": "648",
+              "width": "180",
+              "y": "8",
+              "displayField": "CNAME",
+              "forceSelection": "true",
+              "height": "22"
+             },
              "expanded": false,
-             "children": [],
-             "type": "datetime"
+             "children": [{
+              "configs": {
+               "itemId": "store",
+               "autoLoad": "false",
+               "params": "{fldId:\"AG\"}",
+               "url": "m?xwl=system/common/client/clientSelect"
+              },
+              "expanded": false,
+              "children": [],
+              "type": "store",
+              "events": {"beforeload": "// operation.params = {\
+//   rd: app.radioD.getValue(),\
+//   date: app.date1.getRawValue()\
+// };"}
+             }],
+             "type": "combo",
+             "events": {"select": "var row=app.gridcontract.getSelection();\
+row[0].set('SHIPPER',records[0].data.CNAME);"}
             }],
+            "type": "column"
+           },
+           {
+            "configs": {
+             "itemId": "colSHIPPER_COD1",
+             "hidden": "true",
+             "dataIndex": "SHIPPER",
+             "width": "120",
+             "text": "货主",
+             "titleAlign": "center"
+            },
+            "expanded": true,
+            "children": [],
             "type": "column"
            },
            {
             "configs": {
              "itemId": "colFEE_SET",
              "dataIndex": "FEE_SET",
-             "width": "120",
+             "width": "70",
              "text": "费率",
+             "align": "right",
              "titleAlign": "center"
             },
             "expanded": true,
             "children": [{
-             "configs": {"itemId": "editor"},
+             "configs": {
+              "itemId": "editor",
+              "minValue": "0"
+             },
              "expanded": false,
              "children": [],
-             "type": "datetime"
+             "type": "number"
             }],
             "type": "column"
            },
@@ -440,22 +582,26 @@ app.ids.setValue(record.data.ID);"}
              "dataIndex": "FEE_MONERY",
              "width": "70",
              "text": "金额",
+             "align": "right",
              "titleAlign": "center"
             },
             "expanded": true,
             "children": [{
-             "configs": {"itemId": "editor"},
+             "configs": {
+              "itemId": "editor",
+              "minValue": "0"
+             },
              "expanded": false,
              "children": [],
-             "type": "textarea"
+             "type": "number"
             }],
             "type": "column"
            },
            {
             "configs": {
-             "itemId": "colFEE_MONERY1",
-             "dataIndex": "FEE_MONERY",
-             "width": "70",
+             "itemId": "colNOTE",
+             "dataIndex": "NOTE",
+             "flex": "-1",
              "text": "备注",
              "titleAlign": "center"
             },
@@ -479,7 +625,7 @@ app.ids.setValue(record.data.ID);"}
            "cls": "border-width:0px",
            "dock": "top"
           },
-          "expanded": false,
+          "expanded": true,
           "children": [
            {
             "configs": {
@@ -615,10 +761,8 @@ app.grid1.store.load({\
             "expanded": false,
             "children": [],
             "type": "button",
-            "events": {"click": "Wb.addEdit(app.gridh, {\
-  TENANCY_ID: '{#sys.TENANCY_ID#}',\
-  BEGDATE: new Date(),\
-  ENDDATE: new Date()\
+            "events": {"click": "Wb.addEdit(app.gridcontract, {\
+  PID: app.ids.getValue()\
 });"}
            },
            {
@@ -630,7 +774,7 @@ app.grid1.store.load({\
             "expanded": true,
             "children": [],
             "type": "button",
-            "events": {"click": "Wb.remove(app.gridh);"}
+            "events": {"click": "Wb.remove(app.gridcontract);"}
            },
            {
             "configs": {
@@ -641,15 +785,15 @@ app.grid1.store.load({\
             "expanded": false,
             "children": [],
             "type": "button",
-            "events": {"click": "if (!Wb.verifyGrid(app.gridh)) //验证数据是否合法\
+            "events": {"click": "if (!Wb.verifyGrid(app.gridcontract)) //验证数据是否合法\
   return;\
 Wb.sync({\
-  grid: app.gridh,\
-  url: 'm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/headedit/save',\
+  grid: app.gridcontract,\
+  url: 'm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/contract/save',\
   message: '正在保存中...',\
   success: function(resp) {\
     //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
-    Wb.syncCreate(app.gridh, Wb.decode(resp.responseText));\
+    Wb.syncCreate(app.gridcontract, Wb.decode(resp.responseText));\
   }\
 });"}
            },
