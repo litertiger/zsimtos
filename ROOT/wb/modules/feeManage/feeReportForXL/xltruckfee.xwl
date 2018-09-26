@@ -15,7 +15,7 @@
       "layout": "fit",
       "itemId": "panel1",
       "region": "north",
-      "height": "150"
+      "height": "200"
      },
      "expanded": true,
      "children": [{
@@ -28,7 +28,7 @@
        {
         "configs": {
          "itemId": "store",
-         "autoLoad": "false",
+         "autoLoad": "true",
          "url": "m?xwl=feeManage/feeReportForXL/xltruckfeeEdit/headedit/select"
         },
         "expanded": false,
@@ -55,12 +55,17 @@
           "configs": {
            "itemId": "colNAME",
            "dataIndex": "NAME",
-           "width": "60",
+           "width": "100",
            "text": "名称",
            "titleAlign": "center"
           },
-          "expanded": false,
-          "children": [],
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "text"
+          }],
           "type": "column"
          },
          {
@@ -71,8 +76,13 @@
            "text": "开始时间",
            "titleAlign": "center"
           },
-          "expanded": false,
-          "children": [],
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "datetime"
+          }],
           "type": "column"
          },
          {
@@ -83,8 +93,13 @@
            "text": "截止时间",
            "titleAlign": "center"
           },
-          "expanded": false,
-          "children": [],
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "datetime"
+          }],
           "type": "column"
          },
          {
@@ -95,8 +110,13 @@
            "text": "备注",
            "titleAlign": "center"
           },
-          "expanded": false,
-          "children": [],
+          "expanded": true,
+          "children": [{
+           "configs": {"itemId": "editor"},
+           "expanded": false,
+           "children": [],
+           "type": "textarea"
+          }],
           "type": "column"
          }
         ],
@@ -106,8 +126,7 @@
         "configs": {
          "itemId": "tbar",
          "padding": "0,0,0,0",
-         "hidden": "true",
-         "normalName": "cntrTbar",
+         "normalName": "headTbar",
          "cls": "border-width:0px",
          "dock": "top"
         },
@@ -142,6 +161,7 @@
          {
           "configs": {
            "itemId": "tradeId",
+           "hidden": "true",
            "labelAlign": "right",
            "fieldLabel": "内外贸",
            "keyName": "TRADE_ID",
@@ -155,6 +175,7 @@
          {
           "configs": {
            "itemId": "address",
+           "hidden": "true",
            "labelAlign": "right",
            "fieldLabel": "地址",
            "keyName": "C_ADDRESS",
@@ -168,6 +189,7 @@
          {
           "configs": {
            "itemId": "payer",
+           "hidden": "true",
            "labelAlign": "right",
            "pickList": "[\
   ['货主', '货主'],\
@@ -211,6 +233,7 @@
          {
           "configs": {
            "itemId": "seekMenu",
+           "hidden": "true",
            "text": "@Str.find",
            "iconCls": "search_icon"
           },
@@ -243,7 +266,11 @@ app.grid1.store.load({\
           "expanded": false,
           "children": [],
           "type": "button",
-          "events": {"click": "Wb.addEdit(app.grid1,{CREATED_ON:new Date(),CREATED_BY:'{#sys.username#}',UPDATED_ON:new Date(),UPDATED_BY:'{#sys.username#}',TENANCY_ID:'{#sys.TENANCY_ID#}'});  "}
+          "events": {"click": "Wb.addEdit(app.gridh, {\
+  TENANCY_ID: '{#sys.TENANCY_ID#}',\
+  BEGDATE: new Date(),\
+  ENDDATE: new Date()\
+});"}
          },
          {
           "configs": {
@@ -254,7 +281,7 @@ app.grid1.store.load({\
           "expanded": true,
           "children": [],
           "type": "button",
-          "events": {"click": "Wb.remove(app.grid1);"}
+          "events": {"click": "Wb.remove(app.gridh);"}
          },
          {
           "configs": {
@@ -265,15 +292,15 @@ app.grid1.store.load({\
           "expanded": false,
           "children": [],
           "type": "button",
-          "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+          "events": {"click": "if (!Wb.verifyGrid(app.gridh)) //验证数据是否合法\
   return;\
 Wb.sync({\
-  grid: app.grid1,\
-  url: 'm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/save',\
+  grid: app.gridh,\
+  url: 'm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/headedit/save',\
   message: '正在保存中...',\
   success: function(resp) {\
     //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
-    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+    Wb.syncCreate(app.gridh, Wb.decode(resp.responseText));\
   }\
 });"}
          },
@@ -308,6 +335,7 @@ app.ids.setValue(record.data.ID);"}
     },
     {
      "configs": {
+      "layout": "fit",
       "itemId": "panel2",
       "region": "center"
      },
