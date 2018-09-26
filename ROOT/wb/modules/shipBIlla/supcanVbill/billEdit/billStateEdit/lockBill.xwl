@@ -14,7 +14,16 @@ for (var i = 0; i < id.length; i++) {\
     ids += \",\";\
   ids += \"'\" + id[i] + \"'\";\
 }//or CONSIGNEE_COD is null\
+var  rw=app.run(\"select vbill_head.bill_no ,cntr from  vbill_head ,vload_list where   vbill_head.ID =vload_list.bill_id(+) and bill_type in('C','E','P')  and vbill_head.ID in (\" + ids + \")\");\
+while(rw.next()){\
+  var cntr = rw.getString(\"CNTR\");\
+  var billNo = rw.getString(\"BILL_NO\");\
 \
+  if(Wb.isEmpty(cntr)){\
+    Wb.error('存在没有箱的提单'+billNo+'，请检查');\
+  }\
+ \
+}\
 app.run(\"select 1 from   vbill_head where ID in (\" + ids + \") and I_E_ID='E' and ( nvl(NOTIFIER_ADDRESS,'@@')='@@' or\\\
     nvl(CONTRACT_TEL,'@@')='@@' or  nvl(NOTIFIER_TEL,'@@')='@@'  or  nvl(CONTRACT_ADDRESS,'@@')='@@' or  SHIPPER_COD is null   )    \\\
     and exists(select 1 from c_port where (c_port.ID=pod or PORT_NAME=POD) and AMOUNT_CODE = 'HKHKG' )\",{  errorText: \
