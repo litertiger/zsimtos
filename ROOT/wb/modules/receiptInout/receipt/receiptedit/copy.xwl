@@ -6,7 +6,11 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
-var cntr = Wb.getRecords(app.run(\"select id,cntr,i_e_id,decode(i_e_id,'I','进口','E','出口')ie,e_f_id,decode(e_f_id,'E','空箱','F','重箱')ef\" +\
+var cntr = Wb.getRecords(app.run(\"select id,cntr,i_e_id,decode(i_e_id,'I','进口','E','出口')ie,e_f_id,\\
+\" +\
+  \"decode(e_f_id,'E','空箱','F','重箱')ef,CATEGORY_ID,cntr_iso,CNTR_SIZE,CNTR_TYPE,CNTR_HIGHT,CNTR_LENGTH,\\
+\" +\
+  \"CNTR_OWNER,CNTR_OPERATOR_COD\" +\
   \" from port_cntr where id='\" + data.CNTR_ID + \"'\"));\
 if (cntr.length < 1)\
   throw \"箱子已经核销,请刷新\";\
@@ -46,9 +50,10 @@ var addsql = \"insert into RECEIPT (ID,VID,TENANCY_ID,DRIVER_ID,ORDER_ID,ORDER_S
   \"CNTR_OPERATOR,ACCOUNT_CUSTOMER_CODE,CNTR_ID,FEI_ADDDRESS,CNTR_OWNER_COD,SHIP_ORDER,MBILL_NO,CONTRACT_MAN,CONTRACT_PHONE,\" +\
   \"ORDER_TYPE,ORDER_STATUS,ACCOUNT_CUSTOMER,YZC_ON,CARGO_TYPE,HZ_COD,HZ,CARGO_WT,CKCNTR,SHIP_CONSIGN_COD,SHIPPER_CONSIGNEE,\" +\
   \"IS_XJ,TKADDRESS,CAR_TEAM,CAR_TEAM_P,NO_CNTR,F_CNTR,F_ON,F_BY,RET_ID,IS_JG, IS_GP)\" +\
-  \"values ('\" + id + \"',{?VID?},{?TENANCY_ID?},{?DRIVER_ID?},{?ORDER_ID?},{?ORDER_SEQ?},{?CNTR?},\" +\
-  \"{?CNTR_REQ?},{?CATEGORY_ID?},{?TRADE_ID?},{?I_E_ID?},{?E_F_ID?},{?CNTR_ISO?},{?CNTR_SIZE?},{?CNTR_TYPE?},\" +\
-  \"{?numeric.CNTR_HIGHT?},{?numeric.CNTR_LENGTH?},{?CNTR_OWNER?},{?CNTR_OPERATOR_COD?},{?CONSIGNEE_COD?},{?CONSIGNEE?},\" +\
+  \"select '\" + id + \"',VID,TENANCY_ID,DRIVER_ID,ORDER_ID,ORDER_SEQ,'\" + cntr[0].CNTR + \"',CNTR_REQ,\" +\
+  \"'\" + cntr[0].CATEGORY_ID + \"',TRADE_ID,'\" + cntr[0].I_E_ID + \"','\" + cntr[0].E_F_ID + \"','\" + cntr[0].CNTR_ISO + \"',\" +\
+  \"'\" + cntr[0].CNTR_SIZE + \"','\" + cntr[0].CNTR_TYPE + \"','\" + cntr[0].CNTR_HIGHT + \"','\" + cntr[0].CNTR_LENGTH + \"',\" +\
+  \"'\" + cntr[0].CNTR_OWNER + \"','\" + cntr[0].CNTR_OPERATOR_COD + \"',{?CONSIGNEE_COD?},{?CONSIGNEE?},\" +\
   \"{?SHIPPER_COD?},{?SHIPPER?},{?SEAL_NO?},{?SEAL_NO2?},{?SEAL_NO3?},{?SEAL_NO4?},{?IMDG?},{?UNDG?},{?IMDG2?},\" +\
   \"{?UNDG2?},{?IMDG3?},{?UNDG3?},{?IMDG4?},{?UNDG4?},{?TEMP_SET?},{?TEMP_MIN?},{?TEMP_MAX?},{?numeric.REEF_ID?},\" +\
   \"{?HUMIDITY_LEVEL?},{?numeric.OVERHEIGHT?},{?numeric.OVERFRONT?},{?numeric.OVERBACK?},{?numeric.OVERLEFT?},\" +\
