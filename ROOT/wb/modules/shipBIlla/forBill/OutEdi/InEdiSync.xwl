@@ -68,7 +68,7 @@ if (ieId == 'I') //进口\
 else\
   app.run(\"update  ZS_IMTOS.PORT_CNTR  set I_DSHIP_NO={?shipNo?} where TENANCY_ID='\" + TENANCY_ID + \"' and  CNTR  in (select VLOAD_LIST.CNTR    \" +\
     \"  FROM VLOAD_LIST,VBILL_HEAD where VLOAD_LIST.bill_id=VBILL_HEAD.id  and VLOAD_LIST.I_E_ID='I'  \" + vHeandwhereSql + \" and  VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' and vbill_head.main_flag=1 and vbill_head.PHASE='9' and  vbill_head.VID={?shipNo?} )\",{transaction:'start'});\
-app.run(\"update   zs_imtos.VLOAD_LIST set CNTR_ID=(select  ID from ZS_IMTOS.PORT_CNTR where PORT_CNTR.CNTR=VLOAD_LIST.cntr  and  phase<>'RET') \" +\
+app.run(\"update   zs_imtos.VLOAD_LIST set CNTR_ID=(select  ID from ZS_IMTOS.PORT_CNTR where PORT_CNTR.CNTR=VLOAD_LIST.cntr and PORT_CNTR.tenancy_id='\" + TENANCY_ID + \"' and  phase<>'RET') \" +\
   \"  where    VLOAD_LIST.VID={?shipNo?} and VLOAD_LIST.I_E_ID='I'  and VLOAD_LIST.TENANCY_ID='\" + TENANCY_ID + \"'  \");\
 app.run(\"update  port_cntr  set   (PIECES,WEIGHT, VOLUME)=(select sum(PIECES),sum(WEIGHT), sum(VOLUME) from VLOAD_LIST where VID={?shipNo?} and CNTR_ID=port_cntr.ID and I_E_ID='I' )   where  I_DSHIP_NO={?shipNo?}  and I_E_ID='I' and LCL_ID=1\");\
 app.run(\"update  vbill_head set  PHASE='1', LINE_COD=CNTR_OPERATOR_COD, LINE=CNTR_OPERATOR ,COLINE=CNTR_OPERATOR, COLINE_COD=CNTR_OPERATOR_COD   where  VID={?shipNo?} and   PHASE='9' and vbill_head.I_E_ID='I'  \" + vHeandwhereSql + \" and VBILL_HEAD.TENANCY_ID='\" + TENANCY_ID + \"' \");\
