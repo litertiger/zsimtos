@@ -6,7 +6,8 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
-var cntr = Wb.getRecords(app.run(\"select id,cntr,i_e_id,e_f_id from port_cntr where id='\" + data.CNTR_ID + \"'\"));\
+var cntr = Wb.getRecords(app.run(\"select id,cntr,i_e_id,decode(i_e_id,'I','进口','E','出口')ie,e_f_id,decode(e_f_id,'E','空箱','F','重箱')ef\" +\
+  \" from port_cntr where id='\" + data.CNTR_ID + \"'\"));\
 if (cntr.length < 1)\
   throw \"箱子已经核销,请刷新\";\
 if (cntr[0].I_E_ID == \"E\" && cntr[0].E_F_ID == \"F\")\
@@ -26,6 +27,12 @@ if (receipt.length < 1)\
   throw \"被复制的设备交接点已经删除,请刷新\";\
 if (receipt[0].WORK_TYPE == 'FOFI')\
   throw \"重出重回不能被复制\";\
+if (receipt[0].WORK_TYPE == 'EOEI')\
+  throw \"吉出吉回不能被复制\";\
+if (receipt[0].WORK_TYPE == 'FOEI' && (cntr[0].I_E_ID != \"I\" || cntr[0].E_F_ID != \"F\"))\
+  throw \"箱进出口空重状态和设备交接单不符,设备交接单类型:\" + receipt[0].CNWORK_TYPE + \",箱:\" + cntr[0].IE + cntr[0].EF;\
+if (receipt[0].WORK_TYPE == 'EOFI' && cntr[0].E_F_ID == \"F\")\
+  throw \"箱进出口空重状态和设备交接单不符,设备交接单类型:\" + receipt[0].CNWORK_TYPE + \",箱:\" + cntr[0].IE + cntr[0].EF;\
 \
 var id = SysUtil.getId();\
 var addsql = \"insert into RECEIPT (ID,VID,TENANCY_ID,DRIVER_ID,ORDER_ID,ORDER_SEQ,CNTR,CNTR_REQ,CATEGORY_ID,\" +\
