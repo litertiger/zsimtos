@@ -1,0 +1,135 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var nature = app.get('sys.NATURE');\
+var customcode = app.get('sys.GOV_CODE');\
+var sqlcntr = \"select ID,I_E_ID,E_F_ID from port_cntr where tenancy_id='\" + tenancyid + \"'\" +\
+  \" and cntr like '%\" + data.CNTR + \"%' and (phase='ACT' or phase='ADV') and TRADE_ID='1'\";\
+if (nature == \"5\")\
+  sqlcntr += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+var cntrs = Wb.decode(DbUtil.getData(app.run(sqlcntr), request));\
+if (Wb.isEmpty(cntrs)) {\
+  app.send({\
+    msg: data.CNTR + \"没有找到箱子或箱子不在场\",\
+    success: false\
+  });\
+  return;\
+}\
+if (cntrs.length > 1) {\
+  app.send({\
+    msg: \"查到了多个关于\" + data.CNTR + \"的箱子,请输入更精确的箱号\",\
+    success: false\
+  });\
+  return;\
+}\
+var kl = Wb.getRecords(app.run(\"select LOCK_ID from port_cntr where id='\" + cntrs[0].ID + \"' and LOCK_ID='1'\"));\
+if (kl.length > 0) {\
+  app.send({\
+    success: false,\
+    msg: \"箱子:\" + data.CNTR + \"被扣留\"\
+  });\
+  return;\
+}\
+var zg = Wb.getRecords(app.run(\"select cntr_id from cntr_apply_list al left join cntr_apply a on al.aid=a.id\" +\
+  \" where al.cntr_id='\" + cntrs[0].ID + \"' and a.phase='APY' and a.apply_type in('ZGJ','ZGC')\"));\
+if (zg.length > 0) {\
+  app.send({\
+    msg: \"箱子:\" + data.CNTR + \"有转关申请,请先完成转关\",\
+    success: false\
+  });\
+  return;\
+}\
+if (cntrs[0].E_F_ID == \"F\" && cntrs[0].I_E_ID == \"I\") { //进口\
+  var sql = \"select p.TENANCY_ID,h.VID,p.CNTR,p.CATEGORY_ID,l.TRADE_ID,p.I_E_ID,p.E_F_ID,p.CNTR_ISO,l.CNTR_OWNER,\" +\
+    \"p.CNTR_OPERATOR,l.SEAL_NO,l.SEAL_NO2,l.SEAL_NO3,l.SEAL_NO4,l.POD,l.POL,l.SPOD,nvl(l.GOODS_NOTES,h.Goods_Notes)CMDY_CODE,\" +\
+    \"l.IMDG,l.UNDG,l.SPEC_STOW,l.TEMP_SET,p.yard_position,l.TEMP_MIN,l.TEMP_MAX,p.REEF_ID,l.OVERHEIGHT,l.OVERBACK,l.OVERLEFT,\" +\
+    \"l.OVERRIGHT,p.OOG_ID,p.CNTR_SIZE,p.CNTR_TYPE,p.CNTR_OPERATOR_COD,h.BILL_NO,h.MBILL_NO,h.SHIPPER_COD,h.SHIPPER,\" +\
+    \"h.CONSIGNEE_COD,h.CONSIGNEE,p.ID CNTR_ID,h.SHIP_ORDER,l.CNTR_OWNER_COD,h.CONTRACT_MAN,\" +\
+    \"nvl(h.CONTRACT_TEL,h.CONTRACT_PHONE)CONTRACT_PHONE,l.CARGO_TYPE,l.weight GROS_WEIGHT,l.bill_id\" +\
+    \" from port_cntr p left join vload_list l on l.CNTR_ID=p.id left join vbill_head h on l.bill_id=h.id\" +\
+    \" where l.tenancy_id='\" + tenancyid + \"' and l.CNTR like '%\" + data.CNTR + \"%' and p.id is not null\" +\
+    \" and (p.phase='ACT' or p.phase='ADV') and h.main_flag=1 and p.TRADE_ID='1' and p.I_E_ID='I' and p.E_F_ID='F'\";\
+  if (nature == \"5\")\
+    sql += \" and p.CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+  var result = DbUtil.getData(app.run(sql), request);\
+  if (Wb.decode(result).length > 0) {\
+    app.send({\
+      cntr: result,\
+      success: true\
+    });\
+    return;\
+  }\
+}\
+if ((cntrs[0].E_F_ID == \"E\" && cntrs[0].I_E_ID == \"E\") || (cntrs[0].E_F_ID == \"E\" && cntrs[0].I_E_ID == \"I\")) { //出口\
+  var sql = \"select ID CNTR_ID,TENANCY_ID,CNTR,CATEGORY_ID,TRADE_ID,I_E_ID,E_F_ID,CNTR_ISO,CNTR_OWNER,CNTR_OWNER_COD,\" +\
+    \"CNTR_OPERATOR,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,CNTR_HIGHT,CNTR_LENGTH,POL,CONSIGNEE,SHIPPER,DANG_ID,\" +\
+    \"IMDG,UNDG,SPEC_STOW,SPEC_STOW2,SPEC_STOW3,TEMP_SET,TEMP_MIN,TEMP_MAX,REEF_ID,HUMIDITY_LEVEL,OVERHEIGHT,OVERBACK,\" +\
+    \"OVERLEFT,OVERRIGHT,OOG_ID,CNTR_SIZE,CNTR_TYPE,CNTR_OPERATOR_COD,ON_POWER,YARD_POSITION,SHIPPER_NAME SHIPPER,\" +\
+    \"SHIPPER SHIPPER_COD,CONSIGNEE_NAME CONSIGNEE,CONSIGNEE CONSIGNEE_COD\" +\
+    \" from port_cntr where tenancy_id='\" + tenancyid + \"' and CNTR like '%\" + data.CNTR + \"%'\" +\
+    \" and (phase='ACT' or phase='ADV') and TRADE_ID='1' and E_F_ID='E'\";\
+  if (nature == \"5\")\
+    sql += \" and CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+  app.log(sql);\
+  var result = DbUtil.getData(app.run(sql), request);\
+  if (Wb.decode(result).length > 0) {\
+    app.send({\
+      cntr: result,\
+      success: true\
+    });\
+    return;\
+  }\
+}\
+if ((cntrs[0].E_F_ID == \"F\" && cntrs[0].I_E_ID == \"E\")) { //退运\
+  var tysql = \"select p.ID CNTR_ID,p.TENANCY_ID,vl.BILL_NO,p.CNTR,p.CATEGORY_ID,p.TRADE_ID,p.I_E_ID,p.E_F_ID,p.CNTR_ISO,\" +\
+    \"p.CNTR_OWNER,p.CNTR_OWNER_COD,p.CNTR_OPERATOR,p.SEAL_NO,p.SEAL_NO2,p.SEAL_NO3,p.SEAL_NO4,p.CNTR_HIGHT,\" +\
+    \"p.CNTR_LENGTH,p.POL,p.CMDY_CODE,p.CONSIGNEE,p.SHIPPER,p.DANG_ID,p.IMDG,p.UNDG,p.SPEC_STOW,\" +\
+    \"p.SPEC_STOW2,p.SPEC_STOW3,p.TEMP_SET,p.TEMP_MIN,p.TEMP_MAX,p.REEF_ID,p.HUMIDITY_LEVEL,p.OVERHEIGHT,\" +\
+    \"p.OVERBACK,p.OVERLEFT,p.OVERRIGHT,p.OOG_ID,p.CNTR_SIZE,p.CNTR_TYPE,p.CNTR_OPERATOR_COD,p.ON_POWER,\" +\
+    \"p.YARD_POSITION,p.SHIPPER_NAME SHIPPER,p.SHIPPER SHIPPER_COD,p.CONSIGNEE_NAME CONSIGNEE,p.CONSIGNEE CONSIGNEE_COD\" +\
+    \" from cntr_back b left join port_cntr p on p.id=b.cntr_id left join vload_list vl on vl.cntr_id=p.id and vl.i_e_id=p.i_e_id\" +\
+    \" where vl.main_flag=1 and p.tenancy_id='\" + tenancyid + \"' and p.CNTR like '%\" + data.CNTR + \"%'\" +\
+    \" and p.phase='ACT' and p.TRADE_ID='1' and b.phase='PLN' and p.I_E_ID='E' and p.E_F_ID='F' and b.type='E'\";\
+  if (nature == \"5\")\
+    tysql += \" and p.CNTR_OPERATOR_COD='\" + customcode + \"'\";\
+  app.log(tysql);\
+  var result = DbUtil.getData(app.run(tysql), request);\
+  if (Wb.decode(result).length > 0) {\
+    app.send({\
+      cntr: result,\
+      success: true\
+    });\
+    return;\
+  } else {\
+    app.send({\
+      msg: data.CNTR + \"没有找到箱子或箱子不在场\",\
+      success: false\
+    });\
+    return;\
+  }\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "DHSHIP": 1,
+  "xlcd": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "复制查询箱子",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
