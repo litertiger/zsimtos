@@ -7,15 +7,26 @@
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
 var cntr = Wb.getRecords(app.run(\"select id,cntr,i_e_id,e_f_id from port_cntr where id='\" + data.CNTR_ID + \"'\"));\
-\
+if (cntr.length < 1)\
+  throw \"箱子已经核销,请刷新\";\
+if (cntr[0].I_E_ID == \"E\" && cntr[0].E_F_ID == \"F\")\
+  throw \"出口重箱不能使用复制功能生成设备交接单\";\
 var have = Wb.getRecords(app.run(\"select decode(work_type,'EOFI','吉出重回','FOEI','重出吉回','EOEI','吉出吉回','FOFI','重出重回','EOTC','吉出转关','EITC','吉进转关','FOTC','重出转关','FITC','重进转关')work_type,\\
 \" +\
   \"decode(phase,'PLN','计划','EXE','已派车','GET','正在提香','OUT','场外','RTN','正在还箱')phase,\\
 \" +\
-  \"nvl(c.short_name,c.name)name from receipt r left join c_customer c on r.cntr_operator_cod=c.code where cntr='\" + data.CNTR + \"'\" +\
+  \"nvl(c.short_name,c.name)name from receipt r left join c_customer c on r.cntr_operator_cod=c.code where CNTR_ID='\" + data.CNTR_ID + \"'\" +\
   \" and phase not in('FIN','CNL') and work_type<>'YOYI' and r.tenancy_id='\" + tenancyid + \"'\"));\
 if (have.length > 0)\
   throw data.CNTR + \"已有设备交接单,状态:\" + have[0].PHASE + \",类型:\" + have[0].WORK_TYPE + \",船公司:\" + have[0].NAME;\
+var receipt = Wb.getRecords(app.run(\"select work_type,decode(work_type,'EOFI','吉出重回','FOEI','重出吉回','EOEI','吉出吉回','FOFI','重出重回','EOTC','吉出转关','EITC','吉进转关','FOTC','重出转关','FITC','重进转关')cnwork_type\\
+\" +\
+  \"from receipt where id='\" + data.ID + \"'\"));\
+if (receipt.length < 1)\
+  throw \"被复制的设备交接点已经删除,请刷新\";\
+if (receipt[0].WORK_TYPE == 'FOFI')\
+  throw \"重出重回不能被复制\";\
+\
 var id = SysUtil.getId();\
 var addsql = \"insert into RECEIPT (ID,VID,TENANCY_ID,DRIVER_ID,ORDER_ID,ORDER_SEQ,CNTR,CNTR_REQ,CATEGORY_ID,\" +\
   \"TRADE_ID,I_E_ID,E_F_ID,CNTR_ISO,CNTR_SIZE,CNTR_TYPE,CNTR_HIGHT,CNTR_LENGTH,CNTR_OWNER,CNTR_OPERATOR_COD,CONSIGNEE_COD,\" +\
