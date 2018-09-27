@@ -36,11 +36,12 @@ while (sqlnum.next()) {\
 app.log(\"总条数====\" + num);\
 \
 app.log(startRow + \"====\" + rows);\
+// (case when AMOUNT<0 then 0 else AMOUNT end) \
 \
 var sql = \"\";\
 if (rows != '99999') {\
   sql = \"select FEE_UNIT,CNTR_OPERATOR_COD,CNTR,CNTR_ID,CNTR_SIZE,E_F_ID_IMPORT,IN_BUS_NOTES,IMPORT_TIME,BD_DATE,IN_TIME,TRADE_ID,\" +\
-    \"EXPORT_TIME,OUT_TIME,OUT_BUS_NOTES,E_F_ID_EXPORT,DWELL_DAYS,FREE_DAYS,((DWELL_DAYS-FREE_DAYS)*(decode(CNTR_SIZE,'20',1,'40',2,'45',2.25))) FEE_DAYS,(DWELL_DAYS-FREE_DAYS) JF_DAYS,(case when AMOUNT<0 then 0 else AMOUNT end) AMOUNT,BILL_NO_IMPORT,BILL_NO_EXPORT,CNTR_ISO,\" +\
+    \"EXPORT_TIME,OUT_TIME,OUT_BUS_NOTES,E_F_ID_EXPORT,DWELL_DAYS,FREE_DAYS,((DWELL_DAYS-FREE_DAYS)*(decode(CNTR_SIZE,'20',1,'40',2,'45',2.25))) FEE_DAYS,(DWELL_DAYS-FREE_DAYS) JF_DAYS,AMOUNT,BILL_NO_IMPORT,BILL_NO_EXPORT,CNTR_ISO,\" +\
     \"E_F_ID,I_E_ID,CNTR_OWNER,STUFF_DATE,SHIP_DATE,GATE_DATE,IN_PORT_DATE,IN_BUS_ID,OUT_BUS_ID,NODE_ID,ID \" +\
     \"from (SELECT A.*, ROWNUM RN  FROM (SELECT AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
     \"(select name from c_customer where code=CNTR_OPERATOR_COD) CNTR_OPERATOR_COD,(select name from c_customer where code=CNTR_OWNER) CNTR_OWNER, CNTR_ISO, decode (TRADE_ID,'1','外贸','2','内贸') TRADE_ID,decode (E_F_ID , 'E', '吉柜',  'F', '重柜') E_F_ID,decode(I_E_ID,'I','进口','E','出口') I_E_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,\" +\
@@ -55,7 +56,7 @@ if (rows != '99999') {\
 if (rows == '99999') {\
   app.log(\"==========\");\
   app.log(rows);\
-  sql = \"SELECT (case when AMOUNT<0 then 0 else AMOUNT end)   AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
+  sql = \"SELECT AMOUNT, ID, CNTR, cntr_id, TO_CHAR (IN_TIME, 'yyyy-MM-dd hh24:mi') IN_TIME, TO_CHAR (OUT_TIME, 'yyyy-MM-dd hh24:mi') OUT_TIME,\" +\
     \"(select name from c_customer where code=CNTR_OPERATOR_COD) CNTR_OPERATOR_COD,(select name from c_customer where code=CNTR_OWNER) CNTR_OWNER,\" +\
     \" CNTR_ISO, decode (TRADE_ID,'1','外贸','2','内贸') TRADE_ID,decode (E_F_ID , 'E', '吉柜',  'F', '重柜') E_F_ID,\" +\
     \"decode(I_E_ID,'I','进口','E','出口') I_E_ID, CNTR_SIZE, CNTR_TYPE, IN_BUS_NOTES, OUT_BUS_NOTES,ACTION,IN_BUS_ID,OUT_BUS_ID,\" +\
