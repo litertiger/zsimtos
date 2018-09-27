@@ -675,6 +675,88 @@ Wb.request({\
    },
    {
     "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winCopy",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 80,\
+  width: 360,\
+  margin: '8 8 0 8'\
+}",
+     "width": "400",
+     "title": "复制",
+     "height": "160"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "C_CNTR",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "箱号",
+       "displayField": "CNTR",
+       "valueField": "ID",
+       "forceSelection": "true"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "combo",
+      "events": {"select": "if (combo.getValue() == \"EOEI\") {\
+  app.radioN.setDisabled(false);\
+  app.radioY.setDisabled(false);\
+} else {\
+  app.radioN.setValue(true);\
+  app.radioN.setDisabled(true);\
+  app.radioY.setDisabled(true);\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "C_SHIP_ORDER",
+       "labelAlign": "right",
+       "fieldLabel": "订舱号/SO"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "copyid",
+       "labelAlign": "right",
+       "fieldLabel": "id"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
+//插入变更记录表,变更设备交接单类型\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/receiptedit/updateWP\",\
+  params: {\
+    ID: sel.data.ID,\
+    CNTR: sel.data.CNTR,\
+    CNTR_ID: sel.data.CNTR_ID,\
+    WORK_TYPE_OLD: sel.data.WORK_TYPE,\
+    WORK_TYPE: app.UP_WORK_TYPE.getValue(),\
+    NOTES: app.UP_REASON.getValue(),\
+    kp: app.radioN.checked ? 0 : 1\
+  },\
+  success: function(resp) {\
+    Wb.info(\"操作完成\");\
+    app.winWork_type.close();\
+    app.gridReceipt.store.load({\
+      out: app.tbar\
+    });\
+  }\
+});"}
+   },
+   {
+    "configs": {
      "layout": "fit",
      "itemId": "winStation",
      "dialog": "true",
@@ -683,14 +765,14 @@ Wb.request({\
      "title": "加装",
      "height": "430"
     },
-    "expanded": true,
+    "expanded": false,
     "children": [{
      "configs": {
       "itemId": "gridStation",
       "editable": "true",
       "multiSelect": "true"
      },
-     "expanded": false,
+     "expanded": true,
      "children": [
       {
        "configs": {
@@ -2456,11 +2538,27 @@ app.gridStation.store.load({\
     ID: rowData.ID\
   }\
 });"}
+         },
+         {
+          "configs": {
+           "itemId": "popupCopy",
+           "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
+           "text": "复制",
+           "iconCls": "copy_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.popupMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._winCopy); //app._win指向配置对象而非实例\
+win.show();\
+app.copyid.setValue(rowdata.ID);"}
          }
         ],
         "type": "menu",
         "events": {"show": "var rows = app.gridReceipt.getSelection();\
 app.popupWORKTYPE.setDisabled(rows.length != 1);\
+app.popupCopy.setDisabled(rows.length != 1);\
 menu.selectRow = rows[0];"}
        }
       ],
