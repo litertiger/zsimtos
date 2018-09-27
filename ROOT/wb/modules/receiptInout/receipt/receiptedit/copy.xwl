@@ -10,7 +10,7 @@ var cntr = Wb.getRecords(app.run(\"select id,cntr,i_e_id,decode(i_e_id,'I','进�
 \" +\
   \"decode(e_f_id,'E','空箱','F','重箱')ef,CATEGORY_ID,cntr_iso,CNTR_SIZE,CNTR_TYPE,CNTR_HIGHT,CNTR_LENGTH,\\
 \" +\
-  \"CNTR_OWNER,CNTR_OPERATOR_COD\" +\
+  \"CNTR_OWNER,CNTR_OWNER_COD,CNTR_OPERATOR_COD,CNTR_OPERATOR\" +\
   \" from port_cntr where id='\" + data.CNTR_ID + \"'\"));\
 if (cntr.length < 1)\
   throw \"箱子已经核销,请刷新\";\
@@ -56,20 +56,19 @@ var addsql = \"insert into RECEIPT (ID,VID,TENANCY_ID,DRIVER_ID,ORDER_ID,ORDER_S
   \"'\" + cntr[0].CNTR_OWNER + \"','\" + cntr[0].CNTR_OPERATOR_COD + \"',CONSIGNEE_COD,CONSIGNEE,\" +\
   \"SHIPPER_COD,SHIPPER,SEAL_NO,SEAL_NO2,SEAL_NO3,SEAL_NO4,IMDG,UNDG,IMDG2,UNDG2,IMDG3,UNDG3,IMDG4,UNDG4,TEMP_SET,\" +\
   \"TEMP_MIN,TEMP_MAX,REEF_ID,HUMIDITY_LEVEL,OVERHEIGHT,OVERFRONT,OVERBACK,OVERLEFT,OVERRIGHT,OOG_ID,SPEC_STOW,\" +\
-  \"SPEC_STOW2,SPEC_STOW3,GROS_WEIGHT,\" +\
-  \"{?numeric.NET_WEIGHT?},{?numeric.SCALE_WEIGHT?},{?DAMAGE?},{?TOOL_NO?},{?POD?},{?POL?},{?SPOD?},{?RELEASE_NO?},\" +\
-  \"{?BILL_NO?},{?DOOR_DIRECTION?},{?POS_ONTRUCK?},{?PLAN_POSITION?},{?WORK_TYPE?},{?PHASE?},{?TROUBLE_STATUS?},\" +\
-  \"{?numeric.CANCEL_CODE?},{?numeric.CANCEL_REASON?},{?numeric.IS_CONFIRM?},{?CMDY_CODE?},{?BULK_BL?},{?BULK_DO?},\" +\
-  \"{?numeric.BULK_QTY?},{?numeric.BULK_WEIGHT?},{?numeric.BULK_VOLUME?},{?numeric.BULK_PIECES?},{?timestamp.WORK_TIME?},\" +\
-  \"{?timestamp.COM_TIME?},'\" + username + \"',sysdate,'\" + username + \"',sysdate,{?T_ADDRESS?},{?F_ADDRESS?},\" +\
-  \"{?NOTES?},{?T_ADRESS?},{?S_ADRESS?},{?timestamp.PLAN_STIME?},{?SHIPPER_WAY?},{?SHIPPER_WAY?},{?BILL_ID?},\" +\
-  \"{?CNTR_OPERATOR?},{?ACCOUNT_CUSTOMER_CODE?},{?CNTR_ID?},\" +\
-  \"(select fee_addr from c_address where tenancy_id='\" + tenancyid + \"' and id={?S_ADRESS?}),\" +\
-  \"{?CNTR_OWNER_COD?},{?SHIP_ORDER?},{?MBILL_NO?},\" +\
-  \"{?CONTRACT_MAN?},{?CONTRACT_PHONE?},{?ORDER_TYPE?},{?ORDER_STATUS?},{?ACCOUNT_CUSTOMER?},{?timestamp.YZC_ON?},\" +\
-  \"{?CARGO_TYPE?},{?HZ_COD?},{?HZ?},{?CARGO_WT?},{?CKCNTR?},{?SHIP_CONSIGN_COD?},{?SHIPPER_CONSIGNEE?},{?IS_XJ?},\" +\
-  \"{?TKADDRESS?},{?CAR_TEAM?},{?CAR_TEAM?},0,\" + fcntr + \",(case \" + fcntr + \" when 1 then sysdate end),\" +\
-  \"(case \" + fcntr + \" when 1 then '\" + username + \"' end),{?RET_ID?},{?IS_JG?}, {?IS_GP?})\";\
+  \"SPEC_STOW2,SPEC_STOW3,GROS_WEIGHT,NET_WEIGHT,SCALE_WEIGHT,DAMAGE,TOOL_NO,POD,POL,SPOD,RELEASE_NO,\" +\
+  \"BILL_NO,DOOR_DIRECTION,POS_ONTRUCK,PLAN_POSITION,WORK_TYPE,PHASE,TROUBLE_STATUS,\" +\
+  \"CANCEL_CODE,CANCEL_REASON,IS_CONFIRM,CMDY_CODE,BULK_BL,BULK_DO,\" +\
+  \"BULK_QTY,BULK_WEIGHT,BULK_VOLUME,BULK_PIECES,WORK_TIME,\" +\
+  \"COM_TIME,'\" + username + \"',sysdate,'\" + username + \"',sysdate,T_ADDRESS,F_ADDRESS,\" +\
+  \"NOTES,T_ADRESS,S_ADRESS,PLAN_STIME,SHIPPER_WAY,SHIPPER_WAY,BILL_ID,\" +\
+  \"'\" + cntr[0].CNTR_OPERATOR + \"',ACCOUNT_CUSTOMER_CODE,'\" + cntr[0].CNTR_ID + \"',\" +\
+  \"FEI_ADDDRESS,\" +\
+  \"'\" + cntr[0].CNTR_OWNER_COD + \"','\" + data.SHIP_ORDER + \"',MBILL_NO,\" +\
+  \"CONTRACT_MAN,CONTRACT_PHONE,ORDER_TYPE,ORDER_STATUS,ACCOUNT_CUSTOMER,YZC_ON,\" +\
+  \"CARGO_TYPE,HZ_COD,HZ,CARGO_WT,CKCNTR,SHIP_CONSIGN_COD,SHIPPER_CONSIGNEE,IS_XJ,\" +\
+  \"{?TKADDRESS?},{?CAR_TEAM?},{?CAR_TEAM?},NO_CNTR,F_CNTR,F_ON,\" +\
+  \"F_BY,RET_ID,IS_JG,IS_GP)\";\
 app.run(addsql, {\
   transaction: 'start'\
 });\
