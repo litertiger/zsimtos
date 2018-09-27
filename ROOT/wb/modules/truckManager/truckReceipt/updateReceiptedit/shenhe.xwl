@@ -25,16 +25,16 @@ if (tenancyid == \"ZSG\") {\
       if (receipt[0].CAR_TEAM != \"HYLY\" && receipt[0].PT_TYPE != \"3\" && receipt[0].PT_TYPE != \"5\")\
         throw \"错误:箱\" + receipt[0].CNTR + \"驳船承运,非码头车队,车辆性质必须为船公司自有车或船公司租用外来车\";\
     }\
+\
+    app.log(\"调用计费\");\
+    var map = new HashMap();\
+    map.put(\"rpId\", data.RID);\
+    Wb.newClass(\"dubboForReceipt\").call(request, map);\
+    app.run(\"insert into aaa(CAP_XML,create_on) values ('派车审核调用计费,箱:'||'\" + receipt[0].CNTR + \"'||',操作人:'||'\" + username + \"',sysdate)\");\
   });\
 }\
 \
-app.run(\"update receipt set sh=1 where ID in(\" + data.RID + \")\");\
-\
-app.log(\"调用计费\");\
-var map = new HashMap();\
-map.put(\"rpId\", data.RID);\
-Wb.newClass(\"dubboForReceipt\").call(request, map);\
-app.run(\"insert into aaa(CAP_XML,create_on) values ('派车审核调用计费,箱:'||'\" + receipt[0].CNTR + \"'||',操作人:'||'\" + username + \"',sysdate)\");",
+app.run(\"update receipt set sh=1 where ID in(\" + data.RID + \")\");",
    "itemId": "module"
   },
   "expanded": true,
