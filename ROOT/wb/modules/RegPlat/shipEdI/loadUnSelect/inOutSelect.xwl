@@ -5,31 +5,32 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
-var  whereSql=\" select  IN_OUT_EDI.*,DECODE(nvl(decode(CNTR_OWNER_COD,'WANHAI',WHL_STATE,'ONE',ONE_STATE,'COSCO',COSCO_STATE,'APL',APL_STATE,'CMA',CMA_STATE,'HLC',HLC_STATE,'MSC',MSC_STATE,'OOCL',OOCL_STATE),0),'1','已发','未发') FLAG from IN_OUT_EDI where  \";\
+var whereSql = \" select  IN_OUT_EDI.*,DECODE(nvl(decode(CNTR_OWNER_COD,'WANHAI',WHL_STATE,'ONE',ONE_STATE,'COSCO',COSCO_STATE,'APL',APL_STATE,'CMA',CMA_STATE,'HLC',HLC_STATE,'MSC',MSC_STATE,'OOCL',OOCL_STATE),0),'1','已发','未发') FLAG from IN_OUT_EDI where  \";\
 \
- whereSql+=\"   IN_OUT_TIME>trunc({?timestamp.begdate?})  and  IN_OUT_TIME<trunc({?timestamp.enddate?})+0.9999\";\
+whereSql += \"   IN_OUT_TIME>trunc({?timestamp.begdate?})  and  IN_OUT_TIME<trunc({?timestamp.enddate?})+0.9999\";\
 \
-if(Wb.isEmpty(data.tradeId))\
- whereSql+=\" and  trade_ID=\"+data.tradeId+\"\";\
+if (!Wb.isEmpty(data.tradeId)) {\
+  if (data.tradeId != '3')\
+    whereSql += \" and  trade_ID=\" + data.tradeId + \"\";\
+}\
 app.log(data.type);\
-if(data.type==\"true\")\
- \twhereSql+=\" and  IN_OUT_TYPE='IN'\";\t\
- else whereSql+=\" and  IN_OUT_TYPE='OUT'\";\
+if (data.type == \"true\")\
+  whereSql += \" and  IN_OUT_TYPE='IN'\";\
+else whereSql += \" and  IN_OUT_TYPE='OUT'\";\
 \
 \
-  if(!Wb.isEmpty(data.cntr))\
-     whereSql+=\" and  cntr='\"+data.cntr+\"'\";\
- if(!Wb.isEmpty(data.workType)) \
-   if(data.workType=='COSCO')\
-     whereSql+=\" and  COSCO=1\";\
-  else if(data.workType=='CCT')\
-     whereSql+=\" and  CCT=1\";\
-  else if(data.workType=='OOCL')\
-     whereSql+=\" and  OOCL=1\";\
+if (!Wb.isEmpty(data.cntr))\
+  whereSql += \" and  cntr='\" + data.cntr + \"'\";\
+if (!Wb.isEmpty(data.workType))\
+  if (data.workType == 'COSCO')\
+    whereSql += \" and  COSCO=1\";\
+  else if (data.workType == 'CCT')\
+  whereSql += \" and  CCT=1\";\
+else if (data.workType == 'OOCL')\
+  whereSql += \" and  OOCL=1\";\
 \
-    var result = Wb.getRecords(app.run(whereSql));\
-    app.send(result);\
-"
+var result = Wb.getRecords(app.run(whereSql));\
+app.send(result);"
   },
   "expanded": true,
   "children": [],
