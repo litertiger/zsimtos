@@ -484,103 +484,104 @@ window[\"init\" + opt] = function(id) {\
 };\
 \
 \
-// window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
-//   var s = document.getElementById(opt);\
-//   if (Event == \"MenuBeforePopup\" && id == opt) {\
-//     var menu = \"\";\
-//     l = Wb.getSupcanMelu(s, \"BILL_NO\", true).length;\
-//     if (l > 0) {\
-// //       menu += \"id=4001; text='出库'; style='height:36px' \";\
-// //       menu += \"enabled= true \\r\\
-\";\
-//       menu += \"id=4002; text='搬移';  \";\
+window[\"event\" + opt] = function(id, Event, p1, p2, p3, p4) {\
+  var s = document.getElementById(opt);\
+  if (Event == \"MenuBeforePopup\" && id == opt) {\
+    var menu = \"\";\
+    l = Wb.getSupcanMelu(s, \"BILL_NO\", true).length;\
+    if (l > 0) {\
+//       menu += \"id=4001; text='出库'; style='height:36px' \";\
 //       menu += \"enabled= true \\r\\
 \";\
-//       menu += \"id=4004; text='搬移记录'; \";\
-//       menu += \"enabled= true \\r\\
+      menu += \"id=4002; text='搬移';  \";\
+      menu += \"enabled= true \\r\\
 \";\
-//     }\
-//     if (Wb.getSupcanMelu(s, \"IMPEXP\", false) == \"拆\") {\
-//       menu += \"id=4003; text='扣留'; \";\
-//       menu += \"enabled= true \\r\\
+      menu += \"id=4004; text='搬移记录'; \";\
+      menu += \"enabled= true \\r\\
 \";\
-//     }\
-//     s.func(\"AddMenu\", menu+ \" \\r\\
+    }\
+    if (Wb.getSupcanMelu(s, \"IMPEXP\", false) == \"拆\") {\
+      menu += \"id=4003; text='扣留'; \";\
+      menu += \"enabled= true \\r\\
+\";\
+    }\
+    s.func(\"AddMenu\", menu+ \" \\r\\
  LocateAt=top\");\
-//   } else if (Event == \"MenuClicked\" && id == opt) {\
+  } else if (Event == \"MenuClicked\" && id == opt) {\
 \
-//     if (p1 == '4001') { //出库\
-//       var pId = Wb.getSupcanMelu(s, \"CFSBILL_ID\", true);\
-//       var billNo = Wb.getSupcanMelu(s, \"BILL_NO\", true);\
-//       var outNum = Wb.getSupcanMelu(s, \"OUTNUM\", true);\
-//       var billIds = Wb.getSupcanMelu(s, \"BILL_ID\", true);\
-//       var quty = Wb.getSupcanMelu(s, \"QUTY\", true),\
-//         state = \"\";\
-//       Wb.request({\
-//         url: 'm?xwl=MiscellJob/bluk/PortCntr/BulkEdit/checkFy',\
-//         params: {\
-//           BILL_NO: billNo[0]\
-//         },\
-//         success: function(resp) {\
-//           var rs = Wb.decode(resp.responseText);\
-//           if (rs.total === 0) {\
-//             Wb.warn(\"费用没结清！\");\
-//             state = \"费用没结清！\";\
-//             return;\
-//           } else {\
-//             console.log(rs.rows[0].BD_BY);\
-//             if (rs.rows[0].BD_BY === '') {\
-//                Wb.warn(\"费用没结清！\");\
-//               state = \"费用没结清！\";\
-//               return;\
-//             }\
-//           }\
-//           ////\
-//                 if (state == \"\") {\
-//         var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
+    if (p1 == '4001') { //出库\
+      var pId = Wb.getSupcanMelu(s, \"CFSBILL_ID\", true);\
+      var billNo = Wb.getSupcanMelu(s, \"BILL_NO\", true);\
+      var outNum = Wb.getSupcanMelu(s, \"OUTNUM\", true);\
+      var billIds = Wb.getSupcanMelu(s, \"BILL_ID\", true);\
+      var quty = Wb.getSupcanMelu(s, \"QUTY\", true),\
+        state = \"\";\
+      Wb.request({\
+        url: 'm?xwl=MiscellJob/bluk/PortCntr/BulkEdit/checkFy',\
+        params: {\
+          BILL_NO: billNo[0]\
+        },\
+        success: function(resp) {\
+          var rs = Wb.decode(resp.responseText);\
+          if (rs.total === 0) {\
+            Wb.warn(\"费用没结清！\");\
+            state = \"费用没结清！\";\
+            return;\
+          } else {\
+            console.log(rs.rows[0].BD_BY);\
+            if (rs.rows[0].BD_BY === '') {\
+               Wb.warn(\"费用没结清！\");\
+              state = \"费用没结清！\";\
+              return;\
+            }\
+          }\
+          ////\
+                if (state == \"\") {\
+        var truckWin = new Ext.window.Window(app._truckWin); //app._win指向配置对象而非实例\
 \
-//         truckWin.show();\
-//         app.TRUCKNO.focus();\
-//         app.billIdss.setValue(billNo[0]);\
-//         app.RELEASE_NO.focus();\
-//         app.DEPT_ID.focus();\
-//         app.MANNUM.focus();\
-//         app.MANHOUR.focus();\
-//         app.MACHINEHOUR.focus();\
-//         app.PIECES.focus();\
-//         app.WORKDATE.focus();\
-//         app.WORKDATE.setValue(new Date());\
-//         app.MACHINE.focus();\
-//         truckWin.mon(truckWin, 'ok', function() {\
-//           Wb.request({\
-//             url: 'm?xwl=MiscellJob/bluk/PortCntr/BulkEdit/setTruck',\
-//             params: {\
-//               billIds: billIds,\
-//               TRUCKNO: app.TRUCKNO.getValue(),\
-//               outNum: outNum,\
-//               RELEASE_NO: app.RELEASE_NO.getValue(),\
-//               DEPT_ID: app.DEPT_ID.getValue(),\
-//               MANNUM: app.MANNUM.getValue(),\
-//               MANHOUR: app.MANHOUR.getValue(),\
-//               MACHINEHOUR: app.MACHINEHOUR.getValue(),\
-//               PIECES: app.PIECES.getValue(),\
-//               MACHINE: app.MACHINE.getValue(),\
-//               PID: pId,\
-//               BILLNO: billNo\
-//             },\
-//             success: function(resp) {\
-//               Wb.info(\"成功\");\
-//               app.findBtn.fireEvent('click');\
-//               truckWin.close();\
-//             }\
-//           });\
-//         });\
-//       } else\
-//         Wb.warn(state);\
-//           ////\
-//         }\
-//       });\
-//     } else if (p1 == '4002') { //搬移\
+        truckWin.show();\
+        app.TRUCKNO.focus();\
+        app.billIdss.setValue(billNo[0]);\
+        app.RELEASE_NO.focus();\
+        app.DEPT_ID.focus();\
+        app.MANNUM.focus();\
+        app.MANHOUR.focus();\
+        app.MACHINEHOUR.focus();\
+        app.PIECES.focus();\
+        app.WORKDATE.focus();\
+        app.WORKDATE.setValue(new Date());\
+        app.MACHINE.focus();\
+        truckWin.mon(truckWin, 'ok', function() {\
+          Wb.request({\
+            url: 'm?xwl=MiscellJob/bluk/PortCntr/BulkEdit/setTruck',\
+            params: {\
+              billIds: billIds,\
+              TRUCKNO: app.TRUCKNO.getValue(),\
+              outNum: outNum,\
+              RELEASE_NO: app.RELEASE_NO.getValue(),\
+              DEPT_ID: app.DEPT_ID.getValue(),\
+              MANNUM: app.MANNUM.getValue(),\
+              MANHOUR: app.MANHOUR.getValue(),\
+              MACHINEHOUR: app.MACHINEHOUR.getValue(),\
+              PIECES: app.PIECES.getValue(),\
+              MACHINE: app.MACHINE.getValue(),\
+              PID: pId,\
+              BILLNO: billNo\
+            },\
+            success: function(resp) {\
+              Wb.info(\"成功\");\
+              app.findBtn.fireEvent('click');\
+              truckWin.close();\
+            }\
+          });\
+        });\
+      } else\
+        Wb.warn(state);\
+          ////\
+        }\
+      });\
+    } else if (p1 == '4002') { //搬移\
+      console.log(Wb.getSupcanMelu(s, \"LOCATION\", false));\
 //       var banWin = new Ext.window.Window(app._banWin); //app._win指向配置对象而非实例\
 //       banWin.show();\
 //       app.NEW_POS.focus();\
@@ -602,40 +603,40 @@ window[\"init\" + opt] = function(id) {\
 //         });\
 //       });\
 \
-//     } else if (p1 == '4003') { //扣留\
+    } else if (p1 == '4003') { //扣留\
 \
 \
-//       var klWin = new Ext.window.Window(app._klWin); //app._win指向配置对象而非实例\
-//       klWin.show();\
-//       app.CFS_ID.setValue('扣留仓');\
-//       app.INQUTY.setValue(Wb.getSupcanMelu(s, \"QUTY\", false));\
-//        app.CFS_ID.focus();\
-//       klWin.mon(klWin, 'ok', function() {\
-//         Wb.request({\
-//           url: 'm?xwl=MiscellJob/bluk/PortCntr/BulksomeEdit/setKouLiu',\
-//           params: {\
-//             billId: Wb.getSupcanMelu(s, \"BILL_ID\", false),\
-//             ID: Wb.getSupcanMelu(s, \"ID\", false)\
-//           },\
-//           out: klWin,\
-//           success: function(resp) {\
-//             Wb.info(\"成功\");\
-//             app.findBtn.fireEvent('click');\
-//             klWin.close();\
-//           }\
-//         });\
-//       });\
-//     } else if (p1 == '4004') {\
-//       app.banSelWin.show();\
-//       app.banGrid.store.load({\
-//         params: {\
-//           billId: Wb.getSupcanMelu(s, \"BILL_ID\", false)\
-//         }\
-//       });\
-//     }\
+      var klWin = new Ext.window.Window(app._klWin); //app._win指向配置对象而非实例\
+      klWin.show();\
+      app.CFS_ID.setValue('扣留仓');\
+      app.INQUTY.setValue(Wb.getSupcanMelu(s, \"QUTY\", false));\
+       app.CFS_ID.focus();\
+      klWin.mon(klWin, 'ok', function() {\
+        Wb.request({\
+          url: 'm?xwl=MiscellJob/bluk/PortCntr/BulksomeEdit/setKouLiu',\
+          params: {\
+            billId: Wb.getSupcanMelu(s, \"BILL_ID\", false),\
+            ID: Wb.getSupcanMelu(s, \"ID\", false)\
+          },\
+          out: klWin,\
+          success: function(resp) {\
+            Wb.info(\"成功\");\
+            app.findBtn.fireEvent('click');\
+            klWin.close();\
+          }\
+        });\
+      });\
+    } else if (p1 == '4004') {\
+      app.banSelWin.show();\
+      app.banGrid.store.load({\
+        params: {\
+          billId: Wb.getSupcanMelu(s, \"BILL_ID\", false)\
+        }\
+      });\
+    }\
 \
-//   }\
-// };"}
+  }\
+};"}
  }],
  "roles": {
   "JTLD": 1,
