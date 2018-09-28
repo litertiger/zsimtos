@@ -28,11 +28,8 @@ var Load = com.ag.edi.EdiDownLoad;\
 var jedis = com.ag.util.RedisUtil.getJedis();\
 var jsonStr = jedis.hgetAll(\"JT_CNTR_ISO_name\");\
 com.ag.util.RedisUtil.returnResource(jedis);\
-var now = \"\",\
-  now1 = \"\",\
-  desc = \"\",\
-  orderWeight = 0;\
-var VESSEL_CODE = app.get('VESSEL_CODE');\
+var now=\"\",now1=\"\",desc=\"\",orderWeight=0;\
+var VESSEL_CODE=app.get('VESSEL_CODE');\
 \
 var rs = app.run(\"select decode('\" + ieId + \"','I',LIB_VYG, LOB_VYG)voyageNo, to_char(sysdate,'yymmdd') NOW,to_char(nvl(ATA,ETA),'yymmdd') ETA, to_char(nvl(ATD,ETD),'yymmdd')   ETD, c.CALL_SIGN,\" +\
   \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where D.TENANCY_ID='\" + tenancy_id + \"' and  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"'\");\
@@ -42,8 +39,8 @@ if (rs.next()) {\
   eShipName = rs.getString(\"E_NAME\");\
   eta = rs.getString(\"ETA\");\
   callSign = rs.getString(\"CALL_SIGN\");\
-  now = rs.getString('NOW') + \"000000\";\
-  now1 = rs.getString('NOW');\
+  now=rs.getString('NOW')+\"000000\";\
+  now1=rs.getString('NOW');\
   //船长、船员、水手数量\
   var captain = \"\";\
   var crewer = \"\";\
@@ -83,7 +80,7 @@ var rsCntr = app.run(\"SELECT E_F_ID, SUM (1) cntrNUM \" +\
   \" FROM (SELECT   cntr, e_f_id \" +\
   \"         FROM vload_list \" +\
   \"        WHERE vid='\" + vId + \"'  and  i_E_ID='\" + ieId + \"'  and TENANCY_ID='\" + tenancy_id + \"'\" +\
-  \"          AND i_e_id = '\" + ieId + \"' \" +\
+  \"          AND i_e_id = '\"+ieId+\"' \" +\
   \"     GROUP BY cntr, e_f_id)  group by e_f_id \");\
 while (rsCntr.next()) {\
   if (rsCntr.getString(\"E_F_ID\") == 'E')\
@@ -104,24 +101,24 @@ var rs2 = app.run(\"select   cursor(select CNTR_SIZE,CNTR_TYPE,CNTR,CNTR_ISO ,SE
 \
 while (rs2.next()) {\
   j = 1;\
-  if (rs2.getString(\"BILL_TYPE\") == \"E\") {\
-    //   \tdesc=\"集装箱(5)\";\
-    orderWeight = 0;\
-  } else {\
-    //   \tdesc=\"其它(7)\";\
-    orderWeight = rs2.getString(\"WEIGHT\");\
+  if(rs2.getString(\"BILL_TYPE\")==\"E\"){\
+//   \tdesc=\"集装箱(5)\";\
+    orderWeight=0;\
+  }else{\
+//   \tdesc=\"其它(7)\";\
+    orderWeight=rs2.getString(\"WEIGHT\");\
   }\
-  //   if(rs2.getString(\"PKG\")==\"其他\"){\
-  //   \tdesc=rs2.getString(\"PKG\")+\"(7)\";\
-  //   }else if(rs2.getString(\"PKG\")==\"集装箱\"){\
-  //   \tdesc=rs2.getString(\"PKG\")+\"(5)\";\
-  //   }\
-  //   order += \"<ORDER>\" + callSign + \"||\" + voyageNo + \"||\" + cShipName + \"||\" + i + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + rs2.getString(\"CONSIGNEE\") + \"||\" + rs2.getString(\"SHIPPER\") + \"||\" +\
-  //     \"中山港||香港(110)||香港(110)||\" + eta + \"||\" + rs2.getString(\"GOODS_NOTES\") + \"||\" + rs2.getString(\"PIECES\") + \"|| 集装箱(5) ||\" +\
-  //     rs2.getString(\"VOLUME\") + \"||\" + rs2.getString(\"MARKS\") + \"||\" + rs2.getString(\"QUANTITY\") + \"||\" + rs2.getString(\"WEIGHT\") + \" \\r\\
+//   if(rs2.getString(\"PKG\")==\"其他\"){\
+//   \tdesc=rs2.getString(\"PKG\")+\"(7)\";\
+//   }else if(rs2.getString(\"PKG\")==\"集装箱\"){\
+//   \tdesc=rs2.getString(\"PKG\")+\"(5)\";\
+//   }\
+//   order += \"<ORDER>\" + callSign + \"||\" + voyageNo + \"||\" + cShipName + \"||\" + i + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + rs2.getString(\"CONSIGNEE\") + \"||\" + rs2.getString(\"SHIPPER\") + \"||\" +\
+//     \"中山港||香港(110)||香港(110)||\" + eta + \"||\" + rs2.getString(\"GOODS_NOTES\") + \"||\" + rs2.getString(\"PIECES\") + \"|| 集装箱(5) ||\" +\
+//     rs2.getString(\"VOLUME\") + \"||\" + rs2.getString(\"MARKS\") + \"||\" + rs2.getString(\"QUANTITY\") + \"||\" + rs2.getString(\"WEIGHT\") + \" \\r\\
 \";\
   order += \"<ORDER>\" + callSign + \"||\" + now + \"||\" + cShipName + \"||\" + i + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + rs2.getString(\"CONSIGNEE\") + \"||\" + rs2.getString(\"SHIPPER\") + \"||\" +\
-    \"中山港码头(5721)||\" + rs2.getString(\"POL\") + \"||\" + rs2.getString(\"POL\") + \"||\" + now1 + \"||\" + rs2.getString(\"GOODS_NOTES\") + \"||\" + rs2.getString(\"PIECES\") + \"||集装箱(5)||\" +\
+    \"中山港码头(5721)||\"+rs2.getString(\"POL\")+\"||\"+rs2.getString(\"POL\")+\"||\" + now1 + \"||\" + rs2.getString(\"GOODS_NOTES\") + \"||\" + rs2.getString(\"PIECES\") + \"||集装箱(5)||\" +\
     rs2.getString(\"VOLUME\") + \"||\" + rs2.getString(\"MARKS\") + \"||\" + rs2.getString(\"QUANTITY\") + \"||\" + orderWeight + \" \\r\\
 \";\
   pieces += rs2.getInt(\"PIECES\");\
@@ -133,12 +130,12 @@ while (rs2.next()) {\
     var sealNo = \"\";\
     name = rm.getString(\"CNTR_SIZE\");\
     sealNo = rm.getString(\"SEAL_NO\");\
-    if (rs2.getString(\"BILL_TYPES\") == \"P\") {\
-      sealNo += \"拼\";\
-      name += \"拼\";\
+    if(rs2.getString(\"BILL_TYPES\")==\"P\"){\
+      sealNo+=\"拼\";\
+    \tname+=\"拼\";\
     }\
-    if (sealNo == null) {\
-      sealNo = \"\";\
+    if(sealNo==null){\
+    \tsealNo=\"\";\
     }\
     order += \"<CONTA>\" + callSign + \"||\" + now + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + j + \"||\" + rm.getString(\"CNTR\") + \"||\" +\
       name + \"||\" + sealNo + \"<\/CONTA>\\r\\
@@ -150,16 +147,16 @@ while (rs2.next()) {\
 \";\
 }\
 \
-var num = Wb.getRecords(app.run(\"select * from VBILL_HEAD WHERE vid='\" + vId + \"' and PHASE<>'9' and TRADE_ID='\" + tradeId + \"' AND I_E_ID='\" + ieId + \"' and ( main_flag=1 or lCL_ID=1 )\"));\
-head += callSign + \"||\" + voyageNo + \"||\" + cShipName + \"||\" + eShipName + \"||\" + Fcntr + \"||\" + Ecntr + \"||\" + weight + '.00' + \"||\" + pieces + \"||\" + num.length + \"||\" + eta + \"||\" + eta + \"||江海运输(2)\" +\
-  \"||\" + gq + \"||\" + captain + \"||\" + crewer + \"||\" + voyageNo + \"||\" + gq1 + \"<\/HEAD>\\r\\
+var num=Wb.getRecords(app.run(\"select * from VBILL_HEAD WHERE vid='\"+vId+\"' and PHASE<>'9' and TRADE_ID='\" + tradeId + \"' AND I_E_ID='\" + ieId + \"' and ( main_flag=1 or lCL_ID=1 )\"));\
+head += callSign + \"||\" + voyageNo + \"||\" + cShipName + \"||\" + eShipName + \"||\" + Fcntr + \"||\" + Ecntr + \"||\" + weight+'.00' + \"||\" + pieces + \"||\" + num.length + \"||\" + eta + \"||\" + eta + \"||江海运输(2)\" +\
+  \"||\" + gq + \"||\"+captain+\"||\"+crewer+\"||\" + voyageNo + \"||\" + gq1 + \"<\/HEAD>\\r\\
 \";\
 app.log(head);\
 \
-request.setAttribute(\"fileName\", voyageNo + now1 + VESSEL_CODE);\
+request.setAttribute(\"fileName\", voyageNo+now1+VESSEL_CODE);\
 request.setAttribute(\"message\", head + order + crew + \"<\/CABIN>\");\
 request.setAttribute(\"suffix\", '');\
-Load.downloadGb2312(request, response, \"gbk\");"
+Load.downloadGb2312(request, response,\"gbk\");"
   },
   "expanded": false,
   "children": [],
