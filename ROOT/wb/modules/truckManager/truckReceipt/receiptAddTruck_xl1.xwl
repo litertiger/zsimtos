@@ -523,6 +523,7 @@ Wb.request({\
       "configs": {
        "tagConfigs": "matchFieldWidth: false",
        "hideTrigger": "true",
+       "allowBlank": "false",
        "itemId": "SHIP_CONSIGN_COD",
        "labelAlign": "right",
        "fieldLabel": "货主",
@@ -549,8 +550,8 @@ Wb.request({\
       "type": "combo",
       "events": {
        "select": "app.SHIPPER_CONSIGNEE.setValue(combo.getRawValue());",
-       "change": "if (Wb.isEmpty(newValue))\
-  app.SHIPPER_CONSIGNEE.setValue('');"
+       "change": "// if (Wb.isEmpty(newValue))\
+//   app.SHIPPER_CONSIGNEE.setValue('');"
       }
      },
      {
@@ -2242,7 +2243,15 @@ ids = ids.substring(0, ids.length - 1);\
 var win = new Ext.window.Window(app._winUpd);\
 win.show();\
 app.idsupd.setValue(ids);\
-app.PLAN_STIME.setValue(sels[0].data.PLAN_STIME);"}
+app.PLAN_STIME.setValue(sels[0].data.PLAN_STIME);\
+//货主赋值\
+Wb.loadComboAdd(app.SHIP_CONSIGN_COD, [{\
+  \"ID\": sels[0].data.SHIP_CONSIGN_COD,\
+  \"CNAME\": sels[0].data.SHIPPER_CONSIGNEE\
+}], function() {\
+  app.SHIP_CONSIGN_COD.setValue(sels[0].data.SHIP_CONSIGN_COD);\
+  app.SHIPPER_CONSIGNEE.setValue(sels[0].data.SHIPPER_CONSIGNEE);\
+});"}
          },
          {
           "configs": {
