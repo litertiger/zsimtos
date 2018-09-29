@@ -280,7 +280,7 @@ Wb.sync({\
      "title": "吊箱费录入",
      "height": "160"
     },
-    "expanded": true,
+    "expanded": false,
     "children": [
      {
       "configs": {
@@ -428,7 +428,76 @@ app.AMOUNT.setValue(a * b);"}
      "title": "修改车队",
      "height": "100"
     },
-    "expanded": false,
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "ids",
+       "hidden": "true",
+       "labelAlign": "right",
+       "fieldLabel": "RID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "UP_CAR_TEAM",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "车队",
+       "displayField": "CNAME",
+       "valueField": "ID",
+       "forceSelection": "true"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "pageSize": "-1",
+        "url": "m?xwl=receiptInout/receipt/receiptedit/selectCarTeam"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      }],
+      "type": "combo"
+     }
+    ],
+    "type": "window",
+    "events": {"ok": "if (!Wb.verify(app.UP_CAR_TEAM))\
+  return;\
+Wb.request({\
+  url: \"m?xwl=truckManager/truckReceipt/receiptAddTruckedit/updcarteam\",\
+  params: {\
+    ids: app.ids.getValue(),\
+    car_team: app.UP_CAR_TEAM.getValue()\
+  },\
+  success: function(resp) {\
+    Wb.info(\"修改完成\");\
+    app.winCar_team.close();\
+    app.searchRBtn.fireEvent(\"click\");\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winSHIPPER_CONSIGNEE",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 60,\
+  width: 300,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "width": "360",
+     "title": "修改货主",
+     "height": "100"
+    },
+    "expanded": true,
     "children": [
      {
       "configs": {
@@ -2170,6 +2239,25 @@ Wb.confirm(\"确认取消操作\", function() {\
           "children": [],
           "type": "item",
           "events": {"click": "var sels = app.gridReceipt.getSelection();\
+var ids = \"\";\
+Wb.each(sels, function(sel) {\
+  ids += \"'\" + sel.data.ID + \"',\";\
+});\
+ids = ids.substring(0, ids.length - 1);\
+var win = new Ext.window.Window(app._winCar_team);\
+win.show();\
+app.ids.setValue(ids);"}
+         },
+         {
+          "configs": {
+           "itemId": "popupSHIPPER_CONSIGNEE",
+           "text": "修改货主",
+           "iconCls": "anonymous_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sel = app.gridReceipt.getSelection()[0];\
 var ids = \"\";\
 Wb.each(sels, function(sel) {\
   ids += \"'\" + sel.data.ID + \"',\";\
