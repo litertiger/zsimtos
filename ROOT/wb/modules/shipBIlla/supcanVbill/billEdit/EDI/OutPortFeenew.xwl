@@ -92,21 +92,24 @@ while (rsCntr.next()) {\
   else if (rsCntr.getString(\"E_F_ID\") == 'F')\
     Fcntr = rsCntr.getInt(\"CNTRNUM\");\
 }\
-app.log(Fcntr);\
-app.log(Ecntr);\
+// app.log(Fcntr);\
+// app.log(Ecntr);\
+var billNonew=\"\";\
 \
 var rs2 = app.run(\"select    CNTR_SIZE,CNTR_TYPE,CNTR,CNTR_ISO ,SEAL_NO ,decode(d.lcl_id,1,'7', decode(d.E_F_ID ,'E','6','8')) E_F_ID    ,\" +\
   \" M.BILL_NO,SHIPPER ,CONSIGNEE ,M.CNTR_OPERATOR,M.POL,(select min(PORT_NAME||'('||HG_COD||')')  from  c_port where  ID=M.POD or PORT_NAME=m.POD )POD,  M.SPOD,M.GOODS_NOTES ,M.PIECES ,to_char(sysdate,'yyyymmddHHmiss') LOADTIME, to_char(sysdate+1,'yymmdd') DESTIME,\" +\
   \" PKG ,nvl(M.VOLUME,0) VOLUME,nvl(MARKS,'N/M') MARKS,QUANTITY ,M.WEIGHT,NOTIFIER,decode(BILL_TYPE,'P','F','C','F',BILL_TYPE) BILL_TYPE,BILL_TYPE BILL_TYPES ,LOADING_TIME,PAYER\" +\
   \" from  VBILL_HEAD M,VLOAD_LIST D   where  M.ID=D.BILL_ID  and  (( nvl(zf_id,0)=0)  or (zf_id=1 and m.main_flag=0)) and M.VID='\" + vId + \"' AND M.PHASE<>'9' and M.TRADE_ID='\" + tradeId + \"' AND M.I_E_ID='\" + ieId + \"' order by BILL_NO,cntr asc\");\
 while (rs2.next()) {\
-  j = 1;\
+  \
   //描述提单的类型\
   if (rs2.getString(\"BILL_TYPE\") == 'E') {\
     desc = \"集装箱(5)\";\
   } else {\
     desc = \"其它(7)\";\
   }\
+  if (billNonew==\"\"||billNonew!=rs.getString(\"BILL_NO\")){\
+      j = 1;\
   order += \"<ORDER>\" + callSign + \"||\" + now + \"||\" + cShipName + \"||\" + i + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + rs2.getString(\"SHIPPER\") + \"||\" + rs2.getString(\"CONSIGNEE\") + \"||\" +\
     \"\"+rs2.getString(\"POD\")+\"||中山(5721)||中山港码头(5721)||\" + now1 + \"||\" + rs2.getString(\"GOODS_NOTES\").replace('\\r','').replace('\\
 ','') + \"||\" + rs2.getString(\"PIECES\") + \"||\"+desc+\"||\" +\
@@ -116,12 +119,11 @@ while (rs2.next()) {\
   if (rs2.getString(\"BILL_TYPE\") != \"E\")\
     weight += rs2.getInt(\"WEIGHT\");\
 \
-  var rm = rs2.getObject(1);\
-  while (rm.next()) {\
+  \
     var name = \"\";\
     var sealNo = \"\";\
-    name = rm.getString(\"CNTR_SIZE\");\
-    sealNo = rm.getString(\"SEAL_NO\");\
+    name = rs2.getString(\"CNTR_SIZE\");\
+    sealNo = rs2.getString(\"SEAL_NO\");\
     if (sealNo == null) {\
       sealNo = \"\";\
     }\
@@ -130,16 +132,22 @@ while (rs2.next()) {\
       name += \"拼\";\
     }\
 \
-    order += \"<CONTA>\" + callSign + \"||\" + now + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + j + \"||\" + rm.getString(\"CNTR\") + \"||\" +\
+   \
+\
+ \
+  }\
+   order += \"<CONTA>\" + callSign + \"||\" + now + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + j + \"||\" + rs2.getString(\"CNTR\") + \"||\" +\
       name + \"||\" + sealNo + \"<\/CONTA>\\r\\
 \";\
     j++;\
-  }\
-  i++;\
-  order += \"<\/ORDER>\\r\\
+   if (billNonew!=rs.getString(\"BILL_NO\")){\
+    order += \"<\/ORDER>\\r\\
 \";\
-}\
+   }\
 \
+}\
+order += \"<\/ORDER>\\r\\
+\";\
 var cntrNum = Wb.getRecords(app.run(\"select   \" +\
   \" BILL_NO,SHIPPER ,CONSIGNEE ,CNTR_OPERATOR,POL,POD,  SPOD,GOODS_NOTES ,PIECES ,to_char(sysdate,'yyyymmddHHmiss') LOADTIME, to_char(sysdate+1,'yymmdd') DESTIME,\" +\
   \" PKG ,VOLUME,nvl(MARKS,'N/M') MARKS,QUANTITY ,WEIGHT,NOTIFIER,decode(BILL_TYPE,'P','F','C','F',BILL_TYPE) BILL_TYPE,BILL_TYPE BILL_TYPES ,LOADING_TIME,PAYER\" +\
