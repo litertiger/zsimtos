@@ -101,14 +101,17 @@ var rs2 = app.run(\"select    CNTR_SIZE,CNTR_TYPE,CNTR,CNTR_ISO ,SEAL_NO ,decode
   \" PKG ,nvl(M.VOLUME,0) VOLUME,nvl(MARKS,'N/M') MARKS,QUANTITY ,M.WEIGHT,NOTIFIER,decode(BILL_TYPE,'P','F','C','F',BILL_TYPE) BILL_TYPE,BILL_TYPE BILL_TYPES ,LOADING_TIME,PAYER\" +\
   \" from  VBILL_HEAD M,VLOAD_LIST D   where  M.ID=D.BILL_ID  and  (( nvl(zf_id,0)=0)  or (zf_id=1 and m.main_flag=0)) and M.VID='\" + vId + \"' AND M.PHASE<>'9' and M.TRADE_ID='\" + tradeId + \"' AND M.I_E_ID='\" + ieId + \"' order by BILL_NO,cntr asc\");\
 while (rs2.next()) {\
-  \
+     if (billNonew!=\"\"&&billNonew!=rs2.getString(\"BILL_NO\")){\
+    order += \"<\/ORDER>\\r\\
+\";\
+   }\
   //描述提单的类型\
   if (rs2.getString(\"BILL_TYPE\") == 'E') {\
     desc = \"集装箱(5)\";\
   } else {\
     desc = \"其它(7)\";\
   }\
-  if (billNonew==\"\"||billNonew!=rs.getString(\"BILL_NO\")){\
+  if (billNonew==\"\"||billNonew!=rs2.getString(\"BILL_NO\")){\
       j = 1;\
   order += \"<ORDER>\" + callSign + \"||\" + now + \"||\" + cShipName + \"||\" + i + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + rs2.getString(\"SHIPPER\") + \"||\" + rs2.getString(\"CONSIGNEE\") + \"||\" +\
     \"\"+rs2.getString(\"POD\")+\"||中山(5721)||中山港码头(5721)||\" + now1 + \"||\" + rs2.getString(\"GOODS_NOTES\").replace('\\r','').replace('\\
@@ -140,10 +143,8 @@ while (rs2.next()) {\
       name + \"||\" + sealNo + \"<\/CONTA>\\r\\
 \";\
     j++;\
-   if (billNonew!=rs.getString(\"BILL_NO\")){\
-    order += \"<\/ORDER>\\r\\
-\";\
-   }\
+\
+  billNonew=rs2.getString(\"BILL_NO\");\
 \
 }\
 order += \"<\/ORDER>\\r\\
