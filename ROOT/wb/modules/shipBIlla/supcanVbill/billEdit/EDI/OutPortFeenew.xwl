@@ -1,0 +1,175 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "//传入的内外贸和进出口\
+var vId = app.get(\"vId\"),\
+  ieId = app.get(\"ieId\"),\
+  tenancy_id = app.get(\"sys.TENANCY_ID\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  govCode = app.get(\"sys.GOV_CODE\"),\
+  tradeId = app.get(\"tradeId\"),\
+  gq = \"\",\
+  gq1 = \"\",\
+  gq2 = \"\",\
+  Ecntr = 0,\
+  Fcntr = 0,\
+  pieces = 0,\
+  weight = 0,\
+  count = 0;\
+// var voyageNo, cShipName, eShipName, head = \"<VERSION>4.0<\/VERSION><I_E_FLAG>E<\/I_E_FLAG><CABIN><HEAD>\",\
+var voyageNo, cShipName, eShipName, head = \"<CABIN>\\r\\
+<HEAD>\",\
+  order = \"\",\
+  i = 1,\
+  j = 1,\
+  eta, crew = \"\",\
+  now = \"\";\
+var desc = \"\";\
+var Load = com.ag.edi.EdiDownLoad;\
+var jedis = com.ag.util.RedisUtil.getJedis();\
+var jsonStr = jedis.hgetAll(\"JT_CNTR_ISO_name\");\
+com.ag.util.RedisUtil.returnResource(jedis);\
+var now1 = \"\",\
+  desc = \"\";\
+var VESSEL_CODE = app.get('VESSEL_CODE');\
+\
+var rs = app.run(\"select decode('\" + ieId + \"','E',LOB_VYG,LIB_VYG)voyageNo, to_char(sysdate,'yymmdd') NOW,to_char(nvl(ATA,ETA),'yymmdd') ETA, to_char(nvl(ATD,ETD),'yymmdd')   ETD, c.CALL_SIGN,\" +\
+  \" C.VESSEL_NAME, C.E_NAME from VESSEL_VISIT D,VESSEL_VOYAGE M ,C_VESSEL_CODE C where D.TENANCY_ID='\" + tenancy_id + \"' and  c.ID= m.VESSEL_CODE  and   M.ID=D.VID and D.ID='\" + vId + \"'\");\
+if (rs.next()) {\
+  voyageNo = rs.getString(\"VOYAGENO\");\
+  cShipName = rs.getString(\"VESSEL_NAME\");\
+  eShipName = rs.getString(\"E_NAME\");\
+  eta = rs.getString(\"ETA\");\
+  callSign = rs.getString(\"CALL_SIGN\");\
+  now = rs.getString('NOW') + \"000000\";\
+  now1 = rs.getString('NOW');\
+  //船长、船员、水手数量\
+  var captain = \"\";\
+  var crewer = \"\";\
+  var seaman = 0;\
+  var r3 = app.run(\"select NAME,D.DUTY,decode(SEX,'男','1','女','2') SEX,to_char(BIRTHDAY,'yymmdd') BIRTHDAY,TELPHONE ,CYZH  from  VOYAGE_CREW M,C_CREW D where  M.CID=D.ID and M.VID=\" +\
+    \"'\" + vId + \"'  ORDER BY cast(D.DUTY as int) ASC,NAME ASC\");\
+  while (r3.next()) {\
+    crew += \"<CREW>\" + callSign + \"||\" + voyageNo + \"||\" + r3.getString(\"NAME\") + \"||CHN||\" + r3.getString(\"SEX\") + \"||\" + r3.getString(\"CYZH\") + \"||17||\" +\
+      r3.getString(\"BIRTHDAY\") + \"||\" + r3.getString(\"DUTY\") + \"||\" + r3.getString(\"TELPHONE\") + \"<CREW>\\r\\
+\";\
+    count++;\
+    if (r3.getString(\"DUTY\") == \"1\") {\
+      captain = r3.getString(\"NAME\");\
+    } else {\
+      crewer += r3.getString(\"NAME\") + \"**\";\
+      if (r3.getString(\"DUTY\") == \"11\" || r3.getString(\"DUTY\") == \"12\" || r3.getString(\"DUTY\") == \"13\")\
+        seaman += 1;\
+    }\
+  }\
+  crewer = crewer.substring(0, crewer.length - 2);\
+  if (tenancy_id == \"ZSG\") {\
+    gq = \"中山海关(5721)\";\
+    gq1 = \"中山港(5721)******\";\
+    gq2 = \"CNZSN/中山港(5721)\";\
+  } else if (tenancy_id == \"XLG\") {\
+    gq = \"小榄海关(5727)\";\
+    gq1 = \"小榄港(5727)******\";\
+    gq2 = \"CNXLN/小榄港(5727)\";\
+  } else if (tenancy_id == \"SWG\") {\
+    gq = \"神湾海关(5728)\";\
+    gq1 = \"神湾港(5728)******\";\
+    gq2 = \"CNZSN/神湾港(5728)\";\
+  }\
+\
+}\
+var rsCntr = app.run(\"SELECT E_F_ID, SUM (1) cntrNUM \" +\
+  \" FROM (SELECT   cntr, e_f_id \" +\
+  \"         FROM vload_list \" +\
+  \"        WHERE vid='\" + vId + \"'  and  i_E_ID='\" + ieId + \"' and main_flag=1  and phase='2'  and TENANCY_ID='\" + tenancy_id + \"'\" +\
+  \"          AND i_e_id = '\" + ieId + \"' \" +\
+  \"     GROUP BY cntr, e_f_id)  group by e_f_id \");\
+while (rsCntr.next()) {\
+  if (rsCntr.getString(\"E_F_ID\") == 'E')\
+    Ecntr = rsCntr.getInt(\"CNTRNUM\");\
+  else if (rsCntr.getString(\"E_F_ID\") == 'F')\
+    Fcntr = rsCntr.getInt(\"CNTRNUM\");\
+}\
+app.log(Fcntr);\
+app.log(Ecntr);\
+\
+var rs2 = app.run(\"select    CNTR_SIZE,CNTR_TYPE,CNTR,CNTR_ISO ,SEAL_NO ,decode(d.lcl_id,1,'7', decode(d.E_F_ID ,'E','6','8')) E_F_ID    ,\" +\
+  \" M.BILL_NO,SHIPPER ,CONSIGNEE ,M.CNTR_OPERATOR,M.POL,(select min(PORT_NAME||'('||HG_COD||')')  from  c_port where  ID=M.POD or PORT_NAME=m.POD )POD,  M.SPOD,M.GOODS_NOTES ,M.PIECES ,to_char(sysdate,'yyyymmddHHmiss') LOADTIME, to_char(sysdate+1,'yymmdd') DESTIME,\" +\
+  \" PKG ,nvl(M.VOLUME,0) VOLUME,nvl(MARKS,'N/M') MARKS,QUANTITY ,M.WEIGHT,NOTIFIER,decode(BILL_TYPE,'P','F','C','F',BILL_TYPE) BILL_TYPE,BILL_TYPE BILL_TYPES ,LOADING_TIME,PAYER\" +\
+  \" from  VBILL_HEAD M,VLOAD_LIST D   where  M.ID=D.BILL_ID  and  (( nvl(zf_id,0)=0)  or (zf_id=1 and m.main_flag=0)) and M.VID='\" + vId + \"' AND M.PHASE<>'9' and M.TRADE_ID='\" + tradeId + \"' AND M.I_E_ID='\" + ieId + \"' order by BILL_NO,cntr asc\");\
+while (rs2.next()) {\
+  j = 1;\
+  //描述提单的类型\
+  if (rs2.getString(\"BILL_TYPE\") == 'E') {\
+    desc = \"集装箱(5)\";\
+  } else {\
+    desc = \"其它(7)\";\
+  }\
+  order += \"<ORDER>\" + callSign + \"||\" + now + \"||\" + cShipName + \"||\" + i + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + rs2.getString(\"SHIPPER\") + \"||\" + rs2.getString(\"CONSIGNEE\") + \"||\" +\
+    \"\"+rs2.getString(\"POD\")+\"||中山(5721)||中山港码头(5721)||\" + now1 + \"||\" + rs2.getString(\"GOODS_NOTES\").replace('\\r','').replace('\\
+','') + \"||\" + rs2.getString(\"PIECES\") + \"||\"+desc+\"||\" +\
+    rs2.getString(\"VOLUME\") + \"||\" + rs2.getString(\"MARKS\") + \"||\" + rs2.getString(\"QUANTITY\") + \"||\" + rs2.getString(\"WEIGHT\") + \" \\r\\
+\";\
+  pieces += rs2.getInt(\"PIECES\");\
+  if (rs2.getString(\"BILL_TYPE\") != \"E\")\
+    weight += rs2.getInt(\"WEIGHT\");\
+\
+  var rm = rs2.getObject(1);\
+  while (rm.next()) {\
+    var name = \"\";\
+    var sealNo = \"\";\
+    name = rm.getString(\"CNTR_SIZE\");\
+    sealNo = rm.getString(\"SEAL_NO\");\
+    if (sealNo == null) {\
+      sealNo = \"\";\
+    }\
+    if (rs2.getString(\"BILL_TYPES\") == \"P\") {\
+      sealNo += \"拼\";\
+      name += \"拼\";\
+    }\
+\
+    order += \"<CONTA>\" + callSign + \"||\" + now + \"||\" + rs2.getString(\"BILL_NO\") + \"||\" + j + \"||\" + rm.getString(\"CNTR\") + \"||\" +\
+      name + \"||\" + sealNo + \"<\/CONTA>\\r\\
+\";\
+    j++;\
+  }\
+  i++;\
+  order += \"<\/ORDER>\\r\\
+\";\
+}\
+\
+var cntrNum = Wb.getRecords(app.run(\"select   \" +\
+  \" BILL_NO,SHIPPER ,CONSIGNEE ,CNTR_OPERATOR,POL,POD,  SPOD,GOODS_NOTES ,PIECES ,to_char(sysdate,'yyyymmddHHmiss') LOADTIME, to_char(sysdate+1,'yymmdd') DESTIME,\" +\
+  \" PKG ,VOLUME,nvl(MARKS,'N/M') MARKS,QUANTITY ,WEIGHT,NOTIFIER,decode(BILL_TYPE,'P','F','C','F',BILL_TYPE) BILL_TYPE,BILL_TYPE BILL_TYPES ,LOADING_TIME,PAYER\" +\
+  \" from  VBILL_HEAD M  where  main_flag=1 and M.VID='\" + vId + \"' AND M.PHASE<>'9' and M.TRADE_ID='\" + tradeId + \"' AND M.I_E_ID='\" + ieId + \"' order by BILL_NO asc\"));\
+head += callSign + \"||\" + voyageNo + \"||\" + cShipName + \"||\" + eShipName + \"||\" + Fcntr + \"||\" + Ecntr + \"||\" + weight + '.00' + \"||\" + pieces + \"||\" + cntrNum.length + \"||\" + eta + \"||\" + eta + \"||江海运输(2)\" +\
+  \"||\" + gq + \"||\" + captain + \"||\" + crewer + \"||\" + voyageNo + \"||\" + gq1 + \"<\/HEAD>\\r\\
+\";\
+\
+\
+request.setAttribute(\"fileName\", voyageNo + now1 + VESSEL_CODE);\
+request.setAttribute(\"message\", head + order + crew + \"<\/CABIN>\");\
+request.setAttribute(\"suffix\", '');\
+Load.downloadGb2312(request, response,\"gbk\");"
+  },
+  "expanded": false,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "SCANJB": 1,
+  "xlablh": 1,
+  "ZHBG": 1,
+  "DCXK": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "出口港建费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
