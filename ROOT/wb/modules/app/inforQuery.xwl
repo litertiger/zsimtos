@@ -1,0 +1,278 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "viewport1"},
+   "expanded": true,
+   "children": [
+    {
+     "configs": {"itemId": "container1"},
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar1",
+        "title": "箱号查询界面",
+        "docked": "top",
+        "titleAlign": "center"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "cfs",
+        "margin": "2px",
+        "keyName": "K",
+        "displayField": "V",
+        "label": "选择闸口",
+        "clearIcon": "false",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=GET_CFS"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tselect",
+       "events": {"change": "var s = select.getStore();\
+var r = s.findRecord('K', newValue);\
+if (r) {\
+  app.canInGate = r.data.M_IN;\
+  app.autoOutGate = r.data.M_OUT;\
+  app.cfsName = r.data.V;\
+  app.cfsCod = r.data.K;\
+}"}
+      },
+      {
+       "configs": {
+        "itemId": "find",
+        "xtype": "searchfield",
+        "label": "搜索",
+        "required": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext",
+       "events": {
+        "clearicontap": "app.CNTR.setValue('');\
+app.CNTR_SIZE.setValue('');\
+app.E_F_ID.setValue('');\
+app.IN_CAR.setValue('');\
+app.ID.setValue('');",
+        "action": "var cntr = app.find.getValue();\
+if (!cntr || cntr.length < 4)\
+  return Wb.error('至少录入四位数字');\
+Ext.Ajax.on('beforerequest', beforerequest);\
+app.listCntr.store.reload({\
+  params: {\
+    query: cntr\
+  },\
+  callback: function(records, operation, success) {\
+    if (success && records.length) {\
+      if (records.length > 1)\
+        app.viewport1.setActiveItem(app.selectCntr);\
+      else\
+        Wb.setValue(app.container1, records[0].data);\
+    } else\
+      Wb.error(\"未找到数据\");\
+  }\
+});"
+       }
+      },
+      {
+       "configs": {"itemId": "ID"},
+       "expanded": false,
+       "children": [],
+       "type": "thidden"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR",
+        "autoCapitalize": "true",
+        "readOnly": "true",
+        "label": "柜号"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "E_F_ID",
+        "autoCapitalize": "true",
+        "readOnly": "true",
+        "label": "吉重"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "IN_CAR",
+        "autoCapitalize": "true",
+        "readOnly": "true",
+        "label": "拖车"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "CNTR_SIZE",
+        "autoCapitalize": "true",
+        "readOnly": "true",
+        "label": "尺寸"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "ttext"
+      },
+      {
+       "configs": {
+        "itemId": "button1",
+        "text": "出闸确认"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "tbutton",
+       "events": {"tap": "var id = app.ID.getValue();\
+if (!id)\
+  return Wb.error('请先匹配完整柜号');\
+Wb.request({\
+  url: \"m?xwl=controlManage/task/worktaskcraneedit/outGate\",\
+  params: {\
+    id: id,\
+    cfs: app.cfsCod\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    if (result.success) {\
+      Wb.info('办理成功');\
+      app.find.setValue('');\
+      app.CNTR.setValue('');\
+      app.CNTR_SIZE.setValue('');\
+      app.E_F_ID.setValue('');\
+      app.IN_CAR.setValue('');\
+    } else\
+      Wb.error(result.errstr);\
+  }\
+});"}
+      }
+     ],
+     "type": "tcontainer"
+    },
+    {
+     "configs": {
+      "layout": "fit",
+      "itemId": "selectCntr",
+      "scrollable": "true"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "titlebar2",
+        "title": "请选择箱号",
+        "docked": "top"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "cancelBtn",
+         "text": "返回",
+         "align": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tbutton",
+        "events": {"tap": "app.viewport1.setActiveItem(app.container1);"}
+       }],
+       "type": "ttitlebar"
+      },
+      {
+       "configs": {
+        "itemId": "listCntr",
+        "itemTpl": "{CNTR} {?E_F_ID?} {?CNTR_SIZE?}{?IN_CAR?}"
+       },
+       "expanded": true,
+       "children": [{
+        "configs": {
+         "itemId": "store",
+         "url": "appFun?funId=GATE_OUT_CNTR"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tstore"
+       }],
+       "type": "tlist",
+       "events": {"select": "app.viewport1.setActiveItem(app.container1);\
+Wb.setValue(app.container1,record.data);"}
+      }
+     ],
+     "type": "tcontainer"
+    }
+   ],
+   "type": "tviewport"
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "Ext.Ajax.on('beforerequest', beforerequest);\
+app.cfs.getStore().load(function(records) {\
+  app.cfs.setValue('JGQ');\
+});",
+   "initialize": "var beforerequest = app.beforerequest = function(request, opt) {\
+  opt.success = translate;\
+  opt.failure = function() {\
+    Ext.Ajax.un('beforerequest', beforerequest);\
+  };\
+};\
+var translate = function(res) {\
+  Ext.Ajax.un('beforerequest', beforerequest);\
+  data = Ext.decode(res.responseText);\
+  if (data.success === false) {\
+    if (data.errstr === 'loginRequiered') {\
+      Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));\
+    } else if (data.errstr)\
+      Wb.error(data.errstr);\
+    else\
+      Wb.error('未知错误');\
+  }\
+  //处理Ag.getResultArray返回的数据\
+  if (data.cols)\
+    res.responseText = {\
+      success: true,\
+      metaData: {\
+        fields: data.cols\
+      },\
+      rows: Ext.Array.map(data.rows, function(r) {\
+        return data.cols.reduce(function(row, c, i) {\
+          row[c] = r[i];\
+          return row;\
+        }, {});\
+      })\
+    };\
+};\
+"
+  }
+ }],
+ "roles": {
+  "default": 1,
+  "ZSWNH": 1,
+  "YARDCTRL": 1
+ },
+ "title": "信息查询",
+ "iconCls": "search_icon",
+ "inframe": true,
+ "pageLink": ""
+}
