@@ -14,25 +14,36 @@ var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
 // }\
 if (!Wb.isEmpty(data.begdate)) {\
   var s=data.begdate;\
-  sql += \" and CREATED_ON>=to_date('\"+s.substring(0,10)+\" 00:00:00','yyyy-mm-dd hh24:mi:ss') \";\
+  sql += \" and TRANS_APPLY.CREATED_ON>=to_date('\"+s.substring(0,10)+\" 00:00:00','yyyy-mm-dd hh24:mi:ss') \";\
 }\
 if (!Wb.isEmpty(data.enddate)) {\
   var s=data.enddate;\
-  sql += \" and CREATED_ON<=to_date('\"+s.substring(0,10)+\" 23:59:59','yyyy-mm-dd hh24:mi:ss') \";\
+  sql += \" and TRANS_APPLY.CREATED_ON<=to_date('\"+s.substring(0,10)+\" 23:59:59','yyyy-mm-dd hh24:mi:ss') \";\
 //   sql += \" and trunc(CREATED_ON)<=trunc({?timestamp.enddate?}) \";\
 }\
 \
 if (!Wb.isEmpty(data.PHASE)) {\
   sql += \" and   PHASE={?PHASE?} \";\
 }\
-request.setAttribute('sql', sql);"
+\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD)) {\
+  sql += \" and   CNTR_OPERATOR_COD={?CNTR_OPERATOR_COD?} \";\
+}\
+if (!Wb.isEmpty(data.OWNER_COD)) {\
+  sql += \" and   DECODE(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD)={?OWNER_COD?} \";\
+}\
+\
+request.setAttribute('sql', sql);\
+\
+\
+// SELECT ID, TENANCY_ID, BILL_NO, CREATED_ON, CREATED_BY, CHECK_BY, CHECK_ON, CANCLE_BY, CANCLE_ON, PHASE FROM TRANS_APPLY\
+// WHERE TENANCY_ID='{sys.TENANCY_ID}' and BILL_NO LIKE '%'||{?name?}||'%'"
   },
   "expanded": true,
   "children": [{
    "configs": {
     "itemId": "dataprovider1",
-    "sql": "SELECT ID, TENANCY_ID, BILL_NO, CREATED_ON, CREATED_BY, CHECK_BY, CHECK_ON, CANCLE_BY, CANCLE_ON, PHASE FROM TRANS_APPLY\
-WHERE TENANCY_ID='{#sys.TENANCY_ID#}' and BILL_NO LIKE '%'||{?name?}||'%'\
+    "sql": "\
 \
 \
 SELECT TRANS_APPLY.ID,\
@@ -44,7 +55,9 @@ SELECT TRANS_APPLY.ID,\
        TRANS_APPLY.CHECK_ON,\
        TRANS_APPLY.CANCLE_BY,\
        TRANS_APPLY.CANCLE_ON,\
-       TRANS_APPLY.PHASE,DECODE(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD)\
+       TRANS_APPLY.PHASE,DECODE(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD) OWNER_COD,\
+\t(SELECT TO_CHAR(ETA,'YYYY-MM-DD HH24:MI') FROM VESSEL_VISIT WHERE ID=A.VID) ETA,\
+(SELECT QD_BY FROM BUZ_ORDER WHERE BILL_NO=TRANS_APPLY.BILL_NO) QD_BY\
   FROM TRANS_APPLY left join vbill_head a on a.bill_no=TRANS_APPLY.bill_no\
  WHERE     TRANS_APPLY.TENANCY_ID = '{#sys.TENANCY_ID#}'\
        AND TRANS_APPLY.BILL_NO LIKE '%' || {?name?} || '%'{#sql#}"
