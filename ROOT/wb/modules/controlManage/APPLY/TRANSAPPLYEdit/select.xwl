@@ -18,7 +18,7 @@ if (!Wb.isEmpty(data.begdate)) {\
 }\
 if (!Wb.isEmpty(data.enddate)) {\
   var s=data.enddate;\
-  sql += \" and CREATED_ON>=to_date('\"+s.substring(0,10)+\" 23:59:59','yyyy-mm-dd hh24:mi:ss') \";\
+  sql += \" and CREATED_ON<=to_date('\"+s.substring(0,10)+\" 23:59:59','yyyy-mm-dd hh24:mi:ss') \";\
 //   sql += \" and trunc(CREATED_ON)<=trunc({?timestamp.enddate?}) \";\
 }\
 \
@@ -32,7 +32,22 @@ request.setAttribute('sql', sql);"
    "configs": {
     "itemId": "dataprovider1",
     "sql": "SELECT ID, TENANCY_ID, BILL_NO, CREATED_ON, CREATED_BY, CHECK_BY, CHECK_ON, CANCLE_BY, CANCLE_ON, PHASE FROM TRANS_APPLY\
-WHERE TENANCY_ID='{#sys.TENANCY_ID#}' and BILL_NO LIKE '%'||{?name?}||'%'{#sql#}"
+WHERE TENANCY_ID='{#sys.TENANCY_ID#}' and BILL_NO LIKE '%'||{?name?}||'%'\
+\
+\
+SELECT TRANS_APPLY.ID,\
+       TRANS_APPLY.TENANCY_ID,\
+       TRANS_APPLY.BILL_NO,\
+       TRANS_APPLY.CREATED_ON,\
+       TRANS_APPLY.CREATED_BY,\
+       TRANS_APPLY.CHECK_BY,\
+       TRANS_APPLY.CHECK_ON,\
+       TRANS_APPLY.CANCLE_BY,\
+       TRANS_APPLY.CANCLE_ON,\
+       TRANS_APPLY.PHASE,DECODE(I_E_ID,'I',CONSIGNEE_COD,'E',SHIPPER_COD)\
+  FROM TRANS_APPLY left join vbill_head a on a.bill_no=TRANS_APPLY.bill_no\
+ WHERE     TRANS_APPLY.TENANCY_ID = '{#sys.TENANCY_ID#}'\
+       AND TRANS_APPLY.BILL_NO LIKE '%' || {?name?} || '%'{#sql#}"
    },
    "expanded": false,
    "children": [],
