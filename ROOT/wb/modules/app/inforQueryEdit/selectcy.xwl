@@ -1,0 +1,29 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "itemId": "dataprovider1",
+    "sql": "SELECT CNTR,DECODE(APPUNIT,'HG','海关','GJ','国检','HD','货代','其他')||'指令' APPUNIT,\
+decode(CHECKMANNER,'M','机查','H','人查','MH','机查转人查') CHECKMANNER,\
+case when PHASE='ATD' then '到达' else '未到达' end is_check,\
+case when PHASE='FIN' then '完成' else '未完成' end isc,\
+decode((select 1 from CUS_CHECKDETAIL where CHECKID=CUSM_CHECK.CHECKID and PROC_TYPE='MARK'),'1','装箱完成','装箱未完成') ISz,\
+decode((select 1 from port_cntr where id=CUSM_CHECK.cntr_id and instr(yard_position,'C')>0),'1','在查验仓','不在查验仓') isnot_check\
+ FROM CUSM_CHECK\
+where 1=1 and tenancy_id = 'ZSG' and CNTR ={?CNTR?}"
+   },
+   "expanded": false,
+   "children": [],
+   "type": "dataprovider"
+  }],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "查验信息",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
