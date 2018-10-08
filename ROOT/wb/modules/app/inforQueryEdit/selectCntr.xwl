@@ -1,16 +1,19 @@
 {
  "hidden": false,
  "children": [{
-  "configs": {"itemId": "module"},
+  "configs": {
+   "itemId": "module",
+   "loginRequired": "false"
+  },
   "expanded": true,
   "children": [{
    "configs": {
     "itemId": "dataprovider1",
-    "sql": "select p.*,max(to_char(R.GATEOUT_TIME_T,'yyyy-mm-dd hh24:mi')) GATEOUT_TIME_T,\
+    "sql": "select p.*,to_char(R.GATEOUT_TIME_T,'yyyy-mm-dd hh24:mi') GATEOUT_TIME_T,\
+decode(P.E_F_ID,'E','吉柜','F','重柜') E_F_ID,decode(P.I_E_ID,'E','出口','I','进口') I_E_ID,\
 case when p.phase='OUT' or(p.phase not in('ADV','ACT','DEP') and p.ARR_POSITION is null) then '闸外' else '闸内' end PHASE\
 from port_cntr p \
 left join receipt r on r.cntr_id=p.id\
-left join move_list m on m.cntr_id=p.id\
 where p.tenancy_id = '{#sys.TENANCY_ID#}' and p.cntr like '%'||{?CNTR?}||'%'"
    },
    "expanded": false,
