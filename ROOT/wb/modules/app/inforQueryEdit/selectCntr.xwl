@@ -6,7 +6,11 @@
   "children": [{
    "configs": {
     "itemId": "dataprovider1",
-    "sql": "select * from port_cntr where cntr like '%'||{?CNTR?}||'%'"
+    "sql": "select p.*,cntr,trunc(p.IN_PORT_TIME) IN_PORT_TIME,0 hx \
+from port_cntr p \
+left join cntr_apply_list al on al.cntr_id=p.id \
+left join cntr_apply a on a.id=al.aid \
+where p.tenancy_id = '{#sys.TENANCY_ID#}' and cntr like '%'||{?CNTR?}||'%' group by p.id,cntr,trunc(p.IN_PORT_TIME)"
    },
    "expanded": false,
    "children": [],
