@@ -9,10 +9,13 @@
   "children": [{
    "configs": {
     "itemId": "dataprovider1",
-    "sql": "SELECT CNTR,TO_CHAR(PC_ON,'YYYY-MM-DD HH24:MI:SS') PC_ON,IN_CAR_HP,IN_TRAY_NO,CAR_TEAM,IN_DRIVER_ID,CONTRACT_PHONE,\
+    "sql": "SELECT CREATED_ON,CNTR,TO_CHAR(PC_ON,'YYYY-MM-DD HH24:MI:SS') PC_ON,\
+IN_CAR_HP,\
+IN_TRAY_NO,(select nvl(SHORT_NAME,NAME) from c_customer where code=CAR_TEAM)CAR_TEAM,\
+(select DISPLAY_NAME from wb_user where USER_NAME=IN_DRIVER_ID) IN_DRIVER_ID,CONTRACT_PHONE,\
 to_char(GATEOUT_TIME_T,'yyyy-MM-dd hh24:mi:ss') GATEOUT_TIME_T,\
 to_char(GATEIN_TIME_S,'yyyy-MM-dd hh24:mi:ss') GATEIN_TIME_S\
-FROM RECEIPT \
+FROM RECEIPT\
 WHERE TENANCY_ID='ZSG' AND CNTR={?CNTR?} \
 ORDER BY CREATED_ON DESC"
    },
