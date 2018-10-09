@@ -137,16 +137,28 @@ Wb.request({\
     var result = Wb.decode(resp.responseText);\
     console.log(result);\
     if (result.success) {\
-      app.CNTR.setValue('');\
-      app.cntr2.setValue(result.rows[0].CNTR);\
-      app.PC_ON.setValue(result.rows[0].PC_ON);\
-      app.IN_CAR_HP.setValue(result.rows[0].IN_CAR_HP);\
-      app.IN_TRAY_NO.setValue(result.rows[0].IN_TRAY_NO);\
-      app.CAR_TEAM.setValue(result.rows[0].CAR_TEAM);\
-      app.IN_DRIVER_ID.setValue(result.rows[0].IN_DRIVER_ID);\
-      app.CONTRACT_PHONE.setValue(result.rows[0].CONTRACT_PHONE);\
-      app.GATEOUT_TIME_T.setValue(result.rows[0].GATEOUT_TIME_T);\
-      app.GATEIN_TIME_S.setValue(result.rows[0].GATEIN_TIME_S);\
+      if (result.rows.length > 0) {\
+        app.CNTR.setValue('');\
+        app.pod.setValue(result.rows[0].POD);\
+        app.pol.setValue(result.rows[0].POL);\
+        app.Idtime.setValue(result.rows[0].ETA);\
+        app.vesselname.setValue(result.rows[0].VESSEL_NAME);\
+        app.ibill_no.setValue(result.rows[0].BILL_NO);\
+        if (result.rows[0].I_E_ID == 'I') {\
+          app.Idtime.setFieldLabel('进口时间');\
+          app.vesselname.setFieldLabel('进口船名');\
+          app.ibill_no.setFieldLabel('进口提单号');\
+        } else {\
+          app.Idtime.setFieldLabel('出口时间');\
+          app.vesselname.setFieldLabel('出口船名');\
+          app.ibill_no.setFieldLabel('出口提单号');\
+        }\
+        app.cntr3.setValue(result.rows[0].CNTR);\
+        app.goodsnote.setValue(result.rows[0].GOODS_NOTES);\
+        app.pieces.setValue(result.rows[0].PIECES);\
+        app.weight.setValue(result.rows[0].WEIGHT);\
+        app.volume.setValue(result.rows[0].VOLUME);\
+      }\
     } else\
       Wb.error(result.errstr);\
   }\
@@ -477,7 +489,7 @@ Wb.request({\
        },
        {
         "configs": {
-         "itemId": "cntr",
+         "itemId": "cntr3",
          "autoCapitalize": "true",
          "readOnly": "true",
          "label": "柜号"
@@ -510,10 +522,10 @@ Wb.request({\
        },
        {
         "configs": {
-         "itemId": "cntr3",
+         "itemId": "weight",
          "autoCapitalize": "true",
          "readOnly": "true",
-         "label": "柜号"
+         "label": "重量"
         },
         "expanded": false,
         "children": [],
@@ -521,21 +533,10 @@ Wb.request({\
        },
        {
         "configs": {
-         "itemId": "cntr4",
+         "itemId": "volume",
          "autoCapitalize": "true",
          "readOnly": "true",
-         "label": "柜号"
-        },
-        "expanded": false,
-        "children": [],
-        "type": "ttext"
-       },
-       {
-        "configs": {
-         "itemId": "cntr5",
-         "autoCapitalize": "true",
-         "readOnly": "true",
-         "label": "柜号"
+         "label": "体积"
         },
         "expanded": false,
         "children": [],
