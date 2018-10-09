@@ -12,20 +12,21 @@ var receipts = Wb.getRecords(app.run(\"select cntr,account_customer_code,account
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"'\"));\
 Wb.each(receipts, function(receipt) {\
-  if (Wb.isEmpty(receipt.ACCOUNT_CUSTOMER_CODE)) { //计费对象为空\
+  if (Wb.isEmpty(receipt.CLIENT_TYPE)) { //计费对象为空\
     err += receipt.CNTE + \",\";\
   } else {\
     if (receipt.SHIPPER_WAY == '1') { //码头承运\
-      if (receipt.ACCOUNT_CUSTOMER.indexOf('TCL') != -1) {\
-        var ht = Wb.getRecords(app.get(\"select \"));\
-      } else if (receipt.ACCOUNT_CUSTOMER.indexOf('美的') != -1) {\
-\
-      } else {\
+      if (receipt.CLIENT_TYPE.indexOf('AG') != -1) {\
+        //         var ht = Wb.getRecords(app.get(\"select \"));\
+      } else { //计费对象为货主,查找货主合同\
 \
       }\
     }\
   }\
-});"
+});\
+if (err != \"设备交接单:\") {\
+  throw err + \"没有找到计费对象,请重新维护后在尝试计费\";\
+}"
   },
   "expanded": true,
   "children": [],
