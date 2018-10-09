@@ -6,11 +6,19 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
 var err = \"设备交接单:\";\
-var receipts = Wb.getRecords(app.run(\"select cntr,account_customer_code,account_customer,shipper_way,c.client_type\\
+var receipts = Wb.getRecords(app.run(\"select f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
+\" +\
+  \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),1,\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')-1),\\
+\" +\
+  \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')+1)\\
 \" +\
   \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
 \" +\
-  \"where r.tenancy_id='\" + tenancyid + \"'\"));\
+  \"where r.tenancy_id='\" + tenancyid + \"' and shipper_way=1 and trade_id='1' and trunc(created_on)=trunc(sysdate-1) and work_type<>'YOYI'\"));\
 Wb.each(receipts, function(receipt) {\
   if (Wb.isEmpty(receipt.CLIENT_TYPE)) { //计费对象为空\
     err += receipt.CNTE + \",\";\
