@@ -5,16 +5,24 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
-\
-var receipts = Wb.getRecords(app.run(\"select account_customer_code,account_customer,shipper_way from receipt where tenancy_id='\" + tenancyid + \"'\"));\
+var err = \"设备交接单:\";\
+var receipts = Wb.getRecords(app.run(\"select cntr,account_customer_code,account_customer,shipper_way,c.client_type\\
+\" +\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"'\"));\
 Wb.each(receipts, function(receipt) {\
-  if (receipt.SHIPPER_WAY == '1') { //码头承运\
-    if (receipt.ACCOUNT_CUSTOMER.indexOf('TCL') != -1) {\
-      var ht = Wb.getRecords(app.get(\"select \"));\
-    } else if (receipt.ACCOUNT_CUSTOMER.indexOf('美的') != -1) {\
+  if (Wb.isEmpty(receipt.ACCOUNT_CUSTOMER_CODE)) { //计费对象为空\
+    err += receipt.CNTE + \",\";\
+  } else {\
+    if (receipt.SHIPPER_WAY == '1') { //码头承运\
+      if (receipt.ACCOUNT_CUSTOMER.indexOf('TCL') != -1) {\
+        var ht = Wb.getRecords(app.get(\"select \"));\
+      } else if (receipt.ACCOUNT_CUSTOMER.indexOf('美的') != -1) {\
 \
-    } else {\
+      } else {\
 \
+      }\
     }\
   }\
 });"
