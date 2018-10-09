@@ -1,0 +1,178 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {"itemId": "viewport1"},
+   "expanded": true,
+   "children": [{
+    "configs": {"itemId": "container1"},
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "titlebar1",
+       "title": "拖车信息查询",
+       "docked": "top",
+       "titleAlign": "center"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "ttitlebar"
+     },
+     {
+      "configs": {
+       "itemId": "CNTR",
+       "autoCapitalize": "true",
+       "readOnly": "false",
+       "label": "柜号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {
+       "itemId": "button1",
+       "text": "查询"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "tbutton",
+      "events": {"tap": "Wb.request({\
+  url: \"m?xwl=app/inforQueryEdit/selectTruck\",\
+  params: {\
+    CNTR: app.CNTR.getValue()\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    console.log(result);\
+    if (result.success) {\
+      app.CNTR.setValue('');\
+      app.dataview1.store.load({\
+        params: {\
+          CNTR: result.rows[0].CNTR\
+        }\
+      });\
+    } else\
+      Wb.error(result.errstr);\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "cntr",
+       "label": "柜号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {
+       "itemId": "text11",
+       "label": "派车时间"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "拖头车牌号"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "text13"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "text14"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "text15"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "text16"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "text17"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     },
+     {
+      "configs": {"itemId": "text18"},
+      "expanded": false,
+      "children": [],
+      "type": "ttext"
+     }
+    ],
+    "type": "tcontainer"
+   }],
+   "type": "tviewport"
+  }],
+  "type": "module",
+  "events": {
+   "finalize": "// Ext.Ajax.on('beforerequest', beforerequest);\
+// app.cfs.getStore().load(function(records) {\
+//   app.cfs.setValue('JGQ');\
+// });",
+   "initialize": "var beforerequest = app.beforerequest = function(request, opt) {\
+  opt.success = translate;\
+  opt.failure = function() {\
+    Ext.Ajax.un('beforerequest', beforerequest);\
+  };\
+};\
+var translate = function(res) {\
+  Ext.Ajax.un('beforerequest', beforerequest);\
+  data = Ext.decode(res.responseText);\
+  if (data.success === false) {\
+    if (data.errstr === 'loginRequiered') {\
+      Wb.login(app.container1.hide.bind(app.container1), app.container1.show.bind(app.container1));\
+    } else if (data.errstr)\
+      Wb.error(data.errstr);\
+    else\
+      Wb.error('未知错误');\
+  }\
+  //处理Ag.getResultArray返回的数据\
+  if (data.cols)\
+    res.responseText = {\
+      success: true,\
+      metaData: {\
+        fields: data.cols\
+      },\
+      rows: Ext.Array.map(data.rows, function(r) {\
+        return data.cols.reduce(function(row, c, i) {\
+          row[c] = r[i];\
+          return row;\
+        }, {});\
+      })\
+    };\
+};\
+"
+  }
+ }],
+ "roles": {
+  "default": 1,
+  "ZSWNH": 1,
+  "YARDCTRL": 1
+ },
+ "title": "拖车作业查询",
+ "iconCls": "search_icon",
+ "inframe": true,
+ "pageLink": ""
+}
