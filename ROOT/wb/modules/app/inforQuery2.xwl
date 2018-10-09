@@ -4,7 +4,10 @@
   "configs": {"itemId": "module"},
   "expanded": true,
   "children": [{
-   "configs": {"itemId": "viewport1"},
+   "configs": {
+    "layout": "vbox",
+    "itemId": "viewport1"
+   },
    "expanded": true,
    "children": [
     {
@@ -14,7 +17,7 @@
       {
        "configs": {
         "itemId": "titlebar1",
-        "title": "箱号查询界面",
+        "title": "拖车信息查询",
         "docked": "top",
         "titleAlign": "center"
        },
@@ -42,7 +45,7 @@
        "children": [],
        "type": "tbutton",
        "events": {"tap": "Wb.request({\
-  url: \"m?xwl=app/inforQueryEdit/selectCntr\",\
+  url: \"m?xwl=app/inforQueryEdit/selectTruck\",\
   params: {\
     CNTR: app.CNTR.getValue()\
   },\
@@ -51,12 +54,11 @@
     console.log(result);\
     if (result.success) {\
       app.CNTR.setValue('');\
-      app.cntr.setValue(result.rows[0].CNTR);\
-      app.ieId.setValue(result.rows[0].I_E_ID);\
-      app.efId.setValue(result.rows[0].E_F_ID);\
-      app.tctime.setValue(result.rows[0].IN_PORT_TIME);\
-      app.znzw.setValue(result.rows[0].PHASE);\
-      app.release.setValue(result.rows[0].RELEASE_ID);\
+      app.dataview1.store.load({\
+        params: {\
+          CNTR: app.CNTR.getValue()\
+        }\
+      });\
     } else\
       Wb.error(result.errstr);\
   }\
@@ -66,81 +68,46 @@
      "type": "tcontainer"
     },
     {
-     "configs": {"itemId": "condata"},
-     "expanded": false,
-     "children": [
-      {
-       "configs": {
-        "layout": "fit",
-        "itemId": "dataview1",
-        "defaults": "{\
+     "configs": {
+      "itemId": "condata",
+      "flex": "1"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "fit",
+       "itemId": "dataview1",
+       "defaults": "{\
   labelWidth: 80,\
   width: 480,\
   margin: '4 8 4 8'\
 }",
-        "itemTpl": "<ul class=\"list-group\">\
+       "itemTpl": "<ul class=\"list-group\">\
   <li class=\"list-group-item\" style=\"color:blue; font-size:25px\">舱单信息:<\/li>\
-  <li class=\"list-group-item\">装货港:{POL}<\/li>\
-  <li class=\"list-group-item\">卸货港:{POD}<\/li>\
-  <li class=\"list-group-item\">进出口时间:{ETA}<\/li>\
-  <li class=\"list-group-item\">进出口船名:{VESSEL_NAME}<\/li>\
-  <li class=\"list-group-item\">提单号:{BILL_NO}<\/li>\
   <li class=\"list-group-item\">柜号:{CNTR}<\/li>\
-  <li class=\"list-group-item\">货名:{GOODS_NOTES}<\/li>\
-  <li class=\"list-group-item\">件数:{PIECES}<\/li>\
-  <li class=\"list-group-item\">重量:{WEIGHT}<\/li>\
-  <li class=\"list-group-item\">体积（拼柜）:{VOLUME}<\/li>\
-  <li class=\"list-group-item\" style=\"color:blue; font-size:25px\">签到信息:<\/li>\
-  <li class=\"list-group-item\">签到时间:{QD_ON}<\/li>\
-  <li class=\"list-group-item\">是否入库:{IS_BLUK}<\/li>\
-  <li class=\"list-group-item\">运抵:{YD}<\/li>\
-  <li class=\"list-group-item\">入库数:{QUTY}<\/li>\
-  <li class=\"list-group-item\">出库数:{OUTQUTY}<\/li>\
+  <li class=\"list-group-item\">派车时间:{PC_ON}<\/li>\
+  <li class=\"list-group-item\">拖头车牌号:{IN_CAR_HP}<\/li>\
+  <li class=\"list-group-item\">拖卡车牌号:{IN_TRAY_NO}<\/li>\
+  <li class=\"list-group-item\">所属车队:{CAR_TEAM}<\/li>\
+  <li class=\"list-group-item\">司机姓名:{IN_DRIVER_ID}<\/li>\
+  <li class=\"list-group-item\">司机电话:{CONTRACT_PHONE}<\/li>\
+  <li class=\"list-group-item\">出闸时间:{GATEOUT_TIME_T}<\/li>\
+  <li class=\"list-group-item\">入闸时间:{GATEIN_TIME_S}<\/li>\
 <\/ul>"
-       },
-       "expanded": false,
-       "children": [{
-        "configs": {
-         "itemId": "store",
-         "autoLoad": "false",
-         "url": "m?xwl=app/inforQueryEdit/selectvbillhead"
-        },
-        "expanded": false,
-        "children": [],
-        "type": "tstore"
-       }],
-       "type": "tdataview"
       },
-      {
+      "expanded": true,
+      "children": [{
        "configs": {
-        "itemId": "dataview2",
-        "defaults": "{\
-  labelWidth: 80,\
-  width: 480,\
-  margin: '4 8 4 8'\
-}",
-        "flex": "1",
-        "itemTpl": "<ul class=\"list-group\">\
-  <li class=\"list-group-item\" style=\"color:blue; font-size:25px\">放行信息:<\/li>\
-  <li class=\"list-group-item\">柜号:{CONTA_NO}<\/li>\
-  <li class=\"list-group-item\">放行标志:{AUTO_RELEASE_FLAG}<\/li>\
-  <li class=\"list-group-item\">放行时间:{AUTO_RELEASE_TIME}<\/li>\
-<\/ul>"
+        "itemId": "store",
+        "autoLoad": "false",
+        "url": "m?xwl=app/inforQueryEdit/selectTruck"
        },
        "expanded": false,
-       "children": [{
-        "configs": {
-         "itemId": "store",
-         "autoLoad": "false",
-         "url": "m?xwl=app/inforQueryEdit/selectFx"
-        },
-        "expanded": false,
-        "children": [],
-        "type": "tstore"
-       }],
-       "type": "tdataview"
-      }
-     ],
+       "children": [],
+       "type": "tstore"
+      }],
+      "type": "tdataview"
+     }],
      "type": "tcontainer"
     }
    ],
