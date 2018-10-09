@@ -24,7 +24,7 @@
        "itemId": "fieldset1",
        "height": "127"
       },
-      "expanded": false,
+      "expanded": true,
       "children": [
        {
         "configs": {
@@ -69,6 +69,31 @@
       app.dataview1.store.load({\
         params: {\
           CNTR: result.rows[0].CNTR\
+        }\
+      });\
+    } else\
+      Wb.error(result.errstr);\
+  }\
+});\
+\
+Wb.request({\
+  url: \"m?xwl=app/inforQueryEdit/selectvbillhead\",\
+  params: {\
+    CNTR: app.CNTR.getValue()\
+  },\
+  success: function(resp) {\
+    var result = Wb.decode(resp.responseText);\
+    console.log(result);\
+    if (result.success) {\
+      app.CNTR.setValue('');\
+      app.dataview3.store.load({\
+        params: {\
+          BILL_NO: result.rows[0].BILL_NO\
+        }\
+      });\
+      app.dataview2.store.load({\
+        params: {\
+          BILL_NO: result.rows[0].BILL_NO\
         }\
       });\
     } else\
@@ -120,6 +145,88 @@
        }],
        "type": "tdataview"
       }],
+      "type": "tfieldset"
+     },
+     {
+      "configs": {
+       "layout": "hbox",
+       "itemId": "fieldcntr",
+       "flex": "1"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "dataview2",
+         "defaults": "{\
+  labelWidth: 80,\
+  width: 480,\
+  margin: '4 8 4 8'\
+}",
+         "flex": "2",
+         "itemTpl": "<ul class=\"list-group\">\
+  <li class=\"list-group-item\" style=\"color:blue; font-size:25px\">舱单信息:<\/li>\
+  <li class=\"list-group-item\">装货港:{POL}<\/li>\
+  <li class=\"list-group-item\">卸货港:{POD}<\/li>\
+  <li class=\"list-group-item\">进出口时间:{ETA}<\/li>\
+  <li class=\"list-group-item\">进出口船名:{VESSEL_NAME}<\/li>\
+  <li class=\"list-group-item\">提单号:{BILL_NO}<\/li>\
+  <li class=\"list-group-item\">柜号:{CNTR}<\/li>\
+  <li class=\"list-group-item\">货名:{GOODS_NOTES}<\/li>\
+  <li class=\"list-group-item\">件数:{PIECES}<\/li>\
+  <li class=\"list-group-item\">重量:{WEIGHT}<\/li>\
+  <li class=\"list-group-item\">体积（拼柜）:{VOLUME}<\/li>\
+  <li class=\"list-group-item\" style=\"color:blue; font-size:25px\">签到信息:<\/li>\
+  <li class=\"list-group-item\">签到时间:{QD_ON}<\/li>\
+  <li class=\"list-group-item\">是否入库:{IS_BLUK}<\/li>\
+  <li class=\"list-group-item\">运抵:{YD}<\/li>\
+  <li class=\"list-group-item\">入库数:{QUTY}<\/li>\
+  <li class=\"list-group-item\">出库数:{OUTQUTY}<\/li>\
+<\/ul>"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=app/inforQueryEdit/selectvbillhead"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tstore"
+        }],
+        "type": "tdataview"
+       },
+       {
+        "configs": {
+         "itemId": "dataview3",
+         "defaults": "{\
+  labelWidth: 80,\
+  width: 480,\
+  margin: '4 8 4 8'\
+}",
+         "flex": "1",
+         "itemTpl": "<ul class=\"list-group\">\
+  <li class=\"list-group-item\" style=\"color:blue; font-size:25px\">放行信息:<\/li>\
+  <li class=\"list-group-item\">柜号:{CONTA_NO}<\/li>\
+  <li class=\"list-group-item\">放行标志:{AUTO_RELEASE_FLAG}<\/li>\
+  <li class=\"list-group-item\">放行时间:{AUTO_RELEASE_TIME}<\/li>\
+<\/ul>"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "false",
+          "url": "m?xwl=app/inforQueryEdit/selectFx"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "tstore"
+        }],
+        "type": "tdataview"
+       }
+      ],
       "type": "tfieldset"
      }
     ],
