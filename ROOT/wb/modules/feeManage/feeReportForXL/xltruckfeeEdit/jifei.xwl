@@ -6,14 +6,16 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
 \
-var receipts = Wb.getRecords(app.run(\"select account_customer from receipt where tenancy_id='\" + tenancyid + \"'\"));\
+var receipts = Wb.getRecords(app.run(\"select account_customer_code,account_customer,shipper_way from receipt where tenancy_id='\" + tenancyid + \"'\"));\
 Wb.each(receipts, function(receipt) {\
-  if (receipt.ACCOUNT_CUSTOMER.indexOf('TCL') != -1) {\
-\tvar ht=Wb.getRecords(app.get(\"\"));\
-  } else if (receipt.ACCOUNT_CUSTOMER.indexOf('美的') != -1) {\
+  if (receipt.SHIPPER_WAY == '1') { //码头承运\
+    if (receipt.ACCOUNT_CUSTOMER.indexOf('TCL') != -1) {\
+      var ht = Wb.getRecords(app.get(\"\"));\
+    } else if (receipt.ACCOUNT_CUSTOMER.indexOf('美的') != -1) {\
 \
-  } else {\
+    } else {\
 \
+    }\
   }\
 });"
   },
