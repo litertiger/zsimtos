@@ -17,22 +17,45 @@ var sql = \"delete from receipt_bill_fee where rid in(select r.id from receipt r
 if (!Wb.isEmpty(data.ids))\
   sql += \" and r.id in(\" + data.ids + \")\";\
 sql += \")\";\
-app.run(sql, {\
-  transaction: 'start'\
-});\
-sql = \"insert into receipt_bill_fee(rid,mbill_no,bill_no,pol,pod,truckfee_xl,truckfee_xl1)\\
+// app.run(sql, {\
+//   transaction: 'start'\
+// });\
+// sql = \"insert into receipt_bill_fee(rid,mbill_no,bill_no,pol,pod,truckfee_xl,truckfee_xl1)\\
 \" +\
-  \"select r.id,r.mbill_no,r.bill_no,r.pol,r.pod,\\
+//   \"select r.id,r.mbill_no,r.bill_no,r.pol,r.pod,\\
 \" +\
-  \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),1,\\
+//   \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),1,\\
 \" +\
-  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')-1),\\
+//   \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')-1),\\
 \" +\
-  \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
+//   \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
+\" +\
+//   \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')+1)\\
+\" +\
+//   \"from receipt r left join c_customer c on r.account_customer_code=c.code where r.tenancy_id='\" + tenancyid + \"'\\
+\" +\
+//   \"and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+//   \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
+\" +\
+//   \"and shipper_way=1 and trade_id='1' and work_type<>'YOYI' and instr(c.client_type,'AG')>0\";\
+sql = \"update receipt_bill_fee set truckfee_xl=(\\
+\" +\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),1,\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')-1)\\
+\" +\
+  \"from receipt ur where ur.tenancy_id='\" + tenancyid + \"' and ur.id=receipt_bill_fee.rid),\\
+\" +\
+  \"truckfee_xl1=(\\
+\" +\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
 \" +\
   \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')+1)\\
 \" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code where r.tenancy_id='\" + tenancyid + \"'\\
+  \"from receipt ur where ur.tenancy_id='\" + tenancyid + \"' and ur.id=receipt_bill_fee.rid) where rid in(\\
+\" +\
+  \"select r.id from receipt r left join c_customer c on r.account_customer_code=c.code where r.tenancy_id='\" + tenancyid + \"'\\
 \" +\
   \"and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
 \" +\
@@ -41,6 +64,7 @@ sql = \"insert into receipt_bill_fee(rid,mbill_no,bill_no,pol,pod,truckfee_xl,tr
   \"and shipper_way=1 and trade_id='1' and work_type<>'YOYI' and instr(c.client_type,'AG')>0\";\
 if (!Wb.isEmpty(data.ids))\
   sql += \" and r.id in(\" + data.ids + \")\";\
+sql += \")\";\
 \
 app.run(sql);"
   },
