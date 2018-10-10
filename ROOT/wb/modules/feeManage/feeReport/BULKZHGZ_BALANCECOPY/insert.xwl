@@ -12,77 +12,76 @@ app.run(\"insert into ZH_GZ_FEE_RECORD(BILL_NO, BILL_TYPE, CNTR, CNTR_OPERATOR_C
         \" sys_guid(),I_E_ID,PIECES,SHIPPER, SHIPPER_COD,SHIP_DT,'\"+tenancyId+\"',TRADE_ID,0,VOLUME, WEIGHT,\"+\
   \"         CASE WHEN OWNER IN('中山市昊龙进出口贸易有限公司','中山市泓汇进出口有限公司') AND \"+\
         \" INSTR(GOODS_NOTES,'过滤器')>0 THEN 0 ELSE ZXFEE END ZXFEE\"+\
-    FROM (SELECT h.bill_no,  \
-                 h.CNTR_OPERATOR_COD coline,\
-                 l.cntr,\
-                 l.cntr_size,\
-                 h.shipper,h.shipper_cod,\
-                 h.consignee,h.consignee_cod,\
-                 DECODE (h.i_e_id,  'I', '进口',  'E', '出口') i_e_id,\
-                 h.goods_notes,\
-                 DECODE (h.bill_type,\
-                         'C', '整柜',\
-                         'P', '拼柜',\
-                         'S', '散货',\
-                         'E', '吉柜')\
-                    bill_type,\
-                 DECODE (h.trade_id,  '0', '内贸',  '1', '外贸') trade_id,\
-                 h.volume,\
-                 h.weight,\
-                 h.PIECES,\
-                 DECODE (h.i_e_id,  'I', h.consignee,  'E', h.shipper) owner,\
-                 v.ship_dt,\
-                  ROUND( (CASE\
-                       WHEN is_jk = '否' AND h.weight / 1000 > h.volume\
-                       THEN\
-                          CASE WHEN h.weight / 1000>=1 THEN h.weight / 1000 ELSE 1 END\
-                       WHEN is_jk = '否' and h.weight / 1000 <= h.volume\
-                       THEN\
-                          CASE WHEN h.volume>=1 THEN h.volume ELSE 1 END\
-                       ELSE\
-                          0\
-                    END)\
-                 * (case when DECODE (h.i_e_id,  'I', h.consignee_cod,  'E', h.shipper_cod)='000142' then 13.5 else 22 end)    )\
-                    ZXFEE,\
-                 (CASE\
-                     WHEN is_jk = '否' AND h.bill_type = 'S'\
-                     THEN\
-        (CASE WHEN H.WEIGHT*0.001>H.VOLUME THEN H.WEIGHT*0.001*1.1 ELSE h.VOLUME*1.1 end)\
-                        /* h.weight * 1.1 / 1000 */\
-                     WHEN     is_jk = '否'\
-                          AND h.bill_type = 'P'\
-                          AND l.main_flag = 1\
-                          AND h.i_e_id = 'I'\
-                          AND l.cntr_size = '20'\
-                     THEN\
-                        40\
-                     WHEN     is_jk = '否'\
-                          AND h.bill_type = 'P'\
-                          AND l.main_flag = 1\
-                          AND h.i_e_id = 'I'\
-                     THEN\
-                        80\
-                     WHEN     is_jk = '否'\
-                          AND h.bill_type = 'P'\
-                          AND l.main_flag = 1\
-                          AND h.i_e_id = 'E'\
-                          AND l.cntr_size = '20'\
-                     THEN\
-                        20\
-                     WHEN     is_jk = '否'\
-                          AND h.bill_type = 'P'\
-                          AND l.main_flag = 1\
-                          AND h.i_e_id = 'E'\
-                     THEN\
-                        40\
-                     ELSE\
-                        0 END) GWFEE, ROUND((CASE\
-                       WHEN h.weight / 1000 > 1 THEN h.weight / 1000\
-                       ELSE 1\
-                    END)\
-                 * case when h.GOODS_NOTES LIKE '%水泥%' OR h.GOODS_NOTES LIKE '%石灰%'  OR h.GOODS_NOTES LIKE '%天然砂%' OR h.GOODS_NOTES LIKE '%砂土%' then 1.4 when h.GOODS_NOTES LIKE '%碎石%' then 0 else 2.8 end) GJFEE FROM vbiLL_head H, VLOAD_LIST L, V_VISIT_VOYAGE V WHERE L.BILL_ID(+) = H.ID \
-   AND H.TENANCY_ID='ZSG'  and V.SHIP_DT>=to_date('2018-10-01 00:00:00','yyyy-mm-dd hh24:mi:ss') and V.SHIP_DT<=to_date('2018-10-31 23:59:59','yyyy-mm-dd hh24:mi:ss') AND H.CNTR_OPERATOR_COD IN ('ZH', 'GZ') and H.TRADE_ID='1' AND H.VID = V.ID AND NOT EXISTS (SELECT 1 FROM vbiLL_head B  WHERE B.ID = H.ID  AND H.consignee LIKE '%迅成%'  AND h.shipper LIKE '%迅成%') AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%迅成船厂%'  AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%迅成船廠%' AND ( DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%陈彬彬%' and   h.goods_notes not like '%废钢%')AND DECODE (h.i_e_id,  'I', h.consignee,  'E', h.shipper) NOT LIKE '%中山岩谷%' AND NOT EXISTS(SELECT 1 FROM ACCOUNTS_DETAILS WHERE BILL_NO =H.BILL_NO AND PAY_FLAG =1 ) AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='ZSG' and nvl(b.account_type,1)<>2 WHERE A.code =DECODE (h.i_e_id,'I', h.consignee_cod,'E', h.shipper_cod )) AND (H.BILL_TYPE='P' OR ( H.BILL_TYPE = 'S' AND ((H.I_E_ID = 'I' AND DECODE (h.i_e_id,'I', h.consignee_COD,'E', h.shipper_COD) NOT IN('000002','000091','000840','ZSYG','YGMY','000303','000802','001029','000825','002003','000050','000559','000072','000310','DGDF')) or H.I_E_ID='E')    ))) \
-ORDER BY SHIP_DT DESC,CNTR\");"
+  \"  FROM (SELECT h.bill_no,  \"+\
+        \"         h.CNTR_OPERATOR_COD coline,\"+\
+        \"         l.cntr,\"+\
+        \"         l.cntr_size,\"+\
+        \"         h.shipper,h.shipper_cod,\"+\
+        \"         h.consignee,h.consignee_cod,\"+\
+        \"         DECODE (h.i_e_id,  'I', '进口',  'E', '出口') i_e_id,\"+\
+        \"         h.goods_notes,\"+\
+        \"         DECODE (h.bill_type,\"+\
+        \"                 'C', '整柜',\"+\
+        \"                 'P', '拼柜',\"+\
+        \"                'S', '散货',\"+\
+        \"                 'E', '吉柜')\"+\
+        \"            bill_type,\"+\
+        \"         DECODE (h.trade_id,  '0', '内贸',  '1', '外贸') trade_id,\"+\
+        \"         h.volume,\"+\
+        \"         h.weight,\"+\
+        \"         h.PIECES,\"+\
+        \"         DECODE (h.i_e_id,  'I', h.consignee,  'E', h.shipper) owner,\"+\
+        \"         v.ship_dt,\"+\
+        \"          ROUND( (CASE\"+\
+        \"               WHEN is_jk = '否' AND h.weight / 1000 > h.volume\"+\
+        \"               THEN\"+\
+        \"                  CASE WHEN h.weight / 1000>=1 THEN h.weight / 1000 ELSE 1 END\"+\
+        \"               WHEN is_jk = '否' and h.weight / 1000 <= h.volume\"+\
+        \"               THEN\"+\
+        \"                  CASE WHEN h.volume>=1 THEN h.volume ELSE 1 END\"+\
+        \"               ELSE\"+\
+        \"                  0\"+\
+        \"            END)\"+\
+        \"         * (case when DECODE (h.i_e_id,  'I', h.consignee_cod,  'E', h.shipper_cod)='000142' then 13.5 else 22 end)    )\"+\
+        \"            ZXFEE,\"+\
+        \"         (CASE\"+\
+        \"             WHEN is_jk = '否' AND h.bill_type = 'S'\"+\
+        \"             THEN\"+\
+        \"(CASE WHEN H.WEIGHT*0.001>H.VOLUME THEN H.WEIGHT*0.001*1.1 ELSE h.VOLUME*1.1 end)\"+\
+             \"        WHEN     is_jk = '否'\"+\
+             \"             AND h.bill_type = 'P'\"+\
+             \"             AND l.main_flag = 1\"+\
+             \"             AND h.i_e_id = 'I'\"+\
+             \"             AND l.cntr_size = '20'\"+\
+             \"        THEN\"+\
+             \"           40\"+\
+             \"        WHEN     is_jk = '否'\"+\
+             \"             AND h.bill_type = 'P'\"+\
+             \"             AND l.main_flag = 1\"+\
+             \"             AND h.i_e_id = 'I'\"+\
+             \"        THEN\"+\
+             \"           80\"+\
+             \"        WHEN     is_jk = '否'\"+\
+             \"             AND h.bill_type = 'P'\"+\
+             \"             AND l.main_flag = 1\"+\
+             \"             AND h.i_e_id = 'E'\"+\
+             \"             AND l.cntr_size = '20'\"+\
+             \"        THEN\"+\
+             \"           20\"+\
+             \"        WHEN     is_jk = '否'\"+\
+             \"             AND h.bill_type = 'P'\"+\
+             \"             AND l.main_flag = 1\"+\
+             \"             AND h.i_e_id = 'E'\"+\
+             \"        THEN\"+\
+             \"           40\"+\
+             \"        ELSE\"+\
+             \"           0 END) GWFEE, ROUND((CASE\"+\
+             \"          WHEN h.weight / 1000 > 1 THEN h.weight / 1000\"+\
+             \"          ELSE 1\"+\
+             \"       END)\"+\
+             \"    * case when h.GOODS_NOTES LIKE '%水泥%' OR h.GOODS_NOTES LIKE '%石灰%'  OR h.GOODS_NOTES LIKE '%天然砂%' OR h.GOODS_NOTES LIKE '%砂土%' then 1.4 when h.GOODS_NOTES LIKE '%碎石%' then 0 else 2.8 end) GJFEE FROM vbiLL_head H, VLOAD_LIST L, V_VISIT_VOYAGE V WHERE L.BILL_ID(+) = H.ID\"+ \
+ \"  AND H.TENANCY_ID='ZSG'  and V.SHIP_DT>=to_date('2018-10-01 00:00:00','yyyy-mm-dd hh24:mi:ss') and V.SHIP_DT<=to_date('2018-10-31 23:59:59','yyyy-mm-dd hh24:mi:ss') AND H.CNTR_OPERATOR_COD IN ('ZH', 'GZ') and H.TRADE_ID='1' AND H.VID = V.ID AND NOT EXISTS (SELECT 1 FROM vbiLL_head B  WHERE B.ID = H.ID  AND H.consignee LIKE '%迅成%'  AND h.shipper LIKE '%迅成%') AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%迅成船厂%'  AND DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%迅成船廠%' AND ( DECODE (h.i_e_id, 'I', h.consignee, 'E', h.shipper) not LIKE '%陈彬彬%' and   h.goods_notes not like '%废钢%')AND DECODE (h.i_e_id,  'I', h.consignee,  'E', h.shipper) NOT LIKE '%中山岩谷%' AND NOT EXISTS(SELECT 1 FROM ACCOUNTS_DETAILS WHERE BILL_NO =H.BILL_NO AND PAY_FLAG =1 ) AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='ZSG' and nvl(b.account_type,1)<>2 WHERE A.code =DECODE (h.i_e_id,'I', h.consignee_cod,'E', h.shipper_cod )) AND (H.BILL_TYPE='P' OR ( H.BILL_TYPE = 'S' AND ((H.I_E_ID = 'I' AND DECODE (h.i_e_id,'I', h.consignee_COD,'E', h.shipper_COD) NOT IN('000002','000091','000840','ZSYG','YGMY','000303','000802','001029','000825','002003','000050','000559','000072','000310','DGDF')) or H.I_E_ID='E')    )))\"+ \
+\"ORDER BY SHIP_DT DESC,CNTR\");"
   },
   "expanded": false,
   "children": [],
