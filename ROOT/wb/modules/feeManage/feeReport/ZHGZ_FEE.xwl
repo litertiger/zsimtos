@@ -60,7 +60,7 @@
           "hidden": "false",
           "pageSize": "50",
           "selectOnTab": "true",
-          "labelWidth": "50",
+          "labelWidth": "40",
           "listConfig": "{width:450}",
           "valueField": "ID",
           "queryDelay": "500",
@@ -130,7 +130,7 @@
         },
         {
          "configs": {
-          "itemId": "cntr",
+          "itemId": "billNo",
           "labelAlign": "right",
           "fieldLabel": "提单号",
           "width": "150",
@@ -151,42 +151,28 @@
          "type": "item",
          "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
 var AF1 = document.getElementById(opt);\
-var whereSql = \" and RECEIPT.GATEOUT_TIME_T>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
-  \" and RECEIPT.GATEOUT_TIME_T<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') and receipt.TENANCY_ID='{#sys.TENANCY_ID#}'\";\
-var whereSql2 = \" and RECEIPT.gatein_time_s>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
-  \" and RECEIPT.gatein_time_s<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') and receipt.TENANCY_ID='{#sys.TENANCY_ID#}'\";\
+var whereSql = \" and SHIP_DT>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and SHIP_DT<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss') and TENANCY_ID='{#sys.TENANCY_ID#}'\";\
 \
-if (!Wb.isEmpty(app.cboCAR_TEAM.getValue())) {\
-//   whereSql += \" and nvl(T.CAR_TEAM,RECEIPT.CAR_TEAM) ='\" + app.cboCAR_TEAM.getValue() + \"'\";\
-//   whereSql2 += \" and nvl(T.CAR_TEAM,RECEIPT.CAR_TEAM) ='\" + app.cboCAR_TEAM.getValue() + \"'\";\
-  whereSql += \" and T.CAR_TEAM ='\" + app.cboCAR_TEAM.getValue() + \"'\";\
-  whereSql2 += \" and T.CAR_TEAM ='\" + app.cboCAR_TEAM.getValue() + \"'\";\
+\
+if (!Wb.isEmpty(app.CUSTOM.getValue()))\
+  whereSql += \" and DECODE(I_E_ID,'E',SHIPPER_COD,CONSIGNEE_COD) ='\" + app.CUSTOM.getValue() + \"'\";\
+\
+if (!Wb.isEmpty(app.billNo.getValue())) {\
+  whereSql += \" and BILL_NO ='\" + app.billNo.getValue() + \"'\";\
 }\
 \
-if (!Wb.isEmpty(app.CUSTOM.getValue())) {\
-  whereSql += \" and DECODE(RECEIPT.I_E_ID,'E',RECEIPT.SHIPPER_COD,CONSIGNEE_COD) ='\" + app.CUSTOM.getValue() + \"'\";\
-  whereSql2 += \" and DECODE(RECEIPT.I_E_ID,'E',RECEIPT.SHIPPER_COD,CONSIGNEE_COD) ='\" + app.CUSTOM.getValue() + \"'\";\
-}\
-\
-if (!Wb.isEmpty(app.cboAddress.getValue())) {\
-  whereSql += \" and S_ADRESS ='\" + app.cboAddress.getValue() + \"'\";\
-  whereSql2 += \" and S_ADRESS ='\" + app.cboAddress.getValue() + \"'\";\
-}\
-\
-if (!Wb.isEmpty(app.cntr.getValue())) {\
-  whereSql += \" and RECEIPT.CNTR ='\" + app.cntr.getValue() + \"'\";\
-  whereSql2 += \" and RECEIPT.CNTR ='\" + app.cntr.getValue() + \"'\";\
+if (!Wb.isEmpty(app.cboBILL_TYPE.getValue())) {\
+  whereSql += \" and BILL_TYPE ='\" + app.cboBILL_TYPE.getValue() + \"'\";\
 }\
 \
 //加载列表\
 AF1.func(\"Load\", Wb.loadSupcanData(\"m?xwl=feeManage/feeReport/BULKZHGZ_BALANCECOPY/select\", {\
   whereSql: whereSql,\
-  whereSql2: whereSql2,\
   tenancyid: tenancyid,\
   sdate: app.sdate.getRawValue(),\
   edate: app.edate.getRawValue(),\
-  CUSTOM: app.CUSTOM.getValue(),\
-  CAR_TEAM: app.cboCAR_TEAM.getValue()\
+  CUSTOM: app.CUSTOM.getValue()\
 }));"}
         },
         {
@@ -230,7 +216,7 @@ Wb.request({\
         },
         {
          "configs": {
-          "itemId": "savebtn1",
+          "itemId": "insertbtn",
           "text": "处理数据",
           "iconCls": "object_icon"
          },
