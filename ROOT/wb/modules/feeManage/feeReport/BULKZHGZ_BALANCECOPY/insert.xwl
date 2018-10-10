@@ -3,44 +3,21 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "app.run(\"insert into ZH_GZ_FEE_RECORD(BILL_NO, BILL_TYPE, CNTR, CNTR_OPERATOR_COD, CNTR_SIZE, CONSIGNEE,\"+\
+   "serverScript": "var tenancyId=app.get('sys.TENANCY_ID');\
+app.run(\"insert into ZH_GZ_FEE_RECORD(BILL_NO, BILL_TYPE, CNTR, CNTR_OPERATOR_COD, CNTR_SIZE, CONSIGNEE,\"+\
         \"CONSIGNEE_COD, GJFEE, GOODS_NOTES, GPSFEE, GWFEE, ID, I_E_ID, PIECES, SHIPPER, SHIPPER_COD, SHIP_DT,\"+\
         \"TENANCY_ID, TRADE_ID, TYFEE, VOLUME, WEIGHT, ZXFEE)\"+\
-        \"SELECT BILL_NO,\
-         COLINE,\
-         CNTR,\
-         CNTR_SIZE,\
-         SHIPPER,\
-         CONSIGNEE,\
-         I_E_ID,\
-         GOODS_NOTES,\
-         BILL_TYPE,\
-         TRADE_ID,\
-         VOLUME,\
-         WEIGHT,\
-         PIECES,\
-         OWNER,\
-         SHIP_DT,\
-         CASE WHEN OWNER IN('中山市昊龙进出口贸易有限公司','中山市泓汇进出口有限公司') AND \
-INSTR(GOODS_NOTES,'过滤器')>0 THEN 0 ELSE ZXFEE END ZXFEE,\
-         GWFEE,\
-         GJFEE,\
-         CASE\
-            WHEN OWNER IN ('恒峰国际物流有限公司',\
-                           '中山市欧科电子有限公司',\
-                           '中山欧科电子有限公司')\
-            THEN\
-               13\
-            ELSE\
-               20\
-         END\
-          AS  GPSFEE\
-    FROM (SELECT h.bill_no,\
+        \"SELECT BILL_NO,BILL_TYPE,CNTR,COLINE,CNTR_SIZE,CONSIGNEE,CONSIGNEE_COD,GJFEE,GOODS_NOTES,\"+\
+  \" CASE WHEN OWNER IN ('恒峰国际物流有限公司','中山市欧科电子有限公司','中山欧科电子有限公司') THEN 13 ELSE 20 END AS GPSFEE,GWFEE,\"+\
+        \" sys_guid(),I_E_ID,PIECES,SHIPPER, SHIPPER_COD,SHIP_DT,'\"+tenancyId+\"',TRADE_ID,0,VOLUME, WEIGHT,\"+\
+  \"         CASE WHEN OWNER IN('中山市昊龙进出口贸易有限公司','中山市泓汇进出口有限公司') AND \"+\
+        \" INSTR(GOODS_NOTES,'过滤器')>0 THEN 0 ELSE ZXFEE END ZXFEE\"+\
+    FROM (SELECT h.bill_no,  \
                  h.CNTR_OPERATOR_COD coline,\
                  l.cntr,\
                  l.cntr_size,\
-                 h.shipper,\
-                 h.consignee,\
+                 h.shipper,h.shipper_cod,\
+                 h.consignee,h.consignee_cod,\
                  DECODE (h.i_e_id,  'I', '进口',  'E', '出口') i_e_id,\
                  h.goods_notes,\
                  DECODE (h.bill_type,\
