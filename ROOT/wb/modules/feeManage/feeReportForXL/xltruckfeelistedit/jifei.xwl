@@ -5,8 +5,7 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
-var err = \"设备交接单:\";\
-var receipts = Wb.getRecords(app.run(\"select f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
+var sql = \"select f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
 \" +\
   \"substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),1,\\
 \" +\
@@ -16,31 +15,17 @@ var receipts = Wb.getRecords(app.run(\"select f_truck_fee_xl(cntr_size,trade_id,
 \" +\
   \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')+1)\\
 \" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code where r.tenancy_id='\" + tenancyid + \"'\\
 \" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and shipper_way=1 and trade_id='1' and trunc(created_on)=trunc(sysdate-1) and work_type<>'YOYI'\"));\
-Wb.each(receipts, function(receipt) {\
-  if (Wb.isEmpty(receipt.CLIENT_TYPE)) { //计费对象为空\
-    err += receipt.CNTE + \",\";\
-  } else {\
-    if (receipt.SHIPPER_WAY == '1') { //码头承运\
-      if (receipt.CLIENT_TYPE.indexOf('AG') != -1) {\
-        //         var ht = Wb.getRecords(app.get(\"select \"));\
-      } else { //计费对象为货主,查找货主合同\
-        if (receipt.ACCOUNT_CUSTOMER.indexOf('TCL') != -1) { //TCL合同\
+  \"and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and shipper_way=1 and trade_id='1' and work_type<>'YOYI' and instr(c.client_type,'AG')>0\";\
+if (!Wb.isEmpty(data.ids))\
+  sql += \" and r.id in(\" + data.ids + \")\";\
 \
-        } else if (receipt.ACCOUNT_CUSTOMER.indexOf('美的') != -1) { //美的合同\
-\
-        } else { //其它货主合同\
-\
-        }\
-      }\
-    }\
-  }\
-});\
-if (err != \"设备交接单:\") {\
-  throw err + \"没有找到计费对象,请重新维护后在尝试计费\";\
-}"
+app.run(sql);"
   },
   "expanded": true,
   "children": [],
