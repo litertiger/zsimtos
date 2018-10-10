@@ -5,7 +5,11 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID');\
-var sql = \"select r.*,f.truckfee_xl,f.truckfee_xl1 from receipt r left join c_customer c on r.account_customer_code=c.code left join receipt_bill_fee f on r.id=f.rid\\
+var sql = \"select r.id,decode(r.phase,'PLN','未派车','EXE','已派车','GET','正在提箱','OUT','场外','RTN','正在还箱','FIN','完成','CNL','取消')phase,\\
+\" +\
+  \"r.cntr,r.cntr_size,decode(r.e_f_id,'E','空箱','重箱')e_f_id,decode(r.trade_id,'1','外贸','内贸')trade_id,decode(r.i_e_id,'I','进口','出口')i_e_id\\
+\" +\
+  \"f.truckfee_xl,f.truckfee_xl1 from receipt r left join c_customer c on r.account_customer_code=c.code left join receipt_bill_fee f on r.id=f.rid\\
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"'\\
 \" +\
@@ -14,18 +18,11 @@ var sql = \"select r.*,f.truckfee_xl,f.truckfee_xl1 from receipt r left join c_c
   \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
 \" +\
   \"and r.shipper_way=1 and r.trade_id='1' and r.work_type<>'YOYI' and instr(c.client_type,'AG')>0\";\
-request.setAttribute('sql', sql);"
+var result = Wb.getRecords(app.run(sql));\
+app.send(result);"
   },
   "expanded": true,
-  "children": [{
-   "configs": {
-    "itemId": "dataprovider1",
-    "sql": "{#sql#}"
-   },
-   "expanded": false,
-   "children": [],
-   "type": "dataprovider"
-  }],
+  "children": [],
   "type": "module"
  }],
  "roles": {"default": 1},
