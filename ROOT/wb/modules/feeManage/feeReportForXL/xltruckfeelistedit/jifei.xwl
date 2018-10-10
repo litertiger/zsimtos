@@ -7,21 +7,21 @@
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
 var sql = \"update receipt_bill_fee set truckfee_xl=(\\
 \" +\
-  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),1,\\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),1,\\
 \" +\
-  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')-1)\\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')-1)\\
 \" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join remitting t on r.id=t.r_id\\
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid),\\
 \" +\
   \"truckfee_xl1=(\\
 \" +\
-  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),\\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),\\
 \" +\
-  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,ship_consign_cod,r.s_adress,r.tenancy_id),'@')+1)\\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')+1)\\
 \" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join remitting t on r.id=t.r_id\\
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid) where rid in(\\
 \" +\
