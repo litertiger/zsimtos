@@ -18,6 +18,10 @@ Wb.each(records,function(data){\
 */\
 var data = app.get();\
 var map = new HashMap();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+if(tenancyId === \"\"){\
+  tenancyId = app.get('TENANCY_ID');\
+}\
 var condition = \"\";\
 if(!Wb.isEmpty(data.cntr)){\
   condition += \" and cntr='\"+data.cntr+\"'\";\
@@ -26,7 +30,7 @@ if(!Wb.isEmpty(data.cntrOperatorCod)){\
   condition += \" and cntr_operator_Cod='\"+data.cntrOperatorCod+\"'\";\
 }\
 var sql = \"SELECT CNTR_OPERATOR_COD FROM CNTR_STORE_RECORD_PROC \"+\
-\" WHERE TENANCY_ID='\" + app.TENANCY_ID + \"'  \"+\
+\" WHERE TENANCY_ID='\" + tenancyId + \"'  \"+\
 \" AND IN_TIME>=to_date('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss')  \"+\
 \" and OUT_TIME<=to_date('\" + data.edate + \"','yyyy-mm-dd hh24:mi:ss') \"+\
 \" and not (IN_BUS_NOTES = '卸船' and E_F_ID_IMPORT in ('F')) \"+\

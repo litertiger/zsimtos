@@ -5,9 +5,13 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var map = new HashMap();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+if(tenancyId === \"\"){\
+  tenancyId = app.get('TENANCY_ID');\
+}\
 var sql, result;\
 if(!Wb.isEmpty(data.billno)){\
-  sql = \"select m.ID from BLUK_TRUCK_M m,BLUK_TRUCK_D d where m.TENANCY_ID={?sys.TENANCY_ID?}\"+\
+  sql = \"select m.ID from BLUK_TRUCK_M m,BLUK_TRUCK_D d where m.TENANCY_ID='\"+tenancyId+\"'\"+\
   \" and d.pid=m.id and d.bill_no='\"+data.billno+\"' \";\
 }else{\
   sql = \"select BLUK_TRUCK_M.ID from BLUK_TRUCK_M,BLUK_APPLY_D where BLUK_TRUCK_M.TENANCY_ID={?sys.TENANCY_ID?} \"+\
