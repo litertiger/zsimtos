@@ -3,7 +3,7 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "var data=app.get();\
+   "serverScript": "/*var data=app.get();\
 var map = new HashMap();\
 var sql = \"select ID from BLUK_GOODS where TENANCY_ID={?sys.TENANCY_ID?} \"+\
     \"and created_on>to_date('\"+data.sdate+\" 00:00:00','yyyy-MM-dd HH24:mi:ss') \"+\
@@ -14,6 +14,35 @@ var records = Wb.getRecords(rs);\
 Wb.each(records,function(data){\
   map.put(\"rpId\", data.ID);\
   Wb.newClass(\"dubboForReceipt\").call(request, map);\
+});\
+*/\
+var data = app.get();\
+var map = new HashMap();\
+var condition = \"\";\
+if(!Wb.isEmpty(data.cntr)){\
+  condition += \" and cntr='\"+data.cntr+\"'\";\
+}\
+if(!Wb.isEmpty(data.cntrOperatorCod)){\
+  condition += \" and cntr_operator_Cod='\"+data.cntrOperatorCod+\"'\";\
+}\
+var sql = \"SELECT CNTR_OPERATOR_COD FROM CNTR_STORE_RECORD_PROC \"+\
+\" WHERE TENANCY_ID='\" + app.TENANCY_ID + \"'  \"+\
+\" AND IN_TIME>=to_date('\" + data.sdate + \"','yyyy-mm-dd hh24:mi:ss')  \"+\
+\" and OUT_TIME<=to_date('\" + data.edate + \"','yyyy-mm-dd hh24:mi:ss') \"+\
+\" and not (IN_BUS_NOTES = '卸船' and E_F_ID_IMPORT in ('F')) \"+\
+\" AND TRADE_ID=1 \"+\
+\" AND CNTR_OPERATOR_COD IS NOT NULL \" + condition +\
+\" GROUP BY CNTR_OPERATOR_COD\";\
+var rs = app.run(sql);\
+var records = Wb.getRecords(rs);\
+//循环船公司计费\
+Wb.each(records,function(data){\
+  map.put(\"companyId\", data.CNTR_OPERATOR_COD);\
+  map.put(\"timeOn\", data.sdate);\
+  map.put(\"timeEnd\",data.edate);\
+  map.put(\"tradeId\", \"1\");\
+  map.put(\"cntr\", data.cntr);\
+  result = Wb.newClass(\"dubboForFreeStore\").call(request, map);\
 });"
   },
   "expanded": false,
