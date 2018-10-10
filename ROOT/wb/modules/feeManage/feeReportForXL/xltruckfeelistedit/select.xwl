@@ -5,11 +5,15 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var tenancyid = app.get('sys.TENANCY_ID');\
-var sql = \"select * from receipt where tenancy_id='\" + tenancyid + \"'\\
+var sql = \"select r.* from receipt r left join c_customer c on r.account_customer_code=c.code\\
 \" +\
-  \"and trunc(created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+  \"where r.tenancy_id='\" + tenancyid + \"'\\
 \" +\
-  \"and trunc(created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\";\
+  \"and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and r.shipper_way=1 and r.trade_id='1' and r.work_type<>'YOYI' and instr(c.client_type,'AG')>0\";\
 request.setAttribute('sql', sql);"
   },
   "expanded": true,
