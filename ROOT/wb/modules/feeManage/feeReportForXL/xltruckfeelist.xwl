@@ -1,0 +1,430 @@
+{
+ "hidden": true,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [{
+   "configs": {
+    "layout": "border",
+    "itemId": "viewport1"
+   },
+   "expanded": true,
+   "children": [{
+    "configs": {
+     "itemId": "grid1",
+     "selType": "checkboxmodel"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "tbar",
+       "padding": "0,0,0,0",
+       "normalName": "cntrTbar",
+       "cls": "border-width:0px",
+       "dock": "top"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "sdate",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "开始时间",
+         "width": "160",
+         "labelWidth": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "edate",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "结束时间",
+         "width": "160",
+         "labelWidth": "60"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "tradeId",
+         "labelAlign": "right",
+         "fieldLabel": "内外贸",
+         "keyName": "TRADE_ID",
+         "width": "130",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "address",
+         "labelAlign": "right",
+         "fieldLabel": "地址",
+         "keyName": "C_ADDRESS",
+         "width": "120",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "payer",
+         "labelAlign": "right",
+         "pickList": "[\
+  ['货主', '货主'],\
+  ['船公司', '船公司']\
+]",
+         "fieldLabel": "付费方",
+         "width": "130",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "billNo",
+         "hidden": "true",
+         "fieldLabel": "提单号",
+         "width": "160",
+         "labelWidth": "55"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "app.seekMenu.fireEvent('click');"}
+       },
+       {
+        "configs": {
+         "itemId": "cntr",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "箱号",
+         "width": "140",
+         "labelWidth": "40"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text",
+        "events": {"specialkey": "app.seekMenu.fireEvent('click');"}
+       },
+       {
+        "configs": {
+         "itemId": "seekMenu",
+         "text": "@Str.find",
+         "iconCls": "search_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "item",
+        "events": {"click": "// app.grid1.store.load({\
+//   out:app.tbar\
+// });\
+\
+app.grid1.store.load({\
+  params: {\
+    billNo: app.billNo.getValue(),\
+    cntr: app.cntr.getValue(),\
+    sdate: app.sdate.getValue(),\
+    edate: app.edate.getValue(),\
+    tradeId: app.tradeId.getValue(),\
+    address: app.address.getValue(),\
+    payer: app.payer.getValue()\
+  }\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "addadd",
+         "tooltip": "增加新地址",
+         "text": "增加",
+         "iconCls": "record_add_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "if (Wb.isEmpty(app.ids.getValue())) {\
+  Wb.warn(\"请选择合同\");\
+  return;\
+}\
+Wb.addEdit(app.grid1, {\
+  CREATED_ON: new Date(),\
+  CREATED_BY: '{#sys.username#}',\
+  UPDATED_ON: new Date(),\
+  UPDATED_BY: '{#sys.username#}',\
+  TENANCY_ID: '{#sys.TENANCY_ID#}',\
+  P_ID: app.ids.getValue()\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "deleteadd",
+         "text": "删除",
+         "iconCls": "record_delete_icon"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "button",
+        "events": {"click": "Wb.remove(app.grid1);"}
+       },
+       {
+        "configs": {
+         "itemId": "saveadd",
+         "text": "保存",
+         "iconCls": "save_icon"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "button",
+        "events": {"click": "if (!Wb.verifyGrid(app.grid1)) //验证数据是否合法\
+  return;\
+Wb.sync({\
+  grid: app.grid1,\
+  url: 'm?xwl=feeManage/feeReportForXL/xltruckfeeEdit/save',\
+  message: '正在保存中...',\
+  success: function(resp) {\
+    //ID_FIELD值在后台生成，把返回的ID_FIELD值列表同步到表格中\
+    Wb.syncCreate(app.grid1, Wb.decode(resp.responseText));\
+  }\
+});"}
+       }
+      ],
+      "type": "toolbar"
+     },
+     {
+      "configs": {
+       "itemId": "store",
+       "autoLoad": "false",
+       "url": "m?xwl=feeManage/feeReportForXL/xltruckfeeEdit/select"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "store"
+     },
+     {
+      "configs": {"itemId": "columns"},
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "rownum",
+         "xtype": "rownumberer",
+         "width": "40",
+         "text": "序号",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colPHASE",
+         "renderer": "if (value == 'PLN')\
+  return '未派车';\
+if (value == 'EXE')\
+  return '已派车';\
+if (value == 'GET')\
+  return '正在提箱';\
+if (value == 'OUT')\
+  return '场外';\
+if (value == 'RTN')\
+  return '正在还箱';\
+if (value == 'FIN')\
+  return '完成';\
+if (value == 'CNL')\
+  return '取消';",
+         "dataIndex": "PHASE",
+         "width": "70",
+         "text": "状态",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR",
+         "dataIndex": "CNTR",
+         "width": "50",
+         "text": "箱号",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_SIZE",
+         "dataIndex": "CNTR_SIZE",
+         "width": "50",
+         "text": "尺寸",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colE_F_ID",
+         "dataIndex": "E_F_ID",
+         "width": "50",
+         "keyName": "E_F_ID",
+         "text": "空重",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colTRADE_ID",
+         "dataIndex": "TRADE_ID",
+         "width": "50",
+         "keyName": "TRADE_ID",
+         "text": "内外贸",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colI_E_ID",
+         "dataIndex": "I_E_ID",
+         "width": "60",
+         "keyName": "I_E_ID",
+         "text": "进出口",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colC_ADDRESS",
+         "dataIndex": "C_ADDRESS",
+         "width": "80",
+         "keyName": "C_ADDRESS",
+         "text": "地址",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colFEI_ADDDRESS",
+         "dataIndex": "FEI_ADDDRESS",
+         "width": "80",
+         "keyName": "C_AREA",
+         "text": "区域",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colCNTR_OPERATOR_COD",
+         "dataIndex": "CNTR_OPERATOR_COD",
+         "width": "60",
+         "keyName": "AG_SHORT",
+         "text": "船公司",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colPAYER1",
+         "dataIndex": "PAYER",
+         "width": "70",
+         "keyName": "AG_CUSTOMER",
+         "text": "付费方",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colPRICES",
+         "dataIndex": "PRICES",
+         "width": "60",
+         "text": "费用",
+         "align": "right",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       },
+       {
+        "configs": {
+         "itemId": "colFREE_PRICES",
+         "dataIndex": "FREE_PRICES",
+         "width": "80",
+         "text": "减免后费用",
+         "align": "right",
+         "titleAlign": "center"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "column"
+       }
+      ],
+      "type": "array"
+     }
+    ],
+    "type": "grid"
+   }],
+   "type": "viewport"
+  }],
+  "type": "module",
+  "events": {"finalize": "var today = new Date();\
+var year = today.getFullYear();\
+var month = today.getMonth() + 1;\
+var sdate = new Date(year + \"-\" + month + \"-01\");\
+app.sdate.setValue(sdate);\
+var days = new Date(year, month, 0).getDate(); //获取当前月份天数\
+var edate = new Date(year + \"-\" + month + \"-\" + days);\
+app.edate.setValue(edate);\
+app.seekMenu.fireEvent('click');"}
+ }],
+ "roles": {
+  "SCANJB": 1,
+  "ZSINMP": 1,
+  "basic": 1,
+  "DCXK": 1,
+  "xlnmc": 1
+ },
+ "title": "小榄拖车费",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
