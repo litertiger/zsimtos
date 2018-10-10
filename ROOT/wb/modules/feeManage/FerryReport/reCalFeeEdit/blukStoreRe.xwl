@@ -5,10 +5,14 @@
    "itemId": "module",
    "serverScript": "var data = app.get();\
 var map = new HashMap();\
+var tenancyId = app.get('sys.TENANCY_ID');\
+if(tenancyId === \"\"){\
+  tenancyId = app.get('TENANCY_ID');\
+}\
 var sql, result;\
 if(!Wb.isEmpty(data.billno)){\
   sql = \"select goods.bill_no, out.WEIGHT, out.VOLUME, out.INOUT_ID, out.STORE_TIME from BLUK_INOUT out,BLUK_GOODS goods,VBILL_HEAD head \"+\
-    \" where goods.TENANCY_ID={?sys.TENANCY_ID?} and out.id=goods.id and out.STORE_TIME is not null \"+\
+    \" where goods.TENANCY_ID='\"+tenancyId+\"' and out.id=goods.id and out.STORE_TIME is not null \"+\
   \" and goods.bill_no='\"+data.billno+\"' and out.outflag=1\";\
 }else{\
   sql = \"select goods.bill_no, out.WEIGHT, out.VOLUME, out.INOUT_ID, out.STORE_TIME from BLUK_INOUT out,BLUK_GOODS goods,VBILL_HEAD head \"+\

@@ -5,7 +5,11 @@
    "itemId": "module",
    "serverScript": "var data=app.get();\
 var map = new HashMap();\
-var sql = \"select ID from RECEIPT where TENANCY_ID={?sys.TENANCY_ID?} \";\
+var tenancyId = app.get('sys.TENANCY_ID');\
+if(tenancyId === \"\"){\
+  tenancyId = app.get('TENANCY_ID');\
+}\
+var sql = \"select ID from RECEIPT where TENANCY_ID='\"+tenancyId+\"' \";\
 if(!Wb.isEmpty(data.cntr)){\
 \tsql+=\" and CNTR='\"+data.cntr+\"'\";\
 } else {\
