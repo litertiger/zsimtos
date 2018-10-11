@@ -71,13 +71,15 @@ sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,cu
 \" +\
   \"from receipt r left join receipt_bill_fee f on r.id=f.rid left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
 \" +\
+  \"left join (select bussiness_code bc from accounts_details where fee_list_id='b430ab040b0a4076830615ab3cf4cced')ad on ad.bc=r.id\\
+\" +\
   \"where r.tenancy_id='\" + tenancyid + \"'\\
 \" +\
   \"and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
 \" +\
   \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
 \" +\
-  \"and r.shipper_way=1 and r.trade_id='1' and r.work_type<>'YOYI' and f.truckfee_xl is not null and t.r_ok is null\";\
+  \"and r.shipper_way=1 and r.trade_id='1' and r.work_type<>'YOYI' and f.truckfee_xl is not null and ad.bc is null and t.r_ok is null\";\
 if (!Wb.isEmpty(data.ids))\
   sql += \" and r.id in(\" + data.ids + \")\";\
 app.run(sql);"
