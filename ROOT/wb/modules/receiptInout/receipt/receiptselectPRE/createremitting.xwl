@@ -11,20 +11,66 @@ if (ret.length > 0)\
   throw \"此单已经做过托收,如果重新托收,需要先作废\";\
 \
 var id = Wb.getRecords(app.run(\"select to_char(sysdate,'yyyyMMdd')||lpad(accounts_print_no.nextval,4,'0')id from dual\")); //生成ID\
-app.run(\"call P_XL_TRUCK_FEE({?rid?},{?paycod?},{?payname?},{?paymenttype?})\", {\
+\
+var sql = \"update receipt_bill_fee set truckfee_xl=(\\
+\" +\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),1,\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')-1)\\
+\" +\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join remitting t on r.id=t.r_id\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid),\\
+\" +\
+  \"truckfee_xl1=(\\
+\" +\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')+1)\\
+\" +\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join remitting t on r.id=t.r_id\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid) where rid={?rid?}\";\
+app.run(sql, {\
   transaction: 'start'\
 });\
 \
-var sql = \"insert into remitting(ID,R_ID,REM_DATE,REM_CUS,PAYER,\" +\
+sql = \"delete from accounts_details where tenancy_id='\" + tenancyid + \"' and is_manual=0\\
+\" +\
+  \"and fee_list_id='b430ab040b0a4076830615ab3cf4cced' and bussiness_code={?rid?}\";\
+app.run(sql);\
+sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,customer_nam,fee_group_id,fee_list_id,\\
+\" +\
+  \"account_customer_code,account_customer_nam,payment_customer_code,payment_customer_nam,is_manual,payment_type,\\
+\" +\
+  \"rate,contract_rate,amount,cntr,cntr_size,cntr_type,cntr_id,cntr_operator_cod,i_e_id,e_f_id,trade_id,bill_no)\\
+\" +\
+  \"select sys_guid(),r.id,'\" + tenancyid + \"',r.ship_consign_cod,r.shipper_consignee,'1721e8f57ce8436dabfe2711e5304b2b',\\
+\" +\
+  \"'b430ab040b0a4076830615ab3cf4cced',r.account_customer_code,r.account_customer,r.account_customer_code,r.account_customer,\\
+\" +\
+  \"0,decode(t.print_type,null,2,t.print_type),f.truckfee_xl,f.truckfee_xl1,f.truckfee_xl1,r.cntr,r.cntr_size,r.cntr_type,\\
+\" +\
+  \"r.cntr_id,r.cntr_operator_cod,r.i_e_id,r.e_f_id,r.trade_id,r.bill_no\\
+\" +\
+  \"from receipt r left join receipt_bill_fee f on r.id=f.rid left join remitting t on r.id=t.r_id\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and f.truckfee_xl is not null and r.id={?rid?}\";\
+app.run(sql);\
+// app.run(\"call P_XL_TRUCK_FEE({?rid?},{?paycod?},{?payname?},{?paymenttype?})\", {\
+//   transaction: 'start'\
+// });\
+\
+sql = \"insert into remitting(ID,R_ID,REM_DATE,REM_CUS,PAYER,\" +\
   \"CREATED_BY,CREATED_ON,TENANCY_ID,REM_CUS_COD,PAYER_COD,R_TYPE,R_OK,created_type,print_type)\" +\
   \"values('\" + id[0].ID + \"',{?rid?},sysdate,{?REM_CUS?},{?payname?},\" +\
   \"'\" + username + \"',sysdate,'\" + tenancyid + \"',{?REM_CUS_COD?},{?paycod?},'ts',1,1,{?paymenttype?})\";\
 app.run(sql);\
 \
-var sqlitem = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT) \" +\
+sql = \"insert into remitting_item(ID,C_ID,CNTR,AD_ID,R_OK,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT) \" +\
   \"select sys_guid(),'\" + id[0].ID + \"',CNTR,ID,1,FEE_LIST_ID,PAYMENT_TYPE,ACTUAL_JOB_COUNT,AMOUNT\" +\
   \" from accounts_details where bussiness_code={?rid?} and FEE_LIST_ID='b430ab040b0a4076830615ab3cf4cced'\";\
-app.run(sqlitem);\
+app.run(sql);\
 \
 app.run(\"update accounts_details set IS_MANUAL=1 where bussiness_code={?rid?} and FEE_LIST_ID='b430ab040b0a4076830615ab3cf4cced'\");"
   },
