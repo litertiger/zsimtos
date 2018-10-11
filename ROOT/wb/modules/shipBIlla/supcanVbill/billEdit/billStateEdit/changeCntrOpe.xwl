@@ -1,0 +1,49 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var  id=Wb.decode(app.get(\"ID\")),ids=\"\";\
+var username=app.get(\"sys.username\");\
+for(var i=0;i<id.length;i++)\
+{\
+    if(i>0)\
+      ids+=\",\";\
+\tids+=\"'\"+id[i]+\"'\";\
+}\
+app.run(\"update  VBILL_HEAD  set PHASE='0'  where  ID in (\"+ids+\")  \",{transaction:'start'});\
+app.run(\"update  VLOAD_LIST  set PHASE='0'  where  BILL_ID in(\"+ids+\")  \");\
+\
+var  rs= app.run(\"select  VID,BILL_NO from  vbill_head  where ID in (\" + ids + \") and ZF_ID=1 \");\
+while(rs.next()){\
+   vId= rs.getString(\"VID\");\
+   billNo=rs.getString(\"BILL_NO\");\
+  \
+  app.run(\"update vbill_head  set PHASE='0' where VID='\"+vId+\"'   and  P_BILLNO='\"+billNo+\"' \");\
+  app.run(\"update vload_list  set PHASE='0' where VID='\"+vId+\"'   and  BILL_ID \"+\
+          \"in ( select ID  from  vbill_head where  VID='\"+vId+\"' and  P_BILLNO=  '\"+billNo+\"')\");\
+}\
+\
+app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) \"+\
+        \"select '舱单被解锁','\"+username+\"',sysdate, BILL_NO from  vbill_head where   ID in (\"+ids+\")  \");\
+"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "HGWJK": 1,
+  "SCANJB": 1,
+  "xlablh": 1,
+  "ZHBG": 1,
+  "xlczb": 1,
+  "xlswbqt": 1,
+  "JTCWB": 1,
+  "SWB": 1
+ },
+ "title": "小榄码头空箱",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
