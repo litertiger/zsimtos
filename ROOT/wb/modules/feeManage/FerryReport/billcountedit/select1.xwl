@@ -1,0 +1,101 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var sql = \"\",\
+  idhz = \"\",\
+  s;\
+var tenancyid = app.get('sys.TENANCY_ID');\
+var nature = request.getSession().getAttribute('sys.NATURE');\
+var GOV_CODE = request.getSession().getAttribute('sys.GOV_CODE');\
+s = Wb.decode(data.SHIP_CONSIGN_COD);\
+if (s.length > 0) {\
+  for (var i = 0; i < s.length; i++) {\
+    idhz += \"'\" + s[i] + \"',\";\
+  }\
+  idhz = idhz.substring(0, idhz.length - 1);\
+} else {\
+  idhz = \"''\";\
+}\
+// sql = \"select vh.vid,v3.vessel_name,vh.CNTR_OPERATOR,vh.bill_no,decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER)CS,\" +\
+//   \"vh.i_e_id,vh.trade_id,vh.zf_id,vh.pol,vh.pod,vh.bill_type,decode(vh.I_E_ID,'I',NVL(V2.ATA,v2.eta),'E',NVL(ATD,ETD)) ETA,vh.goods_notes,vh.cargo_type\" +\
+//   \" from vbill_head vh left join vessel_visit v2 on vh.vid=v2.id left join vessel_voyage v3 on v2.vid=v3.id \" +\
+//   \" where vh.TENANCY_ID='\" + tenancyid + \"'\" +\
+//   \" AND to_char(decode(vh.I_E_ID,'I',NVL(V2.ATA,v2.eta),'E',NVL(ATD,ETD)),'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59'\";\
+sql = \"select vh.vid,v3.vessel_name,vh.CNTR_OPERATOR_COD,vh.bill_no,decode(vh.I_E_ID,'I',vh.CONSIGNEE,'E',vh.SHIPPER)CS,\" +\
+  \"vh.i_e_id,vh.trade_id,vh.zf_id,vh.pol,vh.pod,vh.bill_type,decode(vh.I_E_ID,'I',NVL(V2.ATA,v2.eta),'E',NVL(ATD,ETD)) ETA,vh.goods_notes,vh.cargo_type\" +\
+  \" from vbill_head vh left join vessel_visit v2 on vh.vid=v2.id left join vessel_voyage v3 on v2.vid=v3.id \" +\
+  \" where vh.TENANCY_ID='\" + tenancyid + \"'\" +\
+  \" AND to_char(eta,'yyyy-MM-dd HH24:MI:SS') between '\" + data.sdate + \" 00:00:00' and '\" + data.edate + \" 23:59:59'\";\
+if (!Wb.isEmpty(data.billType)) {\
+  // \tsql += \" and vh.BILL_TYPE = '\" + data.billType + \"'\";\
+  var s = Wb.decode(data.billType),\
+    types = \"\";\
+  if (s.length > 0) {\
+    for (var i = 0; i < s.length; i++) {\
+      types += \"'\" + s[i] + \"',\";\
+    }\
+\ttypes=types.substring(0,types.length-1);\
+    sql += \" and vh.BILL_TYPE in (\" + types + \")\";\
+  }\
+}\
+\
+if (!Wb.isEmpty(data.billNo))\
+  sql += \" and vh.BILL_NO LIKE '%\" + data.billNo + \"%'\";\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + data.CNTR_OPERATOR_COD + \"'\";\
+if (!Wb.isEmpty(eval(data.SHIP_CONSIGN_COD))) {\
+  //   sql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD)='\" + data.SHIP_CONSIGN_COD + \"'\";\
+  sql += \" and decode(vh.I_E_ID,'I',vh.CONSIGNEE_COD,'E',vh.SHIPPER_COD) in(\" + idhz + \")\";\
+}\
+if (!Wb.isEmpty(data.ieId)){\
+  sql += \" and vh.I_E_ID='\" + data.ieId + \"'\";\
+  if(data.ieId=='I'){\
+  \tsql+=\" and (INSTR(POL,'香港')>0 OR INSTR(POL,'HK')>0)\";\
+  }else{\
+  \tsql+=\" and (INSTR(POD,'香港')>0 OR INSTR(POD,'香港')>0)\";\
+  }\
+}\
+if (!Wb.isEmpty(data.tradeId))\
+  sql += \" and vh.TRADE_ID='\" + data.tradeId + \"'\";\
+if (!Wb.isEmpty(data.voyageNo))\
+  sql += \" and v2.VID='\" + data.voyageNo + \"'\";\
+// if (data.zong == \"false\" && data.fen == \"false\")\
+//   sql += \" and vh.main_flag=1\";\
+if (data.zong == \"true\" && data.fen == \"false\")\
+  sql += \" and (vh.zf_id=0 or (vh.zf_id=1 and vh.main_flag=0))\";\
+if (data.zong == \"false\" && data.fen == \"true\")\
+  sql += \" and (vh.zf_id=0 or (vh.zf_id=1 and vh.main_flag=1))\";\
+if (data.zong == \"true\" && data.fen == \"true\")\
+  sql += \" and vh.zf_id=0\";\
+if (nature == 5)\
+  sql += \" and vh.CNTR_OPERATOR_COD='\" + GOV_CODE + \"'\";\
+\
+if(!Wb.isEmpty(data.transittype)){\
+\tsql+=\" and vh.TRANSIT   ='\"+data.transittype+\"'\t\";\
+}\
+\
+if (!Wb.isEmpty(data.loadport))\
+  sql += \" and vh.POL='\" + data.loadport + \"'\";\
+if (!Wb.isEmpty(data.unloadport))\
+  sql += \" and vh.POD='\" + data.unloadport + \"'\";\
+app.send(Wb.getRecords(app.run(sql)));"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "HGWJK": 1,
+  "JCB": 1,
+  "ZSBCFEE": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
