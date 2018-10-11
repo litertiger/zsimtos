@@ -1,5 +1,5 @@
 {
- "hidden": true,
+ "hidden": false,
  "children": [{
   "configs": {
    "itemId": "module",
@@ -93,38 +93,34 @@ var username = \"{#sys.dispname#}\";\
 var AF1 = document.getElementById(opt);\
 var iesql = \"\";\
 var iesql2 = \"\";\
-if (app.cboIE.getValue()=='I') {\
-  iesql = \" and v2.i_e='\" + app.cboIE.getValue() + \"' AND s.service_category ='3' and v2.phase<>'C'\";\
+if (app.cboIE.getValue() == 'I') {\
+  iesql = \" and v.i_e='\" + app.cboIE.getValue() + \"' AND s.service_category ='3' and v.phase<>'C'\";\
   iesql2 = \" and vh.i_e_id='\" + app.cboIE.getValue() + \"' AND s.service_category ='3' and v2.phase<>'C'\";\
-}else if (app.cboIE.getValue()=='E') {//1 水转 3GPS\
-  iesql = \" and v2.i_e='\" + app.cboIE.getValue() + \"' and s.SERVICE_CATEGORY in('3')  and v2.phase<>'C'\";\
+} else if (app.cboIE.getValue() == 'E') { //1 水转 3GPS\
+  iesql = \" and v.i_e='\" + app.cboIE.getValue() + \"' and s.SERVICE_CATEGORY in('3') and v.phase<>'C'\";\
   iesql2 = \" and vh.i_e_id='\" + app.cboIE.getValue() + \"' and s.SERVICE_CATEGORY in('3') and v2.phase<>'C'\";\
-} \
-else if (app.cboIE.getValue() == \"IE\") {\
-  iesql = \" and  s.SERVICE_CATEGORY in('1','3')  and v2.phase<>'C'\";\
-  iesql2 = iesql;\
+} else if (app.cboIE.getValue() == \"IE\") {\
+  iesql = \" and s.SERVICE_CATEGORY in('1','3') and v.phase<>'C'\";\
+  iesql2 = \" and s.SERVICE_CATEGORY in('1','3') and v2.phase<>'C'\";\
 } else if (app.cboIE.getValue() == \"Z\") {\
-  iesql = \" and s.SERVICE_CATEGORY='1'  and v2.phase<>'C'\";\
-  iesql2 = iesql;\
+  iesql = \" and s.SERVICE_CATEGORY='1' and v.phase<>'C'\";\
+  iesql2 = \" and s.SERVICE_CATEGORY='1' and v2.phase<>'C'\";\
 }\
 \
-var whereSql = encodeURI(iesql + \" and v2.tenancy_id='\" + tenancyid + \"'\" +\
-  \" and v2.eta>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
-  \" and v2.eta<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
+var whereSql = encodeURI(iesql + \" and v.tenancy_id='\" + tenancyid + \"'\" +\
+  \" and v.eta>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and v.eta<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
 var whereSql2 = encodeURI(iesql2 + \" and v2.tenancy_id='\" + tenancyid + \"'\" +\
   \" and v2.eta>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
   \" and v2.eta<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\");\
-// AF1.func(\"Build\", '/supcan/report/bill/IE_Report.xml?' + Math.round(Math.random() * 100));\
-AF1.func(\"Build\", 'supcan/report/bluk/test11111.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"Build\", '/supcan/report/bill/IE_Report3.xml?' + Math.round(Math.random() * 100));\
 AF1.func(\"SetParas\", \"ds1 \\r\\
  para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
 // AF1.func(\"SetParas\", \"ds1 \\r\\
  para=1;whereSql2=\" + whereSql2 + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
 AF1.func(\"SetCellData\", \"<data sdate='\" + app.sdate.getRawValue() + \"' edate='\" + app.edate.getRawValue() + \"' H8='\" + username + \"' ieid='\" + app.cboIE.getRawValue() + \"'/>\");\
 AF1.func(\"Calc\", \"\");\
-\
 var row = AF1.func(\"getCellData\", \"rowcount\");\
-// alert(row);\
 if (Number(row) < 28) {\
   AF1.func(\"insertRows\", (3 + Number(row)) + \" \\r\\
  \" + (28 - Number(row)) + \" \\r\\
@@ -162,7 +158,7 @@ app.panelAcc.update(mt1);",
   var m = document.getElementById(opt);\
   if (id == opt) {\
     m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
-    m.func(\"Build\", 'supcan/report/bluk/test11111.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"Build\", '/supcan/report/bill/IE_Report3.xml?' + Math.round(Math.random() * 100));\
     m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
  true\");\
     m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&sdfa=123\");\
@@ -189,7 +185,7 @@ app.cboIE.setValue(\"I\");",
   "JTCWB": 1,
   "SWB": 1
  },
- "title": "海关船舶进出口港统计",
+ "title": "船舶进出口港统计",
  "iconCls": "",
  "inframe": false,
  "pageLink": ""
