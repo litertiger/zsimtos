@@ -11,9 +11,9 @@ var sql = \"update receipt_bill_fee set truckfee_xl=(\\
 \" +\
   \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')-1)\\
 \" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join remitting t on r.id=t.r_id\\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
 \" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid and (t.r_ok is null or t.r_ok<>2)),\\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid and t.r_ok is null),\\
 \" +\
   \"truckfee_xl1=(\\
 \" +\
@@ -21,9 +21,9 @@ var sql = \"update receipt_bill_fee set truckfee_xl=(\\
 \" +\
   \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')+1)\\
 \" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join remitting t on r.id=t.r_id\\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
 \" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid and (t.r_ok is null or t.r_ok<>2)) where rid in(\\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid and t.r_ok is null) where rid in(\\
 \" +\
   \"select id from receipt where tenancy_id='\" + tenancyid + \"'\\
 \" +\
