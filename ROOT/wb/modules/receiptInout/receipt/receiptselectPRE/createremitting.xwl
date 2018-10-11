@@ -35,28 +35,31 @@ app.run(sql, {\
   transaction: 'start'\
 });\
 \
-sql = \"delete from accounts_details where tenancy_id='\" + tenancyid + \"' and is_manual=0\\
+var acc = Wb.getRecords(app.run(\"select is_manual from accounts_details where bussiness_code={?rid?} and fee_list_id='b430ab040b0a4076830615ab3cf4cced'\"));\
+if (acc.length < 1 || acc[0].IS_MANUAL == '0') { //托收没有拖运费,或者拖运费允许重新计费\
+  sql = \"delete from accounts_details where tenancy_id='\" + tenancyid + \"' and is_manual=0\\
 \" +\
-  \"and fee_list_id='b430ab040b0a4076830615ab3cf4cced' and bussiness_code={?rid?}\";\
-app.run(sql);\
-sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,customer_nam,fee_group_id,fee_list_id,\\
+    \"and fee_list_id='b430ab040b0a4076830615ab3cf4cced' and bussiness_code={?rid?}\";\
+  app.run(sql);\
+  sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,customer_nam,fee_group_id,fee_list_id,\\
 \" +\
-  \"account_customer_code,account_customer_nam,payment_customer_code,payment_customer_nam,is_manual,payment_type,\\
+    \"account_customer_code,account_customer_nam,payment_customer_code,payment_customer_nam,is_manual,payment_type,\\
 \" +\
-  \"rate,contract_rate,amount,cntr,cntr_size,cntr_type,cntr_id,cntr_operator_cod,i_e_id,e_f_id,trade_id,bill_no)\\
+    \"rate,contract_rate,amount,cntr,cntr_size,cntr_type,cntr_id,cntr_operator_cod,i_e_id,e_f_id,trade_id,bill_no)\\
 \" +\
-  \"select sys_guid(),r.id,'\" + tenancyid + \"',r.ship_consign_cod,r.shipper_consignee,'1721e8f57ce8436dabfe2711e5304b2b',\\
+    \"select sys_guid(),r.id,'\" + tenancyid + \"',r.ship_consign_cod,r.shipper_consignee,'1721e8f57ce8436dabfe2711e5304b2b',\\
 \" +\
-  \"'b430ab040b0a4076830615ab3cf4cced',r.account_customer_code,r.account_customer,r.account_customer_code,r.account_customer,\\
+    \"'b430ab040b0a4076830615ab3cf4cced',r.account_customer_code,r.account_customer,r.account_customer_code,r.account_customer,\\
 \" +\
-  \"0,decode(t.print_type,null,2,t.print_type),f.truckfee_xl,f.truckfee_xl1,f.truckfee_xl1,r.cntr,r.cntr_size,r.cntr_type,\\
+    \"0,decode(t.print_type,null,2,t.print_type),f.truckfee_xl,f.truckfee_xl1,f.truckfee_xl1,r.cntr,r.cntr_size,r.cntr_type,\\
 \" +\
-  \"r.cntr_id,r.cntr_operator_cod,r.i_e_id,r.e_f_id,r.trade_id,r.bill_no\\
+    \"r.cntr_id,r.cntr_operator_cod,r.i_e_id,r.e_f_id,r.trade_id,r.bill_no\\
 \" +\
-  \"from receipt r left join receipt_bill_fee f on r.id=f.rid left join remitting t on r.id=t.r_id\\
+    \"from receipt r left join receipt_bill_fee f on r.id=f.rid left join remitting t on r.id=t.r_id\\
 \" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and f.truckfee_xl is not null and r.id={?rid?}\";\
-app.run(sql);\
+    \"where r.tenancy_id='\" + tenancyid + \"' and f.truckfee_xl is not null and r.id={?rid?}\";\
+  app.run(sql);\
+}\
 // app.run(\"call P_XL_TRUCK_FEE({?rid?},{?paycod?},{?payname?},{?paymenttype?})\", {\
 //   transaction: 'start'\
 // });\
