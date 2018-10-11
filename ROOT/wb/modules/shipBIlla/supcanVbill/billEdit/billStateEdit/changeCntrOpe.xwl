@@ -11,22 +11,51 @@ for(var i=0;i<id.length;i++)\
       ids+=\",\";\
 \tids+=\"'\"+id[i]+\"'\";\
 }\
-app.run(\"update  VBILL_HEAD  set PHASE='0'  where  ID in (\"+ids+\")  \",{transaction:'start'});\
-app.run(\"update  VLOAD_LIST  set PHASE='0'  where  BILL_ID in(\"+ids+\")  \");\
-\
-var  rs= app.run(\"select  VID,BILL_NO from  vbill_head  where ID in (\" + ids + \") and ZF_ID=1 \");\
-while(rs.next()){\
-   vId= rs.getString(\"VID\");\
-   billNo=rs.getString(\"BILL_NO\");\
-  \
-  app.run(\"update vbill_head  set PHASE='0' where VID='\"+vId+\"'   and  P_BILLNO='\"+billNo+\"' \");\
-  app.run(\"update vload_list  set PHASE='0' where VID='\"+vId+\"'   and  BILL_ID \"+\
-          \"in ( select ID  from  vbill_head where  VID='\"+vId+\"' and  P_BILLNO=  '\"+billNo+\"')\");\
+var  id=Wb.decode(app.get(\"billIds\")),ids=\"\",username=app.get('sys.username'),\
+     ORG_NAME=app.get('sys.ORG_NAME'),GOV_CODE=app.get('sys.GOV_CODE'),\
+     cntrOperCod=app.get('cntrOperCod'),cntrOperName=app.get('cntrOperName'),\
+     colineCod=app.get('colineCod'),coline=app.get('coline'),\
+     tenancyid=app.get(\"sys.TENANCY_ID\");\
+for(var i=0;i<id.length;i++){\
+  if(i>0)\
+    ids+=\",\";\
+ids+=\"'\"+id[i]+\"'\";\
 }\
+var mainId = SysUtil.getId(); //主表ID\
 \
-app.run(\"insert into   SHP_BILL_LOG(MESSAGE, OPE_MAN, OPE_DATE, BILL_NO) \"+\
-        \"select '舱单被解锁','\"+username+\"',sysdate, BILL_NO from  vbill_head where   ID in (\"+ids+\")  \");\
-"
+//插入主表\
+var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
+  \"FROM_OPERATOR_COD,FROM_OPERATOR,TO_OPERATOR_COD,TO_OPERATOR,CHANGE_REASON,APPLY_DATE,CREATED_BY,CREATED_ON)\" +\
+  \" values('\" + mainId + \"','\" + tenancyid + \"','ACK','OTO','\"+GOV_CODE+\"','\"+ORG_NAME+\"',\" +\
+  \"'\"+GOV_CODE+\"','\"+ORG_NAME+\"','\"+colineCod+\"', '\"+coline+\"' ,\" +\
+  \"'舱单批量转柜',sysdate,'\" + username + \"',sysdate)\";\
+app.run(sqla, {\
+  transaction: 'start'\
+});\
+//插入字表\
+var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID) select sys_guid(),'\" + mainId + \"',CNTR_ID from  vload_list \"+\
+            \" where  bill_id in(\"+ids+\")\";\
+app.run(sqll);\
+var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username'); //用户ID\
+var aid = data.ID;\
+var sqlp = \"\";\
+\
+//修改port_cntr\
+if (!Wb.isEmpty(data.CNTR_OPERATOR_COD))\
+  sqlp = \"update port_cntr set CNTR_OPERATOR='XLGSWB',CNTR_OPERATOR_COD='XLGSWB'\" +\
+  \" where ID in (select cntr_id from cntr_apply_list where aid={?ID?})\";\
+else\
+  sqlp = \"update port_cntr set TRADE_ID={?TRADE_ID?} where ID in (select cntr_id from cntr_apply_list where aid={?ID?})\";\
+app.run(sqlp, {\
+  transaction: 'start'\
+});\
+//修改主表状态\
+sqla = \"update cntr_apply set phase='AOK' where id={?ID?}\";\
+app.run(sqla, {\
+  transaction: 'commit'\
+});"
   },
   "expanded": true,
   "children": [],
