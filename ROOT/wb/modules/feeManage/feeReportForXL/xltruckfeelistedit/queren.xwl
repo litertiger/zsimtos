@@ -1,0 +1,102 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get(\"sys.TENANCY_ID\");\
+var sql = \"\";\
+if (data.queren == '1') {\
+\
+} else {\
+\
+}\
+var sql = \"update receipt_bill_fee set truckfee_xl=(\\
+\" +\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),1,\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')-1)\\
+\" +\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid),\\
+\" +\
+  \"truckfee_xl1=(\\
+\" +\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')+1)\\
+\" +\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid) where rid in(\\
+\" +\
+  \"select id from receipt where tenancy_id='\" + tenancyid + \"'\\
+\" +\
+  \"and trunc(created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and shipper_way=1 and trade_id='1' and work_type<>'YOYI'\";\
+if (!Wb.isEmpty(data.ids))\
+  sql += \" and id in(\" + data.ids + \")\";\
+sql += \")\";\
+app.run(sql, {\
+  transaction: 'start'\
+});\
+\
+sql = \"delete from accounts_details where tenancy_id='\" + tenancyid + \"' and is_manual=0\\
+\" +\
+  \"and fee_list_id='b430ab040b0a4076830615ab3cf4cced' and bussiness_code in(\\
+\" +\
+  \"select id from receipt where tenancy_id='\" + tenancyid + \"'\\
+\" +\
+  \"and trunc(created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and shipper_way=1 and trade_id='1' and work_type<>'YOYI'\";\
+if (!Wb.isEmpty(data.ids))\
+  sql += \" and id in(\" + data.ids + \")\";\
+sql += \")\";\
+app.run(sql);\
+\
+sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,customer_nam,fee_group_id,fee_list_id,\\
+\" +\
+  \"account_customer_code,account_customer_nam,payment_customer_code,payment_customer_nam,is_manual,payment_type,\\
+\" +\
+  \"rate,contract_rate,amount,cntr,cntr_size,cntr_type,cntr_id,cntr_operator_cod,i_e_id,e_f_id,trade_id,bill_no)\\
+\" +\
+  \"select sys_guid(),r.id,'\" + tenancyid + \"',r.ship_consign_cod,r.shipper_consignee,'1721e8f57ce8436dabfe2711e5304b2b',\\
+\" +\
+  \"'b430ab040b0a4076830615ab3cf4cced',r.account_customer_code,r.account_customer,r.account_customer_code,r.account_customer,\\
+\" +\
+  \"0,2,f.truckfee_xl,f.truckfee_xl1,f.truckfee_xl1,r.cntr,r.cntr_size,r.cntr_type,\\
+\" +\
+  \"r.cntr_id,r.cntr_operator_cod,r.i_e_id,r.e_f_id,r.trade_id,r.bill_no\\
+\" +\
+  \"from receipt r left join receipt_bill_fee f on r.id=f.rid left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
+\" +\
+  \"left join (select bussiness_code bc from accounts_details where fee_list_id='b430ab040b0a4076830615ab3cf4cced')ad on ad.bc=r.id\\
+\" +\
+  \"where r.tenancy_id='\" + tenancyid + \"'\\
+\" +\
+  \"and trunc(r.created_on)>=to_date('\" + data.sdate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
+\" +\
+  \"and r.shipper_way=1 and r.trade_id='1' and r.work_type<>'YOYI' and f.truckfee_xl is not null and ad.bc is null and t.r_ok is null\";\
+if (!Wb.isEmpty(data.ids))\
+  sql += \" and r.id in(\" + data.ids + \")\";\
+app.run(sql);"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {"default": 1},
+ "title": "确认",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}
