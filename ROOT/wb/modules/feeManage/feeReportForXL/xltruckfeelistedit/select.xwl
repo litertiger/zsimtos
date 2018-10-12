@@ -11,7 +11,9 @@ var sql = \"select r.id,r.cntr,r.cntr_size,r.s_adress,r.fei_adddress,r.cntr_oper
 \" +\
   \"decode(r.e_f_id,'E','空箱','重箱')e_f_id,decode(r.trade_id,'1','外贸','内贸')trade_id,decode(r.i_e_id,'I','进口','出口')i_e_id,\\
 \" +\
-  \"f.rate,f.amount,decode(f.is_manual,0,'未确认',null,'未确认','已确认')is_manual from receipt r left join c_customer c on r.account_customer_code=c.code\\
+  \"f.rate,f.amount,decode(f.is_manual,0,'未确认',null,'未确认','已确认')is_manual,decode(r.shipper_way,1,'码头承运',3,'驳船承运')shipper_way\\
+\" +\
+  \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
 \" +\
   \"left join(select bussiness_code bc,is_manual,rate,amount from accounts_details where fee_list_id='b430ab040b0a4076830615ab3cf4cced')f on r.id=f.bc\\
 \" +\
@@ -21,7 +23,7 @@ var sql = \"select r.id,r.cntr,r.cntr_size,r.s_adress,r.fei_adddress,r.cntr_oper
 \" +\
   \"and trunc(r.created_on)<=to_date('\" + data.edate + \"','yyyy-mm-dd')\\
 \" +\
-  \"and r.shipper_way=1 and r.trade_id='1' and r.work_type<>'YOYI'\";\
+  \"and r.trade_id='1' and r.work_type<>'YOYI'\";\
 if (!Wb.isEmpty(data.ismanual)) {\
   if (data.ismanual == '0')\
     sql += \" and(f.is_manual is null or f.is_manual=0)\";\
