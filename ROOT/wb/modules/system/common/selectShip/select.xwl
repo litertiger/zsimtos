@@ -11,8 +11,9 @@
   ieId = app.get(\"ieId\"),\
   govCode = app.get(\"sys.GOV_CODE\"),\
   tenancy = app.get(\"TENANCY_ID\");\
+sql=\"\";\
 if (nature == '5') //表示驳船\
-  sql += \" and exists (select 1 from vbill_head where nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\" + govCode + \"') \";\
+  sql += \" and exists (select 1 from vbill_head where vid=VESSEL_VISIT.id and nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\" + govCode + \"') \";\
 request.setAttribute('sql', sql);"
   },
   "expanded": true,
@@ -49,7 +50,7 @@ case when {?shipIeId?}='I' then LIB_VYG else  LOB_VYG  end  call,BERTH_CODE,BERT
 and  ( ({?TIMESTAMP.date?} >= to_date(to_char(ETA,'yyyymmdd'),'yyyymmdd')\
 and {?TIMESTAMP.date?} <= to_date(to_char(ETA,'yyyymmdd'),'yyyymmdd') + 0.99999) or\
    VESSEL_VOYAGE.EDI_CALL_SIGN='ZCQ')  and  instr((case when {?shipIeId?}='I' then ITRADE_ID else  ETRADE_ID  end) ,{?tradeId?})>0\
-and instr('I_E',{?shipIeId?})>0\
+and instr('I_E',{?shipIeId?})>0{#sql#}\
 \
 "
    },
