@@ -659,7 +659,7 @@ Wb.request({\
       "configs": {
        "layout": "hbox",
        "itemId": "radioKP",
-       "width": "200",
+       "width": "280",
        "style": "padding-left:18px;"
       },
       "expanded": true,
@@ -690,6 +690,19 @@ Wb.request({\
         "expanded": false,
         "children": [],
         "type": "radio"
+       },
+       {
+        "configs": {
+         "itemId": "radioD",
+         "labelAlign": "right",
+         "flex": "1",
+         "fieldLabel": "吊箱费",
+         "name": "radioKP",
+         "labelWidth": "50"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio"
        }
       ],
       "type": "container"
@@ -708,12 +721,19 @@ Wb.request({\
     "type": "window",
     "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
 //插入变更记录表,变更设备交接单类型\
+var kp = '';\
+if (app.radioY.checked)\
+  kp = '1';\
+else if (app.radioN.checked)\
+  kp = '0';\
+else if (app.radioD.checked)\
+  kp = '2';\
 Wb.request({\
   url: \"m?xwl=truckManager/truckReceipt/receiptTruck_xl/updateEOEI\",\
   params: {\
     id: sel.data.ID,\
     NOTES: app.UP_REASON.getValue(),\
-    kp: app.radioN.checked ? 0 : 1\
+    kp: kp\
   },\
   success: function(resp) {\
     Wb.info(\"操作完成\");\
@@ -2005,7 +2025,9 @@ if (value == \"OUT\")\
            "renderer": "if (value == '0')\
   return \"非空跑\";\
 if (value == '1')\
-  return \"空跑\";",
+  return \"空跑\";\
+if (value == '2')\
+  return \"吊箱费\";",
            "dataIndex": "EMPTY_DRIVING_FLAG",
            "width": "50",
            "text": "空跑"
