@@ -7,7 +7,9 @@
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
 var sql = \"update receipt_bill_fee set truckfee_xl=(\\
 \" +\
-  \"select regexp_substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'[^@]+',1,1)\\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),1,\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')-1)\\
 \" +\
   \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
 \" +\
@@ -15,29 +17,13 @@ var sql = \"update receipt_bill_fee set truckfee_xl=(\\
 \" +\
   \"truckfee_xl1=(\\
 \" +\
-  \"select regexp_substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'[^@]+',1,2)\\
+  \"select substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),\\
+\" +\
+  \"instr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'@')+1)\\
 \" +\
   \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
 \" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid),\\
-\" +\
-  \"fee_list_id=(\\
-\" +\
-  \"select regexp_substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'[^@]+',1,3)\\
-\" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
-\" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid),\\
-\" +\
-  \"fee_group_id=(\\
-\" +\
-  \"select regexp_substr(f_truck_fee_xl(cntr_size,trade_id,shipper_way,c.client_type,account_customer_code,account_customer,ship_consign_cod,cntr_operator_cod,r.s_adress,decode(t.r_ok,null,0,2,0,0,1,1,1),r.tenancy_id),'[^@]+',1,4)\\
-\" +\
-  \"from receipt r left join c_customer c on r.account_customer_code=c.code left join (select r_ok,r_id from remitting where r_ok=1) t on r.id=t.r_id\\
-\" +\
-  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid)\\
-\" +\
-  \"where rid in(\\
+  \"where r.tenancy_id='\" + tenancyid + \"' and r.id=receipt_bill_fee.rid) where rid in(\\
 \" +\
   \"select id from receipt where tenancy_id='\" + tenancyid + \"'\\
 \" +\
@@ -75,9 +61,9 @@ sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,cu
 \" +\
   \"rate,contract_rate,amount,cntr,cntr_size,cntr_type,cntr_id,cntr_operator_cod,i_e_id,e_f_id,trade_id,bill_no)\\
 \" +\
-  \"select sys_guid(),r.id,'\" + tenancyid + \"',r.ship_consign_cod,r.shipper_consignee,f.fee_group_id,\\
+  \"select sys_guid(),r.id,'\" + tenancyid + \"',r.ship_consign_cod,r.shipper_consignee,'1721e8f57ce8436dabfe2711e5304b2b',\\
 \" +\
-  \"f.fee_list_id,r.account_customer_code,r.account_customer,r.account_customer_code,r.account_customer,\\
+  \"'b430ab040b0a4076830615ab3cf4cced',r.account_customer_code,r.account_customer,r.account_customer_code,r.account_customer,\\
 \" +\
   \"0,2,f.truckfee_xl,f.truckfee_xl1,f.truckfee_xl1,r.cntr,r.cntr_size,r.cntr_type,\\
 \" +\
