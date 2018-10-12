@@ -697,7 +697,6 @@ Wb.request({\
      {
       "configs": {
        "itemId": "UP_REASON",
-       "allowBlank": "false",
        "labelAlign": "right",
        "fieldLabel": "变更原因"
       },
@@ -1668,11 +1667,41 @@ app.OUT_TRAY_NO.setValue(combo.getValue());"
          },
          {
           "configs": {
+           "tagConfigs": "matchFieldWidth: false",
            "itemId": "tbIN_CAR",
+           "tpl": "<table cellspacing='0' width='100%'>\
+  <tr>\
+    <td width='20%'>\
+      编号\
+    <\/td>\
+    <td width='20%'>\
+      车牌\
+    <\/td>\
+    <td width='60%'>\
+      车队\
+    <\/td>\
+  <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td>\
+        {TRUCK_NO}\
+      <\/td>\
+      <td>\
+        {PLAT_NO}\
+      <\/td>\
+      <td>\
+        {NAME}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
            "emptyText": "车头",
-           "width": "60",
+           "width": "80",
            "displayField": "TRUCK_NO",
            "isUpperCase": "true",
+           "listConfig": "{\
+  width: 400\
+}",
            "valueField": "TRUCK_NO",
            "queryDelay": "200",
            "forceSelection": "true"
@@ -1965,6 +1994,21 @@ if (value == \"OUT\")\
            "dataIndex": "IN_CAMPI",
            "width": "80",
            "text": "去程拖卡"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colEMPTY_DRIVING_FLAG",
+           "renderer": "if (value == '0')\
+  return \"非空跑\";\
+if (value == '1')\
+  return \"空跑\";",
+           "dataIndex": "EMPTY_DRIVING_FLAG",
+           "width": "50",
+           "text": "空跑"
           },
           "expanded": false,
           "children": [],
@@ -2342,7 +2386,7 @@ Wb.open(pageLink);"}
 var rows = app.gridReceipt.getSelection();\
 app.popupCar_team.setDisabled(rows.length < 1 || nature == 5 || nature == 6);\
 app.popupClean.setDisabled(rows.length != 1 || rows[0].data.PHASE != \"EXE\");\
-app.popupUpd.setDisabled(rows.length < 1 || (rows[0].data.PHASE != \"EXE\" && rows[0].data.PHASE != \"PLN\"));\
+app.popupUpd.setDisabled(rows.length != 1);\
 app.popupAddFee.setDisabled(rows.length != 1);\
 app.popupZX.setDisabled(rows.length != 1);\
 app.popupEOEI.setDisabled(rows.length != 1);\
