@@ -1,7 +1,20 @@
 {
  "hidden": false,
  "children": [{
-  "configs": {"itemId": "module"},
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var sql, data = app.get(),\
+  billId = app.get(\"billId\"),\
+  tradeId = app.get(\"tradeId\"),\
+  shipNo = app.get(\"shipNo\"),\
+  nature = app.get(\"sys.NATURE\"),\
+  ieId = app.get(\"ieId\"),\
+  govCode = app.get(\"sys.GOV_CODE\"),\
+  tenancy = app.get(\"TENANCY_ID\");\
+if (nature == '5') //表示驳船\
+  sql += \" and exists (select 1 from vbill_head where nvl(CNTR_OPERATOR_COD,SUBSTR (bill_no,0, 2))='\" + govCode + \"') \";\
+request.setAttribute('sql', sql);"
+  },
   "expanded": true,
   "children": [{
    "configs": {
