@@ -26,8 +26,7 @@ if (!Wb.isEmpty(data.ids))\
 var receipts = Wb.getRecords(app.run(sql, {\
   transaction: 'start'\
 }));\
-var trusql = \"begin\\
-\";\
+var trusql = \"\";\
 Wb.each(receipts, function(receipt) {\
   if (receipt.SHIPPER_WAY == 1) {\
     fee_group_id = '1721e8f57ce8436dabfe2711e5304b2b';\
@@ -36,7 +35,8 @@ Wb.each(receipts, function(receipt) {\
     fee_group_id = '1721e8f57ce8436dabfe2711e5304b2b';\
     fee_list_id = '52c40355fb3a4363be7dee8a6f61f8c2';\
   }\
-  trusql += \"update receipt_bill_fee set truckfee_xl=\" + receipt.FEE.split('@')[0] + \",truckfee_xl1=\" + receipt.FEE.split('@')[1] + \"\\
+  if (!Wb.isEmpty(receipt.FEE))\
+    trusql = \"update receipt_bill_fee set truckfee_xl=\" + receipt.FEE.split('@')[0] + \",truckfee_xl1=\" + receipt.FEE.split('@')[1] + \"\\
 \" +\
     \"where rid='\" + receipt.ID + \"';\\
 \";\
@@ -68,8 +68,9 @@ Wb.each(receipts, function(receipt) {\
 \" +\
     \"and f.truckfee_xl is not null and ad.bc is null and t.r_ok is null;\\
 \";\
+  app.run(trusql);\
 });\
-trusql += \"end;\";\
+// trusql += \"end;\";\
 app.run(trusql);"
   },
   "expanded": true,
