@@ -26,6 +26,8 @@ if (!Wb.isEmpty(data.ids))\
 var receipts = Wb.getRecords(app.run(sql, {\
   transaction: 'start'\
 }));\
+var trusql = \"begin\\
+\";\
 Wb.each(receipts, function(receipt) {\
   if (receipt.SHIPPER_WAY == 1) {\
     fee_group_id = '1721e8f57ce8436dabfe2711e5304b2b';\
@@ -34,17 +36,19 @@ Wb.each(receipts, function(receipt) {\
     fee_group_id = '1721e8f57ce8436dabfe2711e5304b2b';\
     fee_list_id = '52c40355fb3a4363be7dee8a6f61f8c2';\
   }\
-  sql = \"update receipt_bill_fee set truckfee_xl=\" + receipt.FEE.split('@')[0] + \",truckfee_xl1=\" + receipt.FEE.split('@')[1] + \"\\
+  trusql += \"update receipt_bill_fee set truckfee_xl=\" + receipt.FEE.split('@')[0] + \",truckfee_xl1=\" + receipt.FEE.split('@')[1] + \"\\
 \" +\
-    \"where rid='\" + receipt.ID + \"'\";\
-  app.run(sql);\
+    \"where rid='\" + receipt.ID + \"';\\
+\";\
+  //app.run(sql);\
 \
-  sql = \"delete from accounts_details where tenancy_id='\" + tenancyid + \"' and is_manual=0\\
+  trusql += \"delete from accounts_details where tenancy_id='\" + tenancyid + \"' and is_manual=0\\
 \" +\
-    \"and fee_list_id='\" + fee_list_id + \"' and bussiness_code='\" + receipt.ID + \"'\";\
-  app.run(sql);\
+    \"and fee_list_id='\" + fee_list_id + \"' and bussiness_code='\" + receipt.ID + \"';\\
+\";\
+  //   app.run(sql);\
 \
-  sql = \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,customer_nam,fee_group_id,fee_list_id,\\
+  trusql += \"insert into accounts_details(id,bussiness_code,tenancy_id,customer_id,customer_nam,fee_group_id,fee_list_id,\\
 \" +\
     \"account_customer_code,account_customer_nam,payment_customer_code,payment_customer_nam,is_manual,payment_type,\\
 \" +\
@@ -64,9 +68,12 @@ Wb.each(receipts, function(receipt) {\
 \" +\
     \"where r.tenancy_id='\" + tenancyid + \"' and r.id='\" + receipt.ID + \"'\\
 \" +\
-    \"and f.truckfee_xl is not null and ad.bc is null and t.r_ok is null\";\
-  app.run(sql);\
+    \"and f.truckfee_xl is not null and ad.bc is null and t.r_ok is null;\\
+\";\
+  //   app.run(sql);\
 });\
+trusql += \"end;\";\
+app.run(trusql);\
 //==================================================\
 return;\
 var sql = \"update receipt_bill_fee set truckfee_xl=(\\
