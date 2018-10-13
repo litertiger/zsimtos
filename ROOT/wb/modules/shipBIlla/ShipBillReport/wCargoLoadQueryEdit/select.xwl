@@ -14,7 +14,8 @@ DECODE (vv.i_e,  'I', lib_vyg,  'E', lob_vyg) voyage_no,\\\
 v.VESSEL_NAME,vh.cntr_operator_cod,decode(vh.i_e_id,'E',O_BERTH_CODE,'I',BERTH_CODE) BERTH_CODE,\\\
 decode((select max(1) from move_list where cntr_id=vl.cntr_id and move_type='LOD'),'1','是','否') is_load,\\\
 decode((select 1 from PORT_CNTR_HIS where ID=vl.cntr_id),'1','核销','') is_hx,\\\
-(select yard_position from PORT_CNTR where ID=VL.CNTR_ID) YARD_POSITION,vh.spod\\\
+(select yard_position from PORT_CNTR where ID=VL.CNTR_ID) YARD_POSITION,vh.spod,\\\
+decode(vh.RELEASE_ID,'1','放行','未放行') RELEASE_ID\\\
  from vbill_head vh,vload_list vl,vessel_visit vv,vessel_voyage v \\\
 where vh.id=vl.bill_id and vh.vid=VV.ID and vv.vid=v.id\\\
  and vh.trade_id='1' and vh.i_e_id='E' AND vh.main_flag='1' and  to_char(ETA,'yyyy-MM-dd HH24:MI:SS') between '\"+data.date+\" 00:00:00' and '\"+data.date+\" 23:59:59' and vh.TENANCY_ID={?sys.TENANCY_ID?}\";\
