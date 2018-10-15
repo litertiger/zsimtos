@@ -89,11 +89,13 @@ AF1.func(\"callfunc\", \"18\");"}
          "type": "item",
          "events": {"click": "var tenancyid = \"{#sys.TENANCY_ID#}\";\
 var AF1 = document.getElementById(opt);\
-var whereSql = encodeURI(\" and va.TENANCY_ID='\" + tenancyid + \"'\" +\
-  \" and trunc(va.yb_date)=to_date('\" + app.sdate.getRawValue() + \"','yyyy-mm-dd')\");\
+var whereSql = encodeURI(\" and TENANCY_ID='\" + tenancyid + \"'\" +\
+  \" and trunc(yb_date)=to_date('\" + app.sdate.getRawValue() + \"','yyyy-mm-dd')\");\
 AF1.func(\"SetParas\", \"ds1 \\r\\
  para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
 AF1.func(\"SetCellData\", \"<data eta='\" + app.sdate.getRawValue() + \"'/>\");\
+AF1.func(\"SetCellData\", \"I2  \\r\\
+ 日期：\" + app.sdate.getRawValue() + \"\");\
 AF1.func(\"Calc\", \"\");\
 AF1.func(\"callfunc\", \"18\");"}
         },
@@ -276,17 +278,6 @@ Wb.sync({\
           "hidden": "true",
           "dataIndex": "TENANCY_ID",
           "text": "TENANCY_ID"
-         },
-         "expanded": true,
-         "children": [],
-         "type": "column"
-        },
-        {
-         "configs": {
-          "itemId": "colCREATED_ON",
-          "dataIndex": "CREATED_ON",
-          "width": "120",
-          "text": "创建时间"
          },
          "expanded": true,
          "children": [],
@@ -690,13 +681,35 @@ sel.set('VESSEL_CODE', records[0].data.ID);"}
           "dataIndex": "NOTES",
           "text": "备注"
          },
-         "expanded": true,
+         "expanded": false,
          "children": [{
           "configs": {"itemId": "editor"},
           "expanded": false,
           "children": [],
           "type": "text"
          }],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_BY",
+          "dataIndex": "CREATED_BY",
+          "keyName": "WB_USER",
+          "text": "申报人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colCREATED_ON",
+          "dataIndex": "CREATED_ON",
+          "width": "120",
+          "text": "申报时间"
+         },
+         "expanded": true,
+         "children": [],
          "type": "column"
         }
        ],
@@ -815,6 +828,17 @@ window[\"init\" + opt] = function(id) {\
   if (id == opt) {\
     m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
     m.func(\"Build\", '/supcan/report/print/ICNTR_YB.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+  }\
+};\
+\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"Build\", '/supcan/report/print/XL_PRE_BAO.xml?' + Math.round(Math.random() * 100));\
     m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
  true\");\
   }\
