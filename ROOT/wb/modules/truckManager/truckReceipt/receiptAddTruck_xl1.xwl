@@ -2434,13 +2434,22 @@ if (value == '2')\
            }],
            "type": "combo",
            "events": {
-            "specialkey": "if (e.getKey() == e.ENTER) {\
-  if (!combo.isExpanded) { //判断combo不展开才切换焦点\
-    app.CAR_TEAM.focus();\
-    app.CAR_TEAM.selectText();\
+            "select": "var sel = app.gridReceipt.getSelection()[0];\
+sel.set('FEI_ADDDRESS', records[0].data.ARID);",
+            "blur": "Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/receiptTruck_xl/ckAddress',\
+  params: {\
+    id: combo.getValue()\
+  },\
+  success: function(resp) {\
+    var res = Wb.decode(resp.responseText);\
+    if (!res.success) {\
+      var sel = app.gridReceipt.getSelection()[0];\
+      sel.set('S_ADRESS', '');\
+      sel.set('FEI_ADDDRESS', '');\
+    }\
   }\
-}",
-            "select": "app.FEI_ADDDRESS.setValue(records[0].data.ARID);"
+});"
            }
           }],
           "type": "column"
@@ -2823,6 +2832,37 @@ var pageLink = {\
   inframe: true\
 };\
 Wb.open(pageLink);"}
+         },
+         {
+          "configs": {
+           "itemId": "popupComp",
+           "tooltip": "查看在场箱信息",
+           "text": "查看在场箱信息",
+           "iconCls": "object_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "// app.window1.show();\
+var sels = app.grid1.getSelection();\
+// if (sels.length != 1) {\
+//   Wb.warn('请选择 1 条需要修改的记录。');\
+//   return;\
+// }\
+\
+Wb.run({\
+  url: 'm?xwl=controlManage/portcntr/control-module',\
+  params: {\
+    ID: sels[0].data.ID\
+  },\
+  success: function(appnew) {\
+    var win = new Ext.window.Window(appnew._cntrWin);\
+    app.test = appnew.test;\
+  // win.setPosition(\"100\",\"400\");\
+\
+    win.show();\
+  }\
+});"}
          }
         ],
         "type": "menu",
