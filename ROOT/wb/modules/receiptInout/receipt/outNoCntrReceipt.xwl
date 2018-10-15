@@ -183,7 +183,25 @@ app.isEdit = false;"}
 if (sel.length < 1) {\
   Wb.warn('请选择要打印的设备交接单');\
   return;\
-}"}
+}\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and r.tenancy_id='\" + tenancyid + \"' and r.id='\" + sel[0].data.ID + \"'\");\
+if (tenancyid == \"ZSG\" || tenancyid == \"SWG\")\
+  AF1.func(\"Build\", '/supcan/report/print/receipt_E.xml?' + Math.round(Math.random() * 100));\
+else if (tenancyid == \"XLG\")\
+  AF1.func(\"Build\", 'supcan/xlgReport/receipt/receipt_E_1.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + \"{#sys.TENANCY_ID#}\");\
+AF1.func(\"Calc\", \"\");\
+AF1.func(\"callfunc\", \"18\");\
+Wb.request({\
+  url: 'm?xwl=receiptInout/receipt/receiptedit/updSPEC_STOW',\
+  params: {\
+    ID: \"'\" + sel.data.ID + \"'\"\
+  },\
+  success: function(resp) {}\
+});"}
      }
     ],
     "type": "toolbar"
@@ -1082,13 +1100,31 @@ Wb.loadComboAdd(app.S_ADRESS, [{\
 }], function() {\
   app.S_ADRESS.setValue(app.selRec.S_ADRESS);\
 });"}
+     },
+     {
+      "configs": {
+       "border": "false",
+       "layout": "fit",
+       "itemId": "panelPrint",
+       "region": "south",
+       "height": "0"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "panel"
      }
     ],
-    "type": "viewport"
+    "type": "viewport",
+    "events": {
+     "afterrender": "var mt1 = bldStr(\"LuxForm\", opt, \"\", \"100%\");\
+app.panelPrint.update(mt1);",
+     "destroy": "delete window[\"init\" + opt];"
+    }
    }
   ],
   "type": "module",
-  "events": {"finalize": "app.isEdit = false;\
+  "events": {
+   "finalize": "app.isEdit = false;\
 app.TENANCY_ID.setValue('{#sys.TENANCY_ID#}');\
 if ('{#sys.NATURE#}' == 5) {\
   app.CNTR_OPERATOR_COD.setValue('{#sys.GOV_CODE#}');\
@@ -1098,7 +1134,19 @@ if ('{#sys.NATURE#}' == 5) {\
 }\
 app.WORK_TYPE.setValue(\"EOFI\");\
 app.POL.setValue(app.TENANCY_ID.getValue());\
-app.F_ADDRESS.setValue(\"NMQ\");"}
+app.F_ADDRESS.setValue(\"NMQ\");\
+\
+window[\"init\" + opt] = function(id) {\
+  var m = document.getElementById(opt);\
+  if (id == opt) {\
+    m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
+    m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
+ true\");\
+    m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&1=1\");\
+  }\
+};",
+   "initialize": "var opt = Wb.getId();"
+  }
  }],
  "roles": {
   "CD": 1,
