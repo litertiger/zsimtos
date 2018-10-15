@@ -692,7 +692,7 @@ Wb.request({\
      "configs": {
       "itemId": "U_SEAL_NO",
       "labelAlign": "right",
-      "fieldLabel": "大船铅封号"
+      "fieldLabel": "铅封号"
      },
      "expanded": false,
      "children": [],
@@ -702,19 +702,14 @@ Wb.request({\
     "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
 //插入变更记录表,变更设备交接单类型\
 Wb.request({\
-  url: \"m?xwl=receiptInout/receipt/receiptedit/updateWP\",\
+  url: \"m?xwl=receiptInout/receipt/receiptedit/updateSN\",\
   params: {\
-    ID: sel.data.ID,\
-    CNTR: sel.data.CNTR,\
-    CNTR_ID: sel.data.CNTR_ID,\
-    WORK_TYPE_OLD: sel.data.WORK_TYPE,\
-    WORK_TYPE: app.UP_WORK_TYPE.getValue(),\
-    NOTES: app.UP_REASON.getValue(),\
-    kp: app.radioN.checked ? 0 : 1\
+    id: sel.data.ID,\
+    SEAL_NO: app.U_SEAL_NO.getValue()\
   },\
   success: function(resp) {\
     Wb.info(\"操作完成\");\
-    app.winWork_type.close();\
+    app.winSN.close();\
     app.gridReceipt.store.load({\
       out: app.tbar\
     });\
@@ -2672,7 +2667,8 @@ app.radioY.setDisabled(true);"}
           "events": {"click": "var rowData = app.popupMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
 \
 var win = new Ext.window.Window(app._winSN);\
-win.show();"}
+win.show();\
+app.U_SEAL_NO.setValue(rowData.SEAL_NO);"}
          },
          {
           "configs": {
@@ -2714,6 +2710,7 @@ app.copyid.setValue(rowData.ID);"}
         "type": "menu",
         "events": {"show": "var rows = app.gridReceipt.getSelection();\
 app.popupWORKTYPE.setDisabled(rows.length != 1);\
+app.popupSN.setDisabled(rows.length != 1);\
 app.popupZX.setDisabled(rows.length != 1);\
 app.popupCopy.setDisabled(rows.length != 1);\
 menu.selectRow = rows[0];"}
