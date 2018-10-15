@@ -8,12 +8,12 @@ var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var ok = true;\
 var msg = \"\";\
 if (data.jinchu == \"jin\") { //进门验证分支\
-  var sql = \"select r.bill_no,r.id,r.cntr,r.cntr_id,r.phase,r.trade_id,r.work_type,r.cntr_size,r.no_cntr,r.RET_ID,\" +\
+  var sql = \"select r.bill_no,r.id,r.cntr,r.cntr_id,r.phase,r.trade_id,r.work_type,r.cntr_size,r.no_cntr,r.RET_ID,r.CNTR_OPERATOR_COD,\" +\
     \"p.lock_id,getCFSCOD(p.id)cfs,p.RELEASE_ID,p.CIQ_ID\" +\
     \" from receipt r left join port_cntr p on r.cntr_id=p.id\" +\
     \" where r.id='\" + data.rid + \"' and r.tenancy_id='\" + tenancyid + \"'\";\
   var receipt = Wb.getRecords(app.run(sql));\
-  sql = \"select cntr_size,trade_id from port_cntr where cntr='\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"'\";\
+  sql = \"select cntr_size,trade_id,CNTR_OPERATOR_COD from port_cntr where cntr='\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"'\";\
   var cntr = Wb.getRecords(app.run(sql));\
   msg = \"箱:\" + receipt[0].CNTR;\
   if (receipt[0].WORK_TYPE != 'YOYI') {\
@@ -68,6 +68,8 @@ if (data.jinchu == \"jin\") { //进门验证分支\
         msg += \"设备交接单箱尺寸和箱尺寸不符 \";\
       if (receipt[0].TRADE_ID != cntr[0].TRADE_ID)\
         msg += \"设备交接单内外贸和箱内外贸不符 \";\
+      if (receipt[0].CNTR_OPERATOR_COD != cntr[0].CNTR_OPERATOR_COD)\
+        msg += \"设备交接单船公司和箱船公司不符 \";\
       var usercntr = Wb.getRecords(app.run(\"select cntr from receipt\" +\
         \" where cntr='\" + data.cntr + \"' and tenancy_id='\" + tenancyid + \"' and phase not in('FIN','CNL') and work_type<>'YOYI'\"));\
       if (usercntr.length > 0)\
