@@ -7,7 +7,7 @@
 var tenancyid = app.get('sys.TENANCY_ID');\
 var sql = \"select r.id,r.cntr,r.cntr_size,r.s_adress,r.fei_adddress,r.cntr_operator_cod,r.shipper_consignee,r.account_customer,\\
 \" +\
-  \"decode(r.phase,'PLN','未派车','EXE','已派车','GET','正在提箱','OUT','场外','RTN','正在还箱','FIN','完成','CNL','取消')phase,\\
+  \"decode(r.phase,'PLN','未派车','EXE','已派车','GET','正在提箱','OUT','场外','RTN','正在还箱','FIN','完成','CNL','取消')phase,f.feename,\\
 \" +\
   \"decode(r.e_f_id,'E','空箱','重箱')e_f_id,decode(r.trade_id,'1','外贸','内贸')trade_id,decode(r.i_e_id,'I','进口','出口')i_e_id,\\
 \" +\
@@ -15,7 +15,9 @@ var sql = \"select r.id,r.cntr,r.cntr_size,r.s_adress,r.fei_adddress,r.cntr_oper
 \" +\
   \"from receipt r left join c_customer c on r.account_customer_code=c.code\\
 \" +\
-  \"left join(select bussiness_code bc,is_manual,rate,amount from accounts_details where fee_list_id in('b430ab040b0a4076830615ab3cf4cced','52c40355fb3a4363be7dee8a6f61f8c2'))f on r.id=f.bc\\
+  \"left join(select bussiness_code bc,is_manual,rate,amount,i.description feename from accounts_details a left join c_base_charging_item i on a.fee_list_id=i.id\\
+\" +\
+  \"where fee_list_id in('b430ab040b0a4076830615ab3cf4cced','52c40355fb3a4363be7dee8a6f61f8c2'))f on r.id=f.bc\\
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"'\\
 \" +\
