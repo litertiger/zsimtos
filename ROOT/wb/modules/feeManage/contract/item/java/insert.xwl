@@ -3,7 +3,17 @@
  "children": [{
   "configs": {
    "itemId": "module",
-   "serverScript": "var num = Wb.newClass(\"contractService\").saveContractItem(request);"
+   "serverScript": "var contractId = app.get(\"CONTRACT_ID\");\
+var sql = \"SELECT CATEGORY FROM C_CONTRACT where id='\"+contractId+\"'\";\
+var records = Wb.getRecords(app.run(sql));\
+var cate = \"\";\
+Wb.each(records,function(data){\
+  cate = data.CATEGORY+\"\";\
+});\
+if(cate != \"0\"){\
+  throw \"该合同为非草稿状态，不能修改!\";\
+}\
+var num = Wb.newClass(\"contractService\").saveContractItem(request);"
   },
   "expanded": false,
   "children": [],
