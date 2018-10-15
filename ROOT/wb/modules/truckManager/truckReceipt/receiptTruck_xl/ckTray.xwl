@@ -8,23 +8,21 @@ var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var nature = app.get(\"sys.NATURE\");\
 var customcode = app.get(\"sys.GOV_CODE\");\
 var sql = \"select tray_no from c_tray where tray_no='\" + data.trayno + \"' and ISINTERNAL='1'\";\
-// if (nature != \"5\" && nature != \"6\")\
 sql += \" and TENANCY_ID='\" + tenancyid + \"'\";\
-if (nature == \"5\" || nature == \"6\")\
-  sql += \" and ismy=5\";\
-request.setAttribute(\"sql\", sql);"
+truck = Wb.getRecords(app.run(sql, {\
+  jndi: \"jdbc/basecode\"\
+}));\
+if (truck.length < 1)\
+  app.send({\
+    success: false\
+  });\
+else\
+  app.send({\
+    success: true\
+  });"
   },
   "expanded": true,
-  "children": [{
-   "configs": {
-    "itemId": "dataprovider1",
-    "jndi": "jdbc/basecode",
-    "sql": "{#sql#}"
-   },
-   "expanded": false,
-   "children": [],
-   "type": "dataprovider"
-  }],
+  "children": [],
   "type": "module"
  }],
  "roles": {

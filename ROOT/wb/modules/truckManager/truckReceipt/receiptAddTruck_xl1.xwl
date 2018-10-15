@@ -2128,8 +2128,7 @@ if (value == \"OUT\")\
     var res = Wb.decode(resp.responseText);\
     if (!res.success) {\
       var sel = app.gridReceipt.getSelection()[0];\
-      sel.data[\"IN_CAR\"] = '';\
-      console.log(sel);\
+      sel.set('IN_CAR', '');\
     }\
   }\
 });"}
@@ -2164,7 +2163,21 @@ if (value == \"OUT\")\
             "children": [],
             "type": "store"
            }],
-           "type": "combo"
+           "type": "combo",
+           "events": {"blur": "Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/receiptTruck_xl/ckTray',\
+  params: {\
+    trayno: combo.getValue()\
+  },\
+  success: function(resp) {\
+    var res = Wb.decode(resp.responseText);\
+    console.log(res);\
+    if (!res.success) {\
+      var sel = app.gridReceipt.getSelection()[0];\
+      sel.set('IN_CAMPI', '');\
+    }\
+  }\
+});"}
           }],
           "type": "column"
          },
@@ -2197,17 +2210,19 @@ if (value == \"OUT\")\
             "type": "store"
            }],
            "type": "combo",
-           "events": {
-            "specialkey": "if (e.getKey() == e.ENTER) {\
-  if (!combo.isExpanded) { //判断combo不展开才切换焦点\
-    app.OUT_CAR.focus();\
-    app.OUT_CAR.selectText();\
+           "events": {"blur": "Wb.request({\
+  url: 'm?xwl=truckManager/truckReceipt/receiptTruck_xl/ckDriver',\
+  params: {\
+    empno: combo.getValue()\
+  },\
+  success: function(resp) {\
+    var res = Wb.decode(resp.responseText);\
+    if (!res.success) {\
+      var sel = app.gridReceipt.getSelection()[0];\
+      sel.set('IN_DRIVER_ID', '');\
+    }\
   }\
-}",
-            "select": "app.OUT_DRIVER_ID.setValue(combo.getValue());\
-app.IN_DRIVER_NAME.setValue(combo.getRawValue());\
-app.OUT_DRIVER_NAME.setValue(combo.getRawValue());"
-           }
+});"}
           }],
           "type": "column"
          },
