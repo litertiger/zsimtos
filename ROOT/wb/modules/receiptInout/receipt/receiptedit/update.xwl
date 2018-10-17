@@ -8,35 +8,37 @@ var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
 var username = app.get('sys.username');\
 var nature = app.get(\"sys.NATURE\");\
 var trade = data.TRADE_ID;\
-app.log(data.POD);\
 var fcntr = 0;\
 if (trade == \"1\" || nature != \"5\") {\
   fcntr = 1;\
 }\
-var ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and phase<>'PLN' and phase<>'FIN'\"));\
-if (ckrow.length > 0) {\
+var receipt = Wb.getRecords(app.run(\"select PHASE,F_CNTR,TRADE_ID,SEAL_NO,SHIP_ORDER from receipt where id={?ID?}\"));\
+if (receipt.length < 1) {\
+  app.send({\
+    ok: false,\
+    msg: \"设备交接单已经删除,请刷新\"\
+  });\
+  return;\
+} else if (receipt[0].PHASE != 'PLN' && receipt[0].PHASE != 'FIN') {\
   app.send({\
     ok: false,\
     msg: \"设备交接单已经作业,不能修改\"\
   });\
   return;\
-}\
-ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and phase='FIN'\"));\
-if (ckrow.length > 0) {\
+} else if (receipt[0].PHASE == 'FIN') {\
   app.send({\
     ok: false,\
     msg: \"设备交接单已经完成,不能修改\"\
   });\
   return;\
-}\
-ckrow = Wb.getRecords(app.run(\"select id from receipt where id={?ID?} and F_CNTR=1 and trade_id='2'\"));\
-if (ckrow.length > 0) {\
+} else if (receipt[0].F_CNTR == '1' && receipt[0].TRADE_ID == '2') {\
   app.send({\
     ok: false,\
     msg: \"设备交接单已经放箱,不能修改\"\
   });\
   return;\
 }\
+\
 app.run(\"update RECEIPT set VID={?VID?},DRIVER_ID={?DRIVER_ID?},ORDER_ID={?ORDER_ID?},CNTR={?CNTR?},\" +\
   \"CNTR_REQ={?CNTR_REQ?},CATEGORY_ID={?CATEGORY_ID?},TRADE_ID={?TRADE_ID?},I_E_ID={?I_E_ID?},E_F_ID={?E_F_ID?},\" +\
   \"CNTR_ISO={?CNTR_ISO?},CNTR_SIZE={?CNTR_SIZE?},CNTR_TYPE={?CNTR_TYPE?},CNTR_HIGHT={?numeric.CNTR_HIGHT?},\" +\
@@ -66,10 +68,20 @@ app.run(\"update RECEIPT set VID={?VID?},DRIVER_ID={?DRIVER_ID?},ORDER_ID={?ORDE
   \"HZ={?HZ?},CARGO_WT={?CARGO_WT?},CKCNTR={?CKCNTR?},SHIP_CONSIGN_COD={?SHIP_CONSIGN_COD?},\" +\
   \"SHIPPER_CONSIGNEE={?SHIPPER_CONSIGNEE?},IS_XJ={?IS_XJ?},TKADDRESS={?TKADDRESS?},CAR_TEAM={?CAR_TEAM?},F_CNTR=\" + fcntr + \",\" +\
   \"F_ON=(case \" + fcntr + \" when 1 then sysdate end),F_BY=(case \" + fcntr + \" when 1 then '\" + username + \"' end),\" +\
-  \"IS_JG={?IS_JG?}, IS_GP={?IS_GP?}\"+\
+  \"IS_JG={?IS_JG?}, IS_GP={?IS_GP?}\" +\
   \" where ID={?ID?}\", {\
     transaction: 'start'\
   });\
+\
+if (Wb.isEmpty(data.SEAL_NO))\
+  app.run(\"insert into port_cntr_log(cntr_id,cntr,message,updated_on,updated_by)\\
+\" +\
+    \"values('\" + data.CNTR_ID + \"','\" + data.CNTR + \"','修改设备交接单时删除了铅封号:\" + receipt[0].SEAL_NO + \"',sysdate,'\" + username + \"')\");\
+\
+if (Wb.isEmpty(data.SHIP_ORDER))\
+  app.run(\"insert into port_cntr_log(cntr_id,cntr,message,updated_on,updated_by)\\
+\" +\
+    \"values('\" + data.CNTR_ID + \"','\" + data.CNTR + \"','修改设备交接单时删除了SO订舱号:\" + receipt[0].SHIP_ORDER + \"',sysdate,'\" + username + \"')\");\
 \
 var acccus = Wb.getRecords(app.run(\"select f_get_defPayer('\" + data.ID + \"')fee from dual\"));\
 app.run(\"update receipt set ACCOUNT_CUSTOMER_CODE='\" + acccus[0].FEE.split(\"@\")[0] + \"',\" +\
@@ -131,7 +143,9 @@ if (!Wb.isEmpty(data.CONTRACT_PHONE) && data.I_E_ID == 'I') {\
   "CD": 1,
   "xlwmcgs": 1,
   "SCANJB": 1,
+  "xlnmcgs": 1,
   "DHSHIP": 1,
+  "xlczb": 1,
   "xlcd": 1,
   "xlnmc": 1,
   "ZSZKCZ": 1,

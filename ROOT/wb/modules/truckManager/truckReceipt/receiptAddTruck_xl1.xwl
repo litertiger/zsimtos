@@ -1999,6 +1999,22 @@ Wb.request({\
         "type": "store"
        },
        {
+        "configs": {
+         "itemId": "viewConfig",
+         "getRowClass": "//Wb预定义行背景色种类：wb_red_row, wb_green_row, wb_blue_row, wb_yellow_row, wb_hotpink_row, wb_gold_row, wb_bisque_row, wb_aqua_row\
+//样式在style.css中预定义，如果需要动态加载css文件请参考m?xwl=system/examples/basic/link/dynamic-link示例\
+var zf = record.get('ZF');\
+if (zf == 'PLN')\
+  cls = \"wb_red_row\";\
+else\
+  cls = \"\";\
+return cls;"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "tableview"
+       },
+       {
         "configs": {"itemId": "columns"},
         "expanded": true,
         "children": [
@@ -2006,6 +2022,25 @@ Wb.request({\
           "configs": {
            "itemId": "column1",
            "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "colPHASE1",
+           "renderer": "if (Wb.isEmpty(value))\
+  return \"未申请\";\
+if (value == \"PLN\")\
+  return \"申请中\";\
+if (value == \"FIN\")\
+  return \"已作废\";\
+if (value == \"CNL\")\
+  return \"已取消\";",
+           "dataIndex": "ZF",
+           "width": "50",
+           "text": "作废"
           },
           "expanded": false,
           "children": [],
@@ -2855,6 +2890,52 @@ Wb.run({\
     win.show();\
   }\
 });"}
+         },
+         {
+          "configs": {
+           "itemId": "popupZF",
+           "text": "作废",
+           "iconCls": "cancel_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menuR.selectRow.data; //selectRow在popupMenu的show事件中设置\
+Wb.confirm(\"确认作废操作\", function() {\
+  Wb.request({\
+    url: 'm?xwl=receiptInout/receipt/receiptWasteedit/zuofei',\
+    params: {\
+      ID: rowData.ID\
+    },\
+    success: function() {\
+      Wb.reset(app.panelForm);\
+      app.searchRBtn.fireEvent(\"click\");\
+    }\
+  });\
+});"}
+         },
+         {
+          "configs": {
+           "itemId": "popupRZF",
+           "text": "取消作废",
+           "iconCls": "redo_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.menuR.selectRow.data; //selectRow在popupMenu的show事件中设置\
+Wb.confirm(\"确认取消作废\", function() {\
+  Wb.request({\
+    url: 'm?xwl=receiptInout/receipt/receiptWasteedit/quxiao',\
+    params: {\
+      ID: rowData.ID\
+    },\
+    success: function() {\
+      Wb.reset(app.panelForm);\
+      app.searchRBtn.fireEvent(\"click\");\
+    }\
+  });\
+});"}
          }
         ],
         "type": "menu",
@@ -2867,6 +2948,8 @@ app.popupAddFee.setDisabled(rows.length != 1);\
 app.popupZX.setDisabled(rows.length != 1);\
 app.popupEOEI.setDisabled(rows.length != 1);\
 app.popupPORTCNTR.setDisabled(rows.length != 1);\
+app.popupZF.setVisible(rows.length == 1 && rows[0].data.ZF == 'PLN');\
+app.popupRZF.setVisible(rows.length == 1 && rows[0].data.ZF == 'PLN');\
 menu.selectRow = rows[0];"}
        }
       ],
@@ -3910,7 +3993,7 @@ app.xwl1.subscribe('/exchange/ex_receipt/#', function(d) {\
     case 'update':\
       if (record)\
         Wb.request({\
-          url: \"m?xwl=truckManager/truckReceipt/receiptAddTruckedit/selectReceipt\",\
+          url: \"m?xwl=truckManager/truckReceipt/receiptTruck_xl/selectReceipt\",\
           out: app.tbar,\
           params: {\
             id: msg.data.id,\

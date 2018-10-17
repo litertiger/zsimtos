@@ -2481,6 +2481,7 @@ Wb.request({\
          {
           "configs": {
            "itemId": "excelBtn",
+           "hidden": "'{#sys.TENANCY_ID#}'=='XLG'",
            "text": "船舶申报单",
            "iconCls": "file_xls_icon"
           },
@@ -3085,6 +3086,117 @@ if (Number(row1) + Number(row2) < 18) {\
   }\
 }\
 AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           }
+          ],
+          "type": "item"
+         },
+         {
+          "configs": {
+           "itemId": "excelBtn1",
+           "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
+           "text": "船舶申报单",
+           "iconCls": "file_xls_icon"
+          },
+          "expanded": true,
+          "children": [
+           {
+            "configs": {
+             "itemId": "popupchu",
+             "text": "出口",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.I_E == \"E\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  Wb.warn(\"没有出境船舶\");\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var gk = \"\";\
+var gk1 = \"\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \")\");\
+AF1.func(\"Build\", 'supcan/xlgReport/vesselvisit/ESB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"SetCellData\", \"<data sdate='\" + app.SETA.getRawValue() + \"'/>\");\
+AF1.func(\"Calc\", \"\");\
+// var row1 = AF1.func(\"getCellData\", \"rowcount1\");\
+// var row2 = AF1.func(\"getCellData\", \"rowcount2\");\
+// if (Number(row1) + Number(row2) < 18) {\
+//   if (Number(row1) < 12 && Number(row2) < 6) {\
+//     AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+//     AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+//   }\
+//   if (Number(row1) > 12 && Number(row2) < 6) {\
+//     AF1.func(\"insertRows\", (4 + Number(row1) + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (18 - Number(row1) - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+//   }\
+//   if (Number(row1) < 12 && Number(row2) > 6) {\
+//     AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (18 - (Number(row1) == 0 ? 1 : Number(row1)) - Number(row2)) + \" \\r\\
+ false\");\
+//   }\
+//   if (Number(row1) == 12 && Number(row2) < 6) {\
+//     AF1.func(\"insertRows\", (16 + (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ \" + (6 - (Number(row2) == 0 ? 1 : Number(row2))) + \" \\r\\
+ false\");\
+//   }\
+//   if (Number(row1) < 12 && Number(row2) == 6) {\
+//     AF1.func(\"insertRows\", (3 + (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ \" + (12 - (Number(row1) == 0 ? 1 : Number(row1))) + \" \\r\\
+ false\");\
+//   }\
+// }\
+AF1.func(\"SetCellData\", \"<data rowcount1='' rowcount2=''/>\");\
+AF1.func(\"callfunc\", \"18\");"}
+           },
+           {
+            "configs": {
+             "itemId": "popupjinY",
+             "text": "进口",
+             "iconCls": "file_xls_icon"
+            },
+            "expanded": false,
+            "children": [],
+            "type": "item",
+            "events": {"click": "var store = app.grid1.getStore();\
+if (store.data.items.length < 1)\
+  return;\
+var ids = \"\";\
+Wb.each(store.data.items, function(item) {\
+  if (item.data.I_E == \"I\")\
+    ids += \"'\" + item.data.AID + \"',\";\
+});\
+if (Wb.isEmpty(ids)) {\
+  return;\
+}\
+ids = ids.substring(0, ids.length - 1);\
+\
+var tenancyid = \"{#sys.TENANCY_ID#}\";\
+var AF1 = document.getElementById(opt);\
+var whereSql = encodeURI(\" and b.TENANCY_ID='\" + tenancyid + \"' and a.id in(\" + ids + \")\");\
+AF1.func(\"Build\", 'supcan/xlgReport/vesselvisit/ISB.xml?' + Math.round(Math.random() * 100));\
+AF1.func(\"SetParas\", \"ds1 \\r\\
+ para=1;whereSql=\" + whereSql + \";drr=\" + new Date().getTime() + \";tenancyId=\" + tenancyid);\
+AF1.func(\"Calc\", \"\");\
 AF1.func(\"callfunc\", \"18\");"}
            }
           ],

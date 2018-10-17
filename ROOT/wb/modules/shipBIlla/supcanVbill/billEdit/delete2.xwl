@@ -7,7 +7,7 @@
     errorText: '锁定提单不能删除。'\
 });\
 app.run(\"select 1 from  move_list where cntr in (select cntr from vload_list where bill_id ={?ID?})\\\
-     and CARRIER_CALL={?VID?} and  phase  <>'CNL'\", {\
+     and CARRIER_CALL={?VID?} and ((I_E_ID='I' and  phase  not in ('CNL')) or (I_E_ID='E' and  phase not in ('CNL','TMP')) ) and exists(select 1 from taSk where queue_id=task.ID)\", {\
     errorText: '存在装卸船指令不能删除。'\
 });\
 app.run(\"select 1  from VBILL_HEAD_E where ID={?ID?} and (REALSE_COMPARE=1 or SIGN_DATE is not null)\", {\
@@ -45,6 +45,8 @@ app.run(\"select 1 from receipt where work_type<>'YOYI' and  phase<>'CNL' and  c
 \
     app.run(\"delete  from VLOAD_LIST where  BILL_ID={?ID?}\");\
     app.run(\"delete  from VLOAD_LIST_D where  BILL_ID={?ID?}\");\
+    app.run(\"delete  from VLOAD_LIST where  bill_no||VID in (select bill_no||VID from vbill_head where ID={?ID?} )\");\
+\
     app.run(\"delete from  VLOAD_LIST where \\\
        BILL_ID in( select ID  from VBILL_HEAD where P_BILLNO  in( select  BILL_NO  from VBILL_HEAD where   ID={?ID?} and ZF_ID=1)\\\
        and VID={?VID?} )\");\

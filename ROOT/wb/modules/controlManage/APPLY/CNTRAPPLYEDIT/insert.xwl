@@ -9,10 +9,11 @@ var username = app.get('sys.username'); //用户ID\
 var id = SysUtil.getId(); //主表ID\
 var cntrs = Wb.decode(data.cntrs);\
 app.log(data.cntrs);\
+//(驳船互转)\
 //插入主表\
 var sqla = \"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
   \"FROM_OPERATOR_COD,FROM_OPERATOR,TO_OPERATOR_COD,TO_OPERATOR,CHANGE_REASON,APPLY_DATE,CREATED_BY,CREATED_ON,APPLY_NAME, TO_NAME)\" +\
-  \" values('\" + id + \"','\" + tenancyid + \"','APY',{?APPLY_TYPE?},{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
+  \" values('\" + id + \"','\" + tenancyid + \"','AOK',{?APPLY_TYPE?},{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
   \"{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},{?TO_OPERATOR_COD?},{?TO_OPERATOR?},\" +\
   \"{?CHANGE_REASON?},{?DATE.APPLY_DATE?},'\" + username + \"',sysdate,'\" + username + \"','')\";\
 app.run(sqla, {\
@@ -23,23 +24,34 @@ var sqll = \"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE) values('\" + SysU
 app.run(sqll, {\
   arrayData: data.cntrs\
 });\
-//驳船互转的\
+//(内贸转外贸)\
 var otoid = SysUtil.getId(); //主表ID\
 app.run(\"insert into cntr_apply(ID,TENANCY_ID,PHASE,APPLY_TYPE,APPLY_OPERATOR_COD,APPLY_OPERATOR,\" +\
   \"FROM_OPERATOR_COD,FROM_OPERATOR,TO_OPERATOR_COD,TO_OPERATOR,CHANGE_REASON,APPLY_DATE,CREATED_BY,CREATED_ON,APPLY_NAME, TO_NAME)\" +\
-  \" values('\" + otoid + \"','\" + tenancyid + \"','APY','OTO',{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
+  \" values('\" + otoid + \"','\" + tenancyid + \"','AOK','ITO',{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},\" +\
   \"{?APPLY_OPERATOR_COD?},{?APPLY_OPERATOR?},{?TO_OPERATOR_COD?},{?TO_OPERATOR?},\" +\
   \"{?CHANGE_REASON?},{?DATE.APPLY_DATE?},'\" + username + \"',sysdate,'\" + username + \"','')\");\
 \
 app.run(\"insert into cntr_apply_list(ID,AID,CNTR_ID,PHASE) values('\" + SysUtil.getId() + \"','\" + otoid + \"',{?CNTR_ID?},'APY')\", {\
   arrayData: data.cntrs\
-});"
+});\
+\
+app.run(\"update port_cntr set CNTR_OPERATOR={?TO_OPERATOR?},CNTR_OPERATOR_COD={?TO_OPERATOR_COD?}\" +\
+  \" ,TRADE_ID='1' where ID={?CNTR_ID?}\", {\
+    arrayData: data.cntrs,\
+    transaction: 'commit'\
+  });"
   },
   "expanded": false,
   "children": [],
   "type": "module"
  }],
- "roles": {"default": 1},
+ "roles": {
+  "xlswbld": 1,
+  "default": 1,
+  "xlnmc": 1,
+  "xlswbqt": 1
+ },
  "title": "增加数据",
  "iconCls": "",
  "inframe": false,

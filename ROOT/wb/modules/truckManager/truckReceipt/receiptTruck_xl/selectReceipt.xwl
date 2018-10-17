@@ -34,11 +34,13 @@ var sql = \"select r.id,r.tenancy_id,r.cntr,r.trade_id,r.i_e_id,r.e_f_id,r.cntr_
 \" +\
   \"r.cy_stay_time,r.cy_pick_time,r.destuffing_flag,r.ret_id,r.is_jg,r.is_gp,p.yard_position,c.name cname,EMPTY_DRIVING_FLAG,\\
 \" +\
-  \"wm_concat(distinct t.address)duoadd\\
+  \"wm_concat(distinct t.address)duoadd,z.phase zf\\
 \" +\
   \"from RECEIPT r left join port_cntr p on r.cntr_id=p.id\\
 \" +\
   \"left join c_address c on c.id=r.s_adress left join truck_station t on r.id=t.rid\\
+\" +\
+  \"left join(select * from receipt_cancel where phase='PLN')z on r.id=z.rid\\
 \" +\
   \"where r.tenancy_id='\" + tenancyid + \"' and r.work_type not in('YOYI','FOFI')\";\
 if (!Wb.isEmpty(data.id))\
@@ -107,7 +109,7 @@ sql += \" group by r.id,r.tenancy_id,r.cntr,r.trade_id,r.i_e_id,r.e_f_id,r.cntr_
 \" +\
   \"r.gatein_by_s,r.gateout_by_s,r.xn,r.pc_on,r.sh,r.car_team_p,r.empty_driving_flag,r.fct_stay_time,r.fct_pick_time,\\
 \" +\
-  \"r.cy_stay_time,r.cy_pick_time,r.destuffing_flag,r.ret_id,r.is_jg,r.is_gp,p.yard_position,c.name,EMPTY_DRIVING_FLAG\\
+  \"r.cy_stay_time,r.cy_pick_time,r.destuffing_flag,r.ret_id,r.is_jg,r.is_gp,p.yard_position,c.name,EMPTY_DRIVING_FLAG,z.phase\\
 \" +\
   \"order by r.created_on desc\";\
 \
@@ -127,14 +129,16 @@ request.setAttribute('sql', sql);"
  }],
  "roles": {
   "CD": 1,
-  "xlwmcgs": 1,
   "NMBC": 1,
   "DHSHIP": 1,
   "ZSAT": 1,
   "xlcdld": 1,
   "ZSGWCD": 1,
   "xlcd": 1,
+  "xlwmcgs": 1,
+  "xlczb": 1,
   "xlnmc": 1,
+  "xlzk": 1,
   "SWB": 1,
   "WMBC": 1
  },

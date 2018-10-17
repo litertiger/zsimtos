@@ -1,5 +1,5 @@
 {
- "hidden": true,
+ "hidden": false,
  "children": [{
   "configs": {
    "itemId": "module",
@@ -373,6 +373,7 @@ app.edate.setValue(value);"}
         "events": {"click": "var AF1 = document.getElementById(opt);\
 AF1.func(\"SetCurrentWorkSheet\", \"0\");\
 var whereSql = \"\";\
+var whereSql2 = \"\";\
 if (!Wb.isEmpty(app.CUSTOM.getValue())) {\
   whereSql += \" and DECODE (vh.I_E_ID,  'I', CONSIGNEE_COD,  'E', SHIPPER_COD) ='\" + app.CUSTOM.getValue() + \"'\";\
 }\
@@ -385,33 +386,47 @@ if (!Wb.isEmpty(app.cboTRADE.getValue()))\
   whereSql += \" and trade_id='\" + app.cboTRADE.getValue() + \"'\";\
 \
 \
-// if (app.radioM.getValue() == 1) {\
-  whereSql += \" and eta>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
-    \" and eta<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
-// }\
-whereSql += \" and vh.TENANCY_ID='{#sys.TENANCY_ID#}'  \";\
-// whereSql += \" and accounts_details.TENANCY_ID='{#sys.TENANCY_ID#}'  and FEE_LIST_ID in(select a.ITEM_ID CHARGING_ID from C_FEE_REPORT_CONTACT a \"+ \
-// \"where a.REPORT_ID='9ecc8d20093b4ae98835af733d55efcb')\";\
+\
+whereSql += \" and JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+var nowdays = new Date();\
+var year = nowdays.getFullYear();\
+var month = nowdays.getMonth();\
+if (month == 0) {\
+  month = 12;\
+  year = year - 1;\
+}\
+if (month < 10) {\
+  month = \"0\" + month;\
+}\
+var firstDay = year + \"-\" + month + \"-\" + \"01\"; // 上个月的第一天\
+var myDate = new Date(year, month, 0);\
+var lastDay = year + \"-\" + month + \"-\" + myDate.getDate(); // 上个月的最后一天\
+\
+whereSql2 += \" and JOB_FINISH_DATE>=to_date('\" + firstDay + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+  \" and JOB_FINISH_DATE<=to_date('\" + lastDay + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+// whereSql2 += \" and JOB_FINISH_DATE<=to_date('(SELECT to_char(last_day(add_months(\" + app.edate.getRawValue() + \", -1)),'yyyy-MM-dd') FROM dual) 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
+//   \" and JOB_FINISH_DATE>=to_date('(select ADD_MONTHS(TRUNC(\" + app.sdate.getRawValue() + \",'MM' ),-1)  from dual) 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
+whereSql += \" and TENANCY_ID='{#sys.TENANCY_ID#}'  \";\
+whereSql2 += \" and TENANCY_ID='{#sys.TENANCY_ID#}'  \";\
 AF1.func(\"SetParas\", \"ds1 \\r\\
- para=1;whereSql=\" + whereSql + \";ee333e=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
+ para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";ee333e=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
 \
 console.log(app.radioD.getValue());\
 // alert(app.cname.getValue());\
 if (app.radioD.getValue() == true) {\
   AF1.func(\"SetCellData\", \"B1  \\r\\
- \" + Wb.format(app.date1.getValue(), 'Y' + \"年\" + 'm' + \"月\" + 'd' + \"日\") + \"\"+app.cname.getValue()+\"纬创拼柜港建费表\");\
+ \" + Wb.format(app.date1.getValue(), 'Y' + \"年\" + 'm' + \"月\" + 'd' + \"日\") + \"\" + app.cname.getValue() + \"月结客户港口费收月报表（外贸集装箱部份）\");\
 }\
 if (app.radioM.getValue() == true) {\
   AF1.func(\"SetCellData\", \"B1  \\r\\
- \"+app.cboY.getValue()+\" 年 \" + app.cboM.getValue() + \"月\"+app.cname.getValue()+\"纬创拼柜港建费表\");\
+ \" + app.cboY.getValue() + \" 年 \" + app.cboM.getValue() + \"月\" + app.cname.getValue() + \"月结客户港口费收月报表（外贸集装箱部份）\");\
 }\
 \
 // // AF1.func(\"SetCellData\", \"B2  \\r\\
  2017 年 \"+app.cboM.getValue()+\" 月份货柜及拼柜收费通知单\");\
 // AF1.func(\"SetCellData\", \"<data B3='托运单位:\" + app.CUSTOM.getRawValue() + \"'   D6='\" + '{#sys.dispname#}' + \"'  D7='\" + Wb.dateToText(new Date(), 'yyyy-mm-dd') + \"'/> \");\
-AF1.func(\"Calc\", \"range=current\");\
-\
-"}
+AF1.func(\"Calc\", \"range=current\");"}
        }
       ],
       "type": "toolbar"
@@ -497,7 +512,7 @@ app.panelAcc.update(mt1);"}
     m.func(\"setCookie\", \"JSESSIONID={#JSESSIONID#}\");\
     m.func(\"callfunc\", \"4\");\
     m.func(\"SubscribeEvent\", \"Clicked\"); //预订鼠标点击事件\
-    m.func(\"Build\", '/supcan/report/fee_report/PCNTR_GJFEE.xml?' + Math.round(Math.random() * 100));\
+    m.func(\"Build\", '/supcan/report/fee_report/MONTH_TRADE_OUT_REPORT.xml?' + Math.round(Math.random() * 100));\
     m.func(\"DisableMenu\", \"showRuler,exportAll,printAll,delete,insert,import ,curselMode,hue ,language , enter    \\r\\
  true\");\
     m.func(\"SetSource\", \"m?xwl=system/common/report/reportTemplate/dataSource&121411fdfdd212333331214214367890\");\

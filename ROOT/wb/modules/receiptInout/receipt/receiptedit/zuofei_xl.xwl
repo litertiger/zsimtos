@@ -1,0 +1,72 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {
+   "itemId": "module",
+   "serverScript": "var data = app.get();\
+var tenancyid = app.get('sys.TENANCY_ID'); //租户id\
+var username = app.get('sys.username');\
+var dispname = app.get('sys.dispname');\
+var receipt = Wb.getRecords(app.run(\"select r.phase rphase,c.phase cphase from receipt r\\
+\" +\
+  \"left join receipt_cancel c on r.id=c.rid where r.id='\" + data.id + \"' and nvl(c.phase,'PLN')<>'FIN'\"));\
+if (receipt.length < 1)\
+  throw \"设备交接单已经删除,请刷新\";\
+if (receipt[0].CPHASE == 'PLN')\
+  throw \"设备交接单已经提出作废申请,请等待审核\";\
+\
+app.run(\"insert into receipt_cancel(rid,phase,notes,created_on,created_by)\\
+\" +\
+  \"values('\" + data.id + \"','PLN','\" + data.notes + \"',sysdate,'\" + username + \"')\", {\
+    transaction: 'commit'\
+  });\
+//=========================发送消息========================\
+var client = new RabbitClient();\
+try {\
+  if (!(client.open() && client.routeSend(\"ex_receipt\", \"#\", {\
+      info: {\
+        type: \"receipt\",\
+        action: \"update\",\
+        senduser: app.get(\"sys.username\"),\
+        sendmodule: \"receipt\",\
+        sendtime: (new Date()).getTime()\
+      },\
+      data: {\
+        id: data.id\
+      }\
+    }))) return {\
+    success: false,\
+    errstr: client.getLastError() || \"发送消息超时\"\
+  };\
+} catch (e) {\
+  app.send({\
+    success: false,\
+    errstr: e.message\
+  });\
+} finally {\
+  client.close();\
+}"
+  },
+  "expanded": true,
+  "children": [],
+  "type": "module"
+ }],
+ "roles": {
+  "JTLD": 1,
+  "CD": 1,
+  "xlwmcgs": 1,
+  "SCANJB": 1,
+  "xlnmcgs": 1,
+  "DHSHIP": 1,
+  "xlczb": 1,
+  "xlcd": 1,
+  "xlnmc": 1,
+  "ZSZKCZ": 1,
+  "WMBC": 1,
+  "SWB": 1
+ },
+ "title": "小榄作废申请",
+ "iconCls": "",
+ "inframe": false,
+ "pageLink": ""
+}

@@ -679,25 +679,39 @@ Wb.request({\
      "itemId": "winSN",
      "dialog": "true",
      "defaults": "{\
-  labelWidth: 80,\
+  labelWidth: 90,\
   width: 360,\
   margin: '8 8 0 8'\
 }",
      "width": "400",
      "title": "修改铅封号",
-     "height": "100"
+     "height": "130"
     },
     "expanded": true,
-    "children": [{
-     "configs": {
-      "itemId": "U_SEAL_NO",
-      "labelAlign": "right",
-      "fieldLabel": "铅封号"
+    "children": [
+     {
+      "configs": {
+       "itemId": "U_SEAL_NO",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "铅封号"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
      },
-     "expanded": false,
-     "children": [],
-     "type": "text"
-    }],
+     {
+      "configs": {
+       "itemId": "U_SHIP_ORDER",
+       "allowBlank": "false",
+       "labelAlign": "right",
+       "fieldLabel": "订舱号/SO"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     }
+    ],
     "type": "window",
     "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
 //插入变更记录表,变更设备交接单类型\
@@ -705,7 +719,8 @@ Wb.request({\
   url: \"m?xwl=receiptInout/receipt/receiptedit/updateSN\",\
   params: {\
     id: sel.data.ID,\
-    SEAL_NO: app.U_SEAL_NO.getValue()\
+    SEAL_NO: app.U_SEAL_NO.getValue(),\
+    SHIP_ORDER: app.U_SHIP_ORDER.getValue()\
   },\
   success: function(resp) {\
     Wb.info(\"操作完成\");\
@@ -1152,6 +1167,49 @@ Wb.sync({\
   message: '正在保存中...',\
   success: function(resp) {\
     app.winStation.close();\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winCn",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 90,\
+  width: 360,\
+  margin: '8 8 0 8'\
+}",
+     "width": "400",
+     "title": "作废",
+     "height": "100"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "CN_NOTES",
+      "allowBlank": "false",
+      "fieldLabel": "作废原因"
+     },
+     "expanded": false,
+     "children": [],
+     "type": "text"
+    }],
+    "type": "window",
+    "events": {"ok": "var sel = app.gridReceipt.getSelection()[0];\
+//插入变更记录表,变更设备交接单类型\
+Wb.request({\
+  url: \"m?xwl=receiptInout/receipt/receiptedit/zuofei_xl\",\
+  params: {\
+    id: sel.data.ID,\
+    notes: app.CN_NOTES.getValue()\
+  },\
+  success: function(resp) {\
+    Wb.info(\"操作完成\");\
+    app.winCn.close();\
+    app.gridReceipt.store.load({\
+      out: app.tbar\
+    });\
   }\
 });"}
    },
@@ -2356,7 +2414,7 @@ else\
        },
        {
         "configs": {"itemId": "columns"},
-        "expanded": false,
+        "expanded": true,
         "children": [
          {
           "configs": {
@@ -2658,6 +2716,7 @@ app.radioY.setDisabled(true);"}
          {
           "configs": {
            "itemId": "popupSN",
+           "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
            "text": "修改铅封号",
            "iconCls": "object_icon"
           },
@@ -2668,7 +2727,8 @@ app.radioY.setDisabled(true);"}
 \
 var win = new Ext.window.Window(app._winSN);\
 win.show();\
-app.U_SEAL_NO.setValue(rowData.SEAL_NO);"}
+app.U_SEAL_NO.setValue(rowData.SEAL_NO);\
+app.U_SHIP_ORDER.setValue(rowData.SHIP_ORDER);"}
          },
          {
           "configs": {
@@ -2705,6 +2765,20 @@ app.gridStation.store.load({\
 var win = new Ext.window.Window(app._winCopy); //app._win指向配置对象而非实例\
 win.show();\
 app.copyid.setValue(rowData.ID);"}
+         },
+         {
+          "configs": {
+           "itemId": "popupCancel",
+           "hidden": "'{#sys.TENANCY_ID#}'!='XLG'",
+           "text": "作废",
+           "iconCls": "cancel_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var rowData = app.popupMenu.selectRow.data; //selectRow在popupMenu的show事件中设置\
+var win = new Ext.window.Window(app._winCn); //app._win指向配置对象而非实例\
+win.show();"}
          }
         ],
         "type": "menu",
@@ -2713,6 +2787,7 @@ app.popupWORKTYPE.setDisabled(rows.length != 1);\
 app.popupSN.setDisabled(rows.length != 1);\
 app.popupZX.setDisabled(rows.length != 1);\
 app.popupCopy.setDisabled(rows.length != 1);\
+app.popupCancel.setDisabled(rows.length != 1);\
 menu.selectRow = rows[0];"}
        }
       ],

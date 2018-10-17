@@ -209,6 +209,20 @@ app.edate.setValue(value);"}
        },
        {
         "configs": {
+         "itemId": "cboFEE_LIST_ID",
+         "labelAlign": "right",
+         "pickList": "[['0132','集装箱货物保管费'],['cda5b8d16a1a4a6b8cef21863d93c26f','加收吊箱费']]",
+         "fieldLabel": "费用",
+         "width": "130",
+         "labelWidth": "40",
+         "forceSelection": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
          "itemId": "cboCNTR_SIZE",
          "labelAlign": "right",
          "pickList": "[\
@@ -282,6 +296,7 @@ app.edate.setValue(value);"}
          "x": "200",
          "y": "67",
          "displayField": "CNAME",
+         "anyMatch": "true",
          "height": "22"
         },
         "expanded": false,
@@ -289,6 +304,65 @@ app.edate.setValue(value);"}
          "configs": {
           "itemId": "store",
           "params": "{fldId:'AG'}",
+          "url": "m?xwl=system/common/client/clientSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "tagConfigs": " matchFieldWidth:false",
+         "pageSize": "50",
+         "selectOnTab": "true",
+         "labelWidth": "50",
+         "listConfig": "{width:450}",
+         "valueField": "ID",
+         "queryDelay": "500",
+         "hideTrigger": "true",
+         "itemId": "CUSTOMER_ID",
+         "tpl": "<table cellspacing='0' width='100%'>\
+   <tr  >\
+      <td width='5px'>\
+      代码\
+      <\/td>\
+      <td>\
+       名称\
+      <\/td>\
+       <td>\
+       税号\
+      <\/td>\
+    <\/tr>\
+  <tpl for='.'>\
+    <tr class='x-boundlist-item' >\
+      <td >\
+        {ID}\
+      <\/td>\
+      <td>\
+       {CNAME}\
+      <\/td>\
+       <td>\
+       {GOV_CODE}\
+      <\/td>\
+    <\/tr>\
+  <\/tpl>\
+<\/table>",
+         "labelAlign": "right",
+         "fieldLabel": "货主",
+         "width": "220",
+         "x": "200",
+         "y": "67",
+         "displayField": "CNAME",
+         "anyMatch": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "params": "{fldId:'CE'}",
           "url": "m?xwl=system/common/client/clientSelect"
          },
          "expanded": false,
@@ -423,6 +497,11 @@ if (!Wb.isEmpty(app.cboCARGO_TYPE.getValue()))\
 if ('{#sys.NATURE#}' == 5) {\
   whereSql += \" and accounts_details.CNTR_OPERATOR_COD='\" + '{#sys.GOV_CODE#}' + \"'\";\
 }\
+\
+if (!Wb.isEmpty(app.cboFEE_LIST_ID.getValue()))\
+  whereSql += \" and accounts_details.FEE_LIST_ID='\" + app.cboFEE_LIST_ID.getValue() + \"'\";\
+if (!Wb.isEmpty(app.CUSTOMER_ID.getValue()))\
+  whereSql += \" and DECODE (vh.I_E_ID,  'I', CONSIGNEE_COD,  'E', SHIPPER_COD)='\" + app.CUSTOMER_ID.getValue() + \"'\";\
 // whereSql += \" and accounts_details.JOB_FINISH_DATE>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\
 //   \" and accounts_details.JOB_FINISH_DATE<=to_date('\" + app.edate.getRawValue() + \" 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
 whereSql += \" and (select eta from vessel_visit where id=vh.vid)>=to_date('\" + app.sdate.getRawValue() + \" 00:00:00','yyyy-mm-dd hh24:mi:ss')\" +\

@@ -1,0 +1,3237 @@
+{
+ "hidden": false,
+ "children": [{
+  "configs": {"itemId": "module"},
+  "expanded": true,
+  "children": [
+   {
+    "configs": {
+     "itemId": "tbarCbzs",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": true,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveCbzsBtn",
+       "text": "@Str.save",
+       "iconCls": "record_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "if (!Wb.verify(app.panelCbzs))\
+  return;\
+\
+if (app.zsEdit) {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/shipCertificationEdit/update',\
+    out: app.panelCbzs,\
+    success: function() {\
+      //编辑完成,重reload列表数据\
+      app.gridCBZS.store.load({\
+        params: {\
+          VID: app.ZWIN_VID.getValue()\
+        }\
+      });\
+      if (app.zsfile.getValue() !== '') {\
+        if (!Wb.verify(app.formZs)) { //验证值是否合法\
+          return;\
+        }\
+        Wb.upload({\
+          form: app.formZs, //上传的表单控件，必选项\
+          showProgress: true, //显示上传进度条\
+          url: 'm?xwl=system/codeManage/cvessel/shipCertificationEdit/uploadZs',\
+          params: {\
+            id: app.ZWIN_ID.getValue()\
+          },\
+          success: function(form, action, value) {\
+            //重置控件内容\
+            app.ZWIN_ID.reset();\
+            app.CZS.reset();\
+            app.GET_TIME.reset();\
+            app.NEXT_TIME.reset();\
+            app.zsfile.reset();\
+            //操作完成设置为新增状态\
+            app.zsEdit = false;\
+          }\
+        });\
+      } else {\
+        //重置控件内容\
+        app.ZWIN_ID.reset();\
+        app.CZS.reset();\
+        app.GET_TIME.reset();\
+        app.NEXT_TIME.reset();\
+        app.zsfile.reset();\
+        //操作完成设置为新增状态\
+        app.zsEdit = false;\
+      }\
+    }\
+  });\
+} else {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/shipCertificationEdit/insert',\
+    out: app.panelCbzs,\
+    success: function(resp) {\
+      var id = Wb.decode(resp.responseText);\
+      app.gridCBZS.store.load({\
+        params: {\
+          VID: app.ZWIN_VID.getValue()\
+        }\
+      });\
+      if (app.zsfile.getValue() !== '') {\
+        if (!Wb.verify(app.formZs)) { //验证值是否合法\
+          return;\
+        }\
+        Wb.upload({\
+          form: app.formZs, //上传的表单控件，必选项\
+          showProgress: true, //显示上传进度条\
+          url: 'm?xwl=system/codeManage/cvessel/shipCertificationEdit/uploadZs',\
+          params: {\
+            id: id.ID\
+          },\
+          success: function(form, action, value) {\
+            //重置控件内容\
+            app.ZWIN_ID.reset();\
+            app.CZS.reset();\
+            app.GET_TIME.reset();\
+            app.NEXT_TIME.reset();\
+            app.zsfile.reset();\
+            //操作完成设置为新增状态\
+            app.zsEdit = false;\
+          }\
+        });\
+      } else {\
+        //重置控件内容\
+        app.ZWIN_ID.reset();\
+        app.CZS.reset();\
+        app.GET_TIME.reset();\
+        app.NEXT_TIME.reset();\
+        app.zsfile.reset();\
+        //操作完成设置为新增状态\
+        app.zsEdit = false;\
+      }\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delCbzsBtn",
+       "text": "@Str.del",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridCBZS.getSelection(); //获取选中行\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/shipCertificationEdit/delete',\
+    params: {\
+      ID: sels[0].data.ID\
+    },\
+    success: function() {\
+      Wb.remove(app.gridCBZS, sels);\
+      //删除完成,reload列表数据\
+      app.gridCBZS.store.load({\
+        params: {\
+          VID: app.ZWIN_VID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.ZWIN_ID.reset();\
+      app.CZS.reset();\
+      app.GET_TIME.reset();\
+      app.NEXT_TIME.reset();\
+      app.zsfile.reset();\
+      //操作完成设置为新增状态\
+      app.zsEdit = false;\
+    }\
+  });\
+}, 'NAME');"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "redoCbzsBtn",
+       "text": "重置",
+       "iconCls": "redo_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "//重置控件内容\
+app.ZWIN_ID.reset();\
+app.CZS.reset();\
+app.GET_TIME.reset();\
+app.NEXT_TIME.reset();\
+//操作完成设置为新增状态\
+app.zsEdit = false;\
+//reload列表,确保失去焦点行\
+app.gridCBZS.store.load({\
+  params: {\
+    VID: app.ZWIN_VID.getValue()\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "tbarRepair",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveRepairBtn",
+       "text": "@Str.save",
+       "iconCls": "record_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var values = Wb.getValue(app.repairWin);\
+\
+//true为修改\
+if (app.repairEdit) {\
+  //必填项非空判断\
+  if (app.REPAIR_REASON.getValue() === null || app.REPAIR_REASON.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.REPAIR_UNIT.getValue() === null || app.REPAIR_UNIT.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.R_REPAIR_TIME.getValue() === null || app.R_REPAIR_TIME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.COST.getValue() === null || app.COST.getValue() === \"\") {\
+    return;\
+  }\
+  var sel = app.gridRepair.getSelection()[0];\
+  //操作完成设置为新增状态\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/repairEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(sel, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(sel, values);\
+      //编辑完成,重reload列表数据\
+      app.gridRepair.store.load({\
+        params: {\
+          VID: app.RWIN_VID.getValue()\
+        }\
+      });\
+    }\
+  });\
+  //重置控件内容\
+  app.RWIN_ID.reset();\
+  app.REPAIR_REASON.reset();\
+  app.REPAIR_UNIT.reset();\
+  app.R_REPAIR_TIME.reset();\
+  app.COST.reset();\
+  //操作完成设置为新增状态\
+  app.repairEdit = false;\
+} else { //false为新增\
+  //必填项非空判断\
+  if (app.REPAIR_REASON.getValue() === null || app.REPAIR_REASON.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.REPAIR_UNIT.getValue() === null || app.REPAIR_UNIT.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.R_REPAIR_TIME.getValue() === null || app.R_REPAIR_TIME.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.COST.getValue() === null || app.COST.getValue() === \"\") {\
+    return;\
+  }\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/repairEdit/insert',\
+    out: app.repairWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+      Wb.add(app.gridRepair, Wb.apply(Wb.decode(resp.responseText), values));\
+      //新增完成,重reload列表数据\
+      app.gridRepair.store.load({\
+        params: {\
+          VID: app.RWIN_VID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.RWIN_ID.reset();\
+      app.REPAIR_REASON.reset();\
+      app.REPAIR_UNIT.reset();\
+      app.R_REPAIR_TIME.reset();\
+      app.COST.reset();\
+      //操作完成设置为新增状态\
+      app.repairEdit = false;\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delRepairBtn",
+       "text": "@Str.del",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridRepair.getSelection(); //获取选中行\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/repairEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.gridRepair, sels);\
+      //删除完成,reload列表数据\
+      app.gridRepair.store.load({\
+        params: {\
+          VID: app.RWIN_VID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.RWIN_ID.reset();\
+      app.REPAIR_REASON.reset();\
+      app.REPAIR_UNIT.reset();\
+      app.R_REPAIR_TIME.reset();\
+      app.COST.reset();\
+      //操作完成设置为新增状态\
+      app.repairEdit = false;\
+    }\
+  });\
+}, 'REPAIR_REASON');"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "redoRepairBtn",
+       "text": "重置",
+       "iconCls": "redo_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "//重置控件内容\
+app.RWIN_ID.reset();\
+app.REPAIR_REASON.reset();\
+app.REPAIR_UNIT.reset();\
+app.R_REPAIR_TIME.reset();\
+app.COST.reset();\
+//操作完成设置为新增状态\
+app.repairEdit = false;\
+//reload列表,确保失去焦点行\
+app.gridRepair.store.load({\
+  params: {\
+    VID: app.RWIN_VID.getValue()\
+  }\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "tbarChek",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "saveChekBtn",
+       "text": "@Str.save",
+       "iconCls": "record_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var values = Wb.getValue(app.chekWin);\
+\
+//true为修改\
+if (app.chekEdit) {\
+  //必填项非空判断\
+  if (app.VOYAGE.getValue() === null || app.VOYAGE.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.TYPE.getValue() === null || app.TYPE.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.LAST_TIME.getValue() === null || app.LAST_TIME.getValue() === \"\") {\
+    return;\
+  }\
+  var sel = app.gridChek.getSelection()[0];\
+  //操作完成设置为新增状态\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/chekEdit/update',\
+    params: Wb.applyIf(values, Wb.getData(sel, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(sel, values);\
+      //编辑完成,重reload列表数据\
+      app.gridChek.store.load({\
+        params: {\
+          VID: app.CWIN_VID.getValue()\
+        }\
+      });\
+    }\
+  });\
+  //重置控件内容\
+  app.CWIN_ID.reset();\
+  app.VOYAGE.reset();\
+  app.TYPE.reset();\
+  app.CLASS.reset();\
+  app.CYCLE.reset();\
+  app.LAST_TIME.reset();\
+  app.DOCK_TIME.reset();\
+  app.C_REPAIR_TIME.reset();\
+  app.NEXT_DAYS.reset();\
+  //操作完成设置为新增状态\
+  app.chekEdit = false;\
+} else { //false为新增\
+  //必填项非空判断\
+  if (app.VOYAGE.getValue() === null || app.VOYAGE.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.TYPE.getValue() === null || app.TYPE.getValue() === \"\") {\
+    return;\
+  }\
+  if (app.LAST_TIME.getValue() === null || app.LAST_TIME.getValue() === \"\") {\
+    return;\
+  }\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/chekEdit/insert',\
+    out: app.chekWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+      Wb.add(app.gridChek, Wb.apply(Wb.decode(resp.responseText), values));\
+      //新增完成,重reload列表数据\
+      app.gridChek.store.load({\
+        params: {\
+          VID: app.CWIN_VID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.CWIN_ID.reset();\
+      app.VOYAGE.reset();\
+      app.TYPE.reset();\
+      app.CLASS.reset();\
+      app.CYCLE.reset();\
+      app.LAST_TIME.reset();\
+      app.DOCK_TIME.reset();\
+      app.C_REPAIR_TIME.reset();\
+      app.NEXT_DAYS.reset();\
+      //操作完成设置为新增状态\
+      app.chekEdit = false;\
+    }\
+  });\
+}"}
+     },
+     {
+      "configs": {
+       "itemId": "delCkekBtn",
+       "text": "@Str.del",
+       "iconCls": "record_delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var sels = app.gridChek.getSelection(); //获取选中行\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/chekEdit/delete',\
+    params: {\
+      destroy: Wb.getData(sels, true)\
+    },\
+    success: function() {\
+      Wb.remove(app.gridChek, sels);\
+      //删除完成,reload列表数据\
+      app.gridChek.store.load({\
+        params: {\
+          VID: app.CWIN_VID.getValue()\
+        }\
+      });\
+      //重置控件内容\
+      app.CWIN_ID.reset();\
+      app.VOYAGE.reset();\
+      app.TYPE.reset();\
+      app.CLASS.reset();\
+      app.CYCLE.reset();\
+      app.LAST_TIME.reset();\
+      app.DOCK_TIME.reset();\
+      app.C_REPAIR_TIME.reset();\
+      app.NEXT_DAYS.reset();\
+      //操作完成设置为新增状态\
+      app.chekEdit = false;\
+    }\
+  });\
+}, 'VOYAGE');"}
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "redoCkekBtn",
+       "text": "重置",
+       "iconCls": "redo_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": " //重置控件内容\
+ app.CWIN_ID.reset();\
+ app.VOYAGE.reset();\
+ app.TYPE.reset();\
+ app.CLASS.reset();\
+ app.CYCLE.reset();\
+ app.LAST_TIME.reset();\
+ app.DOCK_TIME.reset();\
+ app.C_REPAIR_TIME.reset();\
+ app.NEXT_DAYS.reset();\
+ //操作完成设置为新增状态\
+ app.chekEdit = false;\
+ //reload列表,确保失去焦点行\
+ app.gridChek.store.load({\
+   params: {\
+     VID: app.CWIN_VID.getValue()\
+   }\
+ });"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "tbarSc",
+     "enableOverflow": "true",
+     "region": "north"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "cname",
+       "labelAlign": "right",
+       "labelWidth": "60"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "findScBtn",
+       "text": "@Str.find",
+       "iconCls": "seek_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "app.gridSc.store.load({\
+  out: app.tbarSc\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "SWIN_VID",
+       "hidden": "true",
+       "fieldLabel": "船舶ID"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "text"
+     },
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "-"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "tagConfigs": "{\
+  getValue: function() {\
+    var vals = Wb.getValue(this, ['radioCin', 'radioCout']);\
+    if (vals.radioCin)\
+      return 1;\
+    else if (vals.radioCout)\
+      return 0;\
+    else return null;\
+  },\
+  setValue: function(v) {\
+    Wb.setValue(this, {\
+      radioCin: v == 1,\
+      radioCout: v == 0\
+    });\
+  }\
+}",
+       "layout": "hbox",
+       "itemId": "rCs",
+       "width": "160"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "radioCin",
+         "boxLabel": "当前船员",
+         "flex": "1",
+         "name": "rCs",
+         "checked": "true"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio",
+        "events": {"change": "app.gridSc.store.load({\
+  out: app.tbarSc\
+});"}
+       },
+       {
+        "configs": {
+         "itemId": "radioCout",
+         "boxLabel": "历史船员",
+         "flex": "1",
+         "name": "rCs"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "radio",
+        "events": {"change": "app.gridSc.store.load({\
+  out: app.tbarSc\
+});"}
+       }
+      ],
+      "type": "container"
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {"itemId": "tbarImg"},
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "itemId": "item1",
+       "text": "->"
+      },
+      "expanded": true,
+      "children": [],
+      "type": "item"
+     },
+     {
+      "configs": {
+       "itemId": "zuoBtn",
+       "tooltip": "上一张",
+       "iconCls": "left_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var rn = app.RN.getValue();\
+rn--;\
+Wb.request({\
+  url: \"m?xwl=system/codeManage/cvessel/cvesseledit/selectImg\",\
+  params: {\
+    VID: app.VESID.getValue(),\
+    table: app.IMGTABLE.getValue(),\
+    rn: rn\
+  },\
+  success: function(resp) {\
+    var imgs = Wb.decode(resp.responseText);\
+    if (imgs.rows.length > 0) {\
+      //重置图片\
+      app.image1.setSrc('');\
+      //设置图片地址\
+      app.image1.setSrc(imgs.rows[0].F_PATH);\
+      app.IMGID.setValue(imgs.rows[0].ID);\
+      app.RN.setValue(rn);\
+    } else {\
+      Wb.info(\"已经是第一张照片了\");\
+      app.RN.setValue(rn + 1);\
+    }\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "youBtn",
+       "tooltip": "下一张",
+       "iconCls": "right_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "var rn = app.RN.getValue();\
+rn++;\
+Wb.request({\
+  url: \"m?xwl=system/codeManage/cvessel/cvesseledit/selectImg\",\
+  params: {\
+    VID: app.VESID.getValue(),\
+    table: app.IMGTABLE.getValue(),\
+    rn: rn\
+  },\
+  success: function(resp) {\
+    var imgs = Wb.decode(resp.responseText);\
+    if (imgs.rows.length > 0) {\
+      //重置图片\
+      app.image1.setSrc('');\
+      //设置图片地址\
+      app.image1.setSrc(imgs.rows[0].F_PATH);\
+      app.IMGID.setValue(imgs.rows[0].ID);\
+      app.RN.setValue(rn);\
+    } else {\
+      Wb.info(\"已经是最后一张照片了\");\
+      app.RN.setValue(rn - 1);\
+    }\
+  }\
+});"}
+     },
+     {
+      "configs": {
+       "itemId": "baibaiBtn",
+       "tooltip": "删除",
+       "iconCls": "delete_icon"
+      },
+      "expanded": false,
+      "children": [],
+      "type": "item",
+      "events": {"click": "Wb.confirm(\"删除照片\", function() {\
+  Wb.request({\
+    url: \"m?xwl=system/codeManage/cvessel/cvesseledit/deleteZp\",\
+    params: {\
+      ID: app.IMGID.getValue()\
+    },\
+    success: function(resp) {\
+      var rn = app.RN.getValue();\
+      if (rn == 1)\
+        Wb.request({\
+          url: \"m?xwl=system/codeManage/cvessel/cvesseledit/selectImg\",\
+          params: {\
+            VID: app.VESID.getValue(),\
+            table: app.IMGTABLE.getValue(),\
+            rn: rn\
+          },\
+          success: function(resp) {\
+            var imgs = Wb.decode(resp.responseText);\
+            if (imgs.rows.length > 0) {\
+              //重置图片\
+              app.image1.setSrc('');\
+              //设置图片地址\
+              app.image1.setSrc(imgs.rows[0].F_PATH);\
+              app.IMGID.setValue(imgs.rows[0].ID);\
+            } else {\
+              Wb.info(\"没有照片了\");\
+              app.imgWin.close();\
+            }\
+          }\
+        });\
+      else\
+        Wb.request({\
+          url: \"m?xwl=system/codeManage/cvessel/cvesseledit/selectImg\",\
+          params: {\
+            VID: app.VESID.getValue(),\
+            table: app.IMGTABLE.getValue(),\
+            rn: rn - 1\
+          },\
+          success: function(resp) {\
+            var imgs = Wb.decode(resp.responseText);\
+            if (imgs.rows.length > 0) {\
+              //重置图片\
+              app.image1.setSrc('');\
+              //设置图片地址\
+              app.image1.setSrc(imgs.rows[0].F_PATH);\
+              app.IMGID.setValue(imgs.rows[0].ID);\
+              app.RN.setValue(rn - 1);\
+            } else {\
+              Wb.info(\"没有照片了\");\
+              app.imgWin.close();\
+            }\
+          }\
+        });\
+    }\
+  });\
+});"}
+     }
+    ],
+    "type": "toolbar"
+   },
+   {
+    "configs": {
+     "itemId": "editWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "880",
+     "height": "446"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "baseParams": "{abc:123}",
+      "border": "false",
+      "itemId": "formZp",
+      "padding": "0 0 0 0",
+      "margin": "0 0 0 0"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "layout": "@{type:'table',columns:3}",
+       "itemId": "panelVessel",
+       "split": "true",
+       "defaults": "{\
+  labelWidth: 100,\
+  width: 260,\
+  margin: '4 8 4 8'\
+}",
+       "region": "west",
+       "autoScroll": "true",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "allowBlank": "false",
+         "itemId": "VESSEL_NAME",
+         "labelAlign": "right",
+         "fieldLabel": "船名",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "EDI_CALL_SIGN",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "运输工具编号",
+         "isUpperCase": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "ID",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "船舶代码",
+         "isUpperCase": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "ZPFILE1",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "文件路径",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "E_NAME",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "英文名",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text",
+        "events": {"change": "app.E_NAME.setValue(app.E_NAME.getValue().toUpperCase());"}
+       },
+       {
+        "configs": {
+         "itemId": "VESSEL_CLASS",
+         "labelAlign": "right",
+         "fieldLabel": "船舶类型",
+         "keyName": "VESSEL_CLASS",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "SERVICE_CODE",
+         "labelAlign": "right",
+         "fieldLabel": "航线",
+         "keyName": "C_SERVICE",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "LINE_CODE",
+         "labelAlign": "right",
+         "fieldLabel": "经营人",
+         "displayField": "CNAME",
+         "valueField": "ID",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "params": "{fldId:'AG'}",
+          "url": "m?xwl=system/common/codeSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "CALL_SIGN",
+         "allowBlank": "false",
+         "labelAlign": "right",
+         "fieldLabel": "船舶呼号",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "COUNTRY_CODE",
+         "labelAlign": "right",
+         "fieldLabel": "国家",
+         "displayField": "CNAME",
+         "valueField": "ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [{
+         "configs": {
+          "itemId": "store",
+          "autoLoad": "true",
+          "params": "{fldId:'AG'}",
+          "url": "m?xwl=system/common/codeSelect"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        }],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "GRT",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "总吨",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "NRT",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "净吨",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "LENGTH",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "99999",
+         "fieldLabel": "船长",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "WIDTH",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "船宽",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "HIGH",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "型深",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MAX_SPEED",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "999999",
+         "fieldLabel": "航速",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MAX_DRAFT",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "99999999",
+         "fieldLabel": "满载吃水",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "RANT_TYPE",
+         "labelAlign": "right",
+         "fieldLabel": "经营性质",
+         "keyName": "RANT_TYPE",
+         "height": "22"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "combo"
+       },
+       {
+        "configs": {
+         "itemId": "MADE_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "建造日期",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "MATERIAL",
+         "labelAlign": "right",
+         "fieldLabel": "材质",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TEU",
+         "labelAlign": "right",
+         "maxValue": "99999999",
+         "fieldLabel": "最大箱量",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "SIZE",
+         "labelAlign": "right",
+         "fieldLabel": "货舱尺寸",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "OWNER",
+         "labelAlign": "right",
+         "fieldLabel": "船舶所有人",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "COLOR",
+         "labelAlign": "right",
+         "fieldLabel": "颜色",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "zpfile",
+         "labelAlign": "right",
+         "fieldLabel": "船舶照片",
+         "multiple": "true",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "file"
+       },
+       {
+        "configs": {
+         "tagConfigs": "{\
+  colspan: 2\
+}",
+         "itemId": "NOTES2",
+         "labelAlign": "right",
+         "fieldLabel": "备注",
+         "width": "536",
+         "height": "95"
+        },
+        "expanded": true,
+        "children": [],
+        "type": "textarea"
+       },
+       {
+        "configs": {
+         "itemId": "ckUSE_ID",
+         "boxLabel": "常用船"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "check",
+        "events": {"change": "if (newValue)\
+  app.USE_ID.setValue(1);\
+else\
+  app.USE_ID.setValue(0);"}
+       },
+       {
+        "configs": {
+         "itemId": "USE_ID",
+         "hidden": "true",
+         "labelAlign": "right"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "BOATLOAD",
+         "labelAlign": "right",
+         "fieldLabel": "载货量"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "MAIN_MOTOR_POWER",
+         "labelAlign": "right",
+         "fieldLabel": "主机功率"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "SHIPTYPE",
+         "labelAlign": "right",
+         "fieldLabel": "船舶类型"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       }
+      ],
+      "type": "panel"
+     }],
+     "type": "form"
+    }],
+    "type": "window",
+    "events": {"ok": "if (app.isEdit) {\
+  var values = Wb.getValue(app.editWin);\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+      if (app.zpfile.getValue() !== '') {\
+        if (!Wb.verify(app.formZp)) { //验证值是否合法\
+          return;\
+        }\
+        Wb.upload({\
+          form: app.formZp, //上传的表单控件，必选项\
+          showProgress: true, //显示上传进度条\
+          url: 'm?xwl=system/codeManage/cvessel/cvesseledit/uploadZp',\
+          params: {\
+            id: app.ID.getValue()\
+          },\
+          success: function(form, action, value) {\
+            app.editWin.close();\
+          }\
+        });\
+      } else {\
+        app.editWin.close();\
+      }\
+    }\
+  });\
+} else {\
+  var values = Wb.getValue(app.editWin);\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+      if (app.zpfile.getValue() !== '') {\
+        if (!Wb.verify(app.formZp)) { //验证值是否合法\
+          return;\
+        }\
+        Wb.upload({\
+          form: app.formZp, //上传的表单控件，必选项\
+          showProgress: true, //显示上传进度条\
+          url: 'm?xwl=system/codeManage/cvessel/cvesseledit/uploadZp',\
+          params: {\
+            id: app.ID.getValue()\
+          },\
+          success: function(form, action, value) {\
+            app.editWin.close();\
+          }\
+        });\
+      } else {\
+        app.editWin.close();\
+      }\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "itemId": "cbzsWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "baseParams": "{abc:123}",
+       "border": "false",
+       "itemId": "formZs",
+       "padding": "0 0 0 0",
+       "margin": "0 0 0 0"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "layout": "@{type:'table',columns:2}",
+        "itemId": "panelCbzs",
+        "defaults": "{\
+  labelWidth: 100,\
+  width: 320,\
+  margin: '4 8 4 8'\
+}",
+        "autoScroll": "true",
+        "frame": "true"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "ZWIN_ID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "ID",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ZWIN_VID",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "船舶ID",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "ZSFILE1",
+          "hidden": "true",
+          "labelAlign": "right",
+          "fieldLabel": "文件路径",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "tagConfigs": "{\
+  colspan: 2\
+}",
+          "itemId": "CZS",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "证书",
+          "width": "657",
+          "displayField": "NAME",
+          "valueField": "ID"
+         },
+         "expanded": false,
+         "children": [{
+          "configs": {
+           "itemId": "store",
+           "autoLoad": "true",
+           "url": "m?xwl=system/codeManage/cvessel/shipCertificationEdit/selectZs"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "store"
+         }],
+         "type": "combo"
+        },
+        {
+         "configs": {
+          "itemId": "GET_TIME",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "获取时间",
+          "format": "Y-m-d",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "itemId": "NEXT_TIME",
+          "allowBlank": "false",
+          "labelAlign": "right",
+          "fieldLabel": "下次年检时间",
+          "format": "Y-m-d",
+          "height": "22"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "date"
+        },
+        {
+         "configs": {
+          "tagConfigs": "{\
+  colspan: 2\
+}",
+          "itemId": "zsfile",
+          "labelAlign": "right",
+          "fieldLabel": "扫描件",
+          "width": "657",
+          "multiple": "true",
+          "height": "22"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "file"
+        }
+       ],
+       "type": "panel"
+      }],
+      "type": "form"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panelCbzs1",
+       "frame": "true",
+       "height": "343"
+      },
+      "expanded": true,
+      "children": [{
+       "configs": {
+        "itemId": "gridCBZS",
+        "tbar": "app.tbarCbzs",
+        "disabled": "false",
+        "region": "center"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=system/codeManage/cvessel/shipCertificationEdit/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "船舶ID(隐藏)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "C_V_ID1",
+            "hidden": "true",
+            "dataIndex": "C_V_ID",
+            "text": "船舶ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VESSEL_NAME1",
+            "dataIndex": "VESSEL_NAME",
+            "text": "船名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "C_CE_ID1",
+            "hidden": "true",
+            "dataIndex": "C_CE_ID",
+            "text": "证书ID"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NAME1",
+            "dataIndex": "NAME",
+            "width": "246",
+            "text": "证书"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "GET_TIME1",
+            "dataIndex": "GET_TIME",
+            "format": "Y-m-d",
+            "text": "获取时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NEXT_TIME1",
+            "dataIndex": "NEXT_TIME",
+            "format": "Y-m-d",
+            "text": "下次年检时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "PHOTO1",
+            "hidden": "true",
+            "dataIndex": "PHOTO",
+            "text": "路径"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "actionColumns",
+            "xtype": "actioncolumn",
+            "width": "40",
+            "text": "照片",
+            "align": "center"
+           },
+           "expanded": true,
+           "children": [{
+            "configs": {"itemId": "items"},
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "showPhoto",
+              "handler": "app.VESID.setValue(record.data.ID);\
+app.IMGTABLE.setValue(\"C_SHIP_CERTIFICATION\");\
+Wb.request({\
+  url: \"m?xwl=system/codeManage/cvessel/cvesseledit/selectImg\",\
+  params: {\
+    VID: app.VESID.getValue(),\
+    table: app.IMGTABLE.getValue(),\
+    rn: 1\
+  },\
+  success: function(resp) {\
+    var imgs = Wb.decode(resp.responseText);\
+    if (imgs.rows.length > 0) {\
+      app.imgWin.setTitle('图片 - ' + record.data.VESSEL_NAME);\
+      app.imgWin.setIconCls('zoom_icon');\
+      app.imgWin.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+      //显示图片\
+      app.imgWin.show();\
+      //重置图片\
+      app.image1.setSrc('');\
+      //设置图片地址\
+      app.image1.setSrc(imgs.rows[0].F_PATH);\
+      app.IMGID.setValue(imgs.rows[0].ID);\
+      app.RN.setValue(1);\
+    } else {\
+      Wb.info(\"没有照片\");\
+    }\
+  }\
+});",
+              "tooltip": "查看图片",
+              "iconCls": "zoom_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }],
+            "type": "array"
+           }],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "actionColumns1",
+            "xtype": "actioncolumn",
+            "width": "70",
+            "text": "审核记录",
+            "align": "center"
+           },
+           "expanded": false,
+           "children": [{
+            "configs": {"itemId": "items"},
+            "expanded": true,
+            "children": [{
+             "configs": {
+              "itemId": "showShjl",
+              "handler": "app.cbzsShjlWin.setTitle('证书审核记录 - ' + record.data.NAME);\
+app.cbzsShjlWin.setIconCls('zoom_icon');\
+app.cbzsShjlWin.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+app.gridCBZSSHJL.store.load({\
+  params: {\
+    CEID: record.data.C_CE_ID\
+  }\
+});\
+app.cbzsShjlWin.show();",
+              "tooltip": "查看审核记录",
+              "iconCls": "zoom_icon"
+             },
+             "expanded": false,
+             "children": [],
+             "type": "column"
+            }],
+            "type": "array"
+           }],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.zsEdit = true; //设置为编辑状态\
+//控件赋值\
+app.ZWIN_ID.setValue(record.data.ID);\
+app.CZS.setValue(record.data.C_CE_ID);\
+app.GET_TIME.setValue(record.data.GET_TIME);\
+app.NEXT_TIME.setValue(record.data.NEXT_TIME);\
+app.ZSFILE1.setValue(record.data.PHOTO);"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "cbzsShjlWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelCbzsShjl",
+      "frame": "true",
+      "height": "443"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "gridCBZSSHJL",
+       "disabled": "false",
+       "region": "center",
+       "multiSelect": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=system/codeManage/cvessel/shipCertificationEdit/selectShjl"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "船舶ID(隐藏)"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "C_V_ID1",
+           "hidden": "true",
+           "dataIndex": "C_V_ID",
+           "text": "船舶ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "VESSEL_NAME1",
+           "dataIndex": "VESSEL_NAME",
+           "text": "船名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "C_CE_ID1",
+           "hidden": "true",
+           "dataIndex": "C_CE_ID",
+           "text": "证书ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "NAME1",
+           "dataIndex": "NAME",
+           "width": "246",
+           "text": "证书"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "GET_TIME1",
+           "dataIndex": "GET_TIME",
+           "format": "Y-m-d",
+           "text": "获取时间"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid",
+      "events": {"itemclick": "app.zsEdit = true; //设置为编辑状态\
+//控件赋值\
+app.ZWIN_ID.setValue(record.data.ID);\
+app.CZS.setValue(record.data.C_CE_ID);\
+app.GET_TIME.setValue(record.data.GET_TIME);\
+app.NEXT_TIME.setValue(record.data.NEXT_TIME);\
+app.ZSFILE1.setValue(record.data.PHOTO);"}
+     }],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+\
+      Wb.add(app.gridVessel, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "itemId": "repairWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:2}",
+       "itemId": "panelRepair",
+       "defaults": "{\
+  labelWidth: 110,\
+  width: 320,\
+  margin: '4 8 4 8'\
+}",
+       "autoScroll": "true",
+       "frame": "true"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "RWIN_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "RWIN_VID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "船舶ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "REPAIR_REASON",
+         "labelAlign": "right",
+         "fieldLabel": "维修原因",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "REPAIR_UNIT",
+         "labelAlign": "right",
+         "fieldLabel": "维修单位",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "R_REPAIR_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "维修日期",
+         "format": "Y-m-d",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "COST",
+         "allowDecimals": "true",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "维修成本",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panelRepair1",
+       "frame": "true",
+       "height": "374"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "gridRepair",
+        "tbar": "app.tbarRepair",
+        "disabled": "false"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=system/codeManage/cvessel/repairEdit/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "ID(隐藏)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SHIP_ID1",
+            "hidden": "true",
+            "dataIndex": "SHIP_ID",
+            "text": "船舶ID(隐藏)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VESSEL_NAME1",
+            "dataIndex": "VESSEL_NAME",
+            "text": "船名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REPAIR_REASON1",
+            "dataIndex": "REPAIR_REASON",
+            "width": "178",
+            "text": "维修原因"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REPAIR_UNIT1",
+            "dataIndex": "REPAIR_UNIT",
+            "width": "178",
+            "text": "维修单位"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REPAIR_TIME1",
+            "dataIndex": "REPAIR_TIME",
+            "format": "Y-m-d",
+            "text": "维修日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "COST1",
+            "dataIndex": "COST",
+            "text": "维修成本"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.repairEdit = true; //设置为编辑状态\
+//控件赋值\
+app.RWIN_ID.setValue(record.data.ID);\
+app.REPAIR_REASON.setValue(record.data.REPAIR_REASON);\
+app.REPAIR_UNIT.setValue(record.data.REPAIR_UNIT);\
+app.R_REPAIR_TIME.setValue(record.data.REPAIR_TIME);\
+app.COST.setValue(record.data.COST);"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "chekWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [
+     {
+      "configs": {
+       "layout": "@{type:'table',columns:2}",
+       "itemId": "panelChek",
+       "defaults": "{\
+  labelWidth: 110,\
+  width: 320,\
+  margin: '4 8 4 8'\
+}",
+       "autoScroll": "true",
+       "frame": "true"
+      },
+      "expanded": false,
+      "children": [
+       {
+        "configs": {
+         "itemId": "CWIN_ID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CWIN_VID",
+         "hidden": "true",
+         "labelAlign": "right",
+         "fieldLabel": "船舶ID",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "VOYAGE",
+         "allowBlank": "true",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>航期",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "TYPE",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>检验性质",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CLASS",
+         "labelAlign": "right",
+         "fieldLabel": "检验类别",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "text"
+       },
+       {
+        "configs": {
+         "itemId": "CYCLE",
+         "allowDecimals": "false",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "危货周期",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       },
+       {
+        "configs": {
+         "itemId": "LAST_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "<font color='red'>*<\/font>上次修理日期",
+         "format": "Y-m-d",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "DOCK_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "下次坞修时间",
+         "format": "Y-m-d",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "C_REPAIR_TIME",
+         "labelAlign": "right",
+         "fieldLabel": "今年修理日期",
+         "format": "Y-m-d",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "date"
+       },
+       {
+        "configs": {
+         "itemId": "NEXT_DAYS",
+         "allowDecimals": "false",
+         "labelAlign": "right",
+         "maxValue": "9999999999",
+         "fieldLabel": "预修天数",
+         "height": "22"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "number"
+       }
+      ],
+      "type": "panel"
+     },
+     {
+      "configs": {
+       "layout": "fit",
+       "itemId": "panelCheck1",
+       "frame": "true",
+       "height": "313"
+      },
+      "expanded": false,
+      "children": [{
+       "configs": {
+        "itemId": "gridChek",
+        "tbar": "app.tbarChek",
+        "disabled": "false"
+       },
+       "expanded": true,
+       "children": [
+        {
+         "configs": {
+          "itemId": "store",
+          "url": "m?xwl=system/codeManage/cvessel/chekEdit/select"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "store"
+        },
+        {
+         "configs": {"itemId": "columns"},
+         "expanded": true,
+         "children": [
+          {
+           "configs": {
+            "itemId": "colID",
+            "hidden": "true",
+            "dataIndex": "ID",
+            "text": "ID(隐藏)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "column1",
+            "xtype": "rownumberer"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "SHIP_ID1",
+            "hidden": "true",
+            "dataIndex": "SHIP_ID",
+            "text": "船舶ID(隐藏)"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VESSEL_NAME1",
+            "dataIndex": "VESSEL_NAME",
+            "text": "船名"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "VOYAGE1",
+            "dataIndex": "VOYAGE",
+            "text": "航期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "TYPE1",
+            "dataIndex": "TYPE",
+            "text": "检验性质"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CLASS1",
+            "dataIndex": "CLASS",
+            "text": "检验类别"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "CYCLE1",
+            "dataIndex": "CYCLE",
+            "text": "危货周期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "LAST_TIME1",
+            "dataIndex": "LAST_TIME",
+            "format": "Y-m-d",
+            "text": "上次修理日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "DOCK_TIME1",
+            "dataIndex": "DOCK_TIME",
+            "format": "Y-m-d",
+            "text": "下次坞修时间"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "REPAIR_TIME1",
+            "dataIndex": "REPAIR_TIME",
+            "format": "Y-m-d",
+            "text": "今年修理日期"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          },
+          {
+           "configs": {
+            "itemId": "NEXT_DAYS1",
+            "dataIndex": "NEXT_DAYS",
+            "text": "预修天数"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }
+         ],
+         "type": "array"
+        }
+       ],
+       "type": "grid",
+       "events": {"itemclick": "app.chekEdit = true; //设置为编辑状态\
+//控件赋值\
+app.CWIN_ID.setValue(record.data.ID);\
+app.VOYAGE.setValue(record.data.VOYAGE);\
+app.TYPE.setValue(record.data.TYPE);\
+app.CLASS.setValue(record.data.CLASS);\
+app.CYCLE.setValue(record.data.CYCLE);\
+app.LAST_TIME.setValue(record.data.LAST_TIME);\
+app.DOCK_TIME.setValue(record.data.DOCK_TIME);\
+app.C_REPAIR_TIME.setValue(record.data.REPAIR_TIME);\
+app.NEXT_DAYS.setValue(record.data.NEXT_DAYS);"}
+      }],
+      "type": "panel"
+     }
+    ],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "itemId": "scWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "720",
+     "height": "504"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "layout": "fit",
+      "itemId": "panelSc",
+      "height": "443"
+     },
+     "expanded": true,
+     "children": [{
+      "configs": {
+       "itemId": "gridSc",
+       "tbar": "app.tbarSc",
+       "disabled": "false"
+      },
+      "expanded": true,
+      "children": [
+       {
+        "configs": {
+         "itemId": "store",
+         "url": "m?xwl=system/codeManage/cvessel/shipCrewEdit/select"
+        },
+        "expanded": false,
+        "children": [],
+        "type": "store"
+       },
+       {
+        "configs": {"itemId": "columns"},
+        "expanded": true,
+        "children": [
+         {
+          "configs": {
+           "itemId": "colID",
+           "hidden": "true",
+           "dataIndex": "ID",
+           "text": "ID(隐藏)"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "column1",
+           "xtype": "rownumberer"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "C_V_ID1",
+           "hidden": "true",
+           "dataIndex": "C_V_ID",
+           "text": "船舶ID(隐藏)"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "VESSEL_NAME1",
+           "dataIndex": "VESSEL_NAME",
+           "text": "船名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "C_C_ID1",
+           "hidden": "true",
+           "dataIndex": "C_C_ID",
+           "text": "船员ID"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "NAME1",
+           "dataIndex": "NAME",
+           "text": "船员姓名"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "DUTY1",
+           "dataIndex": "DUTY",
+           "keyName": "SHIP_DUTY",
+           "text": "职务"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CALL_IN1",
+           "dataIndex": "CALL_IN",
+           "format": "Y-m-d",
+           "text": "调入日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         },
+         {
+          "configs": {
+           "itemId": "CALL_OUT1",
+           "dataIndex": "CALL_OUT",
+           "format": "Y-m-d",
+           "text": "调出日期"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "column"
+         }
+        ],
+        "type": "array"
+       }
+      ],
+      "type": "grid"
+     }],
+     "type": "panel"
+    }],
+    "type": "window"
+   },
+   {
+    "configs": {
+     "layout": "fit",
+     "itemId": "imgWin",
+     "dialog": "true",
+     "closeAction": "hide",
+     "width": "1000",
+     "height": "580"
+    },
+    "expanded": false,
+    "children": [{
+     "configs": {
+      "itemId": "panelImg",
+      "autoScroll": "true",
+      "bbar": "app.tbarImg",
+      "height": "442"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {"itemId": "image1"},
+       "expanded": false,
+       "children": [],
+       "type": "image"
+      },
+      {
+       "configs": {
+        "itemId": "IMGID",
+        "hidden": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {"itemId": "VESID"},
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {"itemId": "IMGTABLE"},
+       "expanded": false,
+       "children": [],
+       "type": "text"
+      },
+      {
+       "configs": {
+        "itemId": "RN",
+        "allowDecimals": "false",
+        "hidden": "true"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "number"
+      }
+     ],
+     "type": "panel"
+    }],
+    "type": "window",
+    "events": {"ok": "var values = Wb.getValue(app.editWin);\
+if (app.isEdit) {\
+  //点击修改按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/update',\
+    params: Wb.applyIf(values, Wb.getData(app.selRec, true)), //合并窗口和记录数据作为参数，后者为默认值\
+    success: function() {\
+      //把窗口数据更新到选择记录中\
+      Wb.update(app.selRec, values);\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+} else {\
+  //点击添加按钮的处理过程\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/insert',\
+    out: app.editWin,\
+    success: function(resp) {\
+      //把服务器返回的数据合并窗口数据（公司名称等数据）添加到表格中\
+      //var ms=Wb.apply( values,Wb.decode(resp.responseText));\
+\
+      Wb.add(app.gridVessel, Wb.apply(Wb.decode(resp.responseText), values));\
+      //隐藏对话框，在模块关闭时自动销毁对话框\
+      app.editWin.close();\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+}"}
+   },
+   {
+    "configs": {
+     "layout": "border",
+     "itemId": "viewport1"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "gridVessel",
+      "disabled": "false",
+      "region": "center",
+      "title": "船舶资料"
+     },
+     "expanded": true,
+     "children": [
+      {
+       "configs": {
+        "itemId": "tbar",
+        "enableOverflow": "true",
+        "region": "north"
+       },
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "name",
+          "labelAlign": "right",
+          "fieldLabel": "船名",
+          "labelWidth": "40"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "text"
+        },
+        {
+         "configs": {
+          "itemId": "findVesselBtn",
+          "text": "@Str.find",
+          "iconCls": "seek_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "app.gridVessel.store.load({\
+  out: app.tbar\
+});"}
+        },
+        {
+         "configs": {
+          "itemId": "newVesselBtn",
+          "tooltip": "添加新的记录 (Ctrl+E)",
+          "text": "@Str.add",
+          "iconCls": "record_add_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "Wb.reset(app.editWin);\
+app.editWin.setTitle('添加 - 船舶');\
+app.editWin.setIconCls('record_add_icon');\
+app.editWin.show();\
+app.isEdit = false; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+app.ID.setReadOnly(false);"}
+        },
+        {
+         "configs": {
+          "itemId": "editVesselBtn",
+          "hidden": "true",
+          "tooltip": "修改选择的记录",
+          "text": "@Str.modify",
+          "iconCls": "record_edit_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridVessel.getSelection();\
+if (sels.length != 1) {\
+  Wb.warn('请选择 1 条需要修改的记录。');\
+  return;\
+}\
+app.selRec = sels[0];\
+app.editWin.setTitle('修改 - ' + app.selRec.data.VESSEL_NAME);\
+app.editWin.setIconCls('record_edit_icon');\
+//编辑单独对照片路径赋值\
+app.ZPFILE1.setValue(app.selRec.data.PHOTO);\
+app.zpfile.reset();\
+Wb.setValue(app.editWin, app.selRec.data);\
+\
+app.editWin.show();\
+app.isEdit = true; //标识是否为添加或修改状态，在editWin的ok事件中用到此属性\
+app.ID.setReadOnly(true);\
+if (app.selRec.data.USE_ID == 1)\
+  app.ckUSE_ID.setValue(true);\
+else\
+  app.ckUSE_ID.setValue(false);"}
+        },
+        {
+         "configs": {
+          "itemId": "delVesselBtn",
+          "hidden": "true",
+          "tooltip": "删除选择的记录",
+          "text": "@Str.del",
+          "iconCls": "record_delete_icon"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item",
+         "events": {"click": "var sels = app.gridVessel.getSelection();\
+//获取选中行的ID\
+Wb.confirmDo(sels, function() {\
+  Wb.request({\
+    url: 'm?xwl=system/codeManage/cvessel/cvesseledit/delete',\
+    params: {\
+      ID: sels[0].data.ID\
+    },\
+    success: function() {\
+      app.gridVessel.store.load({\
+        out: app.tbar\
+      });\
+    }\
+  });\
+}, 'VESSEL_NAME');"}
+        },
+        {
+         "configs": {
+          "itemId": "item1",
+          "text": "-"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "item"
+        }
+       ],
+       "type": "toolbar"
+      },
+      {
+       "configs": {
+        "itemId": "store",
+        "autoLoad": "true",
+        "url": "m?xwl=system/codeManage/cvessel/cvesseledit/select"
+       },
+       "expanded": false,
+       "children": [],
+       "type": "store"
+      },
+      {
+       "configs": {"itemId": "columns"},
+       "expanded": false,
+       "children": [
+        {
+         "configs": {
+          "itemId": "colID",
+          "hidden": "true",
+          "dataIndex": "ID",
+          "text": "船舶ID(隐藏)"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "column1",
+          "xtype": "rownumberer"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "VESSEL_NAME1",
+          "dataIndex": "VESSEL_NAME",
+          "text": "船名"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "E_NAME1",
+          "dataIndex": "E_NAME",
+          "text": "英文名"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "VESSEL_CLASS1",
+          "dataIndex": "VESSEL_CLASS",
+          "keyName": "VESSEL_CLASS",
+          "text": "船舶类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SERVICE_CODE1",
+          "dataIndex": "SERVICE_CODE",
+          "text": "航线"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "LINE_CODE1",
+          "dataIndex": "LINE_CODE",
+          "text": "船公司"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "OWNER1",
+          "dataIndex": "OWNER",
+          "text": "船舶所有人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CALL_SIGN1",
+          "dataIndex": "CALL_SIGN",
+          "text": "船舶呼号"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "COUNTRY_CODE1",
+          "dataIndex": "COUNTRY_CODE",
+          "text": "国家"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "GRT1",
+          "dataIndex": "GRT",
+          "text": "总吨"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "NRT1",
+          "dataIndex": "NRT",
+          "text": "净吨"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "LENGTH1",
+          "dataIndex": "LENGTH",
+          "text": "船长"
+         },
+         "expanded": true,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "WIDTH1",
+          "dataIndex": "WIDTH",
+          "text": "船宽"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "HIGH1",
+          "dataIndex": "HIGH",
+          "text": "船深"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MAX_SPEED1",
+          "dataIndex": "MAX_SPEED",
+          "text": "最大节数"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MAX_DRAFT1",
+          "dataIndex": "MAX_DRAFT",
+          "text": "最大吃水"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "RANT_TYPE1",
+          "dataIndex": "RANT_TYPE",
+          "keyName": "RANT_TYPE",
+          "text": "租赁性质"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MADE_TIME1",
+          "dataIndex": "MADE_TIME",
+          "text": "建造日期"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "MATERIAL1",
+          "dataIndex": "MATERIAL",
+          "text": "材质"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "TEU1",
+          "dataIndex": "TEU",
+          "text": "最大箱量"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "SIZE1",
+          "dataIndex": "SIZE",
+          "text": "舱位尺寸"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "EDI_CALL_SIGN1",
+          "dataIndex": "EDI_CALL_SIGN",
+          "text": "EDI船舶对应代码"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "COLOR1",
+          "dataIndex": "COLOR",
+          "text": "颜色"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "VESSEL_TYPE1",
+          "dataIndex": "VESSEL_TYPE",
+          "text": "VESSEL_TYPE"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CARRIER_TYPE1",
+          "dataIndex": "CARRIER_TYPE",
+          "text": "CARRIER_TYPE"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "LLOYDS1",
+          "dataIndex": "LLOYDS",
+          "text": "LLOYDS"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "LLOYDS_NO1",
+          "dataIndex": "LLOYDS_NO",
+          "text": "LLOYDS_NO"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colBOATLOAD",
+          "dataIndex": "BOATLOAD",
+          "text": "载货量"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colMAIN_MOTOR_POWER",
+          "dataIndex": "MAIN_MOTOR_POWER",
+          "text": "主机功率"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "colSHIPTYPE",
+          "dataIndex": "SHIPTYPE",
+          "text": "船舶类型"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "OPERATOR1",
+          "dataIndex": "OPERATOR",
+          "text": "操作员"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "OPER_TIME1",
+          "dataIndex": "OPER_TIME",
+          "format": "Y-m-d H:i:s",
+          "width": "140",
+          "text": "操作时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CHAGER1",
+          "dataIndex": "CHAGER",
+          "text": "修改人"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "CHANGE_TIME1",
+          "dataIndex": "CHANGE_TIME",
+          "format": "Y-m-d H:i:s",
+          "width": "140",
+          "text": "修改时间"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "NOTES21",
+          "dataIndex": "NOTES2",
+          "text": "备注"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "PHOTO1",
+          "hidden": "true",
+          "dataIndex": "PHOTO",
+          "text": "船舶照片"
+         },
+         "expanded": false,
+         "children": [],
+         "type": "column"
+        },
+        {
+         "configs": {
+          "itemId": "actionColumns",
+          "xtype": "actioncolumn",
+          "dataIndex": "OPTION",
+          "width": "40",
+          "text": "照片",
+          "align": "center"
+         },
+         "expanded": true,
+         "children": [{
+          "configs": {"itemId": "items"},
+          "expanded": true,
+          "children": [{
+           "configs": {
+            "itemId": "showPhoto",
+            "handler": "app.VESID.setValue(record.data.ID);\
+app.IMGTABLE.setValue(\"C_VESSEL_CODE\");\
+Wb.request({\
+  url: \"m?xwl=system/codeManage/cvessel/cvesseledit/selectImg\",\
+  params: {\
+    VID: app.VESID.getValue(),\
+    table: app.IMGTABLE.getValue(),\
+    rn: 1\
+  },\
+  success: function(resp) {\
+    var imgs = Wb.decode(resp.responseText);\
+    if (imgs.rows.length > 0) {\
+      app.imgWin.setTitle('图片 - ' + record.data.VESSEL_NAME);\
+      app.imgWin.setIconCls('zoom_icon');\
+      app.imgWin.down('[iconCls=ok_icon]').hide(true); //隐藏窗体确定按钮\
+      //显示图片\
+      app.imgWin.show();\
+      //重置图片\
+      app.image1.setSrc('');\
+      //设置图片地址\
+      app.image1.setSrc(imgs.rows[0].F_PATH);\
+      app.IMGID.setValue(imgs.rows[0].ID);\
+      app.RN.setValue(1);\
+    } else {\
+      Wb.info(\"没有照片\");\
+    }\
+  }\
+});",
+            "tooltip": "查看图片",
+            "iconCls": "zoom_icon"
+           },
+           "expanded": false,
+           "children": [],
+           "type": "column"
+          }],
+          "type": "array"
+         }],
+         "type": "column"
+        }
+       ],
+       "type": "array"
+      }
+     ],
+     "type": "grid",
+     "events": {"itemdblclick": "app.editVesselBtn.fireEvent('click');"}
+    }],
+    "type": "viewport"
+   }
+  ],
+  "type": "module",
+  "events": {
+   "finalize": "app.name.addListener(\"specialkey\", function(field, e) {\
+  if (e.getKey() == e.ENTER)\
+    app.findVesselBtn.fireEvent('click');\
+});\
+app.cname.addListener(\"specialkey\", function(field, e) {\
+  if (e.getKey() == e.ENTER)\
+    app.findScBtn.fireEvent('click');\
+});",
+   "initialize": "var opeType;"
+  }
+ }],
+ "roles": {
+  "CD": 1,
+  "AT": 1,
+  "SCANJB": 1,
+  "JTQGB": 1,
+  "xlswbqt": 1,
+  "SWB": 1
+ },
+ "title": "船舶管理",
+ "iconCls": "anchor_icon",
+ "inframe": false,
+ "pageLink": ""
+}
