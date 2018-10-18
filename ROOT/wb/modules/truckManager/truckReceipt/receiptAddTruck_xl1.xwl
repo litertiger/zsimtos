@@ -1534,7 +1534,7 @@ app.OUT_TRAY_NO.setValue(combo.getValue());"
          "enableOverflow": "true",
          "region": "north"
         },
-        "expanded": false,
+        "expanded": true,
         "children": [
          {
           "configs": {
@@ -1912,6 +1912,11 @@ Wb.request({\
           "events": {"click": "/*var taskType = pnl.cntrInfo && pnl.cntrInfo.TASK_TYPE;\
 if(taskType != 'GOUT')\
   return Wb.error(\"请先选择提箱任务\");*/\
+var sel = app.gridReceipt.getSelection()[0];\
+if (!sel) {\
+  Wb.warn(\"未选中设备交接单\");\
+  return;\
+}\
 var pnl = app.panelForm;\
 pnl.cntrInfo = {\
   CNTR: '',\
@@ -1937,9 +1942,9 @@ Wb.request({\
     if (rows.length === 0) {\
       Wb.error('找不到箱信息');\
     } else if (rows.length > 1) {\
-      app.selCntrWin.target = pnl;\
-      app.selCntrWin.data = rows;\
-      app.selCntrWin.show();\
+      //       app.selCntrWin.target = pnl;\
+      //       app.selCntrWin.data = rows;\
+      //       app.selCntrWin.show();\
     }\
     //       } else if (pnl === app.panelCntr2 && rows[0].CNTR_SIZE > 20)\
     //         Wb.error('孖柜不能有40尺柜');\
@@ -1954,7 +1959,7 @@ Wb.request({\
     var ids = [];\
     var cfs;\
 \
-    var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
+    var id = sel.data.ID;\
     if (id) {\
       ids.push(id);\
       var pos = pnl.cntrInfo.YARD_POSITION || '';\
