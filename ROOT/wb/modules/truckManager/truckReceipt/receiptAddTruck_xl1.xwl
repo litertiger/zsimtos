@@ -14,7 +14,7 @@
      "title": "加装",
      "height": "430"
     },
-    "expanded": true,
+    "expanded": false,
     "children": [{
      "configs": {
       "itemId": "gridStation",
@@ -801,6 +801,47 @@ Wb.request({\
     app.gridReceipt.store.load({\
       out: app.tbar\
     });\
+  }\
+});"}
+   },
+   {
+    "configs": {
+     "layout": "@{type:'table',columns:1}",
+     "itemId": "winWORK_TYPE",
+     "dialog": "true",
+     "defaults": "{\
+  labelWidth: 85,\
+  width: 320,\
+  margin: '8 8 0 8'\
+}",
+     "closeAction": "destroy",
+     "width": "360",
+     "title": "修改作业方式",
+     "height": "100"
+    },
+    "expanded": true,
+    "children": [{
+     "configs": {
+      "itemId": "WORK_TYPE",
+      "allowBlank": "false",
+      "labelAlign": "right",
+      "fieldLabel": "作业方式",
+      "keyName": "WORK_WAY",
+      "anyMatch": "true",
+      "forceSelection": "true"
+     },
+     "expanded": true,
+     "children": [],
+     "type": "combo"
+    }],
+    "type": "window",
+    "events": {"ok": "Wb.request({\
+  url: \"m?xwl=truckManager/truckReceipt/receiptAddTruckedit/update\",\
+  out: app.winUpd,\
+  success: function(resp) {\
+    Wb.info(\"修改完成\");\
+    app.winUpd.close();\
+    app.searchRBtn.fireEvent(\"click\");\
   }\
 });"}
    },
@@ -2113,20 +2154,8 @@ if (value == \"OUT\")\
            }],
            "type": "combo",
            "events": {
-            "select": "// Wb.request({\
-//   url: 'm?xwl=truckManager/truckReceipt/receiptTruck_xl/ckTruck',\
-//   params: {\
-//     truckno: combo.getValue()\
-//   },\
-//   success: function(resp) {\
-//     var res = Wb.decode(resp.responseText);\
-//     if (!res.success) {\
-//       var sel = app.gridReceipt.getSelection()[0];\
-//       sel.set('IN_CAR', '');\
-//     }\
-//   }\
-// });\
-console.log(records);",
+            "select": "var sel = app.gridReceipt.getSelection()[0];\
+sel.set('IN_DRIVER_ID', records[0].data.TRUCKER_NO);",
             "blur": "Wb.request({\
   url: 'm?xwl=truckManager/truckReceipt/receiptTruck_xl/ckTruck',\
   params: {\
@@ -2230,7 +2259,10 @@ console.log(records);",
             "type": "store"
            }],
            "type": "combo",
-           "events": {"blur": "Wb.request({\
+           "events": {
+            "select": "var sel = app.gridReceipt.getSelection()[0];\
+sel.set('OUT_DRIVER_ID', records[0].data.TRUCKER_NO);",
+            "blur": "Wb.request({\
   url: 'm?xwl=truckManager/truckReceipt/receiptTruck_xl/ckTruck',\
   params: {\
     truckno: combo.getValue()\
@@ -2242,7 +2274,8 @@ console.log(records);",
       sel.set('IN_CAR', '');\
     }\
   }\
-});"}
+});"
+           }
           }],
           "type": "column"
          },
@@ -2952,6 +2985,19 @@ Wb.confirm(\"确认取消作废\", function() {\
     }\
   });\
 });"}
+         },
+         {
+          "configs": {
+           "itemId": "popupWork_type",
+           "text": "修改作业方式",
+           "iconCls": "table_edit_icon"
+          },
+          "expanded": false,
+          "children": [],
+          "type": "item",
+          "events": {"click": "var sels = app.gridReceipt.getSelection();\
+var win = new Ext.window.Window(app.winWork_type);\
+win.show();"}
          }
         ],
         "type": "menu",
