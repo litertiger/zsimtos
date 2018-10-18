@@ -5,6 +5,11 @@
    "serverScript": "var data = app.get();\
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
 var username = app.get(\"sys.username\");\
+var receipt = Wb.getRecords(app.run(\"select phase from receipt where ID={?id?}\"));\
+if (receipt.length < 1)\
+  throw \"设备交接单已被删除,请刷新\";\
+if (receipt[0].PHASE == 'RTN' || receipt[0].PHASE == 'FIN')\
+  throw \"设备交接单已经收箱或完成,不能修改\";\
 \
 app.run(\"update receipt set work_type={?work_type?} where ID={?id?}\");",
    "itemId": "module"
