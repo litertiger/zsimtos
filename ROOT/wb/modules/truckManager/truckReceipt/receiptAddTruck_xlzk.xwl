@@ -866,6 +866,11 @@ Wb.request({\
       "events": {"click": "/*var taskType = pnl.cntrInfo && pnl.cntrInfo.TASK_TYPE;\
 if(taskType != 'GOUT')\
   return Wb.error(\"请先选择提箱任务\");*/\
+var sel = app.gridReceipt.getSelection()[0];\
+if (!sel) {\
+  Wb.warn(\"未选中设备交接单\");\
+  return;\
+}\
 var pnl = app.panelForm;\
 pnl.cntrInfo = {\
   CNTR: '',\
@@ -908,7 +913,7 @@ Wb.request({\
     var ids = [];\
     var cfs;\
 \
-    var id = pnl.cntrInfo && pnl.cntrInfo.RID;\
+    var id = sel.data.ID;\
     if (id) {\
       ids.push(id);\
       var pos = pnl.cntrInfo.YARD_POSITION || '';\
