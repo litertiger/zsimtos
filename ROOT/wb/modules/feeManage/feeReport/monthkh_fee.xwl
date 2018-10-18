@@ -409,8 +409,8 @@ whereSql2 += \" and JOB_FINISH_DATE>=to_date('\" + firstDay + \" 00:00:00','yyyy
 //   \" and JOB_FINISH_DATE>=to_date('(select ADD_MONTHS(TRUNC(\" + app.sdate.getRawValue() + \",'MM' ),-1)  from dual) 23:59:59','yyyy-mm-dd hh24:mi:ss')\";\
 whereSql += \" and TENANCY_ID='{#sys.TENANCY_ID#}'  \";\
 whereSql2 += \" and TENANCY_ID='{#sys.TENANCY_ID#}'  \";\
-whereSql += \" AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='ZSG' and nvl(b.account_type,1)=2 WHERE A.code =CUSTOMER_ID)\";\
-whereSql2 += \" AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='ZSG' and nvl(b.account_type,1)=2 WHERE A.code =CUSTOMER_ID)\";\
+whereSql += \" and PAYMENT_TYPE=2 AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='ZSG' and nvl(b.account_type,1)<>2 WHERE A.code =CUSTOMER_ID)\";\
+whereSql2 += \" and PAYMENT_TYPE=2 AND EXISTS(SELECT 1 from c_customer a left join c_customer_contact b on b.c_id=a.id and b.TENANCY_ID='ZSG' and nvl(b.account_type,1)<>2 WHERE A.code =CUSTOMER_ID)\";\
 AF1.func(\"SetParas\", \"ds1 \\r\\
  para=1;whereSql=\" + whereSql + \";whereSql2=\" + whereSql2 + \";ee333e=\" + new Date() + \";tenancyId=\" + '{#sys.TENANCY_ID#}');\
 \
