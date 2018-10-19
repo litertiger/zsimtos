@@ -17,12 +17,24 @@ if (app.get(\"type\") == 'MOVE') //移箱\
     throw '未选定要发送的箱';\
   var mvs = Wb.decode(app.get('moves'));\
   var moves = mvs.join(\"','\");\
-    var mvs = Wb.decode(app.get('moves'));\
+  var mvs = Wb.decode(app.get('moves'));\
   var moves = mvs.join(\"','\");\
-  app.run(\"select 1 from  move_list m where  queue_id={?id?}\"+\
-      \"  and  tenancy_id={?sys.TENANCY_ID?}\" +\
-    \"  and m.id in('\" + moves + \"') and  phase='SND'\",{ errorText: '指令已经激活不能再次激活'});\
+  app.run(\"select 1 from  move_list m where  queue_id={?id?}\" +\
+    \"  and  tenancy_id={?sys.TENANCY_ID?}\" +\
+    \"  and m.id in('\" + moves + \"') and  phase='SND'\", {\
+      errorText: '指令已经激活不能再次激活'\
+    });\
 \
+  //验证是不是有暂存状态的卸船指令\
+  app.run(\"select 1 from  move_list where  tenancy_id={?sys.TENANCY_ID?} and from_pos_typ='V' and move_type='MOV' and phase='EXE' and \\\
+  cntr_id in(select distinct cntr_id from  move_list m,c_cy_area a where  a.tenancy_id={?sys.TENANCY_ID?} and m.id in('\" + moves + \"'))\", {\
+    errorText: '存在执行中的卸船指令,不能激活'\
+  });\
+\
+  //完成暂存状态的卸船指令\
+  app.run(\"update move_list set phase='FIN' where  tenancy_id={?sys.TENANCY_ID?} and from_pos_typ='V' and move_type='MOV' and phase='TMP' and \\\
+  cntr_id in(select distinct cntr_id from  move_list m,c_cy_area a where  a.tenancy_id={?sys.TENANCY_ID?} and m.id in('\" + moves + \"'))\");\
+  \
   var rs = app.run(\"select distinct cntr_id from  move_list m,c_cy_area a where  queue_id={?id?} and  a.tenancy_id={?sys.TENANCY_ID?}\" +\
     \" and a.cy_area_no=substr(to_pos,0,2) and CATEGORY='C' and m.id in('\" + moves + \"')\");\
   while (rs.next()) {\
@@ -216,7 +228,7 @@ if (app.get(\"type\") == 'MOVE') //移箱\
         return app.send(client.getLastError() || \"指令确认成功，但发送消息超时\");\
     });\
   } catch (e) {\
-    app.send('异常'+e);\
+    app.send('异常' + e);\
   } finally {\
     client.close();\
   }\
