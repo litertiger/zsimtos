@@ -4,6 +4,8 @@
   "configs": {
    "itemId": "module",
    "serverScript": "var data = app.get();\
+var weigh_type = data.weigh_type;\
+\
 var tenancyid = app.get(\"sys.TENANCY_ID\");\
 var sql = \"select  ID, CNTR, BILL_NO, CNTR_SIZE, CNTR_TYPE, GTAREWT, WEIGHTIME, VID, VOYAGE_NO, BILL_ID, E_F_ID, TRUCK_NO, TRAY_NO, TRUCKWT, TRAYWT, TOTALWT, GROSSWT, CREATED_BY, CREATED_ON, UPDATED_BY, UPDATED_ON, TENANCY_ID, OTHERGNO, PHASE, I_E_ID, GOODS, to_number(ISOUT)  ISOUT, ISGROCERY, AGENT_ID, SHIPPER, ASTARE, RECEIPT_ID, LIMITWT, OVERWTDOWN, SENDSTATUS, OVERWTSTATUS, CODENO, GKNO, CNTR_ID, WEIGHT_TYPE, ZID, REMARK, POS, EDI_SEND, EDI_BACK, EDI_BACK_DATE, EDI_BACK_MES, SHIP_COD from CNTR_WEIGHT_REC where tenancy_id='\" + tenancyid + \"'\";\
 if (!Wb.isEmpty(data.cntr))\
@@ -14,6 +16,15 @@ if (!Wb.isEmpty(data.edate))\
   sql += \" and WEIGHTIME <= to_date('\" + data.edate + \" 23:59:59', 'yyyy-mm-dd hh24:mi:ss')\";\
 if (!Wb.isEmpty(data.i_e_id))\
   sql += \" and i_e_id='\" + data.i_e_id + \"'\";\
+if(weigh_type==='I'){\
+  sql+=\"and ISOUT='0'\";\
+}\
+if(weigh_type==='O'){\
+  sql+=\"and ISOUT='1'\";\
+}\
+\
+\
+\
 request.setAttribute(\"sql\", sql);"
   },
   "expanded": true,
