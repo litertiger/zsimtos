@@ -5,6 +5,14 @@
    "itemId": "module",
    "serverScript": "var result = app.run(\"select  id,vid,vid hid,boundary_no,area_no,beg_bay_no,end_bay_no,beg_row_no,end_row_no,e_f_id,i_e_id,area_id,cntr_size,trade_id,from_cfs,cntr_operator_cod,cntr_owner_cod,port_cod from boundary_d where TENANCY_ID={?sys.TENANCY_ID?} order by boundary_no\");\
 var obj = Ag.getResultSet(result);\
+var arrCols = ['CNTR_OPERATOR_COD', 'CNTR_OWNER_COD', 'PORT_COD'];\
+Wb.each(obj.rows, function(row) {\
+  Wb.each(arrCols, function(col) {\
+    var v = Wb.decode(row[col], true);\
+    if (v)\
+      row[col] = v;\
+  });\
+});\
 app.send(obj);"
   },
   "expanded": true,
