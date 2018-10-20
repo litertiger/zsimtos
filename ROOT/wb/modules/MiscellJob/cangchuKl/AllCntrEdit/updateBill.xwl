@@ -9,7 +9,7 @@ var username = app.get(\"sys.username\"),\
   rs;\
 var dispname=app.get('sys.dispname');\
 var idArray = new Array();\
-var rs = Wb.getRecords(app.run(\"select * from BLUK_GOODS where BILL_ID={?BILL_ID?}\"));\
+var rs = Wb.getRecords(app.run(\"select * from BLUK_GOODS where BILL_ID={?BILL_ID?} and CFSBILL_ID={?CFSBILL_ID?}\"));\
 if (rs.length == 0) {\
   var id = SysUtil.getId();\
   app.run(\"update BLUK_BILL set IPIECES={?IPIECES?}, TASKSTATUS='FIN',LOCATION={?LOCATION?},CFS_ID={?CFS_ID?},CFSTIME={?timestamp.CFSTIME?},SIGNERCFS='\" + dispname + \"',WEIGHT={?WEIGHT?},VOLUME={?VOLUME?},CFSBILLNO={?CFSBILLNO?} where CFSBILL_ID={?CFSBILL_ID?}\", {\
@@ -19,7 +19,7 @@ if (rs.length == 0) {\
     \"  WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, UPDATED_ON, CREATED_ON, CREATED_BY, UPDATED_BY)\" +\
     \"   select '\" + id + \"',CNTR_OPERATOR,BILL_NO,BILL_ID, GOODS, CFSINOUT, SHIPPER, UNIT, IPIECES, '', IPIECES, {?timestamp.CFSTIME?}, '', LOCATION, CFS_ID, \" +\
     \"    WEIGHT, CFSBILLNO, VOLUME, CFSBILL_ID, TENANCY_ID, sysdate, sysdate, '\" + username + \"', '\" + username + \"' from BLUK_BILL\" +\
-    \"     where BILL_ID={?BILL_ID?} and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?})\");\
+    \"     where BILL_ID={?BILL_ID?} and CFSBILL_ID={?CFSBILL_ID?} and not exists(select 1 from BLUK_GOODS  where  BILL_ID={?BILL_ID?} and CFSBILL_ID={?CFSBILL_ID?} )\");\
   app.run(\"update BLUK_PLAN set TASKSTATUS='FIN' where ID={?LCL_ID?} and not exists(select 1 from BLUK_BILL where  TASKSTATUS<>'FIN' and LCL_ID={?LCL_ID?})\");\
   app.run(\"insert into BLUK_INOUT(ID, OUTFLAG, PIECES,TRUCKNO,RELEASE_NO,SEAL_NO,WEIGHT, VOLUME, STORE_TIME, BILL_NO,SIGNERCFS)values('\" + id + \"','0',to_number({?IPIECES?}),'',{?CFSBILLNO?},'',{?WEIGHT?}, {?VOLUME?}, sysdate, {?BILL_NO?},'\"+dispname+\"')\");\
 \
